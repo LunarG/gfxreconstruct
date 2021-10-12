@@ -50,6 +50,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = '#include "generated_dx12_struct_to_string.h"\n'
+        code += '#include "generated_dx12_enum_to_string.h"\n'
         write(code, file=self.outFile)
 
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -106,48 +107,48 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                 # There's some repeated code in this if/else block...for instance, arrays of
                 #   structs, enums, and primitives all route through ArrayToString()...It's
                 #   easier (imo) to reason about each case when they're all listed explictly
-                ########        elif value.isPointer:
-                ########            if value.isArray:
-                ########                if self.isHandle(value.baseType):
-                ########                    toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########                elif self.isStruct(value.baseType):
-                ########                    toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########                elif self.isEnum(value.baseType):
-                ########                    toString = '// TODO : VkEnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########                else:
-                ########                    toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########            else:
-                ########                if self.isHandle(value.baseType):
-                ########                    toString = '// TODO : static_assert(false, "Unhandled pointer to VkHandle in `dx12_struct_to_string_body_generator.py`")'
-                ########                elif self.isStruct(value.baseType):
-                ########                    toString = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
-                ########                elif self.isEnum(value.baseType):
-                ########                    toString = '// TODO : static_assert(false, "Unhandled pointer to VkEnum in `dx12_struct_to_string_body_generator.py`")'
-                ########                else:
-                ########                    toString = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
-                ########        else:
-                ########            if value.isArray:
-                ########                if self.isHandle(value.baseType):
-                ########                    toString = '// TODO : VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########                elif self.isStruct(value.baseType):
-                ########                    toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########                elif self.isEnum(value.baseType):
-                ########                    toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########                elif 'char' in value.baseType:
-                ########                    toString = '\'"\' + std::string(obj.{0}) + \'"\''
-                ########                elif 'UUID' in value.arrayLength or 'LUID' in value.arrayLength:
-                ########                    toString = '\'"\' + UIDToString({1}, obj.{0}) + \'"\''
-                ########                else:
-                ########                    toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########            else:
-                ########                if self.isHandle(value.baseType):
-                ########                    toString = '// TODO : \'"\' + VkHandleToString(obj.{0}) + \'"\''
-                ########                elif self.isStruct(value.baseType):
-                ########                    toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
-                ########                elif self.isEnum(value.baseType):
-                ########                    toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
-                ########                else:
-                ########                    toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
+                if value.is_pointer:
+                    if value.is_array:
+                        if self.is_handle(value.base_type):
+                            toString = '" TODO : VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                        elif self.is_struct(value.base_type):
+                            toString = '" TODO : ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                        elif self.is_enum(value.base_type):
+                            toString = '" TODO : VkEnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                        else:
+                            toString = '" TODO : ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                    else:
+                        if self.is_handle(value.base_type):
+                            toString = '" TODO : static_assert(false, "Unhandled pointer to VkHandle in `dx12_struct_to_string_body_generator.py`") "'
+                        elif self.is_struct(value.base_type):
+                            toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
+                        elif self.is_enum(value.base_type):
+                            toString = '" TODO : static_assert(false, "Unhandled pointer to VkEnum in `dx12_struct_to_string_body_generator.py`") "'
+                        else:
+                            toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
+                else:
+                    if value.is_array:
+                        if self.is_handle(value.base_type):
+                            toString = '" TODO : VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                        elif self.is_struct(value.base_type):
+                            toString = '" TODO : ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                        elif self.is_enum(value.base_type):
+                            toString = '" TODO : ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                        elif 'char' in value.base_type:
+                            toString = '" TODO : \'"\' + std::string(obj.{0}) + \'"\' "'
+                        #### elif 'UUID' in value.array_length or 'LUID' in value.array_length:
+                        ####     toString = '" TODO : \'"\' + UIDToString({1}, obj.{0}) + \'"\' "'
+                        else:
+                            toString = '" TODO : ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                    else:
+                        if self.is_handle(value.base_type):
+                            toString = '" TODO : \'"\' + VkHandleToString(obj.{0}) + \'"\'"'
+                        elif self.is_struct(value.base_type):
+                            toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize)"'
+                        elif self.is_enum(value.base_type):
+                            toString = '" TODO : \'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\' "'
+                        else:
+                            toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize) "'
 
                 firstField = 'true' if not body else 'false'
                 # toString = toString.format(value.name, value.arrayLength)

@@ -59,6 +59,9 @@ from dx12_enum_to_string_body_generator import Dx12EnumToStringBodyGenerator
 from dx12_struct_to_string_header_generator import Dx12StructToStringHeaderGenerator
 from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 
+from dx12_ascii_consumer_header_generator_old import Dx12AsciiConsumerHeaderGeneratorOld
+from dx12_ascii_consumer_body_generator_old import Dx12AsciiConsumerBodyGeneratorOld, Dx12AsciiBodyGeneratorOldOptions
+
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
 default_platform_types = 'platform_types.json'
@@ -599,6 +602,43 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_to_string.cpp',
             directory=directory,
             platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+
+
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_ascii_consumer_header_generator_old.py'
+    )
+    gen_opts['generated_dx12_ascii_consumer_old.h'] = [
+        Dx12AsciiConsumerHeaderGeneratorOld,
+        Dx12ConsumerHeaderGeneratorOptions(
+            filename='generated_dx12_ascii_consumer_old.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_ascii_consumer_body_generator_old.py'
+    )
+    gen_opts['generated_dx12_ascii_consumer_old.cpp'] = [
+        Dx12AsciiConsumerBodyGeneratorOld,
+        Dx12AsciiBodyGeneratorOldOptions(
+            filename='generated_dx12_ascii_consumer_old.cpp',
+            directory=directory,
+            constructor_args='',
+            blacklists=blacklists,
+            platform_types=platform_types,
+            ascii_overrides=ascii_overrides,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False

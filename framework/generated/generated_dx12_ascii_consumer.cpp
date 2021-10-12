@@ -34,6837 +34,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_FRAME_STATISTICS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_FRAME_STATISTICS{\n";
-    oss << indent2 << value->decoded_value->PresentCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PresentRefreshCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SyncRefreshCount;
-    oss << ",\n";
-
-    oss << indent2 << value->SyncQPCTime->decoded_value->QuadPart;
-    oss << ",\n";
-
-    oss << indent2 << value->SyncGPUTime->decoded_value->QuadPart;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MAPPED_RECT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_MAPPED_RECT{\n";
-    oss << indent2 << value->decoded_value->Pitch;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pBits, indent2.c_str()))
-    {
-        oss << indent2 << *value->pBits.GetPointer();
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_LUID* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "LUID{\n";
-    oss << indent2 << value->decoded_value->LowPart;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->HighPart;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_ADAPTER_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Description, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->Description.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->VendorId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DeviceId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SubSysId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Revision;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedVideoMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedSystemMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SharedSystemMemory;
-    oss << ",\n";
-
-    WriteStructString(oss, value->AdapterLuid, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTPUT_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_OUTPUT_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->DeviceName, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->DeviceName.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, value->DesktopCoordinates, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->AttachedToDesktop, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Rotation);
-    oss << ",\n";
-
-    oss << indent2 << value->Monitor;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SHARED_RESOURCE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_SHARED_RESOURCE{\n";
-    oss << indent2 << value->Handle;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SURFACE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_SURFACE_DESC{\n";
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    WriteStructString(oss, value->SampleDesc, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SWAP_CHAIN_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_SWAP_CHAIN_DESC{\n";
-    WriteStructString(oss, value->BufferDesc, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->SampleDesc, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BufferUsage;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BufferCount;
-    oss << ",\n";
-
-    oss << indent2 << value->OutputWindow;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->Windowed, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->SwapEffect);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Flags;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_ADAPTER_DESC1{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Description, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->Description.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->VendorId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DeviceId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SubSysId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Revision;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedVideoMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedSystemMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SharedSystemMemory;
-    oss << ",\n";
-
-    WriteStructString(oss, value->AdapterLuid, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Flags;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_DISPLAY_COLOR_SPACE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_DISPLAY_COLOR_SPACE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->PrimaryCoordinates, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->PrimaryCoordinates, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->WhitePoints, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->WhitePoints, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_MOVE_RECT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_OUTDUPL_MOVE_RECT{\n";
-    WriteStructString(oss, value->SourcePoint, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->DestinationRect, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_OUTDUPL_DESC{\n";
-    WriteStructString(oss, value->ModeDesc, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Rotation);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->DesktopImageInSystemMemory, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_POINTER_POSITION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_OUTDUPL_POINTER_POSITION{\n";
-    WriteStructString(oss, value->Position, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->Visible, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_OUTDUPL_POINTER_SHAPE_INFO{\n";
-    oss << indent2 << value->decoded_value->Type;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Pitch;
-    oss << ",\n";
-
-    WriteStructString(oss, value->HotSpot, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_FRAME_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_OUTDUPL_FRAME_INFO{\n";
-    oss << indent2 << value->LastPresentTime->decoded_value->QuadPart;
-    oss << ",\n";
-
-    oss << indent2 << value->LastMouseUpdateTime->decoded_value->QuadPart;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->AccumulatedFrames;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->RectsCoalesced, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->ProtectedContentMaskedOut, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->PointerPosition, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->TotalMetadataBufferSize;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PointerShapeBufferSize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MODE_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_MODE_DESC1{\n";
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    WriteStructString(oss, value->RefreshRate, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ScanlineOrdering);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Scaling);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->Stereo, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SWAP_CHAIN_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_SWAP_CHAIN_DESC1{\n";
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->Stereo, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->SampleDesc, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BufferUsage;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BufferCount;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Scaling);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->SwapEffect);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AlphaMode);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Flags;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_SWAP_CHAIN_FULLSCREEN_DESC{\n";
-    WriteStructString(oss, value->RefreshRate, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ScanlineOrdering);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Scaling);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->Windowed, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_PRESENT_PARAMETERS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_PRESENT_PARAMETERS{\n";
-    oss << indent2 << value->decoded_value->DirtyRectsCount;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pDirtyRects, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pDirtyRects, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pScrollRect, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pScrollRect->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pScrollOffset, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pScrollOffset->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC2* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_ADAPTER_DESC2{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Description, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->Description.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->VendorId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DeviceId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SubSysId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Revision;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedVideoMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedSystemMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SharedSystemMemory;
-    oss << ",\n";
-
-    WriteStructString(oss, value->AdapterLuid, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Flags;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->GraphicsPreemptionGranularity);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ComputePreemptionGranularity);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MATRIX_3X2_F* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_MATRIX_3X2_F{\n";
-    oss << indent2 << value->decoded_value->_11;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->_12;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->_21;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->_22;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->_31;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->_32;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_DECODE_SWAP_CHAIN_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_DECODE_SWAP_CHAIN_DESC{\n";
-    oss << indent2 << value->decoded_value->Flags;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_FRAME_STATISTICS_MEDIA* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_FRAME_STATISTICS_MEDIA{\n";
-    oss << indent2 << value->decoded_value->PresentCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PresentRefreshCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SyncRefreshCount;
-    oss << ",\n";
-
-    oss << indent2 << value->SyncQPCTime->decoded_value->QuadPart;
-    oss << ",\n";
-
-    oss << indent2 << value->SyncGPUTime->decoded_value->QuadPart;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->CompositionMode);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ApprovedPresentDuration;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_QUERY_VIDEO_MEMORY_INFO{\n";
-    oss << indent2 << value->decoded_value->Budget;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CurrentUsage;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->AvailableForReservation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CurrentReservation;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_HDR_METADATA_HDR10* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_HDR_METADATA_HDR10{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->RedPrimary, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->RedPrimary, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->GreenPrimary, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->GreenPrimary, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->BluePrimary, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->BluePrimary, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->WhitePoint, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->WhitePoint, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxMasteringLuminance;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinMasteringLuminance;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxContentLightLevel;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxFrameAverageLightLevel;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_HDR_METADATA_HDR10PLUS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_HDR_METADATA_HDR10PLUS{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Data, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->Data, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC3* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_ADAPTER_DESC3{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Description, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->Description.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->VendorId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DeviceId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SubSysId;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Revision;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedVideoMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DedicatedSystemMemory;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SharedSystemMemory;
-    oss << ",\n";
-
-    WriteStructString(oss, value->AdapterLuid, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->GraphicsPreemptionGranularity);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ComputePreemptionGranularity);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTPUT_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_OUTPUT_DESC1{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->DeviceName, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->DeviceName.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, value->DesktopCoordinates, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->AttachedToDesktop, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Rotation);
-    oss << ",\n";
-
-    oss << indent2 << value->Monitor;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BitsPerColor;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ColorSpace);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->RedPrimary, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->RedPrimary, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->GreenPrimary, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->GreenPrimary, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->BluePrimary, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->BluePrimary, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->WhitePoint, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->WhitePoint, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinLuminance;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxLuminance;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxFullFrameLuminance;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_RATIONAL* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_RATIONAL{\n";
-    oss << indent2 << value->decoded_value->Numerator;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Denominator;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SAMPLE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_SAMPLE_DESC{\n";
-    oss << indent2 << value->decoded_value->Count;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Quality;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_RGB* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_RGB{\n";
-    oss << indent2 << value->decoded_value->Red;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Green;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Blue;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3DCOLORVALUE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3DCOLORVALUE{\n";
-    oss << indent2 << value->decoded_value->r;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->g;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->b;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->a;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_GAMMA_CONTROL* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_GAMMA_CONTROL{\n";
-    WriteStructString(oss, value->Scale, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->Offset, indent2.c_str());
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->GammaCurve, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->GammaCurve, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_GAMMA_CONTROL_CAPABILITIES{\n";
-    WriteBOOLString(oss, value->decoded_value->ScaleAndOffsetSupported, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxConvertedValue;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinConvertedValue;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumGammaControlPoints;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->ControlPointPositions, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->ControlPointPositions, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MODE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_MODE_DESC{\n";
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    WriteStructString(oss, value->RefreshRate, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ScanlineOrdering);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Scaling);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_JPEG_DC_HUFFMAN_TABLE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->CodeCounts, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->CodeCounts, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->CodeValues, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->CodeValues, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_JPEG_AC_HUFFMAN_TABLE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->CodeCounts, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->CodeCounts, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->CodeValues, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->CodeValues, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_JPEG_QUANTIZATION_TABLE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_JPEG_QUANTIZATION_TABLE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Elements, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->Elements, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_COMMAND_QUEUE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_COMMAND_QUEUE_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Type);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Priority;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INPUT_ELEMENT_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_INPUT_ELEMENT_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->SemanticName, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->SemanticName.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SemanticIndex;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InputSlot;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->AlignedByteOffset;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->InputSlotClass);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceDataStepRate;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SO_DECLARATION_ENTRY* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SO_DECLARATION_ENTRY{\n";
-    oss << indent2 << value->decoded_value->Stream;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->SemanticName, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->SemanticName.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SemanticIndex;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StartComponent;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ComponentCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->OutputSlot;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VIEWPORT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_VIEWPORT{\n";
-    oss << indent2 << value->decoded_value->TopLeftX;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->TopLeftY;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinDepth;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxDepth;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BOX* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_BOX{\n";
-    oss << indent2 << value->decoded_value->left;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->top;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->front;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->right;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->bottom;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->back;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCILOP_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEPTH_STENCILOP_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->StencilFailOp);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->StencilDepthFailOp);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->StencilPassOp);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->StencilFunc);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCIL_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEPTH_STENCIL_DESC{\n";
-    WriteBOOLString(oss, value->decoded_value->DepthEnable, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DepthWriteMask);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DepthFunc);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->StencilEnable, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->StencilReadMask);
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->StencilWriteMask);
-    oss << ",\n";
-
-    WriteStructString(oss, value->FrontFace, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->BackFace, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCIL_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEPTH_STENCIL_DESC1{\n";
-    WriteBOOLString(oss, value->decoded_value->DepthEnable, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DepthWriteMask);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DepthFunc);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->StencilEnable, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->StencilReadMask);
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->StencilWriteMask);
-    oss << ",\n";
-
-    WriteStructString(oss, value->FrontFace, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->BackFace, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->DepthBoundsTestEnable, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_TARGET_BLEND_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RENDER_TARGET_BLEND_DESC{\n";
-    WriteBOOLString(oss, value->decoded_value->BlendEnable, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->LogicOpEnable, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->SrcBlend);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DestBlend);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->BlendOp);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->SrcBlendAlpha);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DestBlendAlpha);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->BlendOpAlpha);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->LogicOp);
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->RenderTargetWriteMask);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BLEND_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_BLEND_DESC{\n";
-    WriteBOOLString(oss, value->decoded_value->AlphaToCoverageEnable, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->IndependentBlendEnable, indent2.c_str());
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->RenderTarget, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->RenderTarget, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RASTERIZER_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RASTERIZER_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->FillMode);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->CullMode);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->FrontCounterClockwise, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DepthBias;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DepthBiasClamp;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SlopeScaledDepthBias;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->DepthClipEnable, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->MultisampleEnable, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->AntialiasedLineEnable, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ForcedSampleCount;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ConservativeRaster);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SHADER_BYTECODE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SHADER_BYTECODE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->pShaderBytecode, indent2.c_str()))
-    {
-        oss << indent2 << "pShaderBytecode" << " /* value = " << static_cast<uint16_t>(*value->pShaderBytecode.GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BytecodeLength;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STREAM_OUTPUT_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_STREAM_OUTPUT_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, value->pSODeclaration, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pSODeclaration, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumEntries;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pBufferStrides, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->pBufferStrides, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumStrides;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RasterizedStream;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INPUT_LAYOUT_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_INPUT_LAYOUT_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, value->pInputElementDescs, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pInputElementDescs, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumElements;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_CACHED_PIPELINE_STATE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_CACHED_PIPELINE_STATE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->pCachedBlob, indent2.c_str()))
-    {
-        oss << indent2 << "pCachedBlob" << " /* value = " << static_cast<uint16_t>(*value->pCachedBlob.GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CachedBlobSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_GRAPHICS_PIPELINE_STATE_DESC{\n";
-    WriteHandleId(oss, value->pRootSignature, indent2.c_str(), "ID3D12RootSignature");
-    oss << ",\n";
-
-    WriteStructString(oss, value->VS, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->PS, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->DS, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->HS, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->GS, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->StreamOutput, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->BlendState, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SampleMask;
-    oss << ",\n";
-
-    WriteStructString(oss, value->RasterizerState, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->DepthStencilState, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->InputLayout, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->IBStripCutValue);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->PrimitiveTopologyType);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumRenderTargets;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->RTVFormats, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->RTVFormats, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DSVFormat);
-    oss << ",\n";
-
-    WriteStructString(oss, value->SampleDesc, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << ",\n";
-
-    WriteStructString(oss, value->CachedPSO, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_COMPUTE_PIPELINE_STATE_DESC{\n";
-    WriteHandleId(oss, value->pRootSignature, indent2.c_str(), "ID3D12RootSignature");
-    oss << ",\n";
-
-    WriteStructString(oss, value->CS, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << ",\n";
-
-    WriteStructString(oss, value->CachedPSO, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RT_FORMAT_ARRAY* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RT_FORMAT_ARRAY{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->RTFormats, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->RTFormats, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumRenderTargets;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS{\n";
-    WriteBOOLString(oss, value->decoded_value->DoublePrecisionFloatShaderOps, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->OutputMergerLogicOp, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->MinPrecisionSupport);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->TiledResourcesTier);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ResourceBindingTier);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->PSSpecifiedStencilRefSupported, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->TypedUAVLoadAdditionalFormats, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->ROVsSupported, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ConservativeRasterizationTier);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxGPUVirtualAddressBitsPerResource;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->StandardSwizzle64KBSupported, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->CrossNodeSharingTier);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->CrossAdapterRowMajorTextureSupported, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ResourceHeapTier);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS1{\n";
-    WriteBOOLString(oss, value->decoded_value->WaveOps, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->WaveLaneCountMin;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->WaveLaneCountMax;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->TotalLaneCount;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->ExpandedComputeResourceStates, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->Int64ShaderOps, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS2* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS2{\n";
-    WriteBOOLString(oss, value->decoded_value->DepthBoundsTestSupported, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ProgrammableSamplePositionsTier);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_ROOT_SIGNATURE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_ROOT_SIGNATURE{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->HighestVersion);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_ARCHITECTURE{\n";
-    oss << indent2 << value->decoded_value->NodeIndex;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->TileBasedRenderer, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->UMA, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->CacheCoherentUMA, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_ARCHITECTURE1{\n";
-    oss << indent2 << value->decoded_value->NodeIndex;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->TileBasedRenderer, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->UMA, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->CacheCoherentUMA, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->IsolatedMMU, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_FEATURE_LEVELS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_FEATURE_LEVELS{\n";
-    oss << indent2 << value->decoded_value->NumFeatureLevels;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pFeatureLevelsRequested, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->pFeatureLevelsRequested, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->MaxSupportedFeatureLevel);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_SHADER_MODEL* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_SHADER_MODEL{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->HighestShaderModel);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_FORMAT_SUPPORT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_FORMAT_SUPPORT{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Support1);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Support2);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SampleCount;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumQualityLevels;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_FORMAT_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_FORMAT_INFO{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->PlaneCount);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT{\n";
-    oss << indent2 << value->decoded_value->MaxGPUVirtualAddressBitsPerResource;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxGPUVirtualAddressBitsPerProcess;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_SHADER_CACHE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_SHADER_CACHE{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->SupportFlags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->CommandListType);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Priority;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->PriorityForTypeIsSupported, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS3{\n";
-    WriteBOOLString(oss, value->decoded_value->CopyQueueTimestampQueriesSupported, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->CastingFullyTypedFormatSupported, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->WriteBufferImmediateSupportFlags);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ViewInstancingTier);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->BarycentricsSupported, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_EXISTING_HEAPS{\n";
-    WriteBOOLString(oss, value->decoded_value->Supported, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS4{\n";
-    WriteBOOLString(oss, value->decoded_value->MSAA64KBAlignedTextureSupported, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->SharedResourceCompatibilityTier);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->Native16BitShaderOpsSupported, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_SERIALIZATION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_SERIALIZATION{\n";
-    oss << indent2 << value->decoded_value->NodeIndex;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->HeapSerializationTier);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_CROSS_NODE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_CROSS_NODE{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->SharingTier);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->AtomicShaderInstructions, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS5{\n";
-    WriteBOOLString(oss, value->decoded_value->SRVOnlyTiledResourceTier3, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->RenderPassesTier);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->RaytracingTier);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS6{\n";
-    WriteBOOLString(oss, value->decoded_value->AdditionalShadingRatesSupported, indent2.c_str());
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->PerPrimitiveShadingRateSupportedWithViewportIndexing, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->VariableShadingRateTier);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ShadingRateImageTileSize;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->BackgroundProcessingSupported, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_D3D12_OPTIONS7{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->MeshShaderTier);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->SamplerFeedbackTier);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_QUERY_META_COMMAND{\n";
-    oss << indent2 << ConverttoText(*value->CommandId->decoded_value);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pQueryInputData, indent2.c_str()))
-    {
-        oss << indent2 << "pQueryInputData" << " /* value = " << static_cast<uint16_t>(*value->pQueryInputData.GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->QueryInputDataSizeInBytes;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pQueryOutputData, indent2.c_str()))
-    {
-        oss << indent2 << "pQueryOutputData" << " /* value = " << static_cast<uint16_t>(*value->pQueryOutputData.GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->QueryOutputDataSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RESOURCE_ALLOCATION_INFO{\n";
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Alignment;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RESOURCE_ALLOCATION_INFO1{\n";
-    oss << indent2 << value->decoded_value->Offset;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Alignment;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HEAP_PROPERTIES* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_HEAP_PROPERTIES{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Type);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->CPUPageProperty);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->MemoryPoolPreference);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CreationNodeMask;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->VisibleNodeMask;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HEAP_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_HEAP_DESC{\n";
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << ",\n";
-
-    WriteStructString(oss, value->Properties, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Alignment;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_MIP_REGION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_MIP_REGION{\n";
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Depth;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RESOURCE_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Dimension);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Alignment;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DepthOrArraySize;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    WriteStructString(oss, value->SampleDesc, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Layout);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RESOURCE_DESC1{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Dimension);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Alignment;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DepthOrArraySize;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    WriteStructString(oss, value->SampleDesc, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Layout);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    WriteStructString(oss, value->SamplerFeedbackMipRegion, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCIL_VALUE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEPTH_STENCIL_VALUE{\n";
-    oss << indent2 << value->decoded_value->Depth;
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->Stencil);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RANGE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RANGE{\n";
-    oss << indent2 << value->decoded_value->Begin;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->End;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RANGE_UINT64* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RANGE_UINT64{\n";
-    oss << indent2 << value->decoded_value->Begin;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->End;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_RANGE_UINT64* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SUBRESOURCE_RANGE_UINT64{\n";
-    oss << indent2 << value->decoded_value->Subresource;
-    oss << ",\n";
-
-    WriteStructString(oss, value->Range, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SUBRESOURCE_INFO{\n";
-    oss << indent2 << value->decoded_value->Offset;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RowPitch;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DepthPitch;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TILED_RESOURCE_COORDINATE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TILED_RESOURCE_COORDINATE{\n";
-    oss << indent2 << value->decoded_value->X;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Y;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Z;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Subresource;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TILE_REGION_SIZE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TILE_REGION_SIZE{\n";
-    oss << indent2 << value->decoded_value->NumTiles;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->UseBox, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Depth;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_TILING* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SUBRESOURCE_TILING{\n";
-    oss << indent2 << value->decoded_value->WidthInTiles;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->HeightInTiles;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DepthInTiles;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StartTileIndexInOverallResource;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TILE_SHAPE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TILE_SHAPE{\n";
-    oss << indent2 << value->decoded_value->WidthInTexels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->HeightInTexels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DepthInTexels;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PACKED_MIP_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_PACKED_MIP_INFO{\n";
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->NumStandardMips);
-    oss << ",\n";
-
-    oss << indent2 << static_cast<uint16_t>(value->decoded_value->NumPackedMips);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumTilesForPackedMips;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StartTileIndexInOverallResource;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_TRANSITION_BARRIER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RESOURCE_TRANSITION_BARRIER{\n";
-    WriteHandleId(oss, value->pResource, indent2.c_str(), "ID3D12Resource");
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Subresource;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->StateBefore);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->StateAfter);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_ALIASING_BARRIER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RESOURCE_ALIASING_BARRIER{\n";
-    WriteHandleId(oss, value->pResourceBefore, indent2.c_str(), "ID3D12Resource");
-    oss << ",\n";
-
-    WriteHandleId(oss, value->pResourceAfter, indent2.c_str(), "ID3D12Resource");
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_UAV_BARRIER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RESOURCE_UAV_BARRIER{\n";
-    WriteHandleId(oss, value->pResource, indent2.c_str(), "ID3D12Resource");
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_FOOTPRINT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SUBRESOURCE_FOOTPRINT{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Depth;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RowPitch;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PLACED_SUBRESOURCE_FOOTPRINT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_PLACED_SUBRESOURCE_FOOTPRINT{\n";
-    oss << indent2 << value->decoded_value->Offset;
-    oss << ",\n";
-
-    WriteStructString(oss, value->Footprint, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SAMPLE_POSITION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SAMPLE_POSITION{\n";
-    oss << indent2 << static_cast<int16_t>(value->decoded_value->X);
-    oss << ",\n";
-
-    oss << indent2 << static_cast<int16_t>(value->decoded_value->Y);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VIEW_INSTANCE_LOCATION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_VIEW_INSTANCE_LOCATION{\n";
-    oss << indent2 << value->decoded_value->ViewportArrayIndex;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RenderTargetArrayIndex;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VIEW_INSTANCING_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_VIEW_INSTANCING_DESC{\n";
-    oss << indent2 << value->decoded_value->ViewInstanceCount;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pViewInstanceLocations, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pViewInstanceLocations, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUFFER_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_BUFFER_SRV{\n";
-    oss << indent2 << value->decoded_value->FirstElement;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumElements;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StructureByteStride;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_SRV{\n";
-    oss << indent2 << value->decoded_value->MostDetailedMip;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ResourceMinLODClamp;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_ARRAY_SRV{\n";
-    oss << indent2 << value->decoded_value->MostDetailedMip;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ResourceMinLODClamp;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_SRV{\n";
-    oss << indent2 << value->decoded_value->MostDetailedMip;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PlaneSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ResourceMinLODClamp;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_ARRAY_SRV{\n";
-    oss << indent2 << value->decoded_value->MostDetailedMip;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PlaneSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ResourceMinLODClamp;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX3D_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX3D_SRV{\n";
-    oss << indent2 << value->decoded_value->MostDetailedMip;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ResourceMinLODClamp;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEXCUBE_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEXCUBE_SRV{\n";
-    oss << indent2 << value->decoded_value->MostDetailedMip;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ResourceMinLODClamp;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEXCUBE_ARRAY_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEXCUBE_ARRAY_SRV{\n";
-    oss << indent2 << value->decoded_value->MostDetailedMip;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLevels;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->First2DArrayFace;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumCubes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ResourceMinLODClamp;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2DMS_SRV{\n";
-    oss << indent2 << value->decoded_value->UnusedField_NothingToDefine;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_ARRAY_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2DMS_ARRAY_SRV{\n";
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV{\n";
-    oss << indent2 << value->decoded_value->Location;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_CONSTANT_BUFFER_VIEW_DESC{\n";
-    oss << indent2 << value->decoded_value->BufferLocation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SAMPLER_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SAMPLER_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Filter);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AddressU);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AddressV);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AddressW);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLODBias;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxAnisotropy;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ComparisonFunc);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->BorderColor, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->BorderColor, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinLOD;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxLOD;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUFFER_UAV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_BUFFER_UAV{\n";
-    oss << indent2 << value->decoded_value->FirstElement;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumElements;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StructureByteStride;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CounterOffsetInBytes;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_UAV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_UAV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_UAV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_ARRAY_UAV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_UAV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_UAV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PlaneSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_UAV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_ARRAY_UAV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PlaneSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX3D_UAV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX3D_UAV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstWSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->WSize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUFFER_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_BUFFER_RTV{\n";
-    oss << indent2 << value->decoded_value->FirstElement;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumElements;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_RTV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_ARRAY_RTV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_RTV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PlaneSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2DMS_RTV{\n";
-    oss << indent2 << value->decoded_value->UnusedField_NothingToDefine;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_ARRAY_RTV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PlaneSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_ARRAY_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2DMS_ARRAY_RTV{\n";
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX3D_RTV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX3D_RTV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstWSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->WSize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_DSV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_DSV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_DSV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX1D_ARRAY_DSV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_DSV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_DSV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_DSV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2D_ARRAY_DSV{\n";
-    oss << indent2 << value->decoded_value->MipSlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_DSV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2DMS_DSV{\n";
-    oss << indent2 << value->decoded_value->UnusedField_NothingToDefine;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_ARRAY_DSV* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_TEX2DMS_ARRAY_DSV{\n";
-    oss << indent2 << value->decoded_value->FirstArraySlice;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ArraySize;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DESCRIPTOR_HEAP_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DESCRIPTOR_HEAP_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Type);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumDescriptors;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DESCRIPTOR_RANGE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DESCRIPTOR_RANGE{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->RangeType);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumDescriptors;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BaseShaderRegister;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RegisterSpace;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->OffsetInDescriptorsFromTableStart;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR_TABLE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_ROOT_DESCRIPTOR_TABLE{\n";
-    oss << indent2 << value->decoded_value->NumDescriptorRanges;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pDescriptorRanges, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pDescriptorRanges, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_CONSTANTS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_ROOT_CONSTANTS{\n";
-    oss << indent2 << value->decoded_value->ShaderRegister;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RegisterSpace;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Num32BitValues;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_ROOT_DESCRIPTOR{\n";
-    oss << indent2 << value->decoded_value->ShaderRegister;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RegisterSpace;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STATIC_SAMPLER_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_STATIC_SAMPLER_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Filter);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AddressU);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AddressV);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AddressW);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MipLODBias;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxAnisotropy;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ComparisonFunc);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->BorderColor);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinLOD;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxLOD;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ShaderRegister;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RegisterSpace;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ShaderVisibility);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_SIGNATURE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_ROOT_SIGNATURE_DESC{\n";
-    oss << indent2 << value->decoded_value->NumParameters;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pParameters, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pParameters, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumStaticSamplers;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pStaticSamplers, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pStaticSamplers, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DESCRIPTOR_RANGE1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DESCRIPTOR_RANGE1{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->RangeType);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumDescriptors;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BaseShaderRegister;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RegisterSpace;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->OffsetInDescriptorsFromTableStart;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR_TABLE1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_ROOT_DESCRIPTOR_TABLE1{\n";
-    oss << indent2 << value->decoded_value->NumDescriptorRanges;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pDescriptorRanges, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pDescriptorRanges, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_ROOT_DESCRIPTOR1{\n";
-    oss << indent2 << value->decoded_value->ShaderRegister;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RegisterSpace;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_SIGNATURE_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_ROOT_SIGNATURE_DESC1{\n";
-    oss << indent2 << value->decoded_value->NumParameters;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pParameters, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pParameters, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumStaticSamplers;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pStaticSamplers, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pStaticSamplers, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISCARD_REGION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DISCARD_REGION{\n";
-    oss << indent2 << value->decoded_value->NumRects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pRects, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pRects, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->FirstSubresource;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumSubresources;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_QUERY_HEAP_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_QUERY_HEAP_DESC{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Type);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Count;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_QUERY_DATA_PIPELINE_STATISTICS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_QUERY_DATA_PIPELINE_STATISTICS{\n";
-    oss << indent2 << value->decoded_value->IAVertices;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->IAPrimitives;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->VSInvocations;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->GSInvocations;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->GSPrimitives;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CInvocations;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CPrimitives;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PSInvocations;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->HSInvocations;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DSInvocations;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->CSInvocations;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_QUERY_DATA_SO_STATISTICS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_QUERY_DATA_SO_STATISTICS{\n";
-    oss << indent2 << value->decoded_value->NumPrimitivesWritten;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->PrimitivesStorageNeeded;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STREAM_OUTPUT_BUFFER_VIEW* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_STREAM_OUTPUT_BUFFER_VIEW{\n";
-    oss << indent2 << value->decoded_value->BufferLocation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BufferFilledSizeLocation;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRAW_ARGUMENTS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRAW_ARGUMENTS{\n";
-    oss << indent2 << value->decoded_value->VertexCountPerInstance;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StartVertexLocation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StartInstanceLocation;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRAW_INDEXED_ARGUMENTS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRAW_INDEXED_ARGUMENTS{\n";
-    oss << indent2 << value->decoded_value->IndexCountPerInstance;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StartIndexLocation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BaseVertexLocation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StartInstanceLocation;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISPATCH_ARGUMENTS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DISPATCH_ARGUMENTS{\n";
-    oss << indent2 << value->decoded_value->ThreadGroupCountX;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ThreadGroupCountY;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ThreadGroupCountZ;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VERTEX_BUFFER_VIEW* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_VERTEX_BUFFER_VIEW{\n";
-    oss << indent2 << value->decoded_value->BufferLocation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StrideInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INDEX_BUFFER_VIEW* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_INDEX_BUFFER_VIEW{\n";
-    oss << indent2 << value->decoded_value->BufferLocation;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_COMMAND_SIGNATURE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_COMMAND_SIGNATURE_DESC{\n";
-    oss << indent2 << value->decoded_value->ByteStride;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumArgumentDescs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pArgumentDescs, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pArgumentDescs, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_WRITEBUFFERIMMEDIATE_PARAMETER{\n";
-    oss << indent2 << value->decoded_value->Dest;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Value;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT{\n";
-    oss << indent2 << value->decoded_value->NodeIndex;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Support);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_PROTECTED_RESOURCE_SESSION_DESC{\n";
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_META_COMMAND_PARAMETER_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_META_COMMAND_PARAMETER_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Name, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->Name.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Type);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->RequiredResourceState);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StructureOffset;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_META_COMMAND_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_META_COMMAND_DESC{\n";
-    oss << indent2 << ConverttoText(*value->Id->decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->Name, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->Name.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->InitializationDirtyState);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ExecutionDirtyState);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STATE_OBJECT_CONFIG* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_STATE_OBJECT_CONFIG{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GLOBAL_ROOT_SIGNATURE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_GLOBAL_ROOT_SIGNATURE{\n";
-    WriteHandleId(oss, value->pGlobalRootSignature, indent2.c_str(), "ID3D12RootSignature");
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_LOCAL_ROOT_SIGNATURE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_LOCAL_ROOT_SIGNATURE{\n";
-    WriteHandleId(oss, value->pLocalRootSignature, indent2.c_str(), "ID3D12RootSignature");
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_NODE_MASK* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_NODE_MASK{\n";
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_EXPORT_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_EXPORT_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Name, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->Name.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->ExportToRename, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->ExportToRename.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DXIL_LIBRARY_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DXIL_LIBRARY_DESC{\n";
-    WriteStructString(oss, value->DXILLibrary, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumExports;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pExports, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pExports, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_EXISTING_COLLECTION_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_EXISTING_COLLECTION_DESC{\n";
-    WriteHandleId(oss, value->pExistingCollection, indent2.c_str(), "ID3D12StateObject");
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumExports;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pExports, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pExports, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->SubobjectToAssociate, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->SubobjectToAssociate.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumExports;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pExports, indent2.c_str()))
-    {
-        WriteArrayWStringsString(oss, &value->pExports, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HIT_GROUP_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_HIT_GROUP_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->HitGroupExport, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->HitGroupExport.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->AnyHitShaderImport, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->AnyHitShaderImport.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->ClosestHitShaderImport, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->ClosestHitShaderImport.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->IntersectionShaderImport, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->IntersectionShaderImport.GetPointer()) << "\"";
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_SHADER_CONFIG* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_SHADER_CONFIG{\n";
-    oss << indent2 << value->decoded_value->MaxPayloadSizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxAttributeSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_PIPELINE_CONFIG{\n";
-    oss << indent2 << value->decoded_value->MaxTraceRecursionDepth;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_PIPELINE_CONFIG1{\n";
-    oss << indent2 << value->decoded_value->MaxTraceRecursionDepth;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE{\n";
-    oss << indent2 << value->decoded_value->StartAddress;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StrideInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_GPU_VIRTUAL_ADDRESS_RANGE{\n";
-    oss << indent2 << value->decoded_value->StartAddress;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE{\n";
-    oss << indent2 << value->decoded_value->StartAddress;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->StrideInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC{\n";
-    oss << indent2 << value->decoded_value->Transform3x4;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->IndexFormat);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->VertexFormat);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->IndexCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->VertexCount;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->IndexBuffer;
-    oss << ",\n";
-
-    WriteStructString(oss, value->VertexBuffer, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_AABB* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_AABB{\n";
-    oss << indent2 << value->decoded_value->MinX;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinY;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MinZ;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxX;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxY;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->MaxZ;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_GEOMETRY_AABBS_DESC{\n";
-    oss << indent2 << value->decoded_value->AABBCount;
-    oss << ",\n";
-
-    WriteStructString(oss, value->AABBs, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC{\n";
-    oss << indent2 << value->decoded_value->DestBuffer;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->InfoType);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC{\n";
-    oss << indent2 << value->decoded_value->CompactedSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC{\n";
-    oss << indent2 << value->decoded_value->DecodedSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_TOOLS_VISUALIZATION_HEADER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_TOOLS_VISUALIZATION_HEADER{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Type);
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumDescs;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC{\n";
-    oss << indent2 << value->decoded_value->SerializedSizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumBottomLevelAccelerationStructurePointers;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER{\n";
-    oss << indent2 << ConverttoText(*value->DriverOpaqueGUID->decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->DriverOpaqueVersioningData, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->DriverOpaqueVersioningData, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER{\n";
-    WriteStructString(oss, value->DriverMatchingIdentifier, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SerializedSizeInBytesIncludingHeader;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DeserializedSizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumBottomLevelAccelerationStructurePointersAfterHeader;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC{\n";
-    oss << indent2 << value->decoded_value->CurrentSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_INSTANCE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_INSTANCE_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Transform, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->Transform, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceID;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceMask;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceContributionToHitGroupIndex;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Flags;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->AccelerationStructure;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC{\n";
-    oss << indent2 << value->decoded_value->DestAccelerationStructureData;
-    oss << ",\n";
-
-    WriteStructString(oss, value->Inputs, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SourceAccelerationStructureData;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ScratchAccelerationStructureData;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO{\n";
-    oss << indent2 << value->decoded_value->ResultDataMaxSizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ScratchDataSizeInBytes;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->UpdateScratchDataSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCRUMB_NODE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_AUTO_BREADCRUMB_NODE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandListDebugNameA, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->pCommandListDebugNameA.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandListDebugNameW, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->pCommandListDebugNameW.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandQueueDebugNameA, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->pCommandQueueDebugNameA.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandQueueDebugNameW, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->pCommandQueueDebugNameW.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, value->pCommandList, indent2.c_str(), "ID3D12GraphicsCommandList");
-    oss << ",\n";
-
-    WriteHandleId(oss, value->pCommandQueue, indent2.c_str(), "ID3D12CommandQueue");
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BreadcrumbCount;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pLastBreadcrumbValue, indent2.c_str()))
-    {
-        oss << indent2 << *value->pLastBreadcrumbValue.GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandHistory, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->pCommandHistory, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pNext, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pNext->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_BREADCRUMB_CONTEXT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRED_BREADCRUMB_CONTEXT{\n";
-    oss << indent2 << value->decoded_value->BreadcrumbIndex;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pContextString, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->pContextString.GetPointer()) << "\"";
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCRUMB_NODE1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_AUTO_BREADCRUMB_NODE1{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandListDebugNameA, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->pCommandListDebugNameA.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandListDebugNameW, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->pCommandListDebugNameW.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandQueueDebugNameA, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->pCommandQueueDebugNameA.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandQueueDebugNameW, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->pCommandQueueDebugNameW.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, value->pCommandList, indent2.c_str(), "ID3D12GraphicsCommandList");
-    oss << ",\n";
-
-    WriteHandleId(oss, value->pCommandQueue, indent2.c_str(), "ID3D12CommandQueue");
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BreadcrumbCount;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pLastBreadcrumbValue, indent2.c_str()))
-    {
-        oss << indent2 << *value->pLastBreadcrumbValue.GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCommandHistory, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->pCommandHistory, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pNext, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pNext->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->BreadcrumbContextsCount;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pBreadcrumbContexts, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pBreadcrumbContexts, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEVICE_REMOVED_EXTENDED_DATA{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pHeadAutoBreadcrumbNode, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pHeadAutoBreadcrumbNode->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_ALLOCATION_NODE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRED_ALLOCATION_NODE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->ObjectNameA, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->ObjectNameA.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->ObjectNameW, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->ObjectNameW.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AllocationType);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pNext, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pNext->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_ALLOCATION_NODE1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRED_ALLOCATION_NODE1{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->ObjectNameA, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->ObjectNameA.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->ObjectNameW, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->ObjectNameW.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->AllocationType);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pNext, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pNext->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, value->pObject, indent2.c_str(), "IUnknown");
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT{\n";
-    if (WriteCheckPointerDecoderNull(oss, value->pHeadAutoBreadcrumbNode, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pHeadAutoBreadcrumbNode->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1{\n";
-    if (WriteCheckPointerDecoderNull(oss, value->pHeadAutoBreadcrumbNode, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pHeadAutoBreadcrumbNode->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRED_PAGE_FAULT_OUTPUT{\n";
-    oss << indent2 << value->decoded_value->PageFaultVA;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pHeadExistingAllocationNode, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pHeadExistingAllocationNode->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pHeadRecentFreedAllocationNode, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pHeadRecentFreedAllocationNode->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DRED_PAGE_FAULT_OUTPUT1{\n";
-    oss << indent2 << value->decoded_value->PageFaultVA;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pHeadExistingAllocationNode, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pHeadExistingAllocationNode->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pHeadRecentFreedAllocationNode, indent2.c_str()))
-    {
-        WriteStructString(oss, value->pHeadRecentFreedAllocationNode->GetMetaStructPointer(), indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEVICE_REMOVED_EXTENDED_DATA1{\n";
-    oss << indent2 << enumutil::GetResultValueString(value->decoded_value->DeviceRemovedReason);
-    oss << ",\n";
-
-    WriteStructString(oss, value->AutoBreadcrumbsOutput, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->PageFaultOutput, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEVICE_REMOVED_EXTENDED_DATA2{\n";
-    oss << indent2 << enumutil::GetResultValueString(value->decoded_value->DeviceRemovedReason);
-    oss << ",\n";
-
-    WriteStructString(oss, value->AutoBreadcrumbsOutput, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->PageFaultOutput, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT{\n";
-    oss << indent2 << value->decoded_value->NodeIndex;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Count;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES{\n";
-    oss << indent2 << value->decoded_value->NodeIndex;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Count;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pTypes, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, value->pTypes, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_PROTECTED_RESOURCE_SESSION_DESC1{\n";
-    oss << indent2 << value->decoded_value->NodeMask;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Flags);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(*value->ProtectionType->decoded_value);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS{\n";
-    WriteStructString(oss, value->ClearValue, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS{\n";
-    oss << indent2 << value->decoded_value->SrcSubresource;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DstSubresource;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DstX;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DstY;
-    oss << ",\n";
-
-    WriteStructString(oss, value->SrcRect, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS{\n";
-    WriteHandleId(oss, value->pSrcResource, indent2.c_str(), "ID3D12Resource");
-    oss << ",\n";
-
-    WriteHandleId(oss, value->pDstResource, indent2.c_str(), "ID3D12Resource");
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SubresourceCount;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, value->pSubresourceParameters, indent2.c_str()))
-    {
-        WriteArrayStructsString(oss, value->pSubresourceParameters, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Format);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ResolveMode);
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->PreserveResolveSource, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RENDER_PASS_RENDER_TARGET_DESC{\n";
-    WriteStructString(oss, value->cpuDescriptor, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->BeginningAccess, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->EndingAccess, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{\n";
-    WriteStructString(oss, value->cpuDescriptor, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->DepthBeginningAccess, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->StencilBeginningAccess, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->DepthEndingAccess, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->StencilEndingAccess, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISPATCH_RAYS_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DISPATCH_RAYS_DESC{\n";
-    WriteStructString(oss, value->RayGenerationShaderRecord, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->MissShaderTable, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->HitGroupTable, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->CallableShaderTable, indent2.c_str());
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Width;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Height;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Depth;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_DATA* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_SUBRESOURCE_DATA{\n";
-    oss << indent2 << value->pData;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RowPitch;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SlicePitch;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_MEMCPY_DEST* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_MEMCPY_DEST{\n";
-    oss << indent2 << value->pData;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->RowPitch;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->SlicePitch;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISPATCH_MESH_ARGUMENTS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DISPATCH_MESH_ARGUMENTS{\n";
-    oss << indent2 << value->decoded_value->ThreadGroupCountX;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ThreadGroupCountY;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->ThreadGroupCountZ;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D_SHADER_MACRO* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D_SHADER_MACRO{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Name, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->Name.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->Definition, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->Definition.GetPointer() << "\"";
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS{\n";
-    oss << indent2 << value->decoded_value->MaxMessagesPerCommandList;
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->DefaultShaderPatchMode);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->PipelineStateCreateFlags);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR{\n";
-    oss << indent2 << value->decoded_value->SlowdownFactor;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->ShaderPatchMode);
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_MESSAGE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_MESSAGE{\n";
-    oss << indent2 << ConverttoText(value->decoded_value->Category);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->Severity);
-    oss << ",\n";
-
-    oss << indent2 << ConverttoText(value->decoded_value->ID);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pDescription, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << value->pDescription.GetPointer() << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->DescriptionByteLength;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INFO_QUEUE_FILTER_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_INFO_QUEUE_FILTER_DESC{\n";
-    oss << indent2 << value->decoded_value->NumCategories;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pCategoryList, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->pCategoryList, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumSeverities;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pSeverityList, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->pSeverityList, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumIDs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pIDList, indent2.c_str()))
-    {
-        WriteArrayConvertsString(oss, &value->pIDList, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INFO_QUEUE_FILTER* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_INFO_QUEUE_FILTER{\n";
-    WriteStructString(oss, value->AllowList, indent2.c_str());
-    oss << ",\n";
-
-    WriteStructString(oss, value->DenyList, indent2.c_str());
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_GUID* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "GUID{\n";
-    oss << indent2 << value->decoded_value->Data1;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Data2;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Data3;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->Data4, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->Data4, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_tagRECT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "tagRECT{\n";
-    oss << indent2 << value->decoded_value->left;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->top;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->right;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->bottom;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_tagPOINT* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "tagPOINT{\n";
-    oss << indent2 << value->decoded_value->x;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->y;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded__SECURITY_ATTRIBUTES* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "_SECURITY_ATTRIBUTES{\n";
-    oss << indent2 << value->decoded_value->nLength;
-    oss << ",\n";
-
-    oss << indent2 << value->lpSecurityDescriptor;
-    oss << ",\n";
-
-    WriteBOOLString(oss, value->decoded_value->bInheritHandle, indent2.c_str());
-    oss << "}";
-
-}
-
 /*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0
 **
@@ -6874,54 +43,38 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFactory)
 {
-    std::ostringstream oss;
-    oss << "CreateDXGIFactory(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
-    {
-        WriteHandleId(oss, *ppFactory->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateDXGIFactory", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppFactory", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppFactory, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
         HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFactory)
 {
-    std::ostringstream oss;
-    oss << "CreateDXGIFactory1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
-    {
-        WriteHandleId(oss, *ppFactory->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateDXGIFactory1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppFactory", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppFactory, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
         format::HandleId object_id,
@@ -6930,32 +83,20 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
         UINT DataSize,
         PointerDecoder<uint8_t>* pData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIObject");
-    oss << "->";
-    oss << "SetPrivateData(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*Name.decoded_value);
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPrivateData", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Name", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(Name, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
         format::HandleId object_id,
@@ -6963,26 +104,19 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
         Decoded_GUID Name,
         format::HandleId pUnknown)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIObject");
-    oss << "->";
-    oss << "SetPrivateDataInterface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*Name.decoded_value);
-    oss << ",\n";
-
-    WriteHandleId(oss, pUnknown, "    ", "IUnknown", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPrivateDataInterface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Name", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(Name, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pUnknown", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pUnknown, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
         format::HandleId object_id,
@@ -6991,35 +125,20 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
         PointerDecoder<UINT>* pDataSize,
         PointerDecoder<uint8_t>* pData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIObject");
-    oss << "->";
-    oss << "GetPrivateData(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*Name.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDataSize, "    ", false))
-    {
-        oss << "    " << *pDataSize->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
-    {
-        oss << "    " << "&" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetPrivateData", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Name", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(Name, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDataSize", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDataSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(* pDataSize, pData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
         format::HandleId object_id,
@@ -7027,29 +146,19 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppParent)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIObject");
-    oss << "->";
-    oss << "GetParent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppParent, "    ", true))
-    {
-        WriteHandleId(oss, *ppParent->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetParent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppParent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppParent, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
         format::HandleId object_id,
@@ -7057,130 +166,91 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppDevice)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDeviceSubObject");
-    oss << "->";
-    oss << "GetDevice(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppDevice, "    ", true))
-    {
-        WriteHandleId(oss, *ppDevice->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDevice", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppDevice, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<uint64_t, void*>* pSharedHandle)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIResource");
-    oss << "->";
-    oss << "GetSharedHandle(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSharedHandle, "    ", true))
-    {
-        oss << "    " << "&" << "pSharedHandle" << " /* address = " << *pSharedHandle->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetSharedHandle", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pSharedHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSharedHandle, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<DXGI_USAGE>* pUsage)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIResource");
-    oss << "->";
-    oss << "GetUsage(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pUsage, "    ", false))
-    {
-        oss << "    " << *pUsage->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetUsage", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pUsage", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pUsage, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIResource_SetEvictionPriority(
         format::HandleId object_id,
         HRESULT return_value,
         UINT EvictionPriority)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIResource");
-    oss << "->";
-    oss << "SetEvictionPriority(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << EvictionPriority;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetEvictionPriority", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "EvictionPriority", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(EvictionPriority, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<UINT>* pEvictionPriority)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIResource");
-    oss << "->";
-    oss << "GetEvictionPriority(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pEvictionPriority, "    ", true))
-    {
-        oss << "    " << "&" << *pEvictionPriority->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetEvictionPriority", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pEvictionPriority", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pEvictionPriority, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
         format::HandleId object_id,
@@ -7188,75 +258,55 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
         UINT64 Key,
         DWORD dwMilliseconds)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIKeyedMutex");
-    oss << "->";
-    oss << "AcquireSync(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Key;
-    oss << ",\n";
-
-    oss << "    " << dwMilliseconds;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AcquireSync", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Key", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Key, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "dwMilliseconds", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(dwMilliseconds, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
         format::HandleId object_id,
         HRESULT return_value,
         UINT64 Key)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIKeyedMutex");
-    oss << "->";
-    oss << "ReleaseSync(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Key;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReleaseSync", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Key", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Key, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISurface");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISurface_Map(
         format::HandleId object_id,
@@ -7264,48 +314,35 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
         StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
         UINT MapFlags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISurface");
-    oss << "->";
-    oss << "Map(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pLockedRect, "    ", true))
-    {
-        WriteStructString(oss, pLockedRect->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ",\n";
-
-    oss << "    " << MapFlags;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Map", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pLockedRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pLockedRect, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "MapFlags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(MapFlags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISurface_Unmap(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISurface");
-    oss << "->";
-    oss << "Unmap(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Unmap", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
         format::HandleId object_id,
@@ -7313,55 +350,37 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
         BOOL Discard,
         PointerDecoder<uint64_t, void*>* phdc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISurface1");
-    oss << "->";
-    oss << "GetDC(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, Discard, "    ", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, phdc, "    ", true))
-    {
-        oss << "    " << "&" << "phdc" << " /* address = " << *phdc->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDC", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Discard", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Discard, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]phdc", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(phdc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISurface1_ReleaseDC(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pDirtyRect)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISurface1");
-    oss << "->";
-    oss << "ReleaseDC(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDirtyRect, "    ", false))
-    {
-        WriteStructString(oss, pDirtyRect->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReleaseDC", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDirtyRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDirtyRect, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
         format::HandleId object_id,
@@ -7369,55 +388,37 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
         UINT Output,
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter");
-    oss << "->";
-    oss << "EnumOutputs(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Output;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppOutput, "    ", true))
-    {
-        WriteHandleId(oss, *ppOutput->GetPointer(), "    ", "IDXGIOutput", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumOutputs", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Output", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Output, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppOutput, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
         format::HandleId object_id,
@@ -7425,55 +426,37 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
         Decoded_GUID InterfaceName,
         StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter");
-    oss << "->";
-    oss << "CheckInterfaceSupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*InterfaceName.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pUMDVersion, "    ", true))
-    {
-        oss << "    " << "&" << pUMDVersion->GetPointer()->QuadPart;
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CheckInterfaceSupport", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "InterfaceName", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(InterfaceName, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pUMDVersion", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pUMDVersion, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
         format::HandleId object_id,
@@ -7483,38 +466,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
         PointerDecoder<UINT>* pNumModes,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "GetDisplayModeList(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(EnumFormat);
-    oss << ",\n";
-
-    oss << "    " << Flags;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNumModes, "    ", false))
-    {
-        oss << "    " << *pNumModes->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteArrayStructsString(oss, pDesc, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDisplayModeList", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "EnumFormat", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(EnumFormat, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pNumModes", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pNumModes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pNumModes, pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         format::HandleId object_id,
@@ -7523,54 +489,36 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
         format::HandleId pConcernedDevice)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "FindClosestMatchingMode(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pModeToMatch, "    ", false))
-    {
-        WriteStructString(oss, pModeToMatch->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pClosestMatch, "    ", true))
-    {
-        WriteStructString(oss, pClosestMatch->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("FindClosestMatchingMode", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pModeToMatch", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pModeToMatch, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pClosestMatch", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pClosestMatch, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pConcernedDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pConcernedDevice, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_WaitForVBlank(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "WaitForVBlank(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("WaitForVBlank", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
         format::HandleId object_id,
@@ -7578,190 +526,141 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
         format::HandleId pDevice,
         BOOL Exclusive)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "TakeOwnership(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    WriteBOOLString(oss, Exclusive, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("TakeOwnership", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Exclusive", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Exclusive, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_ReleaseOwnership(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "ReleaseOwnership(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReleaseOwnership", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "GetGammaControlCapabilities(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pGammaCaps, "    ", true))
-    {
-        WriteStructString(oss, pGammaCaps->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetGammaControlCapabilities", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pGammaCaps", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pGammaCaps, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_SetGammaControl(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "SetGammaControl(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pArray, "    ", false))
-    {
-        WriteStructString(oss, pArray->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGammaControl", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pArray", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pArray, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "GetGammaControl(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pArray, "    ", true))
-    {
-        WriteStructString(oss, pArray->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetGammaControl", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pArray", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pArray, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
         format::HandleId object_id,
         HRESULT return_value,
         format::HandleId pScanoutSurface)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "SetDisplaySurface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pScanoutSurface, "    ", "IDXGISurface", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetDisplaySurface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pScanoutSurface", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pScanoutSurface, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
         format::HandleId object_id,
         HRESULT return_value,
         format::HandleId pDestination)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "GetDisplaySurfaceData(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDestination, "    ", "IDXGISurface", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDisplaySurfaceData", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDestination", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDestination, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput");
-    oss << "->";
-    oss << "GetFrameStatistics(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
-    {
-        WriteStructString(oss, pStats->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFrameStatistics", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pStats", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pStats, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
         format::HandleId object_id,
@@ -7784,32 +683,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppSurface)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "GetBuffer(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Buffer;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
-    {
-        WriteHandleId(oss, *ppSurface->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetBuffer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Buffer", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Buffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSurface", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSurface, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
         format::HandleId object_id,
@@ -7817,26 +704,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
         BOOL Fullscreen,
         format::HandleId pTarget)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "SetFullscreenState(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, Fullscreen, "    ", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pTarget, "    ", "IDXGIOutput", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetFullscreenState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Fullscreen", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Fullscreen, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pTarget", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pTarget, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
         format::HandleId object_id,
@@ -7844,58 +724,37 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
         PointerDecoder<BOOL>* pFullscreen,
         HandlePointerDecoder<IDXGIOutput*>* ppTarget)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "GetFullscreenState(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFullscreen, "    ", true))
-    {
-        oss << "    " << "&" << *pFullscreen->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppTarget, "    ", true))
-    {
-        WriteHandleId(oss, *ppTarget->GetPointer(), "    ", "IDXGIOutput", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFullscreenState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pFullscreen", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFullscreen, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppTarget", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppTarget, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
         format::HandleId object_id,
@@ -7906,139 +765,94 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
         DXGI_FORMAT NewFormat,
         UINT SwapChainFlags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "ResizeBuffers(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << BufferCount;
-    oss << ",\n";
-
-    oss << "    " << Width;
-    oss << ",\n";
-
-    oss << "    " << Height;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(NewFormat);
-    oss << ",\n";
-
-    oss << "    " << SwapChainFlags;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ResizeBuffers", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "BufferCount", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferCount, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Width", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Width, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Height", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Height, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NewFormat", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(NewFormat, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "SwapChainFlags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SwapChainFlags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeTarget(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "ResizeTarget(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNewTargetParameters, "    ", false))
-    {
-        WriteStructString(oss, pNewTargetParameters->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ResizeTarget", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pNewTargetParameters", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pNewTargetParameters, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
         format::HandleId object_id,
         HRESULT return_value,
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "GetContainingOutput(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppOutput, "    ", true))
-    {
-        WriteHandleId(oss, *ppOutput->GetPointer(), "    ", "IDXGIOutput", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetContainingOutput", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]ppOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppOutput, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "GetFrameStatistics(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
-    {
-        WriteStructString(oss, pStats->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFrameStatistics", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pStats", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pStats, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<UINT>* pLastPresentCount)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
-    oss << "->";
-    oss << "GetLastPresentCount(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pLastPresentCount, "    ", true))
-    {
-        oss << "    " << "&" << *pLastPresentCount->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetLastPresentCount", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pLastPresentCount", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pLastPresentCount, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
         format::HandleId object_id,
@@ -8046,29 +860,19 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
         UINT Adapter,
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory");
-    oss << "->";
-    oss << "EnumAdapters(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Adapter;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
-    {
-        WriteHandleId(oss, *ppAdapter->GetPointer(), "    ", "IDXGIAdapter", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumAdapters", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Adapter", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Adapter, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppAdapter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
         format::HandleId object_id,
@@ -8076,52 +880,37 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
         uint64_t WindowHandle,
         UINT Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory");
-    oss << "->";
-    oss << "MakeWindowAssociation(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << WindowHandle;
-    oss << ",\n";
-
-    oss << "    " << Flags;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("MakeWindowAssociation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "WindowHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(WindowHandle, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<uint64_t, void*>* pWindowHandle)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory");
-    oss << "->";
-    oss << "GetWindowAssociation(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pWindowHandle, "    ", true))
-    {
-        oss << "    " << "&" << "pWindowHandle" << " /* address = " << *pWindowHandle->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetWindowAssociation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pWindowHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pWindowHandle, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
         format::HandleId object_id,
@@ -8130,35 +919,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
         HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory");
-    oss << "->";
-    oss << "CreateSwapChain(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
-    {
-        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSwapChain", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSwapChain", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSwapChain, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         format::HandleId object_id,
@@ -8166,55 +940,37 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         uint64_t Module,
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory");
-    oss << "->";
-    oss << "CreateSoftwareAdapter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Module;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
-    {
-        WriteHandleId(oss, *ppAdapter->GetPointer(), "    ", "IDXGIAdapter", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSoftwareAdapter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Module", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(Module, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppAdapter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
         format::HandleId object_id,
         HRESULT return_value,
         HandlePointerDecoder<IDXGIAdapter*>* pAdapter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice");
-    oss << "->";
-    oss << "GetAdapter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pAdapter, "    ", true))
-    {
-        WriteHandleId(oss, *pAdapter->GetPointer(), "    ", "IDXGIAdapter", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetAdapter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pAdapter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
         format::HandleId object_id,
@@ -8225,44 +981,22 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
         StructPointerDecoder<Decoded_DXGI_SHARED_RESOURCE>* pSharedResource,
         HandlePointerDecoder<IDXGISurface*>* ppSurface)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice");
-    oss << "->";
-    oss << "CreateSurface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumSurfaces;
-    oss << ",\n";
-
-    oss << "    " << Usage;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSharedResource, "    ", false))
-    {
-        WriteStructString(oss, pSharedResource->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
-    {
-        WriteHandleId(oss, *ppSurface->GetPointer(), "    ", "IDXGISurface", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSurface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumSurfaces", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumSurfaces, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Usage", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Usage, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSharedResource", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pSharedResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSurface", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSurface, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
         format::HandleId object_id,
@@ -8271,84 +1005,56 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
         PointerDecoder<DXGI_RESIDENCY>* pResidencyStatus,
         UINT NumResources)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice");
-    oss << "->";
-    oss << "QueryResourceResidency(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppResources, "IUnknown", "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResidencyStatus, "    ", true))
-    {
-        WriteArrayConvertsString(oss, pResidencyStatus, "    ", true);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumResources;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("QueryResourceResidency", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "ppResources", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumResources, ppResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pResidencyStatus", toStringFlags, tabCount, tabSize, "TODO 2 : EnumPointerDecoderArrayToString(NumResources, pResidencyStatus, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumResources", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumResources, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
         format::HandleId object_id,
         HRESULT return_value,
         INT Priority)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice");
-    oss << "->";
-    oss << "SetGPUThreadPriority(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Priority;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGPUThreadPriority", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Priority", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Priority, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<INT>* pPriority)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice");
-    oss << "->";
-    oss << "GetGPUThreadPriority(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPriority, "    ", true))
-    {
-        oss << "    " << "&" << *pPriority->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetGPUThreadPriority", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pPriority", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pPriority, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
         format::HandleId object_id,
@@ -8356,123 +1062,89 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
         UINT Adapter,
         HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory1");
-    oss << "->";
-    oss << "EnumAdapters1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Adapter;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
-    {
-        WriteHandleId(oss, *ppAdapter->GetPointer(), "    ", "IDXGIAdapter1", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumAdapters1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Adapter", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Adapter, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppAdapter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory1_IsCurrent(
         format::HandleId object_id,
         BOOL return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory1");
-    oss << "->";
-    oss << "IsCurrent(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("IsCurrent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter1");
-    oss << "->";
-    oss << "GetDesc1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
         format::HandleId object_id,
         HRESULT return_value,
         UINT MaxLatency)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice1");
-    oss << "->";
-    oss << "SetMaximumFrameLatency(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << MaxLatency;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetMaximumFrameLatency", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "MaxLatency", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(MaxLatency, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<UINT>* pMaxLatency)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice1");
-    oss << "->";
-    oss << "GetMaximumFrameLatency(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMaxLatency, "    ", true))
-    {
-        oss << "    " << "&" << *pMaxLatency->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetMaximumFrameLatency", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pMaxLatency", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pMaxLatency, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from dxgi1_2.h in Windows SDK: 10.0.19041.0
@@ -8482,59 +1154,49 @@ void Dx12AsciiConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
         format::HandleId object_id,
         BOOL return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDisplayControl");
-    oss << "->";
-    oss << "IsStereoEnabled(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("IsStereoEnabled", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
         format::HandleId object_id,
         BOOL enabled)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDisplayControl");
-    oss << "->";
-    oss << "SetStereoEnabled(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, enabled, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetStereoEnabled", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "enabled", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(enabled, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetDesc(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
         format::HandleId object_id,
@@ -8543,35 +1205,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO>* pFrameInfo,
         HandlePointerDecoder<IDXGIResource*>* ppDesktopResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "AcquireNextFrame(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << TimeoutInMilliseconds;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFrameInfo, "    ", true))
-    {
-        WriteStructString(oss, pFrameInfo->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppDesktopResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppDesktopResource->GetPointer(), "    ", "IDXGIResource", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AcquireNextFrame", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "TimeoutInMilliseconds", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(TimeoutInMilliseconds, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pFrameInfo", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pFrameInfo, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppDesktopResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppDesktopResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
         format::HandleId object_id,
@@ -8580,35 +1227,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
         StructPointerDecoder<Decoded_tagRECT>* pDirtyRectsBuffer,
         PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "GetFrameDirtyRects(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << DirtyRectsBufferSize;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDirtyRectsBuffer, "    ", true))
-    {
-        WriteArrayStructsString(oss, pDirtyRectsBuffer, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDirtyRectsBufferSizeRequired, "    ", true))
-    {
-        oss << "    " << "&" << *pDirtyRectsBufferSizeRequired->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFrameDirtyRects", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "DirtyRectsBufferSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DirtyRectsBufferSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pDirtyRectsBuffer", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(DirtyRectsBufferSize/sizeof tagRECT, pDirtyRectsBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pDirtyRectsBufferSizeRequired", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDirtyRectsBufferSizeRequired, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
         format::HandleId object_id,
@@ -8617,35 +1249,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT>* pMoveRectBuffer,
         PointerDecoder<UINT>* pMoveRectsBufferSizeRequired)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "GetFrameMoveRects(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << MoveRectsBufferSize;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMoveRectBuffer, "    ", true))
-    {
-        WriteArrayStructsString(oss, pMoveRectBuffer, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMoveRectsBufferSizeRequired, "    ", true))
-    {
-        oss << "    " << "&" << *pMoveRectsBufferSizeRequired->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFrameMoveRects", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "MoveRectsBufferSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(MoveRectsBufferSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pMoveRectBuffer", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(MoveRectsBufferSize/sizeof DXGI_OUTDUPL_MOVE_RECT, pMoveRectBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pMoveRectsBufferSizeRequired", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pMoveRectsBufferSizeRequired, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
         format::HandleId object_id,
@@ -8655,105 +1272,71 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
         PointerDecoder<UINT>* pPointerShapeBufferSizeRequired,
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO>* pPointerShapeInfo)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "GetFramePointerShape(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << PointerShapeBufferSize;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPointerShapeBuffer, "    ", true))
-    {
-        oss << "    " << "&" << "pPointerShapeBuffer" << " /* value = " << static_cast<uint16_t>(*pPointerShapeBuffer->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPointerShapeBufferSizeRequired, "    ", true))
-    {
-        oss << "    " << "&" << *pPointerShapeBufferSizeRequired->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPointerShapeInfo, "    ", true))
-    {
-        WriteStructString(oss, pPointerShapeInfo->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFramePointerShape", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "PointerShapeBufferSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(PointerShapeBufferSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pPointerShapeBuffer", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(PointerShapeBufferSize, pPointerShapeBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pPointerShapeBufferSizeRequired", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pPointerShapeBufferSizeRequired, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pPointerShapeInfo", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pPointerShapeInfo, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "MapDesktopSurface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pLockedRect, "    ", true))
-    {
-        WriteStructString(oss, pLockedRect->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("MapDesktopSurface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pLockedRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pLockedRect, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "UnMapDesktopSurface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UnMapDesktopSurface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
-    oss << "->";
-    oss << "ReleaseFrame(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReleaseFrame", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
         format::HandleId object_id,
@@ -8762,35 +1345,20 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
         HandlePointerDecoder<void*>* ppParentResource,
         PointerDecoder<UINT>* pSubresourceIndex)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISurface2");
-    oss << "->";
-    oss << "GetResource(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppParentResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppParentResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSubresourceIndex, "    ", true))
-    {
-        oss << "    " << "&" << *pSubresourceIndex->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetResource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppParentResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppParentResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pSubresourceIndex", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSubresourceIndex, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
         format::HandleId object_id,
@@ -8798,29 +1366,19 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
         UINT index,
         HandlePointerDecoder<IDXGISurface2*>* ppSurface)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIResource1");
-    oss << "->";
-    oss << "CreateSubresourceSurface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << index;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
-    {
-        WriteHandleId(oss, *ppSurface->GetPointer(), "    ", "IDXGISurface2", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSubresourceSurface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(index, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSurface", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSurface, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
         format::HandleId object_id,
@@ -8830,41 +1388,21 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
         WStringDecoder* lpName,
         PointerDecoder<uint64_t, void*>* pHandle)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIResource1");
-    oss << "->";
-    oss << "CreateSharedHandle(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pAttributes, "    ", false))
-    {
-        WriteStructString(oss, pAttributes->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << dwAccess;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, lpName, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(lpName->GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHandle, "    ", true))
-    {
-        oss << "    " << "&" << "pHandle" << " /* address = " << *pHandle->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSharedHandle", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pAttributes", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pAttributes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "dwAccess", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(dwAccess, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "lpName", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(lpName, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHandle, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
         format::HandleId object_id,
@@ -8873,32 +1411,20 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         DXGI_OFFER_RESOURCE_PRIORITY Priority)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice2");
-    oss << "->";
-    oss << "OfferResources(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumResources;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppResources, "IDXGIResource", "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Priority);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OfferResources", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumResources", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppResources", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumResources, ppResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Priority", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Priority, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
         format::HandleId object_id,
@@ -8907,136 +1433,92 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         PointerDecoder<BOOL>* pDiscarded)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice2");
-    oss << "->";
-    oss << "ReclaimResources(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumResources;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppResources, "IDXGIResource", "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDiscarded, "    ", true))
-    {
-        WriteArrayBOOLsString(oss, pDiscarded, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReclaimResources", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumResources", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppResources", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumResources, ppResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pDiscarded", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumResources, pDiscarded, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
         format::HandleId object_id,
         HRESULT return_value,
         uint64_t hEvent)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice2");
-    oss << "->";
-    oss << "EnqueueSetEvent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hEvent;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnqueueSetEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "GetDesc1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "GetFullscreenDesc(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFullscreenDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<uint64_t, void*>* pHwnd)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "GetHwnd(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHwnd, "    ", true))
-    {
-        oss << "    " << "&" << "pHwnd" << " /* address = " << *pHwnd->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetHwnd", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pHwnd", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHwnd, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
         format::HandleId object_id,
@@ -9044,29 +1526,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
         Decoded_GUID refiid,
         HandlePointerDecoder<void*>* ppUnk)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "GetCoreWindow(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*refiid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppUnk, "    ", true))
-    {
-        WriteHandleId(oss, *ppUnk->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCoreWindow", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "refiid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(refiid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppUnk", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppUnk, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
         format::HandleId object_id,
@@ -9088,166 +1560,123 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
         format::HandleId object_id,
         BOOL return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "IsTemporaryMonoSupported(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("IsTemporaryMonoSupported", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
         format::HandleId object_id,
         HRESULT return_value,
         HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "GetRestrictToOutput(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppRestrictToOutput, "    ", true))
-    {
-        WriteHandleId(oss, *ppRestrictToOutput->GetPointer(), "    ", "IDXGIOutput", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRestrictToOutput", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]ppRestrictToOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppRestrictToOutput, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "SetBackgroundColor(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pColor, "    ", false))
-    {
-        WriteStructString(oss, pColor->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetBackgroundColor", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pColor", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pColor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "GetBackgroundColor(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pColor, "    ", true))
-    {
-        WriteStructString(oss, pColor->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetBackgroundColor", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pColor", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pColor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetRotation(
         format::HandleId object_id,
         HRESULT return_value,
         DXGI_MODE_ROTATION Rotation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "SetRotation(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Rotation);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetRotation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Rotation", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Rotation, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRotation(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<DXGI_MODE_ROTATION>* pRotation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
-    oss << "->";
-    oss << "GetRotation(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRotation, "    ", true))
-    {
-        oss << "    " << "&" << ConverttoText(*pRotation->GetPointer());
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRotation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pRotation", toStringFlags, tabCount, tabSize, "TODO 6 : EnumPointerDecoderToString(pRotation)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
         format::HandleId object_id,
         BOOL return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "IsWindowedStereoEnabled(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("IsWindowedStereoEnabled", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         format::HandleId object_id,
@@ -9259,47 +1688,23 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "CreateSwapChainForHwnd(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    oss << "    " << hWnd;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFullscreenDesc, "    ", false))
-    {
-        WriteStructString(oss, pFullscreenDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
-    {
-        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSwapChainForHwnd", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "hWnd", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hWnd, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pFullscreenDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pFullscreenDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRestrictToOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRestrictToOutput, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSwapChain", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSwapChain, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         format::HandleId object_id,
@@ -9310,41 +1715,22 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "CreateSwapChainForCoreWindow(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pWindow, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
-    {
-        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSwapChainForCoreWindow", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pWindow", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pWindow, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRestrictToOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRestrictToOutput, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSwapChain", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSwapChain, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
         format::HandleId object_id,
@@ -9352,29 +1738,19 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
         uint64_t hResource,
         StructPointerDecoder<Decoded_LUID>* pLuid)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "GetSharedResourceAdapterLuid(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hResource;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pLuid, "    ", true))
-    {
-        WriteStructString(oss, pLuid->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetSharedResourceAdapterLuid", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pLuid", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pLuid, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
         format::HandleId object_id,
@@ -9383,32 +1759,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
         UINT wMsg,
         PointerDecoder<DWORD>* pdwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "RegisterStereoStatusWindow(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << WindowHandle;
-    oss << ",\n";
-
-    oss << "    " << wMsg;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
-    {
-        oss << "    " << "&" << *pdwCookie->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterStereoStatusWindow", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "WindowHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(WindowHandle, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "wMsg", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(wMsg, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pdwCookie", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pdwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
         format::HandleId object_id,
@@ -9416,47 +1780,35 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "RegisterStereoStatusEvent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hEvent;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
-    {
-        oss << "    " << "&" << *pdwCookie->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterStereoStatusEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pdwCookie", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pdwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
         format::HandleId object_id,
         DWORD dwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "UnregisterStereoStatus(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << dwCookie;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UnregisterStereoStatus", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "dwCookie", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(dwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         format::HandleId object_id,
@@ -9465,32 +1817,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         UINT wMsg,
         PointerDecoder<DWORD>* pdwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "RegisterOcclusionStatusWindow(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << WindowHandle;
-    oss << ",\n";
-
-    oss << "    " << wMsg;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
-    {
-        oss << "    " << "&" << *pdwCookie->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterOcclusionStatusWindow", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "WindowHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(WindowHandle, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "wMsg", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(wMsg, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pdwCookie", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pdwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
         format::HandleId object_id,
@@ -9498,47 +1838,35 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "RegisterOcclusionStatusEvent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hEvent;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
-    {
-        oss << "    " << "&" << *pdwCookie->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterOcclusionStatusEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pdwCookie", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pdwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
         format::HandleId object_id,
         DWORD dwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "UnregisterOcclusionStatus(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << dwCookie;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UnregisterOcclusionStatus", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "dwCookie", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(dwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         format::HandleId object_id,
@@ -9548,64 +1876,39 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
-    oss << "->";
-    oss << "CreateSwapChainForComposition(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
-    {
-        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSwapChainForComposition", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRestrictToOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRestrictToOutput, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSwapChain", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSwapChain, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter2");
-    oss << "->";
-    oss << "GetDesc2(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc2", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
         format::HandleId object_id,
@@ -9615,38 +1918,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
         PointerDecoder<UINT>* pNumModes,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
-    oss << "->";
-    oss << "GetDisplayModeList1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(EnumFormat);
-    oss << ",\n";
-
-    oss << "    " << Flags;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNumModes, "    ", false))
-    {
-        oss << "    " << *pNumModes->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteArrayStructsString(oss, pDesc, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDisplayModeList1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "EnumFormat", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(EnumFormat, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pNumModes", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pNumModes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pNumModes, pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         format::HandleId object_id,
@@ -9655,58 +1941,38 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
         format::HandleId pConcernedDevice)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
-    oss << "->";
-    oss << "FindClosestMatchingMode1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pModeToMatch, "    ", false))
-    {
-        WriteStructString(oss, pModeToMatch->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pClosestMatch, "    ", true))
-    {
-        WriteStructString(oss, pClosestMatch->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("FindClosestMatchingMode1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pModeToMatch", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pModeToMatch, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pClosestMatch", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pClosestMatch, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pConcernedDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pConcernedDevice, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
         format::HandleId object_id,
         HRESULT return_value,
         format::HandleId pDestination)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
-    oss << "->";
-    oss << "GetDisplaySurfaceData1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDestination, "    ", "IDXGIResource", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDisplaySurfaceData1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDestination", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDestination, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
         format::HandleId object_id,
@@ -9714,29 +1980,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
         format::HandleId pDevice,
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
-    oss << "->";
-    oss << "DuplicateOutput(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppOutputDuplication, "    ", true))
-    {
-        WriteHandleId(oss, *ppOutputDuplication->GetPointer(), "    ", "IDXGIOutputDuplication", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DuplicateOutput", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppOutputDuplication", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppOutputDuplication, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from dxgi1_3.h in Windows SDK: 10.0.19041.0
@@ -9748,30 +2004,20 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFactory)
 {
-    std::ostringstream oss;
-    oss << "CreateDXGIFactory2(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Flags;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
-    {
-        WriteHandleId(oss, *ppFactory->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateDXGIFactory2", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppFactory", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppFactory, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
         HRESULT return_value,
@@ -9779,44 +2025,34 @@ void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* pDebug)
 {
-    std::ostringstream oss;
-    oss << "DXGIGetDebugInterface1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Flags;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDebug, "    ", true))
-    {
-        WriteHandleId(oss, *pDebug->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DXGIGetDebugInterface1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pDebug", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDebug, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice3_Trim(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice3");
-    oss << "->";
-    oss << "Trim(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Trim", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
         format::HandleId object_id,
@@ -9824,26 +2060,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
         UINT Width,
         UINT Height)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
-    oss << "->";
-    oss << "SetSourceSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Width;
-    oss << ",\n";
-
-    oss << "    " << Height;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetSourceSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Width", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Width, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Height", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Height, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
         format::HandleId object_id,
@@ -9851,190 +2080,139 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
         PointerDecoder<UINT>* pWidth,
         PointerDecoder<UINT>* pHeight)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
-    oss << "->";
-    oss << "GetSourceSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pWidth, "    ", true))
-    {
-        oss << "    " << "&" << *pWidth->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeight, "    ", true))
-    {
-        oss << "    " << "&" << *pHeight->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetSourceSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pWidth", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pWidth, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pHeight", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHeight, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
         format::HandleId object_id,
         HRESULT return_value,
         UINT MaxLatency)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
-    oss << "->";
-    oss << "SetMaximumFrameLatency(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << MaxLatency;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetMaximumFrameLatency", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "MaxLatency", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(MaxLatency, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<UINT>* pMaxLatency)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
-    oss << "->";
-    oss << "GetMaximumFrameLatency(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMaxLatency, "    ", true))
-    {
-        oss << "    " << "&" << *pMaxLatency->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetMaximumFrameLatency", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pMaxLatency", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pMaxLatency, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
         format::HandleId object_id,
         uint64_t return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
-    oss << "->";
-    oss << "GetFrameLatencyWaitableObject(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFrameLatencyWaitableObject", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
-    oss << "->";
-    oss << "SetMatrixTransform(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMatrix, "    ", false))
-    {
-        WriteStructString(oss, pMatrix->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetMatrixTransform", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pMatrix", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pMatrix, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
-    oss << "->";
-    oss << "GetMatrixTransform(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMatrix, "    ", true))
-    {
-        WriteStructString(oss, pMatrix->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetMatrixTransform", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pMatrix", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pMatrix, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput2_SupportsOverlays(
         format::HandleId object_id,
         BOOL return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput2");
-    oss << "->";
-    oss << "SupportsOverlays(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SupportsOverlays", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory3_GetCreationFlags(
         format::HandleId object_id,
         UINT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory3");
-    oss << "->";
-    oss << "GetCreationFlags(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCreationFlags", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
         format::HandleId object_id,
@@ -10043,81 +2221,56 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
         UINT SyncInterval,
         UINT Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "PresentBuffer(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << BufferToPresent;
-    oss << ",\n";
-
-    oss << "    " << SyncInterval;
-    oss << ",\n";
-
-    oss << "    " << Flags;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PresentBuffer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "BufferToPresent", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferToPresent, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SyncInterval", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SyncInterval, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "SetSourceRect(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRect, "    ", false))
-    {
-        WriteStructString(oss, pRect->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetSourceRect", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRect, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "SetTargetRect(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRect, "    ", false))
-    {
-        WriteStructString(oss, pRect->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetTargetRect", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRect, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
         format::HandleId object_id,
@@ -10125,78 +2278,55 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
         UINT Width,
         UINT Height)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "SetDestSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Width;
-    oss << ",\n";
-
-    oss << "    " << Height;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetDestSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Width", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Width, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Height", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Height, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "GetSourceRect(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRect, "    ", true))
-    {
-        WriteStructString(oss, pRect->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetSourceRect", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRect, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "GetTargetRect(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRect, "    ", true))
-    {
-        WriteStructString(oss, pRect->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetTargetRect", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRect, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
         format::HandleId object_id,
@@ -10204,74 +2334,53 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
         PointerDecoder<UINT>* pWidth,
         PointerDecoder<UINT>* pHeight)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "GetDestSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pWidth, "    ", true))
-    {
-        oss << "    " << "&" << *pWidth->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeight, "    ", true))
-    {
-        oss << "    " << "&" << *pHeight->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDestSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pWidth", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pWidth, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pHeight", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHeight, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
         format::HandleId object_id,
         HRESULT return_value,
         DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "SetColorSpace(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(ColorSpace);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetColorSpace", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "ColorSpace", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ColorSpace, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
         format::HandleId object_id,
         DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
-    oss << "->";
-    oss << "GetColorSpace(\n    /* ";
-
-    oss << "return = " ;
-    oss << ConverttoText(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetColorSpace", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
         format::HandleId object_id,
@@ -10282,41 +2391,22 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
         format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactoryMedia");
-    oss << "->";
-    oss << "CreateSwapChainForCompositionSurfaceHandle(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    oss << "    " << hSurface;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
-    {
-        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSwapChainForCompositionSurfaceHandle", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "hSurface", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hSurface, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRestrictToOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRestrictToOutput, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSwapChain", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSwapChain, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
         format::HandleId object_id,
@@ -10328,93 +2418,59 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
         format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactoryMedia");
-    oss << "->";
-    oss << "CreateDecodeSwapChainForCompositionSurfaceHandle(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    oss << "    " << hSurface;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pYuvDecodeBuffers, "    ", "IDXGIResource", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
-    {
-        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGIDecodeSwapChain", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateDecodeSwapChainForCompositionSurfaceHandle", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "hSurface", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hSurface, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pYuvDecodeBuffers", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pYuvDecodeBuffers, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRestrictToOutput", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRestrictToOutput, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSwapChain", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSwapChain, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChainMedia");
-    oss << "->";
-    oss << "GetFrameStatisticsMedia(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
-    {
-        WriteStructString(oss, pStats->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFrameStatisticsMedia", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pStats", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pStats, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
         format::HandleId object_id,
         HRESULT return_value,
         UINT Duration)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChainMedia");
-    oss << "->";
-    oss << "SetPresentDuration(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Duration;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPresentDuration", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Duration", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Duration, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
         format::HandleId object_id,
@@ -10423,35 +2479,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
         PointerDecoder<UINT>* pClosestSmallerPresentDuration,
         PointerDecoder<UINT>* pClosestLargerPresentDuration)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChainMedia");
-    oss << "->";
-    oss << "CheckPresentDurationSupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << DesiredPresentDuration;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pClosestSmallerPresentDuration, "    ", true))
-    {
-        oss << "    " << "&" << *pClosestSmallerPresentDuration->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pClosestLargerPresentDuration, "    ", true))
-    {
-        oss << "    " << "&" << *pClosestLargerPresentDuration->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CheckPresentDurationSupport", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "DesiredPresentDuration", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DesiredPresentDuration, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pClosestSmallerPresentDuration", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pClosestSmallerPresentDuration, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pClosestLargerPresentDuration", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pClosestLargerPresentDuration, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         format::HandleId object_id,
@@ -10460,32 +2501,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         format::HandleId pConcernedDevice,
         PointerDecoder<UINT>* pFlags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput3");
-    oss << "->";
-    oss << "CheckOverlaySupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(EnumFormat);
-    oss << ",\n";
-
-    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
-    {
-        oss << "    " << "&" << *pFlags->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CheckOverlaySupport", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "EnumFormat", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(EnumFormat, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pConcernedDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pConcernedDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pFlags", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFlags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from dxgi1_4.h in Windows SDK: 10.0.19041.0
@@ -10495,20 +2524,17 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
         format::HandleId object_id,
         UINT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
-    oss << "->";
-    oss << "GetCurrentBackBufferIndex(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCurrentBackBufferIndex", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
         format::HandleId object_id,
@@ -10516,52 +2542,37 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
         DXGI_COLOR_SPACE_TYPE ColorSpace,
         PointerDecoder<UINT>* pColorSpaceSupport)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
-    oss << "->";
-    oss << "CheckColorSpaceSupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(ColorSpace);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pColorSpaceSupport, "    ", true))
-    {
-        oss << "    " << "&" << *pColorSpaceSupport->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CheckColorSpaceSupport", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "ColorSpace", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ColorSpace, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]pColorSpaceSupport", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pColorSpaceSupport, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain3_SetColorSpace1(
         format::HandleId object_id,
         HRESULT return_value,
         DXGI_COLOR_SPACE_TYPE ColorSpace)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
-    oss << "->";
-    oss << "SetColorSpace1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(ColorSpace);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetColorSpace1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "ColorSpace", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ColorSpace, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
         format::HandleId object_id,
@@ -10574,47 +2585,24 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
         PointerDecoder<UINT>* pCreationNodeMask,
         HandlePointerDecoder<IUnknown*>* ppPresentQueue)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
-    oss << "->";
-    oss << "ResizeBuffers1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << BufferCount;
-    oss << ",\n";
-
-    oss << "    " << Width;
-    oss << ",\n";
-
-    oss << "    " << Height;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Format);
-    oss << ",\n";
-
-    oss << "    " << SwapChainFlags;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pCreationNodeMask, "    ", false))
-    {
-        WriteArrayValuesString(oss, pCreationNodeMask, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPresentQueue, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppPresentQueue, "IUnknown", "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ResizeBuffers1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "BufferCount", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferCount, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Width", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Width, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Height", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Height, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Format", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Format, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "SwapChainFlags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SwapChainFlags, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pCreationNodeMask", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(BufferCount, pCreationNodeMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppPresentQueue", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(BufferCount, ppPresentQueue, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
         format::HandleId object_id,
@@ -10624,35 +2612,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
         format::HandleId pConcernedDevice,
         PointerDecoder<UINT>* pFlags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput4");
-    oss << "->";
-    oss << "CheckOverlayColorSpaceSupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Format);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(ColorSpace);
-    oss << ",\n";
-
-    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
-    {
-        oss << "    " << "&" << *pFlags->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CheckOverlayColorSpaceSupport", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Format", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Format, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "ColorSpace", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ColorSpace, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pConcernedDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pConcernedDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pFlags", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFlags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
         format::HandleId object_id,
@@ -10661,32 +2635,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvAdapter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory4");
-    oss << "->";
-    oss << "EnumAdapterByLuid(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteStructString(oss, &AdapterLuid, "    ", false, false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
-    {
-        WriteHandleId(oss, *ppvAdapter->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumAdapterByLuid", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "AdapterLuid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(AdapterLuid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvAdapter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
         format::HandleId object_id,
@@ -10694,29 +2656,19 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvAdapter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory4");
-    oss << "->";
-    oss << "EnumWarpAdapter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
-    {
-        WriteHandleId(oss, *ppvAdapter->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumWarpAdapter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvAdapter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
         format::HandleId object_id,
@@ -10724,47 +2676,35 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionT
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
-    oss << "->";
-    oss << "RegisterHardwareContentProtectionTeardownStatusEvent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hEvent;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
-    {
-        oss << "    " << "&" << *pdwCookie->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterHardwareContentProtectionTeardownStatusEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pdwCookie", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pdwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
         format::HandleId object_id,
         DWORD dwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
-    oss << "->";
-    oss << "UnregisterHardwareContentProtectionTeardownStatus(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << dwCookie;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UnregisterHardwareContentProtectionTeardownStatus", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "dwCookie", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(dwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
         format::HandleId object_id,
@@ -10773,32 +2713,20 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
         DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
         StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
-    oss << "->";
-    oss << "QueryVideoMemoryInfo(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NodeIndex;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(MemorySegmentGroup);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pVideoMemoryInfo, "    ", true))
-    {
-        WriteStructString(oss, pVideoMemoryInfo->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("QueryVideoMemoryInfo", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NodeIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NodeIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "MemorySegmentGroup", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(MemorySegmentGroup, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]pVideoMemoryInfo", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pVideoMemoryInfo, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
         format::HandleId object_id,
@@ -10807,29 +2735,20 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
         DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
         UINT64 Reservation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
-    oss << "->";
-    oss << "SetVideoMemoryReservation(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NodeIndex;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(MemorySegmentGroup);
-    oss << ",\n";
-
-    oss << "    " << Reservation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetVideoMemoryReservation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NodeIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NodeIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "MemorySegmentGroup", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(MemorySegmentGroup, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Reservation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Reservation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
         format::HandleId object_id,
@@ -10837,47 +2756,35 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNot
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
-    oss << "->";
-    oss << "RegisterVideoMemoryBudgetChangeNotificationEvent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hEvent;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
-    {
-        oss << "    " << "&" << *pdwCookie->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterVideoMemoryBudgetChangeNotificationEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pdwCookie", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pdwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
         format::HandleId object_id,
         DWORD dwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
-    oss << "->";
-    oss << "UnregisterVideoMemoryBudgetChangeNotification(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << dwCookie;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UnregisterVideoMemoryBudgetChangeNotification", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "dwCookie", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(dwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from dxgi1_5.h in Windows SDK: 10.0.19041.0
@@ -10892,41 +2799,22 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
         PointerDecoder<DXGI_FORMAT>* pSupportedFormats,
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput5");
-    oss << "->";
-    oss << "DuplicateOutput1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    oss << "    " << Flags;
-    oss << ",\n";
-
-    oss << "    " << SupportedFormatsCount;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSupportedFormats, "    ", false))
-    {
-        WriteArrayConvertsString(oss, pSupportedFormats, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppOutputDuplication, "    ", true))
-    {
-        WriteHandleId(oss, *ppOutputDuplication->GetPointer(), "    ", "IDXGIOutputDuplication", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DuplicateOutput1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDevice, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SupportedFormatsCount", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SupportedFormatsCount, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSupportedFormats", toStringFlags, tabCount, tabSize, "TODO 2 : EnumPointerDecoderArrayToString(SupportedFormatsCount, pSupportedFormats, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppOutputDuplication", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppOutputDuplication, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
         format::HandleId object_id,
@@ -10935,32 +2823,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
         UINT Size,
         PointerDecoder<uint8_t>* pMetaData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGISwapChain4");
-    oss << "->";
-    oss << "SetHDRMetaData(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    oss << "    " << Size;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMetaData, "    ", false))
-    {
-        oss << "    " << "pMetaData" << " /* value = " << static_cast<uint16_t>(*pMetaData->GetPointer()) << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetHDRMetaData", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Size", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Size, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pMetaData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Size, pMetaData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
         format::HandleId object_id,
@@ -10970,35 +2846,21 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
         DXGI_OFFER_RESOURCE_PRIORITY Priority,
         UINT Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice4");
-    oss << "->";
-    oss << "OfferResources1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumResources;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppResources, "IDXGIResource", "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Priority);
-    oss << ",\n";
-
-    oss << "    " << Flags;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OfferResources1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumResources", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppResources", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumResources, ppResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Priority", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Priority, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Flags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
         format::HandleId object_id,
@@ -11007,35 +2869,20 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIDevice4");
-    oss << "->";
-    oss << "ReclaimResources1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumResources;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppResources, "IDXGIResource", "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResults, "    ", true))
-    {
-        WriteArrayConvertsString(oss, pResults, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReclaimResources1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumResources", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppResources", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumResources, ppResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pResults", toStringFlags, tabCount, tabSize, "TODO 2 : EnumPointerDecoderArrayToString(NumResources, pResults, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0
@@ -11044,96 +2891,71 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
 void Dx12AsciiConsumer::Process_DXGIDeclareAdapterRemovalSupport(
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    oss << "DXGIDeclareAdapterRemovalSupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DXGIDeclareAdapterRemovalSupport", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIAdapter4");
-    oss << "->";
-    oss << "GetDesc3(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc3", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput6");
-    oss << "->";
-    oss << "GetDesc1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<UINT>* pFlags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIOutput6");
-    oss << "->";
-    oss << "CheckHardwareCompositionSupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
-    {
-        oss << "    " << "&" << *pFlags->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CheckHardwareCompositionSupport", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pFlags", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFlags, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
         format::HandleId object_id,
@@ -11143,35 +2965,21 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvAdapter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory6");
-    oss << "->";
-    oss << "EnumAdapterByGpuPreference(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Adapter;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(GpuPreference);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
-    {
-        WriteHandleId(oss, *ppvAdapter->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumAdapterByGpuPreference", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Adapter", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Adapter, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "GpuPreference", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(GpuPreference, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvAdapter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         format::HandleId object_id,
@@ -11179,52 +2987,37 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory7");
-    oss << "->";
-    oss << "RegisterAdaptersChangedEvent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hEvent;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
-    {
-        oss << "    " << "&" << *pdwCookie->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterAdaptersChangedEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pdwCookie", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pdwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
         format::HandleId object_id,
         HRESULT return_value,
         DWORD dwCookie)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IDXGIFactory7");
-    oss << "->";
-    oss << "UnregisterAdaptersChangedEvent(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << dwCookie;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UnregisterAdaptersChangedEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "dwCookie", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(dwCookie, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from d3d12.h in Windows SDK: 10.0.19041.0
@@ -11237,39 +3030,21 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
         HandlePointerDecoder<ID3D10Blob*>* ppBlob,
         HandlePointerDecoder<ID3D10Blob*>* ppErrorBlob)
 {
-    std::ostringstream oss;
-    oss << "D3D12SerializeRootSignature(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRootSignature, "    ", false))
-    {
-        WriteStructString(oss, pRootSignature->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Version);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppBlob, "    ", true))
-    {
-        WriteHandleId(oss, *ppBlob->GetPointer(), "    ", "ID3D10Blob", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppErrorBlob, "    ", true))
-    {
-        WriteHandleId(oss, *ppErrorBlob->GetPointer(), "    ", "ID3D10Blob", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("D3D12SerializeRootSignature", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pRootSignature", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRootSignature, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Version", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Version, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]ppBlob", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppBlob, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppErrorBlob", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppErrorBlob, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
         HRESULT return_value,
@@ -11278,36 +3053,21 @@ void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
         Decoded_GUID pRootSignatureDeserializerInterface,
         HandlePointerDecoder<void*>* ppRootSignatureDeserializer)
 {
-    std::ostringstream oss;
-    oss << "D3D12CreateRootSignatureDeserializer(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
-    {
-        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << SrcDataSizeInBytes;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*pRootSignatureDeserializerInterface.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppRootSignatureDeserializer, "    ", true))
-    {
-        WriteHandleId(oss, *ppRootSignatureDeserializer->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("D3D12CreateRootSignatureDeserializer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pSrcData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(SrcDataSizeInBytes, pSrcData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcDataSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcDataSizeInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRootSignatureDeserializerInterface", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(pRootSignatureDeserializerInterface, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppRootSignatureDeserializer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppRootSignatureDeserializer, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
         HRESULT return_value,
@@ -11315,36 +3075,20 @@ void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
         HandlePointerDecoder<ID3D10Blob*>* ppBlob,
         HandlePointerDecoder<ID3D10Blob*>* ppErrorBlob)
 {
-    std::ostringstream oss;
-    oss << "D3D12SerializeVersionedRootSignature(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRootSignature, "    ", false))
-    {
-        WriteStructString(oss, pRootSignature->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppBlob, "    ", true))
-    {
-        WriteHandleId(oss, *ppBlob->GetPointer(), "    ", "ID3D10Blob", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppErrorBlob, "    ", true))
-    {
-        WriteHandleId(oss, *ppErrorBlob->GetPointer(), "    ", "ID3D10Blob", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("D3D12SerializeVersionedRootSignature", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pRootSignature", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRootSignature, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppBlob", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppBlob, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppErrorBlob", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppErrorBlob, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
         HRESULT return_value,
@@ -11353,36 +3097,21 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
         Decoded_GUID pRootSignatureDeserializerInterface,
         HandlePointerDecoder<void*>* ppRootSignatureDeserializer)
 {
-    std::ostringstream oss;
-    oss << "D3D12CreateVersionedRootSignatureDeserializer(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
-    {
-        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << SrcDataSizeInBytes;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*pRootSignatureDeserializerInterface.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppRootSignatureDeserializer, "    ", true))
-    {
-        WriteHandleId(oss, *ppRootSignatureDeserializer->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("D3D12CreateVersionedRootSignatureDeserializer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pSrcData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(SrcDataSizeInBytes, pSrcData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcDataSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcDataSizeInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRootSignatureDeserializerInterface", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(pRootSignatureDeserializerInterface, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppRootSignatureDeserializer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppRootSignatureDeserializer, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_D3D12CreateDevice(
         HRESULT return_value,
@@ -11391,60 +3120,40 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppDevice)
 {
-    std::ostringstream oss;
-    oss << "D3D12CreateDevice(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pAdapter, "    ", "IUnknown", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(MinimumFeatureLevel);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppDevice, "    ", true))
-    {
-        WriteHandleId(oss, *ppDevice->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("D3D12CreateDevice", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pAdapter", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pAdapter, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "MinimumFeatureLevel", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(MinimumFeatureLevel, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppDevice, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
         HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDebug)
 {
-    std::ostringstream oss;
-    oss << "D3D12GetDebugInterface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvDebug, "    ", true))
-    {
-        WriteHandleId(oss, *ppvDebug->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("D3D12GetDebugInterface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvDebug", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvDebug, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
         HRESULT return_value,
@@ -11453,39 +3162,21 @@ void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
         PointerDecoder<uint8_t>* pConfigurationStructs,
         PointerDecoder<UINT>* pConfigurationStructSizes)
 {
-    std::ostringstream oss;
-    oss << "D3D12EnableExperimentalFeatures(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumFeatures;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pIIDs, "    ", false))
-    {
-        WriteArrayConvertsString(oss, pIIDs, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pConfigurationStructs, "    ", false))
-    {
-        oss << "    " << "pConfigurationStructs" << " /* value = " << static_cast<uint16_t>(*pConfigurationStructs->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pConfigurationStructSizes, "    ", false))
-    {
-        WriteArrayValuesString(oss, pConfigurationStructSizes, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("D3D12EnableExperimentalFeatures", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumFeatures", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumFeatures, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pIIDs", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumFeatures, pIIDs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pConfigurationStructs", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumFeatures, pConfigurationStructs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pConfigurationStructSizes", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumFeatures, pConfigurationStructSizes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
         format::HandleId object_id,
@@ -11494,35 +3185,20 @@ void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
         PointerDecoder<UINT>* pDataSize,
         PointerDecoder<uint8_t>* pData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Object");
-    oss << "->";
-    oss << "GetPrivateData(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*guid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDataSize, "    ", false))
-    {
-        oss << "    " << *pDataSize->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
-    {
-        oss << "    " << "&" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetPrivateData", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "guid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(guid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDataSize", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDataSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(* pDataSize, pData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
         format::HandleId object_id,
@@ -11531,32 +3207,20 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
         UINT DataSize,
         PointerDecoder<uint8_t>* pData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Object");
-    oss << "->";
-    oss << "SetPrivateData(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*guid.decoded_value);
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPrivateData", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "guid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(guid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
         format::HandleId object_id,
@@ -11564,52 +3228,37 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
         Decoded_GUID guid,
         format::HandleId pData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Object");
-    oss << "->";
-    oss << "SetPrivateDataInterface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*guid.decoded_value);
-    oss << ",\n";
-
-    WriteHandleId(oss, pData, "    ", "IUnknown", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPrivateDataInterface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "guid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(guid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Object_SetName(
         format::HandleId object_id,
         HRESULT return_value,
         WStringDecoder* Name)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Object");
-    oss << "->";
-    oss << "SetName(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, Name, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetName", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Name", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(Name, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
         format::HandleId object_id,
@@ -11617,51 +3266,35 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDevice)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceChild");
-    oss << "->";
-    oss << "GetDevice(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvDevice, "    ", true))
-    {
-        WriteHandleId(oss, *ppvDevice->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDevice", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvDevice", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvDevice, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12RootSignatureDeserializer");
-    oss << "->";
-    oss << "GetRootSignatureDesc(\n    /* ";
-
-    oss << "return = " ;
-    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
-    {
-        WriteStructString(oss, return_value->GetMetaStructPointer(), "                ", true, false);
-    }
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRootSignatureDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
         format::HandleId object_id,
@@ -11669,70 +3302,51 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
         D3D_ROOT_SIGNATURE_VERSION convertToVersion,
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* ppDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12VersionedRootSignatureDeserializer");
-    oss << "->";
-    oss << "GetRootSignatureDescAtVersion(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(convertToVersion);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppDesc, "    ", true))
-    {
-        WriteStructString(oss, ppDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRootSignatureDescAtVersion", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "convertToVersion", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(convertToVersion, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]ppDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(ppDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12VersionedRootSignatureDeserializer");
-    oss << "->";
-    oss << "GetUnconvertedRootSignatureDesc(\n    /* ";
-
-    oss << "return = " ;
-    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
-    {
-        WriteStructString(oss, return_value->GetMetaStructPointer(), "                ", true, false);
-    }
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetUnconvertedRootSignatureDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Heap_GetDesc(
         format::HandleId object_id,
         Decoded_D3D12_HEAP_DESC return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Heap");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
         format::HandleId object_id,
@@ -11741,98 +3355,70 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
         StructPointerDecoder<Decoded_D3D12_RANGE>* pReadRange,
         PointerDecoder<uint64_t, void*>* ppData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "Map(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Subresource;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pReadRange, "    ", false))
-    {
-        WriteStructString(oss, pReadRange->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppData, "    ", true))
-    {
-        oss << "    " << "&" << "ppData" << " /* address = " << *ppData->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Map", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Subresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Subresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pReadRange", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pReadRange, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppData", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_Unmap(
         format::HandleId object_id,
         UINT Subresource,
         StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "Unmap(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Subresource;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pWrittenRange, "    ", false))
-    {
-        WriteStructString(oss, pWrittenRange->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Unmap", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Subresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Subresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pWrittenRange", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pWrittenRange, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_GetDesc(
         format::HandleId object_id,
         Decoded_D3D12_RESOURCE_DESC return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
         format::HandleId object_id,
         D3D12_GPU_VIRTUAL_ADDRESS return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "GetGPUVirtualAddress(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetGPUVirtualAddress", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
         format::HandleId object_id,
@@ -11843,38 +3429,22 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
         UINT SrcRowPitch,
         UINT SrcDepthPitch)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "WriteToSubresource(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << DstSubresource;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDstBox, "    ", false))
-    {
-        WriteStructString(oss, pDstBox->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << pSrcData;
-    oss << ",\n";
-
-    oss << "    " << SrcRowPitch;
-    oss << ",\n";
-
-    oss << "    " << SrcDepthPitch;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("WriteToSubresource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "DstSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDstBox", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDstBox, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcData", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcRowPitch", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcRowPitch, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcDepthPitch", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcDepthPitch, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
         format::HandleId object_id,
@@ -11885,38 +3455,22 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
         UINT SrcSubresource,
         StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "ReadFromSubresource(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << "&" << pDstData;
-    oss << ",\n";
-
-    oss << "    " << DstRowPitch;
-    oss << ",\n";
-
-    oss << "    " << DstDepthPitch;
-    oss << ",\n";
-
-    oss << "    " << SrcSubresource;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcBox, "    ", false))
-    {
-        WriteStructString(oss, pSrcBox->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReadFromSubresource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pDstData", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstRowPitch", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstRowPitch, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstDepthPitch", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstDepthPitch, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcBox", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pSrcBox, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
         format::HandleId object_id,
@@ -11924,70 +3478,51 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
         StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
         PointerDecoder<D3D12_HEAP_FLAGS>* pHeapFlags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "GetHeapProperties(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeapProperties, "    ", true))
-    {
-        WriteStructString(oss, pHeapProperties->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeapFlags, "    ", true))
-    {
-        oss << "    " << "&" << ConverttoText(*pHeapFlags->GetPointer());
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetHeapProperties", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pHeapProperties", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pHeapProperties, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pHeapFlags", toStringFlags, tabCount, tabSize, "TODO 6 : EnumPointerDecoderToString(pHeapFlags)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandAllocator_Reset(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandAllocator");
-    oss << "->";
-    oss << "Reset(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Reset", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Fence_GetCompletedValue(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Fence");
-    oss << "->";
-    oss << "GetCompletedValue(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCompletedValue", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
         format::HandleId object_id,
@@ -11995,189 +3530,151 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
         UINT64 Value,
         uint64_t hEvent)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Fence");
-    oss << "->";
-    oss << "SetEventOnCompletion(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Value;
-    oss << ",\n";
-
-    oss << "    " << hEvent;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetEventOnCompletion", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Value", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Value, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Fence_Signal(
         format::HandleId object_id,
         HRESULT return_value,
         UINT64 Value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Fence");
-    oss << "->";
-    oss << "Signal(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Value;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Signal", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Value", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Value, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Fence1_GetCreationFlags(
         format::HandleId object_id,
         D3D12_FENCE_FLAGS return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Fence1");
-    oss << "->";
-    oss << "GetCreationFlags(\n    /* ";
-
-    oss << "return = " ;
-    oss << ConverttoText(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCreationFlags", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         format::HandleId object_id,
         HRESULT return_value,
         HandlePointerDecoder<ID3D10Blob*>* ppBlob)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12PipelineState");
-    oss << "->";
-    oss << "GetCachedBlob(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppBlob, "    ", true))
-    {
-        WriteHandleId(oss, *ppBlob->GetPointer(), "    ", "ID3D10Blob", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCachedBlob", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]ppBlob", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppBlob, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetDesc(
         format::HandleId object_id,
         Decoded_D3D12_DESCRIPTOR_HEAP_DESC return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
         format::HandleId object_id,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
-    oss << "->";
-    oss << "GetCPUDescriptorHandleForHeapStart(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCPUDescriptorHandleForHeapStart", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
         format::HandleId object_id,
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
-    oss << "->";
-    oss << "GetGPUDescriptorHandleForHeapStart(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetGPUDescriptorHandleForHeapStart", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandList_GetType(
         format::HandleId object_id,
         D3D12_COMMAND_LIST_TYPE return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandList");
-    oss << "->";
-    oss << "GetType(\n    /* ";
-
-    oss << "return = " ;
-    oss << ConverttoText(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetType", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "Close(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Close", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
         format::HandleId object_id,
@@ -12185,44 +3682,35 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
         format::HandleId pAllocator,
         format::HandleId pInitialState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "Reset(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pAllocator, "    ", "ID3D12CommandAllocator", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pInitialState, "    ", "ID3D12PipelineState", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Reset", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pInitialState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pInitialState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearState(
         format::HandleId object_id,
         format::HandleId pPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ClearState(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pPipelineState, "    ", "ID3D12PipelineState", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
         format::HandleId object_id,
@@ -12231,28 +3719,20 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
         UINT StartVertexLocation,
         UINT StartInstanceLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "DrawInstanced(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << VertexCountPerInstance;
-    oss << ",\n";
-
-    oss << "    " << InstanceCount;
-    oss << ",\n";
-
-    oss << "    " << StartVertexLocation;
-    oss << ",\n";
-
-    oss << "    " << StartInstanceLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DrawInstanced", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "VertexCountPerInstance", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(VertexCountPerInstance, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InstanceCount", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(InstanceCount, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "StartVertexLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StartVertexLocation, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "StartInstanceLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StartInstanceLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
         format::HandleId object_id,
@@ -12262,31 +3742,21 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
         INT BaseVertexLocation,
         UINT StartInstanceLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "DrawIndexedInstanced(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << IndexCountPerInstance;
-    oss << ",\n";
-
-    oss << "    " << InstanceCount;
-    oss << ",\n";
-
-    oss << "    " << StartIndexLocation;
-    oss << ",\n";
-
-    oss << "    " << BaseVertexLocation;
-    oss << ",\n";
-
-    oss << "    " << StartInstanceLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DrawIndexedInstanced", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "IndexCountPerInstance", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(IndexCountPerInstance, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InstanceCount", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(InstanceCount, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "StartIndexLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StartIndexLocation, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BaseVertexLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BaseVertexLocation, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "StartInstanceLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StartInstanceLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
         format::HandleId object_id,
@@ -12294,25 +3764,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
         UINT ThreadGroupCountY,
         UINT ThreadGroupCountZ)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "Dispatch(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ThreadGroupCountX;
-    oss << ",\n";
-
-    oss << "    " << ThreadGroupCountY;
-    oss << ",\n";
-
-    oss << "    " << ThreadGroupCountZ;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Dispatch", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "ThreadGroupCountX", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ThreadGroupCountX, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ThreadGroupCountY", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ThreadGroupCountY, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ThreadGroupCountZ", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ThreadGroupCountZ, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
         format::HandleId object_id,
@@ -12322,31 +3786,21 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
         UINT64 SrcOffset,
         UINT64 NumBytes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "CopyBufferRegion(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDstBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << DstOffset;
-    oss << ",\n";
-
-    WriteHandleId(oss, pSrcBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << SrcOffset;
-    oss << ",\n";
-
-    oss << "    " << NumBytes;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyBufferRegion", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDstBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumBytes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
         format::HandleId object_id,
@@ -12357,65 +3811,40 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
         StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* pSrc,
         StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "CopyTextureRegion(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDst, "    ", false))
-    {
-        WriteStructString(oss, pDst->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << DstX;
-    oss << ",\n";
-
-    oss << "    " << DstY;
-    oss << ",\n";
-
-    oss << "    " << DstZ;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrc, "    ", false))
-    {
-        WriteStructString(oss, pSrc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcBox, "    ", false))
-    {
-        WriteStructString(oss, pSrcBox->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyTextureRegion", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDst", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDst, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstX", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstX, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstY", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstY, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstZ", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstZ, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pSrc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcBox", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pSrcBox, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
         format::HandleId object_id,
         format::HandleId pDstResource,
         format::HandleId pSrcResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "CopyResource(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyResource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDstResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
         format::HandleId object_id,
@@ -12426,40 +3855,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
         UINT64 BufferStartOffsetInBytes,
         D3D12_TILE_COPY_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "CopyTiles(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pTiledResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pTileRegionStartCoordinate, "    ", false))
-    {
-        WriteStructString(oss, pTileRegionStartCoordinate->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pTileRegionSize, "    ", false))
-    {
-        WriteStructString(oss, pTileRegionSize->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << BufferStartOffsetInBytes;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyTiles", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pTiledResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pTiledResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pTileRegionStartCoordinate", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pTileRegionStartCoordinate, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pTileRegionSize", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pTileRegionSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BufferStartOffsetInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferStartOffsetInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
         format::HandleId object_id,
@@ -12469,304 +3880,241 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
         UINT SrcSubresource,
         DXGI_FORMAT Format)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ResolveSubresource(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << DstSubresource;
-    oss << ",\n";
-
-    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << SrcSubresource;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Format);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ResolveSubresource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDstResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Format", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Format, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopology(
         format::HandleId object_id,
         D3D_PRIMITIVE_TOPOLOGY PrimitiveTopology)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "IASetPrimitiveTopology(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(PrimitiveTopology);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("IASetPrimitiveTopology", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "PrimitiveTopology", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(PrimitiveTopology, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
         format::HandleId object_id,
         UINT NumViewports,
         StructPointerDecoder<Decoded_D3D12_VIEWPORT>* pViewports)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "RSSetViewports(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumViewports;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pViewports, "    ", false))
-    {
-        WriteArrayStructsString(oss, pViewports, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RSSetViewports", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumViewports", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumViewports, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pViewports", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumViewports, pViewports, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
         format::HandleId object_id,
         UINT NumRects,
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "RSSetScissorRects(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumRects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
-    {
-        WriteArrayStructsString(oss, pRects, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RSSetScissorRects", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumRects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRects", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumRects, pRects, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
         format::HandleId object_id,
         PointerDecoder<FLOAT> BlendFactor [4])
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "OMSetBlendFactor(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, BlendFactor, "    ", false))
-    {
-        WriteArrayValuesString(oss, BlendFactor, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OMSetBlendFactor", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "BlendFactor", toStringFlags, tabCount, tabSize, "TODO 11 : PointerDecoderArrayToString(4, BlendFactor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
         format::HandleId object_id,
         UINT StencilRef)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "OMSetStencilRef(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << StencilRef;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OMSetStencilRef", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "StencilRef", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StencilRef, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
         format::HandleId object_id,
         format::HandleId pPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetPipelineState(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pPipelineState, "    ", "ID3D12PipelineState", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPipelineState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
         format::HandleId object_id,
         UINT NumBarriers,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_BARRIER>* pBarriers)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ResourceBarrier(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumBarriers;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pBarriers, "    ", false))
-    {
-        WriteArrayStructsString(oss, pBarriers, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ResourceBarrier", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumBarriers", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumBarriers, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pBarriers", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumBarriers, pBarriers, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
         format::HandleId object_id,
         format::HandleId pCommandList)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ExecuteBundle(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pCommandList, "    ", "ID3D12GraphicsCommandList", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ExecuteBundle", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pCommandList", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pCommandList, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
         format::HandleId object_id,
         UINT NumDescriptorHeaps,
         HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetDescriptorHeaps(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumDescriptorHeaps;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppDescriptorHeaps, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppDescriptorHeaps, "ID3D12DescriptorHeap", "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetDescriptorHeaps", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumDescriptorHeaps", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumDescriptorHeaps, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppDescriptorHeaps", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumDescriptorHeaps, ppDescriptorHeaps, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignature(
         format::HandleId object_id,
         format::HandleId pRootSignature)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetComputeRootSignature(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pRootSignature, "    ", "ID3D12RootSignature", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetComputeRootSignature", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pRootSignature", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRootSignature, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
         format::HandleId object_id,
         format::HandleId pRootSignature)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetGraphicsRootSignature(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pRootSignature, "    ", "ID3D12RootSignature", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGraphicsRootSignature", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pRootSignature", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRootSignature, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
         format::HandleId object_id,
         UINT RootParameterIndex,
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetComputeRootDescriptorTable(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    WriteStructString(oss, &BaseDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetComputeRootDescriptorTable", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BaseDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(BaseDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
         format::HandleId object_id,
         UINT RootParameterIndex,
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetGraphicsRootDescriptorTable(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    WriteStructString(oss, &BaseDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGraphicsRootDescriptorTable", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BaseDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(BaseDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(
         format::HandleId object_id,
@@ -12774,25 +4122,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
         UINT SrcData,
         UINT DestOffsetIn32BitValues)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetComputeRoot32BitConstant(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << SrcData;
-    oss << ",\n";
-
-    oss << "    " << DestOffsetIn32BitValues;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetComputeRoot32BitConstant", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcData", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestOffsetIn32BitValues", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DestOffsetIn32BitValues, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(
         format::HandleId object_id,
@@ -12800,25 +4142,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
         UINT SrcData,
         UINT DestOffsetIn32BitValues)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetGraphicsRoot32BitConstant(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << SrcData;
-    oss << ",\n";
-
-    oss << "    " << DestOffsetIn32BitValues;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGraphicsRoot32BitConstant", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcData", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestOffsetIn32BitValues", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DestOffsetIn32BitValues, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(
         format::HandleId object_id,
@@ -12827,31 +4163,20 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
         PointerDecoder<uint8_t>* pSrcData,
         UINT DestOffsetIn32BitValues)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetComputeRoot32BitConstants(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << Num32BitValuesToSet;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
-    {
-        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DestOffsetIn32BitValues;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetComputeRoot32BitConstants", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Num32BitValuesToSet", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Num32BitValuesToSet, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Num32BitValuesToSet * sizeof ( UINT ), pSrcData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestOffsetIn32BitValues", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DestOffsetIn32BitValues, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(
         format::HandleId object_id,
@@ -12860,184 +4185,144 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
         PointerDecoder<uint8_t>* pSrcData,
         UINT DestOffsetIn32BitValues)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetGraphicsRoot32BitConstants(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << Num32BitValuesToSet;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
-    {
-        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DestOffsetIn32BitValues;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGraphicsRoot32BitConstants", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Num32BitValuesToSet", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Num32BitValuesToSet, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Num32BitValuesToSet * sizeof ( UINT ), pSrcData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestOffsetIn32BitValues", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DestOffsetIn32BitValues, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
         format::HandleId object_id,
         UINT RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetComputeRootConstantBufferView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << BufferLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetComputeRootConstantBufferView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BufferLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
         format::HandleId object_id,
         UINT RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetGraphicsRootConstantBufferView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << BufferLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGraphicsRootConstantBufferView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BufferLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
         format::HandleId object_id,
         UINT RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetComputeRootShaderResourceView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << BufferLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetComputeRootShaderResourceView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BufferLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
         format::HandleId object_id,
         UINT RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetGraphicsRootShaderResourceView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << BufferLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGraphicsRootShaderResourceView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BufferLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
         format::HandleId object_id,
         UINT RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetComputeRootUnorderedAccessView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << BufferLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetComputeRootUnorderedAccessView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BufferLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
         format::HandleId object_id,
         UINT RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetGraphicsRootUnorderedAccessView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << RootParameterIndex;
-    oss << ",\n";
-
-    oss << "    " << BufferLocation;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGraphicsRootUnorderedAccessView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RootParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RootParameterIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BufferLocation", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BufferLocation, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "IASetIndexBuffer(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pView, "    ", false))
-    {
-        WriteStructString(oss, pView->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("IASetIndexBuffer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pView", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pView, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
         format::HandleId object_id,
@@ -13045,28 +4330,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
         UINT NumViews,
         StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* pViews)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "IASetVertexBuffers(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << StartSlot;
-    oss << ",\n";
-
-    oss << "    " << NumViews;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pViews, "    ", false))
-    {
-        WriteArrayStructsString(oss, pViews, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("IASetVertexBuffers", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "StartSlot", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StartSlot, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumViews", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumViews, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pViews", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumViews, pViews, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
         format::HandleId object_id,
@@ -13074,28 +4350,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
         UINT NumViews,
         StructPointerDecoder<Decoded_D3D12_STREAM_OUTPUT_BUFFER_VIEW>* pViews)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SOSetTargets(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << StartSlot;
-    oss << ",\n";
-
-    oss << "    " << NumViews;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pViews, "    ", false))
-    {
-        WriteArrayStructsString(oss, pViews, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SOSetTargets", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "StartSlot", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StartSlot, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumViews", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumViews, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pViews", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumViews, pViews, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
         format::HandleId object_id,
@@ -13104,34 +4371,20 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
         BOOL RTsSingleHandleToDescriptorRange,
         StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "OMSetRenderTargets(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumRenderTargetDescriptors;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRenderTargetDescriptors, "    ", false))
-    {
-        WriteArrayStructsString(oss, pRenderTargetDescriptors, "    ", false);
-    }
-    oss << ",\n";
-
-    WriteBOOLString(oss, RTsSingleHandleToDescriptorRange, "    ", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDepthStencilDescriptor, "    ", false))
-    {
-        WriteStructString(oss, pDepthStencilDescriptor->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OMSetRenderTargets", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumRenderTargetDescriptors", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRenderTargetDescriptors, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRenderTargetDescriptors", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors, pRenderTargetDescriptors, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "RTsSingleHandleToDescriptorRange", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(RTsSingleHandleToDescriptorRange, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDepthStencilDescriptor", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDepthStencilDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
         format::HandleId object_id,
@@ -13142,37 +4395,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
         UINT NumRects,
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ClearDepthStencilView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteStructString(oss, &DepthStencilView, "    ", false, false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(ClearFlags);
-    oss << ",\n";
-
-    oss << "    " << Depth;
-    oss << ",\n";
-
-    oss << "    " << static_cast<uint16_t>(Stencil);
-    oss << ",\n";
-
-    oss << "    " << NumRects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
-    {
-        WriteArrayStructsString(oss, pRects, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearDepthStencilView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "DepthStencilView", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DepthStencilView, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ClearFlags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ClearFlags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Depth", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Depth, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Stencil", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Stencil, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumRects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRects", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumRects, pRects, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
         format::HandleId object_id,
@@ -13181,34 +4419,20 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
         UINT NumRects,
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ClearRenderTargetView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteStructString(oss, &RenderTargetView, "    ", false, false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ColorRGBA, "    ", false))
-    {
-        WriteArrayValuesString(oss, ColorRGBA, "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumRects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
-    {
-        WriteArrayStructsString(oss, pRects, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearRenderTargetView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "RenderTargetView", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(RenderTargetView, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ColorRGBA", toStringFlags, tabCount, tabSize, "TODO 11 : PointerDecoderArrayToString(4, ColorRGBA, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumRects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRects", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumRects, pRects, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
         format::HandleId object_id,
@@ -13219,40 +4443,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         UINT NumRects,
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ClearUnorderedAccessViewUint(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteStructString(oss, &ViewGPUHandleInCurrentHeap, "    ", false, false);
-    oss << ",\n";
-
-    WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
-    {
-        WriteArrayValuesString(oss, Values, "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumRects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
-    {
-        WriteArrayStructsString(oss, pRects, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearUnorderedAccessViewUint", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "ViewGPUHandleInCurrentHeap", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(ViewGPUHandleInCurrentHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ViewCPUHandle", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(ViewCPUHandle, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Values", toStringFlags, tabCount, tabSize, "TODO 11 : PointerDecoderArrayToString(4, Values, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumRects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRects", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumRects, pRects, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
         format::HandleId object_id,
@@ -13263,65 +4469,40 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         UINT NumRects,
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ClearUnorderedAccessViewFloat(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteStructString(oss, &ViewGPUHandleInCurrentHeap, "    ", false, false);
-    oss << ",\n";
-
-    WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
-    {
-        WriteArrayValuesString(oss, Values, "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumRects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
-    {
-        WriteArrayStructsString(oss, pRects, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearUnorderedAccessViewFloat", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "ViewGPUHandleInCurrentHeap", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(ViewGPUHandleInCurrentHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ViewCPUHandle", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(ViewCPUHandle, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Values", toStringFlags, tabCount, tabSize, "TODO 11 : PointerDecoderArrayToString(4, Values, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumRects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRects", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumRects, pRects, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
         format::HandleId object_id,
         format::HandleId pResource,
         StructPointerDecoder<Decoded_D3D12_DISCARD_REGION>* pRegion)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "DiscardResource(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRegion, "    ", false))
-    {
-        WriteStructString(oss, pRegion->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DiscardResource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRegion", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRegion, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
         format::HandleId object_id,
@@ -13329,25 +4510,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
         D3D12_QUERY_TYPE Type,
         UINT Index)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "BeginQuery(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pQueryHeap, "    ", "ID3D12QueryHeap", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    oss << "    " << Index;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("BeginQuery", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pQueryHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pQueryHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Index", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Index, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
         format::HandleId object_id,
@@ -13355,25 +4530,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
         D3D12_QUERY_TYPE Type,
         UINT Index)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "EndQuery(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pQueryHeap, "    ", "ID3D12QueryHeap", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    oss << "    " << Index;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EndQuery", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pQueryHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pQueryHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Index", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Index, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
         format::HandleId object_id,
@@ -13384,34 +4553,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
         format::HandleId pDestinationBuffer,
         UINT64 AlignedDestinationBufferOffset)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ResolveQueryData(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pQueryHeap, "    ", "ID3D12QueryHeap", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    oss << "    " << StartIndex;
-    oss << ",\n";
-
-    oss << "    " << NumQueries;
-    oss << ",\n";
-
-    WriteHandleId(oss, pDestinationBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << AlignedDestinationBufferOffset;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ResolveQueryData", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pQueryHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pQueryHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "StartIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(StartIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumQueries", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumQueries, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDestinationBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDestinationBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "AlignedDestinationBufferOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(AlignedDestinationBufferOffset, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
         format::HandleId object_id,
@@ -13419,25 +4576,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
         UINT64 AlignedBufferOffset,
         D3D12_PREDICATION_OP Operation)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetPredication(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << AlignedBufferOffset;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Operation);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPredication", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "AlignedBufferOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(AlignedBufferOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Operation", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Operation, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
         format::HandleId object_id,
@@ -13445,28 +4596,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
         PointerDecoder<uint8_t>* pData,
         UINT Size)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "SetMarker(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Metadata;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << Size;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetMarker", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Metadata", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Metadata, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Size, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Size", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Size, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
         format::HandleId object_id,
@@ -13474,42 +4616,33 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
         PointerDecoder<uint8_t>* pData,
         UINT Size)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "BeginEvent(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Metadata;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << Size;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("BeginEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Metadata", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Metadata, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Size, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Size", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Size, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "EndEvent(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EndEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
         format::HandleId object_id,
@@ -13520,34 +4653,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
         format::HandleId pCountBuffer,
         UINT64 CountBufferOffset)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ExecuteIndirect(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pCommandSignature, "    ", "ID3D12CommandSignature", false);
-    oss << ",\n";
-
-    oss << "    " << MaxCommandCount;
-    oss << ",\n";
-
-    WriteHandleId(oss, pArgumentBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << ArgumentBufferOffset;
-    oss << ",\n";
-
-    WriteHandleId(oss, pCountBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << CountBufferOffset;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ExecuteIndirect", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pCommandSignature", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pCommandSignature, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "MaxCommandCount", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(MaxCommandCount, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pArgumentBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pArgumentBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ArgumentBufferOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ArgumentBufferOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pCountBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pCountBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "CountBufferOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(CountBufferOffset, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
         format::HandleId object_id,
@@ -13559,43 +4680,23 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
         HandlePointerDecoder<ID3D12Resource*>* ppDependentResources,
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64>* pDependentSubresourceRanges)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
-    oss << "->";
-    oss << "AtomicCopyBufferUINT(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDstBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << DstOffset;
-    oss << ",\n";
-
-    WriteHandleId(oss, pSrcBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << SrcOffset;
-    oss << ",\n";
-
-    oss << "    " << Dependencies;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppDependentResources, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppDependentResources, "ID3D12Resource", "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDependentSubresourceRanges, "    ", false))
-    {
-        WriteArrayStructsString(oss, pDependentSubresourceRanges, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AtomicCopyBufferUINT", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDstBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Dependencies", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Dependencies, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppDependentResources", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Dependencies, ppDependentResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDependentSubresourceRanges", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(Dependencies, pDependentSubresourceRanges, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
         format::HandleId object_id,
@@ -13607,65 +4708,41 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT6
         HandlePointerDecoder<ID3D12Resource*>* ppDependentResources,
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64>* pDependentSubresourceRanges)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
-    oss << "->";
-    oss << "AtomicCopyBufferUINT64(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDstBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << DstOffset;
-    oss << ",\n";
-
-    WriteHandleId(oss, pSrcBuffer, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << SrcOffset;
-    oss << ",\n";
-
-    oss << "    " << Dependencies;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppDependentResources, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppDependentResources, "ID3D12Resource", "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDependentSubresourceRanges, "    ", false))
-    {
-        WriteArrayStructsString(oss, pDependentSubresourceRanges, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AtomicCopyBufferUINT64", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDstBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcBuffer", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcBuffer, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Dependencies", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Dependencies, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppDependentResources", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Dependencies, ppDependentResources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDependentSubresourceRanges", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(Dependencies, pDependentSubresourceRanges, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
         format::HandleId object_id,
         FLOAT Min,
         FLOAT Max)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
-    oss << "->";
-    oss << "OMSetDepthBounds(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Min;
-    oss << ",\n";
-
-    oss << "    " << Max;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OMSetDepthBounds", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Min", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Min, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Max", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Max, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
         format::HandleId object_id,
@@ -13673,28 +4750,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
         UINT NumPixels,
         StructPointerDecoder<Decoded_D3D12_SAMPLE_POSITION>* pSamplePositions)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
-    oss << "->";
-    oss << "SetSamplePositions(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumSamplesPerPixel;
-    oss << ",\n";
-
-    oss << "    " << NumPixels;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSamplePositions, "    ", false))
-    {
-        WriteArrayStructsString(oss, pSamplePositions, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetSamplePositions", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumSamplesPerPixel", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumSamplesPerPixel, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumPixels", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumPixels, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSamplePositions", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumSamplesPerPixel * NumPixels, pSamplePositions, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
         format::HandleId object_id,
@@ -13708,64 +4776,41 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
         DXGI_FORMAT Format,
         D3D12_RESOLVE_MODE ResolveMode)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
-    oss << "->";
-    oss << "ResolveSubresourceRegion(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << DstSubresource;
-    oss << ",\n";
-
-    oss << "    " << DstX;
-    oss << ",\n";
-
-    oss << "    " << DstY;
-    oss << ",\n";
-
-    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << SrcSubresource;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcRect, "    ", false))
-    {
-        WriteStructString(oss, pSrcRect->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Format);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(ResolveMode);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ResolveSubresourceRegion", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDstResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstX", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstX, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DstY", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DstY, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SrcSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcRect", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pSrcRect, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Format", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Format, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "ResolveMode", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ResolveMode, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
         format::HandleId object_id,
         UINT Mask)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
-    oss << "->";
-    oss << "SetViewInstanceMask(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Mask;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetViewInstanceMask", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Mask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Mask, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
         format::HandleId object_id,
@@ -13773,31 +4818,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
         StructPointerDecoder<Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER>* pParams,
         PointerDecoder<D3D12_WRITEBUFFERIMMEDIATE_MODE>* pModes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList2");
-    oss << "->";
-    oss << "WriteBufferImmediate(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Count;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pParams, "    ", false))
-    {
-        WriteArrayStructsString(oss, pParams, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pModes, "    ", false))
-    {
-        WriteArrayConvertsString(oss, pModes, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("WriteBufferImmediate", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Count", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Count, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pParams", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(Count, pParams, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pModes", toStringFlags, tabCount, tabSize, "TODO 2 : EnumPointerDecoderArrayToString(Count, pModes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         format::HandleId object_id,
@@ -13812,61 +4845,26 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         PointerDecoder<UINT>* pRangeTileCounts,
         D3D12_TILE_MAPPING_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "UpdateTileMappings(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << NumResourceRegions;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceRegionStartCoordinates, "    ", false))
-    {
-        WriteArrayStructsString(oss, pResourceRegionStartCoordinates, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceRegionSizes, "    ", false))
-    {
-        WriteArrayStructsString(oss, pResourceRegionSizes, "    ", false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pHeap, "    ", "ID3D12Heap", false);
-    oss << ",\n";
-
-    oss << "    " << NumRanges;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRangeFlags, "    ", false))
-    {
-        WriteArrayConvertsString(oss, pRangeFlags, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeapRangeStartOffsets, "    ", false))
-    {
-        WriteArrayValuesString(oss, pHeapRangeStartOffsets, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRangeTileCounts, "    ", false))
-    {
-        WriteArrayValuesString(oss, pRangeTileCounts, "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UpdateTileMappings", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumResourceRegions", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumResourceRegions, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pResourceRegionStartCoordinates", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumResourceRegions, pResourceRegionStartCoordinates, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pResourceRegionSizes", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumResourceRegions, pResourceRegionSizes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumRanges", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRanges, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRangeFlags", toStringFlags, tabCount, tabSize, "TODO 2 : EnumPointerDecoderArrayToString(NumRanges, pRangeFlags, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pHeapRangeStartOffsets", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumRanges, pHeapRangeStartOffsets, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRangeTileCounts", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumRanges, pRangeTileCounts, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
         format::HandleId object_id,
@@ -13877,68 +4875,40 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
         StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>* pRegionSize,
         D3D12_TILE_MAPPING_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "CopyTileMappings(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDstRegionStartCoordinate, "    ", false))
-    {
-        WriteStructString(oss, pDstRegionStartCoordinate->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcRegionStartCoordinate, "    ", false))
-    {
-        WriteStructString(oss, pSrcRegionStartCoordinate->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRegionSize, "    ", false))
-    {
-        WriteStructString(oss, pRegionSize->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyTileMappings", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDstResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDstResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDstRegionStartCoordinate", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDstRegionStartCoordinate, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pSrcResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcRegionStartCoordinate", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pSrcRegionStartCoordinate, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRegionSize", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pRegionSize, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
         format::HandleId object_id,
         UINT NumCommandLists,
         HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "ExecuteCommandLists(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumCommandLists;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppCommandLists, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppCommandLists, "ID3D12CommandList", "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ExecuteCommandLists", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumCommandLists", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumCommandLists, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppCommandLists", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumCommandLists, ppCommandLists, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_SetMarker(
         format::HandleId object_id,
@@ -13946,28 +4916,19 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_SetMarker(
         PointerDecoder<uint8_t>* pData,
         UINT Size)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "SetMarker(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Metadata;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << Size;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetMarker", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Metadata", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Metadata, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Size, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Size", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Size, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_BeginEvent(
         format::HandleId object_id,
@@ -13975,42 +4936,33 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_BeginEvent(
         PointerDecoder<uint8_t>* pData,
         UINT Size)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "BeginEvent(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << Metadata;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << Size;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("BeginEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Metadata", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Metadata, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(Size, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Size", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Size, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_EndEvent(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "EndEvent(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EndEvent", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
         format::HandleId object_id,
@@ -14018,26 +4970,19 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
         format::HandleId pFence,
         UINT64 Value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "Signal(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pFence, "    ", "ID3D12Fence", false);
-    oss << ",\n";
-
-    oss << "    " << Value;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Signal", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pFence", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFence, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Value", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Value, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
         format::HandleId object_id,
@@ -14045,52 +4990,37 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
         format::HandleId pFence,
         UINT64 Value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "Wait(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pFence, "    ", "ID3D12Fence", false);
-    oss << ",\n";
-
-    oss << "    " << Value;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Wait", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pFence", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFence, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Value", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Value, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
         format::HandleId object_id,
         HRESULT return_value,
         PointerDecoder<UINT64>* pFrequency)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "GetTimestampFrequency(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFrequency, "    ", true))
-    {
-        oss << "    " << "&" << *pFrequency->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetTimestampFrequency", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pFrequency", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFrequency, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
         format::HandleId object_id,
@@ -14098,70 +5028,51 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
         PointerDecoder<UINT64>* pGpuTimestamp,
         PointerDecoder<UINT64>* pCpuTimestamp)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "GetClockCalibration(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pGpuTimestamp, "    ", true))
-    {
-        oss << "    " << "&" << *pGpuTimestamp->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pCpuTimestamp, "    ", true))
-    {
-        oss << "    " << "&" << *pCpuTimestamp->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetClockCalibration", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pGpuTimestamp", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pGpuTimestamp, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pCpuTimestamp", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pCpuTimestamp, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetDesc(
         format::HandleId object_id,
         Decoded_D3D12_COMMAND_QUEUE_DESC return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetNodeCount(
         format::HandleId object_id,
         UINT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetNodeCount(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetNodeCount", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
         format::HandleId object_id,
@@ -14170,35 +5081,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandQueue)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateCommandQueue(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppCommandQueue, "    ", true))
-    {
-        WriteHandleId(oss, *ppCommandQueue->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommandQueue", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppCommandQueue", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppCommandQueue, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
         format::HandleId object_id,
@@ -14207,32 +5103,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandAllocator)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateCommandAllocator(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(type);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppCommandAllocator, "    ", true))
-    {
-        WriteHandleId(oss, *ppCommandAllocator->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommandAllocator", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppCommandAllocator", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppCommandAllocator, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
         format::HandleId object_id,
@@ -14241,35 +5125,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateGraphicsPipelineState(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
-    {
-        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateGraphicsPipelineState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
         format::HandleId object_id,
@@ -14278,35 +5147,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateComputePipelineState(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
-    {
-        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateComputePipelineState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
         format::HandleId object_id,
@@ -14318,41 +5172,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandList)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateCommandList(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << nodeMask;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(type);
-    oss << ",\n";
-
-    WriteHandleId(oss, pCommandAllocator, "    ", "ID3D12CommandAllocator", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pInitialState, "    ", "ID3D12PipelineState", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppCommandList, "    ", true))
-    {
-        WriteHandleId(oss, *ppCommandList->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommandList", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "nodeMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(nodeMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pCommandAllocator", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pCommandAllocator, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pInitialState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pInitialState, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppCommandList", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppCommandList, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         format::HandleId object_id,
@@ -14361,58 +5197,38 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateDescriptorHeap(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDescriptorHeapDesc, "    ", false))
-    {
-        WriteStructString(oss, pDescriptorHeapDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
-    {
-        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateDescriptorHeap", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDescriptorHeapDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDescriptorHeapDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvHeap, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
         format::HandleId object_id,
         UINT return_value,
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetDescriptorHandleIncrementSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(DescriptorHeapType);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDescriptorHandleIncrementSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "DescriptorHeapType", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(DescriptorHeapType, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
         format::HandleId object_id,
@@ -14423,66 +5239,40 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvRootSignature)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateRootSignature(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << nodeMask;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pBlobWithRootSignature, "    ", false))
-    {
-        oss << "    " << "pBlobWithRootSignature" << " /* value = " << static_cast<uint16_t>(*pBlobWithRootSignature->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << blobLengthInBytes;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvRootSignature, "    ", true))
-    {
-        WriteHandleId(oss, *ppvRootSignature->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateRootSignature", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "nodeMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(nodeMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pBlobWithRootSignature", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(blobLengthInBytes, pBlobWithRootSignature, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "blobLengthInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(blobLengthInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvRootSignature", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvRootSignature, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateConstantBufferView(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateConstantBufferView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateConstantBufferView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
         format::HandleId object_id,
@@ -14490,28 +5280,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
         StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateShaderResourceView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateShaderResourceView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
         format::HandleId object_id,
@@ -14520,31 +5301,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
         StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateUnorderedAccessView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pCounterResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateUnorderedAccessView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pCounterResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pCounterResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
         format::HandleId object_id,
@@ -14552,28 +5322,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
         StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateRenderTargetView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateRenderTargetView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
         format::HandleId object_id,
@@ -14581,53 +5342,37 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
         StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateDepthStencilView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateDepthStencilView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateSampler(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateSampler(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSampler", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
         format::HandleId object_id,
@@ -14639,49 +5384,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
         PointerDecoder<UINT>* pSrcDescriptorRangeSizes,
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CopyDescriptors(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumDestDescriptorRanges;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDestDescriptorRangeStarts, "    ", false))
-    {
-        WriteArrayStructsString(oss, pDestDescriptorRangeStarts, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDestDescriptorRangeSizes, "    ", false))
-    {
-        WriteArrayValuesString(oss, pDestDescriptorRangeSizes, "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumSrcDescriptorRanges;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcDescriptorRangeStarts, "    ", false))
-    {
-        WriteArrayStructsString(oss, pSrcDescriptorRangeStarts, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcDescriptorRangeSizes, "    ", false))
-    {
-        WriteArrayValuesString(oss, pSrcDescriptorRangeSizes, "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(DescriptorHeapsType);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyDescriptors", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumDestDescriptorRanges", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumDestDescriptorRanges, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDestDescriptorRangeStarts", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumDestDescriptorRanges, pDestDescriptorRangeStarts, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDestDescriptorRangeSizes", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumDestDescriptorRanges, pDestDescriptorRangeSizes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumSrcDescriptorRanges", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumSrcDescriptorRanges, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcDescriptorRangeStarts", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumSrcDescriptorRanges, pSrcDescriptorRangeStarts, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSrcDescriptorRangeSizes", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumSrcDescriptorRanges, pSrcDescriptorRangeSizes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DescriptorHeapsType", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(DescriptorHeapsType, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
         format::HandleId object_id,
@@ -14690,28 +5409,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CopyDescriptorsSimple(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumDescriptors;
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptorRangeStart, "    ", false, false);
-    oss << ",\n";
-
-    WriteStructString(oss, &SrcDescriptorRangeStart, "    ", false, false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(DescriptorHeapsType);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyDescriptorsSimple", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumDescriptors", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumDescriptors, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptorRangeStart", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptorRangeStart, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SrcDescriptorRangeStart", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(SrcDescriptorRangeStart, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DescriptorHeapsType", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(DescriptorHeapsType, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
         format::HandleId object_id,
@@ -14720,32 +5431,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
         UINT numResourceDescs,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetResourceAllocationInfo(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << visibleMask;
-    oss << ",\n";
-
-    oss << "    " << numResourceDescs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
-    {
-        WriteArrayStructsString(oss, pResourceDescs, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetResourceAllocationInfo", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "visibleMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(visibleMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "numResourceDescs", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(numResourceDescs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pResourceDescs", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(numResourceDescs, pResourceDescs, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
         format::HandleId object_id,
@@ -14753,26 +5452,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
         UINT nodeMask,
         D3D12_HEAP_TYPE heapType)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetCustomHeapProperties(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << nodeMask;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(heapType);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCustomHeapProperties", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "nodeMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(nodeMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "heapType", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(heapType, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
         format::HandleId object_id,
@@ -14785,53 +5477,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
         Decoded_GUID riidResource,
         HandlePointerDecoder<void*>* ppvResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateCommittedResource(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeapProperties, "    ", false))
-    {
-        WriteStructString(oss, pHeapProperties->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(HeapFlags);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(InitialResourceState);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
-    {
-        WriteStructString(oss, pOptimizedClearValue->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riidResource.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommittedResource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pHeapProperties", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pHeapProperties, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "HeapFlags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(HeapFlags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitialResourceState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(InitialResourceState, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pOptimizedClearValue", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOptimizedClearValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riidResource", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riidResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
         format::HandleId object_id,
@@ -14840,35 +5503,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateHeap(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
-    {
-        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateHeap", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvHeap, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
         format::HandleId object_id,
@@ -14881,50 +5529,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreatePlacedResource(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pHeap, "    ", "ID3D12Heap", false);
-    oss << ",\n";
-
-    oss << "    " << HeapOffset;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(InitialState);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
-    {
-        WriteStructString(oss, pOptimizedClearValue->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreatePlacedResource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "HeapOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(HeapOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitialState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(InitialState, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pOptimizedClearValue", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOptimizedClearValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
         format::HandleId object_id,
@@ -14935,44 +5557,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateReservedResource(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(InitialState);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
-    {
-        WriteStructString(oss, pOptimizedClearValue->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateReservedResource", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitialState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(InitialState, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pOptimizedClearValue", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOptimizedClearValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
         format::HandleId object_id,
@@ -14983,44 +5583,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
         WStringDecoder* Name,
         PointerDecoder<uint64_t, void*>* pHandle)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateSharedHandle(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pObject, "    ", "ID3D12DeviceChild", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pAttributes, "    ", false))
-    {
-        WriteStructString(oss, pAttributes->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << Access;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, Name, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHandle, "    ", true))
-    {
-        oss << "    " << "&" << "pHandle" << " /* address = " << *pHandle->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSharedHandle", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pObject", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pObject, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pAttributes", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pAttributes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Access", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Access, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Name", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(Name, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHandle, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
         format::HandleId object_id,
@@ -15029,32 +5607,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvObj)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "OpenSharedHandle(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NTHandle;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvObj, "    ", true))
-    {
-        WriteHandleId(oss, *ppvObj->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OpenSharedHandle", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NTHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(NTHandle, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvObj", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvObj, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
         format::HandleId object_id,
@@ -15063,35 +5629,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
         DWORD Access,
         PointerDecoder<uint64_t, void*>* pNTHandle)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "OpenSharedHandleByName(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, Name, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << "    " << Access;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNTHandle, "    ", true))
-    {
-        oss << "    " << "&" << "pNTHandle" << " /* address = " << *pNTHandle->GetPointer() << " */";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OpenSharedHandleByName", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Name", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(Name, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Access", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Access, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pNTHandle", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pNTHandle, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
         format::HandleId object_id,
@@ -15099,29 +5650,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
         UINT NumObjects,
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "MakeResident(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumObjects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppObjects, "ID3D12Pageable", "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("MakeResident", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumObjects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumObjects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppObjects", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumObjects, ppObjects, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
         format::HandleId object_id,
@@ -15129,29 +5670,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
         UINT NumObjects,
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "Evict(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumObjects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppObjects, "ID3D12Pageable", "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Evict", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumObjects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumObjects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppObjects", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumObjects, ppObjects, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
         format::HandleId object_id,
@@ -15161,54 +5692,37 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFence)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateFence(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << InitialValue;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppFence, "    ", true))
-    {
-        WriteHandleId(oss, *ppFence->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateFence", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "InitialValue", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(InitialValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppFence", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppFence, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetDeviceRemovedReason(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDeviceRemovedReason", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
         format::HandleId object_id,
@@ -15221,55 +5735,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
         PointerDecoder<UINT64>* pRowSizeInBytes,
         PointerDecoder<UINT64>* pTotalBytes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetCopyableFootprints(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceDesc, "    ", false))
-    {
-        WriteStructString(oss, pResourceDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << FirstSubresource;
-    oss << ",\n";
-
-    oss << "    " << NumSubresources;
-    oss << ",\n";
-
-    oss << "    " << BaseOffset;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pLayouts, "    ", true))
-    {
-        WriteArrayStructsString(oss, pLayouts, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNumRows, "    ", true))
-    {
-        WriteArrayValuesString(oss, pNumRows, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRowSizeInBytes, "    ", true))
-    {
-        WriteArrayValuesString(oss, pRowSizeInBytes, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pTotalBytes, "    ", true))
-    {
-        oss << "    " << "&" << *pTotalBytes->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCopyableFootprints", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResourceDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pResourceDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "FirstSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(FirstSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumSubresources", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumSubresources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BaseOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BaseOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pLayouts", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumSubresources, pLayouts, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pNumRows", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumSubresources, pNumRows, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pRowSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumSubresources, pRowSizeInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pTotalBytes", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pTotalBytes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
         format::HandleId object_id,
@@ -15278,58 +5761,38 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateQueryHeap(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
-    {
-        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateQueryHeap", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvHeap, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_SetStablePowerState(
         format::HandleId object_id,
         HRESULT return_value,
         BOOL Enable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "SetStablePowerState(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, Enable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetStablePowerState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Enable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Enable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
         format::HandleId object_id,
@@ -15339,38 +5802,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvCommandSignature)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateCommandSignature(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pRootSignature, "    ", "ID3D12RootSignature", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvCommandSignature, "    ", true))
-    {
-        WriteHandleId(oss, *ppvCommandSignature->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommandSignature", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRootSignature", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pRootSignature, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvCommandSignature", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvCommandSignature, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
         format::HandleId object_id,
@@ -15382,71 +5828,39 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
         UINT FirstSubresourceTilingToGet,
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_TILING>* pSubresourceTilingsForNonPackedMips)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetResourceTiling(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pTiledResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNumTilesForEntireResource, "    ", true))
-    {
-        oss << "    " << "&" << *pNumTilesForEntireResource->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPackedMipDesc, "    ", true))
-    {
-        WriteStructString(oss, pPackedMipDesc->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pStandardTileShapeForNonPackedMips, "    ", true))
-    {
-        WriteStructString(oss, pStandardTileShapeForNonPackedMips->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNumSubresourceTilings, "    ", false))
-    {
-        oss << "    " << *pNumSubresourceTilings->GetPointer();
-    }
-    oss << ",\n";
-
-    oss << "    " << FirstSubresourceTilingToGet;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSubresourceTilingsForNonPackedMips, "    ", true))
-    {
-        WriteArrayStructsString(oss, pSubresourceTilingsForNonPackedMips, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetResourceTiling", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pTiledResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pTiledResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pNumTilesForEntireResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pNumTilesForEntireResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pPackedMipDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pPackedMipDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pStandardTileShapeForNonPackedMips", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pStandardTileShapeForNonPackedMips, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pNumSubresourceTilings", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pNumSubresourceTilings, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "FirstSubresourceTilingToGet", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(FirstSubresourceTilingToGet, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pSubresourceTilingsForNonPackedMips", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pNumSubresourceTilings, pSubresourceTilingsForNonPackedMips, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetAdapterLuid(
         format::HandleId object_id,
         Decoded_LUID return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetAdapterLuid(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetAdapterLuid", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         format::HandleId object_id,
@@ -15454,29 +5868,19 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         WStringDecoder* pName,
         format::HandleId pPipeline)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
-    oss << "->";
-    oss << "StorePipeline(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pPipeline, "    ", "ID3D12PipelineState", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("StorePipeline", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pName, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pPipeline", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pPipeline, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         format::HandleId object_id,
@@ -15486,41 +5890,21 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
-    oss << "->";
-    oss << "LoadGraphicsPipeline(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
-    {
-        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("LoadGraphicsPipeline", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pName, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         format::HandleId object_id,
@@ -15530,60 +5914,37 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
-    oss << "->";
-    oss << "LoadComputePipeline(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
-    {
-        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("LoadComputePipeline", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pName, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
         format::HandleId object_id,
         SIZE_T return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
-    oss << "->";
-    oss << "GetSerializedSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetSerializedSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
         format::HandleId object_id,
@@ -15591,29 +5952,19 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
         PointerDecoder<uint8_t>* pData,
         SIZE_T DataSizeInBytes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
-    oss << "->";
-    oss << "Serialize(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
-    {
-        oss << "    " << "&" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSizeInBytes;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Serialize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSizeInBytes, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSizeInBytes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         format::HandleId object_id,
@@ -15623,41 +5974,21 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary1");
-    oss << "->";
-    oss << "LoadPipeline(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
-    {
-        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("LoadPipeline", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pName, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
         format::HandleId object_id,
@@ -15667,38 +5998,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineLibrary)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device1");
-    oss << "->";
-    oss << "CreatePipelineLibrary(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pLibraryBlob, "    ", false))
-    {
-        oss << "    " << "pLibraryBlob" << " /* value = " << static_cast<uint16_t>(*pLibraryBlob->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << BlobLength;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPipelineLibrary, "    ", true))
-    {
-        WriteHandleId(oss, *ppPipelineLibrary->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreatePipelineLibrary", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pLibraryBlob", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(BlobLength, pLibraryBlob, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BlobLength", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BlobLength, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppPipelineLibrary", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppPipelineLibrary, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         format::HandleId object_id,
@@ -15709,41 +6023,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         D3D12_MULTIPLE_FENCE_WAIT_FLAGS Flags,
         uint64_t hEvent)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device1");
-    oss << "->";
-    oss << "SetEventOnMultipleFenceCompletion(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppFences, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppFences, "ID3D12Fence", "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFenceValues, "    ", false))
-    {
-        WriteArrayValuesString(oss, pFenceValues, "    ", false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumFences;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ",\n";
-
-    oss << "    " << hEvent;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetEventOnMultipleFenceCompletion", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "ppFences", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumFences, ppFences, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pFenceValues", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumFences, pFenceValues, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumFences", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumFences, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "hEvent", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEvent, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
         format::HandleId object_id,
@@ -15752,35 +6047,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects,
         PointerDecoder<D3D12_RESIDENCY_PRIORITY>* pPriorities)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device1");
-    oss << "->";
-    oss << "SetResidencyPriority(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumObjects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppObjects, "ID3D12Pageable", "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPriorities, "    ", false))
-    {
-        WriteArrayConvertsString(oss, pPriorities, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetResidencyPriority", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "NumObjects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumObjects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppObjects", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumObjects, ppObjects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pPriorities", toStringFlags, tabCount, tabSize, "TODO 2 : EnumPointerDecoderArrayToString(NumObjects, pPriorities, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
         format::HandleId object_id,
@@ -15789,35 +6069,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device2");
-    oss << "->";
-    oss << "CreatePipelineState(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
-    {
-        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreatePipelineState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppPipelineState", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppPipelineState, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         format::HandleId object_id,
@@ -15826,32 +6091,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device3");
-    oss << "->";
-    oss << "OpenExistingHeapFromAddress(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << pAddress;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
-    {
-        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OpenExistingHeapFromAddress", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pAddress", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pAddress, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvHeap, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         format::HandleId object_id,
@@ -15860,32 +6113,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device3");
-    oss << "->";
-    oss << "OpenExistingHeapFromFileMapping(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << hFileMapping;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
-    {
-        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("OpenExistingHeapFromFileMapping", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "hFileMapping", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hFileMapping, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvHeap, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
         format::HandleId object_id,
@@ -15896,38 +6137,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
         format::HandleId pFenceToSignal,
         UINT64 FenceValueToSignal)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device3");
-    oss << "->";
-    oss << "EnqueueMakeResident(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ",\n";
-
-    oss << "    " << NumObjects;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
-    {
-        WriteArrayClassesString(oss, ppObjects, "ID3D12Pageable", "    ", false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pFenceToSignal, "    ", "ID3D12Fence", false);
-    oss << ",\n";
-
-    oss << "    " << FenceValueToSignal;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnqueueMakeResident", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "NumObjects", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumObjects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ppObjects", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumObjects, ppObjects, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pFenceToSignal", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFenceToSignal, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "FenceValueToSignal", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(FenceValueToSignal, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
         format::HandleId object_id,
@@ -15935,67 +6160,51 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFence)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12ProtectedSession");
-    oss << "->";
-    oss << "GetStatusFence(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppFence, "    ", true))
-    {
-        WriteHandleId(oss, *ppFence->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetStatusFence", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppFence", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppFence, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
         format::HandleId object_id,
         D3D12_PROTECTED_SESSION_STATUS return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12ProtectedSession");
-    oss << "->";
-    oss << "GetSessionStatus(\n    /* ";
-
-    oss << "return = " ;
-    oss << ConverttoText(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetSessionStatus", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
         format::HandleId object_id,
         Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12ProtectedResourceSession");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
         format::HandleId object_id,
@@ -16006,38 +6215,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandList)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device4");
-    oss << "->";
-    oss << "CreateCommandList1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << nodeMask;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(type);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(flags);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppCommandList, "    ", true))
-    {
-        WriteHandleId(oss, *ppCommandList->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommandList1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "nodeMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(nodeMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(flags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppCommandList", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppCommandList, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
         format::HandleId object_id,
@@ -16046,35 +6239,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppSession)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device4");
-    oss << "->";
-    oss << "CreateProtectedResourceSession(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSession, "    ", true))
-    {
-        WriteHandleId(oss, *ppSession->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateProtectedResourceSession", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSession, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         format::HandleId object_id,
@@ -16088,56 +6266,25 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         Decoded_GUID riidResource,
         HandlePointerDecoder<void*>* ppvResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device4");
-    oss << "->";
-    oss << "CreateCommittedResource1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeapProperties, "    ", false))
-    {
-        WriteStructString(oss, pHeapProperties->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(HeapFlags);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(InitialResourceState);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
-    {
-        WriteStructString(oss, pOptimizedClearValue->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riidResource.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommittedResource1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pHeapProperties", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pHeapProperties, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "HeapFlags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(HeapFlags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitialResourceState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(InitialResourceState, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pOptimizedClearValue", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOptimizedClearValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pProtectedSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pProtectedSession, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riidResource", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riidResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
         format::HandleId object_id,
@@ -16147,38 +6294,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device4");
-    oss << "->";
-    oss << "CreateHeap1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
-    {
-        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateHeap1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pProtectedSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pProtectedSession, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvHeap, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
         format::HandleId object_id,
@@ -16190,47 +6320,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device4");
-    oss << "->";
-    oss << "CreateReservedResource1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(InitialState);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
-    {
-        WriteStructString(oss, pOptimizedClearValue->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateReservedResource1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitialState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(InitialState, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pOptimizedClearValue", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOptimizedClearValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pProtectedSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pProtectedSession, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
         format::HandleId object_id,
@@ -16240,75 +6346,53 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device4");
-    oss << "->";
-    oss << "GetResourceAllocationInfo1(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << visibleMask;
-    oss << ",\n";
-
-    oss << "    " << numResourceDescs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
-    {
-        WriteArrayStructsString(oss, pResourceDescs, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceAllocationInfo1, "    ", true))
-    {
-        WriteArrayStructsString(oss, pResourceAllocationInfo1, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetResourceAllocationInfo1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "visibleMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(visibleMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "numResourceDescs", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(numResourceDescs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pResourceDescs", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(numResourceDescs, pResourceDescs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pResourceAllocationInfo1", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(numResourceDescs, pResourceAllocationInfo1, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
         format::HandleId object_id,
         D3D12_LIFETIME_STATE NewState)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12LifetimeOwner");
-    oss << "->";
-    oss << "LifetimeStateUpdated(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(NewState);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("LifetimeStateUpdated", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NewState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(NewState, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
         format::HandleId object_id,
         Decoded_LUID return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
-    oss << "->";
-    oss << "GetLUID(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetLUID", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
         format::HandleId object_id,
@@ -16316,29 +6400,19 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppv)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
-    oss << "->";
-    oss << "GetSwapChainObject(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppv, "    ", true))
-    {
-        WriteHandleId(oss, *ppv->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetSwapChainObject", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppv", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppv, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
         format::HandleId object_id,
@@ -16348,172 +6422,122 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
         Decoded_GUID riidQueue,
         HandlePointerDecoder<void*>* ppvQueue)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
-    oss << "->";
-    oss << "GetCurrentResourceAndCommandQueue(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riidResource.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riidQueue.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvQueue, "    ", true))
-    {
-        WriteHandleId(oss, *ppvQueue->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCurrentResourceAndCommandQueue", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riidResource", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riidResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riidQueue", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riidQueue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvQueue", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvQueue, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
-    oss << "->";
-    oss << "InsertImplicitSync(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("InsertImplicitSync", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
         format::HandleId object_id,
         HRESULT return_value,
         format::HandleId pObject)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12LifetimeTracker");
-    oss << "->";
-    oss << "DestroyOwnedObject(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pObject, "    ", "ID3D12DeviceChild", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DestroyOwnedObject", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pObject", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pObject, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
         format::HandleId object_id,
         PointerDecoder<uint8_t>* return_value,
         WStringDecoder* pExportName)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
-    oss << "->";
-    oss << "GetShaderIdentifier(\n    /* ";
-
-    oss << "return = " ;
-    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
-    {
-        oss << "return_value" << " /* value = " << static_cast<uint16_t>(*return_value->GetPointer()) << " */";
-    }
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pExportName, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(pExportName->GetPointer()) << "\"";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetShaderIdentifier", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pExportName", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pExportName, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
         format::HandleId object_id,
         UINT64 return_value,
         WStringDecoder* pExportName)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
-    oss << "->";
-    oss << "GetShaderStackSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pExportName, "    ", false))
-    {
-        oss << "    " << "\"" << util::interception::WideStringToString(pExportName->GetPointer()) << "\"";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetShaderStackSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pExportName", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pExportName, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
-    oss << "->";
-    oss << "GetPipelineStackSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetPipelineStackSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize(
         format::HandleId object_id,
         UINT64 PipelineStackSizeInBytes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
-    oss << "->";
-    oss << "SetPipelineStackSize(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << PipelineStackSizeInBytes;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPipelineStackSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "PipelineStackSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(PipelineStackSizeInBytes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         format::HandleId object_id,
@@ -16522,46 +6546,34 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvTracker)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "CreateLifetimeTracker(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pOwner, "    ", "ID3D12LifetimeOwner", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvTracker, "    ", true))
-    {
-        WriteHandleId(oss, *ppvTracker->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateLifetimeTracker", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pOwner", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pOwner, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvTracker", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvTracker, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_RemoveDevice(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "RemoveDevice(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RemoveDevice", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
         format::HandleId object_id,
@@ -16569,32 +6581,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
         PointerDecoder<UINT>* pNumMetaCommands,
         StructPointerDecoder<Decoded_D3D12_META_COMMAND_DESC>* pDescs)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "EnumerateMetaCommands(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNumMetaCommands, "    ", false))
-    {
-        oss << "    " << *pNumMetaCommands->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDescs, "    ", true))
-    {
-        WriteArrayStructsString(oss, pDescs, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumerateMetaCommands", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pNumMetaCommands", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pNumMetaCommands, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pDescs", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pNumMetaCommands, pDescs, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
         format::HandleId object_id,
@@ -16605,44 +6604,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
         PointerDecoder<UINT>* pParameterCount,
         StructPointerDecoder<Decoded_D3D12_META_COMMAND_PARAMETER_DESC>* pParameterDescs)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "EnumerateMetaCommandParameters(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*CommandId.decoded_value);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Stage);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pTotalStructureSizeInBytes, "    ", true))
-    {
-        oss << "    " << "&" << *pTotalStructureSizeInBytes->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pParameterCount, "    ", false))
-    {
-        oss << "    " << *pParameterCount->GetPointer();
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pParameterDescs, "    ", true))
-    {
-        WriteArrayStructsString(oss, pParameterDescs, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnumerateMetaCommandParameters", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "CommandId", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(CommandId, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Stage", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Stage, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]pTotalStructureSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pTotalStructureSizeInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pParameterCount", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pParameterCount, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pParameterDescs", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pParameterCount, pParameterDescs, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
         format::HandleId object_id,
@@ -16654,44 +6631,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppMetaCommand)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "CreateMetaCommand(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*CommandId.decoded_value);
-    oss << ",\n";
-
-    oss << "    " << NodeMask;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pCreationParametersData, "    ", false))
-    {
-        oss << "    " << "pCreationParametersData" << " /* value = " << static_cast<uint16_t>(*pCreationParametersData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << CreationParametersDataSizeInBytes;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppMetaCommand, "    ", true))
-    {
-        WriteHandleId(oss, *ppMetaCommand->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateMetaCommand", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "CommandId", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(CommandId, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NodeMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NodeMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pCreationParametersData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(CreationParametersDataSizeInBytes, pCreationParametersData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "CreationParametersDataSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(CreationParametersDataSizeInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppMetaCommand", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppMetaCommand, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
         format::HandleId object_id,
@@ -16700,63 +6656,38 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppStateObject)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "CreateStateObject(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppStateObject, "    ", true))
-    {
-        WriteHandleId(oss, *ppStateObject->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateStateObject", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppStateObject", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppStateObject, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* pDesc,
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO>* pInfo)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "GetRaytracingAccelerationStructurePrebuildInfo(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pInfo, "    ", true))
-    {
-        WriteStructString(oss, pInfo->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRaytracingAccelerationStructurePrebuildInfo", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pInfo", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
         format::HandleId object_id,
@@ -16764,205 +6695,155 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
         D3D12_SERIALIZED_DATA_TYPE SerializedDataType,
         StructPointerDecoder<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>* pIdentifierToCheck)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device5");
-    oss << "->";
-    oss << "CheckDriverMatchingIdentifier(\n    /* ";
-
-    oss << "return = " ;
-    oss << ConverttoText(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(SerializedDataType);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pIdentifierToCheck, "    ", false))
-    {
-        WriteStructString(oss, pIdentifierToCheck->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CheckDriverMatchingIdentifier", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "SerializedDataType", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(SerializedDataType, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pIdentifierToCheck", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pIdentifierToCheck, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
         format::HandleId object_id,
         D3D12_DRED_ENABLEMENT Enablement)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings");
-    oss << "->";
-    oss << "SetAutoBreadcrumbsEnablement(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Enablement);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetAutoBreadcrumbsEnablement", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enablement", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Enablement, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
         format::HandleId object_id,
         D3D12_DRED_ENABLEMENT Enablement)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings");
-    oss << "->";
-    oss << "SetPageFaultEnablement(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Enablement);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPageFaultEnablement", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enablement", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Enablement, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(
         format::HandleId object_id,
         D3D12_DRED_ENABLEMENT Enablement)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings");
-    oss << "->";
-    oss << "SetWatsonDumpEnablement(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Enablement);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetWatsonDumpEnablement", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enablement", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Enablement, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
         format::HandleId object_id,
         D3D12_DRED_ENABLEMENT Enablement)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings1");
-    oss << "->";
-    oss << "SetBreadcrumbContextEnablement(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Enablement);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetBreadcrumbContextEnablement", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enablement", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Enablement, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT>* pOutput)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData");
-    oss << "->";
-    oss << "GetAutoBreadcrumbsOutput(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
-    {
-        WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetAutoBreadcrumbsOutput", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pOutput", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOutput, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT>* pOutput)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData");
-    oss << "->";
-    oss << "GetPageFaultAllocationOutput(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
-    {
-        WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetPageFaultAllocationOutput", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pOutput", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOutput, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>* pOutput)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData1");
-    oss << "->";
-    oss << "GetAutoBreadcrumbsOutput1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
-    {
-        WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetAutoBreadcrumbsOutput1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pOutput", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOutput, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* pOutput)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData1");
-    oss << "->";
-    oss << "GetPageFaultAllocationOutput1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
-    {
-        WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetPageFaultAllocationOutput1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pOutput", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOutput, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
         format::HandleId object_id,
@@ -16972,54 +6853,37 @@ void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
         uint64_t hEventToSignalUponCompletion,
         PointerDecoder<BOOL>* pbFurtherMeasurementsDesired)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device6");
-    oss << "->";
-    oss << "SetBackgroundProcessingMode(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Mode);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(MeasurementsAction);
-    oss << ",\n";
-
-    oss << "    " << hEventToSignalUponCompletion;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pbFurtherMeasurementsDesired, "    ", true))
-    {
-        oss << "    " << "&" << *pbFurtherMeasurementsDesired->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetBackgroundProcessingMode", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Mode", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Mode, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "MeasurementsAction", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(MeasurementsAction, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "hEventToSignalUponCompletion", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(hEventToSignalUponCompletion, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pbFurtherMeasurementsDesired", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pbFurtherMeasurementsDesired, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
         format::HandleId object_id,
         Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12ProtectedResourceSession1");
-    oss << "->";
-    oss << "GetDesc1(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
         format::HandleId object_id,
@@ -17029,38 +6893,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppNewStateObject)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device7");
-    oss << "->";
-    oss << "AddToStateObject(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pAddition, "    ", false))
-    {
-        WriteStructString(oss, pAddition->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pStateObjectToGrowFrom, "    ", "ID3D12StateObject", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppNewStateObject, "    ", true))
-    {
-        WriteHandleId(oss, *ppNewStateObject->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AddToStateObject", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pAddition", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pAddition, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pStateObjectToGrowFrom", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pStateObjectToGrowFrom, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppNewStateObject", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppNewStateObject, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
         format::HandleId object_id,
@@ -17069,35 +6916,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppSession)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device7");
-    oss << "->";
-    oss << "CreateProtectedResourceSession1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppSession, "    ", true))
-    {
-        WriteHandleId(oss, *ppSession->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateProtectedResourceSession1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppSession, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
         format::HandleId object_id,
@@ -17107,38 +6939,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device8");
-    oss << "->";
-    oss << "GetResourceAllocationInfo2(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << visibleMask;
-    oss << ",\n";
-
-    oss << "    " << numResourceDescs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
-    {
-        WriteArrayStructsString(oss, pResourceDescs, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceAllocationInfo1, "    ", true))
-    {
-        WriteArrayStructsString(oss, pResourceAllocationInfo1, "    ", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetResourceAllocationInfo2", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "visibleMask", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(visibleMask, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "numResourceDescs", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(numResourceDescs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pResourceDescs", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(numResourceDescs, pResourceDescs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pResourceAllocationInfo1", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(numResourceDescs, pResourceAllocationInfo1, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         format::HandleId object_id,
@@ -17152,56 +6967,25 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         Decoded_GUID riidResource,
         HandlePointerDecoder<void*>* ppvResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device8");
-    oss << "->";
-    oss << "CreateCommittedResource2(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pHeapProperties, "    ", false))
-    {
-        WriteStructString(oss, pHeapProperties->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(HeapFlags);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(InitialResourceState);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
-    {
-        WriteStructString(oss, pOptimizedClearValue->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riidResource.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateCommittedResource2", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pHeapProperties", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pHeapProperties, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "HeapFlags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(HeapFlags, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitialResourceState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(InitialResourceState, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pOptimizedClearValue", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOptimizedClearValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pProtectedSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pProtectedSession, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riidResource", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riidResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         format::HandleId object_id,
@@ -17214,50 +6998,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvResource)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device8");
-    oss << "->";
-    oss << "CreatePlacedResource1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pHeap, "    ", "ID3D12Heap", false);
-    oss << ",\n";
-
-    oss << "    " << HeapOffset;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(InitialState);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
-    {
-        WriteStructString(oss, pOptimizedClearValue->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
-    {
-        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreatePlacedResource1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pHeap", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pHeap, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "HeapOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(HeapOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitialState", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(InitialState, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pOptimizedClearValue", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pOptimizedClearValue, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvResource, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
         format::HandleId object_id,
@@ -17265,25 +7023,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcce
         format::HandleId pFeedbackResource,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device8");
-    oss << "->";
-    oss << "CreateSamplerFeedbackUnorderedAccessView(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pTargetedResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    WriteHandleId(oss, pFeedbackResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    WriteStructString(oss, &DestDescriptor, "    ", false, false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CreateSamplerFeedbackUnorderedAccessView", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pTargetedResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pTargetedResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pFeedbackResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFeedbackResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DestDescriptor", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(DestDescriptor, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
         format::HandleId object_id,
@@ -17296,55 +7048,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
         PointerDecoder<UINT64>* pRowSizeInBytes,
         PointerDecoder<UINT64>* pTotalBytes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device8");
-    oss << "->";
-    oss << "GetCopyableFootprints1(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceDesc, "    ", false))
-    {
-        WriteStructString(oss, pResourceDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << FirstSubresource;
-    oss << ",\n";
-
-    oss << "    " << NumSubresources;
-    oss << ",\n";
-
-    oss << "    " << BaseOffset;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pLayouts, "    ", true))
-    {
-        WriteArrayStructsString(oss, pLayouts, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pNumRows, "    ", true))
-    {
-        WriteArrayValuesString(oss, pNumRows, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRowSizeInBytes, "    ", true))
-    {
-        WriteArrayValuesString(oss, pRowSizeInBytes, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pTotalBytes, "    ", true))
-    {
-        oss << "    " << "&" << *pTotalBytes->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetCopyableFootprints1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResourceDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pResourceDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "FirstSubresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(FirstSubresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumSubresources", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumSubresources, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "BaseOffset", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(BaseOffset, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pLayouts", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumSubresources, pLayouts, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pNumRows", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumSubresources, pNumRows, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pRowSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumSubresources, pRowSizeInBytes, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pTotalBytes", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pTotalBytes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
         format::HandleId object_id,
@@ -17352,48 +7073,35 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource1");
-    oss << "->";
-    oss << "GetProtectedResourceSession(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppProtectedSession, "    ", true))
-    {
-        WriteHandleId(oss, *ppProtectedSession->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetProtectedResourceSession", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppProtectedSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppProtectedSession, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Resource2_GetDesc1(
         format::HandleId object_id,
         Decoded_D3D12_RESOURCE_DESC1 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource2");
-    oss << "->";
-    oss << "GetDesc1(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDesc1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
         format::HandleId object_id,
@@ -17401,47 +7109,35 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Heap1");
-    oss << "->";
-    oss << "GetProtectedResourceSession(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppProtectedSession, "    ", true))
-    {
-        WriteHandleId(oss, *ppProtectedSession->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetProtectedResourceSession", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppProtectedSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppProtectedSession, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
         format::HandleId object_id,
         format::HandleId pProtectedResourceSession)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList3");
-    oss << "->";
-    oss << "SetProtectedResourceSession(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pProtectedResourceSession, "    ", "ID3D12ProtectedResourceSession", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetProtectedResourceSession", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pProtectedResourceSession", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pProtectedResourceSession, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSize(
         format::HandleId object_id,
@@ -17449,26 +7145,19 @@ void Dx12AsciiConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSi
         D3D12_META_COMMAND_PARAMETER_STAGE Stage,
         UINT ParameterIndex)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12MetaCommand");
-    oss << "->";
-    oss << "GetRequiredParameterResourceSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Stage);
-    oss << ",\n";
-
-    oss << "    " << ParameterIndex;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRequiredParameterResourceSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Stage", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Stage, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "ParameterIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ParameterIndex, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
         format::HandleId object_id,
@@ -17477,48 +7166,34 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
         StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
         D3D12_RENDER_PASS_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "BeginRenderPass(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumRenderTargets;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pRenderTargets, "    ", false))
-    {
-        WriteArrayStructsString(oss, pRenderTargets, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDepthStencil, "    ", false))
-    {
-        WriteStructString(oss, pDepthStencil->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("BeginRenderPass", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "NumRenderTargets", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumRenderTargets, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pRenderTargets", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumRenderTargets, pRenderTargets, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pDepthStencil", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDepthStencil, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "EndRenderPass(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EndRenderPass", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand(
         format::HandleId object_id,
@@ -17526,28 +7201,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand
         PointerDecoder<uint8_t>* pInitializationParametersData,
         SIZE_T InitializationParametersDataSizeInBytes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "InitializeMetaCommand(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pMetaCommand, "    ", "ID3D12MetaCommand", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pInitializationParametersData, "    ", false))
-    {
-        oss << "    " << "pInitializationParametersData" << " /* value = " << static_cast<uint16_t>(*pInitializationParametersData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << InitializationParametersDataSizeInBytes;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("InitializeMetaCommand", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pMetaCommand", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pMetaCommand, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pInitializationParametersData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(InitializationParametersDataSizeInBytes, pInitializationParametersData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "InitializationParametersDataSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(InitializationParametersDataSizeInBytes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
         format::HandleId object_id,
@@ -17555,28 +7221,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
         PointerDecoder<uint8_t>* pExecutionParametersData,
         SIZE_T ExecutionParametersDataSizeInBytes)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "ExecuteMetaCommand(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pMetaCommand, "    ", "ID3D12MetaCommand", false);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pExecutionParametersData, "    ", false))
-    {
-        oss << "    " << "pExecutionParametersData" << " /* value = " << static_cast<uint16_t>(*pExecutionParametersData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << ExecutionParametersDataSizeInBytes;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ExecuteMetaCommand", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pMetaCommand", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pMetaCommand, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pExecutionParametersData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(ExecutionParametersDataSizeInBytes, pExecutionParametersData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ExecutionParametersDataSizeInBytes", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ExecutionParametersDataSizeInBytes, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
         format::HandleId object_id,
@@ -17584,31 +7241,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccele
         UINT NumPostbuildInfoDescs,
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "BuildRaytracingAccelerationStructure(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumPostbuildInfoDescs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPostbuildInfoDescs, "    ", false))
-    {
-        WriteArrayStructsString(oss, pPostbuildInfoDescs, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("BuildRaytracingAccelerationStructure", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumPostbuildInfoDescs", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumPostbuildInfoDescs, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pPostbuildInfoDescs", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(NumPostbuildInfoDescs, pPostbuildInfoDescs, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(
         format::HandleId object_id,
@@ -17616,31 +7261,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAcceler
         UINT NumSourceAccelerationStructures,
         PointerDecoder<D3D12_GPU_VIRTUAL_ADDRESS>* pSourceAccelerationStructureData)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "EmitRaytracingAccelerationStructurePostbuildInfo(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ",\n";
-
-    oss << "    " << NumSourceAccelerationStructures;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSourceAccelerationStructureData, "    ", false))
-    {
-        WriteArrayValuesString(oss, pSourceAccelerationStructureData, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EmitRaytracingAccelerationStructurePostbuildInfo", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "NumSourceAccelerationStructures", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(NumSourceAccelerationStructures, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pSourceAccelerationStructureData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(NumSourceAccelerationStructures, pSourceAccelerationStructureData, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
         format::HandleId object_id,
@@ -17648,144 +7281,117 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAcceler
         D3D12_GPU_VIRTUAL_ADDRESS SourceAccelerationStructureData,
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "CopyRaytracingAccelerationStructure(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << DestAccelerationStructureData;
-    oss << ",\n";
-
-    oss << "    " << SourceAccelerationStructureData;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Mode);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("CopyRaytracingAccelerationStructure", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "DestAccelerationStructureData", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DestAccelerationStructureData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "SourceAccelerationStructureData", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(SourceAccelerationStructureData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Mode", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Mode, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
         format::HandleId object_id,
         format::HandleId pStateObject)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "SetPipelineState1(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pStateObject, "    ", "ID3D12StateObject", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetPipelineState1", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pStateObject", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pStateObject, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* pDesc)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
-    oss << "->";
-    oss << "DispatchRays(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
-    {
-        WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DispatchRays", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pDesc", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pDesc, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
         format::HandleId object_id,
         BOOL bEnable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Tools");
-    oss << "->";
-    oss << "EnableShaderInstrumentation(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, bEnable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnableShaderInstrumentation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "bEnable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(bEnable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
         format::HandleId object_id,
         BOOL return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Tools");
-    oss << "->";
-    oss << "ShaderInstrumentationEnabled(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ShaderInstrumentationEnabled", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         format::HandleId object_id,
         D3D12_SHADING_RATE baseShadingRate,
         PointerDecoder<D3D12_SHADING_RATE_COMBINER>* combiners)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList5");
-    oss << "->";
-    oss << "RSSetShadingRate(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(baseShadingRate);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, combiners, "    ", false))
-    {
-        WriteArrayConvertsString(oss, combiners, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RSSetShadingRate", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "baseShadingRate", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(baseShadingRate, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "combiners", toStringFlags, tabCount, tabSize, "TODO 2 : EnumPointerDecoderArrayToString(D3D12_RS_SET_SHADING_RATE_COMBINER_COUNT, combiners, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
         format::HandleId object_id,
         format::HandleId shadingRateImage)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList5");
-    oss << "->";
-    oss << "RSSetShadingRateImage(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, shadingRateImage, "    ", "ID3D12Resource", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RSSetShadingRateImage", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "shadingRateImage", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(shadingRateImage, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
         format::HandleId object_id,
@@ -17793,25 +7399,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
         UINT ThreadGroupCountY,
         UINT ThreadGroupCountZ)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList6");
-    oss << "->";
-    oss << "DispatchMesh(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ThreadGroupCountX;
-    oss << ",\n";
-
-    oss << "    " << ThreadGroupCountY;
-    oss << ",\n";
-
-    oss << "    " << ThreadGroupCountZ;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("DispatchMesh", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "ThreadGroupCountX", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ThreadGroupCountX, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ThreadGroupCountY", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ThreadGroupCountY, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "ThreadGroupCountZ", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(ThreadGroupCountZ, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from d3dcommon.h in Windows SDK: 10.0.19041.0
@@ -17821,39 +7421,33 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferPointer(
         format::HandleId object_id,
         uint64_t return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D10Blob");
-    oss << "->";
-    oss << "GetBufferPointer(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetBufferPointer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferSize(
         format::HandleId object_id,
         SIZE_T return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D10Blob");
-    oss << "->";
-    oss << "GetBufferSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetBufferSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallback(
         format::HandleId object_id,
@@ -17862,55 +7456,38 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallb
         uint64_t pData,
         PointerDecoder<UINT>* pCallbackID)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3DDestructionNotifier");
-    oss << "->";
-    oss << "RegisterDestructionCallback(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << "callbackFn /* address = " << callbackFn << " */";
-    oss << ",\n";
-
-    oss << "    " << pData;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pCallbackID, "    ", true))
-    {
-        oss << "    " << "&" << *pCallbackID->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("RegisterDestructionCallback", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "callbackFn", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(callbackFn, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pCallbackID", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pCallbackID, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCallback(
         format::HandleId object_id,
         HRESULT return_value,
         UINT callbackID)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3DDestructionNotifier");
-    oss << "->";
-    oss << "UnregisterDestructionCallback(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << callbackID;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("UnregisterDestructionCallback", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "callbackID", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(callbackID, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 /*
 ** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
@@ -17919,138 +7496,126 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCal
 void Dx12AsciiConsumer::Process_ID3D12Debug_EnableDebugLayer(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug");
-    oss << "->";
-    oss << "EnableDebugLayer(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnableDebugLayer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Debug1_EnableDebugLayer(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug1");
-    oss << "->";
-    oss << "EnableDebugLayer(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EnableDebugLayer", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableGPUBasedValidation(
         format::HandleId object_id,
         BOOL Enable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug1");
-    oss << "->";
-    oss << "SetEnableGPUBasedValidation(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, Enable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetEnableGPUBasedValidation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Enable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableSynchronizedCommandQueueValidation(
         format::HandleId object_id,
         BOOL Enable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug1");
-    oss << "->";
-    oss << "SetEnableSynchronizedCommandQueueValidation(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, Enable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetEnableSynchronizedCommandQueueValidation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Enable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
         format::HandleId object_id,
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug2");
-    oss << "->";
-    oss << "SetGPUBasedValidationFlags(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGPUBasedValidationFlags", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableGPUBasedValidation(
         format::HandleId object_id,
         BOOL Enable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug3");
-    oss << "->";
-    oss << "SetEnableGPUBasedValidation(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, Enable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetEnableGPUBasedValidation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Enable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation(
         format::HandleId object_id,
         BOOL Enable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug3");
-    oss << "->";
-    oss << "SetEnableSynchronizedCommandQueueValidation(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, Enable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetEnableSynchronizedCommandQueueValidation", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Enable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Enable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
         format::HandleId object_id,
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Debug3");
-    oss << "->";
-    oss << "SetGPUBasedValidationFlags(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetGPUBasedValidationFlags", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
         format::HandleId object_id,
@@ -18059,32 +7624,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice1");
-    oss << "->";
-    oss << "SetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
         format::HandleId object_id,
@@ -18093,120 +7646,90 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice1");
-    oss << "->";
-    oss << "GetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
-    {
-        oss << "    " << "&" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
         format::HandleId object_id,
         HRESULT return_value,
         D3D12_RLDO_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice1");
-    oss << "->";
-    oss << "ReportLiveDeviceObjects(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReportLiveDeviceObjects", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
         format::HandleId object_id,
         HRESULT return_value,
         D3D12_DEBUG_FEATURE Mask)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice");
-    oss << "->";
-    oss << "SetFeatureMask(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Mask);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetFeatureMask", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Mask", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Mask, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
         format::HandleId object_id,
         D3D12_DEBUG_FEATURE return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice");
-    oss << "->";
-    oss << "GetFeatureMask(\n    /* ";
-
-    oss << "return = " ;
-    oss << ConverttoText(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFeatureMask", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
         format::HandleId object_id,
         HRESULT return_value,
         D3D12_RLDO_FLAGS Flags)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice");
-    oss << "->";
-    oss << "ReportLiveDeviceObjects(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Flags);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ReportLiveDeviceObjects", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Flags, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
         format::HandleId object_id,
@@ -18215,32 +7738,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice2");
-    oss << "->";
-    oss << "SetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
         format::HandleId object_id,
@@ -18249,32 +7760,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice2");
-    oss << "->";
-    oss << "GetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
-    {
-        oss << "    " << "&" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
         format::HandleId object_id,
@@ -18283,29 +7782,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
         UINT Subresource,
         UINT State)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandQueue");
-    oss << "->";
-    oss << "AssertResourceState(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << Subresource;
-    oss << ",\n";
-
-    oss << "    " << State;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AssertResourceState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Subresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Subresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "State", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(State, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
         format::HandleId object_id,
@@ -18314,29 +7804,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
         UINT Subresource,
         UINT State)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList1");
-    oss << "->";
-    oss << "AssertResourceState(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << Subresource;
-    oss << ",\n";
-
-    oss << "    " << State;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AssertResourceState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Subresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Subresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "State", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(State, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
         format::HandleId object_id,
@@ -18345,32 +7826,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList1");
-    oss << "->";
-    oss << "SetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
         format::HandleId object_id,
@@ -18379,32 +7848,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList1");
-    oss << "->";
-    oss << "GetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
-    {
-        oss << "    " << "&" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
         format::HandleId object_id,
@@ -18413,71 +7870,54 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
         UINT Subresource,
         UINT State)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList");
-    oss << "->";
-    oss << "AssertResourceState(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << Subresource;
-    oss << ",\n";
-
-    oss << "    " << State;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AssertResourceState", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Subresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Subresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "State", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(State, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
         format::HandleId object_id,
         HRESULT return_value,
         D3D12_DEBUG_FEATURE Mask)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList");
-    oss << "->";
-    oss << "SetFeatureMask(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Mask);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetFeatureMask", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Mask", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Mask, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
         format::HandleId object_id,
         D3D12_DEBUG_FEATURE return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList");
-    oss << "->";
-    oss << "GetFeatureMask(\n    /* ";
-
-    oss << "return = " ;
-    oss << ConverttoText(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetFeatureMask", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
         format::HandleId object_id,
@@ -18486,32 +7926,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList2");
-    oss << "->";
-    oss << "SetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
-    {
-        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
         format::HandleId object_id,
@@ -18520,32 +7948,20 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList2");
-    oss << "->";
-    oss << "GetDebugParameter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Type);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
-    {
-        oss << "    " << "&" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << DataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetDebugParameter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Type, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "[out]pData", toStringFlags, tabCount, tabSize, "TODO 3 : PointerDecoderArrayToString(DataSize, pData, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "DataSize", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(DataSize, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
         format::HandleId object_id,
@@ -18553,120 +7969,101 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
         UINT Subresource,
         uint64_t window)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
-    oss << "->";
-    oss << "Present(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
-    oss << ",\n";
-
-    oss << "    " << Subresource;
-    oss << ",\n";
-
-    oss << "    " << window;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Present", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pResource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "Subresource", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(Subresource, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(window, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
         format::HandleId object_id,
         format::HandleId pFence,
         UINT64 FenceValue)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
-    oss << "->";
-    oss << "SharedFenceSignal(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteHandleId(oss, pFence, "    ", "ID3D12Fence", false);
-    oss << ",\n";
-
-    oss << "    " << FenceValue;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SharedFenceSignal", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "pFence", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFence, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "FenceValue", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(FenceValue, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SharingContract_BeginCapturableWork(
         format::HandleId object_id,
         Decoded_GUID guid)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
-    oss << "->";
-    oss << "BeginCapturableWork(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*guid.decoded_value);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("BeginCapturableWork", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "guid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(guid, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
         format::HandleId object_id,
         Decoded_GUID guid)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
-    oss << "->";
-    oss << "EndCapturableWork(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*guid.decoded_value);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("EndCapturableWork", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "guid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(guid, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
         format::HandleId object_id,
         HRESULT return_value,
         UINT64 MessageCountLimit)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "SetMessageCountLimit(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << MessageCountLimit;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetMessageCountLimit", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "MessageCountLimit", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(MessageCountLimit, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "ClearStoredMessages(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearStoredMessages", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
         format::HandleId object_id,
@@ -18675,175 +8072,134 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
         StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
         PointerDecoder<SIZE_T>* pMessageByteLength)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetMessage(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << MessageIndex;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMessage, "    ", true))
-    {
-        WriteArrayStructsString(oss, pMessage, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMessageByteLength, "    ", false))
-    {
-        oss << "    " << *pMessageByteLength->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetMessage", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "MessageIndex", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(MessageIndex, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]pMessage", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pMessageByteLength, pMessage, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pMessageByteLength", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pMessageByteLength, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetNumMessagesAllowedByStorageFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetNumMessagesAllowedByStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetNumMessagesDeniedByStorageFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetNumMessagesDeniedByStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetNumStoredMessages(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetNumStoredMessages", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetNumStoredMessagesAllowedByRetrievalFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetNumStoredMessagesAllowedByRetrievalFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetNumMessagesDiscardedByMessageCountLimit(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetNumMessagesDiscardedByMessageCountLimit", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
         format::HandleId object_id,
         UINT64 return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetMessageCountLimit(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetMessageCountLimit", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "AddStorageFilterEntries(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", false))
-    {
-        WriteStructString(oss, pFilter->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AddStorageFilterEntries", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pFilter", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pFilter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
         format::HandleId object_id,
@@ -18851,169 +8207,131 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
         PointerDecoder<SIZE_T>* pFilterByteLength)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetStorageFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
-    {
-        WriteArrayStructsString(oss, pFilter, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
-    {
-        oss << "    " << *pFilterByteLength->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pFilter", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pFilterByteLength, pFilter, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pFilterByteLength", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFilterByteLength, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "ClearStorageFilter(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PushEmptyStorageFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PushEmptyStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PushCopyOfStorageFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PushCopyOfStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PushStorageFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", false))
-    {
-        WriteStructString(oss, pFilter->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PushStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pFilter", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pFilter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PopStorageFilter(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PopStorageFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
         format::HandleId object_id,
         UINT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetStorageFilterStackSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetStorageFilterStackSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "AddRetrievalFilterEntries(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", false))
-    {
-        WriteStructString(oss, pFilter->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AddRetrievalFilterEntries", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pFilter", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pFilter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
         format::HandleId object_id,
@@ -19021,143 +8339,113 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
         PointerDecoder<SIZE_T>* pFilterByteLength)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetRetrievalFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
-    {
-        WriteArrayStructsString(oss, pFilter, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
-    {
-        oss << "    " << *pFilterByteLength->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRetrievalFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "[out]pFilter", toStringFlags, tabCount, tabSize, "TODO 1 : PointerDecoderArrayToString(* pFilterByteLength, pFilter, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "pFilterByteLength", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pFilterByteLength, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "ClearRetrievalFilter(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("ClearRetrievalFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PushEmptyRetrievalFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PushEmptyRetrievalFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
         format::HandleId object_id,
         HRESULT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PushCopyOfRetrievalFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PushCopyOfRetrievalFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PushRetrievalFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", false))
-    {
-        WriteStructString(oss, pFilter->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PushRetrievalFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "pFilter", toStringFlags, tabCount, tabSize, "TODO 5 : PointerDecoderToString(pFilter, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
         format::HandleId object_id)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "PopRetrievalFilter(\n    /* ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("PopRetrievalFilter", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
         format::HandleId object_id,
         UINT return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetRetrievalFilterStackSize(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetRetrievalFilterStackSize", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
         format::HandleId object_id,
@@ -19167,35 +8455,21 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
         D3D12_MESSAGE_ID ID,
         StringDecoder* pDescription)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "AddMessage(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Category);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(Severity);
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(ID);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDescription, "    ", false))
-    {
-        oss << "    " << "\"" << pDescription->GetPointer() << "\"";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AddMessage", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Category", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Category, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "Severity", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Severity, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "ID", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ID, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pDescription", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDescription, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
         format::HandleId object_id,
@@ -19203,29 +8477,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
         D3D12_MESSAGE_SEVERITY Severity,
         StringDecoder* pDescription)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "AddApplicationMessage(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Severity);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pDescription, "    ", false))
-    {
-        oss << "    " << "\"" << pDescription->GetPointer() << "\"";
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AddApplicationMessage", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Severity", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Severity, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "pDescription", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(pDescription, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
         format::HandleId object_id,
@@ -19233,26 +8497,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
         D3D12_MESSAGE_CATEGORY Category,
         BOOL bEnable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "SetBreakOnCategory(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Category);
-    oss << ",\n";
-
-    WriteBOOLString(oss, bEnable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetBreakOnCategory", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Category", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Category, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "bEnable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(bEnable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
         format::HandleId object_id,
@@ -19260,26 +8517,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
         D3D12_MESSAGE_SEVERITY Severity,
         BOOL bEnable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "SetBreakOnSeverity(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Severity);
-    oss << ",\n";
-
-    WriteBOOLString(oss, bEnable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetBreakOnSeverity", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Severity", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Severity, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "bEnable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(bEnable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
         format::HandleId object_id,
@@ -19287,132 +8537,105 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
         D3D12_MESSAGE_ID ID,
         BOOL bEnable)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "SetBreakOnID(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(ID);
-    oss << ",\n";
-
-    WriteBOOLString(oss, bEnable, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetBreakOnID", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "ID", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ID, toStringFlags, tabCount, tabSize) + '"'");
+            FieldToString(strStrm, false, "bEnable", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(bEnable, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
         format::HandleId object_id,
         BOOL return_value,
         D3D12_MESSAGE_CATEGORY Category)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetBreakOnCategory(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Category);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetBreakOnCategory", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Category", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Category, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
         format::HandleId object_id,
         BOOL return_value,
         D3D12_MESSAGE_SEVERITY Severity)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetBreakOnSeverity(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(Severity);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetBreakOnSeverity", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "Severity", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(Severity, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
         format::HandleId object_id,
         BOOL return_value,
         D3D12_MESSAGE_ID ID)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetBreakOnID(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(ID);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetBreakOnID", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "ID", toStringFlags, tabCount, tabSize, "TODO 14 : '"' + ToString(ID, toStringFlags, tabCount, tabSize) + '"'");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
         format::HandleId object_id,
         BOOL bMute)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "SetMuteDebugOutput(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    WriteBOOLString(oss, bMute, "    ", false);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("SetMuteDebugOutput", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(strStrm, true, "bMute", toStringFlags, tabCount, tabSize, "TODO 15 : ToString(bMute, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
         format::HandleId object_id,
         BOOL return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetMuteDebugOutput(\n    /* ";
-
-    oss << "return = " ;
-    WriteBOOLString(oss, return_value, "                ", false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("GetMuteDebugOutput", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 /*
 ** This part is generated from Unknwnbase.h in Windows SDK: 10.0.19041.0
@@ -19424,67 +8647,51 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvObject)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IUnknown");
-    oss << "->";
-    oss << "QueryInterface(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvObject, "    ", true))
-    {
-        WriteHandleId(oss, *ppvObject->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("QueryInterface", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(strStrm, false, "riid", toStringFlags, tabCount, tabSize, "TODO 13 : ToString(riid, toStringFlags, tabCount, tabSize)");
+            FieldToString(strStrm, false, "[out]ppvObject", toStringFlags, tabCount, tabSize, "TODO 7 : PointerDecoderToString(ppvObject, toStringFlags, tabCount, tabSize)");
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IUnknown_AddRef(
         format::HandleId object_id,
         ULONG return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IUnknown");
-    oss << "->";
-    oss << "AddRef(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("AddRef", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IUnknown_Release(
         format::HandleId object_id,
         ULONG return_value)
 {
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "IUnknown");
-    oss << "->";
-    oss << "Release(\n    /* ";
-
-    oss << "return = " ;
-    oss << return_value;
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFile("Release", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, '"' + ToString(return_value, to_string_flags, tab_count, tab_size) + '"');
+        }
+    );
 }
-
 
 
 

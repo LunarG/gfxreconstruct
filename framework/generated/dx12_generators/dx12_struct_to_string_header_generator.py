@@ -49,7 +49,13 @@ class Dx12StructToStringHeaderGenerator(Dx12BaseGenerator):
         """Methond override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
-        code = '#include "generated_dx12_enum_to_string.h"\n'
+        code = ''
+        header_dict = self.source_dict['header_dict']
+        for k, v in header_dict.items():
+            code += '#include <{}>\n'.format(k)
+        code += '#include "format/platform_types.h"\n'
+        code += '#include "util/defines.h"\n'
+        code += '#include "util/to_stringh.h"\n'
         write(code, file=self.outFile)
 
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
