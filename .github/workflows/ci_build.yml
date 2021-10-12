@@ -2,10 +2,7 @@ name: CI Build
 
 # Perform CI builds for pull requests targeting the dev branches.
 
-on:
-  pull_request:
-    branches:
-      - dev
+on: [push, pull_request]
 
 jobs:
   linux:
@@ -57,6 +54,112 @@ jobs:
         mv ${{ matrix.config.build_dir }}/linux/x64/output/bin gfxreconstruct-dev
         mv ${{ matrix.config.build_dir }}/linux/x64/output/lib*/*.so gfxreconstruct-dev/
         mv ${{ matrix.config.build_dir }}/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-dev
+
+  linux_arm32:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu GCC Release arm32 cross compile",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-dev-ubuntu-gcc-release",
+            type: "release",
+            build_dir: "build",
+            cc: "gcc", cxx: "g++"
+          }
+        - {
+            name: "Ubuntu GCC Debug arm32 cross compile",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-dev-ubuntu-gcc-debug",
+            type: "debug",
+            build_dir: "dbuild",
+            cc: "gcc", cxx: "g++"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev g++-arm-linux-gnueabihf
+    - name: Run build script
+      run: |
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+          clang-format --version # A check for version 9 should be added.
+        fi
+
+        python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style --arch arm
+    - name: Prepare artifacts
+      run: |
+        cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/arm/output/bin/
+        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/linux/arm/output/bin/
+        cp USAGE_desktop.md ${{ matrix.config.build_dir }}/linux/arm/output/bin/
+        cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/linux/arm/output/bin/
+        mv ${{ matrix.config.build_dir }}/linux/arm/output/bin gfxreconstruct-dev
+        mv ${{ matrix.config.build_dir }}/linux/arm/output/lib*/*.so gfxreconstruct-dev/
+        mv ${{ matrix.config.build_dir }}/linux/arm/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-dev
+
+  linux_arm64:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu GCC Release arm64 cross compile",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-dev-ubuntu-gcc-release",
+            type: "release",
+            build_dir: "build",
+            cc: "gcc", cxx: "g++"
+          }
+        - {
+            name: "Ubuntu GCC Debug arm64 cross compile",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-dev-ubuntu-gcc-debug",
+            type: "debug",
+            build_dir: "dbuild",
+            cc: "gcc", cxx: "g++"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev g++-aarch64-linux-gnu
+    - name: Run build script
+      run: |
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+          clang-format --version # A check for version 9 should be added.
+        fi
+
+        python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style --arch arm64
+    - name: Prepare artifacts
+      run: |
+        cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/arm64/output/bin/
+        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/linux/arm64/output/bin/
+        cp USAGE_desktop.md ${{ matrix.config.build_dir }}/linux/arm64/output/bin/
+        cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/linux/arm64/output/bin/
+        mv ${{ matrix.config.build_dir }}/linux/arm64/output/bin gfxreconstruct-dev
+        mv ${{ matrix.config.build_dir }}/linux/arm64/output/lib*/*.so gfxreconstruct-dev/
+        mv ${{ matrix.config.build_dir }}/linux/arm64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
