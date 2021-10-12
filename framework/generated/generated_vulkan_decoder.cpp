@@ -10254,6 +10254,11 @@ size_t VulkanDecoder::Decode_vkCreateRayTracingPipelinesKHR(const uint8_t* param
 {
     size_t bytes_read = 0;
 
+    // The API call can be a deferred operation if the input parameter of
+    // VkDeferredOperationKHR is valid. So the following ref variables all
+    // have lifecycle beyond current API call, and the lifecycle must cover
+    // the range until deferred operation finished later when it might be in
+    // some other thread, these ref variables will be released at that time.
     std::unique_ptr<DeferredOperationInfoCreateRayTracingPipelines>&& deferred_operation_info_instance =
         std::make_unique<DeferredOperationInfoCreateRayTracingPipelines>();
     format::HandleId& device = deferred_operation_info_instance->GetDeviceId();
