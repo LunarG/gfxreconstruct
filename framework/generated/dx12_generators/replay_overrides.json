@@ -24,7 +24,9 @@
       "CreateCommittedResource": "OverrideCreateCommittedResource",
       "CreateFence": "OverrideCreateFence",
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize",
-      "CreateReservedResource": "OverrideCreateReservedResource"
+      "CreateReservedResource": "OverrideCreateReservedResource",
+      "CreateGraphicsPipelineState": "OverrideCreateGraphicsPipelineState",
+      "CreateComputePipelineState": "OverrideCreateComputePipelineState"
     },
     "ID3D12Device1": {
       "CreatePipelineLibrary": "OverrideCreatePipelineLibrary"

@@ -68,6 +68,8 @@ const char kPausedOption[]                     = "--paused";
 const char kPauseFrameArgument[]               = "--pause-frame";
 const char kSkipFailedAllocationShortOption[]  = "--sfa";
 const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
+const char kDiscardCachedPsosShortOption[]     = "--dcp";
+const char kDiscardCachedPsosLongOption[]      = "--discard-cached-psos";
 const char kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 const char kWsiArgument[]                      = "--wsi";
@@ -604,6 +606,10 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         replay_options.enable_d3d12_two_pass_replay = true;
     }
 
+    if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))
+    {
+        replay_options.discard_cached_psos = true;
+    }
 
     replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);

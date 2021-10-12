@@ -433,6 +433,18 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                             Decoded_GUID                 riid,
                                             HandlePointerDecoder<void*>* resource);
 
+    HRESULT OverrideCreateGraphicsPipelineState(DxObjectInfo* device_object_info,
+                                                HRESULT       original_result,
+                                                StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
+                                                Decoded_GUID                                                      riid,
+                                                HandlePointerDecoder<void*>* pipelineState);
+
+    HRESULT OverrideCreateComputePipelineState(DxObjectInfo* device_object_info,
+                                               HRESULT       original_result,
+                                               StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
+                                               Decoded_GUID                                                     riid,
+                                               HandlePointerDecoder<void*>* pipelineState);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
