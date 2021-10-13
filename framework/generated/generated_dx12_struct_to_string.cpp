@@ -29,7 +29,7 @@
 #include "generated_dx12_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 template <> std::string ToString<DXGI_FRAME_STATISTICS>(const DXGI_FRAME_STATISTICS& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -2966,5 +2966,5 @@ template <> std::string ToString<_SECURITY_ATTRIBUTES>(const _SECURITY_ATTRIBUTE
 }
 
 
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

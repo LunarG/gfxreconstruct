@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_DX12_ASCII_CONSUMER_BASE_H
 
 #include "generated/generated_dx12_consumer.h"
+#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -74,9 +75,24 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     FILE*    GetFile() const { return m_file; }
     uint32_t current_frame_number_;
 
+    template <typename ToStringFunctionType>
+    inline void WriteApiCallToFile(const std::string&   functionName,
+                                   util::ToStringFlags  toStringFlags,
+                                   uint32_t&            tabCount,
+                                   uint32_t             tabSize,
+                                   ToStringFunctionType toStringFunction)
+    {
+        using namespace util;
+        fprintf(m_file, "%s\n", (m_apiCallCount ? "," : ""));
+        fprintf(m_file, "\"[%s]%s\":", std::to_string(m_apiCallCount++).c_str(), functionName.c_str());
+        fprintf(m_file, "%s", GetWhitespaceString(toStringFlags).c_str());
+        fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+    }
+
   private:
     FILE*       m_file;
     std::string m_filename;
+    uint64_t    m_apiCallCount{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

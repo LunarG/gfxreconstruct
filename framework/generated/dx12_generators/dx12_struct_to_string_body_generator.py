@@ -54,7 +54,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
         write(code, file=self.outFile)
 
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
         self.newline()
 
     def generate_feature(self):
@@ -161,7 +161,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
     def endFile(self):
         """Methond override."""
         self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass

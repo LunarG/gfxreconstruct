@@ -52,16 +52,16 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         self.write_include()
 
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
         self.newline()
 
     def generate_feature(self):
         enum_dict = self.source_dict['enum_dict']
         for k, v in enum_dict.items():
-            body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+            body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);'
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
-                    body += '\ntemplate <> std::string ToString<{0}>(uint32_t flags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                    body += '\ntemplate <> std::string ToString<{0}>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);'
             write(body.format(k), file=self.outFile)
 
         #### for enum in sorted(self.enumNames):
@@ -89,7 +89,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
 
         code += '#include "format/platform_types.h"\n'
         code += '#include "util/defines.h"\n'
-        code += '#include "util/to_stringh.h"\n'
+        code += '#include "util/to_string.h"\n'
         write(code, file=self.outFile)
 
 
@@ -186,7 +186,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
     def endFile(self):
         """Methond override."""
         self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass

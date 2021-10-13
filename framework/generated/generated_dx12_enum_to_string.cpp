@@ -28,7 +28,7 @@
 #include "generated_dx12_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 template <> std::string ToString<DXGI_RESIDENCY>(const DXGI_RESIDENCY& value, ToStringFlags, uint32_t, uint32_t)
 {
@@ -4299,5 +4299,5 @@ template <> std::string ToString<D3D12_MESSAGE_ID>(const D3D12_MESSAGE_ID& value
 }
 
 
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

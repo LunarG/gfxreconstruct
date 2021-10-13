@@ -46,10 +46,10 @@
 #include <minwinbase.h>
 #include "format/platform_types.h"
 #include "util/defines.h"
-#include "util/to_stringh.h"
+#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 template <> std::string ToString<DXGI_FRAME_STATISTICS>(const DXGI_FRAME_STATISTICS& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<DXGI_MAPPED_RECT>(const DXGI_MAPPED_RECT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -280,7 +280,7 @@ template <> std::string ToString<tagRECT>(const tagRECT& obj, ToStringFlags toSt
 template <> std::string ToString<tagPOINT>(const tagPOINT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<_SECURITY_ATTRIBUTES>(const _SECURITY_ATTRIBUTES& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif

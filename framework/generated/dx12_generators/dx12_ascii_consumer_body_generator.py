@@ -62,9 +62,12 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     def write_include(self):
         write('#include "generated_dx12_ascii_consumer.h"', file=self.outFile)
         write('#include "generated_dx12_convert_to_texts.h"', file=self.outFile)
+        write('#include "generated_dx12_enum_to_string.h"', file=self.outFile)
+        write('#include "generated_dx12_struct_to_string.h"', file=self.outFile)
         write('#include "decode/custom_dx12_struct_ascii_consumers.h"', file=self.outFile)
         write('#include "decode/dx12_enum_util.h"', file=self.outFile)
         write('#include "util/interception/injection.h"', file=self.outFile)
+        write('#include "util/to_string.h"', file=self.outFile)
         self.newline()
 
     def generate_feature(self):
@@ -145,22 +148,22 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             if value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
-                        to_string = '"TODO 0 : HandlePointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 0 : HandlePointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                     elif self.is_struct(value.base_type):
-                        to_string = '"TODO 1 : PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 1 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                     elif self.is_enum(value.base_type):
-                        to_string = '"TODO 2 : EnumPointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 2 : EnumPointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                     else:
-                        to_string = '"TODO 3 : PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 3 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                 else:
                     if self.is_handle(value.base_type):
                         to_string = '"TODO 4 : HandlePointerDecoderToString({0})"'
                     elif self.is_struct(value.base_type):
-                        to_string = '"TODO 5 : PointerDecoderToString({0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 5 : PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)"'
                     elif self.is_enum(value.base_type):
                         to_string = '"TODO 6 : EnumPointerDecoderToString({0})"'
                     else:
-                        to_string = '"TODO 7 : PointerDecoderToString({0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 7 : PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)"'
             else:
                 if value.is_array:
                     if self.is_handle(value.base_type):
@@ -168,21 +171,21 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     elif self.is_struct(value.base_type):
                         to_string = '"TODO 9 : static_assert(false, "Unhandled static array of VkStructures in `vulkan_ascii_consumer_body_generator.py`")"'
                     elif self.is_enum(value.base_type):
-                        to_string = '"TODO 10 : EnumPointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 10 : EnumPointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                     else:
-                        to_string = '"TODO 11 : PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 11 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                 else:
                     if self.is_handle(value.base_type):
                         to_string = '"TODO 12 : HandleIdToString({0})"'
                     elif self.is_struct(value.base_type):
-                        to_string = '"TODO 13 : ToString({0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 13 : ToString({0}, to_string_flags, tab_count, tab_size)"'
                     elif self.is_enum(value.base_type):
-                        to_string = '"TODO 14 : \'"\' + ToString({0}, toStringFlags, tabCount, tabSize) + \'"\'"'
+                        to_string = '\'"\' + ToString({0}, to_string_flags, tab_count, tab_size) + \'"\''
                     else:
-                        to_string = '"TODO 15 : ToString({0}, toStringFlags, tabCount, tabSize)"'
+                        to_string = '"TODO 15 : ToString({0}, to_string_flags, tab_count, tab_size)"'
 
             first_field = 'true' if not code else 'false'
             value_name = ('[out]' if self.is_output(value) else '') + value.name
             to_string = to_string.format(value.name, value.array_length)
-            code += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(first_field, value_name, to_string)
+            code += '            FieldToString(str_strm, {0}, "{1}", to_string_flags, tab_count, tab_size, {2});\n'.format(first_field, value_name, to_string)
         return code
