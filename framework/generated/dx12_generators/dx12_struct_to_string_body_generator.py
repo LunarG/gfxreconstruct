@@ -149,8 +149,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         elif self.is_struct(value.base_type):
                             toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize)"'
                         elif self.is_enum(value.base_type):
-                            # toString = '" TODO : \'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\' "'
-                            toString = '" TODO :"'
+                            toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
                         else:
                             toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize) "'
 

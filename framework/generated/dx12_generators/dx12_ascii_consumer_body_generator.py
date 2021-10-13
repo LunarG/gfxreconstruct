@@ -107,7 +107,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             code += '        object_id,\n'
             code += '        return_value'
             for parameter in method_info['parameters']:
-                code += ',\n'
+                code += ',\n' # TODO : Check CreateDepthStencilView()
                 code += '        ' + parameter['name']
             code += ');\n}\n'
         else:
@@ -186,18 +186,18 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     elif self.is_struct(value.base_type):
                         to_string = '"TODO 9 : static_assert(false, "Unhandled static array of VkStructures in `vulkan_ascii_consumer_body_generator.py`")"'
                     elif self.is_enum(value.base_type):
-                        to_string = '"TODO 10 : EnumPointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'static_assert(false, "Unhandled static array of enums in `dx12_ascii_consumer_body_generator.py`")'
                     else:
                         to_string = '"TODO 11 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                 else:
                     if self.is_handle(value.base_type):
                         to_string = '"TODO 12 : HandleIdToString({0})"'
                     elif self.is_struct(value.base_type):
-                        to_string = '"TODO 13 : ToString({0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'ToString(*{0}.decoded_value, to_string_flags, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
                         to_string = '\'"\' + ToString({0}, to_string_flags, tab_count, tab_size) + \'"\''
                     else:
-                        to_string = '"TODO 15 : ToString({0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'ToString({0}, to_string_flags, tab_count, tab_size)'
 
             first_field = 'true' if not code else 'false'
             value_name = ('[out]' if self.is_output(value) else '') + value.name

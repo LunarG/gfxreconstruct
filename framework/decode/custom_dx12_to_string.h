@@ -27,6 +27,8 @@
 #include "util/defines.h"
 #include "util/to_string.h"
 
+#include <d3d12.h>
+
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -56,6 +58,18 @@ inline std::string BitmaskToString(VkFlags vkFlags)
     }
     return str;
 }
+
+template <>
+std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,
+                                                  ToStringFlags                      toStringFlags,
+                                                  uint32_t                           tabCount,
+                                                  uint32_t                           tabSize);
+
+template <>
+std::string ToString<D3D12_GPU_DESCRIPTOR_HANDLE>(const D3D12_GPU_DESCRIPTOR_HANDLE& obj,
+                                                  ToStringFlags                      toStringFlags,
+                                                  uint32_t                           tabCount,
+                                                  uint32_t                           tabSize);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
