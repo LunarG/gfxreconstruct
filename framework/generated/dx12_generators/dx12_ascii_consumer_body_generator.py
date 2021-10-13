@@ -136,7 +136,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
         # Handle function return value
         if not 'void' in return_type:
-            code =  '            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, \'"\' + DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size) + \'"\');\n'
+            code +=  '            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));\n'
 
         # Handle calling object
         if class_name:
@@ -163,7 +163,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             if value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
-                        to_string = '"TODO 0 : HandlePointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'static_assert(false, "Unhandled dynamic array of handles in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
                         to_string = '"TODO 1 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                     elif self.is_enum(value.base_type):
@@ -172,7 +172,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                         to_string = '"TODO 3 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                 else:
                     if self.is_handle(value.base_type):
-                        to_string = '"TODO 4 : HandlePointerDecoderToString({0})"'
+                        to_string = 'static_assert(false, "Unhandled pointer to handle in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
                         to_string = '"TODO 5 : PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)"'
                     elif self.is_enum(value.base_type):
@@ -182,16 +182,16 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             else:
                 if value.is_array:
                     if self.is_handle(value.base_type):
-                        to_string = '"TODO 8 : static_assert(false, "Unhandled static array of VkHandles in `vulkan_ascii_consumer_body_generator.py`")"'
+                        to_string = 'static_assert(false, "Unhandled static array of handles in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        to_string = '"TODO 9 : static_assert(false, "Unhandled static array of VkStructures in `vulkan_ascii_consumer_body_generator.py`")"'
+                        to_string = 'static_assert(false, "Unhandled static array of structures in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_enum(value.base_type):
                         to_string = 'static_assert(false, "Unhandled static array of enums in `dx12_ascii_consumer_body_generator.py`")'
                     else:
                         to_string = '"TODO 11 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
                 else:
                     if self.is_handle(value.base_type):
-                        to_string = '"TODO 12 : HandleIdToString({0})"'
+                        to_string = 'static_assert(false, "Unhandled handle in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
                         to_string = 'ToString(*{0}.decoded_value, to_string_flags, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
