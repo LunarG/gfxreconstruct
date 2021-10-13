@@ -1477,23 +1477,11 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDevice);
 
-    virtual void Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
-        format::HandleId object_id,
-        StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* return_value);
-
     virtual void Process_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
         format::HandleId object_id,
         HRESULT return_value,
         D3D_ROOT_SIGNATURE_VERSION convertToVersion,
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* ppDesc);
-
-    virtual void Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
-        format::HandleId object_id,
-        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* return_value);
-
-    virtual void Process_ID3D12Heap_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_HEAP_DESC return_value);
 
     virtual void Process_ID3D12Resource_Map(
         format::HandleId object_id,
@@ -1506,10 +1494,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         UINT Subresource,
         StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange);
-
-    virtual void Process_ID3D12Resource_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_DESC return_value);
 
     virtual void Process_ID3D12Resource_GetGPUVirtualAddress(
         format::HandleId object_id,
@@ -1566,18 +1550,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         HRESULT return_value,
         HandlePointerDecoder<ID3D10Blob*>* ppBlob);
-
-    virtual void Process_ID3D12DescriptorHeap_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_DESCRIPTOR_HEAP_DESC return_value);
-
-    virtual void Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
-        format::HandleId object_id,
-        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE return_value);
-
-    virtual void Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
-        format::HandleId object_id,
-        Decoded_D3D12_GPU_DESCRIPTOR_HANDLE return_value);
 
     virtual void Process_ID3D12CommandList_GetType(
         format::HandleId object_id,
@@ -2002,10 +1974,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         PointerDecoder<UINT64>* pGpuTimestamp,
         PointerDecoder<UINT64>* pCpuTimestamp);
 
-    virtual void Process_ID3D12CommandQueue_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_COMMAND_QUEUE_DESC return_value);
-
     virtual void Process_ID3D12Device_GetNodeCount(
         format::HandleId object_id,
         UINT return_value);
@@ -2120,19 +2088,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType);
-
-    virtual void Process_ID3D12Device_GetResourceAllocationInfo(
-        format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
-        UINT visibleMask,
-        UINT numResourceDescs,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs);
-
-    virtual void Process_ID3D12Device_GetCustomHeapProperties(
-        format::HandleId object_id,
-        Decoded_D3D12_HEAP_PROPERTIES return_value,
-        UINT nodeMask,
-        D3D12_HEAP_TYPE heapType);
 
     virtual void Process_ID3D12Device_CreateCommittedResource(
         format::HandleId object_id,
@@ -2260,10 +2215,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         UINT FirstSubresourceTilingToGet,
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_TILING>* pSubresourceTilingsForNonPackedMips);
 
-    virtual void Process_ID3D12Device_GetAdapterLuid(
-        format::HandleId object_id,
-        Decoded_LUID return_value);
-
     virtual void Process_ID3D12PipelineLibrary_StorePipeline(
         format::HandleId object_id,
         HRESULT return_value,
@@ -2368,10 +2319,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         D3D12_PROTECTED_SESSION_STATUS return_value);
 
-    virtual void Process_ID3D12ProtectedResourceSession_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value);
-
     virtual void Process_ID3D12Device4_CreateCommandList1(
         format::HandleId object_id,
         HRESULT return_value,
@@ -2417,14 +2364,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId pProtectedSession,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvResource);
-
-    virtual void Process_ID3D12Device4_GetResourceAllocationInfo1(
-        format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
-        UINT visibleMask,
-        UINT numResourceDescs,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1);
 
     virtual void Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
         format::HandleId object_id,

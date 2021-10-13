@@ -64,6 +64,31 @@ inline std::string ToString(uint32_t      apiFlags,
     return "0";
 }
 
+template <typename BitmaskType, typename FlagsType>
+inline std::string BitmaskToString(FlagsType flags)
+{
+    std::string str;
+    FlagsType   index = 0;
+    while (flags)
+    {
+        if (flags & 1)
+        {
+            if (!str.empty())
+            {
+                str.append("|");
+            }
+            str.append(ToString(static_cast<BitmaskType>(1 << index)));
+        }
+        ++index;
+        flags >>= 1;
+    }
+    if (str.empty())
+    {
+        str.append(ToString(static_cast<BitmaskType>(0)));
+    }
+    return str;
+}
+
 template <typename PtrType>
 inline std::string PtrToString(PtrType ptr)
 {

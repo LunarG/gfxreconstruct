@@ -45,6 +45,9 @@ class Dx12GeneratorOptions(BaseGeneratorOptions):
 
 class Dx12BaseGenerator(BaseGenerator):
 
+    # populate this member with API elements that require custom implementations
+    CUSTOM_IMPLEMENTATION_DICT = { }
+
     ARRAY_SIZE_LIST = [
         ['D3D12_AUTO_BREADCRUMB_NODE', 'pCommandHistory', 'BreadcrumbCount'],
         ['D3D12_AUTO_BREADCRUMB_NODE1', 'pCommandHistory', 'BreadcrumbCount'],

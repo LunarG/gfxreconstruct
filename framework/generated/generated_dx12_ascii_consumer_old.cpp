@@ -11641,28 +11641,6 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
-        format::HandleId object_id,
-        StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12RootSignatureDeserializer");
-    oss << "->";
-    oss << "GetRootSignatureDesc(\n    /* ";
-
-    oss << "return = " ;
-    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
-    {
-        WriteStructString(oss, return_value->GetMetaStructPointer(), "                ", true, false);
-    }
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
         format::HandleId object_id,
         HRESULT return_value,
@@ -11688,47 +11666,6 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
         WriteStructString(oss, ppDesc->GetMetaStructPointer(), "    ", false, true);
     }
     oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
-        format::HandleId object_id,
-        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12VersionedRootSignatureDeserializer");
-    oss << "->";
-    oss << "GetUnconvertedRootSignatureDesc(\n    /* ";
-
-    oss << "return = " ;
-    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
-    {
-        WriteStructString(oss, return_value->GetMetaStructPointer(), "                ", true, false);
-    }
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12Heap_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_HEAP_DESC return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Heap");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
 }
@@ -11791,25 +11728,6 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Unmap(
         WriteStructString(oss, pWrittenRange->GetMetaStructPointer(), "    ", false, false);
     }
     oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12Resource_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_DESC return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Resource");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
 }
@@ -12079,63 +11997,6 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         WriteHandleId(oss, *ppBlob->GetPointer(), "    ", "ID3D10Blob", true);
     }
     oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_DESCRIPTOR_HEAP_DESC return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
-        format::HandleId object_id,
-        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
-    oss << "->";
-    oss << "GetCPUDescriptorHandleForHeapStart(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
-        format::HandleId object_id,
-        Decoded_D3D12_GPU_DESCRIPTOR_HANDLE return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
-    oss << "->";
-    oss << "GetGPUDescriptorHandleForHeapStart(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
 }
@@ -14125,25 +13986,6 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_COMMAND_QUEUE_DESC return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12Device_GetNodeCount(
         format::HandleId object_id,
         UINT return_value)
@@ -14707,67 +14549,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
     oss << ",\n";
 
     oss << "    " << ConverttoText(DescriptorHeapsType);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
-        format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
-        UINT visibleMask,
-        UINT numResourceDescs,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetResourceAllocationInfo(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << visibleMask;
-    oss << ",\n";
-
-    oss << "    " << numResourceDescs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
-    {
-        WriteArrayStructsString(oss, pResourceDescs, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
-        format::HandleId object_id,
-        Decoded_D3D12_HEAP_PROPERTIES return_value,
-        UINT nodeMask,
-        D3D12_HEAP_TYPE heapType)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetCustomHeapProperties(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << nodeMask;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(heapType);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -15429,25 +15210,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12Device_GetAdapterLuid(
-        format::HandleId object_id,
-        Decoded_LUID return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "GetAdapterLuid(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         format::HandleId object_id,
         HRESULT return_value,
@@ -15978,25 +15740,6 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
-        format::HandleId object_id,
-        Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12ProtectedResourceSession");
-    oss << "->";
-    oss << "GetDesc(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */);\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
         format::HandleId object_id,
         HRESULT return_value,
@@ -16225,47 +15968,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
         WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
-        format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
-        UINT visibleMask,
-        UINT numResourceDescs,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device4");
-    oss << "->";
-    oss << "GetResourceAllocationInfo1(\n    /* ";
-
-    oss << "return = " ;
-    WriteStructString(oss, &return_value, "                ", true, false);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << visibleMask;
-    oss << ",\n";
-
-    oss << "    " << numResourceDescs;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
-    {
-        WriteArrayStructsString(oss, pResourceDescs, "    ", false);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pResourceAllocationInfo1, "    ", true))
-    {
-        WriteArrayStructsString(oss, pResourceAllocationInfo1, "    ", true);
     }
     oss << ");\n\n";
 

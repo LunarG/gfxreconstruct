@@ -54,6 +54,20 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     ASCII_OVERRIDES = {}
 
     def beginFile(self, genOpts):
+        self.APICALL_BLACKLIST.append('<apicallName>')
+        self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
+        self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')
+        self.METHODCALL_BLACKLIST.append('ID3D12Heap_GetDesc')
+        self.METHODCALL_BLACKLIST.append('ID3D12Resource_GetDesc')
+        self.METHODCALL_BLACKLIST.append('ID3D12DescriptorHeap_GetDesc')
+        self.METHODCALL_BLACKLIST.append('ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart')
+        self.METHODCALL_BLACKLIST.append('ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart')
+        self.METHODCALL_BLACKLIST.append('ID3D12CommandQueue_GetDesc')
+        self.METHODCALL_BLACKLIST.append('ID3D12Device_GetResourceAllocationInfo')
+        self.METHODCALL_BLACKLIST.append('ID3D12Device_GetCustomHeapProperties')
+        self.METHODCALL_BLACKLIST.append('ID3D12Device_GetAdapterLuid')
+        self.METHODCALL_BLACKLIST.append('ID3D12ProtectedResourceSession_GetDesc')
+        self.METHODCALL_BLACKLIST.append('ID3D12Device4_GetResourceAllocationInfo1')
         Dx12AsciiConsumerHeaderGenerator.beginFile(self, genOpts)
         if genOpts.ascii_overrides:
             overrides = json.loads(open(genOpts.ascii_overrides, 'r').read())
@@ -64,6 +78,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         write('#include "generated_dx12_convert_to_texts.h"', file=self.outFile)
         write('#include "generated_dx12_enum_to_string.h"', file=self.outFile)
         write('#include "generated_dx12_struct_to_string.h"', file=self.outFile)
+        write('#include "decode/custom_dx12_ascii_consumer.h"', file=self.outFile)
         write('#include "decode/custom_dx12_struct_ascii_consumers.h"', file=self.outFile)
         write('#include "decode/dx12_enum_util.h"', file=self.outFile)
         write('#include "util/interception/injection.h"', file=self.outFile)
@@ -121,7 +136,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
         # Handle function return value
         if not 'void' in return_type:
-            code = '            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, \'"\' + ToString(return_value, to_string_flags, tab_count, tab_size) + \'"\');\n'
+            code =  '            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, \'"\' + DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size) + \'"\');\n'
 
         # Handle calling object
         if class_name:

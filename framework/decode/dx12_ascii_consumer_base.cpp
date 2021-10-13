@@ -54,6 +54,7 @@ void Dx12AsciiConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Han
                                                                      void*            replay_feature_data,
                                                                      UINT             feature_data_size)
 {
+    #if 0
     const char*        indent = "    ";
     std::ostringstream oss;
     oss << "ID3D12Device_id" << object_id << "->";
@@ -268,6 +269,7 @@ void Dx12AsciiConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Han
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
+    #endif
 }
 
 void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
@@ -277,6 +279,7 @@ void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Ha
                                                                       void*            replay_feature_data,
                                                                       UINT             feature_data_size)
 {
+    #if 0
     const char*        indent = "    ";
     std::ostringstream oss;
     oss << "IDXGIFactory5_id" << object_id << "->";
@@ -309,6 +312,7 @@ void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Ha
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
+    #endif
 }
 
 void Dx12AsciiConsumerBase::OverridePresent(format::HandleId object_id,
@@ -337,6 +341,7 @@ void Dx12AsciiConsumerBase::DumpPresentWithFrameNumber(
     UINT                                                   PresentFlags,
     StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
 {
+    #if 0
     current_frame_number_++;
 
     std::ostringstream oss;
@@ -372,6 +377,7 @@ void Dx12AsciiConsumerBase::DumpPresentWithFrameNumber(
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
+    #endif
 }
 
 GFXRECON_END_NAMESPACE(decode)

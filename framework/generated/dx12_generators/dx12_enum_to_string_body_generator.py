@@ -62,8 +62,12 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
             body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
             body += '{{\n'
             body += '    switch (value) {{\n'
+            processed_values = set()
             for value in v['values']:
-                body += '    case {0}: return "{0}";\n'.format(value['name'])
+                if not value['value'] in processed_values:
+                    body += '    case {0}: return "{0}";\n'.format(value['name'])
+                    processed_values.add(value['name'])
+                    processed_values.add(value['value'])
             body += '    default: break;\n'
             body += '    }}\n'
             body += '    return "Unhandled {0}";\n'

@@ -40,6 +40,22 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+template <typename DX12ReturnType>
+inline std::string DX12ReturnValueToString(const DX12ReturnType& return_value, util::ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size)
+{
+    return {};
+}
+
+template <typename PointerDecoderType>
+inline std::string PointerDecoderToString(PointerDecoderType* pObj,
+                                          util::ToStringFlags toStringFlags = util::kToString_Default,
+                                          uint32_t            tabCount      = 0,
+                                          uint32_t            tabSize       = 4)
+{
+    auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
+    return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

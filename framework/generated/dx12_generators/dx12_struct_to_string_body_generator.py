@@ -121,11 +121,13 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         if self.is_handle(value.base_type):
                             toString = '" TODO : static_assert(false, "Unhandled pointer to VkHandle in `dx12_struct_to_string_body_generator.py`") "'
                         elif self.is_struct(value.base_type):
-                            toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
+                            # toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
+                            toString = '" TODO :"'
                         elif self.is_enum(value.base_type):
                             toString = '" TODO : static_assert(false, "Unhandled pointer to VkEnum in `dx12_struct_to_string_body_generator.py`") "'
                         else:
-                            toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
+                            # toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
+                            toString = '" TODO :"'
                 else:
                     if value.is_array:
                         if self.is_handle(value.base_type):
@@ -135,7 +137,8 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         elif self.is_enum(value.base_type):
                             toString = '" TODO : ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
                         elif 'char' in value.base_type:
-                            toString = '" TODO : \'"\' + std::string(obj.{0}) + \'"\' "'
+                            # toString = '" TODO : \'"\' + std::string(obj.{0}) + \'"\' "'
+                            toString = '" TODO :"'
                         #### elif 'UUID' in value.array_length or 'LUID' in value.array_length:
                         ####     toString = '" TODO : \'"\' + UIDToString({1}, obj.{0}) + \'"\' "'
                         else:
@@ -146,7 +149,8 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         elif self.is_struct(value.base_type):
                             toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize)"'
                         elif self.is_enum(value.base_type):
-                            toString = '" TODO : \'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\' "'
+                            # toString = '" TODO : \'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\' "'
+                            toString = '" TODO :"'
                         else:
                             toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize) "'
 
