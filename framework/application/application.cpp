@@ -40,6 +40,9 @@
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include "application/android_context.h"
 #endif
+#if defined(VK_USE_PLATFORM_DISPLAY_KHR)
+#include "application/display_context.h"
+#endif
 #if defined(VK_USE_PLATFORM_HEADLESS)
 #include "application/headless_context.h"
 #endif
@@ -163,6 +166,13 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
         {
             wsi_context_ =
                 std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_DISPLAY_KHR)
+            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_DISPLAY_EXTENSION_NAME))
+        {
+            wsi_context_ = std::make_unique<DisplayContext>(this);
         }
         else
 #endif

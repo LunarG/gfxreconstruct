@@ -38,6 +38,10 @@ target_sources(gfxrecon_application
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.cpp>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.cpp>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_context.h>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_window.h>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_context.cpp>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_window.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_context.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_window.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_context.cpp>
