@@ -2153,17 +2153,11 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
     auto fence_info = GetExtraInfo<D3D12FenceInfo>(info);
     if (fence_info != nullptr)
     {
-        auto entry = fence_info->waiting_objects.find(value);
-        if (entry != fence_info->waiting_objects.end())
+        // Process objects waiting for the fence's value up through the new value.
+        auto range_begin = fence_info->waiting_objects.begin();
+        auto range_end   = fence_info->waiting_objects.upper_bound(value);
+        if (range_begin != range_end)
         {
-            auto range_begin = entry;
-            auto range_end   = std::next(entry);
-
-            if (value > fence_info->last_signaled_value)
-            {
-                range_begin = fence_info->waiting_objects.upper_bound(fence_info->last_signaled_value);
-            }
-
             for (auto iter = range_begin; iter != range_end; ++iter)
             {
                 auto& waiting_objects = iter->second;
@@ -2200,7 +2194,7 @@ void Dx12ReplayConsumerBase::SignalWaitingQueue(DxObjectInfo* queue_info, DxObje
         // value to signaled.
         for (auto& entry : event_queue)
         {
-            if (entry.is_wait && (entry.fence_info == fence_info) && (entry.value == value))
+            if (entry.is_wait && (entry.fence_info == fence_info) && (entry.value <= value))
             {
                 entry.is_signaled = true;
             }
