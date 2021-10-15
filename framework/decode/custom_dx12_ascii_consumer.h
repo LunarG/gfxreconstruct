@@ -40,7 +40,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-inline std::string HandleIdToString(format::HandleId handleId)
+template <typename HandleIdType>
+inline std::string HandleIdToString(HandleIdType handleId)
 {
     std::stringstream strStrm;
     if (handleId)
@@ -58,6 +59,13 @@ template <typename DX12ReturnType>
 inline std::string DX12ReturnValueToString(const DX12ReturnType& return_value, util::ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size)
 {
     return "TODO : return_value";
+}
+
+template <typename EnumType>
+inline std::string EnumPointerDecoderToString(PointerDecoder<EnumType>* pObj)
+{
+    auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
+    return pDecodedObj ? ('"' + util::ToString(*pDecodedObj) + '"') : "null";
 }
 
 template <typename PointerDecoderType>

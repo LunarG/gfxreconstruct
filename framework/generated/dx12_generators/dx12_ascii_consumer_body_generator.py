@@ -181,15 +181,13 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled pointer to handle in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        print(value.base_type + ':' + value.full_type)
                         to_string = 'PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
-                        to_string = '"TODO 6 : EnumPointerDecoderToString({0})"'
-                    elif 'ID3D12Resource' in value.full_type:
+                        to_string = 'EnumPointerDecoderToString({0})'
+                    elif self.get_category_type(value.base_type) == 'class'or value.base_type == 'void':
                         to_string = 'HandleIdToString({0})'
                     else:
-                        # print(value.base_type + ':' + value.full_type)
-                        to_string = '"TODO 7 : PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)'
             else:
                 if value.is_array:
                     if self.is_handle(value.base_type):
@@ -199,7 +197,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     elif self.is_enum(value.base_type):
                         to_string = 'static_assert(false, "Unhandled static array of enums in `dx12_ascii_consumer_body_generator.py`")'
                     else:
-                        to_string = '"TODO 11 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
                 else:
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled handle in `dx12_ascii_consumer_body_generator.py`")'
