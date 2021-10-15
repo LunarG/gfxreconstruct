@@ -362,5 +362,160 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
     //     });
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
+    format::HandleId object_id, UINT NumBarriers, StructPointerDecoder<Decoded_D3D12_RESOURCE_BARRIER>* pBarriers)
+{
+    // using namespace gfxrecon::util;
+    // ToStringFlags to_string_flags = kToString_Default;
+    // uint32_t      tab_count       = 0;
+    // uint32_t      tab_size        = 4;
+    // WriteApiCallToFile("ResourceBarrier", to_string_flags, tab_count, tab_size, [&](std::stringstream& str_strm) {
+    //     FieldToString(str_strm,
+    //                   true,
+    //                   "ID3D12GraphicsCommandList",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   HandleIdToString(object_id));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "NumBarriers",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   ToString(NumBarriers, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "pBarriers",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   PointerDecoderArrayToString(NumBarriers, pBarriers, to_string_flags, tab_count, tab_size));
+    // });
+}
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(format::HandleId                             object_id,
+                                                           HRESULT                                      return_value,
+                                                           UINT64                                       MessageIndex,
+                                                           StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
+                                                           PointerDecoder<SIZE_T>* pMessageByteLength)
+{
+    // using namespace gfxrecon::util;
+    // ToStringFlags to_string_flags = kToString_Default;
+    // uint32_t      tab_count       = 0;
+    // uint32_t      tab_size        = 4;
+    // WriteApiCallToFile("GetMessage", to_string_flags, tab_count, tab_size, [&](std::stringstream& str_strm) {
+    //     FieldToString(
+    //         str_strm, true, "ID3D12InfoQueue", to_string_flags, tab_count, tab_size, HandleIdToString(object_id));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "return",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "MessageIndex",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   ToString(MessageIndex, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "[out]pMessage",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   PointerDecoderArrayToString(pMessageByteLength, pMessage, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "pMessageByteLength",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   "TODO 7 : PointerDecoderToString(pMessageByteLength, to_string_flags, tab_count, tab_size)");
+    // });
+}
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
+    format::HandleId                                       object_id,
+    HRESULT                                                return_value,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
+    PointerDecoder<SIZE_T>*                                pFilterByteLength)
+{
+    // using namespace gfxrecon::util;
+    // ToStringFlags to_string_flags = kToString_Default;
+    // uint32_t      tab_count       = 0;
+    // uint32_t      tab_size        = 4;
+    // WriteApiCallToFile("GetStorageFilter", to_string_flags, tab_count, tab_size, [&](std::stringstream& str_strm) {
+    //     FieldToString(
+    //         str_strm, true, "ID3D12InfoQueue", to_string_flags, tab_count, tab_size, HandleIdToString(object_id));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "return",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "[out]pFilter",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   PointerDecoderArrayToString(pFilterByteLength, pFilter, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "pFilterByteLength",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   "TODO 7 : PointerDecoderToString(pFilterByteLength, to_string_flags, tab_count, tab_size)");
+    // });
+}
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
+    format::HandleId                                       object_id,
+    HRESULT                                                return_value,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
+    PointerDecoder<SIZE_T>*                                pFilterByteLength)
+{
+    // using namespace gfxrecon::util;
+    // ToStringFlags to_string_flags = kToString_Default;
+    // uint32_t      tab_count       = 0;
+    // uint32_t      tab_size        = 4;
+    // WriteApiCallToFile("GetRetrievalFilter", to_string_flags, tab_count, tab_size, [&](std::stringstream& str_strm) {
+    //     FieldToString(
+    //         str_strm, true, "ID3D12InfoQueue", to_string_flags, tab_count, tab_size, HandleIdToString(object_id));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "return",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "[out]pFilter",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   PointerDecoderArrayToString(pFilterByteLength, pFilter, to_string_flags, tab_count, tab_size));
+    //     FieldToString(str_strm,
+    //                   false,
+    //                   "pFilterByteLength",
+    //                   to_string_flags,
+    //                   tab_count,
+    //                   tab_size,
+    //                   "TODO 7 : PointerDecoderToString(pFilterByteLength, to_string_flags, tab_count, tab_size)");
+    // });
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

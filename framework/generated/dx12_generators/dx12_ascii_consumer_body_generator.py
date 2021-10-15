@@ -54,6 +54,9 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     ASCII_OVERRIDES = {}
 
     def beginFile(self, genOpts):
+        # TODO : Double check
+        #   ExecuteCommandLists
+        #   CreateDepthStencilView
         self.APICALL_BLACKLIST.append('<apicallName>')
         self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
         self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')
@@ -68,6 +71,10 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         self.METHODCALL_BLACKLIST.append('ID3D12Device_GetAdapterLuid')
         self.METHODCALL_BLACKLIST.append('ID3D12ProtectedResourceSession_GetDesc')
         self.METHODCALL_BLACKLIST.append('ID3D12Device4_GetResourceAllocationInfo1')
+        self.METHODCALL_BLACKLIST.append('ID3D12GraphicsCommandList_ResourceBarrier')
+        self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetMessage')
+        self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetStorageFilter')
+        self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetRetrievalFilter')
         Dx12AsciiConsumerHeaderGenerator.beginFile(self, genOpts)
         if genOpts.ascii_overrides:
             overrides = json.loads(open(genOpts.ascii_overrides, 'r').read())
@@ -107,7 +114,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             code += '        object_id,\n'
             code += '        return_value'
             for parameter in method_info['parameters']:
-                code += ',\n' # TODO : Check CreateDepthStencilView()
+                code += ', /*TODO*/\n'
                 code += '        ' + parameter['name']
             code += ');\n}\n'
         else:
@@ -134,13 +141,13 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     def make_consumer_func_body(self, class_name, method_info, return_type):
         code = ''
 
-        # Handle function return value
-        if not 'void' in return_type:
-            code +=  '            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));\n'
-
         # Handle calling object
         if class_name:
-            code += '            FieldToString(str_strm, false, "' + class_name + '", to_string_flags, tab_count, tab_size, "nullptr");\n'
+            code += '            FieldToString(str_strm, true, "{0}", to_string_flags, tab_count, tab_size, HandleIdToString(object_id));\n'.format(class_name)
+
+        # Handle function return value
+        if not 'void' in return_type:
+            code +=  '            FieldToString(str_strm, {0}, "return", to_string_flags, tab_count, tab_size, DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));\n'.format('true' if not code else 'false')
 
         # Handle function arguments
         for parameter in method_info['parameters']:
@@ -165,19 +172,23 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled dynamic array of handles in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        to_string = '"TODO 1 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
-                        to_string = '"TODO 2 : EnumPointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'EnumPointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
                     else:
-                        to_string = '"TODO 3 : PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)"'
+                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
                 else:
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled pointer to handle in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        to_string = '"TODO 5 : PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)"'
+                        print(value.base_type + ':' + value.full_type)
+                        to_string = 'PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
                         to_string = '"TODO 6 : EnumPointerDecoderToString({0})"'
+                    elif 'ID3D12Resource' in value.full_type:
+                        to_string = 'HandleIdToString({0})'
                     else:
+                        # print(value.base_type + ':' + value.full_type)
                         to_string = '"TODO 7 : PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)"'
             else:
                 if value.is_array:
@@ -201,6 +212,9 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
             first_field = 'true' if not code else 'false'
             value_name = ('[out]' if self.is_output(value) else '') + value.name
-            to_string = to_string.format(value.name, value.array_length)
+            array_length = value.array_length
+            if array_length and type(array_length) == str and array_length[0] == '*':
+                array_length = array_length.replace('* ', '')
+            to_string = to_string.format(value.name, array_length)
             code += '            FieldToString(str_strm, {0}, "{1}", to_string_flags, tab_count, tab_size, {2});\n'.format(first_field, value_name, to_string)
         return code

@@ -12481,31 +12481,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
-        format::HandleId object_id,
-        UINT NumBarriers,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_BARRIER>* pBarriers)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
-    oss << "->";
-    oss << "ResourceBarrier(\n    /* ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << NumBarriers;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pBarriers, "    ", false))
-    {
-        WriteArrayStructsString(oss, pBarriers, "    ", false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
         format::HandleId object_id,
         format::HandleId pCommandList)
@@ -18370,43 +18345,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT64 MessageIndex,
-        StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
-        PointerDecoder<SIZE_T>* pMessageByteLength)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetMessage(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << MessageIndex;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMessage, "    ", true))
-    {
-        WriteArrayStructsString(oss, pMessage, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pMessageByteLength, "    ", false))
-    {
-        oss << "    " << *pMessageByteLength->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
         format::HandleId object_id,
         UINT64 return_value)
@@ -18547,39 +18485,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
-        PointerDecoder<SIZE_T>* pFilterByteLength)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetStorageFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
-    {
-        WriteArrayStructsString(oss, pFilter, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
-    {
-        oss << "    " << *pFilterByteLength->GetPointer();
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
         format::HandleId object_id)
 {
@@ -18710,39 +18615,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
     if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", false))
     {
         WriteStructString(oss, pFilter->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
-        PointerDecoder<SIZE_T>* pFilterByteLength)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
-    oss << "->";
-    oss << "GetRetrievalFilter(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
-    {
-        WriteArrayStructsString(oss, pFilter, "    ", true);
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
-    {
-        oss << "    " << *pFilterByteLength->GetPointer();
     }
     oss << ");\n\n";
 

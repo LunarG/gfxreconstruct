@@ -1655,11 +1655,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         format::HandleId pPipelineState);
 
-    virtual void Process_ID3D12GraphicsCommandList_ResourceBarrier(
-        format::HandleId object_id,
-        UINT NumBarriers,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_BARRIER>* pBarriers);
-
     virtual void Process_ID3D12GraphicsCommandList_ExecuteBundle(
         format::HandleId object_id,
         format::HandleId pCommandList);
@@ -2865,13 +2860,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
     virtual void Process_ID3D12InfoQueue_ClearStoredMessages(
         format::HandleId object_id);
 
-    virtual void Process_ID3D12InfoQueue_GetMessage(
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT64 MessageIndex,
-        StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
-        PointerDecoder<SIZE_T>* pMessageByteLength);
-
     virtual void Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
         format::HandleId object_id,
         UINT64 return_value);
@@ -2901,12 +2889,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter);
 
-    virtual void Process_ID3D12InfoQueue_GetStorageFilter(
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
-        PointerDecoder<SIZE_T>* pFilterByteLength);
-
     virtual void Process_ID3D12InfoQueue_ClearStorageFilter(
         format::HandleId object_id);
 
@@ -2934,12 +2916,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter);
-
-    virtual void Process_ID3D12InfoQueue_GetRetrievalFilter(
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
-        PointerDecoder<SIZE_T>* pFilterByteLength);
 
     virtual void Process_ID3D12InfoQueue_ClearRetrievalFilter(
         format::HandleId object_id);

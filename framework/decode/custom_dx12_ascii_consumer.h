@@ -40,10 +40,24 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+inline std::string HandleIdToString(format::HandleId handleId)
+{
+    std::stringstream strStrm;
+    if (handleId)
+    {
+        strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
+    }
+    else
+    {
+        strStrm << "\"NULL\"";
+    }
+    return strStrm.str();
+}
+
 template <typename DX12ReturnType>
 inline std::string DX12ReturnValueToString(const DX12ReturnType& return_value, util::ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size)
 {
-    return {};
+    return "TODO : return_value";
 }
 
 template <typename PointerDecoderType>
@@ -54,6 +68,55 @@ inline std::string PointerDecoderToString(PointerDecoderType* pObj,
 {
     auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
     return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
+}
+
+template <typename CountType>
+inline uint32_t GetCount(CountType countObj)
+{
+    return static_cast<uint32_t>(countObj);
+}
+
+template <>
+inline uint32_t GetCount<PointerDecoder<UINT>*>(PointerDecoder<UINT>* pCountObj)
+{
+    auto pDecodedCountObj = pCountObj ? pCountObj->GetPointer() : nullptr;
+    return pDecodedCountObj ? *pDecodedCountObj : 0;
+}
+
+template <typename CountType, typename PointerDecoderType>
+inline std::string PointerDecoderArrayToString(const CountType&    countObj,
+                                               PointerDecoderType* pObjs,
+                                               util::ToStringFlags toStringFlags = util::kToString_Default,
+                                               uint32_t            tabCount      = 0,
+                                               uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    return ArrayToString(
+        GetCount(countObj),
+        pObjs,
+        toStringFlags,
+        tabCount,
+        tabSize,
+        [&]() { return pObjs && !pObjs->IsNull(); },
+        [&](uint32_t i) { return ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize); });
+}
+
+template <typename CountType, typename PointerDecoderType>
+inline std::string EnumPointerDecoderArrayToString(const CountType&    countObj,
+                                                   PointerDecoderType* pObjs,
+                                                   util::ToStringFlags toStringFlags = util::kToString_Default,
+                                                   uint32_t            tabCount      = 0,
+                                                   uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    return ArrayToString(
+        GetCount(countObj),
+        pObjs,
+        toStringFlags,
+        tabCount,
+        tabSize,
+        [&]() { return pObjs && !pObjs->IsNull(); },
+        [&](uint32_t i) { return '"' + ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
 }
 
 GFXRECON_END_NAMESPACE(decode)
