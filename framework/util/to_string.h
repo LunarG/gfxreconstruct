@@ -25,6 +25,8 @@
 
 #include "util/defines.h"
 
+#include <codecvt>
+#include <locale>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -62,6 +64,26 @@ inline std::string ToString(uint32_t      apiFlags,
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
     return "0";
+}
+
+template <typename HandleIdType>
+inline std::string HandleIdToString(HandleIdType handleId)
+{
+    std::stringstream strStrm;
+    if (handleId)
+    {
+        strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
+    }
+    else
+    {
+        strStrm << "\"NULL\"";
+    }
+    return strStrm.str();
+}
+
+inline std::string WCharArrayToString(const wchar_t* pStr)
+{
+    return pStr ? std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(pStr) : std::string();
 }
 
 template <typename BitmaskType, typename FlagsType>
@@ -205,6 +227,24 @@ inline std::string CStrArrayToString(uint32_t           count,
         tabSize,
         [&]() { return ppStrs != nullptr; },
         [&](uint32_t i) { return ppStrs[i] ? ('"' + std::string(ppStrs[i]) + '"') : "null"; });
+}
+
+template <typename EnumType>
+inline std::string EnumArrayToString(uint32_t            count,
+                                     const EnumType*     pObjs,
+                                     util::ToStringFlags toStringFlags = util::kToString_Default,
+                                     uint32_t            tabCount      = 0,
+                                     uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    return ArrayToString(
+        count,
+        pObjs,
+        toStringFlags,
+        tabCount,
+        tabSize,
+        [&]() { return pObjs != nullptr; },
+        [&](uint32_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
 }
 
 GFXRECON_END_NAMESPACE(util)

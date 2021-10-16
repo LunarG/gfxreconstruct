@@ -46,10 +46,14 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        self.STRUCT_BLACKLIST.append('DXGI_DISPLAY_COLOR_SPACE')
+        self.STRUCT_BLACKLIST.append('D3D12_RAYTRACING_INSTANCE_DESC')
+        self.STRUCT_BLACKLIST.append('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = '#include "generated_dx12_struct_to_string.h"\n'
+        code += '#include "decode/custom_dx12_ascii_consumer.h"\n'
+        code += '#include "decode/custom_dx12_to_string.h"\n'
         code += '#include "generated_dx12_enum_to_string.h"\n'
         write(code, file=self.outFile)
 
@@ -81,28 +85,28 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
     # yapf: disable
     def makeStructBody(self, name, values):
         body = ''
-        for propertyType, properties in values['properties'].items():
+        for property_type, properties in values['properties'].items():
             for p in properties:
                 value = self.get_value_info(p)
 
                 # Start with a static_assert() so that if any values make it through the logic
                 #   below without being handled the generated code will fail to compile
-                toString = 'static_assert(false, "Unhandled value in `dx12_struct_to_string_body_generator.py`")'
+                to_string = 'static_assert(false, "Unhandled value in `dx12_struct_to_string_body_generator.py`")'
 
                 #### # pNext requires custom handling
                 #### if 'pNext' in value.name:
-                ####     toString = 'PNextToString(obj.pNext, toStringFlags, tabCount, tabSize)'
+                ####     to_string = 'PNextToString(obj.pNext, toStringFlags, tabCount, tabSize)'
 
                 #### # Function pointers and void data pointers simply write the address
                 #### elif 'pfn' in value.name or 'void' in value.fullType:
-                ####     toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
+                ####     to_string = '"\\"" + PtrToString(obj.{0}) + "\\""'
 
                 #### # C strings require custom handling
                 #### elif 'const char*' in value.fullType:
                 ####     if 'const char* const*' in value.fullType:
-                ####         toString = 'CStrArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                ####         to_string = 'CStrArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 ####     else:
-                ####         toString = '(obj.{0} ? ("\\"" + std::string(obj.{0}) + "\\"") : "null")'
+                ####         to_string = '(obj.{0} ? ("\\"" + std::string(obj.{0}) + "\\"") : "null")'
 
                 # There's some repeated code in this if/else block...for instance, arrays of
                 #   structs, enums, and primitives all route through ArrayToString()...It's
@@ -110,54 +114,51 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                 if value.is_pointer:
                     if value.is_array:
                         if self.is_handle(value.base_type):
-                            toString = '" TODO : VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'static_assert(false, "Unhandled pointer to dynamic array of handles in `dx12_struct_to_string_body_generator.py`")'
                         elif self.is_struct(value.base_type):
-                            toString = '" TODO : ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif self.is_enum(value.base_type):
-                            toString = '" TODO : VkEnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'EnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        elif self.get_category_type(value.base_type) == 'class' or value.base_type == 'void':
+                            to_string = 'HandleIdToString(obj.{0})'
                         else:
-                            toString = '" TODO : ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     else:
                         if self.is_handle(value.base_type):
-                            toString = '" TODO : static_assert(false, "Unhandled pointer to VkHandle in `dx12_struct_to_string_body_generator.py`") "'
+                            to_string = 'static_assert(false, "Unhandled pointer to handle in `dx12_struct_to_string_body_generator.py`")'
                         elif self.is_struct(value.base_type):
-                            # toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
-                            toString = '" TODO :"'
+                            to_string = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
                         elif self.is_enum(value.base_type):
-                            toString = '" TODO : static_assert(false, "Unhandled pointer to VkEnum in `dx12_struct_to_string_body_generator.py`") "'
+                            to_string = 'static_assert(false, "Unhandled pointer to enum in `dx12_struct_to_string_body_generator.py`")'
+                        elif self.get_category_type(value.base_type) == 'class' or value.base_type == 'void':
+                            to_string = 'HandleIdToString(obj.{0})'
                         else:
-                            # toString = '" TODO : (obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null") "'
-                            toString = '" TODO :"'
+                            to_string = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
                 else:
                     if value.is_array:
                         if self.is_handle(value.base_type):
-                            toString = '" TODO : VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'static_assert(false, "Unhandled static array of handles in `dx12_struct_to_string_body_generator.py`")'
                         elif self.is_struct(value.base_type):
-                            toString = '" TODO : ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif self.is_enum(value.base_type):
-                            toString = '" TODO : ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
-                        elif 'char' in value.base_type:
-                            # toString = '" TODO : \'"\' + std::string(obj.{0}) + \'"\' "'
-                            toString = '" TODO :"'
-                        #### elif 'UUID' in value.array_length or 'LUID' in value.array_length:
-                        ####     toString = '" TODO : \'"\' + UIDToString({1}, obj.{0}) + \'"\' "'
+                            to_string = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        elif 'wchar' in value.base_type:
+                            to_string = '\'"\' + WCharArrayToString(obj.{0}) + \'"\''
                         else:
-                            toString = '" TODO : ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     else:
                         if self.is_handle(value.base_type):
-                            toString = '" TODO : \'"\' + VkHandleToString(obj.{0}) + \'"\'"'
+                            to_string = 'static_assert(false, "Unhandled handle in `dx12_struct_to_string_body_generator.py`")'
                         elif self.is_struct(value.base_type):
-                            toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize)"'
+                            to_string = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif self.is_enum(value.base_type):
-                            toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
+                            to_string = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
                         else:
-                            toString = '" TODO : ToString(obj.{0}, toStringFlags, tabCount, tabSize) "'
+                            to_string = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 
-                firstField = 'true' if not body else 'false'
-                # toString = toString.format(value.name, value.arrayLength)
-                toString = toString.format(value.name, value.array_length)
-                # body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
-                body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
+                first_field = 'true' if not body else 'false'
+                to_string = to_string.format(value.name, value.array_length)
+                body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(first_field, value.name, to_string)
         return body
     # yapf: enable
 
@@ -169,3 +170,5 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
 
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)
+
+# DXGI_DISPLAY_COLOR_SPACE

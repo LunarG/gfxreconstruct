@@ -40,21 +40,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-template <typename HandleIdType>
-inline std::string HandleIdToString(HandleIdType handleId)
-{
-    std::stringstream strStrm;
-    if (handleId)
-    {
-        strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
-    }
-    else
-    {
-        strStrm << "\"NULL\"";
-    }
-    return strStrm.str();
-}
-
 template <typename DX12ReturnType>
 inline std::string DX12ReturnValueToString(const DX12ReturnType& return_value, util::ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size)
 {

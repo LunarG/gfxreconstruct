@@ -136,6 +136,43 @@ std::string ToString<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>(
     uint32_t                                                    tabCount,
     uint32_t                                                    tabSize);
 
+template <>
+std::string ToString<D3D12_RENDER_PASS_BEGINNING_ACCESS>(const D3D12_RENDER_PASS_BEGINNING_ACCESS& obj,
+                                                         ToStringFlags                             toStringFlags,
+                                                         uint32_t                                  tabCount,
+                                                         uint32_t                                  tabSize);
+
+template <>
+std::string ToString<D3D12_RENDER_PASS_ENDING_ACCESS>(const D3D12_RENDER_PASS_ENDING_ACCESS& obj,
+                                                      ToStringFlags                          toStringFlags,
+                                                      uint32_t                               tabCount,
+                                                      uint32_t                               tabSize);
+
+template <>
+std::string ToString<D3D12_ROOT_PARAMETER>(const D3D12_ROOT_PARAMETER& obj,
+                                           ToStringFlags               toStringFlags,
+                                           uint32_t                    tabCount,
+                                           uint32_t                    tabSize);
+
+template <>
+std::string ToString<D3D12_ROOT_PARAMETER1>(const D3D12_ROOT_PARAMETER1& obj,
+                                            ToStringFlags                toStringFlags,
+                                            uint32_t                     tabCount,
+                                            uint32_t                     tabSize);
+
+template <>
+std::string ToString<D3D12_INDIRECT_ARGUMENT_DESC>(const D3D12_INDIRECT_ARGUMENT_DESC& obj,
+                                                   ToStringFlags                       toStringFlags,
+                                                   uint32_t                            tabCount,
+                                                   uint32_t                            tabSize);
+
+template <>
+std::string
+ToString<D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION>(const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& obj,
+                                                      ToStringFlags                                      toStringFlags,
+                                                      uint32_t                                           tabCount,
+                                                      uint32_t                                           tabSize);
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

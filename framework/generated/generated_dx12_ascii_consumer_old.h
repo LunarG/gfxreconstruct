@@ -53,8 +53,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SWAP_CHAIN_DE
 
 void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
 
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_DISPLAY_COLOR_SPACE* value, const char* indent, const bool prefix = false, const bool output = false);
-
 void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_MOVE_RECT* value, const char* indent, const bool prefix = false, const bool output = false);
 
 void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
@@ -377,8 +375,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DXIL_LIBRARY
 
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_EXISTING_COLLECTION_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
 
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value, const char* indent, const bool prefix = false, const bool output = false);
-
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HIT_GROUP_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
 
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_SHADER_CONFIG* value, const char* indent, const bool prefix = false, const bool output = false);
@@ -414,8 +410,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SERIALIZED_D
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER* value, const char* indent, const bool prefix = false, const bool output = false);
 
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_INSTANCE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
 
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
 

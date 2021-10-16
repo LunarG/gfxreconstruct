@@ -337,35 +337,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC1
 
 }
 
-void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_DISPLAY_COLOR_SPACE* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "DXGI_DISPLAY_COLOR_SPACE{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->PrimaryCoordinates, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->PrimaryCoordinates, indent2.c_str());
-    }
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->WhitePoints, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->WhitePoints, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
 void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_MOVE_RECT* value, const char* indent, const bool prefix, const bool output)
 {
     std::string indent2 = indent;
@@ -5188,38 +5159,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_EXISTING_COL
 
 }
 
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->SubobjectToAssociate, indent2.c_str()))
-    {
-        oss << indent2 << "\"" << util::interception::WideStringToString(value->SubobjectToAssociate.GetPointer()) << "\"";
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->NumExports;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->pExports, indent2.c_str()))
-    {
-        WriteArrayWStringsString(oss, &value->pExports, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HIT_GROUP_DESC* value, const char* indent, const bool prefix, const bool output)
 {
     std::string indent2 = indent;
@@ -5678,44 +5617,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_A
     }
     oss << indent_first << output_string << "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC{\n";
     oss << indent2 << value->decoded_value->CurrentSizeInBytes;
-    oss << "}";
-
-}
-
-void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_INSTANCE_DESC* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_RAYTRACING_INSTANCE_DESC{\n";
-    if (WriteCheckPointerDecoderNull(oss, &value->Transform, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->Transform, indent2.c_str());
-    }
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceID;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceMask;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->InstanceContributionToHitGroupIndex;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Flags;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->AccelerationStructure;
     oss << "}";
 
 }
