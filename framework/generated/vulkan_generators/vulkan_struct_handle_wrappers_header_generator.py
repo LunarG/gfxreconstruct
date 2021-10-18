@@ -36,11 +36,19 @@ class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefixText='',
         protectFile=False,
-        protectFeature=True
+        protectFeature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
+            self,
+            blacklists,
+            platformTypes,
+            filename,
+            directory,
+            prefixText,
+            protectFile,
+            protectFeature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 
@@ -80,7 +88,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)

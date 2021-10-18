@@ -176,7 +176,8 @@ class BaseGeneratorOptions(GeneratorOptions):
         defaultExtensions=_defaultExtensions,
         addExtensions=_addExtensionsPat,
         removeExtensions=_removeExtensionsPat,
-        emitExtensions=_emitExtensionsPat
+        emitExtensions=_emitExtensionsPat,
+        extraVulkanHeaders=[]
     ):
         GeneratorOptions.__init__(
             self,
@@ -205,6 +206,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.indentFuncProto = indentFuncProto
         self.alignFuncParam = alignFuncParam
         self.codeGenerator = True
+        self.extraVulkanHeaders = extraVulkanHeaders
 
 
 # BaseGenerator - subclass of OutputGenerator.
@@ -351,6 +353,14 @@ class BaseGenerator(OutputGenerator):
             write('#ifndef ', headerSym, file=self.outFile)
             write('#define ', headerSym, file=self.outFile)
             self.newline()
+
+    def includeVulkanHeaders(self, gen_opts):
+        """Write Vulkan header include statements
+        """
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        for extra_vulkan_header in gen_opts.extraVulkanHeaders:
+            header_include_path = re.sub(r'\\', '/', extra_vulkan_header)
+            write(f'#include "{header_include_path}"', file=self.outFile)
 
     # Method override
     def endFile(self):
