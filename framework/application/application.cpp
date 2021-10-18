@@ -23,6 +23,7 @@
 
 #include "application/application.h"
 #include "util/logging.h"
+#include "util/platform.h"
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 #include "application/win32_context.h"
@@ -130,35 +131,35 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
     if (!wsi_context_)
     {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        if (!strcmp(surfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
+        if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<Win32Context>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
+            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<WaylandContext>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
+            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<XcbContext>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<XlibContext>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ =
                 std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
@@ -166,7 +167,7 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
         else
 #endif
 #if defined(VK_USE_PLATFORM_HEADLESS)
-            if (!strcmp(surfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
+            if (!util::platform::StringCompare(surfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<HeadlessContext>(this);
         }
