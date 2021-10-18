@@ -80,7 +80,7 @@ bool WsiContext::UnregisterWindow(decode::Window* window)
 
 void WsiContext::ProcessEvents(bool wait_for_input)
 {
-    (void)wait_for_input;
+    GFXRECON_UNREFERENCED_PARAMETER(wait_for_input);
     // NOOP :
 }
 

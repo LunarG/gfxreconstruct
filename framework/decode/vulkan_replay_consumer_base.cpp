@@ -2401,7 +2401,6 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 filtered_extensions.push_back(cli_wsi_extension);
             }
 
-            // Swap the surface extension supported by platform the replay is running on if different from trace
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
             {
                 auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
