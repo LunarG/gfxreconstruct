@@ -7,6 +7,7 @@ gfxrBranch = "amd-main"
 ArchiveName64 = "gfxr_dx12_bld${env.BUILD_ID}_${env.BRANCH_NAME}"
 ArchiveName86 = "gfxr_dx12_bld${env.BUILD_ID}_x86_${env.BRANCH_NAME}"
 kPackageNameRoot = ArchiveName64
+kPackageNameRoot64 = ArchiveName64 + "-x64"
 commonScriptsBranch = "master"
 // Default test run timeout 10 minutes + a buffer
 kTestTimeout = 35
@@ -280,7 +281,7 @@ def Build(label) {
 			    cloneReposWin()
                 withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}"]) {
 					echo "${env.BRANCH_NAME}" 
-					extraWinBuildArgs = "--skip-check-code-style --skip-tests" 
+					extraWinBuildArgs = "--skip-check-code-style --skip-tests"
 					if (env.BRANCH_NAME.startsWith("PR-"))
 						{
 						    kMaxBuilds= 5
@@ -328,8 +329,9 @@ def Build(label) {
 								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
-                                rmdir /S /Q ..\\${ArchiveName64}
-                                move GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin ..\\${ArchiveName64}
+                                rmdir /S /Q ..\\${ArchiveName64}-x64
+                                mkdir ..\\${ArchiveName64}-x64\\
+                                move GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin ..\\${ArchiveName64}-x64\\${ArchiveName64}-x64
 
                             """
                         }
@@ -338,9 +340,9 @@ def Build(label) {
                         throw epost
                     }
                     try {
-                        dir("${ArchiveName64}") {
+                        dir("${ArchiveName64}-x64") {
                             bat """
-                            zip -r ..\\${kPackageNameRoot}.zip .\\*
+                            zip -r ..\\${kPackageNameRoot}-x64.zip .\\*
                         """
                         }
                     } catch (Exception ezip) {
@@ -370,7 +372,8 @@ def Build(label) {
 								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
                                 rmdir /S /Q ..\\${ArchiveName86}
-                                move GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin ..\\${ArchiveName86}
+                                mkdir ..\\${ArchiveName64}-x86\\
+                                move GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin ..\\${kPackageNameRoot}-x86\\${kPackageNameRoot}-x86
                             """
                         }
                     } catch (Exception epost) {
@@ -378,7 +381,7 @@ def Build(label) {
                         throw epost
                     }
                     try {
-                        dir("${ArchiveName86}") {
+                        dir("${kPackageNameRoot}-x86") {
                             bat """
                             zip -r ..\\${kPackageNameRoot}-x86.zip .\\*
                         """
@@ -461,14 +464,14 @@ def Test(label) {
                     // throw regerr
                 }
                 dir ('windowsTest') {
-                    bat "del /q ${kPackageNameRoot}*.zip"
+                    bat "del /q ${kPackageNameRoot64}*.zip"
                     unstash "TestStashW"
                     withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}", "DST_PATH=${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\test_data\\"]) {
                         try {
                             bat """
                                 echo on
-                                powershell expand-archive -Path .\\${kPackageNameRoot}.zip
-                                cd ${kPackageNameRoot}
+                                powershell expand-archive -Path .\\${kPackageNameRoot64}.zip
+                                cd ${kPackageNameRoot64}
                             """
                         } catch (Exception err) {
                             echo "package expansion or download failed on ${agentName}: ${err}"
@@ -485,15 +488,16 @@ def Test(label) {
                                     )
                                     echo %VULKAN_SDK%
                                     set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;%PATH%
-                                    cd ${kPackageNameRoot}
+                                    cd ${kPackageNameRoot64}\\${kPackageNameRoot64}
                                     echo %DST_PATH%
-                                    reg add HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v  ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /t REG_DWORD /d 0
+                                    reg add HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v  ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /t REG_DWORD /d 0
                                     C:\\Python36\\python.exe .\\test.py
+                                    copy D:\\test\\internal_test.py .
                                     REM set /a STATUS=%ERRORLEVEL%
-                                    REM C:\\Python36\\python.exe .\\internal_test.py --api-type vulkan --src-path E:\\data\\TestApp --dst-path E:\\TestDestination --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin
-                                    C:\\Python36\\python.exe .\\internal_test.py --api-type dx12 --src-path E:\\testDX12 --dst-path ${WORKSPACE}\\results --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot} --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}
+                                    REM C:\\Python36\\python.exe .\\internal_test.py --api-type vulkan --src-path E:\\data\\TestApp --dst-path E:\\TestDestination --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin
+                                    C:\\Python36\\python.exe .\\internal_test.py --api-type dx12 --src-path E:\\testDX12 --dst-path ${WORKSPACE}\\results --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\${kPackageNameRoot64} --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\${kPackageNameRoot64}
                                     set /a STATUS=%STATUS%+%ERRORLEVEL%
-                                    reg delete HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /f
+                                    reg delete HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /f
                                     exit /b %STATUS%
                                 """
                                 echo "Testing complete on ${agentName}"
