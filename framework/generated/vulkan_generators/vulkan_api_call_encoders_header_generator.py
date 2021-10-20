@@ -21,8 +21,8 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
-from base_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
 class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -31,112 +31,105 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
     def __init__(
         self,
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True,
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
         extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
             blacklists,
-            platformTypes,
+            platform_types,
             filename,
             directory,
-            prefixText,
-            protectFile,
-            protectFeature,
+            prefix_text,
+            protect_file,
+            protect_feature,
             extraVulkanHeaders=extraVulkanHeaders
         )
 
 
-# VulkanApiCallEncodersHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ functions responsible for encoding Vulkan API call parameter data.
 class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
-    """Generate C++ function declarations for Vulkan API parameter encoding"""
+    """VulkanApiCallEncodersHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ functions responsible for encoding Vulkan API call parameter data.
+    Generate C++ function declarations for Vulkan API parameter encoding
+    """
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=True,
-            processStructs=False,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=True,
+            process_structs=False,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
-    # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(genOpts)
+        self.includeVulkanHeaders(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
-    # yapf: enable
 
-    # Method override
-    # yapf: disable
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-    # yapf: enable
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        if self.featureCmdParams:
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    def generateFeature(self):
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
         first = True
-        for cmd in self.getFilteredCmdNames():
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
+        for cmd in self.get_filtered_cmd_names():
+            info = self.feature_cmd_params[cmd]
             proto = info[1]
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += self.makeCmdDecl(proto, values)
+            cmddef += self.make_cmd_decl(proto, values)
 
             write(cmddef, file=self.outFile)
             first = False
 
-    #
-    # Generate function declaration for a command
-    def makeCmdDecl(self, proto, values):
-        paramDecls = []
+    def make_cmd_decl(self, proto, values):
+        """Generate function declaration for a command."""
+        param_decls = []
 
         for value in values:
-            valueName = value.name
-            valueType = value.fullType if not value.platformFullType else value.platformFullType
+            value_name = value.name
+            value_type = value.full_type if not value.platform_full_type else value.platform_full_type
 
-            if value.isArray and not value.isDynamic:
-                valueName += '[{}]'.format(value.arrayCapacity)
+            if value.is_array and not value.is_dynamic:
+                value_name += '[{}]'.format(value.array_capacity)
 
-            paramDecl = self.makeAlignedParamDecl(
-                valueType, valueName, self.INDENT_SIZE,
-                self.genOpts.alignFuncParam
+            param_decl = self.make_aligned_param_decl(
+                value_type, value_name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
             )
-            paramDecls.append(paramDecl)
+            param_decls.append(param_decl)
 
-        if paramDecls:
-            return '{}(\n{});'.format(proto, ',\n'.join(paramDecls))
+        if param_decls:
+            return '{}(\n{});'.format(proto, ',\n'.join(param_decls))
 
         return '{}();'.format(proto)

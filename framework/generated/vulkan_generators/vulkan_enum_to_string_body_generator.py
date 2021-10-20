@@ -57,16 +57,16 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
         # Set of enums that have been processed since we'll encounter enums that are
@@ -106,17 +106,17 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
 
     #
     # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        self.featureBreak = False
-        if self.featureStructMembers:
+    def need_feature_generation(self):
+        self.feature_break = False
+        if self.feature_struct_members:
             return True
         return False
 
     #
     # Performs C++ code generation for the feature.
     # yapf: disable
-    def generateFeature(self):
-        for enum in sorted(self.enumNames):
+    def generate_feature(self):
+        for enum in sorted(self.enum_names):
             if not enum in self.processedEnums and not enum in self.enumAliases:
                 self.processedEnums.add(enum)
                 body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'

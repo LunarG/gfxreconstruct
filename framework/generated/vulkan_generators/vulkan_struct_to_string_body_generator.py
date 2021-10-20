@@ -57,16 +57,16 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
         # The following structures require custom implementations for ToString()
@@ -110,17 +110,17 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
 
     #
     # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        self.featureBreak = False
-        if self.featureStructMembers:
+    def need_feature_generation(self):
+        self.feature_break = False
+        if self.feature_struct_members:
             return True
         return False
 
     #
     # Performs C++ code generation for the feature.
     # yapf: disable
-    def generateFeature(self):
-        for struct in self.getFilteredStructNames():
+    def generate_feature(self):
+        for struct in self.get_filtered_struct_names():
             if not struct in self.customImplementationRequired:
                 body = inspect.cleandoc('''
                     template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
@@ -130,7 +130,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                             {{
                     '''.format(struct))
                 body += '\n'
-                body += self.makeStructBody(struct, self.featureStructMembers[struct])
+                body += self.makeStructBody(struct, self.feature_struct_members[struct])
                 body += inspect.cleandoc('''
                             }
                         );
@@ -156,12 +156,12 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                 toString = 'PNextToString(obj.pNext, toStringFlags, tabCount, tabSize)'
 
             # Function pointers and void data pointers simply write the address
-            elif 'pfn' in value.name or 'void' in value.fullType:
+            elif 'pfn' in value.name or 'void' in value.full_type:
                 toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
 
             # C strings require custom handling
-            elif 'const char*' in value.fullType:
-                if 'const char* const*' in value.fullType:
+            elif 'const char*' in value.full_type:
+                if 'const char* const*' in value.full_type:
                     toString = 'CStrArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     toString = '(obj.{0} ? ("\\"" + std::string(obj.{0}) + "\\"") : "null")'
@@ -169,51 +169,51 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             # There's some repeated code in this if/else block...for instance, arrays of
             #   structs, enums, and primitives all route through ArrayToString()...It's
             #   easier (imo) to reason about each case when they're all listed explictly
-            elif value.isPointer:
-                if value.isArray:
-                    if self.isHandle(value.baseType):
+            elif value.is_pointer:
+                if value.is_array:
+                    if self.is_handle(value.base_type):
                         toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = 'VkEnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     else:
                         toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
-                    if self.isHandle(value.baseType):
+                    if self.is_handle(value.base_type):
                         toString = 'static_assert(false, "Unhandled pointer to VkHandle in `vulkan_struct_to_string_body_generator.py`")'
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = 'static_assert(false, "Unhandled pointer to VkEnum in `vulkan_struct_to_string_body_generator.py`")'
                     else:
                         toString = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
             else:
-                if value.isArray:
-                    if self.isHandle(value.baseType):
+                if value.is_array:
+                    if self.is_handle(value.base_type):
                         toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                    elif 'char' in value.baseType:
+                    elif 'char' in value.base_type:
                         toString = '\'"\' + std::string(obj.{0}) + \'"\''
-                    elif 'UUID' in value.arrayLength or 'LUID' in value.arrayLength:
+                    elif 'UUID' in value.array_length or 'LUID' in value.array_length:
                         toString = '\'"\' + UIDToString({1}, obj.{0}) + \'"\''
                     else:
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
-                    if self.isHandle(value.baseType):
+                    if self.is_handle(value.base_type):
                         toString = '\'"\' + VkHandleToString(obj.{0}) + \'"\''
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
                     else:
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            toString = toString.format(value.name, value.arrayLength)
+            toString = toString.format(value.name, value.array_length)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable

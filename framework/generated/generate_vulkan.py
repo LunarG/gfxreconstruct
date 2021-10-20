@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) 2018 Valve Corporation
 # Copyright (c) 2018 LunarG, Inc.
@@ -36,6 +36,9 @@ KHRONOS_REGISTRY_DIR = os.path.normpath(
 )
 BASE_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'base_generators')
 GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'vulkan_generators')
+VK_HEADERS_DIR = os.path.join(
+    SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers'
+)
 
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
@@ -112,6 +115,7 @@ if __name__ == '__main__':
             KHRONOS_REGISTRY_DIR,
             BASE_GENERATOR_DIR,
             GENERATOR_DIR,
+            VK_HEADERS_DIR,
         ]
     )
     for target in generate_targets:

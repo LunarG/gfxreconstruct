@@ -55,16 +55,16 @@ class VulkanObjectInfoTableBase2HeaderGeneratorOptions(BaseGeneratorOptions):
 class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=True,
-            processStructs=False,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=True,
+            process_structs=False,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
     # Method override
@@ -96,7 +96,7 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         visit_code = ''
         map_code = ''
 
-        for handle_name in sorted(self.handleNames):
+        for handle_name in sorted(self.handle_names):
             if handle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue
             handle_name = handle_name[2:]

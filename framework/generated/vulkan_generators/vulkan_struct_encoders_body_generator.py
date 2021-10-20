@@ -21,121 +21,125 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
-from base_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
 class VulkanStructEncodersBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ functions for Vulkan struct encoding"""
+    """Options for generating C++ functions for Vulkan struct encoding."""
 
     def __init__(
         self,
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True,
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
         extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
             blacklists,
-            platformTypes,
+            platform_types,
             filename,
             directory,
-            prefixText,
-            protectFile,
-            protectFeature,
+            prefix_text,
+            protect_file,
+            protect_feature,
             extraVulkanHeaders=extraVulkanHeaders
         )
 
 
-# VulkanStructEncodersBodyGenerator - subclass of BaseGenerator.
-# Generates C++ functions for encoding Vulkan API structures.
 class VulkanStructEncodersBodyGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan struct encoding"""
+    """VulkanStructEncodersBodyGenerator - subclass of BaseGenerator.
+    Generates C++ functions for encoding Vulkan API structures.
+    Generate C++ functions for Vulkan struct encoding.
+    """
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
-    # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "generated/generated_vulkan_struct_encoders.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_struct_encoders.h"',
+            file=self.outFile
+        )
         self.newline()
-        write('#include "encode/custom_vulkan_struct_encoders.h"', file=self.outFile)
+        write(
+            '#include "encode/custom_vulkan_struct_encoders.h"',
+            file=self.outFile
+        )
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(genOpts)
+        self.includeVulkanHeaders(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
-    # yapf: enable
 
-    # Method override
-    # yapf: disable
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-    # yapf: enable
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        if self.featureStructMembers:
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_struct_members:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generateFeature(self):
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
         first = True
-        for struct in self.getFilteredStructNames():
+        for struct in self.get_filtered_struct_names():
             body = '' if first else '\n'
-            body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(struct)
+            body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(
+                struct
+            )
             body += '{\n'
-            body += self.makeStructBody(struct, self.featureStructMembers[struct], 'value.')
+            body += self.make_struct_body(
+                struct, self.feature_struct_members[struct], 'value.'
+            )
             body += '}'
             write(body, file=self.outFile)
 
             first = False
-    # yapf: enable
 
-    #
-    # Command definition
-    # yapf: disable
-    def makeStructBody(self, name, values, prefix):
+    def make_struct_body(self, name, values, prefix):
+        """Command definition."""
         # Build array of lines for function body
         body = ''
 
         for value in values:
             # pNext fields require special treatment and are not processed by typename
             if 'pNext' in value.name:
-                body += '    EncodePNextStruct(encoder, {});\n'.format(prefix + value.name)
+                body += '    EncodePNextStruct(encoder, {});\n'.format(
+                    prefix + value.name
+                )
             else:
-                methodCall = self.makeEncoderMethodCall(name, value, values, prefix)
-                body += '    {};\n'.format(methodCall)
+                method_call = self.make_encoder_method_call(
+                    name, value, values, prefix
+                )
+                body += '    {};\n'.format(method_call)
 
         return body
-    # yapf: enable
