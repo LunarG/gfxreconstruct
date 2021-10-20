@@ -57,16 +57,16 @@ class VulkanPNextToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
         # Map to store VkStructureType enum values
@@ -114,7 +114,7 @@ class VulkanPNextToStringBodyGenerator(BaseGenerator):
         if not alias:
             # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
             if typeinfo.elem.get('structextends'):
-                sType = self.makeStructureTypeEnum(typeinfo, typename)
+                sType = self.make_structure_type_enum(typeinfo, typename)
                 if sType:
                     self.sTypeValues[typename] = sType
 

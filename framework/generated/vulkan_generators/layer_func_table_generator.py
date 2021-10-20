@@ -21,23 +21,23 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
-from base_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-#
-# Eliminates JSON blackLists and platformTypes files, which are not necessary for
-# function table generation.
 class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan layer function table C++ code generation"""
+    """Eliminates JSON black_lists and platform_types files, which are not necessary for
+    function table generation.
+    Options for Vulkan layer function table C++ code generation.
+    """
 
     def __init__(
         self,
         filename=None,
         directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True,
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
         extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
@@ -46,29 +46,30 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
             None,
             filename,
             directory,
-            prefixText,
-            protectFile,
-            protectFeature,
+            prefix_text,
+            protect_file,
+            protect_feature,
             extraVulkanHeaders=extraVulkanHeaders
         )
 
 
-# LayerFuncTableGenerator - subclass of BaseGenerator.
-# Generates C++ function table for the Vulkan API calls exported by the layer.
 class LayerFuncTableGenerator(BaseGenerator):
-    """Generate Vulkan layer function table C++ type declarations"""
+    """LayerFuncTableGenerator - subclass of BaseGenerator.
+    Generates C++ function table for the Vulkan API calls exported by the layer.
+    Generate Vulkan layer function table C++ type declarations.
+    """
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=True,
-            processStructs=False,
-            featureBreak=False,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=True,
+            process_structs=False,
+            feature_break=False,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
         # The trace layer does not currently implement or export the instance version query
@@ -83,26 +84,34 @@ class LayerFuncTableGenerator(BaseGenerator):
             'vkEnumerateDeviceExtensionProperties'
         ]
 
-    # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
-        write('#include "encode/custom_vulkan_api_call_encoders.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
+
+        write(
+            '#include "encode/custom_vulkan_api_call_encoders.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_vulkan_api_call_encoders.h"',
+            file=self.outFile
+        )
         write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.includeVulkanHeaders(genOpts)
+        self.includeVulkanHeaders(gen_opts)
         self.newline()
         write('#include <unordered_map>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
-        write('const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {', file=self.outFile)
-    # yapf: enable
+        write(
+            'const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {',
+            file=self.outFile
+        )
 
-    # Method override
     def endFile(self):
+        """Method override."""
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -110,22 +119,22 @@ class LayerFuncTableGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        if self.featureCmdParams:
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generateFeature(self):
-        for cmd in self.getFilteredCmdNames():
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        for cmd in self.get_filtered_cmd_names():
             align = 100 - len(cmd)
             if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(cmd, (' ' * align), cmd[2:])
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(
+                    cmd, (' ' * align), cmd[2:]
+                )
             else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(cmd, (' ' * align), cmd[2:])
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
+                    cmd, (' ' * align), cmd[2:]
+                )
             write(body, file=self.outFile)
-    # yapf: enable

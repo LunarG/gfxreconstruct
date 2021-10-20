@@ -21,54 +21,55 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys, inspect
-from base_generator import *
+import sys, inspect
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
 class VulkanAsciiConsumerBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class for Vulkan capture file to ASCII file generation"""
+    """Options for generating a C++ class for Vulkan capture file to ASCII file generation."""
 
     def __init__(
         self,
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True,
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
         extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
             blacklists,
-            platformTypes,
+            platform_types,
             filename,
             directory,
-            prefixText,
-            protectFile,
-            protectFeature,
+            prefix_text,
+            protect_file,
+            protect_feature,
             extraVulkanHeaders=extraVulkanHeaders
         )
 
 
-# VulkanAsciiConsumerBodyGenerator - subclass of BaseGenerator.
-# Generates C++ member definitions for the VulkanAsciiConsumer class responsible for
-# generating a textfile containing decoded Vulkan API call parameter data.
 class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
-    """Generate a C++ class for Vulkan capture file to ASCII file generation"""
+    """VulkanAsciiConsumerBodyGenerator - subclass of BaseGenerator.
+    Generates C++ member definitions for the VulkanAsciiConsumer class responsible for
+    generating a textfile containing decoded Vulkan API call parameter data.
+    Generate a C++ class for Vulkan capture file to ASCII file generation.
+    """
 
     def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         BaseGenerator.__init__(
             self,
-            processCmds=True,
-            processStructs=False,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
+            process_cmds=True,
+            process_structs=False,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
         )
 
         # The following functions require custom implementations for to ASCII
@@ -80,10 +81,10 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             'vkGetAccelerationStructureBuildSizesKHR',
         }
 
-    # Method override
-    # yapf: disable
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
+
         includes = inspect.cleandoc(
             '''
             #include "generated/generated_vulkan_ascii_consumer.h"
@@ -95,7 +96,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             '''
         )
         write(includes, file=self.outFile)
-        self.includeVulkanHeaders(genOpts)
+        self.includeVulkanHeaders(gen_opts)
         namespace = inspect.cleandoc(
             '''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -103,42 +104,41 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             '''
         )
         write(namespace, file=self.outFile)
-    # yapf: enable
 
-    # Method override
-    # yapf: disable
     def endFile(self):
-        body = inspect.cleandoc('''
+        """Method override."""
+        body = inspect.cleandoc(
+            '''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
+            '''
+        )
         write(body, file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-    # yapf: enable
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        if self.featureCmdParams:
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generateFeature(self):
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
         first = True
-        for cmd in self.getFilteredCmdNames():
+        for cmd in self.get_filtered_cmd_names():
             if not cmd in self.customImplementationRequired:
-                info = self.featureCmdParams[cmd]
-                returnType = info[0]
+                info = self.feature_cmd_params[cmd]
+                return_type = info[0]
                 values = info[2]
 
                 cmddef = '' if first else '\n'
-                cmddef += self.makeConsumerFuncDecl(returnType, 'VulkanAsciiConsumer::Process_' + cmd, values) + '\n'
-                cmddef += inspect.cleandoc('''
+                cmddef += self.make_consumer_func_decl(
+                    return_type, 'VulkanAsciiConsumer::Process_' + cmd, values
+                ) + '\n'
+                cmddef += inspect.cleandoc(
+                    '''
                     {{
                         using namespace gfxrecon::util;
                         ToStringFlags toStringFlags = kToString_Default;
@@ -147,26 +147,29 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         WriteApiCallToFile("{0}", toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
                             {{
-                    '''.format(cmd))
+                    '''.format(cmd)
+                )
                 cmddef += '\n'
-                cmddef += self.makeConsumerFuncBody(returnType, cmd, values)
-                cmddef += inspect.cleandoc('''
+                cmddef += self.make_consumer_func_body(
+                    return_type, cmd, values
+                )
+                cmddef += inspect.cleandoc(
+                    '''
                             }
                         );
                     }
-                    ''')
+                    '''
+                )
                 write(cmddef, file=self.outFile)
                 first = False
-    # yapf: enable
 
-    #
-    # Return VulkanAsciiConsumer class member function definition.
     # yapf: disable
-    def makeConsumerFuncBody(self, returnType, name, values):
+    def make_consumer_func_body(self, return_type, name, values):
+        """Return VulkanAsciiConsumer class member function definition."""
         body = ''
 
         # Handle function return value
-        if not 'void' in returnType:
+        if not 'void' in return_type:
             body = '            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, \'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\');\n'
 
         # Handle function arguments
@@ -177,57 +180,57 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             toString = 'static_assert(false, "Unhandled value in `vulkan_ascii_consumer_body_generator.py`")'
 
             # void data PointerDecoder requires custom handling
-            if 'void' in value.fullType:
+            if 'void' in value.full_type:
                 toString = 'DataPointerDecoderToString({0})'
 
             # StringDecoder requires custom handling
-            elif 'const char*' in value.fullType:
+            elif 'const char*' in value.full_type:
                 toString = 'StringDecoderToString({0})'
 
             # There's some repeated code in this if/else block...It's easier (imo) to reason
             #   about each case when they're all listed explictly
-            elif value.isPointer:
-                if value.isArray:
-                    if self.isHandle(value.baseType):
+            elif value.is_pointer:
+                if value.is_array:
+                    if self.is_handle(value.base_type):
                         toString = 'HandlePointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = 'PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = 'EnumPointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                     else:
                         toString = 'PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                 else:
-                    if self.isHandle(value.baseType):
+                    if self.is_handle(value.base_type):
                         toString = 'HandlePointerDecoderToString({0})'
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = 'PointerDecoderToString({0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = 'EnumPointerDecoderToString({0})'
                     else:
                         toString = 'PointerDecoderToString({0}, toStringFlags, tabCount, tabSize)'
             else:
-                if value.isArray:
-                    if self.isHandle(value.baseType):
+                if value.is_array:
+                    if self.is_handle(value.base_type):
                         toString = 'static_assert(false, "Unhandled static array of VkHandles in `vulkan_ascii_consumer_body_generator.py`")'
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = 'static_assert(false, "Unhandled static array of VkStructures in `vulkan_ascii_consumer_body_generator.py`")'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = 'EnumPointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                     else:
                         toString = 'PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                 else:
-                    if self.isHandle(value.baseType):
+                    if self.is_handle(value.base_type):
                         toString = 'HandleIdToString({0})'
-                    elif self.isStruct(value.baseType):
+                    elif self.is_struct(value.base_type):
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
-                    elif self.isEnum(value.baseType):
+                    elif self.is_enum(value.base_type):
                         toString = '\'"\' + ToString({0}, toStringFlags, tabCount, tabSize) + \'"\''
                     else:
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            valueName = ('[out]' if self.isOutputParameter(value) else '') + value.name
-            toString = toString.format(value.name, value.arrayLength)
+            valueName = ('[out]' if self.is_output_parameter(value) else '') + value.name
+            toString = toString.format(value.name, value.array_length)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, valueName, toString)
         return body
     # yapf: enable
