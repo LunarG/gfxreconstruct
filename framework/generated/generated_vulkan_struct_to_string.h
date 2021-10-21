@@ -31,9 +31,7 @@
 
 #include "format/platform_types.h"
 #include "util/to_string.h"
-
 #include "vulkan/vulkan.h"
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 template <> std::string ToString<VkExtent2D>(const VkExtent2D& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
