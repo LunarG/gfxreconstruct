@@ -1,6 +1,7 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,43 +22,34 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_UTIL_FILE_PATH_H
-#define GFXRECON_UTIL_FILE_PATH_H
+#ifndef GFXRECON_UTIL_OPTIONS_H
+#define GFXRECON_UTIL_OPTIONS_H
 
 #include "util/defines.h"
 
 #include <string>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
-GFXRECON_BEGIN_NAMESPACE(filepath)
 
-#if defined(WIN32)
-const char kPathSep         = '\\';
-const char kPathSepStr[]    = "\\";
-const char kAltPathSep      = '/';
-const char kAltPathSepStr[] = "/";
-#else
-const char kPathSep      = '/';
-const char kPathSepStr[] = "/";
-#endif
+struct FrameRange
+{
+    uint32_t first{ 0 };
+    uint32_t last{ 0 };
+};
 
-bool Exists(const std::string& path);
+std::vector<FrameRange> GetFrameRanges(const std::string& args);
 
-bool IsFile(const std::string& path);
+//----------------------------------------------------------------------------
+/// Read a boolean value out of a string
+/// \param  value_string Input string
+/// \param  default_value Default value in case it couldn't be read
+/// \return True or false interpretation of input string
+//----------------------------------------------------------------------------
+bool ParseBoolString(const std::string& value_string, bool default_value);
 
-bool IsDirectory(const std::string& path);
-
-std::string Join(const std::string& lhs, const std::string& rhs);
-
-std::string InsertFilenamePostfix(const std::string& filename, const std::string& postfix);
-
-std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
-
-bool GetWindowsSystemLibrariesPath(std::string& base_path);
-
-GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_UTIL_FILE_PATH_H
+#endif // GFXRECON_UTIL_OPTIONS_H

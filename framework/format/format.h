@@ -108,7 +108,8 @@ enum MetaDataType : uint32_t
     kSetDeviceMemoryPropertiesCommand       = 12,
     kResizeWindowCommand2                   = 13,
     kSetOpaqueAddressCommand                = 14,
-    kSetRayTracingShaderGroupHandlesCommand = 15
+    kSetRayTracingShaderGroupHandlesCommand = 15,
+    kCreateHeapAllocationCommand            = 16
 };
 
 enum CompressionType : uint32_t
@@ -412,6 +413,14 @@ struct SetRayTracingShaderGroupHandlesCommandHeader
     format::HandleId device_id;
     format::HandleId pipeline_id;
     size_t           data_size;
+};
+
+struct CreateHeapAllocationCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    uint64_t         allocation_id;
+    uint64_t         allocation_size;
 };
 
 #pragma pack(pop)

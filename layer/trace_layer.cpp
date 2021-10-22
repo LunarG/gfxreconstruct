@@ -25,7 +25,7 @@
 
 #include "layer/trace_layer.h"
 
-#include "encode/trace_manager.h"
+#include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
@@ -127,9 +127,9 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                 {
                     add_instance_handle(*pInstance);
 
-                    encode::TraceManager* manager = encode::TraceManager::Get();
+                    encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
-                    manager->InitInstance(pInstance, fpGetInstanceProcAddr);
+                    manager->InitVkInstance(pInstance, fpGetInstanceProcAddr);
                 }
             }
         }
@@ -168,9 +168,9 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
 
                 if ((result == VK_SUCCESS) && pDevice && (*pDevice != nullptr))
                 {
-                    encode::TraceManager* manager = encode::TraceManager::Get();
+                    encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
-                    manager->InitDevice(pDevice, fpGetDeviceProcAddr);
+                    manager->InitVkDevice(pDevice, fpGetDeviceProcAddr);
                 }
             }
         }
