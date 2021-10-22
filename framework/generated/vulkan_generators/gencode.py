@@ -337,7 +337,7 @@ def make_gen_opts(args):
             base_class_header='vulkan_replay_consumer_base.h',
             is_override=True,
             constructor_args=
-            'std::shared_ptr<application::Application> application, const ReplayOptions& options',
+            'std::shared_ptr<application::Application> application, const VulkanReplayOptions& options',
             filename='generated_vulkan_replay_consumer.h',
             directory=directory,
             blacklists=blacklists,

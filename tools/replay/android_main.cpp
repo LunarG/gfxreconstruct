@@ -107,7 +107,7 @@ void android_main(struct android_app* app)
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                    application, GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
+                    application, GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table));
                 gfxrecon::decode::VulkanDecoder decoder;
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });

@@ -138,7 +138,7 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 #endif
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
-                                                   const ReplayOptions&                      options) :
+                                                   const VulkanReplayOptions&                options) :
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
     loading_trim_state_(false), have_imported_semaphores_(false), create_surface_count_(0), fps_info_(nullptr)

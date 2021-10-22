@@ -59,6 +59,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/portability.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/referenced_resource_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/referenced_resource_table.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_options.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.h
