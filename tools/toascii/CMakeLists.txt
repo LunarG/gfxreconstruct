@@ -30,6 +30,7 @@ add_executable(gfxrecon-toascii "")
 
 target_sources(gfxrecon-toascii
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
               )
 

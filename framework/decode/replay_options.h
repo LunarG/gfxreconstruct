@@ -21,43 +21,36 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
+#ifndef GFXRECON_DECODE_REPLAY_OPTIONS_H
+#define GFXRECON_DECODE_REPLAY_OPTIONS_H
 
-#include "decode/replay_options.h"
-
-#include "decode/vulkan_resource_allocator.h"
 #include "util/defines.h"
-
-#include <functional>
-#include <string>
-#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
+static constexpr char kDefaultScreenshotFilePrefix[] = "screenshot";
 
-// Default log level to use prior to loading settings.
-const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
-
-struct VulkanReplayOptions : public ReplayOptions
+enum class ScreenshotFormat : uint32_t
 {
-    bool                         enable_vulkan{ true };
-    bool                         skip_failed_allocations{ false };
-    bool                         omit_pipeline_cache_data{ false };
-    bool                         remove_unsupported_features{ false };
-    int32_t                      override_gpu_index{ -1 };
-    int32_t                      surface_index{ -1 };
-    CreateResourceAllocator      create_resource_allocator;
-    ScreenshotFormat             screenshot_format{ ScreenshotFormat::kBmp };
-    std::vector<ScreenshotRange> screenshot_ranges;
-    std::string                  screenshot_dir;
-    std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
-    std::string                  replace_dir;
+    kBmp = 0
+};
+
+struct ScreenshotRange
+{
+    uint32_t first{ 0 }; // First frame to capture.
+    uint32_t last{ 0 };  // Last frame to capture.
+};
+
+struct ReplayOptions
+{
+    bool enable_validation_layer{ false };
+    bool sync_queue_submissions{ false };
+    bool enable_debug_device_lost{ false };
+    bool create_dummy_allocations{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
+#endif // GFXRECON_DECODE_REPLAY_OPTIONS_H
