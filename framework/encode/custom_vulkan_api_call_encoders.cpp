@@ -29,7 +29,7 @@
 #include "encode/descriptor_update_template_info.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
-#include "encode/trace_manager.h"
+#include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "format/api_call_id.h"
 #include "generated/generated_vulkan_struct_encoders.h"
@@ -110,7 +110,7 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
     return data;
 }
 
-static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager,
+static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager,
                                                ParameterEncoder*         encoder,
                                                const UpdateTemplateInfo* info,
                                                const void*               data)
@@ -196,7 +196,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                            const void*                pData)
 {
-    TraceManager* manager = TraceManager::Get();
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
     auto state_lock = manager->AcquireSharedStateLock();
@@ -210,7 +210,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -219,10 +219,10 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
-        manager->EndApiCallTrace();
+        manager->EndApiCallCapture();
     }
 
-    auto handle_unwrap_memory               = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     auto device_unwrapped                   = GetWrappedHandle<VkDevice>(device);
     auto descriptorSet_unwrapped            = GetWrappedHandle<VkDescriptorSet>(descriptorSet);
     auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
@@ -241,7 +241,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
                                                                uint32_t                   set,
                                                                const void*                pData)
 {
-    TraceManager* manager = TraceManager::Get();
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
     auto state_lock = manager->AcquireSharedStateLock();
@@ -255,7 +255,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 
-    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -265,10 +265,10 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
-        manager->EndApiCallTrace();
+        manager->EndApiCallCapture();
     }
 
-    auto handle_unwrap_memory               = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     auto commandBuffer_unwrapped            = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
     auto layout_unwrapped                   = GetWrappedHandle<VkPipelineLayout>(layout);
@@ -287,7 +287,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
                                                               VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                               const void*                pData)
 {
-    TraceManager* manager = TraceManager::Get();
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
     auto state_lock = manager->AcquireSharedStateLock();
@@ -301,7 +301,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -310,10 +310,10 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
-        manager->EndApiCallTrace();
+        manager->EndApiCallCapture();
     }
 
-    auto handle_unwrap_memory               = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     auto device_unwrapped                   = GetWrappedHandle<VkDevice>(device);
     auto descriptorSet_unwrapped            = GetWrappedHandle<VkDescriptorSet>(descriptorSet);
     auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);

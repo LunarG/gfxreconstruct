@@ -87,6 +87,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
             '#include "encode/custom_vulkan_struct_handle_wrappers.h"',
             file=self.outFile
         )
+        write('#include "encode/handle_unwrap_memory.h"', file=self.outFile)
         write(
             '#include "encode/vulkan_handle_wrapper_util.h"',
             file=self.outFile
