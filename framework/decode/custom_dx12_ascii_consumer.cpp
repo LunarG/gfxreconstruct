@@ -517,5 +517,86 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
     // });
 }
 
+void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(format::HandleId             object_id,
+                                                                 HRESULT                      return_value,
+                                                                 UINT                         nodeMask,
+                                                                 PointerDecoder<uint8_t>*     pBlobWithRootSignature,
+                                                                 SIZE_T                       blobLengthInBytes,
+                                                                 Decoded_GUID                 riid,
+                                                                 HandlePointerDecoder<void*>* ppvRootSignature)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t      tab_count       = 0;
+    uint32_t      tab_size        = 4;
+    // clang-format off
+    WriteApiCallToFile("CreateRootSignature", to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "ID3D12Device", to_string_flags, tab_count, tab_size, HandleIdToString(object_id));
+            FieldToString(str_strm, false, "return", to_string_flags, tab_count, tab_size, DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "nodeMask", to_string_flags, tab_count, tab_size, ToString(nodeMask, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "pBlobWithRootSignature", to_string_flags, tab_count, tab_size, HandleIdToString(pBlobWithRootSignature));
+            FieldToString(str_strm, false, "blobLengthInBytes", to_string_flags, tab_count, tab_size, ToString(blobLengthInBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvRootSignature", to_string_flags, tab_count, tab_size, HandleIdToString(ppvRootSignature));
+        }
+    );
+    // clang-format on
+}
+
+void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
+    HRESULT                      return_value,
+    PointerDecoder<uint8_t>*     pSrcData,
+    SIZE_T                       SrcDataSizeInBytes,
+    Decoded_GUID                 pRootSignatureDeserializerInterface,
+    HandlePointerDecoder<void*>* ppRootSignatureDeserializer)
+{
+    // using namespace gfxrecon::util;
+    // ToStringFlags to_string_flags = kToString_Default;
+    // uint32_t      tab_count       = 0;
+    // uint32_t      tab_size        = 4;
+    // WriteApiCallToFile(
+    //     "D3D12CreateRootSignatureDeserializer", to_string_flags, tab_count, tab_size, [&](std::stringstream& str_strm) {
+    //         FieldToString(str_strm,
+    //                       true,
+    //                       "return",
+    //                       to_string_flags,
+    //                       tab_count,
+    //                       tab_size,
+    //                       DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));
+    //         FieldToString(
+    //             str_strm,
+    //             false,
+    //             "pSrcData",
+    //             to_string_flags,
+    //             tab_count,
+    //             tab_size,
+    //             PointerDecoderArrayToString(SrcDataSizeInBytes, pSrcData, to_string_flags, tab_count, tab_size));
+    //         FieldToString(str_strm,
+    //                       false,
+    //                       "SrcDataSizeInBytes",
+    //                       to_string_flags,
+    //                       tab_count,
+    //                       tab_size,
+    //                       ToString(SrcDataSizeInBytes, to_string_flags, tab_count, tab_size));
+    //         FieldToString(
+    //             str_strm,
+    //             false,
+    //             "pRootSignatureDeserializerInterface",
+    //             to_string_flags,
+    //             tab_count,
+    //             tab_size,
+    //             ToString(*pRootSignatureDeserializerInterface.decoded_value, to_string_flags, tab_count, tab_size));
+    //         FieldToString(str_strm,
+    //                       false,
+    //                       "[out]ppRootSignatureDeserializer",
+    //                       to_string_flags,
+    //                       tab_count,
+    //                       tab_size,
+    //                       HandleIdToString(ppRootSignatureDeserializer));
+    //     });
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

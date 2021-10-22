@@ -57,7 +57,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         # TODO : Double check
         #   ExecuteCommandLists
         #   CreateDepthStencilView
-        self.APICALL_BLACKLIST.append('<apicallName>')
+        self.APICALL_BLACKLIST.append('D3D12CreateRootSignatureDeserializer')
         self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
         self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')
         self.METHODCALL_BLACKLIST.append('ID3D12Heap_GetDesc')
@@ -75,6 +75,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetMessage')
         self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetStorageFilter')
         self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetRetrievalFilter')
+        self.METHODCALL_BLACKLIST.append('ID3D12Device_CreateRootSignature')
         Dx12AsciiConsumerHeaderGenerator.beginFile(self, genOpts)
         if genOpts.ascii_overrides:
             overrides = json.loads(open(genOpts.ascii_overrides, 'r').read())

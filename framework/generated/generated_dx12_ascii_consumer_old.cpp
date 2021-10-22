@@ -6656,38 +6656,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INFO_QUEUE_F
 
 }
 
-void WriteStructString(std::ostringstream& oss, const Decoded_GUID* value, const char* indent, const bool prefix, const bool output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "GUID{\n";
-    oss << indent2 << value->decoded_value->Data1;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Data2;
-    oss << ",\n";
-
-    oss << indent2 << value->decoded_value->Data3;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, &value->Data4, indent2.c_str()))
-    {
-        WriteArrayValuesString(oss, &value->Data4, indent2.c_str());
-    }
-    oss << "}";
-
-}
-
 void WriteStructString(std::ostringstream& oss, const Decoded_tagRECT* value, const char* indent, const bool prefix, const bool output)
 {
     std::string indent2 = indent;
@@ -11172,44 +11140,6 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
 }
 
 
-void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
-        HRESULT return_value,
-        PointerDecoder<uint8_t>* pSrcData,
-        SIZE_T SrcDataSizeInBytes,
-        Decoded_GUID pRootSignatureDeserializerInterface,
-        HandlePointerDecoder<void*>* ppRootSignatureDeserializer)
-{
-    std::ostringstream oss;
-    oss << "D3D12CreateRootSignatureDeserializer(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
-    {
-        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << SrcDataSizeInBytes;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*pRootSignatureDeserializerInterface.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppRootSignatureDeserializer, "    ", true))
-    {
-        WriteHandleId(oss, *ppRootSignatureDeserializer->GetPointer(), "    ", "void", true);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pRootSignature,
@@ -14126,51 +14056,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     oss << "thread_id = WIP */\n";
 
     oss << "    " << ConverttoText(DescriptorHeapType);
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
-void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT nodeMask,
-        PointerDecoder<uint8_t>* pBlobWithRootSignature,
-        SIZE_T blobLengthInBytes,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvRootSignature)
-{
-    std::ostringstream oss;
-    WriteHandleId(oss, object_id, "", "ID3D12Device");
-    oss << "->";
-    oss << "CreateRootSignature(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << nodeMask;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pBlobWithRootSignature, "    ", false))
-    {
-        oss << "    " << "pBlobWithRootSignature" << " /* value = " << static_cast<uint16_t>(*pBlobWithRootSignature->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << blobLengthInBytes;
-    oss << ",\n";
-
-    oss << "    " << ConverttoText(*riid.decoded_value);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, ppvRootSignature, "    ", true))
-    {
-        WriteHandleId(oss, *ppvRootSignature->GetPointer(), "    ", "void", true);
-    }
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());

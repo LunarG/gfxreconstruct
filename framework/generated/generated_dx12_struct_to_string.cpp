@@ -2880,19 +2880,6 @@ template <> std::string ToString<D3D12_INFO_QUEUE_FILTER>(const D3D12_INFO_QUEUE
     );
 }
 
-template <> std::string ToString<GUID>(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "Data1", toStringFlags, tabCount, tabSize, ToString(obj.Data1, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "Data2", toStringFlags, tabCount, tabSize, ToString(obj.Data2, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "Data3", toStringFlags, tabCount, tabSize, ToString(obj.Data3, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "Data4", toStringFlags, tabCount, tabSize, ArrayToString(8, obj.Data4, toStringFlags, tabCount, tabSize));
-        }
-    );
-}
-
 template <> std::string ToString<tagRECT>(const tagRECT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,

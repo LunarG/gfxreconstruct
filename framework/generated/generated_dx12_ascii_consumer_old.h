@@ -477,8 +477,6 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INFO_QUEUE_F
 
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INFO_QUEUE_FILTER* value, const char* indent, const bool prefix = false, const bool output = false);
 
-void WriteStructString(std::ostringstream& oss, const Decoded_GUID* value, const char* indent, const bool prefix = false, const bool output = false);
-
 void WriteStructString(std::ostringstream& oss, const Decoded_tagRECT* value, const char* indent, const bool prefix = false, const bool output = false);
 
 void WriteStructString(std::ostringstream& oss, const Decoded_tagPOINT* value, const char* indent, const bool prefix = false, const bool output = false);
@@ -1401,13 +1399,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         HandlePointerDecoder<ID3D10Blob*>* ppBlob,
         HandlePointerDecoder<ID3D10Blob*>* ppErrorBlob);
 
-    virtual void Process_D3D12CreateRootSignatureDeserializer(
-        HRESULT return_value,
-        PointerDecoder<uint8_t>* pSrcData,
-        SIZE_T SrcDataSizeInBytes,
-        Decoded_GUID pRootSignatureDeserializerInterface,
-        HandlePointerDecoder<void*>* ppRootSignatureDeserializer);
-
     virtual void Process_D3D12SerializeVersionedRootSignature(
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pRootSignature,
@@ -2016,15 +2007,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         UINT return_value,
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType);
-
-    virtual void Process_ID3D12Device_CreateRootSignature(
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT nodeMask,
-        PointerDecoder<uint8_t>* pBlobWithRootSignature,
-        SIZE_T blobLengthInBytes,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvRootSignature);
 
     virtual void Process_ID3D12Device_CreateConstantBufferView(
         format::HandleId object_id,

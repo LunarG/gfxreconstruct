@@ -25,9 +25,36 @@
 #include "generated/generated_dx12_struct_to_string.h"
 
 #include <algorithm>
+#include <ios>
+#include <sstream>
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+
+template <>
+std::string ToString<GUID>(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    std::stringstream strStrm;
+    strStrm.width(8);
+    strStrm << std::hex << obj.Data1 << '-';
+    strStrm.width(4);
+    strStrm << std::hex << obj.Data2 << '-';
+    strStrm << std::hex << obj.Data3 << '-';
+    strStrm.width(2);
+    for (size_t i = 0; i < 8; ++i)
+    {
+        strStrm << std::hex << static_cast<unsigned short>(obj.Data4[i]);
+        if (i == 1)
+        {
+            strStrm << '-';
+        }
+    }
+    return '"' + strStrm.str() + '"';
+}
 
 template <>
 std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,

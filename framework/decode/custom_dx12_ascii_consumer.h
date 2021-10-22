@@ -41,9 +41,51 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename DX12ReturnType>
-inline std::string DX12ReturnValueToString(const DX12ReturnType& return_value, util::ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size)
+inline std::string DX12ReturnValueToString(const DX12ReturnType& return_value,
+                                           util::ToStringFlags   to_string_flags,
+                                           uint32_t              tab_count,
+                                           uint32_t              tab_size)
 {
-    return "TODO : return_value";
+    return util::ToString(return_value, to_string_flags, tab_count, tab_size);
+}
+
+template <>
+inline std::string DX12ReturnValueToString<Decoded_LUID>(const Decoded_LUID& return_value,
+                                                         util::ToStringFlags to_string_flags,
+                                                         uint32_t            tab_count,
+                                                         uint32_t            tab_size)
+{
+    return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
+}
+
+template <>
+inline std::string DX12ReturnValueToString<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1>(
+    const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1& return_value,
+    util::ToStringFlags                                   to_string_flags,
+    uint32_t                                              tab_count,
+    uint32_t                                              tab_size)
+{
+    return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
+}
+
+template <>
+inline std::string DX12ReturnValueToString<Decoded_D3D12_RESOURCE_ALLOCATION_INFO>(
+    const Decoded_D3D12_RESOURCE_ALLOCATION_INFO& return_value,
+    util::ToStringFlags                           to_string_flags,
+    uint32_t                                      tab_count,
+    uint32_t                                      tab_size)
+{
+    return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
+}
+
+template <>
+inline std::string
+DX12ReturnValueToString<Decoded_D3D12_RESOURCE_DESC1>(const Decoded_D3D12_RESOURCE_DESC1& return_value,
+                                                      util::ToStringFlags                 to_string_flags,
+                                                      uint32_t                            tab_count,
+                                                      uint32_t                            tab_size)
+{
+    return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
 }
 
 template <typename EnumType>

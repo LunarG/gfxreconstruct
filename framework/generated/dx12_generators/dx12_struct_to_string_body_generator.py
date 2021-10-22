@@ -49,6 +49,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
         self.STRUCT_BLACKLIST.append('DXGI_DISPLAY_COLOR_SPACE')
         self.STRUCT_BLACKLIST.append('D3D12_RAYTRACING_INSTANCE_DESC')
         self.STRUCT_BLACKLIST.append('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
+        self.STRUCT_BLACKLIST.append('GUID')
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = '#include "generated_dx12_struct_to_string.h"\n'
@@ -170,5 +171,3 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
 
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)
-
-# DXGI_DISPLAY_COLOR_SPACE
