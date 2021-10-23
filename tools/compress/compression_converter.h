@@ -50,16 +50,16 @@ class CompressionConverter : public decode::FileTransformer
 
     virtual bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id) override;
 
-    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type) override;
+    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id) override;
 
   private:
     bool WriteFunctionCall(format::ApiCallId call_id, format::ThreadId thread_id, size_t buffer_size);
 
-    bool WriteFillMemoryMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
+    bool WriteFillMemoryMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
-    bool WriteInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
+    bool WriteInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
-    bool WriteInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
+    bool WriteInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
   private:
     bool                              decompressing_;

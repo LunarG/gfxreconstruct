@@ -42,6 +42,11 @@ constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
     return ((static_cast<uint32_t>(family) << 16) & 0xffff0000) | (static_cast<uint32_t>(api_call) & 0x0000ffff);
 }
 
+constexpr uint16_t GetApiCallFamily(uint32_t call_id)
+{
+    return static_cast<uint16_t>((call_id >> 16) & 0x0000ffff);
+}
+
 enum ApiFamilyId : uint16_t
 {
     ApiFamily_None   = 0,

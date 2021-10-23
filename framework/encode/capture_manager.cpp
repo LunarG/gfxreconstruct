@@ -689,8 +689,9 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
 
         message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         message_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(message_cmd) + message_length;
-        message_cmd.meta_header.meta_data_type    = format::MetaDataType::kDisplayMessageCommand;
-        message_cmd.thread_id                     = GetThreadData()->thread_id_;
+        message_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family_, format::MetaDataType::kDisplayMessageCommand);
+        message_cmd.thread_id = GetThreadData()->thread_id_;
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
     }
@@ -703,8 +704,9 @@ void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t 
         format::ResizeWindowCommand resize_cmd;
         resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         resize_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd);
-        resize_cmd.meta_header.meta_data_type    = format::MetaDataType::kResizeWindowCommand;
-        resize_cmd.thread_id                     = GetThreadData()->thread_id_;
+        resize_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family_, format::MetaDataType::kResizeWindowCommand);
+        resize_cmd.thread_id = GetThreadData()->thread_id_;
 
         resize_cmd.surface_id = surface_id;
         resize_cmd.width      = width;
@@ -729,11 +731,12 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
         assert(thread_data != nullptr);
 
         fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
-        fill_cmd.thread_id                     = thread_data->thread_id_;
-        fill_cmd.memory_id                     = memory_id;
-        fill_cmd.memory_offset                 = offset;
-        fill_cmd.memory_size                   = size;
+        fill_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family_, format::MetaDataType::kFillMemoryCommand);
+        fill_cmd.thread_id     = thread_data->thread_id_;
+        fill_cmd.memory_id     = memory_id;
+        fill_cmd.memory_offset = offset;
+        fill_cmd.memory_size   = size;
 
         bool not_compressed = true;
 
@@ -781,10 +784,11 @@ void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64
 
         allocation_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         allocation_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(allocation_cmd);
-        allocation_cmd.meta_header.meta_data_type    = format::MetaDataType::kCreateHeapAllocationCommand;
-        allocation_cmd.thread_id                     = thread_data->thread_id_;
-        allocation_cmd.allocation_id                 = allocation_id;
-        allocation_cmd.allocation_size               = allocation_size;
+        allocation_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family_, format::MetaDataType::kCreateHeapAllocationCommand);
+        allocation_cmd.thread_id       = thread_data->thread_id_;
+        allocation_cmd.allocation_id   = allocation_id;
+        allocation_cmd.allocation_size = allocation_size;
 
         WriteToFile(&allocation_cmd, sizeof(allocation_cmd));
     }
