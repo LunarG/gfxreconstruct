@@ -134,8 +134,9 @@ void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              s
         format::ResizeWindowCommand2 resize_cmd2;
         resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         resize_cmd2.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd2);
-        resize_cmd2.meta_header.meta_data_type    = format::MetaDataType::kResizeWindowCommand2;
-        resize_cmd2.thread_id                     = GetThreadData()->thread_id_;
+        resize_cmd2.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kResizeWindowCommand2);
+        resize_cmd2.thread_id = GetThreadData()->thread_id_;
 
         resize_cmd2.surface_id = surface_id;
         resize_cmd2.width      = width;
@@ -183,10 +184,11 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
 
         create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         create_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(create_buffer_cmd);
-        create_buffer_cmd.meta_header.meta_data_type    = format::MetaDataType::kCreateHardwareBufferCommand;
-        create_buffer_cmd.thread_id                     = thread_data->thread_id_;
-        create_buffer_cmd.memory_id                     = memory_id;
-        create_buffer_cmd.buffer_id                     = reinterpret_cast<uint64_t>(buffer);
+        create_buffer_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand);
+        create_buffer_cmd.thread_id = thread_data->thread_id_;
+        create_buffer_cmd.memory_id = memory_id;
+        create_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(buffer);
 
         // Get AHB description data.
         AHardwareBuffer_Desc ahb_desc = {};
@@ -248,9 +250,10 @@ void VulkanCaptureManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer
 
         destroy_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         destroy_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(destroy_buffer_cmd);
-        destroy_buffer_cmd.meta_header.meta_data_type    = format::MetaDataType::kDestroyHardwareBufferCommand;
-        destroy_buffer_cmd.thread_id                     = thread_data->thread_id_;
-        destroy_buffer_cmd.buffer_id                     = reinterpret_cast<uint64_t>(buffer);
+        destroy_buffer_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kDestroyHardwareBufferCommand);
+        destroy_buffer_cmd.thread_id = thread_data->thread_id_;
+        destroy_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(buffer);
 
         WriteToFile(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
 #else
@@ -274,14 +277,15 @@ void VulkanCaptureManager::WriteSetDevicePropertiesCommand(format::HandleId     
         properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         properties_cmd.meta_header.block_header.size =
             format::GetMetaDataBlockBaseSize(properties_cmd) + device_name_len;
-        properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDevicePropertiesCommand;
-        properties_cmd.thread_id                  = thread_data->thread_id_;
-        properties_cmd.physical_device_id         = physical_device_id;
-        properties_cmd.api_version                = properties.apiVersion;
-        properties_cmd.driver_version             = properties.driverVersion;
-        properties_cmd.vendor_id                  = properties.vendorID;
-        properties_cmd.device_id                  = properties.deviceID;
-        properties_cmd.device_type                = properties.deviceType;
+        properties_cmd.meta_header.meta_data_id = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetDevicePropertiesCommand);
+        properties_cmd.thread_id          = thread_data->thread_id_;
+        properties_cmd.physical_device_id = physical_device_id;
+        properties_cmd.api_version        = properties.apiVersion;
+        properties_cmd.driver_version     = properties.driverVersion;
+        properties_cmd.vendor_id          = properties.vendorID;
+        properties_cmd.device_id          = properties.deviceID;
+        properties_cmd.device_type        = properties.deviceType;
         util::platform::MemoryCopy(
             properties_cmd.pipeline_cache_uuid, format::kUuidSize, properties.pipelineCacheUUID, VK_UUID_SIZE);
         properties_cmd.device_name_len = device_name_len;
@@ -306,11 +310,12 @@ void VulkanCaptureManager::WriteSetDeviceMemoryPropertiesCommand(
             format::GetMetaDataBlockBaseSize(memory_properties_cmd) +
             (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
             (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
-        memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
-        memory_properties_cmd.thread_id                  = thread_data->thread_id_;
-        memory_properties_cmd.physical_device_id         = physical_device_id;
-        memory_properties_cmd.memory_type_count          = memory_properties.memoryTypeCount;
-        memory_properties_cmd.memory_heap_count          = memory_properties.memoryHeapCount;
+        memory_properties_cmd.meta_header.meta_data_id = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetDeviceMemoryPropertiesCommand);
+        memory_properties_cmd.thread_id          = thread_data->thread_id_;
+        memory_properties_cmd.physical_device_id = physical_device_id;
+        memory_properties_cmd.memory_type_count  = memory_properties.memoryTypeCount;
+        memory_properties_cmd.memory_heap_count  = memory_properties.memoryHeapCount;
 
         // Since the number of file writes below is dynamic, CombineAndWriteToFile is not suitable. Instead, manually
         // populate thread_data's scratch_buffer_ then write to file.
@@ -359,11 +364,12 @@ void VulkanCaptureManager::WriteSetOpaqueAddressCommand(format::HandleId device_
 
         opaque_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         opaque_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(opaque_address_cmd);
-        opaque_address_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetOpaqueAddressCommand;
-        opaque_address_cmd.thread_id                     = thread_data->thread_id_;
-        opaque_address_cmd.device_id                     = device_id;
-        opaque_address_cmd.object_id                     = object_id;
-        opaque_address_cmd.address                       = address;
+        opaque_address_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetOpaqueAddressCommand);
+        opaque_address_cmd.thread_id = thread_data->thread_id_;
+        opaque_address_cmd.device_id = device_id;
+        opaque_address_cmd.object_id = object_id;
+        opaque_address_cmd.address   = address;
 
         WriteToFile(&opaque_address_cmd, sizeof(opaque_address_cmd));
     }
@@ -383,11 +389,12 @@ void VulkanCaptureManager::WriteSetRayTracingShaderGroupHandlesCommand(format::H
 
         set_handles_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         set_handles_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(set_handles_cmd) + data_size;
-        set_handles_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetRayTracingShaderGroupHandlesCommand;
-        set_handles_cmd.thread_id                     = thread_data->thread_id_;
-        set_handles_cmd.device_id                     = device_id;
-        set_handles_cmd.pipeline_id                   = pipeline_id;
-        set_handles_cmd.data_size                     = data_size;
+        set_handles_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetRayTracingShaderGroupHandlesCommand);
+        set_handles_cmd.thread_id   = thread_data->thread_id_;
+        set_handles_cmd.device_id   = device_id;
+        set_handles_cmd.pipeline_id = pipeline_id;
+        set_handles_cmd.data_size   = data_size;
 
         CombineAndWriteToFile({ { &set_handles_cmd, sizeof(set_handles_cmd) }, { data, data_size } });
     }

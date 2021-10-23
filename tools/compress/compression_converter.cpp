@@ -137,21 +137,22 @@ bool CompressionConverter::ProcessFunctionCall(const format::BlockHeader& block_
     return success;
 }
 
-bool CompressionConverter::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
+bool CompressionConverter::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
     // Only the meta data blocks that contain resource data support compression.  The rest of the meta data block types
     // can be copied directly to the new file.
-    if (meta_type == format::MetaDataType::kFillMemoryCommand)
+    format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
+    if (meta_data_type == format::MetaDataType::kFillMemoryCommand)
     {
-        return WriteFillMemoryMetaData(block_header, meta_type);
+        return WriteFillMemoryMetaData(block_header, meta_data_id);
     }
-    else if (meta_type == format::MetaDataType::kInitBufferCommand)
+    else if (meta_data_type == format::MetaDataType::kInitBufferCommand)
     {
-        return WriteInitBufferMetaData(block_header, meta_type);
+        return WriteInitBufferMetaData(block_header, meta_data_id);
     }
-    else if (meta_type == format::MetaDataType::kInitImageCommand)
+    else if (meta_data_type == format::MetaDataType::kInitImageCommand)
     {
-        return WriteInitImageMetaData(block_header, meta_type);
+        return WriteInitImageMetaData(block_header, meta_data_id);
     }
     else
     {
@@ -164,7 +165,7 @@ bool CompressionConverter::ProcessMetaData(const format::BlockHeader& block_head
             return false;
         }
 
-        return FileTransformer::ProcessMetaData(block_header, meta_type);
+        return FileTransformer::ProcessMetaData(block_header, meta_data_id);
     }
 }
 
@@ -248,9 +249,9 @@ bool CompressionConverter::WriteFunctionCall(format::ApiCallId call_id, format::
 }
 
 bool CompressionConverter::WriteFillMemoryMetaData(const format::BlockHeader& block_header,
-                                                   format::MetaDataType       meta_type)
+                                                   format::MetaDataId         meta_data_id)
 {
-    assert(meta_type == format::MetaDataType::kFillMemoryCommand);
+    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kFillMemoryCommand);
 
     format::FillMemoryCommandHeader fill_cmd;
 
@@ -292,7 +293,7 @@ bool CompressionConverter::WriteFillMemoryMetaData(const format::BlockHeader& bl
         const uint8_t* data_address = buffer.data();
 
         fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        fill_cmd.meta_header.meta_data_type    = meta_type;
+        fill_cmd.meta_header.meta_data_id      = meta_data_id;
 
         if (!decompressing_)
         {
@@ -337,9 +338,9 @@ bool CompressionConverter::WriteFillMemoryMetaData(const format::BlockHeader& bl
 }
 
 bool CompressionConverter::WriteInitBufferMetaData(const format::BlockHeader& block_header,
-                                                   format::MetaDataType       meta_type)
+                                                   format::MetaDataId         meta_data_id)
 {
-    assert(meta_type == format::MetaDataType::kInitBufferCommand);
+    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitBufferCommand);
 
     format::InitBufferCommandHeader init_cmd;
 
@@ -381,7 +382,7 @@ bool CompressionConverter::WriteInitBufferMetaData(const format::BlockHeader& bl
         const uint8_t* data_address = buffer.data();
 
         init_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-        init_cmd.meta_header.meta_data_type    = meta_type;
+        init_cmd.meta_header.meta_data_id      = meta_data_id;
 
         if (!decompressing_)
         {
@@ -424,9 +425,9 @@ bool CompressionConverter::WriteInitBufferMetaData(const format::BlockHeader& bl
 }
 
 bool CompressionConverter::WriteInitImageMetaData(const format::BlockHeader& block_header,
-                                                  format::MetaDataType       meta_type)
+                                                  format::MetaDataId         meta_data_id)
 {
-    assert(meta_type == format::MetaDataType::kInitImageCommand);
+    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitImageCommand);
 
     format::InitImageCommandHeader init_cmd;
     std::vector<uint64_t>          level_sizes;
@@ -452,7 +453,7 @@ bool CompressionConverter::WriteInitImageMetaData(const format::BlockHeader& blo
         // Packet size without the resource data.
         init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd);
         init_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-        init_cmd.meta_header.meta_data_type    = meta_type;
+        init_cmd.meta_header.meta_data_id      = meta_data_id;
 
         if (init_cmd.data_size > 0)
         {
@@ -488,7 +489,7 @@ bool CompressionConverter::WriteInitImageMetaData(const format::BlockHeader& blo
             const uint8_t* data_address = buffer.data();
 
             init_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-            init_cmd.meta_header.meta_data_type    = meta_type;
+            init_cmd.meta_header.meta_data_id      = meta_data_id;
 
             if (!decompressing_)
             {
