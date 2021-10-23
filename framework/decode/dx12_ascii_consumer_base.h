@@ -26,6 +26,8 @@
 #include "generated/generated_dx12_consumer.h"
 #include "util/to_string.h"
 
+#include <cctype>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -75,19 +77,58 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     FILE*    GetFile() const { return m_file; }
     uint32_t current_frame_number_;
 
+    struct WriteApiCallToFileInfo
+    {
+        const char*      pObjectTypeName{};
+        format::HandleId handleId{};
+        const char*      pFunctionName{};
+        const char*      pReturnValue{};
+    };
+
+    // clang-format off
     template <typename ToStringFunctionType>
-    inline void WriteApiCallToFile(const std::string&   functionName,
-                                   util::ToStringFlags  toStringFlags,
-                                   uint32_t&            tabCount,
-                                   uint32_t             tabSize,
-                                   ToStringFunctionType toStringFunction)
+    inline void WriteApiCallToFile(const WriteApiCallToFileInfo& writeApiCallToFileInfo, util::ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
     {
         using namespace util;
         fprintf(m_file, "%s\n", (m_apiCallCount ? "," : ""));
-        fprintf(m_file, "\"[%s]%s\":", std::to_string(m_apiCallCount++).c_str(), functionName.c_str());
-        fprintf(m_file, "%s", GetWhitespaceString(toStringFlags).c_str());
-        fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+        fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize,
+            [&](std::stringstream& strStrm)
+            {
+                FieldToString(strStrm, true, "index", toStringFlags, tabCount, tabSize, ToString(m_apiCallCount++, toStringFlags, tabCount, tabSize));
+                if (writeApiCallToFileInfo.pObjectTypeName) {
+                    FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize,
+                        ObjectToString(toStringFlags, tabCount, tabSize,
+                            [&](std::stringstream& objectStrStrm)
+                            {
+                                FieldToString(objectStrStrm, true, "type", toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pObjectTypeName) + '"');
+                                FieldToString(objectStrStrm, false, "handle", toStringFlags, tabCount, tabSize, HandleIdToString(writeApiCallToFileInfo.handleId));
+                            }
+                        )
+                    );
+                }
+                assert(writeApiCallToFileInfo.pFunctionName);
+                if (writeApiCallToFileInfo.pFunctionName)
+                {
+                    FieldToString(strStrm, false, "function", toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
+                }
+                if (writeApiCallToFileInfo.pReturnValue)
+                {
+                    FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, std::string(writeApiCallToFileInfo.pReturnValue));
+                }
+                const auto& parametersStr = ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction);
+                for (auto c : parametersStr)
+                {
+                    if (c != '{' && !isspace(static_cast<int>(c)) && c != '}')
+                    {
+                        FieldToString(strStrm, false, "parameters", toStringFlags, tabCount, tabSize, parametersStr);
+                        break;
+                    }
+                }
+                return strStrm.str();
+            }
+        ).c_str());
     }
+    // clang-format on
 
   private:
     FILE*       m_file;

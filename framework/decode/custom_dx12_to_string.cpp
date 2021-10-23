@@ -57,6 +57,12 @@ std::string ToString<GUID>(const GUID& obj, ToStringFlags toStringFlags, uint32_
 }
 
 template <>
+std::string ToString<HRESULT>(const HRESULT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return "\"S_OK\"";
+}
+
+template <>
 std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,
                                                   ToStringFlags                      toStringFlags,
                                                   uint32_t                           tabCount,

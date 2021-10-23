@@ -60,6 +60,9 @@ inline std::string BitmaskToString(VkFlags vkFlags)
 }
 
 template <>
+std::string ToString<HRESULT>(const HRESULT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+
+template <>
 std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,
                                                   ToStringFlags                      toStringFlags,
                                                   uint32_t                           tabCount,

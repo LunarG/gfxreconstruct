@@ -525,17 +525,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(format::HandleI
                                                                  Decoded_GUID                 riid,
                                                                  HandlePointerDecoder<void*>* ppvRootSignature)
 {
+    // clang-format off
     using namespace gfxrecon::util;
     ToStringFlags to_string_flags = kToString_Default;
-    uint32_t      tab_count       = 0;
-    uint32_t      tab_size        = 4;
-    // clang-format off
-    WriteApiCallToFile("CreateRootSignature", to_string_flags, tab_count, tab_size,
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "CreateRootSignature";
+    auto returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ID3D12Device", to_string_flags, tab_count, tab_size, HandleIdToString(object_id));
-            FieldToString(str_strm, false, "return", to_string_flags, tab_count, tab_size, DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "nodeMask", to_string_flags, tab_count, tab_size, ToString(nodeMask, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "nodeMask", to_string_flags, tab_count, tab_size, ToString(nodeMask, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pBlobWithRootSignature", to_string_flags, tab_count, tab_size, HandleIdToString(pBlobWithRootSignature));
             FieldToString(str_strm, false, "blobLengthInBytes", to_string_flags, tab_count, tab_size, ToString(blobLengthInBytes, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));

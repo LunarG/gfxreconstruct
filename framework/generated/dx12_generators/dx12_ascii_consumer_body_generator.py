@@ -126,10 +126,19 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     ToStringFlags to_string_flags = kToString_Default;
                     uint32_t tab_count = 0;
                     uint32_t tab_size = 4;
-                    WriteApiCallToFile("{0}", to_string_flags, tab_count, tab_size,
+                    WriteApiCallToFileInfo writeApiCallToFileInfo{{}};
+                    writeApiCallToFileInfo.pObjectTypeName = {0};
+                    writeApiCallToFileInfo.handleId = {1};
+                    writeApiCallToFileInfo.pFunctionName = "{2}";
+                    std::string returnValue = {3};
+                    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+                    WriteApiCallToFile(
+                        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
                         [&](std::stringstream& str_strm)
                         {{
-                '''.format(class_method_name))
+                '''.format(
+                    '"' + class_name + '"' if class_name else 'nullptr', 'object_id' if class_name else '0', class_method_name,
+                    'DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size)' if not 'void' in return_type else 'std::string()'))
             code += '\n'
             code += self.make_consumer_func_body(class_name, method_info, return_type)
             code += inspect.cleandoc('''
@@ -141,14 +150,6 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
     def make_consumer_func_body(self, class_name, method_info, return_type):
         code = ''
-
-        # Handle calling object
-        if class_name:
-            code += '            FieldToString(str_strm, true, "{0}", to_string_flags, tab_count, tab_size, HandleIdToString(object_id));\n'.format(class_name)
-
-        # Handle function return value
-        if not 'void' in return_type:
-            code +=  '            FieldToString(str_strm, {0}, "return", to_string_flags, tab_count, tab_size, DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size));\n'.format('true' if not code else 'false')
 
         # Handle function arguments
         for parameter in method_info['parameters']:
