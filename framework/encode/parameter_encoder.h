@@ -215,7 +215,7 @@ class ParameterEncoder
     template <typename T>
     void EncodeObjectValue(const T* value)
     {
-        EncodeHandleIdValue(GetWrappedId<T>(value));
+        EncodeHandleIdValue(GetDx12WrappedId<T>(value));
     }
 
     template <typename T>

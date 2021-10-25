@@ -334,8 +334,8 @@ void Dx12StateTracker::TrackDescriptorResources(SIZE_T          descriptor_cpu_a
                                                 ID3D12Resource* resource2)
 {
     auto* descriptor_info            = GetDescriptorInfo(descriptor_cpu_address);
-    descriptor_info->resource_ids[0] = GetWrappedId<ID3D12Resource>(resource1);
-    descriptor_info->resource_ids[1] = GetWrappedId<ID3D12Resource>(resource2);
+    descriptor_info->resource_ids[0] = GetDx12WrappedId<ID3D12Resource>(resource1);
+    descriptor_info->resource_ids[1] = GetDx12WrappedId<ID3D12Resource>(resource2);
 }
 
 void Dx12StateTracker::TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
@@ -440,7 +440,7 @@ void Dx12StateTracker::TrackResidencyPriority(ID3D12Device1_Wrapper*          de
     for (UINT i = 0; i < num_objects; ++i)
     {
         GFXRECON_ASSERT(objects[i] != nullptr);
-        auto handle_id                               = GetWrappedId<ID3D12Pageable>(objects[i]);
+        auto handle_id                               = GetDx12WrappedId<ID3D12Pageable>(objects[i]);
         device_info->residency_priorities[handle_id] = priorities[i];
     }
 }

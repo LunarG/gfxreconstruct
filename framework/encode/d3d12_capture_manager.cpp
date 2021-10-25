@@ -132,7 +132,7 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
         assert(info != nullptr);
         if (command_queue != nullptr)
         {
-            info->command_queue_id = GetWrappedId<IUnknown>(command_queue);
+            info->command_queue_id = GetDx12WrappedId<IUnknown>(command_queue);
         }
 
         if (info->child_images.empty())
