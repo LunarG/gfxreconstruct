@@ -169,6 +169,8 @@ class Dx12StateTracker
                                   ID3D12Resource* resource1,
                                   ID3D12Resource* resource2 = nullptr);
 
+    void TrackDescriptorGpuVa(SIZE_T descriptor_cpu_address, D3D12_GPU_VIRTUAL_ADDRESS address);
+
     void TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
                                  format::HandleId                queue_id,
                                  format::HandleId                heap_id,

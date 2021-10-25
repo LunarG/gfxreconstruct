@@ -463,6 +463,10 @@ class D3D12CaptureManager : public CaptureManager
                                                          const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
                                                          D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
 
+    void PostProcess_ID3D12Device_CreateConstantBufferView(ID3D12Device_Wrapper*                  device_wrapper,
+                                                           const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
+                                                           D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor);
+
     void PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(ID3D12Device_Wrapper* device_wrapper,
                                                                             ID3D12Resource*       pTargetedResource,
                                                                             ID3D12Resource*       pFeedbackResource,

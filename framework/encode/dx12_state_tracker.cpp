@@ -250,8 +250,9 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
         descriptor_info->create_parameters->Reset();
         descriptor_info->create_parameters->Write(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
     }
-    descriptor_info->is_copy      = false;
-    descriptor_info->resource_ids = { format::kNullHandleId, format::kNullHandleId };
+    descriptor_info->is_copy         = false;
+    descriptor_info->resource_ids    = { format::kNullHandleId, format::kNullHandleId };
+    descriptor_info->resource_gpu_va = 0;
 }
 
 void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descriptors,
@@ -271,6 +272,7 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
         dst->create_call_id   = src->create_call_id;
         dst->is_copy          = true;
         dst->resource_ids     = src->resource_ids;
+        dst->resource_gpu_va  = src->resource_gpu_va;
 
         // Create or reset the destination descriptor's create_parameters buffer.
         if (dst->create_parameters == nullptr)
@@ -336,6 +338,12 @@ void Dx12StateTracker::TrackDescriptorResources(SIZE_T          descriptor_cpu_a
     auto* descriptor_info            = GetDescriptorInfo(descriptor_cpu_address);
     descriptor_info->resource_ids[0] = GetDx12WrappedId<ID3D12Resource>(resource1);
     descriptor_info->resource_ids[1] = GetDx12WrappedId<ID3D12Resource>(resource2);
+}
+
+void Dx12StateTracker::TrackDescriptorGpuVa(SIZE_T descriptor_cpu_address, D3D12_GPU_VIRTUAL_ADDRESS address)
+{
+    auto* descriptor_info            = GetDescriptorInfo(descriptor_cpu_address);
+    descriptor_info->resource_gpu_va = address;
 }
 
 void Dx12StateTracker::TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,

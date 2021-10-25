@@ -1857,6 +1857,17 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDepthStencilView(ID3D12
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateConstantBufferView(
+    ID3D12Device_Wrapper*                  device_wrapper,
+    const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackDescriptorGpuVa(DestDescriptor.ptr, pDesc->BufferLocation);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
     ID3D12Device_Wrapper*       device_wrapper,
     ID3D12Resource*             pTargetedResource,

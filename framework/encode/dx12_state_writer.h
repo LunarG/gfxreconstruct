@@ -25,6 +25,7 @@
 
 #include "encode/parameter_encoder.h"
 #include "format/format.h"
+#include "graphics/dx12_gpu_va_map.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "util/compressor.h"
 #include "util/defines.h"
@@ -150,6 +151,8 @@ class Dx12StateWriter
                                         format::HandleId               handle_id,
                                         const Dx12StateTable&          state_table);
 
+    bool CheckGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address);
+
     bool CheckDescriptorObjects(const DxDescriptorInfo& descriptor_info, const Dx12StateTable& state_table);
 
     void WriteSwapChainState(const Dx12StateTable& state_table);
@@ -165,6 +168,7 @@ class Dx12StateWriter
     format::ThreadId         thread_id_;
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
+    graphics::Dx12GpuVaMap   gpu_va_map_;
 
 #if GFXRECON_DEBUG_WRITTEN_OBJECTS
     // Track the list of objects that have been written in WriteState.

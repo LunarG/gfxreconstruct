@@ -120,8 +120,9 @@ struct DxDescriptorInfo
     std::unique_ptr<util::MemoryOutputStream> create_parameters;
     bool is_copy{ false }; // True if the descriptor was created as a copy with CopyDescriptors
 
-    // Descriptors can be created with up to 2 resource dependencies.
+    // Descriptors can be created with up to 2 resource dependencies or a GPU VA.
     std::array<format::HandleId, 2> resource_ids{ format::kNullHandleId, format::kNullHandleId };
+    D3D12_GPU_VIRTUAL_ADDRESS       resource_gpu_va{ 0 };
 };
 
 struct DxTransitionBarrier

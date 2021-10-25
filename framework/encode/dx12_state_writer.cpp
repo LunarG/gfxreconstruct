@@ -549,6 +549,11 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
                             resource_wrapper->GetCaptureId(),
                             &parameter_stream_);
             parameter_stream_.Reset();
+
+            // Track the GPU VAs for buffers written to the trim state block. This map is used to determine if a given
+            // GPU VA references a buffer that was written to the trim state block. Addresses do not need to be mapped,
+            // so the "new_start_address" parameter won't be used.
+            gpu_va_map_.Add(resource_wrapper->GetCaptureId(), gpu_address, resource_desc.Width, gpu_address);
         }
 
         // Get resource sizes and list of currently mapped subresources.
@@ -1123,6 +1128,17 @@ bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectT
     }
 }
 
+bool Dx12StateWriter::CheckGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address)
+{
+    if (address != 0)
+    {
+        bool found = false;
+        gpu_va_map_.Map(address, &found);
+        return found;
+    }
+    return true;
+}
+
 bool Dx12StateWriter::CheckDescriptorObjects(const DxDescriptorInfo& descriptor_info, const Dx12StateTable& state_table)
 {
     // Ignore descriptors that reference destroyed resource object.
@@ -1133,6 +1149,12 @@ bool Dx12StateWriter::CheckDescriptorObjects(const DxDescriptorInfo& descriptor_
         {
             return false;
         }
+    }
+
+    // Ignore descriptors that reference GPU VAs that are no longer valid.
+    if (!CheckGpuVa(descriptor_info.resource_gpu_va))
+    {
+        return false;
     }
 
     return true;
