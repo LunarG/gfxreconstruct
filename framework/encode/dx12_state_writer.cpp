@@ -1089,6 +1089,15 @@ bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsComman
             return false;
         }
     }
+
+    for (auto gpu_va : list_info->command_gpu_virtual_addresses)
+    {
+        if (!CheckGpuVa(gpu_va))
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 

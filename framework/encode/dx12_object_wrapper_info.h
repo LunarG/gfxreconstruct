@@ -351,13 +351,14 @@ struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
     bool                                 is_closed{ false };
     util::MemoryOutputStream             command_data;
     std::vector<DxTransitionBarrier>     transition_barriers;
-    std::unordered_set<format::HandleId> command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];
-    std::unordered_set<SIZE_T>           command_cpu_descriptor_handles;
+
+    // Track command list dependencies.
+    std::unordered_set<format::HandleId>          command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];
+    std::unordered_set<SIZE_T>                    command_cpu_descriptor_handles;
+    std::unordered_set<D3D12_GPU_VIRTUAL_ADDRESS> command_gpu_virtual_addresses;
 
     // Record for future. It's not used for now.
     std::unordered_set<UINT64> command_gpu_descriptor_handles;
-    // Record for future. It's not used for now.
-    std::unordered_set<D3D12_GPU_VIRTUAL_ADDRESS> command_gpu_virtual_addresses;
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo
