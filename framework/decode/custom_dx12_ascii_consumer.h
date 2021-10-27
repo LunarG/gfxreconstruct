@@ -112,24 +112,23 @@ inline std::string PointerDecoderToString(PointerDecoderType* pObj,
 }
 
 template <typename CountType>
-inline uint32_t GetCount(CountType countObj)
+inline size_t GetCount(CountType countObj)
 {
-    return static_cast<uint32_t>(countObj);
+    return static_cast<size_t>(countObj);
 }
 
 template <>
-inline uint32_t GetCount<PointerDecoder<UINT>*>(PointerDecoder<UINT>* pCountObj)
+inline size_t GetCount<PointerDecoder<UINT>*>(PointerDecoder<UINT>* pCountObj)
 {
     auto pDecodedCountObj = pCountObj ? pCountObj->GetPointer() : nullptr;
-    return pDecodedCountObj ? *pDecodedCountObj : 0;
+    return static_cast<size_t>(pDecodedCountObj ? *pDecodedCountObj : 0);
 }
 
 template <>
-inline uint32_t GetCount<PointerDecoder<SIZE_T>*>(PointerDecoder<SIZE_T>* pCountObj)
+inline size_t GetCount<PointerDecoder<SIZE_T>*>(PointerDecoder<SIZE_T>* pCountObj)
 {
     auto pDecodedCountObj = pCountObj ? pCountObj->GetPointer() : nullptr;
-    // TODO : Refactor all array processing to use size_t...
-    return (uint32_t)(pDecodedCountObj ? *pDecodedCountObj : 0);
+    return static_cast<size_t>(pDecodedCountObj ? *pDecodedCountObj : 0);
 }
 
 template <typename CountType, typename PointerDecoderType>
@@ -147,7 +146,7 @@ inline std::string PointerDecoderArrayToString(const CountType&    countObj,
         tabCount,
         tabSize,
         [&]() { return pObjs && !pObjs->IsNull(); },
-        [&](uint32_t i) { return ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize); });
+        [&](size_t i) { return ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
 template <typename CountType, typename PointerDecoderType>
@@ -165,7 +164,7 @@ inline std::string EnumPointerDecoderArrayToString(const CountType&    countObj,
         tabCount,
         tabSize,
         [&]() { return pObjs && !pObjs->IsNull(); },
-        [&](uint32_t i) { return '"' + ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
+        [&](size_t i) { return '"' + ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
 }
 
 GFXRECON_END_NAMESPACE(decode)

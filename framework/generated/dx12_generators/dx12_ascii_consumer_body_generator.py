@@ -54,9 +54,8 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     ASCII_OVERRIDES = {}
 
     def beginFile(self, genOpts):
-        # TODO : Double check
-        #   ExecuteCommandLists
-        #   CreateDepthStencilView
+# The following functions/methods require custom handling so their declarations
+#   are generated, but the definitions are hand written in 
         self.APICALL_BLACKLIST.append('D3D12CreateRootSignatureDeserializer')
         self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
         self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')
@@ -83,11 +82,9 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
     def write_include(self):
         write('#include "generated_dx12_ascii_consumer.h"', file=self.outFile)
-        write('#include "generated_dx12_convert_to_texts.h"', file=self.outFile)
         write('#include "generated_dx12_enum_to_string.h"', file=self.outFile)
         write('#include "generated_dx12_struct_to_string.h"', file=self.outFile)
         write('#include "decode/custom_dx12_ascii_consumer.h"', file=self.outFile)
-        write('#include "decode/custom_dx12_struct_ascii_consumers.h"', file=self.outFile)
         write('#include "decode/dx12_enum_util.h"', file=self.outFile)
         write('#include "util/interception/injection.h"', file=self.outFile)
         write('#include "util/to_string.h"', file=self.outFile)
@@ -159,14 +156,6 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             # Start with a static_assert() so that if any values make it through the logic
             #   below without being handled the generated code will fail to compile
             to_string = 'static_assert(false, "Unhandled value in `dx12_ascii_consumer_body_generator.py`")'
-
-            #### # void data PointerDecoder requires custom handling
-            #### if 'void' in value.fullType:
-            ####     to_string = 'DataPointerDecoderToString({0})'
-
-            #### # StringDecoder requires custom handling
-            #### elif 'const char*' in value.fullType:
-            ####     to_string = 'StringDecoderToString({0})'
 
             # There's some repeated code in this if/else block...It's easier (imo) to reason
             #   about each case when they're all listed explictly

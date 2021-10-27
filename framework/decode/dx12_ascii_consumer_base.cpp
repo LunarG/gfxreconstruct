@@ -22,7 +22,6 @@
 
 #include "decode/dx12_ascii_consumer_base.h"
 #include "generated/generated_dx12_convert_to_texts.h"
-#include "decode/custom_dx12_struct_ascii_consumers.h"
 #include "decode/dx12_enum_util.h"
 #include "util/interception/injection.h"
 

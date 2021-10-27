@@ -26,11 +26,9 @@
 */
 
 #include "generated_dx12_ascii_consumer.h"
-#include "generated_dx12_convert_to_texts.h"
 #include "generated_dx12_enum_to_string.h"
 #include "generated_dx12_struct_to_string.h"
 #include "decode/custom_dx12_ascii_consumer.h"
-#include "decode/custom_dx12_struct_ascii_consumers.h"
 #include "decode/dx12_enum_util.h"
 #include "util/interception/injection.h"
 #include "util/to_string.h"

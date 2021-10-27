@@ -704,7 +704,7 @@ std::string ToString<D3D12_RAYTRACING_INSTANCE_DESC>(const D3D12_RAYTRACING_INST
                     {
                         return true;
                     },
-                    [&](uint32_t y)
+                    [&](size_t y)
                     {
                         std::stringstream rowStrStrm;
                         rowStrStrm << '[' << GetWhitespaceString(toStringFlags);

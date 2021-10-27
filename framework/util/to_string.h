@@ -170,7 +170,7 @@ inline void FieldToString(std::stringstream& strStrm,
 }
 
 template <typename ObjectType, typename ValidateArrayFunctionType, typename ToStringFunctionType>
-inline std::string ArrayToString(uint32_t                  count,
+inline std::string ArrayToString(size_t                    count,
                                  const ObjectType*         pObjs,
                                  ToStringFlags             toStringFlags,
                                  uint32_t                  tabCount,
@@ -183,7 +183,7 @@ inline std::string ArrayToString(uint32_t                  count,
     if (count && validateArrayFunction())
     {
         strStrm << GetNewlineString(toStringFlags);
-        for (uint32_t i = 0; i < count; ++i)
+        for (size_t i = 0; i < count; ++i)
         {
             if (i)
             {
@@ -198,18 +198,18 @@ inline std::string ArrayToString(uint32_t                  count,
 }
 
 template <typename T>
-inline std::string Array2DToString(uint32_t      x,
-                                   uint32_t      y,
+inline std::string Array2DToString(size_t        x,
+                                   size_t        y,
                                    const T*      pObjs,
                                    ToStringFlags toStringFlags = kToString_Default,
                                    uint32_t      tabCount      = 0,
                                    uint32_t      tabSize       = 4)
 {
-
+    return "TODO";
 }
 
 template <typename T>
-inline std::string ArrayToString(uint32_t      count,
+inline std::string ArrayToString(size_t        count,
                                  const T*      pObjs,
                                  ToStringFlags toStringFlags = kToString_Default,
                                  uint32_t      tabCount      = 0,
@@ -222,10 +222,10 @@ inline std::string ArrayToString(uint32_t      count,
         tabCount,
         tabSize,
         [&]() { return pObjs != nullptr; },
-        [&](uint32_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
+        [&](size_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
-inline std::string CStrArrayToString(uint32_t           count,
+inline std::string CStrArrayToString(size_t             count,
                                      const char* const* ppStrs,
                                      ToStringFlags      toStringFlags = kToString_Default,
                                      uint32_t           tabCount      = 0,
@@ -238,11 +238,11 @@ inline std::string CStrArrayToString(uint32_t           count,
         tabCount,
         tabSize,
         [&]() { return ppStrs != nullptr; },
-        [&](uint32_t i) { return ppStrs[i] ? ('"' + std::string(ppStrs[i]) + '"') : "null"; });
+        [&](size_t i) { return ppStrs[i] ? ('"' + std::string(ppStrs[i]) + '"') : "null"; });
 }
 
 template <typename EnumType>
-inline std::string EnumArrayToString(uint32_t            count,
+inline std::string EnumArrayToString(size_t              count,
                                      const EnumType*     pObjs,
                                      util::ToStringFlags toStringFlags = util::kToString_Default,
                                      uint32_t            tabCount      = 0,
@@ -256,7 +256,7 @@ inline std::string EnumArrayToString(uint32_t            count,
         tabCount,
         tabSize,
         [&]() { return pObjs != nullptr; },
-        [&](uint32_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
+        [&](size_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
 }
 
 GFXRECON_END_NAMESPACE(util)
