@@ -40,6 +40,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+///////////////////////////////////////////////////////////////////////////////
+// NOTE : It would be much nicer to route return values through the generic
+//  ToString() mechanism...it will take some thought to figure out how to do
+//  that in the generators in a straight forward way...ultimately it's only a
+//  handful of API calls that need this treatment so it's not pressing.
 template <typename DX12ReturnType>
 inline std::string DX12ReturnValueToString(const DX12ReturnType& return_value,
                                            util::ToStringFlags   to_string_flags,
@@ -87,6 +92,7 @@ DX12ReturnValueToString<Decoded_D3D12_RESOURCE_DESC1>(const Decoded_D3D12_RESOUR
 {
     return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
 }
+///////////////////////////////////////////////////////////////////////////////
 
 template <typename EnumType>
 inline std::string EnumPointerDecoderToString(PointerDecoder<EnumType>* pObj)
@@ -116,6 +122,14 @@ inline uint32_t GetCount<PointerDecoder<UINT>*>(PointerDecoder<UINT>* pCountObj)
 {
     auto pDecodedCountObj = pCountObj ? pCountObj->GetPointer() : nullptr;
     return pDecodedCountObj ? *pDecodedCountObj : 0;
+}
+
+template <>
+inline uint32_t GetCount<PointerDecoder<SIZE_T>*>(PointerDecoder<SIZE_T>* pCountObj)
+{
+    auto pDecodedCountObj = pCountObj ? pCountObj->GetPointer() : nullptr;
+    // TODO : Refactor all array processing to use size_t...
+    return (uint32_t)(pDecodedCountObj ? *pDecodedCountObj : 0);
 }
 
 template <typename CountType, typename PointerDecoderType>

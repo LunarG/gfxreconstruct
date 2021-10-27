@@ -90,7 +90,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     inline void WriteApiCallToFile(const WriteApiCallToFileInfo& writeApiCallToFileInfo, util::ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
     {
         using namespace util;
-        fprintf(m_file, "%s\n", (m_apiCallCount ? "," : ""));
+        fprintf(m_file, "%s\n", (m_apiCallCount && !(toStringFlags & kToString_Concatenated) ? "," : ""));
         fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize,
             [&](std::stringstream& strStrm)
             {
@@ -109,7 +109,8 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                 assert(writeApiCallToFileInfo.pFunctionName);
                 if (writeApiCallToFileInfo.pFunctionName)
                 {
-                    FieldToString(strStrm, false, "function", toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
+                    auto fieldName = writeApiCallToFileInfo.pObjectTypeName ? "method" : "function";
+                    FieldToString(strStrm, false, fieldName, toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
                 }
                 if (writeApiCallToFileInfo.pReturnValue)
                 {

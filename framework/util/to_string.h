@@ -36,9 +36,10 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 enum ToStringFlagBits
 {
-    kToString_Unformatted = 0,
-    kToString_Formatted   = 1,
-    kToString_Default     = kToString_Formatted,
+    kToString_Unformatted  = 0,
+    kToString_Formatted    = 1,
+    kToString_Concatenated = 2,
+    kToString_Default      = kToString_Formatted | kToString_Concatenated,
 };
 
 typedef uint32_t ToStringFlags;
@@ -194,6 +195,17 @@ inline std::string ArrayToString(uint32_t                  count,
     }
     strStrm << ']';
     return strStrm.str();
+}
+
+template <typename T>
+inline std::string Array2DToString(uint32_t      x,
+                                   uint32_t      y,
+                                   const T*      pObjs,
+                                   ToStringFlags toStringFlags = kToString_Default,
+                                   uint32_t      tabCount      = 0,
+                                   uint32_t      tabSize       = 4)
+{
+
 }
 
 template <typename T>

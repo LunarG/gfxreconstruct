@@ -60,9 +60,6 @@ inline std::string BitmaskToString(VkFlags vkFlags)
 }
 
 template <>
-std::string ToString<HRESULT>(const HRESULT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-
-template <>
 std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,
                                                   ToStringFlags                      toStringFlags,
                                                   uint32_t                           tabCount,
@@ -175,6 +172,18 @@ ToString<D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION>(const D3D12_DXIL_SUBOBJECT
                                                       ToStringFlags                                      toStringFlags,
                                                       uint32_t                                           tabCount,
                                                       uint32_t                                           tabSize);
+
+template <>
+std::string ToString<D3D12_RESOURCE_BARRIER>(const D3D12_RESOURCE_BARRIER& obj,
+                                             ToStringFlags                 toStringFlags,
+                                             uint32_t                      tabCount,
+                                             uint32_t                      tabSize);
+
+template <>
+std::string ToString<D3D12_STATE_SUBOBJECT>(const D3D12_STATE_SUBOBJECT& obj,
+                                            ToStringFlags                toStringFlags,
+                                            uint32_t                     tabCount,
+                                            uint32_t                     tabSize);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

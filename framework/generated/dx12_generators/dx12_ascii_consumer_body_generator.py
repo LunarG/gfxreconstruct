@@ -137,7 +137,8 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                         [&](std::stringstream& str_strm)
                         {{
                 '''.format(
-                    '"' + class_name + '"' if class_name else 'nullptr', 'object_id' if class_name else '0', class_method_name,
+                    '"' + class_name + '"' if class_name else 'nullptr',
+                    'object_id' if class_name else '0', class_method_name,
                     'DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size)' if not 'void' in return_type else 'std::string()'))
             code += '\n'
             code += self.make_consumer_func_body(class_name, method_info, return_type)
