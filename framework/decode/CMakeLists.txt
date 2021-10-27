@@ -171,6 +171,9 @@ if (MSVC AND (MSVC_VERSION LESS 1920))
     set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp PROPERTIES COMPILE_FLAGS /bigobj)
     set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
 endif()
+if (MSVC)
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+endif()
 
 target_include_directories(gfxrecon_decode
                            PUBLIC
