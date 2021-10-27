@@ -54,8 +54,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     ASCII_OVERRIDES = {}
 
     def beginFile(self, genOpts):
-# The following functions/methods require custom handling so their declarations
-#   are generated, but the definitions are hand written in 
+        # The following functions/methods require custom handling
         self.APICALL_BLACKLIST.append('D3D12CreateRootSignatureDeserializer')
         self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
         self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')

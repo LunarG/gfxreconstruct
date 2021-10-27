@@ -72,6 +72,7 @@ std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HAN
     // clang-format on
 }
 
+#if 0
 template <>
 std::string ToString<D3D12_GPU_DESCRIPTOR_HANDLE>(const D3D12_GPU_DESCRIPTOR_HANDLE& obj,
                                                   ToStringFlags                      toStringFlags,
@@ -87,6 +88,7 @@ std::string ToString<D3D12_GPU_DESCRIPTOR_HANDLE>(const D3D12_GPU_DESCRIPTOR_HAN
     );
     // clang-format on
 }
+#endif
 
 template <>
 std::string
