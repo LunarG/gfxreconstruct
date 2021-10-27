@@ -869,13 +869,25 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
         UINT SyncInterval,
         UINT Flags)
 {
-    OverridePresent(
-        object_id,
-        return_value, /*TODO*/
-        SyncInterval, /*TODO*/
-        Flags);
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "Present";
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "SyncInterval", to_string_flags, tab_count, tab_size, ToString(SyncInterval, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
         format::HandleId object_id,
@@ -2014,14 +2026,26 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
         UINT PresentFlags,
         StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
 {
-    OverridePresent1(
-        object_id,
-        return_value, /*TODO*/
-        SyncInterval, /*TODO*/
-        PresentFlags, /*TODO*/
-        pPresentParameters);
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "Present1";
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "SyncInterval", to_string_flags, tab_count, tab_size, ToString(SyncInterval, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "PresentFlags", to_string_flags, tab_count, tab_size, ToString(PresentFlags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "pPresentParameters", to_string_flags, tab_count, tab_size, PointerDecoderToString(pPresentParameters, to_string_flags, tab_count, tab_size));
+        }
+    );
 }
-
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
         format::HandleId object_id,

@@ -103,47 +103,47 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
     def get_consumer_function_body(self, class_name, method_info, return_type):
         class_method_name = method_info['name']
-        is_override = False
-        if class_name in self.ASCII_OVERRIDES['classmethods']:
-            is_override = class_method_name in self.ASCII_OVERRIDES['classmethods'][class_name]
-        if is_override:
-            code = '\n{\n    '
-            code += self.ASCII_OVERRIDES['classmethods'][class_name][class_method_name] + '(\n'
-            code += '        object_id,\n'
-            code += '        return_value'
-            for parameter in method_info['parameters']:
-                code += ', /*TODO*/\n'
-                code += '        ' + parameter['name']
-            code += ');\n}\n'
-        else:
-            code = '\n'
-            code += inspect.cleandoc('''
-                {{
-                    using namespace gfxrecon::util;
-                    ToStringFlags to_string_flags = kToString_Default;
-                    uint32_t tab_count = 0;
-                    uint32_t tab_size = 4;
-                    WriteApiCallToFileInfo writeApiCallToFileInfo{{}};
-                    writeApiCallToFileInfo.pObjectTypeName = {0};
-                    writeApiCallToFileInfo.handleId = {1};
-                    writeApiCallToFileInfo.pFunctionName = "{2}";
-                    std::string returnValue = {3};
-                    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
-                    WriteApiCallToFile(
-                        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
-                        [&](std::stringstream& str_strm)
-                        {{
-                '''.format(
-                    '"' + class_name + '"' if class_name else 'nullptr',
-                    'object_id' if class_name else '0', class_method_name,
-                    'DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size)' if not 'void' in return_type else 'std::string()'))
-            code += '\n'
-            code += self.make_consumer_func_body(class_name, method_info, return_type)
-            code += inspect.cleandoc('''
-                        }
-                    );
-                }
-                ''')
+        #### is_override = False
+        #### if class_name in self.ASCII_OVERRIDES['classmethods']:
+        ####     is_override = class_method_name in self.ASCII_OVERRIDES['classmethods'][class_name]
+        #### if is_override:
+        ####     code = '\n{\n    '
+        ####     code += self.ASCII_OVERRIDES['classmethods'][class_name][class_method_name] + '(\n'
+        ####     code += '        object_id,\n'
+        ####     code += '        return_value'
+        ####     for parameter in method_info['parameters']:
+        ####         code += ', /*TODO*/\n'
+        ####         code += '        ' + parameter['name']
+        ####     code += ');\n}\n'
+        #### else:
+        code = '\n'
+        code += inspect.cleandoc('''
+            {{
+                using namespace gfxrecon::util;
+                ToStringFlags to_string_flags = kToString_Default;
+                uint32_t tab_count = 0;
+                uint32_t tab_size = 4;
+                WriteApiCallToFileInfo writeApiCallToFileInfo{{}};
+                writeApiCallToFileInfo.pObjectTypeName = {0};
+                writeApiCallToFileInfo.handleId = {1};
+                writeApiCallToFileInfo.pFunctionName = "{2}";
+                std::string returnValue = {3};
+                writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+                WriteApiCallToFile(
+                    writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+                    [&](std::stringstream& str_strm)
+                    {{
+            '''.format(
+                '"' + class_name + '"' if class_name else 'nullptr',
+                'object_id' if class_name else '0', class_method_name,
+                'DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size)' if not 'void' in return_type else 'std::string()'))
+        code += '\n'
+        code += self.make_consumer_func_body(class_name, method_info, return_type)
+        code += inspect.cleandoc('''
+                    }
+                );
+            }
+        ''')
         return code
 
     def make_consumer_func_body(self, class_name, method_info, return_type):

@@ -59,20 +59,6 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                                                    void*            replay_feature_data,
                                                    UINT             feature_data_size) override;
 
-    void OverridePresent(format::HandleId object_id, HRESULT return_value, UINT SyncInterval, UINT Flags);
-
-    void OverridePresent1(format::HandleId                                       object_id,
-                          HRESULT                                                return_value,
-                          UINT                                                   SyncInterval,
-                          UINT                                                   PresentFlags,
-                          StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters);
-
-    void DumpPresentWithFrameNumber(format::HandleId                                       object_id,
-                                    HRESULT                                                return_value,
-                                    UINT                                                   SyncInterval,
-                                    UINT                                                   PresentFlags,
-                                    StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters);
-
   protected:
     FILE*    GetFile() const { return m_file; }
     uint32_t current_frame_number_;
@@ -90,11 +76,15 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     inline void WriteApiCallToFile(const WriteApiCallToFileInfo& writeApiCallToFileInfo, util::ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
     {
         using namespace util;
+        // Add a comma between JSON objects unless we're concatenating JSON objects
         fprintf(m_file, "%s\n", (m_apiCallCount && !(toStringFlags & kToString_Concatenated) ? "," : ""));
         fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize,
             [&](std::stringstream& strStrm)
             {
+                // Output the API call index
                 FieldToString(strStrm, true, "index", toStringFlags, tabCount, tabSize, ToString(m_apiCallCount++, toStringFlags, tabCount, tabSize));
+
+                // If the API call is an object method we output the object type and handle
                 if (writeApiCallToFileInfo.pObjectTypeName) {
                     FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize,
                         ObjectToString(toStringFlags, tabCount, tabSize,
@@ -106,16 +96,19 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                         )
                     );
                 }
+
+                // Output the method/function name
                 assert(writeApiCallToFileInfo.pFunctionName);
-                if (writeApiCallToFileInfo.pFunctionName)
-                {
-                    auto fieldName = writeApiCallToFileInfo.pObjectTypeName ? "method" : "function";
-                    FieldToString(strStrm, false, fieldName, toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
-                }
+                auto fieldName = writeApiCallToFileInfo.pObjectTypeName ? "method" : "function";
+                FieldToString(strStrm, false, fieldName, toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
+
+                // Output the return value
                 if (writeApiCallToFileInfo.pReturnValue)
                 {
                     FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, std::string(writeApiCallToFileInfo.pReturnValue));
                 }
+
+                // Output the method/function parameters
                 const auto& parametersStr = ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction);
                 for (auto c : parametersStr)
                 {
