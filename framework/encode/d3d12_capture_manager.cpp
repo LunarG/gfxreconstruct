@@ -1864,7 +1864,14 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateConstantBufferView(
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        state_tracker_->TrackDescriptorGpuVa(DestDescriptor.ptr, pDesc->BufferLocation);
+        D3D12_GPU_VIRTUAL_ADDRESS address = 0;
+
+        if (pDesc != nullptr)
+        {
+            address = pDesc->BufferLocation;
+        }
+
+        state_tracker_->TrackDescriptorGpuVa(DestDescriptor.ptr, address);
     }
 }
 
