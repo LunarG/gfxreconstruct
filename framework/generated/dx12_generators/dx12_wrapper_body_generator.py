@@ -814,7 +814,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                                     name, value.array_length
                                 )
                             else:
-                                name = '*UnwrapStructPtrObjects(&{}'.format(name)
+                                name = '*UnwrapStructPtrObjects(&{}'.format(
+                                    name
+                                )
 
                         name += ', unwrap_memory)'
 

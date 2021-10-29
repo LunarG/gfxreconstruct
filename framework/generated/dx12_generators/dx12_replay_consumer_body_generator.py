@@ -167,7 +167,6 @@ class Dx12ReplayConsumerBodyGenerator(
             write(cmddef, file=self.outFile)
             first = False
 
-
     def make_consumer_func_body(self, return_type, name, values):
         """Methond override."""
         code = ''

@@ -37,7 +37,7 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
     Destroy();
 }
 
-void VulkanAsciiConsumerBase::Initialize(const std::string& filename, FILE* file)
+bool VulkanAsciiConsumerBase::Initialize(const std::string& filename, FILE* file)
 {
     bool success = false;
 

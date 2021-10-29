@@ -216,10 +216,14 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
             # Object info "getters"
             expr += '\n'
-            expr += indent + 'std::shared_ptr<const {}Info> GetObjectInfo() const'.format(name)
+            expr += indent + 'std::shared_ptr<const {}Info> GetObjectInfo() const'.format(
+                name
+            )
             expr += ' { return info_; }\n'
             expr += '\n'
-            expr += indent + 'std::shared_ptr<{}Info> GetObjectInfo()'.format(name)
+            expr += indent + 'std::shared_ptr<{}Info> GetObjectInfo()'.format(
+                name
+            )
             expr += ' { return info_; }\n'
 
         # Public methods

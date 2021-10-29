@@ -217,7 +217,9 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     value.name, indent_file, output_string
                 )
                 code += indent_code + '{\n'
-                code += indent_code + '    oss << "' + indent_file + '" << "/* out */ {}'.format(type_name) + '{/* not encoded due to return value */}";\n'
+                code += indent_code + '    oss << "' + indent_file + '" << "/* out */ {}'.format(
+                    type_name
+                ) + '{/* not encoded due to return value */}";\n'
                 code += indent_code + '}\n'
                 code += indent_code + 'else if (WriteCheckPointerDecoderNull(oss, {}, "{}", {}))\n'.format(
                     value.name, indent_file, output_string

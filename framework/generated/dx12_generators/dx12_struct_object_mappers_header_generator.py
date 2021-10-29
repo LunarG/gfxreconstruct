@@ -68,9 +68,7 @@ class Dx12StructObjectMappersHeaderGenerator(
         write(
             '#include "decode/dx12_replay_consumer_base.h"', file=self.outFile
         )
-        write(
-            '#include "graphics/dx12_gpu_va_map.h"', file=self.outFile
-        )
+        write('#include "graphics/dx12_gpu_va_map.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
 
