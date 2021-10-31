@@ -36,6 +36,7 @@
 #include "graphics/dx12_image_renderer.h"
 #include "decode/screenshot_handler_base.h"
 #include "graphics/fps_info.h"
+#include "graphics/dx12_util.h"
 
 #include <functional>
 #include <unordered_map>
@@ -522,8 +523,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> denied_msgs,
                            std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> allowed_msgs);
 
-    HRESULT GetCommandQueue();
-
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
     // the expected state, and then call queue present.
     void ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
@@ -578,11 +577,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
             after_states.clear();
         }
     };
-    ResourceInitInfo                                resource_init_info_;
-    std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
-    std::string                                     screenshot_file_prefix_;
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue>      command_queue_;
-    std::unique_ptr<ScreenshotHandlerBase>          screenshot_handler_;
+    ResourceInitInfo                                      resource_init_info_;
+    std::unique_ptr<graphics::Dx12ResourceDataUtil>       resource_data_util_;
+    std::string                                           screenshot_file_prefix_;
+    std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
+    std::vector<graphics::dx12::ID3D12CommandQueueComPtr> direct_queues_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

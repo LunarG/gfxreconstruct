@@ -70,7 +70,7 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr),
-    resource_data_util_(nullptr), command_queue_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
+    resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
     set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
     set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr)
 {
@@ -529,11 +529,14 @@ void Dx12ReplayConsumerBase::PostPresent(IDXGISwapChain* swapchain)
     {
         if (screenshot_handler_->IsScreenshotFrame())
         {
-            gfxrecon::graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
-                                                     command_queue_.Get(),
-                                                     swapchain,
-                                                     screenshot_handler_->GetCurrentFrame(),
-                                                     screenshot_file_prefix_);
+            if (!direct_queues_.empty())
+            {
+                graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
+                                               direct_queues_.back(),
+                                               swapchain,
+                                               screenshot_handler_->GetCurrentFrame(),
+                                               screenshot_file_prefix_);
+            }
         }
 
         screenshot_handler_->EndFrame();
@@ -747,13 +750,17 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
     auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
     auto replay_result =
         replay_object->CreateCommandQueue(desc->GetPointer(), *riid.decoded_value, command_queue->GetHandlePointer());
-    if (command_queue_ == nullptr)
-    {
-        replay_object->CreateCommandQueue(desc->GetPointer(), IID_PPV_ARGS(&command_queue_));
-    }
 
     if (SUCCEEDED(replay_result))
     {
+        if (desc->GetPointer()->Type == D3D12_COMMAND_LIST_TYPE_DIRECT)
+        {
+            graphics::dx12::ID3D12CommandQueueComPtr direct_queue =
+                static_cast<ID3D12CommandQueue*>(*command_queue->GetHandlePointer());
+
+            direct_queues_.push_back(direct_queue);
+        }
+
         auto command_queue_info = std::make_unique<D3D12CommandQueueInfo>();
 
         // Create the fence for the replay --sync option.
@@ -2296,34 +2303,6 @@ void Dx12ReplayConsumerBase::SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSA
     {
         GFXRECON_LOG_WARNING("Adding denied storage filter was not successful");
     }
-}
-
-HRESULT Dx12ReplayConsumerBase::GetCommandQueue()
-{
-    HRESULT result      = E_FAIL;
-    int     queue_count = 0;
-    for (auto& entry : object_info_table_)
-    {
-        auto& info = entry.second;
-        if (info.extra_info != nullptr)
-        {
-            auto extra_info = info.extra_info.get();
-            if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
-            {
-                if (static_cast<ID3D12CommandQueue*>(info.object)->GetDesc().Type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-                {
-                    command_queue_ = static_cast<ID3D12CommandQueue*>(info.object);
-                    result         = S_OK;
-                    queue_count++;
-                }
-            }
-        }
-    }
-    if (queue_count > 1)
-    {
-        GFXRECON_LOG_WARNING("More than one command queue of type D3D12_COMMAND_LIST_TYPE_DIRECT was found");
-    }
-    return result;
 }
 
 void Dx12ReplayConsumerBase::ReadDebugMessages()
