@@ -34,27 +34,27 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-template <typename VkBitmaskType>
-inline std::string BitmaskToString(VkFlags vkFlags)
+template <typename BitmaskType>
+inline std::string BitmaskToString(UINT flags)
 {
     std::string str;
-    VkFlags     index = 0;
-    while (vkFlags)
+    UINT        index = 0;
+    while (flags)
     {
-        if (vkFlags & 1)
+        if (flags & 1)
         {
             if (!str.empty())
             {
                 str.append("|");
             }
-            str.append(ToString(static_cast<VkBitmaskType>(1 << index)));
+            str.append(ToString(static_cast<BitmaskType>(1 << index)));
         }
         ++index;
-        vkFlags >>= 1;
+        flags >>= 1;
     }
     if (str.empty())
     {
-        str.append(ToString(static_cast<VkBitmaskType>(0)));
+        str.append(ToString(static_cast<BitmaskType>(0)));
     }
     return str;
 }

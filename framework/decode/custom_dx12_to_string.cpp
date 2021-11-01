@@ -634,8 +634,6 @@ std::string ToString<D3D12_INDIRECT_ARGUMENT_DESC>(const D3D12_INDIRECT_ARGUMENT
     // clang-format on
 }
 
-
-
 template <>
 std::string ToString<DXGI_DISPLAY_COLOR_SPACE>(const DXGI_DISPLAY_COLOR_SPACE& obj,
                                                ToStringFlags                   toStringFlags,
