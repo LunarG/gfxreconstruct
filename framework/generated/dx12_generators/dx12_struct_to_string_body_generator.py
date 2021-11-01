@@ -48,7 +48,9 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
     def beginFile(self, gen_opts):
         self.STRUCT_BLACKLIST.append('DXGI_DISPLAY_COLOR_SPACE')
         self.STRUCT_BLACKLIST.append('D3D12_RAYTRACING_INSTANCE_DESC')
+        self.STRUCT_BLACKLIST.append('D3D12_CPU_DESCRIPTOR_HANDLE')
         self.STRUCT_BLACKLIST.append('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
+        self.STRUCT_BLACKLIST.append('D3D12_GPU_DESCRIPTOR_HANDLE')
         self.STRUCT_BLACKLIST.append('GUID')
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
@@ -93,21 +95,6 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                 # Start with a static_assert() so that if any values make it through the logic
                 #   below without being handled the generated code will fail to compile
                 to_string = 'static_assert(false, "Unhandled value in `dx12_struct_to_string_body_generator.py`")'
-
-                #### # pNext requires custom handling
-                #### if 'pNext' in value.name:
-                ####     to_string = 'PNextToString(obj.pNext, toStringFlags, tabCount, tabSize)'
-
-                #### # Function pointers and void data pointers simply write the address
-                #### elif 'pfn' in value.name or 'void' in value.fullType:
-                ####     to_string = '"\\"" + PtrToString(obj.{0}) + "\\""'
-
-                #### # C strings require custom handling
-                #### elif 'const char*' in value.fullType:
-                ####     if 'const char* const*' in value.fullType:
-                ####         to_string = 'CStrArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                ####     else:
-                ####         to_string = '(obj.{0} ? ("\\"" + std::string(obj.{0}) + "\\"") : "null")'
 
                 # There's some repeated code in this if/else block...for instance, arrays of
                 #   structs, enums, and primitives all route through ArrayToString()...It's

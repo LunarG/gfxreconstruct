@@ -4588,28 +4588,6 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     );
 }
 
-void Dx12AsciiConsumer::Process_ID3D12CommandList_GetType(
-        format::HandleId object_id,
-        D3D12_COMMAND_LIST_TYPE return_value)
-{
-    using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
-    uint32_t tab_count = 0;
-    uint32_t tab_size = 4;
-    WriteApiCallToFileInfo writeApiCallToFileInfo{};
-    writeApiCallToFileInfo.pObjectTypeName = "ID3D12CommandList";
-    writeApiCallToFileInfo.handleId = object_id;
-    writeApiCallToFileInfo.pFunctionName = "GetType";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
-    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
-    WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
-        {
-        }
-    );
-}
-
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
         format::HandleId object_id,
         HRESULT return_value)

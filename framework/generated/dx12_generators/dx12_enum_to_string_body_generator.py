@@ -57,8 +57,8 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
         self.newline()
 
     def generate_feature(self):
-        enum_dict = self.source_dict['enum_dict']
-        for k, v in enum_dict.items():
+        for k, v in self.source_dict['enum_dict'].items():
+            # Generate enum handler for all enums
             body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
             body += '{{\n'
             body += '    switch (value) {{\n'
@@ -72,6 +72,8 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
             body += '    }}\n'
             body += '    return "Unhandled {0}";\n'
             body += '}}\n'
+
+            # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
                     body += '\ntemplate <> std::string ToString<{0}>(uint32_t flags, ToStringFlags, uint32_t, uint32_t)\n'
@@ -79,6 +81,22 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
                     body += '    return BitmaskToString<{0}>(flags);\n'
                     body += '}}\n'
             write(body.format(k), file=self.outFile)
+
+        # Generate REFIID handler
+        iids = list()
+        for k, v in self.source_dict['header_dict'].items():
+            if hasattr(v, 'variables'):
+                for m in v.variables:
+                    if 'DEFINE_GUID' in m['type']:
+                        index = m['type'].find(',')
+                        iids.append(m['type'][len('DEFINE_GUID ( '):index])
+        body = 'template <> std::string ToString<IID>(const IID& iid, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)\n'
+        body += '{\n'
+        for iid in iids:
+            body += '    if (iid == {0}) return "\\\"{0}\\\"";\n'.format(iid)
+        body += '    return "\\\"Invalid IID\\\"";\n'
+        body += '}\n'
+        write(body, file=self.outFile)
 
     def endFile(self):
         """Methond override."""

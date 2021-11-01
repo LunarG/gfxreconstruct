@@ -23,6 +23,7 @@
 #ifndef GFXRECON_TO_STRING_H
 #define GFXRECON_TO_STRING_H
 
+#include "format/format.h"
 #include "util/defines.h"
 
 #include <codecvt>
@@ -82,9 +83,20 @@ inline std::string HandleIdToString(HandleIdType handleId)
     return strStrm.str();
 }
 
+template <>
+inline std::string HandleIdToString(format::HandleId handleId)
+{
+    return std::to_string(handleId);
+}
+
 inline std::string WCharArrayToString(const wchar_t* pStr)
 {
-    return pStr ? std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(pStr) : std::string();
+    auto str = pStr ? std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(pStr) : std::string();
+    for (auto i = str.find('\\'); i != std::string::npos; i = str.find('\\'))
+    {
+        str = str.replace(i, 1, "-");
+    }
+    return str;
 }
 
 template <typename BitmaskType, typename FlagsType>

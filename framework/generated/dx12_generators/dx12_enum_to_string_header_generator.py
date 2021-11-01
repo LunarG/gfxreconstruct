@@ -58,28 +58,18 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         enum_dict = self.source_dict['enum_dict']
         for k, v in enum_dict.items():
+            # Generate enum handler for all enums
             body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);'
+
+            # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
                     body += '\ntemplate <> std::string ToString<{0}>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);'
             write(body.format(k), file=self.outFile)
 
-        #### for enum in sorted(self.enumNames):
-        ####     if not enum in self.processedEnums:
-        ####         self.processedEnums.add(enum)
-        ####         if not enum in self.enumAliases:
-        ####             body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-        ####             if 'Bits' in enum:
-        ####                 body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-        ####             write(body.format(enum), file=self.outFile)
-
-
-        #### """Methond override."""
-        #### Dx12BaseGenerator.generate_feature(self)
-        #### self.colloect_iid_list = list()
-
-        #### self.write_enum_covert_to_text()
-        #### self.write_iid_covert_to_text()
+        # Generate REFIID handler
+        body = 'template <> std::string ToString<IID>(const IID& riid, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+        write(body, file=self.outFile)
 
     def write_include(self):
         code = ''
@@ -91,97 +81,6 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         code += '#include "util/defines.h"\n'
         code += '#include "util/to_string.h"\n'
         write(code, file=self.outFile)
-
-
-
-
-    #### def write_enum_covert_to_text(self):
-    ####     enum_dict = self.source_dict['enum_dict']
-    ####     for k, v in enum_dict.items():
-    ####         code = 'static const std::string ConverttoText(const {} value)\n'\
-    ####                '{{\n'.format(k)
-
-    ####         is_bits = False
-    ####         for bits in self.BITS_LIST:
-    ####             if k.find(bits) >= 0:
-    ####                 is_bits = True
-    ####                 break
-    ####         if is_bits:
-    ####             code += '    std::string code = "";\n'
-    ####             for value in v['values']:
-    ####                 if value['value'] == 0:
-    ####                     code += '    if (value == {})\n'.format(value['name'])
-    ####                     code += '    {\n'
-    ####                     code += '        return "{}";\n'.format(value['name'])
-    ####                 else:
-    ####                     code += '    if ({} & value)\n'.format(value['name'])
-    ####                     code += '    {\n'
-    ####                     code += '        if (code.length() > 0) code.append(" | ");\n'
-    ####                     code += '        code.append("{}");\n'.format(
-    ####                         value['name']
-    ####                     )
-    ####                 code += '    }\n'
-    ####             code += '    if (code.length() == 0)\n'
-    ####             code += '    {\n'
-    ####             code += '        code.append("Invalid {}(");\n'.format(k)
-    ####             code += '        code.append(std::to_string(value));\n'
-    ####             code += '        code.append(")");\n'
-    ####             code += '    }\n'
-    ####             code += '    return code;\n'
-    ####         else:
-    ####             value_set = set()
-    ####             code += '    switch(value)\n'
-    ####             code += '    {\n'
-    ####             for value in v['values']:
-    ####                 if (
-    ####                     (type(value['value']) == int) or
-    ####                     (('+ 1') in value['value'])
-    ####                 ) and (not value['value'] in value_set):
-    ####                     code += '        case({0}):\n'\
-    ####                             '            return "{0}";\n'.format(value['name'])
-    ####                     value_set.add(value['value'])
-
-    ####             code += '        default:\n'\
-    ####                     '            {{\n'\
-    ####                     '                std::string code = "Invalid {}(";\n'\
-    ####                     '                code.append(std::to_string(value));\n'\
-    ####                     '                code.append(")");\n'\
-    ####                     '                return code;\n'\
-    ####                     '            }}\n'\
-    ####                     '    }}\n'.format(k)
-    ####         code += '}\n'
-    ####         write(code, file=self.outFile)
-
-
-
-
-    #### def write_iid_covert_to_text(self):
-    ####     self.colloect_iid_list = list()
-    ####     header_dict = self.source_dict['header_dict']
-    ####     for k, v in header_dict.items():
-    ####         if hasattr(v, 'variables'):
-    ####             for m in v.variables:
-    ####                 if 'DEFINE_GUID' in m['type']:
-    ####                     index = m['type'].find(',')
-    ####                     self.colloect_iid_list.append(
-    ####                         m['type'][len('DEFINE_GUID ( '):index]
-    ####                     )
-
-    ####     code = 'static std::string ConverttoText(REFIID value)\n'\
-    ####            '{\n'\
-
-    ####     for iid in self.colloect_iid_list:
-    ####         code += '    if(value == {0})\n'\
-    ####                 '    {{\n'\
-    ####                 '        return "{0}";\n'\
-    ####                 '    }}\n'.format(iid)
-
-    ####     code += '    return "Invalid IID";\n'\
-    ####             '}\n'
-    ####     write(code, file=self.outFile)
-
-
-
 
     def endFile(self):
         """Methond override."""

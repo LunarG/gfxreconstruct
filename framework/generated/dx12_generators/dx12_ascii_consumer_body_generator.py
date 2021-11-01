@@ -74,6 +74,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetStorageFilter')
         self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetRetrievalFilter')
         self.METHODCALL_BLACKLIST.append('ID3D12Device_CreateRootSignature')
+        self.METHODCALL_BLACKLIST.append('ID3D12CommandList_GetType')
         Dx12AsciiConsumerHeaderGenerator.beginFile(self, genOpts)
         if genOpts.ascii_overrides:
             overrides = json.loads(open(genOpts.ascii_overrides, 'r').read())
