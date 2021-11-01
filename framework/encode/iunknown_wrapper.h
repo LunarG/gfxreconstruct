@@ -203,7 +203,7 @@ IUnknown_Wrapper : public IUnknown
     typedef _com_ptr_t<_com_IIID<IUnknown, &__uuidof(IUnknown)>> IUnknownPtr;
 
   private:
-    REFIID                         riid_;       ///< IID of the wrapped object's interface.
+    IID                            riid_;       ///< IID of the wrapped object's interface.
     IUnknownPtr                    object_;     ///< Pointer to the wrapped object.
     format::HandleId               capture_id_; ///< Interface-specific unique ID assigned to the wrapped object.
     std::atomic<unsigned long>     ref_count_;  ///< Wrapper's reference count.
