@@ -164,6 +164,20 @@ struct VkExternalFormatANDROID
     uint64_t        externalFormat;
 };
 
+struct VkAndroidHardwareBufferFormatProperties2ANDROID
+{
+    VkStructureType               sType;
+    void*                         pNext;
+    VkFormat                      format;
+    uint64_t                      externalFormat;
+    VkFormatFeatureFlags2KHR      formatFeatures;
+    VkComponentMapping            samplerYcbcrConversionComponents;
+    VkSamplerYcbcrModelConversion suggestedYcbcrModel;
+    VkSamplerYcbcrRange           suggestedYcbcrRange;
+    VkChromaLocation              suggestedXChromaOffset;
+    VkChromaLocation              suggestedYChromaOffset;
+};
+
 extern "C"
 {
     typedef VkResult(VKAPI_PTR* PFN_vkCreateAndroidSurfaceKHR)(VkInstance                           instance,

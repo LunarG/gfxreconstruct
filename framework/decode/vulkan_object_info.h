@@ -86,6 +86,7 @@ enum DeviceArrayIndices : uint32_t
     kDeviceArrayGetPipelineExecutablePropertiesKHR              = 1,
     kDeviceArrayGetPipelineExecutableStatisticsKHR              = 2,
     kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR = 3,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR       = 4,
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR = kDeviceArrayGetImageSparseMemoryRequirements2
 };
