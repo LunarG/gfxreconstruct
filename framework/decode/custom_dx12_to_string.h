@@ -185,6 +185,12 @@ std::string ToString<D3D12_STATE_SUBOBJECT>(const D3D12_STATE_SUBOBJECT& obj,
                                             uint32_t                     tabCount,
                                             uint32_t                     tabSize);
 
+template <>
+std::string ToString<D3D12_RAYTRACING_GEOMETRY_DESC>(const D3D12_RAYTRACING_GEOMETRY_DESC& obj,
+                                                     ToStringFlags                         toStringFlags,
+                                                     uint32_t                              tabCount,
+                                                     uint32_t                              tabSize);
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

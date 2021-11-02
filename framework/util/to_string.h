@@ -210,17 +210,6 @@ inline std::string ArrayToString(size_t                    count,
 }
 
 template <typename T>
-inline std::string Array2DToString(size_t        x,
-                                   size_t        y,
-                                   const T*      pObjs,
-                                   ToStringFlags toStringFlags = kToString_Default,
-                                   uint32_t      tabCount      = 0,
-                                   uint32_t      tabSize       = 4)
-{
-    return "TODO";
-}
-
-template <typename T>
 inline std::string ArrayToString(size_t        count,
                                  const T*      pObjs,
                                  ToStringFlags toStringFlags = kToString_Default,
