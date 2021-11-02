@@ -37,6 +37,7 @@
 #include "decode/screenshot_handler_base.h"
 #include "graphics/fps_info.h"
 #include "graphics/dx12_util.h"
+#include "application/application.h"
 
 #include <functional>
 #include <unordered_map>
@@ -51,7 +52,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
-    Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options);
+    Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application, const DxReplayOptions& options);
 
     virtual ~Dx12ReplayConsumerBase() override;
 
@@ -534,7 +535,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
   private:
     std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
     Dx12ObjectInfoTable                          object_info_table_;
-    WindowFactory*                               window_factory_;
+    std::shared_ptr<application::Application>    application_;
     DxReplayOptions                              options_;
     std::unordered_set<Window*>                  active_windows_;
     std::unordered_map<uint64_t, HWND>           window_handles_;

@@ -38,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
 {
   public:
-    Dx12ReplayConsumer(WindowFactory* window_factory, const DxReplayOptions& options) : Dx12ReplayConsumerBase(window_factory, options) {}
+    Dx12ReplayConsumer(std::shared_ptr<application::Application> application, const DxReplayOptions& options) : Dx12ReplayConsumerBase(application, options) {}
     virtual ~Dx12ReplayConsumer() override {}
 /*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0

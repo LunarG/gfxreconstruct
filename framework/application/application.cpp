@@ -179,5 +179,12 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
     }
 }
 
+#if defined(WIN32)
+void Application::InitializeDx12WsiContext()
+{
+    wsi_context_ = std::make_unique<Win32Context>(this);
+}
+#endif
+
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)

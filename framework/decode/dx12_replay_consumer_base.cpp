@@ -68,11 +68,13 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
     object_info->extra_info = std::move(extra_info);
 }
 
-Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
-    window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr),
-    resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
-    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
-    set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr)
+Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
+                                               const DxReplayOptions&                    options) :
+    application_(application),
+    options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
+    frame_buffer_renderer_(nullptr), debug_layer_enabled_(false), set_auto_breadcrumbs_enablement_(false),
+    set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false),
+    fps_info_(nullptr)
 {
     if (options_.enable_validation_layer)
     {
@@ -600,16 +602,18 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
 {
     assert(desc != nullptr);
 
-    auto    desc_pointer = desc->GetPointer();
-    HRESULT result       = E_FAIL;
-    Window* window       = nullptr;
+    auto    desc_pointer   = desc->GetPointer();
+    HRESULT result         = E_FAIL;
+    Window* window         = nullptr;
+    auto    wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto    window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
 
-    if (desc_pointer != nullptr)
+    if (window_factory != nullptr && desc_pointer != nullptr)
     {
-        window = window_factory_->Create(kDefaultWindowPositionX,
-                                         kDefaultWindowPositionY,
-                                         desc_pointer->BufferDesc.Width,
-                                         desc_pointer->BufferDesc.Height);
+        window = window_factory->Create(kDefaultWindowPositionX,
+                                        kDefaultWindowPositionY,
+                                        desc_pointer->BufferDesc.Width,
+                                        desc_pointer->BufferDesc.Height);
     }
 
     if (window != nullptr)
@@ -647,13 +651,13 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
             }
             else
             {
-                window_factory_->Destroy(window);
+                window_factory->Destroy(window);
             }
         }
         else
         {
             GFXRECON_LOG_FATAL("Failed to retrieve handle from window");
-            window_factory_->Destroy(window);
+            window_factory->Destroy(window);
         }
     }
     else
@@ -1822,13 +1826,15 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
 {
     assert(desc != nullptr);
 
-    auto    desc_pointer = desc->GetPointer();
-    HRESULT result       = E_FAIL;
-    Window* window       = nullptr;
+    auto    desc_pointer   = desc->GetPointer();
+    HRESULT result         = E_FAIL;
+    Window* window         = nullptr;
+    auto    wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto    window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
 
-    if (desc_pointer != nullptr)
+    if (window_factory != nullptr && desc_pointer != nullptr)
     {
-        window = window_factory_->Create(
+        window = window_factory->Create(
             kDefaultWindowPositionX, kDefaultWindowPositionY, desc_pointer->Width, desc_pointer->Height);
     }
 
@@ -1868,13 +1874,13 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
             }
             else
             {
-                window_factory_->Destroy(window);
+                window_factory->Destroy(window);
             }
         }
         else
         {
             GFXRECON_LOG_FATAL("Failed to retrieve handle from window");
-            window_factory_->Destroy(window);
+            window_factory->Destroy(window);
         }
     }
     else
@@ -2051,8 +2057,12 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
             {
                 ReleaseSwapchainImages(swapchain_info);
             }
-
-            window_factory_->Destroy(swapchain_info->window);
+            auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+            auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+            if (window_factory)
+            {
+                window_factory->Destroy(swapchain_info->window);
+            }
             active_windows_.erase(swapchain_info->window);
 
             if (swapchain_info->hwnd_id != 0)
@@ -2085,11 +2095,15 @@ void Dx12ReplayConsumerBase::DestroyActiveObjects()
 
 void Dx12ReplayConsumerBase::DestroyActiveWindows()
 {
-    for (auto window : active_windows_)
+    auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+    if (window_factory)
     {
-        window_factory_->Destroy(window);
+        for (auto window : active_windows_)
+        {
+            window_factory->Destroy(window);
+        }
     }
-
     active_windows_.clear();
     window_handles_.clear();
 }

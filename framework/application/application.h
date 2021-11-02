@@ -68,6 +68,10 @@ class Application final
 
     void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
+#if defined(WIN32)
+    void InitializeDx12WsiContext();
+#endif
+
   private:
     // clang-format off
     std::string                 name_;           ///< Application name to display in window title bar.
