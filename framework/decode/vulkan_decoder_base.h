@@ -171,11 +171,17 @@ class VulkanDecoderBase : public ApiDecoder
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 
   private:
-    size_t Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                    const uint8_t*     parameter_buffer,
+                                                    size_t             buffer_size);
 
-    size_t Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                        const uint8_t*     parameter_buffer,
+                                                        size_t             buffer_size);
 
-    size_t Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                       const uint8_t*     parameter_buffer,
+                                                       size_t             buffer_size);
 
   private:
     std::vector<VulkanConsumer*> consumers_;

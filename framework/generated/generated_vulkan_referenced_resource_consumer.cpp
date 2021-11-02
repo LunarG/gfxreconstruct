@@ -34,6 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanReferencedResourceConsumer::Process_vkBeginCommandBuffer(
+    const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
@@ -52,6 +53,7 @@ void VulkanReferencedResourceConsumer::Process_vkBeginCommandBuffer(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     format::HandleId                            layout,
@@ -82,6 +84,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindIndexBuffer(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -94,6 +97,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindIndexBuffer(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -118,6 +122,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirect(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -132,6 +137,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirect(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirect(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -146,6 +152,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirect(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDispatchIndirect(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset)
@@ -156,6 +163,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDispatchIndirect(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            srcBuffer,
     format::HandleId                            dstBuffer,
@@ -170,6 +178,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            srcImage,
     VkImageLayout                               srcImageLayout,
@@ -188,6 +197,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            srcImage,
     VkImageLayout                               srcImageLayout,
@@ -208,6 +218,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            srcBuffer,
     format::HandleId                            dstImage,
@@ -224,6 +235,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            srcImage,
     VkImageLayout                               srcImageLayout,
@@ -240,6 +252,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdUpdateBuffer(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            dstBuffer,
     VkDeviceSize                                dstOffset,
@@ -254,6 +267,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdUpdateBuffer(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdFillBuffer(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            dstBuffer,
     VkDeviceSize                                dstOffset,
@@ -268,6 +282,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdFillBuffer(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdClearColorImage(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            image,
     VkImageLayout                               imageLayout,
@@ -284,6 +299,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdClearColorImage(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdClearDepthStencilImage(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            image,
     VkImageLayout                               imageLayout,
@@ -300,6 +316,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdClearDepthStencilImage(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            srcImage,
     VkImageLayout                               srcImageLayout,
@@ -318,6 +335,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    eventCount,
     HandlePointerDecoder<VkEvent>*              pEvents,
@@ -365,6 +383,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkPipelineStageFlags                        srcStageMask,
     VkPipelineStageFlags                        dstStageMask,
@@ -410,6 +429,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyQueryPoolResults(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery,
@@ -430,6 +450,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyQueryPoolResults(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     VkSubpassContents                           contents)
@@ -474,6 +495,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdExecuteCommands(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    commandBufferCount,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
@@ -494,6 +516,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteCommands(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectCount(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -512,6 +535,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectCount(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCount(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -530,6 +554,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCount(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
@@ -574,6 +599,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     format::HandleId                            layout,
@@ -630,6 +656,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
@@ -674,6 +701,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectCountKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -692,6 +720,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectCountKHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -710,6 +739,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            event,
     StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo)
@@ -744,6 +774,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    eventCount,
     HandlePointerDecoder<VkEvent>*              pEvents,
@@ -784,6 +815,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo)
 {
@@ -815,6 +847,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdWriteBufferMarker2AMD(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkPipelineStageFlags2KHR                    stage,
     format::HandleId                            dstBuffer,
@@ -829,6 +862,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWriteBufferMarker2AMD(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo)
 {
@@ -843,6 +877,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2KHR>* pCopyImageInfo)
 {
@@ -857,6 +892,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR>* pCopyBufferToImageInfo)
 {
@@ -871,6 +907,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR>* pCopyImageToBufferInfo)
 {
@@ -885,6 +922,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2KHR>* pBlitImageInfo)
 {
@@ -899,6 +937,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2KHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo)
 {
@@ -913,6 +952,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2KHR(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -939,6 +979,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffers
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginTransformFeedbackEXT(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
@@ -963,6 +1004,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginTransformFeedbackEXT(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdEndTransformFeedbackEXT(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
@@ -987,6 +1029,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEndTransformFeedbackEXT(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectByteCountEXT(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    instanceCount,
     uint32_t                                    firstInstance,
@@ -1005,6 +1048,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectByteCountEXT(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectCountAMD(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -1023,6 +1067,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirectCountAMD(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -1041,6 +1086,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginConditionalRenderingEXT(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin)
 {
@@ -1054,6 +1100,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginConditionalRenderingEXT
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindShadingRateImageNV(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            imageView,
     VkImageLayout                               imageLayout)
@@ -1064,6 +1111,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindShadingRateImageNV(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructureNV(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV>* pInfo,
     format::HandleId                            instanceData,
@@ -1103,6 +1151,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructureNV
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdTraceRaysNV(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            raygenShaderBindingTableBuffer,
     VkDeviceSize                                raygenShaderBindingOffset,
@@ -1137,6 +1186,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdTraceRaysNV(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdWriteBufferMarkerAMD(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkPipelineStageFlagBits                     pipelineStage,
     format::HandleId                            dstBuffer,
@@ -1151,6 +1201,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWriteBufferMarkerAMD(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -1165,6 +1216,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
     VkDeviceSize                                offset,
@@ -1183,6 +1235,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2EXT(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
@@ -1211,6 +1264,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2EXT(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
@@ -1235,6 +1289,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsN
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkBool32                                    isPreprocessed,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
@@ -1262,6 +1317,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     format::HandleId                            imageView,
     VkImageLayout                               imageLayout)

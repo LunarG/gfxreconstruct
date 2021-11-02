@@ -71,6 +71,7 @@ void VulkanAsciiConsumerBase::Destroy()
 //  validation to interpret correctly, etc...
 
 void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
+    const ApiCallInfo&                                         call_info,
     VkResult returnValue,
     format::HandleId device,
     StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
@@ -95,6 +96,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
 }
 
 void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
+    const ApiCallInfo&                                         call_info,
     VkResult returnValue,
     format::HandleId device,
     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
@@ -119,6 +121,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+    const ApiCallInfo& call_info,
     format::HandleId commandBuffer,
     uint32_t infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
@@ -158,6 +161,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKH
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
+    const ApiCallInfo& call_info,
     format::HandleId commandBuffer,
     uint32_t infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
@@ -193,6 +197,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
 }
 
 void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
+    const ApiCallInfo& call_info,
     format::HandleId device,
     VkAccelerationStructureBuildTypeKHR buildType,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pBuildInfo,
@@ -220,6 +225,7 @@ void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
+    const ApiCallInfo& call_info,
     format::HandleId commandBuffer,
     format::HandleId descriptorUpdateTemplate,
     format::HandleId layout,
@@ -243,6 +249,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 }
 
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
+    const ApiCallInfo& call_info,
     format::HandleId device,
     format::HandleId descriptorSet,
     format::HandleId descriptorUpdateTemplate,
@@ -265,6 +272,7 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
 }
 
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
+    const ApiCallInfo& call_info,
     format::HandleId device,
     format::HandleId descriptorSet,
     format::HandleId descriptorUpdateTemplate,

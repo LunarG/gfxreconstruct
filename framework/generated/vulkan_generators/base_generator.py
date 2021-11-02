@@ -1103,6 +1103,11 @@ class BaseGenerator(OutputGenerator):
         Generate VulkanConsumer class member function declaration.
         """
         param_decls = []
+        param_decl = self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
 
         if dx12_method:
             param_decl = self.make_aligned_param_decl(

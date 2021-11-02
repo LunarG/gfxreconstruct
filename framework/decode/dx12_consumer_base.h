@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_DX12_CONSUMER_BASE_H
 #define GFXRECON_DECODE_DX12_CONSUMER_BASE_H
 
+#include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 
 #include <d3d12.h>

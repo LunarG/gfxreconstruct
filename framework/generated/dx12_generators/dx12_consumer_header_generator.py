@@ -103,10 +103,10 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
     def get_consumer_function(
         self, class_name, method_info, consumer_type, indent, function_class
     ):
-        parameters = ''
+        parameters = '        const ApiCallInfo& call_info,\n'
         class_method_name = method_info['name']
         if class_name:
-            parameters = '        format::HandleId object_id'
+            parameters += '        format::HandleId object_id'
             class_method_name = class_name + '_' + class_method_name
 
         rtn_type = method_info['rtnType']

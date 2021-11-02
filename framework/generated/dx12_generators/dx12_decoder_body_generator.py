@@ -65,7 +65,7 @@ class Dx12DecoderBodyGenerator(
 
             cmddef = '' if first else '\n'
             cmddef += (
-                'size_t Dx12Decoder::Decode_{}(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)\n'
+                'size_t Dx12Decoder::Decode_{}(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)\n'
                 .format(method)
             )
             cmddef += '{\n'
@@ -113,7 +113,7 @@ class Dx12DecoderBodyGenerator(
                 ):
                     code += (
                         "    case format::ApiCallId::ApiCall_{0}:\n"
-                        "        Decode_{0}(parameter_buffer, buffer_size);\n"
+                        "        Decode_{0}(call_info, parameter_buffer, buffer_size);\n"
                         "        break;\n".format(m['name'])
                     )
 
@@ -142,7 +142,7 @@ class Dx12DecoderBodyGenerator(
                         ):
                             code += (
                                 "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
-                                "        Decode_{0}_{1}(object_id, parameter_buffer, buffer_size);\n"
+                                "        Decode_{0}_{1}(object_id, call_info, parameter_buffer, buffer_size);\n"
                                 "        break;\n".format(
                                     class_name, m['name']
                                 )

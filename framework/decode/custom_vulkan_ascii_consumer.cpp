@@ -27,24 +27,29 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanAsciiConsumer::Process_vkAllocateCommandBuffers(
+    const ApiCallInfo&                                         call_info,
     VkResult                                                   returnValue,
     format::HandleId                                           device,
     StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
     HandlePointerDecoder<VkCommandBuffer>*                     pCommandBuffers)
 {
-    VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(returnValue, device, pAllocateInfo, pCommandBuffers);
+    VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
+        call_info, returnValue, device, pAllocateInfo, pCommandBuffers);
 }
 
 void VulkanAsciiConsumer::Process_vkAllocateDescriptorSets(
+    const ApiCallInfo&                                         call_info,
     VkResult                                                   returnValue,
     format::HandleId                                           device,
     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
     HandlePointerDecoder<VkDescriptorSet>*                     pDescriptorSets)
 {
-    VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(returnValue, device, pAllocateInfo, pDescriptorSets);
+    VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
+        call_info, returnValue, device, pAllocateInfo, pDescriptorSets);
 }
 
 void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+    const ApiCallInfo&                                                         call_info,
     format::HandleId                                                           commandBuffer,
     uint32_t                                                                   infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
@@ -53,20 +58,22 @@ void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts)
 {
     VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
-        commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
+        call_info, commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
 }
 
 void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
+    const ApiCallInfo&                                                         call_info,
     format::HandleId                                                           commandBuffer,
     uint32_t                                                                   infoCount,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
 {
     VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
-        commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+        call_info, commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
 }
 
 void VulkanAsciiConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
+    const ApiCallInfo&                                                         call_info,
     format::HandleId                                                           device,
     VkAccelerationStructureBuildTypeKHR                                        buildType,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pBuildInfo,
@@ -74,7 +81,7 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>*    pSizeInfo)
 {
     VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
-        device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
+        call_info, device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
 }
 
 GFXRECON_END_NAMESPACE(decode)

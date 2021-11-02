@@ -81,7 +81,7 @@ class Dx12DecoderHeaderGenerator(
             object_param = 'format::HandleId object_id, '
 
         return (
-            '{}size_t {}Decode{}_{}({}const uint8_t* parameter_buffer, size_t buffer_size){}\n'
+            '{}size_t {}Decode{}_{}({}const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size){}\n'
             .format(
                 indent, function_class, class_name, method_info['name'],
                 object_param,

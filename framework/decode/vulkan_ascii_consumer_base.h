@@ -53,18 +53,21 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
     const std::string& GetFilename() const { return m_filename; }
 
     virtual void
-    Process_vkAllocateCommandBuffers(VkResult                                                   returnValue,
+    Process_vkAllocateCommandBuffers(const ApiCallInfo&                                         call_info,
+                                     VkResult                                                   returnValue,
                                      format::HandleId                                           device,
                                      StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
                                      HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
 
     virtual void
-    Process_vkAllocateDescriptorSets(VkResult                                                   returnValue,
+    Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
+                                     VkResult                                                   returnValue,
                                      format::HandleId                                           device,
                                      StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                      HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
     virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+        const ApiCallInfo&                                                         call_info,
         format::HandleId                                                           commandBuffer,
         uint32_t                                                                   infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
@@ -73,30 +76,35 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
         PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts) override;
 
     virtual void Process_vkCmdBuildAccelerationStructuresKHR(
+        const ApiCallInfo&                                                         call_info,
         format::HandleId                                                           commandBuffer,
         uint32_t                                                                   infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
-                                                               format::HandleId descriptorUpdateTemplate,
-                                                               format::HandleId layout,
-                                                               uint32_t         set,
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                               format::HandleId   commandBuffer,
+                                                               format::HandleId   descriptorUpdateTemplate,
+                                                               format::HandleId   layout,
+                                                               uint32_t           set,
                                                                DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkGetAccelerationStructureBuildSizesKHR(
+        const ApiCallInfo&                                                         call_info,
         format::HandleId                                                           device,
         VkAccelerationStructureBuildTypeKHR                                        buildType,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pBuildInfo,
         PointerDecoder<uint32_t>*                                                  pMaxPrimitiveCounts,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>*    pSizeInfo) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                           format::HandleId                 device,
                                                            format::HandleId                 descriptorSet,
                                                            format::HandleId                 descriptorUpdateTemplate,
                                                            DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                              format::HandleId                 device,
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
