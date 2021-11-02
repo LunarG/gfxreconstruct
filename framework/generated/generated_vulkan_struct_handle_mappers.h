@@ -64,6 +64,8 @@ void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const Vulkan
 
 void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkBufferCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkBufferViewCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImageCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table);
@@ -211,6 +213,10 @@ void MapStructHandles(Decoded_VkCopyImageToBufferInfo2KHR* wrapper, const Vulkan
 void MapStructHandles(Decoded_VkBlitImageInfo2KHR* wrapper, const VulkanObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkResolveImageInfo2KHR* wrapper, const VulkanObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceBufferMemoryRequirementsKHR* wrapper, const VulkanObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceImageMemoryRequirementsKHR* wrapper, const VulkanObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkDebugMarkerObjectNameInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table);
 

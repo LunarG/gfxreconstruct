@@ -6368,6 +6368,68 @@ size_t VulkanDecoder::Decode_vkCmdResolveImage2KHR(const uint8_t* parameter_buff
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetDeviceBufferMemoryRequirementsKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirementsKHR> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceBufferMemoryRequirementsKHR(device, &pInfo, &pMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceImageMemoryRequirementsKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceImageMemoryRequirementsKHR(device, &pInfo, &pMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceImageSparseMemoryRequirementsKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR> pInfo;
+    PointerDecoder<uint32_t> pSparseMemoryRequirementCount;
+    StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2> pSparseMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSparseMemoryRequirementCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSparseMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceImageSparseMemoryRequirementsKHR(device, &pInfo, &pSparseMemoryRequirementCount, &pSparseMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCreateDebugReportCallbackEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9788,6 +9850,26 @@ size_t VulkanDecoder::Decode_vkCmdDrawMultiIndexedEXT(const uint8_t* parameter_b
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkSetDeviceMemoryPriorityEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId memory;
+    float priority;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &memory);
+    bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &priority);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkSetDeviceMemoryPriorityEXT(device, memory, priority);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -11125,6 +11207,15 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkCmdResolveImage2KHR:
         Decode_vkCmdResolveImage2KHR(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirementsKHR:
+        Decode_vkGetDeviceBufferMemoryRequirementsKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirementsKHR:
+        Decode_vkGetDeviceImageMemoryRequirementsKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR:
+        Decode_vkGetDeviceImageSparseMemoryRequirementsKHR(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT:
         Decode_vkCreateDebugReportCallbackEXT(parameter_buffer, buffer_size);
         break;
@@ -11589,6 +11680,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT:
         Decode_vkCmdDrawMultiIndexedEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkSetDeviceMemoryPriorityEXT:
+        Decode_vkSetDeviceMemoryPriorityEXT(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR:
         Decode_vkCreateAccelerationStructureKHR(parameter_buffer, buffer_size);

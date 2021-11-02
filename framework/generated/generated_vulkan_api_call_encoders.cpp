@@ -9042,6 +9042,89 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pResolveImageInfo);
 }
 
+VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirementsKHR(
+    VkDevice                                    device,
+    const VkDeviceBufferMemoryRequirementsKHR*  pInfo,
+    VkMemoryRequirements2*                      pMemoryRequirements)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirementsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
+
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDeviceBufferMemoryRequirementsKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(device)->GetDeviceBufferMemoryRequirementsKHR(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirementsKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        EncodeStructPtr(encoder, pMemoryRequirements);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirementsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
+}
+
+VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirementsKHR(
+    VkDevice                                    device,
+    const VkDeviceImageMemoryRequirementsKHR*   pInfo,
+    VkMemoryRequirements2*                      pMemoryRequirements)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirementsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
+
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDeviceImageMemoryRequirementsKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(device)->GetDeviceImageMemoryRequirementsKHR(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirementsKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        EncodeStructPtr(encoder, pMemoryRequirements);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirementsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
+}
+
+VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirementsKHR(
+    VkDevice                                    device,
+    const VkDeviceImageMemoryRequirementsKHR*   pInfo,
+    uint32_t*                                   pSparseMemoryRequirementCount,
+    VkSparseImageMemoryRequirements2*           pSparseMemoryRequirements)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDeviceImageMemoryRequirementsKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(device)->GetDeviceImageSparseMemoryRequirementsKHR(device_unwrapped, pInfo_unwrapped, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeUInt32Ptr(pSparseMemoryRequirementCount);
+        EncodeStructArray(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,
@@ -13856,6 +13939,32 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMultiIndexedEXT(
     GetDeviceTable(commandBuffer)->CmdDrawMultiIndexedEXT(commandBuffer_unwrapped, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
+}
+
+VKAPI_ATTR void VKAPI_CALL SetDeviceMemoryPriorityEXT(
+    VkDevice                                    device,
+    VkDeviceMemory                              memory,
+    float                                       priority)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDeviceMemoryPriorityEXT>::Dispatch(VulkanCaptureManager::Get(), device, memory, priority);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetDeviceMemoryPriorityEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(memory);
+        encoder->EncodeFloatValue(priority);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkDeviceMemory memory_unwrapped = GetWrappedHandle<VkDeviceMemory>(memory);
+
+    GetDeviceTable(device)->SetDeviceMemoryPriorityEXT(device_unwrapped, memory_unwrapped, priority);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDeviceMemoryPriorityEXT>::Dispatch(VulkanCaptureManager::Get(), device, memory, priority);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(

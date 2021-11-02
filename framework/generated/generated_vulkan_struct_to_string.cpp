@@ -4508,6 +4508,59 @@ template <> std::string ToString<VkPipelineExecutableInternalRepresentationKHR>(
     );
 }
 
+template <> std::string ToString<VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR>(const VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderIntegerDotProduct", toStringFlags, tabCount, tabSize, ToString(obj.shaderIntegerDotProduct, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR>(const VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct8BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct8BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct8BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct8BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct8BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct8BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct4x8BitPackedUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct4x8BitPackedUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct4x8BitPackedSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct4x8BitPackedSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct4x8BitPackedMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct4x8BitPackedMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct16BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct16BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct16BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct16BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct16BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct16BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct32BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct32BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct32BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct32BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct32BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct32BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct64BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct64BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct64BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct64BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProduct64BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct64BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating8BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating8BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating8BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating8BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating8BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating8BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating4x8BitPackedUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating4x8BitPackedUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating4x8BitPackedSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating4x8BitPackedSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating4x8BitPackedMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating4x8BitPackedMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating16BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating16BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating16BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating16BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating16BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating16BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating32BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating32BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating32BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating32BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating32BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating32BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating64BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating64BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating64BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating64BitSignedAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "integerDotProductAccumulatingSaturating64BitMixedSignednessAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProductAccumulatingSaturating64BitMixedSignednessAccelerated, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPipelineLibraryCreateInfoKHR>(const VkPipelineLibraryCreateInfoKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4915,6 +4968,69 @@ template <> std::string ToString<VkResolveImageInfo2KHR>(const VkResolveImageInf
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkFormatProperties3KHR>(const VkFormatProperties3KHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "linearTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.linearTilingFeatures, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "optimalTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.optimalTilingFeatures, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "bufferFeatures", toStringFlags, tabCount, tabSize, ToString(obj.bufferFeatures, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceMaintenance4FeaturesKHR>(const VkPhysicalDeviceMaintenance4FeaturesKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maintenance4", toStringFlags, tabCount, tabSize, ToString(obj.maintenance4, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceMaintenance4PropertiesKHR>(const VkPhysicalDeviceMaintenance4PropertiesKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxBufferSize", toStringFlags, tabCount, tabSize, ToString(obj.maxBufferSize, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkDeviceBufferMemoryRequirementsKHR>(const VkDeviceBufferMemoryRequirementsKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, (obj.pCreateInfo ? ToString(*obj.pCreateInfo, toStringFlags, tabCount, tabSize) : "null"));
+        }
+    );
+}
+
+template <> std::string ToString<VkDeviceImageMemoryRequirementsKHR>(const VkDeviceImageMemoryRequirementsKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, (obj.pCreateInfo ? ToString(*obj.pCreateInfo, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "planeAspect", toStringFlags, tabCount, tabSize, '"' + ToString(obj.planeAspect, toStringFlags, tabCount, tabSize) + '"');
         }
     );
 }
@@ -5832,6 +5948,25 @@ template <> std::string ToString<VkExternalFormatANDROID>(const VkExternalFormat
     );
 }
 
+template <> std::string ToString<VkAndroidHardwareBufferFormatProperties2ANDROID>(const VkAndroidHardwareBufferFormatProperties2ANDROID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "externalFormat", toStringFlags, tabCount, tabSize, ToString(obj.externalFormat, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "formatFeatures", toStringFlags, tabCount, tabSize, ToString(obj.formatFeatures, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "samplerYcbcrConversionComponents", toStringFlags, tabCount, tabSize, ToString(obj.samplerYcbcrConversionComponents, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "suggestedYcbcrModel", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYcbcrModel, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "suggestedYcbcrRange", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYcbcrRange, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "suggestedXChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedXChromaOffset, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "suggestedYChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYChromaOffset, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceInlineUniformBlockFeaturesEXT>(const VkPhysicalDeviceInlineUniformBlockFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6163,6 +6298,31 @@ template <> std::string ToString<VkImageDrmFormatModifierPropertiesEXT>(const Vk
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifier", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifier, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkDrmFormatModifierProperties2EXT>(const VkDrmFormatModifierProperties2EXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "drmFormatModifier", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifier, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "drmFormatModifierPlaneCount", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierPlaneCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "drmFormatModifierTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierTilingFeatures, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkDrmFormatModifierPropertiesList2EXT>(const VkDrmFormatModifierPropertiesList2EXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "drmFormatModifierCount", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pDrmFormatModifierProperties", toStringFlags, tabCount, tabSize, ArrayToString(obj.drmFormatModifierCount, obj.pDrmFormatModifierProperties, toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -8246,6 +8406,18 @@ template <> std::string ToString<VkPhysicalDevice4444FormatsFeaturesEXT>(const V
     );
 }
 
+template <> std::string ToString<VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "formatRgba10x6WithoutYCbCrSampler", toStringFlags, tabCount, tabSize, ToString(obj.formatRgba10x6WithoutYCbCrSampler, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkDirectFBSurfaceCreateInfoEXT>(const VkDirectFBSurfaceCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8351,6 +8523,19 @@ template <> std::string ToString<VkPhysicalDeviceDrmPropertiesEXT>(const VkPhysi
             FieldToString(strStrm, false, "primaryMinor", toStringFlags, tabCount, tabSize, ToString(obj.primaryMinor, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "renderMajor", toStringFlags, tabCount, tabSize, ToString(obj.renderMajor, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "renderMinor", toStringFlags, tabCount, tabSize, ToString(obj.renderMinor, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>(const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "primitiveTopologyListRestart", toStringFlags, tabCount, tabSize, ToString(obj.primitiveTopologyListRestart, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "primitiveTopologyPatchListRestart", toStringFlags, tabCount, tabSize, ToString(obj.primitiveTopologyPatchListRestart, toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -8579,6 +8764,44 @@ template <> std::string ToString<VkMultiDrawIndexedInfoEXT>(const VkMultiDrawInd
             FieldToString(strStrm, true, "firstIndex", toStringFlags, tabCount, tabSize, ToString(obj.firstIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "indexCount", toStringFlags, tabCount, tabSize, ToString(obj.indexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexOffset", toStringFlags, tabCount, tabSize, ToString(obj.vertexOffset, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "borderColorSwizzle", toStringFlags, tabCount, tabSize, ToString(obj.borderColorSwizzle, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "borderColorSwizzleFromImage", toStringFlags, tabCount, tabSize, ToString(obj.borderColorSwizzleFromImage, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkSamplerBorderColorComponentMappingCreateInfoEXT>(const VkSamplerBorderColorComponentMappingCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "components", toStringFlags, tabCount, tabSize, ToString(obj.components, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "srgb", toStringFlags, tabCount, tabSize, ToString(obj.srgb, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pageableDeviceLocalMemory", toStringFlags, tabCount, tabSize, ToString(obj.pageableDeviceLocalMemory, toStringFlags, tabCount, tabSize));
         }
     );
 }

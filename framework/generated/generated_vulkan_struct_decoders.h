@@ -3197,6 +3197,24 @@ struct Decoded_VkPipelineExecutableInternalRepresentationKHR
     PointerDecoder<uint8_t> pData;
 };
 
+struct Decoded_VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR;
+
+    VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR;
+
+    VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPipelineLibraryCreateInfoKHR
 {
     using struct_type = VkPipelineLibraryCreateInfoKHR;
@@ -3487,6 +3505,53 @@ struct Decoded_VkResolveImageInfo2KHR
     format::HandleId srcImage{ format::kNullHandleId };
     format::HandleId dstImage{ format::kNullHandleId };
     StructPointerDecoder<Decoded_VkImageResolve2KHR>* pRegions{ nullptr };
+};
+
+struct Decoded_VkFormatProperties3KHR
+{
+    using struct_type = VkFormatProperties3KHR;
+
+    VkFormatProperties3KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMaintenance4FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance4FeaturesKHR;
+
+    VkPhysicalDeviceMaintenance4FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMaintenance4PropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance4PropertiesKHR;
+
+    VkPhysicalDeviceMaintenance4PropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDeviceBufferMemoryRequirementsKHR
+{
+    using struct_type = VkDeviceBufferMemoryRequirementsKHR;
+
+    VkDeviceBufferMemoryRequirementsKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkBufferCreateInfo>* pCreateInfo{ nullptr };
+};
+
+struct Decoded_VkDeviceImageMemoryRequirementsKHR
+{
+    using struct_type = VkDeviceImageMemoryRequirementsKHR;
+
+    VkDeviceImageMemoryRequirementsKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkImageCreateInfo>* pCreateInfo{ nullptr };
 };
 
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
@@ -4130,6 +4195,16 @@ struct Decoded_VkExternalFormatANDROID
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID
+{
+    using struct_type = VkAndroidHardwareBufferFormatProperties2ANDROID;
+
+    VkAndroidHardwareBufferFormatProperties2ANDROID* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkComponentMapping* samplerYcbcrConversionComponents{ nullptr };
+};
+
 typedef Decoded_VkSamplerReductionModeCreateInfo Decoded_VkSamplerReductionModeCreateInfoEXT;
 
 typedef Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties Decoded_VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT;
@@ -4367,6 +4442,23 @@ struct Decoded_VkImageDrmFormatModifierPropertiesEXT
     VkImageDrmFormatModifierPropertiesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDrmFormatModifierProperties2EXT
+{
+    using struct_type = VkDrmFormatModifierProperties2EXT;
+
+    VkDrmFormatModifierProperties2EXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkDrmFormatModifierPropertiesList2EXT
+{
+    using struct_type = VkDrmFormatModifierPropertiesList2EXT;
+
+    VkDrmFormatModifierPropertiesList2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkDrmFormatModifierProperties2EXT>* pDrmFormatModifierProperties{ nullptr };
 };
 
 struct Decoded_VkValidationCacheCreateInfoEXT
@@ -5825,6 +5917,15 @@ struct Decoded_VkPhysicalDevice4444FormatsFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT;
+
+    VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkDirectFBSurfaceCreateInfoEXT
 {
     using struct_type = VkDirectFBSurfaceCreateInfoEXT;
@@ -5896,6 +5997,15 @@ struct Decoded_VkPhysicalDeviceDrmPropertiesEXT
     using struct_type = VkPhysicalDeviceDrmPropertiesEXT;
 
     VkPhysicalDeviceDrmPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT;
+
+    VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -6064,6 +6174,34 @@ struct Decoded_VkMultiDrawIndexedInfoEXT
     using struct_type = VkMultiDrawIndexedInfoEXT;
 
     VkMultiDrawIndexedInfoEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;
+
+    VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT
+{
+    using struct_type = VkSamplerBorderColorComponentMappingCreateInfoEXT;
+
+    VkSamplerBorderColorComponentMappingCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkComponentMapping* components{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT;
+
+    VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR

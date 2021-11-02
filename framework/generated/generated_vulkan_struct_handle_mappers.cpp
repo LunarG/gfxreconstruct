@@ -184,6 +184,17 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoT
     }
 }
 
+void MapStructHandles(Decoded_VkBufferCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkBufferViewCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -994,6 +1005,22 @@ void MapStructHandles(Decoded_VkResolveImageInfo2KHR* wrapper, const VulkanObjec
         value->srcImage = handle_mapping::MapHandle<ImageInfo>(wrapper->srcImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
 
         value->dstImage = handle_mapping::MapHandle<ImageInfo>(wrapper->dstImage, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkDeviceBufferMemoryRequirementsKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructArrayHandles<Decoded_VkBufferCreateInfo>(wrapper->pCreateInfo->GetMetaStructPointer(), 1, object_info_table);
+    }
+}
+
+void MapStructHandles(Decoded_VkDeviceImageMemoryRequirementsKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructArrayHandles<Decoded_VkImageCreateInfo>(wrapper->pCreateInfo->GetMetaStructPointer(), 1, object_info_table);
     }
 }
 
