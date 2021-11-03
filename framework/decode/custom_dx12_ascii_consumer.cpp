@@ -476,5 +476,36 @@ void Dx12AsciiConsumer::Process_ID3D12CommandList_GetType(format::HandleId      
     // clang-format on
 }
 
+void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(format::HandleId             object_id,
+                                                                    HRESULT                      return_value,
+                                                                    PointerDecoder<uint8_t>*     pLibraryBlob,
+                                                                    SIZE_T                       BlobLength,
+                                                                    Decoded_GUID                 riid,
+                                                                    HandlePointerDecoder<void*>* ppPipelineLibrary)
+{
+    // clang-format off
+    using namespace gfxrecon::util;
+    ToStringFlags to_string_flags = kToString_Default;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device1";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "CreatePipelineLibrary";
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "pLibraryBlob", to_string_flags, tab_count, tab_size, "\"" + PtrToString(pLibraryBlob->GetPointer()) + "\"");
+            FieldToString(str_strm, false, "BlobLength", to_string_flags, tab_count, tab_size, ToString(BlobLength, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppPipelineLibrary", to_string_flags, tab_count, tab_size, HandleIdToString(ppPipelineLibrary));
+        }
+    );
+    // clang-format on
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
