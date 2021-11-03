@@ -555,6 +555,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void ApplyResourceInitInfo();
 
+    QueueSyncEventInfo CreateWaitQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value);
+    QueueSyncEventInfo CreateSignalQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value);
+
   private:
     std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
     Dx12ObjectInfoTable                          object_info_table_;

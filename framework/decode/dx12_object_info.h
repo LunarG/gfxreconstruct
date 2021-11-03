@@ -34,6 +34,7 @@
 #include <array>
 #include <comdef.h>
 #include <deque>
+#include <functional>
 #include <memory>
 #include <Unknwn.h>
 #include <map>
@@ -78,6 +79,8 @@ struct QueueSyncEventInfo
     bool          is_signaled{ false };
     DxObjectInfo* fence_info;
     uint64_t      value;
+
+    std::function<void()> event_function;
 };
 
 struct FenceValueSyncInfo

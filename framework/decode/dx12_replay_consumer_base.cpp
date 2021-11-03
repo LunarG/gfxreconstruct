@@ -1446,8 +1446,8 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
                         waiting_objects.wait_events.push_back(sync_event);
                     }
 
-                    command_queue_info->pending_events.emplace_back(QueueSyncEventInfo{
-                        false, false, &command_queue_info->sync_fence_info, command_queue_info->sync_value });
+                    command_queue_info->pending_events.emplace_back(CreateSignalQueueSyncEvent(
+                        &command_queue_info->sync_fence_info, command_queue_info->sync_value));
                 }
             }
             else
@@ -2150,7 +2150,7 @@ void Dx12ReplayConsumerBase::ProcessQueueSignal(DxObjectInfo* queue_info, DxObje
         {
             // Add an entry for the signal operation to the queue, to be processed after any pending wait operations
             // complete.
-            queue_extra_info->pending_events.emplace_back(QueueSyncEventInfo{ false, false, fence_info, value });
+            queue_extra_info->pending_events.emplace_back(CreateSignalQueueSyncEvent(fence_info, value));
         }
     }
 }
@@ -2166,7 +2166,7 @@ void Dx12ReplayConsumerBase::ProcessQueueWait(DxObjectInfo* queue_info, DxObject
         {
             // Add the an entry to the operation queue for the wait.  Signal operations that are added to the queue
             // after the wait entry will not be processed until after the wait is processed.
-            queue_extra_info->pending_events.emplace_back(QueueSyncEventInfo{ true, false, fence_info, value });
+            queue_extra_info->pending_events.emplace_back(CreateWaitQueueSyncEvent(fence_info, value));
 
             // Add the pointer to the queue info structure to the fence's pending signal list so that the queue can
             // be notified when the fence receives a signal operation for the current value.
@@ -2244,13 +2244,9 @@ void Dx12ReplayConsumerBase::SignalWaitingQueue(DxObjectInfo* queue_info, DxObje
             }
             else
             {
-                // If this is a signal operation, we can schedule the signal with the fence.
-                auto signal_fence_info = front.fence_info;
-                auto signal_value      = front.value;
-
+                auto event_function = std::move(front.event_function);
                 event_queue.pop_front();
-
-                ProcessFenceSignal(front.fence_info, front.value);
+                event_function();
             }
         }
     }
@@ -2596,6 +2592,18 @@ Dx12ReplayConsumerBase::OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
         CheckReplayResult("IDXGISwapChain::SetFullscreenState", original_result, replay_result);
     }
     return replay_result;
+}
+
+QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)
+{
+    return QueueSyncEventInfo{ true, false, fence_info, value, []() {} };
+}
+
+QueueSyncEventInfo Dx12ReplayConsumerBase::CreateSignalQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)
+{
+    return QueueSyncEventInfo{ false, false, fence_info, value, [this, fence_info, value]() {
+                                  ProcessFenceSignal(fence_info, value);
+                              } };
 }
 
 GFXRECON_END_NAMESPACE(decode)
