@@ -129,7 +129,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         elif self.is_struct(value.base_type):
                             to_string = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif self.is_enum(value.base_type):
-                            to_string = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                            to_string = 'EnumArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif 'wchar' in value.base_type:
                             to_string = '\'"\' + WCharArrayToString(obj.{0}) + \'"\''
                         else:

@@ -793,7 +793,7 @@ template <> std::string ToString<D3D12_GRAPHICS_PIPELINE_STATE_DESC>(const D3D12
             FieldToString(strStrm, false, "IBStripCutValue", toStringFlags, tabCount, tabSize, '"' + ToString(obj.IBStripCutValue, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "PrimitiveTopologyType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.PrimitiveTopologyType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "NumRenderTargets", toStringFlags, tabCount, tabSize, ToString(obj.NumRenderTargets, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "RTVFormats", toStringFlags, tabCount, tabSize, ArrayToString(8, obj.RTVFormats, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "RTVFormats", toStringFlags, tabCount, tabSize, EnumArrayToString(8, obj.RTVFormats, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "DSVFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.DSVFormat, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "SampleDesc", toStringFlags, tabCount, tabSize, ToString(obj.SampleDesc, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "NodeMask", toStringFlags, tabCount, tabSize, ToString(obj.NodeMask, toStringFlags, tabCount, tabSize));
@@ -822,7 +822,7 @@ template <> std::string ToString<D3D12_RT_FORMAT_ARRAY>(const D3D12_RT_FORMAT_AR
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "RTFormats", toStringFlags, tabCount, tabSize, ArrayToString(8, obj.RTFormats, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, true, "RTFormats", toStringFlags, tabCount, tabSize, EnumArrayToString(8, obj.RTFormats, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "NumRenderTargets", toStringFlags, tabCount, tabSize, ToString(obj.NumRenderTargets, toStringFlags, tabCount, tabSize));
         }
     );
