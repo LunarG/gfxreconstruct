@@ -84,6 +84,11 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                 // Output the API call index
                 FieldToString(strStrm, true, "index", toStringFlags, tabCount, tabSize, ToString(m_apiCallCount++, toStringFlags, tabCount, tabSize));
 
+                // Output the method/function name
+                assert(writeApiCallToFileInfo.pFunctionName);
+                auto fieldName = writeApiCallToFileInfo.pObjectTypeName ? "method" : "function";
+                FieldToString(strStrm, false, fieldName, toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
+
                 // If the API call is an object method we output the object type and handle
                 if (writeApiCallToFileInfo.pObjectTypeName) {
                     FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize,
@@ -96,11 +101,6 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                         )
                     );
                 }
-
-                // Output the method/function name
-                assert(writeApiCallToFileInfo.pFunctionName);
-                auto fieldName = writeApiCallToFileInfo.pObjectTypeName ? "method" : "function";
-                FieldToString(strStrm, false, fieldName, toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
 
                 // Output the return value
                 if (writeApiCallToFileInfo.pReturnValue)
