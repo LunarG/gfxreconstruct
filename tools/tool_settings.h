@@ -402,7 +402,9 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
 
             for (uint32_t i = 0; i < frame_ranges.size(); ++i)
             {
-                gfxrecon::decode::ScreenshotRange range = { frame_ranges[i].first, frame_ranges[i].last };
+                gfxrecon::decode::ScreenshotRange range{};
+                range.first = frame_ranges[i].first;
+                range.last  = frame_ranges[i].last;
                 ranges.push_back(range);
             }
         }

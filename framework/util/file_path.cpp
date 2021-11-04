@@ -171,7 +171,7 @@ bool GetWindowsSystemLibrariesPath(std::string& base_path)
     GetModuleFileNameA(nullptr, module_name, MAX_PATH);
 
     DWORD bin_type = 0;
-    bool  success  = GetBinaryTypeA(module_name, &bin_type);
+    bool  success  = GetBinaryTypeA(module_name, &bin_type) == TRUE;
 
     if (success == true)
     {
