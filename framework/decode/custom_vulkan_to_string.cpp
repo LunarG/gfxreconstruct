@@ -35,21 +35,6 @@ GFXRECON_BEGIN_NAMESPACE(util)
 //  to various reasons...ie unions, non standard counts for arrays, fields that
 //  need validation to interpret correctly, etc...
 
-#if 0
-template <>
-std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "nLength", toStringFlags, tabCount, tabSize, ToString(obj.nLength, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "lpSecurityDescriptor", toStringFlags, tabCount, tabSize, '"' + PtrToString(obj.lpSecurityDescriptor) + '"');
-            FieldToString(strStrm, false, "bInheritHandle", toStringFlags, tabCount, tabSize, ToString(obj.bInheritHandle, toStringFlags, tabCount, tabSize));
-        }
-    );
-}
-#endif
-
 template <>
 std::string ToString<VkAccelerationStructureGeometryKHR>(const VkAccelerationStructureGeometryKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
