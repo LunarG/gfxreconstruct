@@ -673,7 +673,9 @@ void CaptureSettings::ParseFramesList(const std::string& value_string, std::vect
 
         for (uint32_t i = 0; i < frame_ranges.size(); ++i)
         {
-            util::FrameRange range = { frame_ranges[i].first, frame_ranges[i].last };
+            util::FrameRange range{};
+            range.first = frame_ranges[i].first;
+            range.last  = frame_ranges[i].last;
             frames->push_back(range);
         }
     }
