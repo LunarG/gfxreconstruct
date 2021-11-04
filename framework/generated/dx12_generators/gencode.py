@@ -48,11 +48,14 @@ from dx12_struct_object_mappers_header_generator import Dx12StructObjectMappersH
 from dx12_struct_object_mappers_body_generator import Dx12StructObjectMappersBodyGenerator
 from dx12_struct_wrapper_header_generator import Dx12StructWrapperHeaderGenerator
 from dx12_struct_wrapper_body_generator import Dx12StructWrapperBodyGenerator
-from dx12_convert_to_texts_header_generator import Dx12ConvertToTextsHeaderGenerator
 from dx12_add_entries_header_generator import Dx12AddEntriesHeaderGenerator
 from dx12_state_table_header_generator import Dx12StateTableHeaderGenerator
 from dx12_command_list_util_header_generator import Dx12CommandListUtilHeaderGenerator
 from dx12_command_list_util_body_generator import Dx12CommandListUtilBodyGenerator
+from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator
+from dx12_enum_to_string_body_generator import Dx12EnumToStringBodyGenerator
+from dx12_struct_to_string_header_generator import Dx12StructToStringHeaderGenerator
+from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -462,21 +465,6 @@ def make_gen_opts(args):
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_convert_to_texts_header_generator.py'
-    )
-    gen_opts['generated_dx12_convert_to_texts.h'] = [
-        Dx12ConvertToTextsHeaderGenerator,
-        Dx12GeneratorOptions(
-            filename='generated_dx12_convert_to_texts.h',
-            directory=directory,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + py_prefix_strings,
-            protect_file=True,
-            protect_feature=False
-        )
-    ]
-
-    py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_add_entries_header_generator.py'
     )
     gen_opts['generated_dx12_add_entries.h'] = [
@@ -536,6 +524,65 @@ def make_gen_opts(args):
         )
     ]
 
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_enum_to_string_header_generator.py'
+    )
+    gen_opts['generated_dx12_enum_to_string.h'] = [
+        Dx12EnumToStringHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_enum_to_string.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_enum_to_string_body_generator.py'
+    )
+    gen_opts['generated_dx12_enum_to_string.cpp'] = [
+        Dx12EnumToStringBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_enum_to_string.cpp',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_to_string_header_generator.py'
+    )
+    gen_opts['generated_dx12_struct_to_string.h'] = [
+        Dx12StructToStringHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_to_string.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_to_string_body_generator.py'
+    )
+    gen_opts['generated_dx12_struct_to_string.cpp'] = [
+        Dx12StructToStringBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_to_string.cpp',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
 def gen_target(args, source_dict):
     """Generate a target based on the options in the matching gen_opts{} object.

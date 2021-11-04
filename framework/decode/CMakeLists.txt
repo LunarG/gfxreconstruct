@@ -43,8 +43,10 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_decoders.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_object_mappers.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_object_mappers.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_ascii_consumers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_ascii_consumers.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_ascii_consumer.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_ascii_consumer.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_to_string.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_to_string.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_to_string.h
@@ -159,9 +161,12 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_replay_consumer.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_to_string.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_to_string.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_convert_to_texts.h>
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
