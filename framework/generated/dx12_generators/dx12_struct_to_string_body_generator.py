@@ -51,7 +51,6 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
         self.STRUCT_BLACKLIST.append('D3D12_CPU_DESCRIPTOR_HANDLE')
         self.STRUCT_BLACKLIST.append('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
         self.STRUCT_BLACKLIST.append('D3D12_GPU_DESCRIPTOR_HANDLE')
-        self.STRUCT_BLACKLIST.append('_SECURITY_ATTRIBUTES')
         self.STRUCT_BLACKLIST.append('GUID')
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
