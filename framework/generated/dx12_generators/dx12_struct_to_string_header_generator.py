@@ -47,7 +47,7 @@ class Dx12StructToStringHeaderGenerator(Dx12BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Methond override."""
-        # self.STRUCT_BLACKLIST.append('_SECURITY_ATTRIBUTES')
+        self.STRUCT_BLACKLIST.append('_SECURITY_ATTRIBUTES')
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = ''

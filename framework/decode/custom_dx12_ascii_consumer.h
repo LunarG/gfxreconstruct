@@ -24,6 +24,7 @@
 #define GFXRECON_CUSTOM_DX12_ASCII_CONSUMER_H
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/custom_vulkan_to_string.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"

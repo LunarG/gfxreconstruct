@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_CUSTOM_VULKAN_TO_STRING_H
-#define GFXRECON_CUSTOM_VULKAN_TO_STRING_H
+#ifndef GFXRECON_CUSTOM_DX12_TO_STRING_H
+#define GFXRECON_CUSTOM_DX12_TO_STRING_H
 
 #include "format/platform_types.h"
 #include "util/defines.h"
@@ -33,31 +33,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
-
-template <typename BitmaskType>
-inline std::string BitmaskToString(UINT flags)
-{
-    std::string str;
-    UINT        index = 0;
-    while (flags)
-    {
-        if (flags & 1)
-        {
-            if (!str.empty())
-            {
-                str.append("|");
-            }
-            str.append(ToString(static_cast<BitmaskType>(1 << index)));
-        }
-        ++index;
-        flags >>= 1;
-    }
-    if (str.empty())
-    {
-        str.append(ToString(static_cast<BitmaskType>(0)));
-    }
-    return str;
-}
 
 template <>
 std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,

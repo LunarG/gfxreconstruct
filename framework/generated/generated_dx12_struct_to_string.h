@@ -279,7 +279,6 @@ template <> std::string ToString<D3D12_INFO_QUEUE_FILTER>(const D3D12_INFO_QUEUE
 template <> std::string ToString<GUID>(const GUID& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<tagRECT>(const tagRECT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<tagPOINT>(const tagPOINT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<_SECURITY_ATTRIBUTES>(const _SECURITY_ATTRIBUTES& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
