@@ -2904,5 +2904,18 @@ template <> std::string ToString<tagPOINT>(const tagPOINT& obj, ToStringFlags to
     );
 }
 
+template <> std::string ToString<_SECURITY_ATTRIBUTES>(const _SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "nLength", toStringFlags, tabCount, tabSize, ToString(obj.nLength, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "lpSecurityDescriptor", toStringFlags, tabCount, tabSize, HandleIdToString(obj.lpSecurityDescriptor));
+            FieldToString(strStrm, false, "bInheritHandle", toStringFlags, tabCount, tabSize, ToString(obj.bInheritHandle, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
