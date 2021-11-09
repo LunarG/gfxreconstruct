@@ -61,7 +61,7 @@ void Dx12GpuVaMap::Remove(format::HandleId resource_id, uint64_t old_start_addre
     }
 }
 
-uint64_t Dx12GpuVaMap::Map(uint64_t address, bool* found) const
+uint64_t Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found) const
 {
     bool local_found = false;
 
@@ -71,7 +71,7 @@ uint64_t Dx12GpuVaMap::Map(uint64_t address, bool* found) const
         if (va_entry != gpu_va_map_.end())
         {
             // Check for a match in the aliased resource list.
-            local_found = FindMatch(va_entry->second, va_entry->first, address);
+            local_found = FindMatch(va_entry->second, va_entry->first, address, resource_id);
 
             // The addresses did not fall within the address range of the resource(s) at the start address returned
             // by the lower_bound search.  These resources may be aliased with a larger resource that contains them.
@@ -87,7 +87,7 @@ uint64_t Dx12GpuVaMap::Map(uint64_t address, bool* found) const
             // aliased resources as the key.
             while (!local_found && ++va_entry != gpu_va_map_.end())
             {
-                local_found = FindMatch(va_entry->second, va_entry->first, address);
+                local_found = FindMatch(va_entry->second, va_entry->first, address, resource_id);
             }
         }
 
@@ -107,7 +107,8 @@ uint64_t Dx12GpuVaMap::Map(uint64_t address, bool* found) const
 
 bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo& resource_info,
                              uint64_t                     old_start_address,
-                             uint64_t&                    address) const
+                             uint64_t&                    address,
+                             format::HandleId*            resource_id) const
 {
     // Check for a match in the aliased resource list.
     for (const auto& resource_entry : resource_info)
@@ -117,6 +118,10 @@ bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo& resource_info,
         if (address < info.old_end_address)
         {
             address = info.new_start_address + (address - old_start_address);
+            if (resource_id != nullptr)
+            {
+                *resource_id = resource_entry.first;
+            }
             return true;
         }
     }

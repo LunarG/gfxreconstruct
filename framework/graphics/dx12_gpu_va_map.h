@@ -39,7 +39,7 @@ class Dx12GpuVaMap
 
     void Remove(format::HandleId resource_id, uint64_t old_start_address);
 
-    uint64_t Map(uint64_t old_address, bool* found = nullptr) const;
+    uint64_t Map(uint64_t old_address, format::HandleId* resource_id = nullptr, bool* found = nullptr) const;
 
   private:
     struct GpuVaInfo
@@ -52,7 +52,10 @@ class Dx12GpuVaMap
     typedef std::map<uint64_t, AliasedResourceVaInfo, std::greater<uint64_t>> GpuVaMap;
 
   private:
-    bool FindMatch(const AliasedResourceVaInfo& resource_info, uint64_t old_start_address, uint64_t& address) const;
+    bool FindMatch(const AliasedResourceVaInfo& resource_info,
+                   uint64_t                     old_start_address,
+                   uint64_t&                    address,
+                   format::HandleId*            resource_id) const;
 
   private:
     GpuVaMap gpu_va_map_;
