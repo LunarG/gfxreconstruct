@@ -550,6 +550,8 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDeviceImageMemoryRequirementsKHR                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1248),
     ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1249),
     ApiCall_vkSetDeviceMemoryPriorityEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x124a),
+    ApiCall_vkCmdBeginRenderingKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x124b),
+    ApiCall_vkCmdEndRenderingKHR                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x124c),
 
     ApiCall_VulkanLast
     // clang-format on

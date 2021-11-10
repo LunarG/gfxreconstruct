@@ -249,6 +249,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCreateAndroidSurfaceKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::CreateAndroidSurfaceKHR) },
     { "vkCreateWin32SurfaceKHR",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::CreateWin32SurfaceKHR) },
     { "vkGetPhysicalDeviceWin32PresentationSupportKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceWin32PresentationSupportKHR) },
+    { "vkCmdBeginRenderingKHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBeginRenderingKHR) },
+    { "vkCmdEndRenderingKHR",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::CmdEndRenderingKHR) },
     { "vkGetPhysicalDeviceFeatures2KHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceFeatures2KHR) },
     { "vkGetPhysicalDeviceProperties2KHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceProperties2KHR) },
     { "vkGetPhysicalDeviceFormatProperties2KHR",                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceFormatProperties2KHR) },

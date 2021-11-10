@@ -2576,6 +2576,99 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& 
     encoder->EncodeVoidPtr(value.hwnd);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAttachmentInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.imageView);
+    encoder->EncodeEnumValue(value.imageLayout);
+    encoder->EncodeEnumValue(value.resolveMode);
+    encoder->EncodeHandleValue(value.resolveImageView);
+    encoder->EncodeEnumValue(value.resolveImageLayout);
+    encoder->EncodeEnumValue(value.loadOp);
+    encoder->EncodeEnumValue(value.storeOp);
+    EncodeStruct(encoder, value.clearValue);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    EncodeStruct(encoder, value.renderArea);
+    encoder->EncodeUInt32Value(value.layerCount);
+    encoder->EncodeUInt32Value(value.viewMask);
+    encoder->EncodeUInt32Value(value.colorAttachmentCount);
+    EncodeStructArray(encoder, value.pColorAttachments, value.colorAttachmentCount);
+    EncodeStructPtr(encoder, value.pDepthAttachment);
+    EncodeStructPtr(encoder, value.pStencilAttachment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRenderingCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.viewMask);
+    encoder->EncodeUInt32Value(value.colorAttachmentCount);
+    encoder->EncodeEnumArray(value.pColorAttachmentFormats, value.colorAttachmentCount);
+    encoder->EncodeEnumValue(value.depthAttachmentFormat);
+    encoder->EncodeEnumValue(value.stencilAttachmentFormat);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.dynamicRendering);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceRenderingInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt32Value(value.viewMask);
+    encoder->EncodeUInt32Value(value.colorAttachmentCount);
+    encoder->EncodeEnumArray(value.pColorAttachmentFormats, value.colorAttachmentCount);
+    encoder->EncodeEnumValue(value.depthAttachmentFormat);
+    encoder->EncodeEnumValue(value.stencilAttachmentFormat);
+    encoder->EncodeEnumValue(value.rasterizationSamples);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentShadingRateAttachmentInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.imageView);
+    encoder->EncodeEnumValue(value.imageLayout);
+    EncodeStruct(encoder, value.shadingRateAttachmentTexelSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentDensityMapAttachmentInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.imageView);
+    encoder->EncodeEnumValue(value.imageLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentSampleCountInfoAMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.colorAttachmentCount);
+    encoder->EncodeEnumArray(value.pColorAttachmentSamples, value.colorAttachmentCount);
+    encoder->EncodeEnumValue(value.depthStencilAttachmentSamples);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMultiviewPerViewAttributesInfoNVX& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.perViewAttributes);
+    encoder->EncodeVkBool32Value(value.perViewAttributesPositionXOnly);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);

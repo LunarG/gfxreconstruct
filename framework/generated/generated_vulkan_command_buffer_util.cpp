@@ -389,6 +389,58 @@ void TrackCmdBeginRenderPass2Handles(CommandBufferWrapper* wrapper, const VkRend
     }
 }
 
+void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfoKHR* pRenderingInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pRenderingInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header);
+                    wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pnext_value->imageView));
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pnext_header);
+                    wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pnext_value->imageView));
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+
+        if (pRenderingInfo->pColorAttachments != nullptr)
+        {
+            for (uint32_t pColorAttachments_index = 0; pColorAttachments_index < pRenderingInfo->colorAttachmentCount; ++pColorAttachments_index)
+            {
+                wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pColorAttachments[pColorAttachments_index].imageView));
+                wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pColorAttachments[pColorAttachments_index].resolveImageView));
+            }
+        }
+
+        if (pRenderingInfo->pDepthAttachment != nullptr)
+        {
+            wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pDepthAttachment->imageView));
+            wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pDepthAttachment->resolveImageView));
+        }
+
+        if (pRenderingInfo->pStencilAttachment != nullptr)
+        {
+            wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pStencilAttachment->imageView));
+            wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pStencilAttachment->resolveImageView));
+        }
+    }
+}
+
 void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
 {
     assert(wrapper != nullptr);
