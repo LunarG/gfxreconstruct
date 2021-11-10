@@ -1287,6 +1287,13 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex) {}
 
+    virtual void Process_vkCmdBeginRenderingKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo) {}
+
+    virtual void Process_vkCmdEndRenderingKHR(
+        format::HandleId                            commandBuffer) {}
+
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
         format::HandleId                            physicalDevice,
         StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures) {}

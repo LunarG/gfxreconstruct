@@ -554,6 +554,26 @@ struct Decoded_VkWin32SurfaceCreateInfoKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWin32SurfaceCreateInfoKHR* wrapper);
 
+struct Decoded_VkRenderingAttachmentInfoKHR;
+struct Decoded_VkRenderingInfoKHR;
+struct Decoded_VkPipelineRenderingCreateInfoKHR;
+struct Decoded_VkPhysicalDeviceDynamicRenderingFeaturesKHR;
+struct Decoded_VkCommandBufferInheritanceRenderingInfoKHR;
+struct Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR;
+struct Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT;
+struct Decoded_VkAttachmentSampleCountInfoAMD;
+struct Decoded_VkMultiviewPerViewAttributesInfoNVX;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderingAttachmentInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderingInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineRenderingCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDynamicRenderingFeaturesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCommandBufferInheritanceRenderingInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAttachmentSampleCountInfoAMD* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMultiviewPerViewAttributesInfoNVX* wrapper);
+
 struct Decoded_VkImportMemoryWin32HandleInfoKHR;
 struct Decoded_VkExportMemoryWin32HandleInfoKHR;
 struct Decoded_VkMemoryWin32HandlePropertiesKHR;

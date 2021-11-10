@@ -778,6 +778,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceDynamicRenderingFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceDynamicRenderingFeaturesKHR*>(next);
+                VkPhysicalDeviceDynamicRenderingFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->dynamicRendering == VK_TRUE) && (query.dynamicRendering == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dynamicRendering, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDynamicRenderingFeaturesKHR*>(currentNext)->dynamicRendering = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR:
             {
                 const VkPhysicalDevicePerformanceQueryFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDevicePerformanceQueryFeaturesKHR*>(next);
