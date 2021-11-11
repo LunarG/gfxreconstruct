@@ -398,6 +398,12 @@ bool XcbWindow::GetNativeHandle(HandleType type, void** handle)
     }
 }
 
+const std::string& XcbWindow::GetWsiExtension() const
+{
+    static std::string sWsiExtension { VK_KHR_XCB_SURFACE_EXTENSION_NAME };
+    return sWsiExtension;
+}
+
 VkResult
 XcbWindow::CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
 {

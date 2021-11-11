@@ -91,6 +91,12 @@ bool HeadlessWindow::GetNativeHandle(HandleType type, void** handle)
     return false;
 }
 
+const std::string& HeadlessWindow::GetWsiExtension() const
+{
+    static std::string sWsiExtension{ VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME };
+    return sWsiExtension;
+}
+
 VkResult HeadlessWindow::CreateSurface(const encode::InstanceTable* table,
                                        VkInstance                   instance,
                                        VkFlags                      flags,

@@ -170,6 +170,12 @@ bool WaylandWindow::GetNativeHandle(HandleType type, void** handle)
     }
 }
 
+const std::string& WaylandWindow::GetWsiExtension() const
+{
+    static std::string sWsiExtension { VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME };
+    return sWsiExtension;
+}
+
 VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
                                       VkInstance                   instance,
                                       VkFlags                      flags,
