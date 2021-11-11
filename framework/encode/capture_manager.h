@@ -52,6 +52,18 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class CaptureManager
 {
   public:
+    enum CaptureModeFlags : uint32_t
+    {
+        kModeDisabled      = 0x0,
+        kModeWrite         = 0x01,
+        kModeTrack         = 0x02,
+        kModeWriteAndTrack = (kModeWrite | kModeTrack)
+    };
+
+    typedef uint32_t CaptureMode;
+
+    CaptureMode GetCaptureMode() const { return capture_mode_; }
+
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
     std::shared_lock<util::SharedMutex> AcquireSharedStateLock()
@@ -129,14 +141,6 @@ class CaptureManager
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
   protected:
-    enum CaptureModeFlags : uint32_t
-    {
-        kModeDisabled      = 0x0,
-        kModeWrite         = 0x01,
-        kModeTrack         = 0x02,
-        kModeWriteAndTrack = (kModeWrite | kModeTrack)
-    };
-
     enum PageGuardMemoryMode : uint32_t
     {
         kMemoryModeDisabled,
@@ -145,7 +149,6 @@ class CaptureManager
         kMemoryModeExternal          // Imported host memory without shadow allocations.
     };
 
-    typedef uint32_t CaptureMode;
 
     class ThreadData
     {
@@ -210,7 +213,6 @@ class CaptureManager
     PageGuardMemoryMode                 GetPageGuardMemoryMode() const { return page_guard_memory_mode_; }
     const std::string&                  GetTrimKey() const { return trim_key_; }
     uint32_t                            GetCurrentFrame() const { return current_frame_; }
-    CaptureMode                         GetCaptureMode() const { return capture_mode_; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
 

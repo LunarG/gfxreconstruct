@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -48,6 +48,7 @@
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
 #endif
+#include <encode/deferred_operation.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -1066,19 +1067,25 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                            const VkAllocationCallbacks*             pAllocator,
                                                            VkPipeline*                              pPipelines)
 {
+    std::unique_ptr<DeferredOperationCreateRayTracingPipelines>&& deferred_operation_instance =
+        std::make_unique<DeferredOperationCreateRayTracingPipelines>(
+            device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
     VkDevice               device_unwrapped            = device_wrapper->handle;
     const DeviceTable*     device_table                = GetDeviceTable(device);
-    auto                   handle_unwrap_memory        = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    HandleUnwrapMemory&    handle_unwrap_memory        = deferred_operation_instance->GetHandleUnwrapMemory();
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     VkPipelineCache        pipelineCache_unwrapped     = GetWrappedHandle<VkPipelineCache>(pipelineCache);
-    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+    const VkRayTracingPipelineCreateInfoKHR*& pCreateInfos_unwrapped =
+        deferred_operation_instance->GetCreateInfosUnwrapped();
+
+    pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, createInfoCount, &handle_unwrap_memory);
 
     VkResult result;
     if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
-        auto modified_create_infos = std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount);
+        std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]>& modified_create_infos =
+            deferred_operation_instance->GetModifiedCreateInfos();
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
             modified_create_infos[i] = pCreateInfos_unwrapped[i];
@@ -1131,7 +1138,10 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
             }
         }
     }
-
+    if (deferredOperation != VK_NULL_HANDLE)
+    {
+        DeferredOperationManager::Get()->add(deferredOperation, std::move(deferred_operation_instance));
+    }
     return result;
 }
 

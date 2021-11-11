@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2019-2021 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -84,6 +84,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/deferred_operation_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_realign_allocator.h
