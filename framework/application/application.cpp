@@ -50,6 +50,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
+Application::Application(const std::string& name, decode::FileProcessor* file_processor)
+    : Application(name, std::string(), file_processor)
+{
+}
+
 Application::Application(const std::string&     name,
                          const std::string&     cli_wsi_extension,
                          decode::FileProcessor* file_processor) :

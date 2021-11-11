@@ -101,9 +101,10 @@ void android_main(struct android_app* app)
             }
             else
             {
+                auto wsi_extension = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
                 auto application =
-                    std::make_shared<gfxrecon::application::Application>(kApplicationName, &file_processor);
-                application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
+                    std::make_shared<gfxrecon::application::Application>(kApplicationName, wsi_extension, &file_processor);
+                application->InitializeWsiContext(wsi_extension, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
@@ -209,7 +210,7 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
         {
             case APP_CMD_INIT_WINDOW:
             {
-                auto android_context = reinterpret_cast<AndroidContext*>(application->GetWsiContext());
+                auto android_context = reinterpret_cast<AndroidContext*>(application->GetWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME));
                 assert(android_context);
                 android_context->InitWindow();
                 break;
