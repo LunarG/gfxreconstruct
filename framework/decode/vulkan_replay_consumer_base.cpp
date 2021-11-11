@@ -188,7 +188,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // Destroy any windows that were created for Vulkan surfaces.
     for (auto window : active_windows_)
     {
-        auto wsi_context = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
+        auto wsi_context    = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
         auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
         assert(window_factory);
         window_factory->Destroy(window);
@@ -2389,7 +2389,8 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         if (replay_create_info->ppEnabledExtensionNames)
         {
-            // If a specific WSI extension was selected on the command line we need to make sure that extension is loaded
+            // If a specific WSI extension was selected on the command line we need to make sure that extension is
+            // loaded
             assert(application_);
             for (const auto& itr : application_->GetWsiContexts())
             {
