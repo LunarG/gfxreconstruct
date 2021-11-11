@@ -894,7 +894,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const std::vector<std::string>& enabled_device_extensions,
                                      VulkanResourceAllocator*        allocator);
 
-    VkResult CreateSurface(InstanceInfo* instance_info, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface);
+    VkResult CreateSurface(InstanceInfo* instance_info, const std::string& wsi_extension, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface);
 
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateInfo* update_template_info,
                                             DescriptorUpdateTemplateDecoder*    decoder);

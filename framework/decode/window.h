@@ -77,6 +77,8 @@ class Window
 
     virtual bool GetNativeHandle(HandleType type, void** handle) = 0;
 
+    virtual const std::string& GetWsiExtension() = 0;
+
     virtual VkResult
     CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
 

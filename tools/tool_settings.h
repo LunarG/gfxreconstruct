@@ -300,6 +300,47 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
     return wsi_platform;
 }
 
+static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
+{
+    switch (wsi_platform)
+    {
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        case WsiPlatform::kWin32:
+        {
+            return VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+        }
+#endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+        case WsiPlatform::kXlib:
+        {
+            return VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
+        }
+#endif
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+        case WsiPlatform::kXcb:
+        {
+            return VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+        }
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+        case WsiPlatform::kWayland:
+        {
+            return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
+        }
+#endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+        case WsiPlatform::kHeadless:
+        {
+            return VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME;
+        }
+#endif
+        default:
+        {
+            return std::string();
+        }
+    }
+}
+
 static std::string GetWsiArgString()
 {
     std::string wsi_args = kWsiPlatformAuto;

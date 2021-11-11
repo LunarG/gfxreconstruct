@@ -51,10 +51,10 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
 Application::Application(const std::string& name, const std::string& wsi_extension, decode::FileProcessor* file_processor) :
-    name_(name), file_processor_(file_processor), wsi_extension_(wsi_extension), running_(false), paused_(false), pause_frame_(0)
+    name_(name), file_processor_(file_processor), cli_wsi_extension_(wsi_extension), running_(false), paused_(false), pause_frame_(0)
 {
     bool success = true;
-    if (wsi_extension_.empty())
+    if (cli_wsi_extension_.empty())
     {
         // NOOP : If no WSI context is selected on the command line, each WSI extension
         //  present in the VkInstanceCreateInfo will be handled when vkCreateInstance()
@@ -62,7 +62,7 @@ Application::Application(const std::string& name, const std::string& wsi_extensi
     }
     else
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    if (wsi_extension_ == VK_KHR_WIN32_SURFACE_EXTENSION_NAME)
+    if (cli_wsi_extension_ == VK_KHR_WIN32_SURFACE_EXTENSION_NAME)
     {
         InitializeWsiContext(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
     }
@@ -90,7 +90,7 @@ else
     else
 #endif
 #if defined(VK_USE_PLATFORM_HEADLESS)
-    if (wsi_extension_ == VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME)
+    if (cli_wsi_extension_ == VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME)
     {
         InitializeWsiContext(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME);
     }
@@ -103,26 +103,25 @@ else
 
 Application ::~Application() {}
 
-const WsiContext* Application::GetWsiContext() const
+const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select) const
 {
-    // // TODO : This needs to work...
-    // const WsiContext* active_wsi_context = nullptr;
-    // for (const auto& itr : wsi_contexts_)
-    // {
-    //     auto wsi_context = itr.second.get();
-    //     if (wsi_context && !wsi_context->GetWindows().empty())
-    //     {
-    //         assert(!active_wsi_context);
-    //         active_wsi_context = wsi_context;
-    //     }
-    // }
-    // return active_wsi_context;
-    return nullptr;
+    auto itr = auto_select ? wsi_contexts_.find(cli_wsi_extension_) : wsi_contexts_.find(wsi_extension);
+    if (auto_select && itr == wsi_contexts_.end())
+    {
+        for (const auto& wsi_context_itr : wsi_contexts_)
+        {
+            if (wsi_context_itr.first != cli_wsi_extension_ && wsi_context_itr.first != wsi_extension && wsi_context_itr.second)
+            {
+                return wsi_context_itr.second.get();
+            }
+        }
+    }
+    return itr != wsi_contexts_.end() ? itr->second.get() : nullptr;
 }
 
-WsiContext* Application::GetWsiContext()
+WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select)
 {
-    return const_cast<WsiContext*>(const_cast<const Application*>(this)->GetWsiContext());
+    return const_cast<WsiContext*>(const_cast<const Application*>(this)->GetWsiContext(wsi_extension, auto_select));
 }
 
 void Application::Run()

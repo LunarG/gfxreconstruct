@@ -108,8 +108,9 @@ int main(int argc, const char** argv)
         else
         {
             // Select WSI context based on CLI
-            auto wsi_platform = GetWsiPlatform(arg_parser);
-            auto application = std::make_shared<gfxrecon::application::Application>(kApplicationName, &file_processor, wsi_platform);
+            // TODO : Documentation
+            std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
+            auto application = std::make_shared<gfxrecon::application::Application>(kApplicationName, wsi_extension, &file_processor);
 
 
 // #if defined(WIN32)

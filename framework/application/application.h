@@ -47,9 +47,11 @@ class Application final
 
     const std::string& GetName() const { return name_; }
 
-    const WsiContext* GetWsiContext() const;
+    const std::unordered_map<std::string, std::unique_ptr<WsiContext>>& GetWsiContexts() const { return wsi_contexts_; }
 
-    WsiContext* GetWsiContext();
+    const WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false) const;
+
+    WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false);
 
     bool IsRunning() const { return running_; }
 
@@ -77,7 +79,7 @@ class Application final
     bool                        paused_;         ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
     uint32_t                    pause_frame_;    ///< The number for a frame that replay should pause after.
     std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_; ///< TODO : Documentation
-    std::string wsi_extension_; ///< TODO : Documentation
+    std::string cli_wsi_extension_; ///< TODO : Documentation
     // clang-format on
 };
 
