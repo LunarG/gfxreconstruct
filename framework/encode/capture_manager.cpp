@@ -226,7 +226,7 @@ std::string PrepScreenshotPrefix(const std::string& dir)
     return out;
 }
 
-bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
+bool CaptureManager::Initialize(const std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
 {
     bool success = true;
 

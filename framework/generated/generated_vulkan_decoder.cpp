@@ -29,6 +29,7 @@
 
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pnext_node.h"
+#include "decode/vulkan_object_info.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_array_decoder.h"
 #include "decode/string_decoder.h"
@@ -42,7 +43,6 @@
 #include "vulkan/vulkan.h"
 
 #include <cstddef>
-#include <decode/vulkan_object_info.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

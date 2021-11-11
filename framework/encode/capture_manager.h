@@ -191,7 +191,7 @@ class CaptureManager
 
     virtual ~CaptureManager();
 
-    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
+    bool Initialize(const std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
     virtual void CreateStateTracker()                                                               = 0;
     virtual void DestroyStateTracker()                                                              = 0;
