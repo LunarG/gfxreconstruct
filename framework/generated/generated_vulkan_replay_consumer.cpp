@@ -2944,8 +2944,6 @@ void VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-        MessageBox(0,0,0,0);
-
     auto in_instance = GetObjectInfoTable().GetInstanceInfo(instance);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     SurfaceKHRInfo handle_info;
