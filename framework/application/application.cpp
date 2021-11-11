@@ -50,8 +50,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-Application::Application(const std::string& name, const std::string& wsi_extension, decode::FileProcessor* file_processor) :
-    name_(name), file_processor_(file_processor), cli_wsi_extension_(wsi_extension), running_(false), paused_(false), pause_frame_(0)
+Application::Application(const std::string& name, const std::string& cli_wsi_extension, decode::FileProcessor* file_processor) :
+    name_(name), file_processor_(file_processor), cli_wsi_extension_(cli_wsi_extension), running_(false), paused_(false), pause_frame_(0)
 {
     bool success = true;
     if (cli_wsi_extension_.empty())
@@ -69,21 +69,21 @@ Application::Application(const std::string& name, const std::string& wsi_extensi
 else
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-    if (wsi_extension_ == VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME)
+    if (cli_wsi_extension_ == VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME)
     {
         InitializeWsiContext(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
     }
     else
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-    if (wsi_extension_ == VK_KHR_XCB_SURFACE_EXTENSION_NAME)
+    if (cli_wsi_extension_ == VK_KHR_XCB_SURFACE_EXTENSION_NAME)
     {
         InitializeWsiContext(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
     }
     else
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-    if (wsi_extension_ == VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
+    if (cli_wsi_extension_ == VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
     {
         InitializeWsiContext(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
     }
@@ -97,7 +97,7 @@ else
     else
 #endif
     {
-        GFXRECON_WRITE_CONSOLE("Failed to initialize WSI context [%s].  WSI initializaton will attempt to fallback to a supported WSI extension", wsi_extension.c_str());
+        GFXRECON_WRITE_CONSOLE("Failed to initialize WSI context [%s].  WSI initializaton will attempt to fallback to a supported WSI extension", cli_wsi_extension_.c_str());
     }
 }
 
@@ -143,7 +143,9 @@ const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, b
 
 WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select)
 {
-    return const_cast<WsiContext*>(const_cast<const Application*>(this)->GetWsiContext(wsi_extension, auto_select));
+    auto const_this = const_cast<const Application*>(this);
+    auto wsi_context = const_this->GetWsiContext(wsi_extension, auto_select);
+    return const_cast<WsiContext*>(wsi_context);
 }
 
 void Application::Run()

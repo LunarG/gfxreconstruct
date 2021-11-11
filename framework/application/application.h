@@ -41,7 +41,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class Application final
 {
   public:
-    Application(const std::string& name, const std::string& wsi_extension, decode::FileProcessor* file_processor);
+    Application(const std::string& name, const std::string& cli_wsi_extension, decode::FileProcessor* file_processor);
 
     ~Application();
 
