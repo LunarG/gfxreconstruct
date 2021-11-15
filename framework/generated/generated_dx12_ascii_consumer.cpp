@@ -61,7 +61,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, HandleIdToString(ppFactory));
+            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
         }
     );
 }
@@ -87,7 +87,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, HandleIdToString(ppFactory));
+            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
         }
     );
 }
@@ -199,7 +199,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppParent", to_string_flags, tab_count, tab_size, HandleIdToString(ppParent));
+            FieldToString(str_strm, false, "[out]ppParent", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppParent));
         }
     );
 }
@@ -226,7 +226,7 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags, tab_count, tab_size, HandleIdToString(ppDevice));
+            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppDevice));
         }
     );
 }
@@ -532,7 +532,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "Output", to_string_flags, tab_count, tab_size, ToString(Output, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppOutput", to_string_flags, tab_count, tab_size, HandleIdToString(ppOutput));
+            FieldToString(str_strm, false, "[out]ppOutput", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutput));
         }
     );
 }
@@ -947,7 +947,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
         {
             FieldToString(str_strm, true, "Buffer", to_string_flags, tab_count, tab_size, ToString(Buffer, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, HandleIdToString(ppSurface));
+            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSurface));
         }
     );
 }
@@ -1001,7 +1001,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "[out]pFullscreen", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFullscreen, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppTarget", to_string_flags, tab_count, tab_size, HandleIdToString(ppTarget));
+            FieldToString(str_strm, false, "[out]ppTarget", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppTarget));
         }
     );
 }
@@ -1109,7 +1109,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
         writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]ppOutput", to_string_flags, tab_count, tab_size, HandleIdToString(ppOutput));
+            FieldToString(str_strm, true, "[out]ppOutput", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutput));
         }
     );
 }
@@ -1186,7 +1186,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "Adapter", to_string_flags, tab_count, tab_size, ToString(Adapter, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(ppAdapter));
+            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
         }
     );
 }
@@ -1267,7 +1267,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
         {
             FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, HandleIdToString(ppSwapChain));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -1294,7 +1294,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "Module", to_string_flags, tab_count, tab_size, HandleIdToString(Module));
-            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(ppAdapter));
+            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
         }
     );
 }
@@ -1319,7 +1319,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
         writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(pAdapter));
+            FieldToString(str_strm, true, "[out]pAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(pAdapter));
         }
     );
 }
@@ -1352,7 +1352,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
             FieldToString(str_strm, false, "NumSurfaces", to_string_flags, tab_count, tab_size, ToString(NumSurfaces, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "Usage", to_string_flags, tab_count, tab_size, ToString(Usage, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pSharedResource", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSharedResource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, HandleIdToString(ppSurface));
+            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSurface));
         }
     );
 }
@@ -1458,7 +1458,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "Adapter", to_string_flags, tab_count, tab_size, ToString(Adapter, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(ppAdapter));
+            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
         }
     );
 }
@@ -1660,7 +1660,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
         {
             FieldToString(str_strm, true, "TimeoutInMilliseconds", to_string_flags, tab_count, tab_size, ToString(TimeoutInMilliseconds, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "[out]pFrameInfo", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFrameInfo, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppDesktopResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppDesktopResource));
+            FieldToString(str_strm, false, "[out]ppDesktopResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppDesktopResource));
         }
     );
 }
@@ -1848,7 +1848,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppParentResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppParentResource));
+            FieldToString(str_strm, false, "[out]ppParentResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppParentResource));
             FieldToString(str_strm, false, "[out]pSubresourceIndex", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSubresourceIndex, to_string_flags, tab_count, tab_size));
         }
     );
@@ -1876,7 +1876,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "index", to_string_flags, tab_count, tab_size, ToString(index, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, HandleIdToString(ppSurface));
+            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSurface));
         }
     );
 }
@@ -2092,7 +2092,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "refiid", to_string_flags, tab_count, tab_size, ToString(*refiid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppUnk", to_string_flags, tab_count, tab_size, HandleIdToString(ppUnk));
+            FieldToString(str_strm, false, "[out]ppUnk", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppUnk));
         }
     );
 }
@@ -2327,7 +2327,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pFullscreenDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFullscreenDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, HandleIdToString(ppSwapChain));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -2360,7 +2360,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
             FieldToString(str_strm, false, "pWindow", to_string_flags, tab_count, tab_size, HandleIdToString(pWindow));
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, HandleIdToString(ppSwapChain));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -2578,7 +2578,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
             FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, HandleIdToString(ppSwapChain));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -2715,7 +2715,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags, tab_count, tab_size, HandleIdToString(ppOutputDuplication));
+            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutputDuplication));
         }
     );
 }
@@ -2747,7 +2747,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
         {
             FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, HandleIdToString(ppFactory));
+            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
         }
     );
 }
@@ -2775,7 +2775,7 @@ void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
         {
             FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDebug", to_string_flags, tab_count, tab_size, HandleIdToString(pDebug));
+            FieldToString(str_strm, false, "[out]pDebug", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(pDebug));
         }
     );
 }
@@ -3284,7 +3284,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
             FieldToString(str_strm, false, "hSurface", to_string_flags, tab_count, tab_size, HandleIdToString(hSurface));
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, HandleIdToString(ppSwapChain));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -3319,7 +3319,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pYuvDecodeBuffers", to_string_flags, tab_count, tab_size, HandleIdToString(pYuvDecodeBuffers));
             FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, HandleIdToString(ppSwapChain));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -3603,7 +3603,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
         {
             FieldToString(str_strm, true, "AdapterLuid", to_string_flags, tab_count, tab_size, ToString(*AdapterLuid.decoded_value, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(ppvAdapter));
+            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
         }
     );
 }
@@ -3630,7 +3630,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(ppvAdapter));
+            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
         }
     );
 }
@@ -3827,7 +3827,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
             FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "SupportedFormatsCount", to_string_flags, tab_count, tab_size, ToString(SupportedFormatsCount, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pSupportedFormats", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(SupportedFormatsCount, pSupportedFormats, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags, tab_count, tab_size, HandleIdToString(ppOutputDuplication));
+            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutputDuplication));
         }
     );
 }
@@ -4048,7 +4048,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
             FieldToString(str_strm, true, "Adapter", to_string_flags, tab_count, tab_size, ToString(Adapter, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "GpuPreference", to_string_flags, tab_count, tab_size, '"' + ToString(GpuPreference, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(ppvAdapter));
+            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
         }
     );
 }
@@ -4192,7 +4192,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
             FieldToString(str_strm, true, "pSrcData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(SrcDataSizeInBytes, pSrcData, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "SrcDataSizeInBytes", to_string_flags, tab_count, tab_size, ToString(SrcDataSizeInBytes, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pRootSignatureDeserializerInterface", to_string_flags, tab_count, tab_size, ToString(*pRootSignatureDeserializerInterface.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppRootSignatureDeserializer", to_string_flags, tab_count, tab_size, HandleIdToString(ppRootSignatureDeserializer));
+            FieldToString(str_strm, false, "[out]ppRootSignatureDeserializer", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppRootSignatureDeserializer));
         }
     );
 }
@@ -4222,7 +4222,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
             FieldToString(str_strm, true, "pAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(pAdapter));
             FieldToString(str_strm, false, "MinimumFeatureLevel", to_string_flags, tab_count, tab_size, '"' + ToString(MinimumFeatureLevel, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags, tab_count, tab_size, HandleIdToString(ppDevice));
+            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppDevice));
         }
     );
 }
@@ -4248,7 +4248,7 @@ void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvDebug", to_string_flags, tab_count, tab_size, HandleIdToString(ppvDebug));
+            FieldToString(str_strm, false, "[out]ppvDebug", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvDebug));
         }
     );
 }
@@ -4415,7 +4415,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvDevice", to_string_flags, tab_count, tab_size, HandleIdToString(ppvDevice));
+            FieldToString(str_strm, false, "[out]ppvDevice", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvDevice));
         }
     );
 }
@@ -4759,7 +4759,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]ppBlob", to_string_flags, tab_count, tab_size, HandleIdToString(ppBlob));
+            FieldToString(str_strm, true, "[out]ppBlob", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppBlob));
         }
     );
 }
@@ -6705,7 +6705,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandQueue", to_string_flags, tab_count, tab_size, HandleIdToString(ppCommandQueue));
+            FieldToString(str_strm, false, "[out]ppCommandQueue", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandQueue));
         }
     );
 }
@@ -6734,7 +6734,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
         {
             FieldToString(str_strm, true, "type", to_string_flags, tab_count, tab_size, '"' + ToString(type, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandAllocator", to_string_flags, tab_count, tab_size, HandleIdToString(ppCommandAllocator));
+            FieldToString(str_strm, false, "[out]ppCommandAllocator", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandAllocator));
         }
     );
 }
@@ -6763,7 +6763,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(ppPipelineState));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -6792,7 +6792,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(ppPipelineState));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -6827,7 +6827,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
             FieldToString(str_strm, false, "pCommandAllocator", to_string_flags, tab_count, tab_size, HandleIdToString(pCommandAllocator));
             FieldToString(str_strm, false, "pInitialState", to_string_flags, tab_count, tab_size, HandleIdToString(pInitialState));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags, tab_count, tab_size, HandleIdToString(ppCommandList));
+            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandList));
         }
     );
 }
@@ -6856,7 +6856,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         {
             FieldToString(str_strm, true, "pDescriptorHeapDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDescriptorHeapDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, HandleIdToString(ppvHeap));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7150,7 +7150,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
             FieldToString(str_strm, false, "InitialResourceState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialResourceState, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -7179,7 +7179,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, HandleIdToString(ppvHeap));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7216,7 +7216,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
             FieldToString(str_strm, false, "InitialState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -7249,7 +7249,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
             FieldToString(str_strm, false, "InitialState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -7311,7 +7311,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
         {
             FieldToString(str_strm, true, "NTHandle", to_string_flags, tab_count, tab_size, HandleIdToString(NTHandle));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvObj", to_string_flags, tab_count, tab_size, HandleIdToString(ppvObj));
+            FieldToString(str_strm, false, "[out]ppvObj", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvObj));
         }
     );
 }
@@ -7425,7 +7425,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
             FieldToString(str_strm, true, "InitialValue", to_string_flags, tab_count, tab_size, ToString(InitialValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFence", to_string_flags, tab_count, tab_size, HandleIdToString(ppFence));
+            FieldToString(str_strm, false, "[out]ppFence", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFence));
         }
     );
 }
@@ -7515,7 +7515,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, HandleIdToString(ppvHeap));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7571,7 +7571,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pRootSignature", to_string_flags, tab_count, tab_size, HandleIdToString(pRootSignature));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvCommandSignature", to_string_flags, tab_count, tab_size, HandleIdToString(ppvCommandSignature));
+            FieldToString(str_strm, false, "[out]ppvCommandSignature", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvCommandSignature));
         }
     );
 }
@@ -7665,7 +7665,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
             FieldToString(str_strm, true, "pName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pName, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(ppPipelineState));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7696,7 +7696,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
             FieldToString(str_strm, true, "pName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pName, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(ppPipelineState));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7777,7 +7777,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
             FieldToString(str_strm, true, "pName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pName, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(ppPipelineState));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7868,7 +7868,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(ppPipelineState));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7897,7 +7897,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         {
             FieldToString(str_strm, true, "pAddress", to_string_flags, tab_count, tab_size, HandleIdToString(pAddress));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, HandleIdToString(ppvHeap));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7926,7 +7926,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         {
             FieldToString(str_strm, true, "hFileMapping", to_string_flags, tab_count, tab_size, HandleIdToString(hFileMapping));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, HandleIdToString(ppvHeap));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7986,7 +7986,7 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFence", to_string_flags, tab_count, tab_size, HandleIdToString(ppFence));
+            FieldToString(str_strm, false, "[out]ppFence", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFence));
         }
     );
 }
@@ -8042,7 +8042,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
             FieldToString(str_strm, false, "type", to_string_flags, tab_count, tab_size, '"' + ToString(type, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "flags", to_string_flags, tab_count, tab_size, '"' + ToString(flags, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags, tab_count, tab_size, HandleIdToString(ppCommandList));
+            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandList));
         }
     );
 }
@@ -8071,7 +8071,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSession", to_string_flags, tab_count, tab_size, HandleIdToString(ppSession));
+            FieldToString(str_strm, false, "[out]ppSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSession));
         }
     );
 }
@@ -8110,7 +8110,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
             FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
             FieldToString(str_strm, false, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -8141,7 +8141,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, HandleIdToString(ppvHeap));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -8176,7 +8176,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
             FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -8250,7 +8250,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppv", to_string_flags, tab_count, tab_size, HandleIdToString(ppv));
+            FieldToString(str_strm, false, "[out]ppv", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppv));
         }
     );
 }
@@ -8279,9 +8279,9 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
             FieldToString(str_strm, false, "riidQueue", to_string_flags, tab_count, tab_size, ToString(*riidQueue.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvQueue", to_string_flags, tab_count, tab_size, HandleIdToString(ppvQueue));
+            FieldToString(str_strm, false, "[out]ppvQueue", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvQueue));
         }
     );
 }
@@ -8455,7 +8455,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         {
             FieldToString(str_strm, true, "pOwner", to_string_flags, tab_count, tab_size, HandleIdToString(pOwner));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvTracker", to_string_flags, tab_count, tab_size, HandleIdToString(ppvTracker));
+            FieldToString(str_strm, false, "[out]ppvTracker", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvTracker));
         }
     );
 }
@@ -8572,7 +8572,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
             FieldToString(str_strm, false, "pCreationParametersData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(CreationParametersDataSizeInBytes, pCreationParametersData, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "CreationParametersDataSizeInBytes", to_string_flags, tab_count, tab_size, ToString(CreationParametersDataSizeInBytes, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppMetaCommand", to_string_flags, tab_count, tab_size, HandleIdToString(ppMetaCommand));
+            FieldToString(str_strm, false, "[out]ppMetaCommand", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppMetaCommand));
         }
     );
 }
@@ -8601,7 +8601,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppStateObject", to_string_flags, tab_count, tab_size, HandleIdToString(ppStateObject));
+            FieldToString(str_strm, false, "[out]ppStateObject", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppStateObject));
         }
     );
 }
@@ -8935,7 +8935,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
             FieldToString(str_strm, true, "pAddition", to_string_flags, tab_count, tab_size, PointerDecoderToString(pAddition, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pStateObjectToGrowFrom", to_string_flags, tab_count, tab_size, HandleIdToString(pStateObjectToGrowFrom));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppNewStateObject", to_string_flags, tab_count, tab_size, HandleIdToString(ppNewStateObject));
+            FieldToString(str_strm, false, "[out]ppNewStateObject", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppNewStateObject));
         }
     );
 }
@@ -8964,7 +8964,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
         {
             FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSession", to_string_flags, tab_count, tab_size, HandleIdToString(ppSession));
+            FieldToString(str_strm, false, "[out]ppSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSession));
         }
     );
 }
@@ -9034,7 +9034,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
             FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
             FieldToString(str_strm, false, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -9071,7 +9071,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
             FieldToString(str_strm, false, "InitialState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags, tab_count, tab_size) + '"');
             FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
             FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, HandleIdToString(ppvResource));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -9164,7 +9164,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(ppProtectedSession));
+            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppProtectedSession));
         }
     );
 }
@@ -9214,7 +9214,7 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(ppProtectedSession));
+            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppProtectedSession));
         }
     );
 }
@@ -11296,7 +11296,7 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvObject", to_string_flags, tab_count, tab_size, HandleIdToString(ppvObject));
+            FieldToString(str_strm, false, "[out]ppvObject", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvObject));
         }
     );
 }

@@ -165,7 +165,10 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     elif self.is_enum(value.base_type):
                         to_string = 'EnumPointerDecoderToString({0})'
                     elif self.get_category_type(value.base_type) == 'class' or value.base_type == 'void':
-                        to_string = 'HandleIdToString({0})'
+                        if self.is_com_outptr(method_info['name'], value.name, value.full_type):
+                            to_string = 'OutPtrDecoderToString({0})'
+                        else:
+                            to_string = 'HandleIdToString({0})'
                     else:
                         to_string = 'PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)'
             else:

@@ -112,6 +112,13 @@ inline std::string PointerDecoderToString(PointerDecoderType* pObj,
     return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
 }
 
+template <typename T>
+inline std::string OutPtrDecoderToString(HandlePointerDecoder<T*>* pObj)
+{
+    auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
+    return pDecodedObj ? std::to_string(static_cast<uint64_t>(*pDecodedObj)) : "null";
+}
+
 template <typename CountType>
 inline size_t GetCount(CountType countObj)
 {
