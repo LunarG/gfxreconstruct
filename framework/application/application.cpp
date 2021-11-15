@@ -281,7 +281,7 @@ void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* 
 #if defined(VK_USE_PLATFORM_DISPLAY_KHR)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_DISPLAY_EXTENSION_NAME))
         {
-            wsi_context_ = std::make_unique<DisplayContext>(this);
+            wsi_contexts_[VK_KHR_DISPLAY_EXTENSION_NAME] = std::make_unique<DisplayContext>(this);
         }
         else
 #endif
