@@ -59,6 +59,8 @@ class DisplayWindow : public decode::Window
 
     virtual bool GetNativeHandle(HandleType, void**) override { return false; }
 
+    virtual const std::string& GetWsiExtension() const override;
+
     virtual VkResult CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
                                    VkFlags                      flags,
