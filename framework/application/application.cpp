@@ -279,7 +279,7 @@ void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* 
         else
 #endif
 #if defined(VK_USE_PLATFORM_DISPLAY_KHR)
-            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_DISPLAY_EXTENSION_NAME))
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_DISPLAY_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<DisplayContext>(this);
         }
@@ -288,7 +288,6 @@ void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* 
 #if defined(VK_USE_PLATFORM_HEADLESS)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
         {
-            // wsi_context_ = std::make_unique<HeadlessContext>(this);
             wsi_contexts_[VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME] = std::make_unique<HeadlessContext>(this);
         }
         else
