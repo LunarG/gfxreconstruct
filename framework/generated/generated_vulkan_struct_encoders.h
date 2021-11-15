@@ -300,6 +300,16 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKHR
 
 void EncodeStruct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAttachmentInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRenderingCreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingFeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceRenderingInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentShadingRateAttachmentInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentDensityMapAttachmentInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentSampleCountInfoAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMultiviewPerViewAttributesInfoNVX& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryWin32HandlePropertiesKHR& value);

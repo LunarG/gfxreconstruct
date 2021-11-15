@@ -2429,6 +2429,102 @@ struct Decoded_VkWin32SurfaceCreateInfoKHR
     uint64_t hwnd{ 0 };
 };
 
+struct Decoded_VkRenderingAttachmentInfoKHR
+{
+    using struct_type = VkRenderingAttachmentInfoKHR;
+
+    VkRenderingAttachmentInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId imageView{ format::kNullHandleId };
+    format::HandleId resolveImageView{ format::kNullHandleId };
+    Decoded_VkClearValue* clearValue{ nullptr };
+};
+
+struct Decoded_VkRenderingInfoKHR
+{
+    using struct_type = VkRenderingInfoKHR;
+
+    VkRenderingInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkRect2D* renderArea{ nullptr };
+    StructPointerDecoder<Decoded_VkRenderingAttachmentInfoKHR>* pColorAttachments{ nullptr };
+    StructPointerDecoder<Decoded_VkRenderingAttachmentInfoKHR>* pDepthAttachment{ nullptr };
+    StructPointerDecoder<Decoded_VkRenderingAttachmentInfoKHR>* pStencilAttachment{ nullptr };
+};
+
+struct Decoded_VkPipelineRenderingCreateInfoKHR
+{
+    using struct_type = VkPipelineRenderingCreateInfoKHR;
+
+    VkPipelineRenderingCreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkFormat> pColorAttachmentFormats;
+};
+
+struct Decoded_VkPhysicalDeviceDynamicRenderingFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceDynamicRenderingFeaturesKHR;
+
+    VkPhysicalDeviceDynamicRenderingFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkCommandBufferInheritanceRenderingInfoKHR
+{
+    using struct_type = VkCommandBufferInheritanceRenderingInfoKHR;
+
+    VkCommandBufferInheritanceRenderingInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkFormat> pColorAttachmentFormats;
+};
+
+struct Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR
+{
+    using struct_type = VkRenderingFragmentShadingRateAttachmentInfoKHR;
+
+    VkRenderingFragmentShadingRateAttachmentInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId imageView{ format::kNullHandleId };
+    Decoded_VkExtent2D* shadingRateAttachmentTexelSize{ nullptr };
+};
+
+struct Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT
+{
+    using struct_type = VkRenderingFragmentDensityMapAttachmentInfoEXT;
+
+    VkRenderingFragmentDensityMapAttachmentInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId imageView{ format::kNullHandleId };
+};
+
+struct Decoded_VkAttachmentSampleCountInfoAMD
+{
+    using struct_type = VkAttachmentSampleCountInfoAMD;
+
+    VkAttachmentSampleCountInfoAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkSampleCountFlagBits> pColorAttachmentSamples;
+};
+
+struct Decoded_VkMultiviewPerViewAttributesInfoNVX
+{
+    using struct_type = VkMultiviewPerViewAttributesInfoNVX;
+
+    VkMultiviewPerViewAttributesInfoNVX* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+typedef Decoded_VkAttachmentSampleCountInfoAMD Decoded_VkAttachmentSampleCountInfoNV;
+
 typedef Decoded_VkRenderPassMultiviewCreateInfo Decoded_VkRenderPassMultiviewCreateInfoKHR;
 
 typedef Decoded_VkPhysicalDeviceMultiviewFeatures Decoded_VkPhysicalDeviceMultiviewFeaturesKHR;

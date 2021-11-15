@@ -237,6 +237,10 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
         StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
 
+    virtual void Process_vkCmdBeginRenderingKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo) override;
+
     virtual void Process_vkCmdPushDescriptorSetKHR(
         format::HandleId                            commandBuffer,
         VkPipelineBindPoint                         pipelineBindPoint,

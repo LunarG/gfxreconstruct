@@ -202,6 +202,20 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkDeviceGroupSwapchainCreateInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
             return ToString(*reinterpret_cast<const VkDisplayPresentInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR:
+            return ToString(*reinterpret_cast<const VkPipelineRenderingCreateInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceDynamicRenderingFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO_KHR:
+            return ToString(*reinterpret_cast<const VkCommandBufferInheritanceRenderingInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
+            return ToString(*reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
+            return ToString(*reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
+            return ToString(*reinterpret_cast<const VkMultiviewPerViewAttributesInfoNVX*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
             return ToString(*reinterpret_cast<const VkImportMemoryWin32HandleInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR:

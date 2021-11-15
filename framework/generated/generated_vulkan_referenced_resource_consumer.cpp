@@ -573,6 +573,69 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo)
+{
+    assert(pRenderingInfo != nullptr);
+
+    if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
+    {
+        auto pRenderingInfo_ptr = pRenderingInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pRenderingInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    GetTable().AddResourceToUser(commandBuffer, pnext_value->imageView);
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+
+        if (!pRenderingInfo_ptr->pColorAttachments->IsNull() && (pRenderingInfo_ptr->pColorAttachments->HasData()))
+        {
+            auto pColorAttachments_ptr = pRenderingInfo_ptr->pColorAttachments->GetMetaStructPointer();
+            size_t pColorAttachments_count = pRenderingInfo_ptr->pColorAttachments->GetLength();
+            for (size_t pColorAttachments_index = 0; pColorAttachments_index < pColorAttachments_count; ++pColorAttachments_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].imageView);
+                GetTable().AddResourceToUser(commandBuffer, pColorAttachments_ptr[pColorAttachments_index].resolveImageView);
+            }
+        }
+
+        if (!pRenderingInfo_ptr->pDepthAttachment->IsNull() && (pRenderingInfo_ptr->pDepthAttachment->HasData()))
+        {
+            auto pDepthAttachment_ptr = pRenderingInfo_ptr->pDepthAttachment->GetMetaStructPointer();
+            GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->imageView);
+            GetTable().AddResourceToUser(commandBuffer, pDepthAttachment_ptr->resolveImageView);
+        }
+
+        if (!pRenderingInfo_ptr->pStencilAttachment->IsNull() && (pRenderingInfo_ptr->pStencilAttachment->HasData()))
+        {
+            auto pStencilAttachment_ptr = pRenderingInfo_ptr->pStencilAttachment->GetMetaStructPointer();
+            GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->imageView);
+            GetTable().AddResourceToUser(commandBuffer, pStencilAttachment_ptr->resolveImageView);
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
     format::HandleId                            commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,

@@ -1287,6 +1287,13 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex) override;
 
+    virtual void Process_vkCmdBeginRenderingKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo) override;
+
+    virtual void Process_vkCmdEndRenderingKHR(
+        format::HandleId                            commandBuffer) override;
+
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
         format::HandleId                            physicalDevice,
         StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures) override;
