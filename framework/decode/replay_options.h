@@ -44,10 +44,13 @@ struct ScreenshotRange
 
 struct ReplayOptions
 {
-    bool enable_validation_layer{ false };
-    bool sync_queue_submissions{ false };
-    bool enable_debug_device_lost{ false };
-    bool create_dummy_allocations{ false };
+    bool     enable_validation_layer{ false };
+    bool     sync_queue_submissions{ false };
+    bool     enable_debug_device_lost{ false };
+    bool     create_dummy_allocations{ false };
+    bool     force_windowed{ false };
+    uint32_t windowed_width{ 0 };
+    uint32_t windowed_height{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

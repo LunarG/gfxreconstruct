@@ -89,6 +89,8 @@ const char kScreenshotRangeArgument[]          = "--screenshots";
 const char kScreenshotFormatArgument[]         = "--screenshot-format";
 const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
+const char kForceWindowedShortArgument[]       = "--fw";
+const char kForceWindowedLongArgument[]        = "--force-windowed";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 const char kDxTwoPassReplay[] = "--dx12-two-pass-replay";
@@ -484,6 +486,29 @@ static bool IsApiFamilyIdEnabled(const gfxrecon::util::ArgumentParser& arg_parse
 }
 #endif
 
+static void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    auto value = arg_parser.GetArgumentValue(kForceWindowedShortArgument);
+
+    if (value.empty())
+    {
+        value = arg_parser.GetArgumentValue(kForceWindowedLongArgument);
+    }
+    if (!value.empty())
+    {
+        options.force_windowed = true;
+
+        std::istringstream value_input;
+        value_input.str(value);
+        std::string val;
+
+        std::getline(value_input, val, ',');
+        options.windowed_width = std::stoi(val);
+        std::getline(value_input, val, ',');
+        options.windowed_height = std::stoi(val);
+    }
+}
+
 static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
                                             const char*                           filter_messages)
 {
@@ -534,6 +559,8 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     {
         options.create_dummy_allocations = true;
     }
+
+    IsForceWindowed(options, arg_parser);
 }
 
 static gfxrecon::decode::VulkanReplayOptions

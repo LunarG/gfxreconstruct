@@ -818,12 +818,14 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
     BOOL                                        Fullscreen,
     format::HandleId                            pTarget)
 {
-    auto replay_object = MapObject<IDXGISwapChain>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pTarget = MapObject<IDXGIOutput>(pTarget);
-        auto replay_result = replay_object->SetFullscreenState(Fullscreen,
-                                                               in_pTarget);
+        auto in_pTarget = GetObjectInfo(pTarget);
+        auto replay_result = OverrideSetFullscreenState(replay_object,
+                                                        return_value,
+                                                        Fullscreen,
+                                                        in_pTarget);
         CheckReplayResult("IDXGISwapChain_SetFullscreenState", return_value, replay_result);
     }
 }

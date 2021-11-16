@@ -610,6 +610,7 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
 
     if (window_factory != nullptr && desc_pointer != nullptr)
     {
+        ReplaceWindowedResolution(desc_pointer->BufferDesc.Width, desc_pointer->BufferDesc.Height);
         window = window_factory->Create(kDefaultWindowPositionX,
                                         kDefaultWindowPositionY,
                                         desc_pointer->BufferDesc.Width,
@@ -1669,6 +1670,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers(DxObjectInfo* replay_objec
 
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
 
+    ReplaceWindowedResolution(width, height);
+
     auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
     auto replay_result = replay_object->ResizeBuffers(buffer_count, width, height, new_format, flags);
 
@@ -1693,6 +1696,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers1(DxObjectInfo*            
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    ReplaceWindowedResolution(width, height);
 
     auto replay_object = static_cast<IDXGISwapChain3*>(replay_object_info->object);
     auto replay_result = replay_object->ResizeBuffers1(
@@ -1834,6 +1839,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
 
     if (window_factory != nullptr && desc_pointer != nullptr)
     {
+        ReplaceWindowedResolution(desc_pointer->Width, desc_pointer->Height);
         window = window_factory->Create(
             kDefaultWindowPositionX, kDefaultWindowPositionY, desc_pointer->Width, desc_pointer->Height);
     }
@@ -1860,12 +1866,13 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
                 restrict_to_output = static_cast<IDXGIOutput*>(restrict_to_output_info->object);
             }
 
-            result = replay_object->CreateSwapChainForHwnd(device,
-                                                           hwnd,
-                                                           desc_pointer,
-                                                           full_screen_desc->GetPointer(),
-                                                           restrict_to_output,
-                                                           swapchain->GetHandlePointer());
+            auto desc = full_screen_desc->GetPointer();
+            if (options_.force_windowed)
+            {
+                desc = nullptr;
+            }
+            result = replay_object->CreateSwapChainForHwnd(
+                device, hwnd, desc_pointer, desc, restrict_to_output, swapchain->GetHandlePointer());
 
             if (SUCCEEDED(result))
             {
@@ -2559,6 +2566,35 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateComputePipelineState(
     HRESULT replay_result =
         device->CreateComputePipelineState(pDesc2, *riid.decoded_value, pipelineState->GetHandlePointer());
 
+    return replay_result;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
+                                                   HRESULT       original_result,
+                                                   BOOL          Fullscreen,
+                                                   DxObjectInfo* pTarget)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(swapchain_info != nullptr);
+    GFXRECON_ASSERT(swapchain_info->object != nullptr);
+
+    auto    swapchain     = static_cast<IDXGISwapChain*>(swapchain_info->object);
+    HRESULT replay_result = S_OK;
+    if (options_.force_windowed)
+    {
+        replay_result = swapchain->SetFullscreenState(FALSE, nullptr);
+    }
+    else
+    {
+        IDXGIOutput* in_pTarget = nullptr;
+        if (pTarget && pTarget->object)
+        {
+            in_pTarget = static_cast<IDXGIOutput*>(pTarget->object);
+        }
+        replay_result = swapchain->SetFullscreenState(Fullscreen, in_pTarget);
+        CheckReplayResult("IDXGISwapChain::SetFullscreenState", original_result, replay_result);
+    }
     return replay_result;
 }
 

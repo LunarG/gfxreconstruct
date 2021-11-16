@@ -85,7 +85,8 @@
     "IDXGISwapChain": {
       "GetBuffer": "OverrideGetBuffer",
       "ResizeBuffers": "OverrideResizeBuffers",
-      "Present": "OverridePresent"
+      "Present": "OverridePresent",
+      "SetFullscreenState": "OverrideSetFullscreenState"
     },
     "IDXGISwapChain1": {
       "Present1": "OverridePresent1"

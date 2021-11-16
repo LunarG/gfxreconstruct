@@ -447,6 +447,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                Decoded_GUID                                                     riid,
                                                HandlePointerDecoder<void*>* pipelineState);
 
+    HRESULT OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
+                                       HRESULT       original_result,
+                                       BOOL          Fullscreen,
+                                       DxObjectInfo* pTarget);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -473,6 +478,24 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     const graphics::Dx12ShaderIdMap& GetShaderIdTable() const { return shader_id_map_; }
 
     graphics::Dx12ShaderIdMap& GetShaderIdTable() { return shader_id_map_; }
+
+    void ReplaceWindowedResolution(uint32_t& width, uint32_t& height)
+    {
+        if (options_.force_windowed)
+        {
+            width  = options_.windowed_width;
+            height = options_.windowed_height;
+        }
+    }
+
+    void ReplaceWindowedResolution(float& width, float& height)
+    {
+        if (options_.force_windowed)
+        {
+            width  = static_cast<float>(options_.windowed_width);
+            height = static_cast<float>(options_.windowed_height);
+        }
+    }
 
   private:
     void RaiseFatalError(const char* message) const;
