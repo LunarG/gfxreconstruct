@@ -111,10 +111,9 @@ bool AndroidWindow::GetNativeHandle(HandleType type, void** handle)
     }
 }
 
-const std::string& AndroidWindow::GetWsiExtension() const
+std::string AndroidWindow::GetWsiExtension() const
 {
-    static std::string sWsiExtension { VK_KHR_ANDROID_SURFACE_EXTENSION_NAME };
-    return sWsiExtension;
+    return VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
 }
 
 VkResult AndroidWindow::CreateSurface(const encode::InstanceTable* table,

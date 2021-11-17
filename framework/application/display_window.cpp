@@ -194,10 +194,9 @@ VkResult DisplayWindow::SelectPlane(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-const std::string& DisplayWindow::GetWsiExtension() const
+std::string DisplayWindow::GetWsiExtension() const
 {
-    static std::string sWsiExtension{ VK_KHR_DISPLAY_EXTENSION_NAME };
-    return sWsiExtension;
+    return VK_KHR_DISPLAY_EXTENSION_NAME;
 }
 
 VkResult DisplayWindow::CreateSurface(const encode::InstanceTable* table,

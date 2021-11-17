@@ -135,17 +135,12 @@ const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, b
     }
 
     // If auto_select is enabled and we still don't have a valid WSI context, loop
-    //  through loaded extensions and return the first one that _isn't_ the one
-    //  specified on the CLI or requested by the current API call
+    //  through loaded extensions and return the first one we have
     if (auto_select && itr == wsi_contexts_.end())
     {
         for (const auto& wsi_context_itr : wsi_contexts_)
         {
-            if (wsi_context_itr.first != cli_wsi_extension_ && wsi_context_itr.first != wsi_extension &&
-                wsi_context_itr.second)
-            {
-                return wsi_context_itr.second.get();
-            }
+            return wsi_context_itr.second.get();
         }
     }
 
