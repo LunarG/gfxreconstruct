@@ -63,7 +63,7 @@ class AndroidWindow : public decode::Window
 
     virtual bool GetNativeHandle(HandleType type, void** handle) override;
 
-    virtual const std::string& GetWsiExtension() const override;
+    virtual std::string GetWsiExtension() const override;
 
     virtual VkResult CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
