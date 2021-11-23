@@ -31,6 +31,7 @@
 #include "decode/pnext_node.h"
 #include "decode/pnext_typed_node.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "util/logging.h"
 
 #include <cassert>
@@ -71,7 +72,7 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
             {
             default:
                 // TODO: This may need to be a fatal error
-                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %d", (*sType));
+                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s", (util::ToString(*sType).c_str()));
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceSubgroupProperties>>();

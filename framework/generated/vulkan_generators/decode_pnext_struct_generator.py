@@ -90,6 +90,10 @@ class DecodePNextStructGenerator(BaseGenerator):
             '#include "generated/generated_vulkan_struct_decoders.h"',
             file=self.outFile
         )
+        write(
+            '#include "generated/generated_vulkan_enum_to_string.h"',
+            file=self.outFile
+        )
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
@@ -164,7 +168,7 @@ class DecodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %d", (*sType));',
+            '                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructureType = %s", (util::ToString(*sType).c_str()));',
             file=self.outFile
         )
         write('                break;', file=self.outFile)
