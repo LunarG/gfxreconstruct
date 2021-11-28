@@ -118,7 +118,7 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
     # yapf: disable
     def generate_feature(self):
         for struct in self.get_filtered_struct_names():
-            body = 'template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);'.format(
+            body = 'template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'.format(
                 struct
             )
             write(body, file=self.outFile)
