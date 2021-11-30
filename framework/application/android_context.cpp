@@ -82,7 +82,6 @@ void AndroidContext::ProcessEvents(bool wait_for_input)
 
 void AndroidContext::InitWindow()
 {
-    GFXRECON_LOG_DEBUG("AndroidContext::InitWindow()");
     window_ = std::make_unique<AndroidWindow>(this, android_app_->window);
 }
 
