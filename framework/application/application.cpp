@@ -127,12 +127,14 @@ const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, b
 {
     auto itr = wsi_contexts_.end();
 
+#if !defined(VK_USE_PLATFORM_ANDROID_KHR)
     // If auto_select is enabled and a WSI extension was selected on the CLI,
     //  attempt to get that WSI context
     if (auto_select && !cli_wsi_extension_.empty())
     {
         itr = wsi_contexts_.find(cli_wsi_extension_);
     }
+#endif
 
     // If we don't have a valid WSI context after potential auto_select, fallback
     //  to the current API call request
@@ -141,12 +143,14 @@ const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, b
         itr = wsi_contexts_.find(wsi_extension);
     }
 
+#if !defined(VK_USE_PLATFORM_ANDROID_KHR)
     // If auto_select is enabled and we still don't have a valid WSI context, use
     //  first one we have
     if (auto_select && itr == wsi_contexts_.end())
     {
         itr = wsi_contexts_.begin();
     }
+#endif
 
     // If we've gotten here without a valid WSI context then we'll simply return
     //  nullptr letting the caller know that we do not have a WSI context loaded
