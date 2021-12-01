@@ -245,6 +245,14 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
     auto itr = wsi_contexts_.find(surfaceExtensionName);
     if (itr == wsi_contexts_.end())
     {
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_KHR_ANDROID_SURFACE_EXTENSION_NAME] =
+                std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
+        }
+        return;
+#endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
         {
@@ -270,14 +278,6 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
             if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
         {
             wsi_contexts_[VK_KHR_XLIB_SURFACE_EXTENSION_NAME] = std::make_unique<XlibContext>(this);
-        }
-        else
-#endif
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-            if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
-        {
-            wsi_contexts_[VK_KHR_ANDROID_SURFACE_EXTENSION_NAME] =
-                std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
         }
         else
 #endif
