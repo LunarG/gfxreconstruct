@@ -64,10 +64,12 @@ Application::Application(const std::string&     name,
     file_processor_(file_processor), cli_wsi_extension_(cli_wsi_extension), running_(false), paused_(false),
     pause_frame_(0)
 {
+    #if 0
     if (!cli_wsi_extension_.empty())
     {
         InitializeWsiContext(cli_wsi_extension_.c_str());
     }
+    #endif
 
 #if 0
     bool success = true;
