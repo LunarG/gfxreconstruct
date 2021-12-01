@@ -109,6 +109,7 @@ int main(int argc, const char** argv)
         {
             auto application = std::make_shared<gfxrecon::application::Application>(kApplicationName, &file_processor);
 
+#if 0
             // Setup WSI context based on CLI
             auto wsi_platform = GetWsiPlatform(arg_parser);
 #if defined(WIN32)
@@ -179,6 +180,8 @@ int main(int argc, const char** argv)
                     return_code = -1;
                 }
             }
+#endif
+
 #endif
 
             gfxrecon::graphics::FpsInfo                    fps_info;

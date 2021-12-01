@@ -2389,22 +2389,19 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         if (replay_create_info->ppEnabledExtensionNames)
         {
-            // If a WSI was selected on the command line we need to add that WSI surface extension name to the
-            // VkInstance
+            // If a specific WSI extension was selected on the command line we need to make sure that extension is
+            // loaded
             assert(application_);
-            auto wsi_context       = application_->GetWsiContext();
-            auto window_factory    = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-            auto cli_wsi_extension = window_factory ? window_factory->GetSurfaceExtensionName() : nullptr;
-            if (cli_wsi_extension)
+            for (const auto& itr : application_->GetWsiContexts())
             {
-                filtered_extensions.push_back(cli_wsi_extension);
+                filtered_extensions.push_back(itr.first.c_str());
             }
 
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
             {
                 auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
                 filtered_extensions.push_back(current_extension);
-                if (!cli_wsi_extension && kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+                if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
                 {
                     application_->InitializeWsiContext(current_extension);
                 }

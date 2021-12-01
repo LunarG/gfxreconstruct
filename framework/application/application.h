@@ -51,9 +51,9 @@ class Application final
 
     const std::unordered_map<std::string, std::unique_ptr<WsiContext>>& GetWsiContexts() const { return wsi_contexts_; }
 
-    const WsiContext* GetWsiContext(const std::string& wsi_extension = std::string(), bool auto_select = false) const;
+    const WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false) const;
 
-    WsiContext* GetWsiContext(const std::string& wsi_extension = std::string(), bool auto_select = false);
+    WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false);
 
     bool IsRunning() const { return running_; }
 
