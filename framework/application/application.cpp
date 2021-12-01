@@ -64,6 +64,12 @@ Application::Application(const std::string&     name,
     file_processor_(file_processor), cli_wsi_extension_(cli_wsi_extension), running_(false), paused_(false),
     pause_frame_(0)
 {
+    if (!cli_wsi_extension_.empty())
+    {
+        InitializeWsiContext(cli_wsi_extension_.c_str());
+    }
+
+#if 0
     bool success = true;
     if (cli_wsi_extension_.empty())
     {
@@ -112,6 +118,7 @@ Application::Application(const std::string&     name,
                                "a supported WSI extension",
                                cli_wsi_extension_.c_str());
     }
+#endif
 }
 
 Application ::~Application() {}
