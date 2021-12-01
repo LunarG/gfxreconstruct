@@ -54,10 +54,105 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
 Application::Application(const std::string& name, decode::FileProcessor* file_processor) :
-    name_(name), file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0)
+    Application(name, std::string(), file_processor)
 {}
 
+Application::Application(const std::string&     name,
+                         const std::string&     cli_wsi_extension,
+                         decode::FileProcessor* file_processor) :
+    name_(name),
+    file_processor_(file_processor), cli_wsi_extension_(cli_wsi_extension), running_(false), paused_(false),
+    pause_frame_(0)
+{
+    bool success = true;
+    if (cli_wsi_extension_.empty())
+    {
+        // NOOP : If no WSI context is selected on the command line, each WSI extension
+        //  present in the VkInstanceCreateInfo will be handled when vkCreateInstance()
+        //  is processed.
+    }
+    else
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        if (cli_wsi_extension_ == VK_KHR_WIN32_SURFACE_EXTENSION_NAME)
+    {
+        InitializeWsiContext(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+    }
+    else
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+        if (cli_wsi_extension_ == VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME)
+    {
+        InitializeWsiContext(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+    }
+    else
+#endif
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+        if (cli_wsi_extension_ == VK_KHR_XCB_SURFACE_EXTENSION_NAME)
+    {
+        InitializeWsiContext(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+    }
+    else
+#endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+        if (cli_wsi_extension_ == VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
+    {
+        InitializeWsiContext(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+    }
+    else
+#endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+        if (cli_wsi_extension_ == VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME)
+    {
+        InitializeWsiContext(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME);
+    }
+    else
+#endif
+    {
+        GFXRECON_WRITE_CONSOLE("Failed to initialize WSI context [%s].  WSI initializaton will attempt to fallback to "
+                               "a supported WSI extension",
+                               cli_wsi_extension_.c_str());
+    }
+}
+
 Application ::~Application() {}
+
+const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select) const
+{
+    auto itr = wsi_contexts_.end();
+
+    // If auto_select is enabled and a WSI extension was selected on the CLI,
+    //  attempt to get that WSI context
+    if (auto_select && !cli_wsi_extension_.empty())
+    {
+        itr = wsi_contexts_.find(cli_wsi_extension_);
+    }
+
+    // If we don't have a valid WSI context after potential auto_select, fallback
+    //  to the current API call request
+    if (itr == wsi_contexts_.end())
+    {
+        itr = wsi_contexts_.find(wsi_extension);
+    }
+
+    // If auto_select is enabled and we still don't have a valid WSI context, use
+    //  first one we have
+    if (auto_select && itr == wsi_contexts_.end())
+    {
+        itr = wsi_contexts_.begin();
+    }
+
+    // If we've gotten here without a valid WSI context then we'll simply return
+    //  nullptr letting the caller know that we do not have a WSI context loaded
+    //  for the given WSI extension
+    return itr != wsi_contexts_.end() ? itr->second.get() : nullptr;
+}
+
+WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select)
+{
+    auto const_this  = const_cast<const Application*>(this);
+    auto wsi_context = const_this->GetWsiContext(wsi_extension, auto_select);
+    return const_cast<WsiContext*>(wsi_context);
+}
 
 void Application::Run()
 {
@@ -123,48 +218,54 @@ bool Application::PlaySingleFrame()
 
 void Application::ProcessEvents(bool wait_for_input)
 {
-    if (wsi_context_)
+    for (const auto& itr : wsi_contexts_)
     {
-        wsi_context_->ProcessEvents(wait_for_input);
+        const auto& wsi_context = itr.second;
+        if (wsi_context && !wsi_context->GetWindows().empty())
+        {
+            wsi_context->ProcessEvents(wait_for_input);
+        }
     }
 }
 
 void Application::InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData)
 {
-    if (!wsi_context_)
+    assert(surfaceExtensionName);
+    auto itr = wsi_contexts_.find(surfaceExtensionName);
+    if (itr == wsi_contexts_.end())
     {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
         {
-            wsi_context_ = std::make_unique<Win32Context>(this);
+            wsi_contexts_[VK_KHR_WIN32_SURFACE_EXTENSION_NAME] = std::make_unique<Win32Context>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
             if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
         {
-            wsi_context_ = std::make_unique<WaylandContext>(this);
+            wsi_contexts_[VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME] = std::make_unique<WaylandContext>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
             if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
         {
-            wsi_context_ = std::make_unique<XcbContext>(this);
+            wsi_contexts_[VK_KHR_XCB_SURFACE_EXTENSION_NAME] = std::make_unique<XcbContext>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
             if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
         {
-            wsi_context_ = std::make_unique<XlibContext>(this);
+            wsi_contexts_[VK_KHR_XLIB_SURFACE_EXTENSION_NAME] = std::make_unique<XlibContext>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
             if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
         {
-            wsi_context_ =
+            wsi_contexts_[VK_KHR_ANDROID_SURFACE_EXTENSION_NAME] =
                 std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
         }
         else
@@ -172,14 +273,14 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
 #if defined(VK_USE_PLATFORM_DISPLAY_KHR)
             if (!util::platform::StringCompare(surfaceExtensionName, VK_KHR_DISPLAY_EXTENSION_NAME))
         {
-            wsi_context_ = std::make_unique<DisplayContext>(this);
+            wsi_contexts_[VK_KHR_DISPLAY_EXTENSION_NAME] = std::make_unique<DisplayContext>(this);
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_HEADLESS)
             if (!util::platform::StringCompare(surfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
         {
-            wsi_context_ = std::make_unique<HeadlessContext>(this);
+            wsi_contexts_[VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME] = std::make_unique<HeadlessContext>(this);
         }
         else
 #endif
