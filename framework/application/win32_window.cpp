@@ -260,6 +260,11 @@ bool Win32Window::GetNativeHandle(HandleType type, void** handle)
     }
 }
 
+std::string Win32Window::GetWsiExtension() const
+{
+    return VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+}
+
 VkResult Win32Window::CreateSurface(const encode::InstanceTable* table,
                                     VkInstance                   instance,
                                     VkFlags                      flags,
