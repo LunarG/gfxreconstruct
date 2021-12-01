@@ -562,73 +562,77 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
         return E_INVALIDARG;
     }
 
-    HRESULT result = command_list_->Reset(command_allocator_, nullptr);
+    HRESULT result = command_allocator_->Reset();
     if (SUCCEEDED(result))
     {
-        for (UINT i = 0; i < subresource_count; ++i)
-        {
-            if ((before_states[i].states & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
-                D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE)
-            {
-                command_list_->Close();
-                GFXRECON_LOG_ERROR(
-                    "Dx12ResourceDataUtil: Ray tracing acceleration structure resources are not supported.");
-                return E_INVALIDARG;
-            }
-
-            // Prepare resource state.
-            AddTransitionBarrier(command_list_, target_resource, i, before_states[i], copy_state);
-
-            // Copy data.
-            if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
-            {
-                // There is only 1 subresource for buffers.
-                GFXRECON_ASSERT(i == 0);
-
-                if (copy_type == kCopyTypeRead)
-                {
-                    // Copy from buffer.
-                    command_list_->CopyBufferRegion(staging_buffer, 0, target_resource, 0, copy_size);
-                }
-                else
-                {
-                    // Copy to buffer.
-                    command_list_->CopyBufferRegion(target_resource, 0, staging_buffer, 0, copy_size);
-                }
-            }
-            else
-            {
-                D3D12_TEXTURE_COPY_LOCATION texture_location = {};
-                texture_location.pResource                   = target_resource;
-                texture_location.Type                        = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-                texture_location.SubresourceIndex            = i;
-
-                D3D12_TEXTURE_COPY_LOCATION copy_location = {};
-                copy_location.pResource                   = staging_buffer;
-                copy_location.Type                        = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-                copy_location.PlacedFootprint             = subresource_layouts[i];
-
-                if (copy_type == kCopyTypeRead)
-                {
-                    // Copy from texture.
-                    command_list_->CopyTextureRegion(&copy_location, 0, 0, 0, &texture_location, nullptr);
-                }
-                else
-                {
-                    // Copy to texture.
-                    command_list_->CopyTextureRegion(&texture_location, 0, 0, 0, &copy_location, nullptr);
-                }
-            }
-
-            // Restore resource state.
-            AddTransitionBarrier(command_list_, target_resource, i, copy_state, after_states[i]);
-        }
-
-        // Close and execute the command list.
-        result = command_list_->Close();
+        result = command_list_->Reset(command_allocator_, nullptr);
         if (SUCCEEDED(result))
         {
-            result = ExecuteAndWaitForCommandList();
+            for (UINT i = 0; i < subresource_count; ++i)
+            {
+                if ((before_states[i].states & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
+                    D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE)
+                {
+                    command_list_->Close();
+                    GFXRECON_LOG_ERROR(
+                        "Dx12ResourceDataUtil: Ray tracing acceleration structure resources are not supported.");
+                    return E_INVALIDARG;
+                }
+
+                // Prepare resource state.
+                AddTransitionBarrier(command_list_, target_resource, i, before_states[i], copy_state);
+
+                // Copy data.
+                if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+                {
+                    // There is only 1 subresource for buffers.
+                    GFXRECON_ASSERT(i == 0);
+
+                    if (copy_type == kCopyTypeRead)
+                    {
+                        // Copy from buffer.
+                        command_list_->CopyBufferRegion(staging_buffer, 0, target_resource, 0, copy_size);
+                    }
+                    else
+                    {
+                        // Copy to buffer.
+                        command_list_->CopyBufferRegion(target_resource, 0, staging_buffer, 0, copy_size);
+                    }
+                }
+                else
+                {
+                    D3D12_TEXTURE_COPY_LOCATION texture_location = {};
+                    texture_location.pResource                   = target_resource;
+                    texture_location.Type                        = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+                    texture_location.SubresourceIndex            = i;
+
+                    D3D12_TEXTURE_COPY_LOCATION copy_location = {};
+                    copy_location.pResource                   = staging_buffer;
+                    copy_location.Type                        = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+                    copy_location.PlacedFootprint             = subresource_layouts[i];
+
+                    if (copy_type == kCopyTypeRead)
+                    {
+                        // Copy from texture.
+                        command_list_->CopyTextureRegion(&copy_location, 0, 0, 0, &texture_location, nullptr);
+                    }
+                    else
+                    {
+                        // Copy to texture.
+                        command_list_->CopyTextureRegion(&texture_location, 0, 0, 0, &copy_location, nullptr);
+                    }
+                }
+
+                // Restore resource state.
+                AddTransitionBarrier(command_list_, target_resource, i, copy_state, after_states[i]);
+            }
+
+            // Close and execute the command list.
+            result = command_list_->Close();
+            if (SUCCEEDED(result))
+            {
+                result = ExecuteAndWaitForCommandList();
+            }
         }
     }
 
@@ -657,22 +661,26 @@ Dx12ResourceDataUtil::ExecuteTransitionCommandList(ID3D12Resource*              
     // Transition the subresources.
     bool    cmd_list_empty = true;
     auto    resource_desc  = target_resource->GetDesc();
-    HRESULT result         = command_list_->Reset(command_allocator_, nullptr);
+    HRESULT result         = command_allocator_->Reset();
     if (SUCCEEDED(result))
     {
-        for (UINT i = 0; i < subresource_count; ++i)
+        result = command_list_->Reset(command_allocator_, nullptr);
+        if (SUCCEEDED(result))
         {
-            if (AddTransitionBarrier(command_list_, target_resource, i, before_states[i], after_states[i]))
+            for (UINT i = 0; i < subresource_count; ++i)
             {
-                cmd_list_empty = false;
+                if (AddTransitionBarrier(command_list_, target_resource, i, before_states[i], after_states[i]))
+                {
+                    cmd_list_empty = false;
+                }
             }
-        }
 
-        // Close and execute the command list.
-        result = command_list_->Close();
-        if (SUCCEEDED(result) && !cmd_list_empty)
-        {
-            result = ExecuteAndWaitForCommandList();
+            // Close and execute the command list.
+            result = command_list_->Close();
+            if (SUCCEEDED(result) && !cmd_list_empty)
+            {
+                result = ExecuteAndWaitForCommandList();
+            }
         }
     }
 
