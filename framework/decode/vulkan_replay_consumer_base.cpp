@@ -2087,7 +2087,7 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
     // specified index.
     if ((options_.surface_index == -1) || (options_.surface_index == create_surface_count_))
     {
-        // Create a window for our surface
+        // Create a window for our surface.
         assert(application_);
         auto wsi_context = application_ ? application_->GetWsiContext(wsi_extension, true) : nullptr;
         assert(wsi_context);
