@@ -142,12 +142,6 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                     instance_api_version, instance_table, physical_device, buffer_address_features);
             }
             break;
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
-            {
-                GFXRECON_LOG_ERROR("Extension %s is not supported by GFXReconstruct.",
-                                   VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
-            }
-            break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             {
                 // Enable accelerationStructureCaptureReplay
