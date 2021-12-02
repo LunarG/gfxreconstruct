@@ -229,7 +229,8 @@ void Application::ProcessEvents(bool wait_for_input)
     {
         const auto& wsi_context = itr.second;
         bool activeWsiContext = wsi_context ? !wsi_context->GetWindows().empty() : false;
-        bool androidWsiContext = wsi_context ? wsi_context->GetWsiExtension() == "VK_KHR_android_surface" : false;
+        auto pWindowFactory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+        bool androidWsiContext = pWindowFactory ? pWindowFactory->GetSurfaceExtensionName() == "VK_KHR_android_surface" : false;
         if (activeWsiContext || androidWsiContext)
         {
             wsi_context->ProcessEvents(wait_for_input);
