@@ -68,57 +68,6 @@ Application::Application(const std::string&     name,
     {
         InitializeWsiContext(cli_wsi_extension_.c_str());
     }
-
-#if 0
-    bool success = true;
-    if (cli_wsi_extension_.empty())
-    {
-        // NOOP : If no WSI context is selected on the command line, each WSI extension
-        //  present in the VkInstanceCreateInfo will be handled when vkCreateInstance()
-        //  is processed.
-    }
-    else
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-        if (cli_wsi_extension_ == VK_KHR_WIN32_SURFACE_EXTENSION_NAME)
-    {
-        InitializeWsiContext(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-    }
-    else
-#endif
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-        if (cli_wsi_extension_ == VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME)
-    {
-        InitializeWsiContext(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
-    }
-    else
-#endif
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-        if (cli_wsi_extension_ == VK_KHR_XCB_SURFACE_EXTENSION_NAME)
-    {
-        InitializeWsiContext(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-    }
-    else
-#endif
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
-        if (cli_wsi_extension_ == VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
-    {
-        InitializeWsiContext(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
-    }
-    else
-#endif
-#if defined(VK_USE_PLATFORM_HEADLESS)
-        if (cli_wsi_extension_ == VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME)
-    {
-        InitializeWsiContext(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME);
-    }
-    else
-#endif
-    {
-        GFXRECON_WRITE_CONSOLE("Failed to initialize WSI context [%s].  WSI initializaton will attempt to fallback to "
-                               "a supported WSI extension",
-                               cli_wsi_extension_.c_str());
-    }
-#endif
 }
 
 Application ::~Application() {}

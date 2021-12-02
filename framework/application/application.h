@@ -31,7 +31,6 @@
 
 #include <memory>
 #include <string>
-#include <map>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -50,7 +49,7 @@ class Application final
 
     const std::string& GetName() const { return name_; }
 
-    const std::map<std::string, std::unique_ptr<WsiContext>>& GetWsiContexts() const { return wsi_contexts_; }
+    const std::unordered_map<std::string, std::unique_ptr<WsiContext>>& GetWsiContexts() const { return wsi_contexts_; }
 
     const WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false) const;
 
@@ -81,7 +80,7 @@ class Application final
     bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
     bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
     uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
-    std::map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
+    std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
     // clang-format on
 };
