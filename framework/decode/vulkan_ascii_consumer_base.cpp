@@ -37,22 +37,10 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
     Destroy();
 }
 
-bool VulkanAsciiConsumerBase::Initialize(const std::string& filename, FILE* file)
+void VulkanAsciiConsumerBase::Initialize(const std::string& filename, FILE* file)
 {
-    bool success = false;
-
-    if (m_file == nullptr)
-    {
-        int32_t result = util::platform::FileOpen(&m_file, filename.c_str(), "w");
-        if (result == 0)
-        {
-            success    = true;
-            m_filename = filename;
-            fprintf(m_file, "{");
-        }
-    }
-
-    return success;
+    m_filename = filename;
+    m_file     = file;
 }
 
 void VulkanAsciiConsumerBase::Destroy()
