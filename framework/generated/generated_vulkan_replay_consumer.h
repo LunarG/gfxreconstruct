@@ -1489,10 +1489,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    queueFamilyIndex) override;
 
     virtual void Process_vkCmdBeginRenderingKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo) override;
 
     virtual void Process_vkCmdEndRenderingKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer) override;
 
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
@@ -2066,16 +2068,19 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo) override;
 
     virtual void Process_vkGetDeviceBufferMemoryRequirementsKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirementsKHR>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
 
     virtual void Process_vkGetDeviceImageMemoryRequirementsKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
 
     virtual void Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
         PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
@@ -3172,6 +3177,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         PointerDecoder<int32_t>*                    pVertexOffset) override;
 
     virtual void Process_vkSetDeviceMemoryPriorityEXT(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            memory,
         float                                       priority) override;

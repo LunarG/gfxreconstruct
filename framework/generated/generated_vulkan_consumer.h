@@ -1489,10 +1489,12 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    queueFamilyIndex) {}
 
     virtual void Process_vkCmdBeginRenderingKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo) {}
 
     virtual void Process_vkCmdEndRenderingKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer) {}
 
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
@@ -2066,16 +2068,19 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo) {}
 
     virtual void Process_vkGetDeviceBufferMemoryRequirementsKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirementsKHR>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) {}
 
     virtual void Process_vkGetDeviceImageMemoryRequirementsKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) {}
 
     virtual void Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
         PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
@@ -3172,6 +3177,7 @@ class VulkanConsumer : public VulkanConsumerBase
         PointerDecoder<int32_t>*                    pVertexOffset) {}
 
     virtual void Process_vkSetDeviceMemoryPriorityEXT(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            memory,
         float                                       priority) {}

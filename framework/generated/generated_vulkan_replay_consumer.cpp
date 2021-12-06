@@ -3167,6 +3167,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKH
 }
 
 void VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo)
 {
@@ -3178,6 +3179,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(
 }
 
 void VulkanReplayConsumer::Process_vkCmdEndRenderingKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
     VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
@@ -4464,6 +4466,7 @@ void VulkanReplayConsumer::Process_vkCmdResolveImage2KHR(
 }
 
 void VulkanReplayConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirementsKHR>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
@@ -4477,6 +4480,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
 }
 
 void VulkanReplayConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
@@ -4490,6 +4494,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
 }
 
 void VulkanReplayConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
     PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
@@ -6811,6 +6816,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMultiIndexedEXT(
 }
 
 void VulkanReplayConsumer::Process_vkSetDeviceMemoryPriorityEXT(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     format::HandleId                            memory,
     float                                       priority)

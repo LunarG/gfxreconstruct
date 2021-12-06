@@ -263,6 +263,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
 
     virtual void Process_vkCmdBeginRenderingKHR(
+        const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo) override;
 

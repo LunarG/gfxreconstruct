@@ -599,6 +599,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
+    const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo)
 {
