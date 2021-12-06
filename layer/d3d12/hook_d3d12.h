@@ -79,6 +79,8 @@ typedef HRESULT(WINAPI* PFN_D3D12SERIALIZEROOTSIGNATURE)(const D3D12_ROOT_SIGNAT
                                                          ID3DBlob**                       ppBlob,
                                                          ID3DBlob**                       ppErrorBlob);
 
+typedef HRESULT(WINAPI* PFN_D3D12GETINTERFACE)(REFCLSID rclsid, REFIID riid, void** ppvDebug);
+
 typedef HRESULT(WINAPI* PFN_D3D12SERIALIZEVERSIONEDROOTSIGNATURE)(
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature, ID3DBlob** ppBlob, ID3DBlob** ppErrorBlob);
 
@@ -108,5 +110,6 @@ class Hook_D3D12
     gfxrecon::util::interception::RealAndMineHook<PFN_D3D12SERIALIZEROOTSIGNATURE> hook_D3D12SerializeRootSignature_;
     gfxrecon::util::interception::RealAndMineHook<PFN_D3D12SERIALIZEVERSIONEDROOTSIGNATURE>
         hook_D3D12SerializeVersionedRootSignature_;
+    gfxrecon::util::interception::RealAndMineHook<PFN_D3D12GETINTERFACE> hook_D3D12GetInterface_;
 };
 #endif // GFXRECON_HOOK_D3D12_H

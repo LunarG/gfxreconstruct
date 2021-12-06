@@ -134,8 +134,16 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DeviceRemovedExtendedDataSettings1, AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceRemovedExtendedData, AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceRemovedExtendedData1, AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper, ParentWrapper> },
+    { IID_ID3D12DeviceRemovedExtendedData2, AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper, ParentWrapper> },
     { IID_ID3D12ProtectedResourceSession, AddEntry<ID3D12ProtectedResourceSession_Wrapper, ParentWrapper> },
     { IID_ID3D12ProtectedResourceSession1, AddEntry<ID3D12ProtectedResourceSession_Wrapper, ParentWrapper> },
+    { IID_ID3D12Resource, AddEntry<ID3D12Resource_Wrapper, ParentWrapper> },
+    { IID_ID3D12Resource1, AddEntry<ID3D12Resource_Wrapper, ParentWrapper> },
+    { IID_ID3D12Resource2, AddEntry<ID3D12Resource_Wrapper, ParentWrapper> },
+    { IID_ID3D12Heap, AddEntry<ID3D12Heap_Wrapper, ParentWrapper> },
+    { IID_ID3D12Heap1, AddEntry<ID3D12Heap_Wrapper, ParentWrapper> },
+    { IID_ID3D12MetaCommand, AddEntry<ID3D12MetaCommand_Wrapper, ParentWrapper> },
+    { IID_ID3D12ShaderCacheSession, AddEntry<ID3D12ShaderCacheSession_Wrapper, ParentWrapper> },
     { IID_ID3D12Device, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device1, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device2, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
@@ -145,13 +153,9 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Device6, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device7, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device8, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
-    { IID_ID3D12Resource, AddEntry<ID3D12Resource_Wrapper, ParentWrapper> },
-    { IID_ID3D12Resource1, AddEntry<ID3D12Resource_Wrapper, ParentWrapper> },
-    { IID_ID3D12Resource2, AddEntry<ID3D12Resource_Wrapper, ParentWrapper> },
-    { IID_ID3D12Heap, AddEntry<ID3D12Heap_Wrapper, ParentWrapper> },
-    { IID_ID3D12Heap1, AddEntry<ID3D12Heap_Wrapper, ParentWrapper> },
-    { IID_ID3D12MetaCommand, AddEntry<ID3D12MetaCommand_Wrapper, ParentWrapper> },
+    { IID_ID3D12Device9, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
+    { IID_ID3D12SDKConfiguration, AddEntry<ID3D12SDKConfiguration_Wrapper, ParentWrapper> },
     { IID_ID3D12GraphicsCommandList, AddEntry<ID3D12GraphicsCommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12GraphicsCommandList1, AddEntry<ID3D12GraphicsCommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12GraphicsCommandList2, AddEntry<ID3D12GraphicsCommandList_Wrapper, ParentWrapper> },
@@ -167,6 +171,8 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Debug1, AddEntry<ID3D12Debug_Wrapper, ParentWrapper> },
     { IID_ID3D12Debug2, AddEntry<ID3D12Debug_Wrapper, ParentWrapper> },
     { IID_ID3D12Debug3, AddEntry<ID3D12Debug_Wrapper, ParentWrapper> },
+    { IID_ID3D12Debug4, AddEntry<ID3D12Debug_Wrapper, ParentWrapper> },
+    { IID_ID3D12Debug5, AddEntry<ID3D12Debug_Wrapper, ParentWrapper> },
     { IID_ID3D12DebugDevice1, AddEntry<ID3D12DebugDevice1_Wrapper, ParentWrapper> },
     { IID_ID3D12DebugDevice, AddEntry<ID3D12DebugDevice_Wrapper, ParentWrapper> },
     { IID_ID3D12DebugDevice1, AddEntry<ID3D12DebugDevice_Wrapper, ParentWrapper> },
@@ -178,6 +184,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DebugCommandList2, AddEntry<ID3D12DebugCommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12SharingContract, AddEntry<ID3D12SharingContract_Wrapper, ParentWrapper> },
     { IID_ID3D12InfoQueue, AddEntry<ID3D12InfoQueue_Wrapper, ParentWrapper> },
+    { IID_ID3D12InfoQueue1, AddEntry<ID3D12InfoQueue_Wrapper, ParentWrapper> },
 };
 
 const std::unordered_map<IID, std::function<void(typename void**, format::ApiCallId, void*, const util::MemoryOutputStream*, std::mutex &state_table_mutex, Dx12StateTable &state_table)>,IidHash> kAddEntryVoidFunctionTable
@@ -245,8 +252,16 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DeviceRemovedExtendedDataSettings1, AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper> },
     { IID_ID3D12DeviceRemovedExtendedData, AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper> },
     { IID_ID3D12DeviceRemovedExtendedData1, AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper> },
+    { IID_ID3D12DeviceRemovedExtendedData2, AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper> },
     { IID_ID3D12ProtectedResourceSession, AddEntry<ID3D12ProtectedResourceSession_Wrapper> },
     { IID_ID3D12ProtectedResourceSession1, AddEntry<ID3D12ProtectedResourceSession_Wrapper> },
+    { IID_ID3D12Resource, AddEntry<ID3D12Resource_Wrapper> },
+    { IID_ID3D12Resource1, AddEntry<ID3D12Resource_Wrapper> },
+    { IID_ID3D12Resource2, AddEntry<ID3D12Resource_Wrapper> },
+    { IID_ID3D12Heap, AddEntry<ID3D12Heap_Wrapper> },
+    { IID_ID3D12Heap1, AddEntry<ID3D12Heap_Wrapper> },
+    { IID_ID3D12MetaCommand, AddEntry<ID3D12MetaCommand_Wrapper> },
+    { IID_ID3D12ShaderCacheSession, AddEntry<ID3D12ShaderCacheSession_Wrapper> },
     { IID_ID3D12Device, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device1, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device2, AddEntry<ID3D12Device_Wrapper> },
@@ -256,13 +271,9 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Device6, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device7, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device8, AddEntry<ID3D12Device_Wrapper> },
-    { IID_ID3D12Resource, AddEntry<ID3D12Resource_Wrapper> },
-    { IID_ID3D12Resource1, AddEntry<ID3D12Resource_Wrapper> },
-    { IID_ID3D12Resource2, AddEntry<ID3D12Resource_Wrapper> },
-    { IID_ID3D12Heap, AddEntry<ID3D12Heap_Wrapper> },
-    { IID_ID3D12Heap1, AddEntry<ID3D12Heap_Wrapper> },
-    { IID_ID3D12MetaCommand, AddEntry<ID3D12MetaCommand_Wrapper> },
+    { IID_ID3D12Device9, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper> },
+    { IID_ID3D12SDKConfiguration, AddEntry<ID3D12SDKConfiguration_Wrapper> },
     { IID_ID3D12GraphicsCommandList, AddEntry<ID3D12GraphicsCommandList_Wrapper> },
     { IID_ID3D12GraphicsCommandList1, AddEntry<ID3D12GraphicsCommandList_Wrapper> },
     { IID_ID3D12GraphicsCommandList2, AddEntry<ID3D12GraphicsCommandList_Wrapper> },
@@ -278,6 +289,8 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Debug1, AddEntry<ID3D12Debug_Wrapper> },
     { IID_ID3D12Debug2, AddEntry<ID3D12Debug_Wrapper> },
     { IID_ID3D12Debug3, AddEntry<ID3D12Debug_Wrapper> },
+    { IID_ID3D12Debug4, AddEntry<ID3D12Debug_Wrapper> },
+    { IID_ID3D12Debug5, AddEntry<ID3D12Debug_Wrapper> },
     { IID_ID3D12DebugDevice1, AddEntry<ID3D12DebugDevice1_Wrapper> },
     { IID_ID3D12DebugDevice, AddEntry<ID3D12DebugDevice_Wrapper> },
     { IID_ID3D12DebugDevice1, AddEntry<ID3D12DebugDevice_Wrapper> },
@@ -289,6 +302,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DebugCommandList2, AddEntry<ID3D12DebugCommandList_Wrapper> },
     { IID_ID3D12SharingContract, AddEntry<ID3D12SharingContract_Wrapper> },
     { IID_ID3D12InfoQueue, AddEntry<ID3D12InfoQueue_Wrapper> },
+    { IID_ID3D12InfoQueue1, AddEntry<ID3D12InfoQueue_Wrapper> },
 };
 
 static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
@@ -610,6 +624,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12DeviceRemovedExtendedData_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D12DeviceRemovedExtendedData2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DeviceRemovedExtendedData_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D12ProtectedResourceSession)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12ProtectedResourceSession_Wrapper*>(wrapper);
@@ -618,6 +637,41 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D12ProtectedResourceSession1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12ProtectedResourceSession_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Resource)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Resource1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Resource2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Heap)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Heap1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12MetaCommand)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12ShaderCacheSession)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12ShaderCacheSession_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12Device)
@@ -665,39 +719,19 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
-    if(riid == IID_ID3D12Resource)
+    if(riid == IID_ID3D12Device9)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D12Resource1)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D12Resource2)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D12Heap)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D12Heap1)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D12MetaCommand)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12Tools)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12Tools_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12SDKConfiguration)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12SDKConfiguration_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12GraphicsCommandList)
@@ -775,6 +809,16 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12Debug_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D12Debug4)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Debug5)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D12DebugDevice1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12DebugDevice1_Wrapper*>(wrapper);
@@ -826,6 +870,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12InfoQueue)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12InfoQueue_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12InfoQueue1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12InfoQueue_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();

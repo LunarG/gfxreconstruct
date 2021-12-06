@@ -41,6 +41,7 @@ struct D3D12DispatchTable
     PFN_D3D12_GET_DEBUG_INTERFACE                          D3D12GetDebugInterface{ nullptr };
     PFN_D3D12_SERIALIZE_ROOT_SIGNATURE                     D3D12SerializeRootSignature{ nullptr };
     PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE           D3D12SerializeVersionedRootSignature{ nullptr };
+    PFN_D3D12_GET_INTERFACE                                D3D12GetInterface{ nullptr };
     // NOTE: There is no typedef in d3d12.h for D3D12EnableExperimentalFeatures.
     decltype(D3D12EnableExperimentalFeatures)* D3D12EnableExperimentalFeatures{ nullptr };
 };

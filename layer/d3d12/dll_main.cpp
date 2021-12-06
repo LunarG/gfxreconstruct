@@ -65,6 +65,8 @@ static void LoadD3D12CaptureProcs(HMODULE system_dll, encode::D3D12DispatchTable
         dispatch_table->D3D12SerializeVersionedRootSignature =
             reinterpret_cast<PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE>(
                 GetProcAddress(system_dll, "D3D12SerializeVersionedRootSignature"));
+        dispatch_table->D3D12GetInterface =
+            reinterpret_cast<PFN_D3D12_GET_INTERFACE>(GetProcAddress(system_dll, "D3D12GetInterface"));
         dispatch_table->D3D12EnableExperimentalFeatures = reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
             GetProcAddress(system_dll, "D3D12EnableExperimentalFeatures"));
     }
@@ -164,6 +166,16 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12SerializeVersionedRootSignature(
     if (gfxrecon::Initialize())
     {
         return GetDispatchTable().D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
+    }
+
+    return E_FAIL;
+}
+
+EXTERN_C HRESULT WINAPI gfxrecon_D3D12GetInterface(REFCLSID rclsid, REFIID riid, void** ppvDebug)
+{
+    if (gfxrecon::Initialize())
+    {
+        return GetDispatchTable().D3D12GetInterface(rclsid, riid, ppvDebug);
     }
 
     return E_FAIL;

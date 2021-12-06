@@ -82,6 +82,8 @@ void WrapStruct(const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* value);
 
 void WrapStruct(const D3D12_DRED_PAGE_FAULT_OUTPUT1* value);
 
+void WrapStruct(const D3D12_DRED_PAGE_FAULT_OUTPUT2* value);
+
 void WrapStruct(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value);
 
 GFXRECON_END_NAMESPACE(encode)

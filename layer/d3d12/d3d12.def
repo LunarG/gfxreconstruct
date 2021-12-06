@@ -15,5 +15,6 @@ D3D12PIXNotifyWakeFromFenceSignal=d3d12_ms.D3D12PIXNotifyWakeFromFenceSignal @11
 D3D12PIXReportCounter=d3d12_ms.D3D12PIXReportCounter @114
 D3D12SerializeRootSignature=gfxrecon_D3D12SerializeRootSignature @115
 D3D12SerializeVersionedRootSignature=gfxrecon_D3D12SerializeVersionedRootSignature @116
+D3D12GetInterface=gfxrecon_D3D12GetInterface @117
 GetBehaviorValue=d3d12_ms.GetBehaviorValue @100
 SetAppCompatStringPointer=d3d12_ms.SetAppCompatStringPointer @103

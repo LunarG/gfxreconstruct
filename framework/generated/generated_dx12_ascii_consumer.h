@@ -41,7 +41,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
     Dx12AsciiConsumer(){}
     virtual ~Dx12AsciiConsumer() override {}
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_CreateDXGIFactory(
@@ -427,7 +427,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         PointerDecoder<UINT>* pMaxLatency);
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_IDXGIDisplayControl_IsStereoEnabled(
@@ -727,7 +727,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication);
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_CreateDXGIFactory2(
@@ -908,7 +908,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         PointerDecoder<UINT>* pFlags);
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
@@ -1006,7 +1006,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         DWORD dwCookie);
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_IDXGIOutput5_DuplicateOutput1(
@@ -1045,7 +1045,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults);
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_DXGIDeclareAdapterRemovalSupport(
@@ -1093,7 +1093,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         DWORD dwCookie);
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_D3D12SerializeRootSignature(
@@ -1148,6 +1148,13 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         StructPointerDecoder<Decoded_GUID>* pIIDs,
         PointerDecoder<uint8_t>* pConfigurationStructs,
         PointerDecoder<UINT>* pConfigurationStructSizes);
+
+    virtual void Process_D3D12GetInterface(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        Decoded_GUID rclsid,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDebug);
 
     virtual void Process_ID3D12Object_GetPrivateData(
         const ApiCallInfo& call_info,
@@ -2446,6 +2453,17 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* pOutput);
 
+    virtual void Process_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2>* pOutput);
+
+    virtual void Process_ID3D12DeviceRemovedExtendedData2_GetDeviceState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_DRED_DEVICE_STATE return_value);
+
     virtual void Process_ID3D12Device6_SetBackgroundProcessingMode(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2618,6 +2636,57 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* pDesc);
 
+    virtual void Process_ID3D12ShaderCacheSession_FindValue(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        PointerDecoder<uint8_t>* pValue,
+        PointerDecoder<UINT>* pValueSize);
+
+    virtual void Process_ID3D12ShaderCacheSession_StoreValue(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        PointerDecoder<uint8_t>* pValue,
+        UINT ValueSize);
+
+    virtual void Process_ID3D12ShaderCacheSession_SetDeleteOnDestroy(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id);
+
+    virtual void Process_ID3D12ShaderCacheSession_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_SHADER_CACHE_SESSION_DESC return_value);
+
+    virtual void Process_ID3D12Device9_CreateShaderCacheSession(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_SHADER_CACHE_SESSION_DESC>* pDesc,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvSession);
+
+    virtual void Process_ID3D12Device9_ShaderCacheControl(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D12_SHADER_CACHE_KIND_FLAGS Kinds,
+        D3D12_SHADER_CACHE_CONTROL_FLAGS Control);
+
+    virtual void Process_ID3D12Device9_CreateCommandQueue1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
+        Decoded_GUID CreatorID,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppCommandQueue);
+
     virtual void Process_ID3D12Tools_EnableShaderInstrumentation(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2627,6 +2696,13 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         BOOL return_value);
+
+    virtual void Process_ID3D12SDKConfiguration_SetSDKVersion(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT SDKVersion,
+        StringDecoder* SDKPath);
 
     virtual void Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         const ApiCallInfo& call_info,
@@ -2647,7 +2723,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         UINT ThreadGroupCountZ);
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_ID3D10Blob_GetBufferPointer(
@@ -2675,7 +2751,7 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         UINT callbackID);
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_ID3D12Debug_EnableDebugLayer(
@@ -2715,6 +2791,15 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
+
+    virtual void Process_ID3D12Debug4_DisableDebugLayer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id);
+
+    virtual void Process_ID3D12Debug5_SetEnableAutoName(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL Enable);
 
     virtual void Process_ID3D12DebugDevice1_SetDebugParameter(
         const ApiCallInfo& call_info,
@@ -3058,8 +3143,23 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         format::HandleId object_id,
         BOOL return_value);
 
+    virtual void Process_ID3D12InfoQueue1_RegisterMessageCallback(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t CallbackFunc,
+        D3D12_MESSAGE_CALLBACK_FLAGS CallbackFilterFlags,
+        uint64_t pContext,
+        PointerDecoder<DWORD>* pCallbackCookie);
+
+    virtual void Process_ID3D12InfoQueue1_UnregisterMessageCallback(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DWORD CallbackCookie);
+
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.19041.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
 **
 */
     virtual void Process_IUnknown_QueryInterface(

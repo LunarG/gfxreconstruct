@@ -124,16 +124,20 @@ ID3D12DeviceRemovedExtendedData_Wrapper::ObjectMap ID3D12DeviceRemovedExtendedDa
 std::mutex ID3D12DeviceRemovedExtendedData_Wrapper::object_map_lock_;
 ID3D12ProtectedResourceSession_Wrapper::ObjectMap ID3D12ProtectedResourceSession_Wrapper::object_map_;
 std::mutex ID3D12ProtectedResourceSession_Wrapper::object_map_lock_;
-ID3D12Device_Wrapper::ObjectMap ID3D12Device_Wrapper::object_map_;
-std::mutex ID3D12Device_Wrapper::object_map_lock_;
 ID3D12Resource_Wrapper::ObjectMap ID3D12Resource_Wrapper::object_map_;
 std::mutex ID3D12Resource_Wrapper::object_map_lock_;
 ID3D12Heap_Wrapper::ObjectMap ID3D12Heap_Wrapper::object_map_;
 std::mutex ID3D12Heap_Wrapper::object_map_lock_;
 ID3D12MetaCommand_Wrapper::ObjectMap ID3D12MetaCommand_Wrapper::object_map_;
 std::mutex ID3D12MetaCommand_Wrapper::object_map_lock_;
+ID3D12ShaderCacheSession_Wrapper::ObjectMap ID3D12ShaderCacheSession_Wrapper::object_map_;
+std::mutex ID3D12ShaderCacheSession_Wrapper::object_map_lock_;
+ID3D12Device_Wrapper::ObjectMap ID3D12Device_Wrapper::object_map_;
+std::mutex ID3D12Device_Wrapper::object_map_lock_;
 ID3D12Tools_Wrapper::ObjectMap ID3D12Tools_Wrapper::object_map_;
 std::mutex ID3D12Tools_Wrapper::object_map_lock_;
+ID3D12SDKConfiguration_Wrapper::ObjectMap ID3D12SDKConfiguration_Wrapper::object_map_;
+std::mutex ID3D12SDKConfiguration_Wrapper::object_map_lock_;
 ID3D12GraphicsCommandList_Wrapper::ObjectMap ID3D12GraphicsCommandList_Wrapper::object_map_;
 std::mutex ID3D12GraphicsCommandList_Wrapper::object_map_lock_;
 ID3D10Blob_Wrapper::ObjectMap ID3D10Blob_Wrapper::object_map_;
@@ -162,7 +166,7 @@ ID3D12InfoQueue_Wrapper::ObjectMap ID3D12InfoQueue_Wrapper::object_map_;
 std::mutex ID3D12InfoQueue_Wrapper::object_map_lock_;
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -2664,7 +2668,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
 
         if (SUCCEEDED(result))
         {
-            WrapObject(IID_IDXGISurface, reinterpret_cast<void**>(ppSurface), nullptr);
+            WrapObjectArray(IID_IDXGISurface, reinterpret_cast<void**>(ppSurface), NumSurfaces, nullptr);
         }
 
         Encode_IDXGIDevice_CreateSurface(
@@ -3070,7 +3074,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
 
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -5227,7 +5231,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
 
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -6563,7 +6567,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
 
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -7239,7 +7243,7 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterVideoMemoryBudgetChangeN
 
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -7558,7 +7562,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
 
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -7894,25 +7898,25 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
 
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from dxgiformat.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -8322,6 +8326,62 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
             pIIDs,
             pConfigurationStructs,
             pConfigurationStructSizes);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT WINAPI D3D12GetInterface(
+    REFCLSID rclsid,
+    REFIID riid,
+    void** ppvDebug)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12GetInterface>::Dispatch(
+            manager,
+            rclsid,
+            riid,
+            ppvDebug);
+
+        result = manager->GetD3D12DispatchTable().D3D12GetInterface(
+            rclsid,
+            riid,
+            ppvDebug);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvDebug, nullptr);
+        }
+
+        Encode_D3D12GetInterface(
+            result,
+            rclsid,
+            riid,
+            ppvDebug);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_D3D12GetInterface>::Dispatch(
+            manager,
+            result,
+            rclsid,
+            riid,
+            ppvDebug);
+    }
+    else
+    {
+        result = manager->GetD3D12DispatchTable().D3D12GetInterface(
+            rclsid,
+            riid,
+            ppvDebug);
     }
 
     manager->DecrementCallScope();
@@ -18029,6 +18089,93 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetPageFault
     return result;
 }
 
+ID3D12DeviceRemovedExtendedData2_Wrapper::ID3D12DeviceRemovedExtendedData2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceRemovedExtendedData1_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData2_Wrapper::GetPageFaultAllocationOutput2(
+    D3D12_DRED_PAGE_FAULT_OUTPUT2* pOutput)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2>::Dispatch(
+            manager,
+            this,
+            pOutput);
+
+        result = GetWrappedObjectAs<ID3D12DeviceRemovedExtendedData2>()->GetPageFaultAllocationOutput2(
+            pOutput);
+
+        if (SUCCEEDED(result))
+        {
+            WrapStruct(pOutput);
+        }
+
+        Encode_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2(
+            this,
+            result,
+            pOutput);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2>::Dispatch(
+            manager,
+            this,
+            result,
+            pOutput);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceRemovedExtendedData2>()->GetPageFaultAllocationOutput2(
+            pOutput);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+D3D12_DRED_DEVICE_STATE STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData2_Wrapper::GetDeviceState()
+{
+    D3D12_DRED_DEVICE_STATE result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetDeviceState>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D12DeviceRemovedExtendedData2>()->GetDeviceState();
+
+        Encode_ID3D12DeviceRemovedExtendedData2_GetDeviceState(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetDeviceState>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceRemovedExtendedData2>()->GetDeviceState();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12Device6_Wrapper::ID3D12Device6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Device5_Wrapper(riid, object, resources, destructor)
 {
 }
@@ -19292,6 +19439,388 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
     manager->DecrementCallScope();
 }
 
+ID3D12ShaderCacheSession_Wrapper::ID3D12ShaderCacheSession_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12ShaderCacheSessionInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12ShaderCacheSession_Wrapper::~ID3D12ShaderCacheSession_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12ShaderCacheSession>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12ShaderCacheSession_Wrapper* ID3D12ShaderCacheSession_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12ShaderCacheSession_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::FindValue(
+    const void* pKey,
+    UINT KeySize,
+    void* pValue,
+    UINT* pValueSize)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_FindValue>::Dispatch(
+            manager,
+            this,
+            pKey,
+            KeySize,
+            pValue,
+            pValueSize);
+
+        result = GetWrappedObjectAs<ID3D12ShaderCacheSession>()->FindValue(
+            pKey,
+            KeySize,
+            pValue,
+            pValueSize);
+
+        Encode_ID3D12ShaderCacheSession_FindValue(
+            this,
+            result,
+            pKey,
+            KeySize,
+            pValue,
+            pValueSize);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_FindValue>::Dispatch(
+            manager,
+            this,
+            result,
+            pKey,
+            KeySize,
+            pValue,
+            pValueSize);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12ShaderCacheSession>()->FindValue(
+            pKey,
+            KeySize,
+            pValue,
+            pValueSize);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::StoreValue(
+    const void* pKey,
+    UINT KeySize,
+    const void* pValue,
+    UINT ValueSize)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_StoreValue>::Dispatch(
+            manager,
+            this,
+            pKey,
+            KeySize,
+            pValue,
+            ValueSize);
+
+        result = GetWrappedObjectAs<ID3D12ShaderCacheSession>()->StoreValue(
+            pKey,
+            KeySize,
+            pValue,
+            ValueSize);
+
+        Encode_ID3D12ShaderCacheSession_StoreValue(
+            this,
+            result,
+            pKey,
+            KeySize,
+            pValue,
+            ValueSize);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_StoreValue>::Dispatch(
+            manager,
+            this,
+            result,
+            pKey,
+            KeySize,
+            pValue,
+            ValueSize);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12ShaderCacheSession>()->StoreValue(
+            pKey,
+            KeySize,
+            pValue,
+            ValueSize);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+void STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::SetDeleteOnDestroy()
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_SetDeleteOnDestroy>::Dispatch(
+            manager,
+            this);
+
+        GetWrappedObjectAs<ID3D12ShaderCacheSession>()->SetDeleteOnDestroy();
+
+        Encode_ID3D12ShaderCacheSession_SetDeleteOnDestroy(
+            this);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_SetDeleteOnDestroy>::Dispatch(
+            manager,
+            this);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12ShaderCacheSession>()->SetDeleteOnDestroy();
+    }
+
+    manager->DecrementCallScope();
+}
+
+D3D12_SHADER_CACHE_SESSION_DESC STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::GetDesc()
+{
+    D3D12_SHADER_CACHE_SESSION_DESC result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_GetDesc>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D12ShaderCacheSession>()->GetDesc();
+
+        Encode_ID3D12ShaderCacheSession_GetDesc(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_GetDesc>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12ShaderCacheSession>()->GetDesc();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D12Device9_Wrapper::ID3D12Device9_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Device8_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::CreateShaderCacheSession(
+    const D3D12_SHADER_CACHE_SESSION_DESC* pDesc,
+    REFIID riid,
+    void** ppvSession)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device9_CreateShaderCacheSession>::Dispatch(
+            manager,
+            this,
+            pDesc,
+            riid,
+            ppvSession);
+
+        result = GetWrappedObjectAs<ID3D12Device9>()->CreateShaderCacheSession(
+            pDesc,
+            riid,
+            ppvSession);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvSession, nullptr);
+        }
+
+        Encode_ID3D12Device9_CreateShaderCacheSession(
+            this,
+            result,
+            pDesc,
+            riid,
+            ppvSession);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device9_CreateShaderCacheSession>::Dispatch(
+            manager,
+            this,
+            result,
+            pDesc,
+            riid,
+            ppvSession);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Device9>()->CreateShaderCacheSession(
+            pDesc,
+            riid,
+            ppvSession);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::ShaderCacheControl(
+    D3D12_SHADER_CACHE_KIND_FLAGS Kinds,
+    D3D12_SHADER_CACHE_CONTROL_FLAGS Control)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device9_ShaderCacheControl>::Dispatch(
+            manager,
+            this,
+            Kinds,
+            Control);
+
+        result = GetWrappedObjectAs<ID3D12Device9>()->ShaderCacheControl(
+            Kinds,
+            Control);
+
+        Encode_ID3D12Device9_ShaderCacheControl(
+            this,
+            result,
+            Kinds,
+            Control);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device9_ShaderCacheControl>::Dispatch(
+            manager,
+            this,
+            result,
+            Kinds,
+            Control);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Device9>()->ShaderCacheControl(
+            Kinds,
+            Control);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::CreateCommandQueue1(
+    const D3D12_COMMAND_QUEUE_DESC* pDesc,
+    REFIID CreatorID,
+    REFIID riid,
+    void** ppCommandQueue)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device9_CreateCommandQueue1>::Dispatch(
+            manager,
+            this,
+            pDesc,
+            CreatorID,
+            riid,
+            ppCommandQueue);
+
+        result = GetWrappedObjectAs<ID3D12Device9>()->CreateCommandQueue1(
+            pDesc,
+            CreatorID,
+            riid,
+            ppCommandQueue);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppCommandQueue, nullptr);
+        }
+
+        Encode_ID3D12Device9_CreateCommandQueue1(
+            this,
+            result,
+            pDesc,
+            CreatorID,
+            riid,
+            ppCommandQueue);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device9_CreateCommandQueue1>::Dispatch(
+            manager,
+            this,
+            result,
+            pDesc,
+            CreatorID,
+            riid,
+            ppCommandQueue);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Device9>()->CreateCommandQueue1(
+            pDesc,
+            CreatorID,
+            riid,
+            ppCommandQueue);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12Tools_Wrapper::ID3D12Tools_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12ToolsInfo>();
@@ -19377,6 +19906,74 @@ BOOL STDMETHODCALLTYPE ID3D12Tools_Wrapper::ShaderInstrumentationEnabled()
     else
     {
         result = GetWrappedObjectAs<ID3D12Tools>()->ShaderInstrumentationEnabled();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D12SDKConfiguration_Wrapper::ID3D12SDKConfiguration_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12SDKConfigurationInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12SDKConfiguration_Wrapper::~ID3D12SDKConfiguration_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12SDKConfiguration>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12SDKConfiguration_Wrapper* ID3D12SDKConfiguration_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12SDKConfiguration_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12SDKConfiguration_Wrapper::SetSDKVersion(
+    UINT SDKVersion,
+    LPCSTR SDKPath)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion>::Dispatch(
+            manager,
+            this,
+            SDKVersion,
+            SDKPath);
+
+        result = GetWrappedObjectAs<ID3D12SDKConfiguration>()->SetSDKVersion(
+            SDKVersion,
+            SDKPath);
+
+        Encode_ID3D12SDKConfiguration_SetSDKVersion(
+            this,
+            result,
+            SDKVersion,
+            SDKPath);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion>::Dispatch(
+            manager,
+            this,
+            result,
+            SDKVersion,
+            SDKPath);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12SDKConfiguration>()->SetSDKVersion(
+            SDKVersion,
+            SDKPath);
     }
 
     manager->DecrementCallScope();
@@ -19520,7 +20117,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
 
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -19734,7 +20331,7 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
 
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -20073,6 +20670,80 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetGPUBasedValidationFlags(
     {
         GetWrappedObjectAs<ID3D12Debug3>()->SetGPUBasedValidationFlags(
             Flags);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12Debug4_Wrapper::ID3D12Debug4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Debug3_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12Debug4_Wrapper::DisableDebugLayer()
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug4_DisableDebugLayer>::Dispatch(
+            manager,
+            this);
+
+        GetWrappedObjectAs<ID3D12Debug4>()->DisableDebugLayer();
+
+        Encode_ID3D12Debug4_DisableDebugLayer(
+            this);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Debug4_DisableDebugLayer>::Dispatch(
+            manager,
+            this);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12Debug4>()->DisableDebugLayer();
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12Debug5_Wrapper::ID3D12Debug5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Debug4_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12Debug5_Wrapper::SetEnableAutoName(
+    BOOL Enable)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug5_SetEnableAutoName>::Dispatch(
+            manager,
+            this,
+            Enable);
+
+        GetWrappedObjectAs<ID3D12Debug5>()->SetEnableAutoName(
+            Enable);
+
+        Encode_ID3D12Debug5_SetEnableAutoName(
+            this,
+            Enable);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Debug5_SetEnableAutoName>::Dispatch(
+            manager,
+            this,
+            Enable);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12Debug5>()->SetEnableAutoName(
+            Enable);
     }
 
     manager->DecrementCallScope();
@@ -22614,27 +23285,133 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetMuteDebugOutput()
     return result;
 }
 
+ID3D12InfoQueue1_Wrapper::ID3D12InfoQueue1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12InfoQueue_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12InfoQueue1_Wrapper::RegisterMessageCallback(
+    D3D12MessageFunc CallbackFunc,
+    D3D12_MESSAGE_CALLBACK_FLAGS CallbackFilterFlags,
+    void* pContext,
+    DWORD* pCallbackCookie)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback>::Dispatch(
+            manager,
+            this,
+            CallbackFunc,
+            CallbackFilterFlags,
+            pContext,
+            pCallbackCookie);
+
+        result = GetWrappedObjectAs<ID3D12InfoQueue1>()->RegisterMessageCallback(
+            CallbackFunc,
+            CallbackFilterFlags,
+            pContext,
+            pCallbackCookie);
+
+        Encode_ID3D12InfoQueue1_RegisterMessageCallback(
+            this,
+            result,
+            CallbackFunc,
+            CallbackFilterFlags,
+            pContext,
+            pCallbackCookie);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback>::Dispatch(
+            manager,
+            this,
+            result,
+            CallbackFunc,
+            CallbackFilterFlags,
+            pContext,
+            pCallbackCookie);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12InfoQueue1>()->RegisterMessageCallback(
+            CallbackFunc,
+            CallbackFilterFlags,
+            pContext,
+            pCallbackCookie);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12InfoQueue1_Wrapper::UnregisterMessageCallback(
+    DWORD CallbackCookie)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback>::Dispatch(
+            manager,
+            this,
+            CallbackCookie);
+
+        result = GetWrappedObjectAs<ID3D12InfoQueue1>()->UnregisterMessageCallback(
+            CallbackCookie);
+
+        Encode_ID3D12InfoQueue1_UnregisterMessageCallback(
+            this,
+            result,
+            CallbackCookie);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback>::Dispatch(
+            manager,
+            this,
+            result,
+            CallbackCookie);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12InfoQueue1>()->UnregisterMessageCallback(
+            CallbackCookie);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.19041.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.19041.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.19041.0
+** This part is generated from windef.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.19041.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
 **
 */
 

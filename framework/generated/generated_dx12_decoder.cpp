@@ -78,6 +78,9 @@ void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures:
         Decode_D3D12EnableExperimentalFeatures(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_D3D12GetInterface:
+        Decode_D3D12GetInterface(call_info, parameter_buffer, buffer_size);
+        break;
     default:
         Dx12DecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -1072,6 +1075,12 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1:
         Decode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2:
+        Decode_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetDeviceState:
+        Decode_ID3D12DeviceRemovedExtendedData2_GetDeviceState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device6_SetBackgroundProcessingMode:
         Decode_ID3D12Device6_SetBackgroundProcessingMode(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -1141,11 +1150,35 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays:
         Decode_ID3D12GraphicsCommandList4_DispatchRays(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_FindValue:
+        Decode_ID3D12ShaderCacheSession_FindValue(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_StoreValue:
+        Decode_ID3D12ShaderCacheSession_StoreValue(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_SetDeleteOnDestroy:
+        Decode_ID3D12ShaderCacheSession_SetDeleteOnDestroy(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_GetDesc:
+        Decode_ID3D12ShaderCacheSession_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device9_CreateShaderCacheSession:
+        Decode_ID3D12Device9_CreateShaderCacheSession(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device9_ShaderCacheControl:
+        Decode_ID3D12Device9_ShaderCacheControl(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device9_CreateCommandQueue1:
+        Decode_ID3D12Device9_CreateCommandQueue1(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12Tools_EnableShaderInstrumentation:
         Decode_ID3D12Tools_EnableShaderInstrumentation(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled:
         Decode_ID3D12Tools_ShaderInstrumentationEnabled(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion:
+        Decode_ID3D12SDKConfiguration_SetSDKVersion(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
         Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(object_id, call_info, parameter_buffer, buffer_size);
@@ -1191,6 +1224,12 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_ID3D12Debug3_SetGPUBasedValidationFlags:
         Decode_ID3D12Debug3_SetGPUBasedValidationFlags(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Debug4_DisableDebugLayer:
+        Decode_ID3D12Debug4_DisableDebugLayer(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Debug5_SetEnableAutoName:
+        Decode_ID3D12Debug5_SetEnableAutoName(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12DebugDevice1_SetDebugParameter:
         Decode_ID3D12DebugDevice1_SetDebugParameter(object_id, call_info, parameter_buffer, buffer_size);
@@ -1359,6 +1398,12 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMuteDebugOutput:
         Decode_ID3D12InfoQueue_GetMuteDebugOutput(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback:
+        Decode_ID3D12InfoQueue1_RegisterMessageCallback(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback:
+        Decode_ID3D12InfoQueue1_UnregisterMessageCallback(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_IUnknown_QueryInterface:
         Decode_IUnknown_QueryInterface(object_id, call_info, parameter_buffer, buffer_size);
@@ -1649,6 +1694,32 @@ size_t Dx12Decoder::Decode_D3D12EnableExperimentalFeatures(const ApiCallInfo& ca
     for (auto consumer : GetConsumers())
     {
         consumer->Process_D3D12EnableExperimentalFeatures(call_info, return_value, NumFeatures, &pIIDs, &pConfigurationStructs, &pConfigurationStructSizes);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_D3D12GetInterface(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID rclsid;
+    GUID value_rclsid;
+    rclsid.decoded_value = &value_rclsid;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvDebug;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rclsid);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvDebug.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_D3D12GetInterface(call_info, return_value, rclsid, riid, &ppvDebug);
     }
 
     return bytes_read;
@@ -8362,6 +8433,40 @@ size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocati
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2> pOutput;
+    HRESULT return_value;
+
+    bytes_read += pOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2(call_info, object_id, return_value, &pOutput);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedData2_GetDeviceState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    D3D12_DRED_DEVICE_STATE return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12DeviceRemovedExtendedData2_GetDeviceState(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12Device6_SetBackgroundProcessingMode(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -8864,6 +8969,158 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_DispatchRays(format::Handl
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12ShaderCacheSession_FindValue(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pKey;
+    UINT KeySize;
+    PointerDecoder<uint8_t> pValue;
+    PointerDecoder<UINT> pValueSize;
+    HRESULT return_value;
+
+    bytes_read += pKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &KeySize);
+    bytes_read += pValue.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pValueSize.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12ShaderCacheSession_FindValue(call_info, object_id, return_value, &pKey, KeySize, &pValue, &pValueSize);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12ShaderCacheSession_StoreValue(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pKey;
+    UINT KeySize;
+    PointerDecoder<uint8_t> pValue;
+    UINT ValueSize;
+    HRESULT return_value;
+
+    bytes_read += pKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &KeySize);
+    bytes_read += pValue.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ValueSize);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12ShaderCacheSession_StoreValue(call_info, object_id, return_value, &pKey, KeySize, &pValue, ValueSize);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12ShaderCacheSession_SetDeleteOnDestroy(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12ShaderCacheSession_SetDeleteOnDestroy(call_info, object_id);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12ShaderCacheSession_GetDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_D3D12_SHADER_CACHE_SESSION_DESC return_value;
+    D3D12_SHADER_CACHE_SESSION_DESC value_returned;
+    return_value.decoded_value = &value_returned;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12ShaderCacheSession_GetDesc(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device9_CreateShaderCacheSession(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_SHADER_CACHE_SESSION_DESC> pDesc;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvSession;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvSession.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device9_CreateShaderCacheSession(call_info, object_id, return_value, &pDesc, riid, &ppvSession);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device9_ShaderCacheControl(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    D3D12_SHADER_CACHE_KIND_FLAGS Kinds;
+    D3D12_SHADER_CACHE_CONTROL_FLAGS Control;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Kinds);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Control);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device9_ShaderCacheControl(call_info, object_id, return_value, Kinds, Control);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device9_CreateCommandQueue1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC> pDesc;
+    Decoded_GUID CreatorID;
+    GUID value_CreatorID;
+    CreatorID.decoded_value = &value_CreatorID;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppCommandQueue;
+    HRESULT return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CreatorID);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppCommandQueue.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device9_CreateCommandQueue1(call_info, object_id, return_value, &pDesc, CreatorID, riid, &ppCommandQueue);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12Tools_EnableShaderInstrumentation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -8891,6 +9148,26 @@ size_t Dx12Decoder::Decode_ID3D12Tools_ShaderInstrumentationEnabled(format::Hand
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12Tools_ShaderInstrumentationEnabled(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12SDKConfiguration_SetSDKVersion(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT SDKVersion;
+    StringDecoder SDKPath;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SDKVersion);
+    bytes_read += SDKPath.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12SDKConfiguration_SetSDKVersion(call_info, object_id, return_value, SDKVersion, &SDKPath);
     }
 
     return bytes_read;
@@ -9141,6 +9418,36 @@ size_t Dx12Decoder::Decode_ID3D12Debug3_SetGPUBasedValidationFlags(format::Handl
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12Debug3_SetGPUBasedValidationFlags(call_info, object_id, Flags);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Debug4_DisableDebugLayer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Debug4_DisableDebugLayer(call_info, object_id);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Debug5_SetEnableAutoName(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    BOOL Enable;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Enable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Debug5_SetEnableAutoName(call_info, object_id, Enable);
     }
 
     return bytes_read;
@@ -10165,6 +10472,48 @@ size_t Dx12Decoder::Decode_ID3D12InfoQueue_GetMuteDebugOutput(format::HandleId o
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12InfoQueue_GetMuteDebugOutput(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12InfoQueue1_RegisterMessageCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t CallbackFunc;
+    D3D12_MESSAGE_CALLBACK_FLAGS CallbackFilterFlags;
+    uint64_t pContext;
+    PointerDecoder<DWORD> pCallbackCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CallbackFunc);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CallbackFilterFlags);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pContext);
+    bytes_read += pCallbackCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12InfoQueue1_RegisterMessageCallback(call_info, object_id, return_value, CallbackFunc, CallbackFilterFlags, pContext, &pCallbackCookie);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12InfoQueue1_UnregisterMessageCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    DWORD CallbackCookie;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CallbackCookie);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12InfoQueue1_UnregisterMessageCallback(call_info, object_id, return_value, CallbackCookie);
     }
 
     return bytes_read;

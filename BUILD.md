@@ -156,6 +156,8 @@ configurations:
 - 32-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15"
 - 32-bit for VS 2015: cmake -H. -Bbuild -G "Visual Studio 14"
 
+**Note: the build uses Windows 10 SDK 10.0.20348.0. Windows 11 SDK 10.0.22000.194 is not compatible at the present time. If you need to specify a Windows 10 SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0` .**
+
 Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
 

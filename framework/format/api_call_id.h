@@ -1014,6 +1014,24 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12InfoQueue_SetMuteDebugOutput                                                    = MakeApiCallId(ApiFamily_D3D12, 0x1119),
     ApiCall_ID3D12InfoQueue_GetMuteDebugOutput                                                    = MakeApiCallId(ApiFamily_D3D12, 0x111a),
 
+
+    //win10 sdk 10.0.20348.0
+    ApiCall_D3D12GetInterface                                                                     = MakeApiCallId(ApiFamily_D3D12, 0x111b),
+    ApiCall_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2                        = MakeApiCallId(ApiFamily_D3D12, 0x111c),
+    ApiCall_ID3D12DeviceRemovedExtendedData2_GetDeviceState                                       = MakeApiCallId(ApiFamily_D3D12, 0x111d),
+    ApiCall_ID3D12ShaderCacheSession_FindValue                                                    = MakeApiCallId(ApiFamily_D3D12, 0x111e),
+    ApiCall_ID3D12ShaderCacheSession_StoreValue                                                   = MakeApiCallId(ApiFamily_D3D12, 0x111f),
+    ApiCall_ID3D12ShaderCacheSession_SetDeleteOnDestroy                                           = MakeApiCallId(ApiFamily_D3D12, 0x1120),
+    ApiCall_ID3D12ShaderCacheSession_GetDesc                                                      = MakeApiCallId(ApiFamily_D3D12, 0x1121),
+    ApiCall_ID3D12Device9_CreateShaderCacheSession                                                = MakeApiCallId(ApiFamily_D3D12, 0x1122),
+    ApiCall_ID3D12Device9_ShaderCacheControl                                                      = MakeApiCallId(ApiFamily_D3D12, 0x1123),
+    ApiCall_ID3D12Device9_CreateCommandQueue1                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1124),
+    ApiCall_ID3D12SDKConfiguration_SetSDKVersion                                                  = MakeApiCallId(ApiFamily_D3D12, 0x1125),
+    ApiCall_ID3D12Debug4_DisableDebugLayer                                                        = MakeApiCallId(ApiFamily_D3D12, 0x1126),
+    ApiCall_ID3D12Debug5_SetEnableAutoName                                                        = MakeApiCallId(ApiFamily_D3D12, 0x1127),
+    ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback                                            = MakeApiCallId(ApiFamily_D3D12, 0x1128),
+    ApiCall_ID3D12InfoQueue1_RegisterMessageCallback                                              = MakeApiCallId(ApiFamily_D3D12, 0x1129),
+
     ApiCall_D3D12Last,
 
     // clang-format on

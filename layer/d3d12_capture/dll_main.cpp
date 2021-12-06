@@ -70,6 +70,7 @@ EXTERN_C bool InitializeD3D12Capture(gfxrecon::encode::D3D12DispatchTable* table
         table->D3D12GetDebugInterface               = gfxrecon::encode::D3D12GetDebugInterface;
         table->D3D12SerializeRootSignature          = gfxrecon::encode::D3D12SerializeRootSignature;
         table->D3D12SerializeVersionedRootSignature = gfxrecon::encode::D3D12SerializeVersionedRootSignature;
+        table->D3D12GetInterface                    = gfxrecon::encode::D3D12GetInterface;
         table->D3D12EnableExperimentalFeatures      = gfxrecon::encode::D3D12EnableExperimentalFeatures;
 
         return true;

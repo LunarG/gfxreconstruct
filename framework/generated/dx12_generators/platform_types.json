@@ -12,6 +12,7 @@
       "POINT"     : { "baseType" : "tagPOINT", "replaceWith" : "tagPOINT" },
       "REFIID"    : { "baseType" : "GUID",     "replaceWith" : "GUID" },
       "REFGUID"   : { "baseType" : "GUID",     "replaceWith" : "GUID" },
+      "REFCLSID"  : { "baseType" : "GUID",     "replaceWith" : "GUID" },
       "IID"       : { "baseType" : "GUID",     "replaceWith" : "GUID" },
       "DXGI_RGBA" : { "baseType" : "D3DCOLORVALUE", "replaceWith" : "D3DCOLORVALUE" },
       "ID3DBlob"  : { "baseType" : "ID3D10Blob",    "replaceWith" : "ID3D10Blob" },

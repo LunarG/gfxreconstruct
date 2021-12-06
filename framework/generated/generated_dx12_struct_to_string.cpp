@@ -1116,6 +1116,48 @@ template <> std::string ToString<D3D12_FEATURE_DATA_QUERY_META_COMMAND>(const D3
     );
 }
 
+template <> std::string ToString<D3D12_FEATURE_DATA_D3D12_OPTIONS8>(const D3D12_FEATURE_DATA_D3D12_OPTIONS8& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "UnalignedBlockTexturesSupported", toStringFlags, tabCount, tabSize, ToString(obj.UnalignedBlockTexturesSupported, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<D3D12_FEATURE_DATA_D3D12_OPTIONS9>(const D3D12_FEATURE_DATA_D3D12_OPTIONS9& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "MeshShaderPipelineStatsSupported", toStringFlags, tabCount, tabSize, ToString(obj.MeshShaderPipelineStatsSupported, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "MeshShaderSupportsFullRangeRenderTargetArrayIndex", toStringFlags, tabCount, tabSize, ToString(obj.MeshShaderSupportsFullRangeRenderTargetArrayIndex, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "AtomicInt64OnTypedResourceSupported", toStringFlags, tabCount, tabSize, ToString(obj.AtomicInt64OnTypedResourceSupported, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "AtomicInt64OnGroupSharedSupported", toStringFlags, tabCount, tabSize, ToString(obj.AtomicInt64OnGroupSharedSupported, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "DerivativesInMeshAndAmplificationShadersSupported", toStringFlags, tabCount, tabSize, ToString(obj.DerivativesInMeshAndAmplificationShadersSupported, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "WaveMMATier", toStringFlags, tabCount, tabSize, '"' + ToString(obj.WaveMMATier, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+}
+
+template <> std::string ToString<D3D12_FEATURE_DATA_WAVE_MMA>(const D3D12_FEATURE_DATA_WAVE_MMA& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "InputDataType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.InputDataType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "M", toStringFlags, tabCount, tabSize, '"' + ToString(obj.M, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "N", toStringFlags, tabCount, tabSize, '"' + ToString(obj.N, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "Supported", toStringFlags, tabCount, tabSize, ToString(obj.Supported, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "K", toStringFlags, tabCount, tabSize, ToString(obj.K, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "AccumDataTypes", toStringFlags, tabCount, tabSize, '"' + ToString(obj.AccumDataTypes, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "RequiredWaveLaneCountMin", toStringFlags, tabCount, tabSize, ToString(obj.RequiredWaveLaneCountMin, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "RequiredWaveLaneCountMax", toStringFlags, tabCount, tabSize, ToString(obj.RequiredWaveLaneCountMax, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<D3D12_RESOURCE_ALLOCATION_INFO>(const D3D12_RESOURCE_ALLOCATION_INFO& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2018,6 +2060,29 @@ template <> std::string ToString<D3D12_QUERY_DATA_PIPELINE_STATISTICS>(const D3D
     );
 }
 
+template <> std::string ToString<D3D12_QUERY_DATA_PIPELINE_STATISTICS1>(const D3D12_QUERY_DATA_PIPELINE_STATISTICS1& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "IAVertices", toStringFlags, tabCount, tabSize, ToString(obj.IAVertices, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "IAPrimitives", toStringFlags, tabCount, tabSize, ToString(obj.IAPrimitives, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "VSInvocations", toStringFlags, tabCount, tabSize, ToString(obj.VSInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "GSInvocations", toStringFlags, tabCount, tabSize, ToString(obj.GSInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "GSPrimitives", toStringFlags, tabCount, tabSize, ToString(obj.GSPrimitives, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "CInvocations", toStringFlags, tabCount, tabSize, ToString(obj.CInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "CPrimitives", toStringFlags, tabCount, tabSize, ToString(obj.CPrimitives, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "PSInvocations", toStringFlags, tabCount, tabSize, ToString(obj.PSInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "HSInvocations", toStringFlags, tabCount, tabSize, ToString(obj.HSInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "DSInvocations", toStringFlags, tabCount, tabSize, ToString(obj.DSInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "CSInvocations", toStringFlags, tabCount, tabSize, ToString(obj.CSInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "ASInvocations", toStringFlags, tabCount, tabSize, ToString(obj.ASInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "MSInvocations", toStringFlags, tabCount, tabSize, ToString(obj.MSInvocations, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "MSPrimitives", toStringFlags, tabCount, tabSize, ToString(obj.MSPrimitives, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<D3D12_QUERY_DATA_SO_STATISTICS>(const D3D12_QUERY_DATA_SO_STATISTICS& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2620,6 +2685,19 @@ template <> std::string ToString<D3D12_DRED_PAGE_FAULT_OUTPUT1>(const D3D12_DRED
     );
 }
 
+template <> std::string ToString<D3D12_DRED_PAGE_FAULT_OUTPUT2>(const D3D12_DRED_PAGE_FAULT_OUTPUT2& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "PageFaultVA", toStringFlags, tabCount, tabSize, ToString(obj.PageFaultVA, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pHeadExistingAllocationNode", toStringFlags, tabCount, tabSize, (obj.pHeadExistingAllocationNode ? ToString(*obj.pHeadExistingAllocationNode, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pHeadRecentFreedAllocationNode", toStringFlags, tabCount, tabSize, (obj.pHeadRecentFreedAllocationNode ? ToString(*obj.pHeadRecentFreedAllocationNode, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "PageFaultFlags", toStringFlags, tabCount, tabSize, '"' + ToString(obj.PageFaultFlags, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+}
+
 template <> std::string ToString<D3D12_DEVICE_REMOVED_EXTENDED_DATA1>(const D3D12_DEVICE_REMOVED_EXTENDED_DATA1& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2640,6 +2718,19 @@ template <> std::string ToString<D3D12_DEVICE_REMOVED_EXTENDED_DATA2>(const D3D1
             FieldToString(strStrm, true, "DeviceRemovedReason", toStringFlags, tabCount, tabSize, ToString(obj.DeviceRemovedReason, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "AutoBreadcrumbsOutput", toStringFlags, tabCount, tabSize, ToString(obj.AutoBreadcrumbsOutput, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "PageFaultOutput", toStringFlags, tabCount, tabSize, ToString(obj.PageFaultOutput, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<D3D12_DEVICE_REMOVED_EXTENDED_DATA3>(const D3D12_DEVICE_REMOVED_EXTENDED_DATA3& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "DeviceRemovedReason", toStringFlags, tabCount, tabSize, ToString(obj.DeviceRemovedReason, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "AutoBreadcrumbsOutput", toStringFlags, tabCount, tabSize, ToString(obj.AutoBreadcrumbsOutput, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "PageFaultOutput", toStringFlags, tabCount, tabSize, ToString(obj.PageFaultOutput, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "DeviceState", toStringFlags, tabCount, tabSize, '"' + ToString(obj.DeviceState, toStringFlags, tabCount, tabSize) + '"');
         }
     );
 }
@@ -2757,6 +2848,22 @@ template <> std::string ToString<D3D12_DISPATCH_RAYS_DESC>(const D3D12_DISPATCH_
             FieldToString(strStrm, false, "Width", toStringFlags, tabCount, tabSize, ToString(obj.Width, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "Height", toStringFlags, tabCount, tabSize, ToString(obj.Height, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "Depth", toStringFlags, tabCount, tabSize, ToString(obj.Depth, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<D3D12_SHADER_CACHE_SESSION_DESC>(const D3D12_SHADER_CACHE_SESSION_DESC& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Identifier", toStringFlags, tabCount, tabSize, ToString(obj.Identifier, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "Mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Flags, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "MaximumInMemoryCacheSizeBytes", toStringFlags, tabCount, tabSize, ToString(obj.MaximumInMemoryCacheSizeBytes, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "MaximumInMemoryCacheEntries", toStringFlags, tabCount, tabSize, ToString(obj.MaximumInMemoryCacheEntries, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "MaximumValueFileSizeBytes", toStringFlags, tabCount, tabSize, ToString(obj.MaximumValueFileSizeBytes, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "Version", toStringFlags, tabCount, tabSize, ToString(obj.Version, toStringFlags, tabCount, tabSize));
         }
     );
 }

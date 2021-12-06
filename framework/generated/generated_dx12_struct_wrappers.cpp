@@ -194,6 +194,18 @@ void WrapStruct(const D3D12_DRED_PAGE_FAULT_OUTPUT1* value)
     }
 }
 
+void WrapStruct(const D3D12_DRED_PAGE_FAULT_OUTPUT2* value)
+{
+    if(value->pHeadExistingAllocationNode)
+    {
+        WrapStruct(value->pHeadExistingAllocationNode);
+    }
+    if(value->pHeadRecentFreedAllocationNode)
+    {
+        WrapStruct(value->pHeadRecentFreedAllocationNode);
+    }
+}
+
 void WrapStruct(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value)
 {
     if(value->pSrcResource)

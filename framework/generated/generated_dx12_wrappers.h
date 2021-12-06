@@ -56,7 +56,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -491,7 +491,7 @@ class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
 
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -761,7 +761,7 @@ class IDXGIOutput1_Wrapper : public IDXGIOutput_Wrapper
 
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -967,7 +967,7 @@ class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
 
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1058,7 +1058,7 @@ class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
 
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1120,7 +1120,7 @@ class IDXGIFactory5_Wrapper : public IDXGIFactory4_Wrapper
 
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1178,25 +1178,25 @@ class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
 
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from dxgiformat.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1238,6 +1238,11 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
     const IID* pIIDs,
     void* pConfigurationStructs,
     UINT* pConfigurationStructSizes);
+
+HRESULT WINAPI D3D12GetInterface(
+    REFCLSID rclsid,
+    REFIID riid,
+    void** ppvDebug);
 
 class ID3D12Object_Wrapper : public IUnknown_Wrapper
 {
@@ -2703,6 +2708,18 @@ class ID3D12DeviceRemovedExtendedData1_Wrapper : public ID3D12DeviceRemovedExten
 
 };
 
+class ID3D12DeviceRemovedExtendedData2_Wrapper : public ID3D12DeviceRemovedExtendedData1_Wrapper
+{
+  public:
+    ID3D12DeviceRemovedExtendedData2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedData2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetPageFaultAllocationOutput2(
+        D3D12_DRED_PAGE_FAULT_OUTPUT2* pOutput);
+
+    virtual D3D12_DRED_DEVICE_STATE STDMETHODCALLTYPE GetDeviceState();
+
+};
+
 class ID3D12Device6_Wrapper : public ID3D12Device5_Wrapper
 {
   public:
@@ -2903,6 +2920,66 @@ class ID3D12GraphicsCommandList4_Wrapper : public ID3D12GraphicsCommandList3_Wra
 
 };
 
+class ID3D12ShaderCacheSession_Wrapper : public ID3D12DeviceChild_Wrapper
+{
+  public:
+    ID3D12ShaderCacheSession_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ShaderCacheSession_Wrapper*>(u); });
+
+    ~ID3D12ShaderCacheSession_Wrapper();
+
+    static ID3D12ShaderCacheSession_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12ShaderCacheSessionInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12ShaderCacheSessionInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE FindValue(
+        const void* pKey,
+        UINT KeySize,
+        void* pValue,
+        UINT* pValueSize);
+
+    virtual HRESULT STDMETHODCALLTYPE StoreValue(
+        const void* pKey,
+        UINT KeySize,
+        const void* pValue,
+        UINT ValueSize);
+
+    virtual void STDMETHODCALLTYPE SetDeleteOnDestroy();
+
+    virtual D3D12_SHADER_CACHE_SESSION_DESC STDMETHODCALLTYPE GetDesc();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12ShaderCacheSession_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12ShaderCacheSessionInfo> info_;
+};
+
+class ID3D12Device9_Wrapper : public ID3D12Device8_Wrapper
+{
+  public:
+    ID3D12Device9_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device9_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CreateShaderCacheSession(
+        const D3D12_SHADER_CACHE_SESSION_DESC* pDesc,
+        REFIID riid,
+        void** ppvSession);
+
+    virtual HRESULT STDMETHODCALLTYPE ShaderCacheControl(
+        D3D12_SHADER_CACHE_KIND_FLAGS Kinds,
+        D3D12_SHADER_CACHE_CONTROL_FLAGS Control);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateCommandQueue1(
+        const D3D12_COMMAND_QUEUE_DESC* pDesc,
+        REFIID CreatorID,
+        REFIID riid,
+        void** ppCommandQueue);
+
+};
+
 class ID3D12Tools_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -2928,6 +3005,32 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
     static std::mutex object_map_lock_;
 
     std::shared_ptr<ID3D12ToolsInfo> info_;
+};
+
+class ID3D12SDKConfiguration_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12SDKConfiguration_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12SDKConfiguration_Wrapper*>(u); });
+
+    ~ID3D12SDKConfiguration_Wrapper();
+
+    static ID3D12SDKConfiguration_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12SDKConfigurationInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12SDKConfigurationInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE SetSDKVersion(
+        UINT SDKVersion,
+        LPCSTR SDKPath);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12SDKConfiguration_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12SDKConfigurationInfo> info_;
 };
 
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper
@@ -2958,7 +3061,7 @@ class ID3D12GraphicsCommandList6_Wrapper : public ID3D12GraphicsCommandList5_Wra
 
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3020,7 +3123,7 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
 
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3116,6 +3219,25 @@ class ID3D12Debug3_Wrapper : public ID3D12Debug_Wrapper
 
     virtual void STDMETHODCALLTYPE SetGPUBasedValidationFlags(
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
+
+};
+
+class ID3D12Debug4_Wrapper : public ID3D12Debug3_Wrapper
+{
+  public:
+    ID3D12Debug4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Debug4_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE DisableDebugLayer();
+
+};
+
+class ID3D12Debug5_Wrapper : public ID3D12Debug4_Wrapper
+{
+  public:
+    ID3D12Debug5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Debug5_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE SetEnableAutoName(
+        BOOL Enable);
 
 };
 
@@ -3471,27 +3593,43 @@ class ID3D12InfoQueue_Wrapper : public IUnknown_Wrapper
     std::shared_ptr<ID3D12InfoQueueInfo> info_;
 };
 
+class ID3D12InfoQueue1_Wrapper : public ID3D12InfoQueue_Wrapper
+{
+  public:
+    ID3D12InfoQueue1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12InfoQueue1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterMessageCallback(
+        D3D12MessageFunc CallbackFunc,
+        D3D12_MESSAGE_CALLBACK_FLAGS CallbackFilterFlags,
+        void* pContext,
+        DWORD* pCallbackCookie);
+
+    virtual HRESULT STDMETHODCALLTYPE UnregisterMessageCallback(
+        DWORD CallbackCookie);
+
+};
+
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.19041.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.19041.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.19041.0
+** This part is generated from windef.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.19041.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
 **
 */
 

@@ -88,9 +88,13 @@ void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT* wrapper, const Dx12O
 
 void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
 
+void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
 void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
 
@@ -129,6 +133,8 @@ void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCR
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>* capture_value, const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* new_value, Dx12ObjectInfoTable& object_info_table);
 
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* capture_value, const D3D12_DRED_PAGE_FAULT_OUTPUT1* new_value, Dx12ObjectInfoTable& object_info_table);
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2>* capture_value, const D3D12_DRED_PAGE_FAULT_OUTPUT2* new_value, Dx12ObjectInfoTable& object_info_table);
 
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS>* capture_value, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* new_value, Dx12ObjectInfoTable& object_info_table);
 

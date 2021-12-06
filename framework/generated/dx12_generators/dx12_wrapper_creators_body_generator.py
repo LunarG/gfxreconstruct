@@ -181,6 +181,21 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         decl += indent + '}\n'
 
         indent = self.decrement_indent(indent)
+        decl += indent + '}\n\n'
+
+        decl += 'void WrapObjectArray(REFIID riid, void** object,'\
+            ' UINT num_object, DxWrapperResources* resources)\n'
+        decl += indent + '{\n'
+        indent = self.increment_indent(indent)
+
+        decl += indent + 'for (UINT i = 0; i < num_object; i++)\n'
+        decl += indent + '{\n'
+        indent = self.increment_indent(indent)
+        decl += indent + 'WrapObject(riid, &object[i], resources);\n'
+        indent = self.decrement_indent(indent)
+        decl += indent + '}\n'
+
+        indent = self.decrement_indent(indent)
         decl += indent + '}\n'
 
         return decl

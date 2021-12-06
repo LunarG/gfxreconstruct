@@ -203,12 +203,6 @@ class Dx12ReplayConsumerBodyGenerator(
             if is_class:
                 if is_output:
                     handle_length = 1
-                    if value.array_length:
-                        print(
-                            'ERROR: It does not deal with array output objects, {}.'
-                            .format(value.name)
-                        )
-
                     code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
                             .format(value.name, handle_length)
                     if is_override:
@@ -384,6 +378,12 @@ class Dx12ReplayConsumerBodyGenerator(
                     elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
                         arg_list.append(
                             'reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'.
+                            format(value.name)
+                        )
+
+                    elif value.base_type == 'D3D12MessageFunc':
+                        arg_list.append(
+                            'reinterpret_cast<D3D12MessageFunc>({})'.
                             format(value.name)
                         )
 

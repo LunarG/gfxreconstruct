@@ -326,6 +326,12 @@ struct ID3D12HeapInfo : public DxWrapperInfo
 struct ID3D12MetaCommandInfo : public DxWrapperInfo
 {};
 
+struct ID3D12ShaderCacheSessionInfo : public DxWrapperInfo
+{};
+
+struct ID3D12SDKConfigurationInfo : public DxWrapperInfo
+{};
+
 struct ID3D12ToolsInfo : public DxWrapperInfo
 {};
 

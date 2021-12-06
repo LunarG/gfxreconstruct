@@ -93,6 +93,16 @@ DX12ReturnValueToString<Decoded_D3D12_RESOURCE_DESC1>(const Decoded_D3D12_RESOUR
 {
     return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
 }
+
+template <>
+inline std::string DX12ReturnValueToString<Decoded_D3D12_SHADER_CACHE_SESSION_DESC>(
+    const Decoded_D3D12_SHADER_CACHE_SESSION_DESC& return_value,
+    util::ToStringFlags                            to_string_flags,
+    uint32_t                                       tab_count,
+    uint32_t                                       tab_size)
+{
+    return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename EnumType>

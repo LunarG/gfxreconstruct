@@ -55,7 +55,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -405,7 +405,7 @@ void Encode_IDXGIDevice1_GetMaximumFrameLatency(
 
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -684,7 +684,7 @@ void Encode_IDXGIOutput1_DuplicateOutput(
 
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -846,7 +846,7 @@ void Encode_IDXGIOutput3_CheckOverlaySupport(
 
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -935,7 +935,7 @@ void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
 
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -976,7 +976,7 @@ void Encode_IDXGIDevice4_ReclaimResources1(
 
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1023,7 +1023,7 @@ void Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
 
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1033,13 +1033,13 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SAMPLE_DESC& value);
 
 
 /*
-** This part is generated from dxgiformat.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.19041.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1061,7 +1061,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_QUANTIZATION_TABLE&
 
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1110,6 +1110,12 @@ void Encode_D3D12EnableExperimentalFeatures(
     const IID* pIIDs,
     void* pConfigurationStructs,
     UINT* pConfigurationStructSizes);
+
+void Encode_D3D12GetInterface(
+    HRESULT return_value,
+    REFCLSID rclsid,
+    REFIID riid,
+    void** ppvDebug);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMAND_QUEUE_DESC& value);
 
@@ -1223,6 +1229,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTI
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS7& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_QUERY_META_COMMAND& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS8& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS9& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_WAVE_MMA& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALLOCATION_INFO& value);
 
@@ -1383,6 +1395,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISCARD_REGION& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_QUERY_HEAP_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_QUERY_DATA_PIPELINE_STATISTICS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_QUERY_DATA_PIPELINE_STATISTICS1& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_QUERY_DATA_SO_STATISTICS& value);
 
@@ -2525,9 +2539,13 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DRED_PAGE_FAULT_OUTPUT&
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DRED_PAGE_FAULT_OUTPUT1& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DRED_PAGE_FAULT_OUTPUT2& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED_DATA1& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED_DATA2& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED_DATA3& value);
 
 void Encode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
     ID3D12DeviceRemovedExtendedDataSettings_Wrapper* wrapper,
@@ -2564,6 +2582,15 @@ void Encode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
     ID3D12DeviceRemovedExtendedData1_Wrapper* wrapper,
     HRESULT return_value,
     D3D12_DRED_PAGE_FAULT_OUTPUT1* pOutput);
+
+void Encode_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2(
+    ID3D12DeviceRemovedExtendedData2_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_DRED_PAGE_FAULT_OUTPUT2* pOutput);
+
+void Encode_ID3D12DeviceRemovedExtendedData2_GetDeviceState(
+    ID3D12DeviceRemovedExtendedData2_Wrapper* wrapper,
+    D3D12_DRED_DEVICE_STATE return_value);
 
 void Encode_ID3D12Device6_SetBackgroundProcessingMode(
     ID3D12Device6_Wrapper* wrapper,
@@ -2732,6 +2759,52 @@ void Encode_ID3D12GraphicsCommandList4_DispatchRays(
     ID3D12GraphicsCommandList4_Wrapper* wrapper,
     const D3D12_DISPATCH_RAYS_DESC* pDesc);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_CACHE_SESSION_DESC& value);
+
+void Encode_ID3D12ShaderCacheSession_FindValue(
+    ID3D12ShaderCacheSession_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pKey,
+    UINT KeySize,
+    void* pValue,
+    UINT* pValueSize);
+
+void Encode_ID3D12ShaderCacheSession_StoreValue(
+    ID3D12ShaderCacheSession_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pKey,
+    UINT KeySize,
+    const void* pValue,
+    UINT ValueSize);
+
+void Encode_ID3D12ShaderCacheSession_SetDeleteOnDestroy(
+    ID3D12ShaderCacheSession_Wrapper* wrapper);
+
+void Encode_ID3D12ShaderCacheSession_GetDesc(
+    ID3D12ShaderCacheSession_Wrapper* wrapper,
+    D3D12_SHADER_CACHE_SESSION_DESC return_value);
+
+void Encode_ID3D12Device9_CreateShaderCacheSession(
+    ID3D12Device9_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_SHADER_CACHE_SESSION_DESC* pDesc,
+    REFIID riid,
+    void** ppvSession);
+
+void Encode_ID3D12Device9_ShaderCacheControl(
+    ID3D12Device9_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_SHADER_CACHE_KIND_FLAGS Kinds,
+    D3D12_SHADER_CACHE_CONTROL_FLAGS Control);
+
+void Encode_ID3D12Device9_CreateCommandQueue1(
+    ID3D12Device9_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_COMMAND_QUEUE_DESC* pDesc,
+    REFIID CreatorID,
+    REFIID riid,
+    void** ppCommandQueue);
+
 void Encode_ID3D12Tools_EnableShaderInstrumentation(
     ID3D12Tools_Wrapper* wrapper,
     BOOL bEnable);
@@ -2743,6 +2816,12 @@ void Encode_ID3D12Tools_ShaderInstrumentationEnabled(
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBRESOURCE_DATA& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_MEMCPY_DEST& value);
+
+void Encode_ID3D12SDKConfiguration_SetSDKVersion(
+    ID3D12SDKConfiguration_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT SDKVersion,
+    LPCSTR SDKPath);
 
 void Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
     ID3D12GraphicsCommandList5_Wrapper* wrapper,
@@ -2763,7 +2842,7 @@ void Encode_ID3D12GraphicsCommandList6_DispatchMesh(
 
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -2791,7 +2870,7 @@ void Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
 
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -2824,6 +2903,13 @@ void Encode_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation(
 void Encode_ID3D12Debug3_SetGPUBasedValidationFlags(
     ID3D12Debug3_Wrapper* wrapper,
     D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
+
+void Encode_ID3D12Debug4_DisableDebugLayer(
+    ID3D12Debug4_Wrapper* wrapper);
+
+void Encode_ID3D12Debug5_SetEnableAutoName(
+    ID3D12Debug5_Wrapper* wrapper,
+    BOOL Enable);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS& value);
 
@@ -3123,9 +3209,22 @@ void Encode_ID3D12InfoQueue_GetMuteDebugOutput(
     ID3D12InfoQueue_Wrapper* wrapper,
     BOOL return_value);
 
+void Encode_ID3D12InfoQueue1_RegisterMessageCallback(
+    ID3D12InfoQueue1_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12MessageFunc CallbackFunc,
+    D3D12_MESSAGE_CALLBACK_FLAGS CallbackFilterFlags,
+    void* pContext,
+    DWORD* pCallbackCookie);
+
+void Encode_ID3D12InfoQueue1_UnregisterMessageCallback(
+    ID3D12InfoQueue1_Wrapper* wrapper,
+    HRESULT return_value,
+    DWORD CallbackCookie);
+
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.19041.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3145,7 +3244,7 @@ void Encode_IUnknown_Release(
 
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.19041.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3153,7 +3252,7 @@ void EncodeStruct(ParameterEncoder* encoder, const GUID& value);
 
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.19041.0
+** This part is generated from windef.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3163,7 +3262,7 @@ void EncodeStruct(ParameterEncoder* encoder, const tagPOINT& value);
 
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.19041.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
 **
 */
 

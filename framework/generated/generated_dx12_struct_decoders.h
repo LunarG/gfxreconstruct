@@ -746,6 +746,27 @@ struct Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND
     PointerDecoder<uint8_t> pQueryOutputData;
 };
 
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS8
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS8;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS8* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS9
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS9;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS9* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_WAVE_MMA
+{
+    using struct_type = D3D12_FEATURE_DATA_WAVE_MMA;
+
+    D3D12_FEATURE_DATA_WAVE_MMA* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO
 {
     using struct_type = D3D12_RESOURCE_ALLOCATION_INFO;
@@ -1291,6 +1312,13 @@ struct Decoded_D3D12_QUERY_DATA_PIPELINE_STATISTICS
     D3D12_QUERY_DATA_PIPELINE_STATISTICS* decoded_value{ nullptr };
 };
 
+struct Decoded_D3D12_QUERY_DATA_PIPELINE_STATISTICS1
+{
+    using struct_type = D3D12_QUERY_DATA_PIPELINE_STATISTICS1;
+
+    D3D12_QUERY_DATA_PIPELINE_STATISTICS1* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_QUERY_DATA_SO_STATISTICS
 {
     using struct_type = D3D12_QUERY_DATA_SO_STATISTICS;
@@ -1740,6 +1768,16 @@ struct Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1
     StructPointerDecoder<Decoded_D3D12_DRED_ALLOCATION_NODE1>* pHeadRecentFreedAllocationNode{ nullptr };
 };
 
+struct Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2
+{
+    using struct_type = D3D12_DRED_PAGE_FAULT_OUTPUT2;
+
+    D3D12_DRED_PAGE_FAULT_OUTPUT2* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D12_DRED_ALLOCATION_NODE1>* pHeadExistingAllocationNode{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_DRED_ALLOCATION_NODE1>* pHeadRecentFreedAllocationNode{ nullptr };
+};
+
 struct Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1
 {
     using struct_type = D3D12_DEVICE_REMOVED_EXTENDED_DATA1;
@@ -1758,6 +1796,16 @@ struct Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2
 
     Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* AutoBreadcrumbsOutput{ nullptr };
     Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* PageFaultOutput{ nullptr };
+};
+
+struct Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3
+{
+    using struct_type = D3D12_DEVICE_REMOVED_EXTENDED_DATA3;
+
+    D3D12_DEVICE_REMOVED_EXTENDED_DATA3* decoded_value{ nullptr };
+
+    Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* AutoBreadcrumbsOutput{ nullptr };
+    Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2* PageFaultOutput{ nullptr };
 };
 
 struct Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT
@@ -1848,6 +1896,15 @@ struct Decoded_D3D12_DISPATCH_RAYS_DESC
     Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* MissShaderTable{ nullptr };
     Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* HitGroupTable{ nullptr };
     Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* CallableShaderTable{ nullptr };
+};
+
+struct Decoded_D3D12_SHADER_CACHE_SESSION_DESC
+{
+    using struct_type = D3D12_SHADER_CACHE_SESSION_DESC;
+
+    D3D12_SHADER_CACHE_SESSION_DESC* decoded_value{ nullptr };
+
+    Decoded_GUID* Identifier{ nullptr };
 };
 
 struct Decoded_D3D12_SUBRESOURCE_DATA

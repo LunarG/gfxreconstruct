@@ -92,6 +92,7 @@ class Dx12BaseGenerator(BaseGenerator):
         [['char'], 'String'],
         [['wchar_t'], 'WString'],
         [['PFN_DESTRUCTION_CALLBACK'], 'Function'],
+        [['D3D12MessageFunc'], 'Function'],
     ]
 
     BIT_FIELD_LIST = [

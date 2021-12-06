@@ -132,6 +132,10 @@ template <> std::string ToString<D3D12_RAYTRACING_TIER>(const D3D12_RAYTRACING_T
 template <> std::string ToString<D3D12_VARIABLE_SHADING_RATE_TIER>(const D3D12_VARIABLE_SHADING_RATE_TIER& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_MESH_SHADER_TIER>(const D3D12_MESH_SHADER_TIER& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_SAMPLER_FEEDBACK_TIER>(const D3D12_SAMPLER_FEEDBACK_TIER& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_WAVE_MMA_TIER>(const D3D12_WAVE_MMA_TIER& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_WAVE_MMA_INPUT_DATATYPE>(const D3D12_WAVE_MMA_INPUT_DATATYPE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_WAVE_MMA_DIMENSION>(const D3D12_WAVE_MMA_DIMENSION& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_WAVE_MMA_ACCUM_DATATYPE>(const D3D12_WAVE_MMA_ACCUM_DATATYPE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_HEAP_TYPE>(const D3D12_HEAP_TYPE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_CPU_PAGE_PROPERTY>(const D3D12_CPU_PAGE_PROPERTY& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_MEMORY_POOL>(const D3D12_MEMORY_POOL& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
@@ -249,12 +253,22 @@ template <> std::string ToString<D3D12_DRED_FLAGS>(const D3D12_DRED_FLAGS& value
 template <> std::string ToString<D3D12_DRED_FLAGS>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_DRED_ENABLEMENT>(const D3D12_DRED_ENABLEMENT& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_DRED_ALLOCATION_TYPE>(const D3D12_DRED_ALLOCATION_TYPE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_DRED_PAGE_FAULT_FLAGS>(const D3D12_DRED_PAGE_FAULT_FLAGS& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_DRED_PAGE_FAULT_FLAGS>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_DRED_DEVICE_STATE>(const D3D12_DRED_DEVICE_STATE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_BACKGROUND_PROCESSING_MODE>(const D3D12_BACKGROUND_PROCESSING_MODE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_MEASUREMENTS_ACTION>(const D3D12_MEASUREMENTS_ACTION& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE>(const D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_RENDER_PASS_ENDING_ACCESS_TYPE>(const D3D12_RENDER_PASS_ENDING_ACCESS_TYPE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_RENDER_PASS_FLAGS>(const D3D12_RENDER_PASS_FLAGS& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_RENDER_PASS_FLAGS>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_SHADER_CACHE_MODE>(const D3D12_SHADER_CACHE_MODE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_SHADER_CACHE_FLAGS>(const D3D12_SHADER_CACHE_FLAGS& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_SHADER_CACHE_FLAGS>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_SHADER_CACHE_KIND_FLAGS>(const D3D12_SHADER_CACHE_KIND_FLAGS& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_SHADER_CACHE_KIND_FLAGS>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_SHADER_CACHE_CONTROL_FLAGS>(const D3D12_SHADER_CACHE_CONTROL_FLAGS& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_SHADER_CACHE_CONTROL_FLAGS>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_AXIS_SHADING_RATE>(const D3D12_AXIS_SHADING_RATE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_SHADING_RATE>(const D3D12_SHADING_RATE& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_SHADING_RATE_COMBINER>(const D3D12_SHADING_RATE_COMBINER& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
@@ -297,6 +311,8 @@ template <> std::string ToString<D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE>(const 
 template <> std::string ToString<D3D12_MESSAGE_CATEGORY>(const D3D12_MESSAGE_CATEGORY& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_MESSAGE_SEVERITY>(const D3D12_MESSAGE_SEVERITY& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<D3D12_MESSAGE_ID>(const D3D12_MESSAGE_ID& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_MESSAGE_CALLBACK_FLAGS>(const D3D12_MESSAGE_CALLBACK_FLAGS& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
+template <> std::string ToString<D3D12_MESSAGE_CALLBACK_FLAGS>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);
 template <> std::string ToString<IID>(const IID& riid, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 
 GFXRECON_END_NAMESPACE(util)

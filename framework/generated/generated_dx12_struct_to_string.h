@@ -130,6 +130,9 @@ template <> std::string ToString<D3D12_FEATURE_DATA_D3D12_OPTIONS5>(const D3D12_
 template <> std::string ToString<D3D12_FEATURE_DATA_D3D12_OPTIONS6>(const D3D12_FEATURE_DATA_D3D12_OPTIONS6& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_FEATURE_DATA_D3D12_OPTIONS7>(const D3D12_FEATURE_DATA_D3D12_OPTIONS7& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_FEATURE_DATA_QUERY_META_COMMAND>(const D3D12_FEATURE_DATA_QUERY_META_COMMAND& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<D3D12_FEATURE_DATA_D3D12_OPTIONS8>(const D3D12_FEATURE_DATA_D3D12_OPTIONS8& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<D3D12_FEATURE_DATA_D3D12_OPTIONS9>(const D3D12_FEATURE_DATA_D3D12_OPTIONS9& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<D3D12_FEATURE_DATA_WAVE_MMA>(const D3D12_FEATURE_DATA_WAVE_MMA& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_RESOURCE_ALLOCATION_INFO>(const D3D12_RESOURCE_ALLOCATION_INFO& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_RESOURCE_ALLOCATION_INFO1>(const D3D12_RESOURCE_ALLOCATION_INFO1& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_HEAP_PROPERTIES>(const D3D12_HEAP_PROPERTIES& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -203,6 +206,7 @@ template <> std::string ToString<D3D12_GPU_DESCRIPTOR_HANDLE>(const D3D12_GPU_DE
 template <> std::string ToString<D3D12_DISCARD_REGION>(const D3D12_DISCARD_REGION& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_QUERY_HEAP_DESC>(const D3D12_QUERY_HEAP_DESC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_QUERY_DATA_PIPELINE_STATISTICS>(const D3D12_QUERY_DATA_PIPELINE_STATISTICS& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<D3D12_QUERY_DATA_PIPELINE_STATISTICS1>(const D3D12_QUERY_DATA_PIPELINE_STATISTICS1& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_QUERY_DATA_SO_STATISTICS>(const D3D12_QUERY_DATA_SO_STATISTICS& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_STREAM_OUTPUT_BUFFER_VIEW>(const D3D12_STREAM_OUTPUT_BUFFER_VIEW& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_DRAW_ARGUMENTS>(const D3D12_DRAW_ARGUMENTS& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -255,8 +259,10 @@ template <> std::string ToString<D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT>(const D3D12
 template <> std::string ToString<D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>(const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_DRED_PAGE_FAULT_OUTPUT>(const D3D12_DRED_PAGE_FAULT_OUTPUT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_DRED_PAGE_FAULT_OUTPUT1>(const D3D12_DRED_PAGE_FAULT_OUTPUT1& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<D3D12_DRED_PAGE_FAULT_OUTPUT2>(const D3D12_DRED_PAGE_FAULT_OUTPUT2& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_DEVICE_REMOVED_EXTENDED_DATA1>(const D3D12_DEVICE_REMOVED_EXTENDED_DATA1& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_DEVICE_REMOVED_EXTENDED_DATA2>(const D3D12_DEVICE_REMOVED_EXTENDED_DATA2& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<D3D12_DEVICE_REMOVED_EXTENDED_DATA3>(const D3D12_DEVICE_REMOVED_EXTENDED_DATA3& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT>(const D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES>(const D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_PROTECTED_RESOURCE_SESSION_DESC1>(const D3D12_PROTECTED_RESOURCE_SESSION_DESC1& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -266,6 +272,7 @@ template <> std::string ToString<D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMET
 template <> std::string ToString<D3D12_RENDER_PASS_RENDER_TARGET_DESC>(const D3D12_RENDER_PASS_RENDER_TARGET_DESC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>(const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_DISPATCH_RAYS_DESC>(const D3D12_DISPATCH_RAYS_DESC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<D3D12_SHADER_CACHE_SESSION_DESC>(const D3D12_SHADER_CACHE_SESSION_DESC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_SUBRESOURCE_DATA>(const D3D12_SUBRESOURCE_DATA& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_MEMCPY_DEST>(const D3D12_MEMCPY_DEST& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<D3D12_DISPATCH_MESH_ARGUMENTS>(const D3D12_DISPATCH_MESH_ARGUMENTS& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);

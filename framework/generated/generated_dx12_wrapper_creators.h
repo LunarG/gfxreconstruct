@@ -62,6 +62,8 @@ struct IidHash {
 
 void WrapObject(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapObjectArray(REFIID riid, void** object, UINT num_object, DxWrapperResources* resources);
+
 void WrapIDXGIKeyedMutex(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapIDXGIDisplayControl(REFIID riid, void** object, DxWrapperResources* resources);
@@ -126,15 +128,19 @@ void WrapID3D12DeviceRemovedExtendedData(REFIID riid, void** object, DxWrapperRe
 
 void WrapID3D12ProtectedResourceSession(REFIID riid, void** object, DxWrapperResources* resources);
 
-void WrapID3D12Device(REFIID riid, void** object, DxWrapperResources* resources);
-
 void WrapID3D12Resource(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12Heap(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12MetaCommand(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapID3D12ShaderCacheSession(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12Device(REFIID riid, void** object, DxWrapperResources* resources);
+
 void WrapID3D12Tools(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12SDKConfiguration(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12GraphicsCommandList(REFIID riid, void** object, DxWrapperResources* resources);
 
@@ -227,8 +233,16 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12DeviceRemovedExtendedDataSettings1, WrapID3D12DeviceRemovedExtendedDataSettings },
     { IID_ID3D12DeviceRemovedExtendedData, WrapID3D12DeviceRemovedExtendedData },
     { IID_ID3D12DeviceRemovedExtendedData1, WrapID3D12DeviceRemovedExtendedData },
+    { IID_ID3D12DeviceRemovedExtendedData2, WrapID3D12DeviceRemovedExtendedData },
     { IID_ID3D12ProtectedResourceSession, WrapID3D12ProtectedResourceSession },
     { IID_ID3D12ProtectedResourceSession1, WrapID3D12ProtectedResourceSession },
+    { IID_ID3D12Resource, WrapID3D12Resource },
+    { IID_ID3D12Resource1, WrapID3D12Resource },
+    { IID_ID3D12Resource2, WrapID3D12Resource },
+    { IID_ID3D12Heap, WrapID3D12Heap },
+    { IID_ID3D12Heap1, WrapID3D12Heap },
+    { IID_ID3D12MetaCommand, WrapID3D12MetaCommand },
+    { IID_ID3D12ShaderCacheSession, WrapID3D12ShaderCacheSession },
     { IID_ID3D12Device, WrapID3D12Device },
     { IID_ID3D12Device1, WrapID3D12Device },
     { IID_ID3D12Device2, WrapID3D12Device },
@@ -238,13 +252,9 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12Device6, WrapID3D12Device },
     { IID_ID3D12Device7, WrapID3D12Device },
     { IID_ID3D12Device8, WrapID3D12Device },
-    { IID_ID3D12Resource, WrapID3D12Resource },
-    { IID_ID3D12Resource1, WrapID3D12Resource },
-    { IID_ID3D12Resource2, WrapID3D12Resource },
-    { IID_ID3D12Heap, WrapID3D12Heap },
-    { IID_ID3D12Heap1, WrapID3D12Heap },
-    { IID_ID3D12MetaCommand, WrapID3D12MetaCommand },
+    { IID_ID3D12Device9, WrapID3D12Device },
     { IID_ID3D12Tools, WrapID3D12Tools },
+    { IID_ID3D12SDKConfiguration, WrapID3D12SDKConfiguration },
     { IID_ID3D12GraphicsCommandList, WrapID3D12GraphicsCommandList },
     { IID_ID3D12GraphicsCommandList1, WrapID3D12GraphicsCommandList },
     { IID_ID3D12GraphicsCommandList2, WrapID3D12GraphicsCommandList },
@@ -260,6 +270,8 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12Debug1, WrapID3D12Debug },
     { IID_ID3D12Debug2, WrapID3D12Debug },
     { IID_ID3D12Debug3, WrapID3D12Debug },
+    { IID_ID3D12Debug4, WrapID3D12Debug },
+    { IID_ID3D12Debug5, WrapID3D12Debug },
     { IID_ID3D12DebugDevice1, WrapID3D12DebugDevice1 },
     { IID_ID3D12DebugDevice, WrapID3D12DebugDevice },
     { IID_ID3D12DebugDevice1, WrapID3D12DebugDevice },
@@ -271,6 +283,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12DebugCommandList2, WrapID3D12DebugCommandList },
     { IID_ID3D12SharingContract, WrapID3D12SharingContract },
     { IID_ID3D12InfoQueue, WrapID3D12InfoQueue },
+    { IID_ID3D12InfoQueue1, WrapID3D12InfoQueue },
 };
 
 GFXRECON_END_NAMESPACE(encode)

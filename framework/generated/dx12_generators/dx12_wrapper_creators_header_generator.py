@@ -162,7 +162,9 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
     def gen_catch_all_create(self, final_class_names, indent):
         decl = indent
         decl += 'void WrapObject(REFIID riid, void** object,'\
-            ' DxWrapperResources* resources);\n'
+            ' DxWrapperResources* resources);\n\n'
+        decl += 'void WrapObjectArray(REFIID riid, void** object,'\
+            ' UINT num_object, DxWrapperResources* resources);\n'
         return decl
 
     def gen_wrapper_create(self, final_class_name, indent):

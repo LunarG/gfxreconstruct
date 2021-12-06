@@ -348,6 +348,16 @@ void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* wrapper, const Dx12
     }
 }
 
+void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        D3D12_DRED_PAGE_FAULT_OUTPUT2* value = wrapper->decoded_value;
+
+        object_mapping::MapGpuVirtualAddress(value->PageFaultVA, gpu_va_map);
+    }
+}
+
 void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
 {
     if (wrapper != nullptr)
@@ -357,6 +367,14 @@ void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* wrapper, cons
 }
 
 void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructObjects(wrapper->PageFaultOutput, object_info_table, gpu_va_map);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
 {
     if (wrapper != nullptr)
     {
@@ -550,6 +568,19 @@ void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCR
 }
 
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* capture_value, const D3D12_DRED_PAGE_FAULT_OUTPUT1* new_value, Dx12ObjectInfoTable& object_info_table)
+{
+    auto decoded_struct = capture_value->GetMetaStructPointer();
+    if(decoded_struct->pHeadExistingAllocationNode && new_value->pHeadExistingAllocationNode)
+    {
+        AddStructObjects(decoded_struct->pHeadExistingAllocationNode, new_value->pHeadExistingAllocationNode, object_info_table);
+    }
+    if(decoded_struct->pHeadRecentFreedAllocationNode && new_value->pHeadRecentFreedAllocationNode)
+    {
+        AddStructObjects(decoded_struct->pHeadRecentFreedAllocationNode, new_value->pHeadRecentFreedAllocationNode, object_info_table);
+    }
+}
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2>* capture_value, const D3D12_DRED_PAGE_FAULT_OUTPUT2* new_value, Dx12ObjectInfoTable& object_info_table)
 {
     auto decoded_struct = capture_value->GetMetaStructPointer();
     if(decoded_struct->pHeadExistingAllocationNode && new_value->pHeadExistingAllocationNode)

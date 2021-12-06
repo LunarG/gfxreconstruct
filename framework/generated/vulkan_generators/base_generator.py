@@ -641,7 +641,7 @@ class BaseGenerator(OutputGenerator):
 
     def is_function_ptr(self, base_type):
         """Check for function pointer type."""
-        if base_type[:4] == 'PFN_':
+        if (base_type[:4] == 'PFN_') or (base_type[-4:] == 'Func'):
             return True
         return False
 
