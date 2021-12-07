@@ -31,6 +31,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -42,13 +43,17 @@ class Application final
   public:
     Application(const std::string& name, decode::FileProcessor* file_processor);
 
+    Application(const std::string& name, const std::string& cli_wsi_extension, decode::FileProcessor* file_processor);
+
     ~Application();
 
     const std::string& GetName() const { return name_; }
 
-    const WsiContext* GetWsiContext() const { return wsi_context_.get(); }
+    const std::unordered_map<std::string, std::unique_ptr<WsiContext>>& GetWsiContexts() const { return wsi_contexts_; }
 
-    WsiContext* GetWsiContext() { return wsi_context_.get(); }
+    const WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false) const;
+
+    WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false);
 
     bool IsRunning() const { return running_; }
 
@@ -70,12 +75,13 @@ class Application final
 
   private:
     // clang-format off
-    std::string                 name_;           ///< Application name to display in window title bar.
-    decode::FileProcessor*      file_processor_; ///< The FileProcessor object responsible for decoding and processing capture file data.
-    bool                        running_;        ///< Indicates that the application is actively processing system events for playback.
-    bool                        paused_;         ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
-    uint32_t                    pause_frame_;    ///< The number for a frame that replay should pause after.
-    std::unique_ptr<WsiContext> wsi_context_;    ///< The window system context used for playback
+    std::string                                                  name_;              ///< Application name to display in window title bar.
+    decode::FileProcessor*                                       file_processor_;    ///< The FileProcessor object responsible for decoding and processing capture file data.
+    bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
+    bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
+    uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
+    std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
+    std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
     // clang-format on
 };
 
