@@ -318,6 +318,32 @@ InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo>(VkDevice   
 }
 
 template <>
+inline void
+InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(VkDevice                      parent_handle,
+                                                                      RenderPassWrapper*            wrapper,
+                                                                      const VkRenderPassCreateInfo2* create_info,
+                                                                      format::ApiCallId             create_call_id,
+                                                                      CreateParameters              create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    if (create_info->pAttachments != nullptr)
+    {
+        for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
+        {
+            wrapper->attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+        }
+    }
+}
+
+template <>
 inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrapper, VkGraphicsPipelineCreateInfo>(
     VkDevice                            parent_handle,
     VkPipelineCache                     secondary_handle,
