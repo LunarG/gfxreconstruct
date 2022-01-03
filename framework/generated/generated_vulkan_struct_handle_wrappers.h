@@ -304,6 +304,8 @@ void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrap
 
 void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);
+
 const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
 template <typename ParentWrapper, typename CoParentWrapper>
