@@ -36,6 +36,8 @@ void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, Ha
 
 void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory);
 
+const void* TrackPNextStruct(const void* value, HandleUnwrapMemory* unwrap_memory);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
