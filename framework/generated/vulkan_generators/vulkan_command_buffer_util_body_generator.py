@@ -79,6 +79,10 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         self.pnext_structs = dict(
         )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
         self.command_info = dict()  # Map of Vulkan commands to parameter info
+        # The following functions require custom implementations
+        self.customImplementationRequired = {
+            'CmdPushDescriptorSetKHR'
+        }
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -101,28 +105,29 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
         for cmd, info in self.command_info.items():
-            params = info[2]
-            if params and params[0].base_type == 'VkCommandBuffer':
-                # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
-                handles = self.get_param_list_handles(params[1:])
+            if not cmd[2:] in self.customImplementationRequired:
+                params = info[2]
+                if params and params[0].base_type == 'VkCommandBuffer':
+                    # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
+                    handles = self.get_param_list_handles(params[1:])
 
-                if (handles):
-                    # Generate a function to build a list of handle types and values.
-                    cmddef = '\n'
-                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {})\n'.format(
-                        cmd[2:], self.get_arg_list(handles)
-                    )
-                    cmddef += '{\n'
-                    indent = self.INDENT_SIZE * ' '
-                    cmddef += indent + 'assert(wrapper != nullptr);\n'
-                    cmddef += '\n'
-                    for index, handle in enumerate(handles):
-                        cmddef += self.insert_command_handle(
-                            index, handle, indent=indent
+                    if (handles):
+                        # Generate a function to build a list of handle types and values.
+                        cmddef = '\n'
+                        cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {})\n'.format(
+                            cmd[2:], self.get_arg_list(handles)
                         )
-                    cmddef += '}'
+                        cmddef += '{\n'
+                        indent = self.INDENT_SIZE * ' '
+                        cmddef += indent + 'assert(wrapper != nullptr);\n'
+                        cmddef += '\n'
+                        for index, handle in enumerate(handles):
+                            cmddef += self.insert_command_handle(
+                                index, handle, indent=indent
+                            )
+                        cmddef += '}'
 
-                    write(cmddef, file=self.outFile)
+                        write(cmddef, file=self.outFile)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
