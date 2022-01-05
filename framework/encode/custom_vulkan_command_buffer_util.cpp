@@ -30,7 +30,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
+void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
+                                         VkPipelineLayout            layout,
+                                         uint32_t                    descriptorWriteCount,
+                                         const VkWriteDescriptorSet* pDescriptorWrites)
 {
     assert(wrapper);
 
@@ -41,7 +44,8 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipeli
 
     if (pDescriptorWrites)
     {
-        for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < descriptorWriteCount; ++pDescriptorWrites_index)
+        for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < descriptorWriteCount;
+             ++pDescriptorWrites_index)
         {
             auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites->pNext);
             while (pnext_header)
@@ -50,33 +54,46 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipeli
                 {
                     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
                     {
-                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+                        auto pnext_value =
+                            reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
                         if (pnext_value->pAccelerationStructures)
                         {
-                            for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
-                            {
-                                if(pnext_value->pAccelerationStructures[pAccelerationStructures_index])
-                                {
-                                    wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(GetWrappedId(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
-                                }
-                            }
-                        }
-                    } break;
-                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
-                    {
-                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
-                        if (pnext_value->pAccelerationStructures)
-                        {
-                            for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
+                            for (uint32_t pAccelerationStructures_index = 0;
+                                 pAccelerationStructures_index < pnext_value->accelerationStructureCount;
+                                 ++pAccelerationStructures_index)
                             {
                                 if (pnext_value->pAccelerationStructures[pAccelerationStructures_index])
                                 {
-                                    wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(GetWrappedId(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                                    wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(
+                                        GetWrappedId(
+                                            pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
                                 }
                             }
                         }
-                    } break;
-                    default: break;
+                    }
+                    break;
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                    {
+                        auto pnext_value =
+                            reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                        if (pnext_value->pAccelerationStructures)
+                        {
+                            for (uint32_t pAccelerationStructures_index = 0;
+                                 pAccelerationStructures_index < pnext_value->accelerationStructureCount;
+                                 ++pAccelerationStructures_index)
+                            {
+                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index])
+                                {
+                                    wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(
+                                        GetWrappedId(
+                                            pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    default:
+                        break;
                 }
                 pnext_header = pnext_header->pNext;
             }
@@ -85,7 +102,8 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipeli
 
             if (descriptorWrite.dstSet)
             {
-                wrapper->command_handles[CommandHandleType::DescriptorSetHandle].insert(GetWrappedId(descriptorWrite.dstSet));
+                wrapper->command_handles[CommandHandleType::DescriptorSetHandle].insert(
+                    GetWrappedId(descriptorWrite.dstSet));
             }
 
             switch (descriptorWrite.descriptorType)
@@ -98,7 +116,8 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipeli
                 {
                     if (descriptorWrite.pImageInfo)
                     {
-                        for (uint32_t pImageInfo_index = 0; pImageInfo_index < descriptorWrite.descriptorCount; ++pImageInfo_index)
+                        for (uint32_t pImageInfo_index = 0; pImageInfo_index < descriptorWrite.descriptorCount;
+                             ++pImageInfo_index)
                         {
                             // TODO : It seems that immutable VkSamplers may need more support to ensure
                             //  they're handled correctly for all scenarios.  We should be looking up the
@@ -107,15 +126,18 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipeli
                             //  VkSampler provided in the VkDescriptorWrite.
                             if (descriptorWrite.pImageInfo[pImageInfo_index].sampler)
                             {
-                                wrapper->command_handles[CommandHandleType::SamplerHandle].insert(GetWrappedId(descriptorWrite.pImageInfo[pImageInfo_index].sampler));
+                                wrapper->command_handles[CommandHandleType::SamplerHandle].insert(
+                                    GetWrappedId(descriptorWrite.pImageInfo[pImageInfo_index].sampler));
                             }
                             if (descriptorWrite.pImageInfo[pImageInfo_index].imageView)
                             {
-                                wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(descriptorWrite.pImageInfo[pImageInfo_index].imageView));
+                                wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(
+                                    GetWrappedId(descriptorWrite.pImageInfo[pImageInfo_index].imageView));
                             }
                         }
                     }
-                } break;
+                }
+                break;
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
@@ -123,37 +145,47 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipeli
                 {
                     if (descriptorWrite.pBufferInfo)
                     {
-                        for (uint32_t pBufferInfo_index = 0; pBufferInfo_index < descriptorWrite.descriptorCount; ++pBufferInfo_index)
+                        for (uint32_t pBufferInfo_index = 0; pBufferInfo_index < descriptorWrite.descriptorCount;
+                             ++pBufferInfo_index)
                         {
                             if (descriptorWrite.pBufferInfo[pBufferInfo_index].buffer)
                             {
-                                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(descriptorWrite.pBufferInfo[pBufferInfo_index].buffer));
+                                wrapper->command_handles[CommandHandleType::BufferHandle].insert(
+                                    GetWrappedId(descriptorWrite.pBufferInfo[pBufferInfo_index].buffer));
                             }
                         }
                     }
-                } break;
+                }
+                break;
                 case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 {
                     if (descriptorWrite.pTexelBufferView)
                     {
-                        for (uint32_t pTexelBufferView_index = 0; pTexelBufferView_index < descriptorWrite.descriptorCount; ++pTexelBufferView_index)
+                        for (uint32_t pTexelBufferView_index = 0;
+                             pTexelBufferView_index < descriptorWrite.descriptorCount;
+                             ++pTexelBufferView_index)
                         {
                             if (descriptorWrite.pTexelBufferView[pTexelBufferView_index])
                             {
-                                wrapper->command_handles[CommandHandleType::BufferViewHandle].insert(GetWrappedId(descriptorWrite.pTexelBufferView[pTexelBufferView_index]));
+                                wrapper->command_handles[CommandHandleType::BufferViewHandle].insert(
+                                    GetWrappedId(descriptorWrite.pTexelBufferView[pTexelBufferView_index]));
                             }
                         }
                     }
-                } break;
+                }
+                break;
                 case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
                 {
-                    assert(false && "Maintentance required to support pushed inline uniform block descriptors when creating trimmed captures");
-                } break;
+                    assert(false && "Maintentance required to support pushed inline uniform block descriptors when "
+                                    "creating trimmed captures");
+                }
+                break;
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
-                default: break;
+                default:
+                    break;
             }
         }
     }
