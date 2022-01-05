@@ -251,6 +251,9 @@ int main(int argc, const char** argv)
             GFXRECON_WRITE_CONSOLE("Capture file %s could not be converted.", input_filename.c_str());
             return_code = -1;
         }
+    } else {
+        GFXRECON_WRITE_CONSOLE("CompressionCoverter could not be initialized.");
+        exit(-1);
     }
 
     gfxrecon::util::Log::Release();
