@@ -319,11 +319,11 @@ InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo>(VkDevice   
 
 template <>
 inline void
-InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(VkDevice                      parent_handle,
-                                                                      RenderPassWrapper*            wrapper,
+InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(VkDevice                       parent_handle,
+                                                                      RenderPassWrapper*             wrapper,
                                                                       const VkRenderPassCreateInfo2* create_info,
-                                                                      format::ApiCallId             create_call_id,
-                                                                      CreateParameters              create_parameters)
+                                                                      format::ApiCallId              create_call_id,
+                                                                      CreateParameters               create_parameters)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
