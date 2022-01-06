@@ -535,8 +535,11 @@ class VulkanCaptureManager : public CaptureManager
 
             for (uint32_t i = 0; i < bindInfoCount; ++i)
             {
-                state_tracker_->TrackBufferMemoryBinding(
-                    device, pBindInfos[i].buffer, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
+                state_tracker_->TrackBufferMemoryBinding(device,
+                                                         pBindInfos[i].buffer,
+                                                         pBindInfos[i].memory,
+                                                         pBindInfos[i].memoryOffset,
+                                                         pBindInfos[i].pNext);
             }
         }
     }
@@ -563,7 +566,7 @@ class VulkanCaptureManager : public CaptureManager
             for (uint32_t i = 0; i < bindInfoCount; ++i)
             {
                 state_tracker_->TrackImageMemoryBinding(
-                    device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
+                    device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset, pBindInfos[i].pNext);
             }
         }
     }

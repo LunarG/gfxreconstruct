@@ -25,6 +25,7 @@
 
 #include "encode/descriptor_update_template_info.h"
 #include "encode/vulkan_state_info.h"
+#include "encode/handle_unwrap_memory.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
@@ -174,7 +175,10 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    DeviceWrapper*   bind_device{ nullptr };
+    DeviceWrapper*     bind_device{ nullptr };
+    const void*        bind_pnext{ nullptr };
+    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
+                                          // HandleUnwrapMemory.
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
@@ -187,7 +191,10 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
-    DeviceWrapper*        bind_device{ nullptr };
+    DeviceWrapper*     bind_device{ nullptr };
+    const void*        bind_pnext{ nullptr };
+    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
+                                          // HandleUnwrapMemory.
     format::HandleId      bind_memory_id{ format::kNullHandleId };
     VkDeviceSize          bind_offset{ 0 };
     uint32_t              queue_family_index{ 0 };
@@ -199,6 +206,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkSampleCountFlagBits samples{};
     VkImageTiling         tiling{};
     VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    bool                  is_swapchain{ false };
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>

@@ -283,9 +283,14 @@ class VulkanStateTracker
 
     void TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address);
 
-    void TrackBufferMemoryBinding(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+    void TrackBufferMemoryBinding(VkDevice       device,
+                                  VkBuffer       buffer,
+                                  VkDeviceMemory memory,
+                                  VkDeviceSize   memoryOffset,
+                                  const void*    pnext = nullptr);
 
-    void TrackImageMemoryBinding(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+    void TrackImageMemoryBinding(
+        VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* pnext = nullptr);
 
     void TrackMappedMemory(VkDevice         device,
                            VkDeviceMemory   memory,
