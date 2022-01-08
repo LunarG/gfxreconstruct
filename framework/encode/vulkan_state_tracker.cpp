@@ -230,7 +230,8 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
 void VulkanStateTracker::TrackImageMemoryBinding(
     VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* pnext)
 {
-    assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
+    // If VkBindImageMemorySwapchainInfoKHR is in pnext, memory must be VK_NULL_HANDLE.
+    assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
     auto wrapper            = reinterpret_cast<ImageWrapper*>(image);
     wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);

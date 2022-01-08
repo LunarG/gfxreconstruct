@@ -206,7 +206,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkSampleCountFlagBits samples{};
     VkImageTiling         tiling{};
     VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
-    bool                  is_swapchain{ false };
+    bool                  is_swapchain_image{ false };
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
