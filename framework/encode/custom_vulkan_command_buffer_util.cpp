@@ -35,20 +35,20 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                                          uint32_t                    descriptorWriteCount,
                                          const VkWriteDescriptorSet* pDescriptorWrites)
 {
-    assert(wrapper);
+    assert(wrapper != nullptr);
 
-    if (layout)
+    if (layout != VK_NULL_HANDLE)
     {
         wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(GetWrappedId(layout));
     }
 
-    if (pDescriptorWrites)
+    if (pDescriptorWrites != nullptr)
     {
         for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < descriptorWriteCount;
              ++pDescriptorWrites_index)
         {
             auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites->pNext);
-            while (pnext_header)
+            while (pnext_header != nullptr)
             {
                 switch (pnext_header->sType)
                 {
@@ -76,7 +76,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                     {
                         auto pnext_value =
                             reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
-                        if (pnext_value->pAccelerationStructures)
+                        if (pnext_value->pAccelerationStructures != nullptr)
                         {
                             for (uint32_t pAccelerationStructures_index = 0;
                                  pAccelerationStructures_index < pnext_value->accelerationStructureCount;
@@ -100,7 +100,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
 
             auto descriptorWrite = pDescriptorWrites[pDescriptorWrites_index];
 
-            if (descriptorWrite.dstSet)
+            if (descriptorWrite.dstSet != VK_NULL_HANDLE)
             {
                 wrapper->command_handles[CommandHandleType::DescriptorSetHandle].insert(
                     GetWrappedId(descriptorWrite.dstSet));
@@ -114,7 +114,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
-                    if (descriptorWrite.pImageInfo)
+                    if (descriptorWrite.pImageInfo != nullptr)
                     {
                         for (uint32_t pImageInfo_index = 0; pImageInfo_index < descriptorWrite.descriptorCount;
                              ++pImageInfo_index)
@@ -143,7 +143,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 {
-                    if (descriptorWrite.pBufferInfo)
+                    if (descriptorWrite.pBufferInfo != nullptr)
                     {
                         for (uint32_t pBufferInfo_index = 0; pBufferInfo_index < descriptorWrite.descriptorCount;
                              ++pBufferInfo_index)
@@ -160,7 +160,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                 case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 {
-                    if (descriptorWrite.pTexelBufferView)
+                    if (descriptorWrite.pTexelBufferView != nullptr)
                     {
                         for (uint32_t pTexelBufferView_index = 0;
                              pTexelBufferView_index < descriptorWrite.descriptorCount;
