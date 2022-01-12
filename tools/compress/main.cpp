@@ -254,7 +254,7 @@ int main(int argc, const char** argv)
     }
     else
     {
-        GFXRECON_WRITE_CONSOLE("CompressionCoverter could not be initialized.");
+        GFXRECON_WRITE_CONSOLE("CompressionConverter could not be initialized.");
         exit(-1);
     }
 
