@@ -110,7 +110,8 @@ const uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
 static struct sigaction s_old_sigaction = {};
 static stack_t          s_old_stack     = {};
 
-static uint8_t s_alt_stack[SIGSTKSZ];
+static uint8_t* s_alt_stack      = nullptr;
+static size_t   s_alt_stack_size = 0;
 
 static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 {
@@ -188,11 +189,24 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 
 PageGuardManager* PageGuardManager::instance_ = nullptr;
 
+void PageGuardManager::InitializeSystemExceptionContext(void)
+{
+#if defined(__linux__)
+    if (s_alt_stack == nullptr)
+    {
+        s_alt_stack_size = SIGSTKSZ;
+        s_alt_stack      = new uint8_t[s_alt_stack_size];
+    }
+#endif
+}
+
 PageGuardManager::PageGuardManager() :
     exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
     enable_separate_read_(kDefaultEnableSeparateRead), enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
-{}
+{
+    InitializeSystemExceptionContext();
+}
 
 PageGuardManager::PageGuardManager(bool enable_copy_on_map,
                                    bool enable_separate_read,
@@ -201,7 +215,9 @@ PageGuardManager::PageGuardManager(bool enable_copy_on_map,
     exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), enable_read_write_same_page_(expect_read_write_same_page)
-{}
+{
+    InitializeSystemExceptionContext();
+}
 
 PageGuardManager::~PageGuardManager()
 {
@@ -358,7 +374,7 @@ void PageGuardManager::AddExceptionHandler()
                 stack_t new_stack;
                 new_stack.ss_sp    = s_alt_stack;
                 new_stack.ss_flags = 0;
-                new_stack.ss_size  = sizeof(s_alt_stack);
+                new_stack.ss_size  = s_alt_stack_size;
 
                 sigaltstack(&new_stack, &s_old_stack);
 
