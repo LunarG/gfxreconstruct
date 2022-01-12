@@ -141,8 +141,6 @@ static std::string GetCompressionTypeName(uint32_t type)
 
 int main(int argc, const char** argv)
 {
-    int return_code = 0;
-
     gfxrecon::util::Log::Init();
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
@@ -249,16 +247,18 @@ int main(int argc, const char** argv)
         else
         {
             GFXRECON_WRITE_CONSOLE("Capture file %s could not be converted.", input_filename.c_str());
-            return_code = -1;
+            gfxrecon::util::Log::Release();
+            exit(-1);
         }
     }
     else
     {
         GFXRECON_WRITE_CONSOLE("CompressionConverter could not be initialized.");
+        gfxrecon::util::Log::Release();
         exit(-1);
     }
 
     gfxrecon::util::Log::Release();
 
-    return return_code;
+    return 0;
 }
