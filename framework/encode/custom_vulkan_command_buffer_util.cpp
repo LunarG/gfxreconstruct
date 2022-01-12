@@ -56,13 +56,13 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                     {
                         auto pnext_value =
                             reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
-                        if (pnext_value->pAccelerationStructures)
+                        if (pnext_value->pAccelerationStructures != nullptr)
                         {
                             for (uint32_t pAccelerationStructures_index = 0;
                                  pAccelerationStructures_index < pnext_value->accelerationStructureCount;
                                  ++pAccelerationStructures_index)
                             {
-                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index])
+                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE)
                                 {
                                     wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(
                                         GetWrappedId(
@@ -82,7 +82,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                                  pAccelerationStructures_index < pnext_value->accelerationStructureCount;
                                  ++pAccelerationStructures_index)
                             {
-                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index])
+                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE)
                                 {
                                     wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(
                                         GetWrappedId(
@@ -124,12 +124,12 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                             //  immutable VkSamplers member of the VkDescriptorSetLayout for the binding
                             //  we're currently processing...if there is one we should use that over any
                             //  VkSampler provided in the VkDescriptorWrite.
-                            if (descriptorWrite.pImageInfo[pImageInfo_index].sampler)
+                            if (descriptorWrite.pImageInfo[pImageInfo_index].sampler != VK_NULL_HANDLE)
                             {
                                 wrapper->command_handles[CommandHandleType::SamplerHandle].insert(
                                     GetWrappedId(descriptorWrite.pImageInfo[pImageInfo_index].sampler));
                             }
-                            if (descriptorWrite.pImageInfo[pImageInfo_index].imageView)
+                            if (descriptorWrite.pImageInfo[pImageInfo_index].imageView != VK_NULL_HANDLE)
                             {
                                 wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(
                                     GetWrappedId(descriptorWrite.pImageInfo[pImageInfo_index].imageView));
@@ -148,7 +148,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                         for (uint32_t pBufferInfo_index = 0; pBufferInfo_index < descriptorWrite.descriptorCount;
                              ++pBufferInfo_index)
                         {
-                            if (descriptorWrite.pBufferInfo[pBufferInfo_index].buffer)
+                            if (descriptorWrite.pBufferInfo[pBufferInfo_index].buffer != VK_NULL_HANDLE)
                             {
                                 wrapper->command_handles[CommandHandleType::BufferHandle].insert(
                                     GetWrappedId(descriptorWrite.pBufferInfo[pBufferInfo_index].buffer));
@@ -166,7 +166,7 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                              pTexelBufferView_index < descriptorWrite.descriptorCount;
                              ++pTexelBufferView_index)
                         {
-                            if (descriptorWrite.pTexelBufferView[pTexelBufferView_index])
+                            if (descriptorWrite.pTexelBufferView[pTexelBufferView_index] != VK_NULL_HANDLE)
                             {
                                 wrapper->command_handles[CommandHandleType::BufferViewHandle].insert(
                                     GetWrappedId(descriptorWrite.pTexelBufferView[pTexelBufferView_index]));
