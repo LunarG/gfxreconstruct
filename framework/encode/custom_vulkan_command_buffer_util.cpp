@@ -62,7 +62,8 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                                  pAccelerationStructures_index < pnext_value->accelerationStructureCount;
                                  ++pAccelerationStructures_index)
                             {
-                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE)
+                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] !=
+                                    VK_NULL_HANDLE)
                                 {
                                     wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(
                                         GetWrappedId(
@@ -82,7 +83,8 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper*       wrapper,
                                  pAccelerationStructures_index < pnext_value->accelerationStructureCount;
                                  ++pAccelerationStructures_index)
                             {
-                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE)
+                                if (pnext_value->pAccelerationStructures[pAccelerationStructures_index] !=
+                                    VK_NULL_HANDLE)
                                 {
                                     wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(
                                         GetWrappedId(
