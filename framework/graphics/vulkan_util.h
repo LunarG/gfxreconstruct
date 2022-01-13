@@ -29,6 +29,22 @@
 
 #include "vulkan/vulkan.h"
 
+#define VK_RESULT_SCOPE_BEGIN        \
+    VkResult vk_result = VK_SUCCESS; \
+    {
+
+#define VK_RESULT(VK_CALL)           \
+    VK_CALL;                         \
+    assert(vk_result == VK_SUCCESS); \
+    if (vk_result != VK_SUCCESS)     \
+    {                                \
+        goto VK_ERROR_ENCOUNTERED;   \
+    }
+
+#define VK_RESULT_SCOPE_END \
+    }                       \
+    VK_ERROR_ENCOUNTERED:
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
