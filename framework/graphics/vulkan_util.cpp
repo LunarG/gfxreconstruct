@@ -22,6 +22,9 @@
 
 #include "graphics/vulkan_util.h"
 
+#define VMA_IMPLEMENTATION
+#include "vk_mem_alloc.h"
+
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

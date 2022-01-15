@@ -33,57 +33,44 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class VulkanVirtualSwapchain final
 {
   public:
-    struct CreateInfo : public VkSwapchainCreateInfoKHR
+    struct DispatchTable
     {
         PFN_vkCreateSwapchainKHR    pfn_vkCreateSwapchainKHR{ nullptr };
         PFN_vkDestroySwapchainKHR   pfn_vkDestroySwapchainKHR{ nullptr };
         PFN_vkGetSwapchainImagesKHR pfn_vkGetSwapchainImagesKHR{ nullptr };
-        PFN_vkCreateImage           pfn_vkCreateImage{ nullptr };
-        PFN_vkDestroyImage          pfn_vkDestroyImage{ nullptr };
-        PFN_vkAllocateMemory        pfn_vkAllocateMemory{ nullptr };
-        PFN_vkBindImageMemory       pfn_vkBindImageMemory{ nullptr };
-        PFN_vkFreeMemory            pfn_vkFreeMemory{ nullptr };
         PFN_vkAcquireNextImageKHR   pfn_vkAcquireNextImageKHR{ nullptr };
         PFN_vkAcquireNextImage2KHR  pfn_vkAcquireNextImage2KHR{ nullptr };
         PFN_vkQueuePresentKHR       pfn_vkQueuePresentKHR{ nullptr };
-        VkBool32                    enabled{};
-        uint32_t                    imageCount{};
     };
 
-    static VkResult
-    Create(VkPhysicalDevice vkPhysicalDevice, VkDevice vkDevice, const CreateInfo* pCreateInfo, VulkanVirtualSwapchain* pVulkanVirtualSwapchain);
+    struct CreateInfo : public VkSwapchainCreateInfoKHR
+    {
+        DispatchTable dispatch{};
+        uint32_t      imageCount{};
+    };
 
+    static VkResult Create(VkDevice                vkDevice,
+                           const CreateInfo*       pCreateInfo,
+                           VmaAllocator            vmaAllocator,
+                           VulkanVirtualSwapchain* pVulkanVirtualSwapchain);
     VulkanVirtualSwapchain(VulkanVirtualSwapchain&& other);
     VulkanVirtualSwapchain& operator=(VulkanVirtualSwapchain&& other);
     ~VulkanVirtualSwapchain();
+    void Reset();
 
     VkResult GetSwapchainImagesKHR(uint32_t* pSwapchainImageCount, VkImage* pSwapchainImages);
-    VkResult AcquireNextImage(uint64_t timeout, VkSemaphore vkSemaphore, VkFence vkFence, uint32_t* pImageIndex);
+    VkResult AcquireNextImageKHR(uint64_t timeout, VkSemaphore vkSemaphore, VkFence vkFence, uint32_t* pImageIndex);
     VkResult AcquireNextImage2KHR(const VkAcquireNextImageInfoKHR* pAcquireInfo, uint32_t* pImageIndex);
     VkResult QueuePresentKHR(VkQueue vkQueue, const VkPresentInfoKHR* pPresentInfo);
 
-    const CreateInfo&           GetCreateInfo() const;
-    VkBool32                    IsEnabled() const;
-    void                        IsEnabled(VkBool32 enabled);
-    VkDevice                    GetDevice() const;
-    VkSwapchainKHR              GetSwapchain() const;
-    VkDeviceMemory              GetDeviceMemory() const;
-    const std::vector<VkImage>& GetSwapchainImages() const;
-    const std::vector<VkImage>& GetVirtualSwapchainImages() const;
-    void                        Reset();
-
   private:
-    VkResult CreateSwapchain();
-    VkResult CreateImages();
-    VkResult AllocateAndBindImageMemory(VkPhysicalDevice vkPhysicalDevice);
+    class Image;
 
-    CreateInfo           m_create_info{};
-    VkBool32             m_enabled{ };
-    VkDevice             m_vk_device{ VK_NULL_HANDLE };
-    VkSwapchainKHR       m_vk_swapchain{ VK_NULL_HANDLE };
-    VkDeviceMemory       m_vk_device_memory{ VK_NULL_HANDLE };
-    std::vector<VkImage> m_vk_swapchain_images;
-    std::vector<VkImage> m_vk_virtual_swapchain_images;
+    DispatchTable               m_dispatch{};
+    VkDevice                    m_vk_device{ VK_NULL_HANDLE };
+    VkSwapchainKHR              m_vk_swapchain{ VK_NULL_HANDLE };
+    std::vector<VkImage>        m_vk_images;
+    std::vector<Image>          m_virtual_images;
 
     VulkanVirtualSwapchain(const VulkanVirtualSwapchain&) = default;
     VulkanVirtualSwapchain& operator=(const VulkanVirtualSwapchain&) = default;

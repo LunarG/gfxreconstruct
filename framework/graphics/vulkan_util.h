@@ -28,13 +28,14 @@
 #include "util/platform.h"
 
 #include "vulkan/vulkan.h"
+#include "vk_mem_alloc.h"
 
 #define VK_RESULT_SCOPE_BEGIN        \
     VkResult vk_result = VK_SUCCESS; \
     {
 
 #define VK_RESULT(VK_CALL)           \
-    VK_CALL;                         \
+    vk_result = VK_CALL;             \
     assert(vk_result == VK_SUCCESS); \
     if (vk_result != VK_SUCCESS)     \
     {                                \

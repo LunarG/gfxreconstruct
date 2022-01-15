@@ -24,9 +24,8 @@
 #define GFXRECON_DECODE_VULKAN_REBIND_ALLOCATOR_H
 
 #include "decode/vulkan_resource_allocator.h"
+#include "graphics/vulkan_util.h"
 #include "util/defines.h"
-
-#include "vk_mem_alloc.h"
 
 #include <limits>
 #include <memory>

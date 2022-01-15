@@ -43,7 +43,7 @@ target_include_directories(gfxrecon_graphics
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)
 
 common_build_directives(gfxrecon_graphics)
 

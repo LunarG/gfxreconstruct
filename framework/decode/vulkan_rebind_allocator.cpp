@@ -20,11 +20,6 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// This file needs to be included first to ensure it is processed with the VMA_IMPLEMENTATION directive, in case it is
-// indirectly included by other include files.
-#define VMA_IMPLEMENTATION
-#include "vk_mem_alloc.h"
-
 #include "decode/vulkan_rebind_allocator.h"
 
 #include "decode/resource_util.h"
