@@ -716,7 +716,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
         encode_wrapper.handle_id = wrapper->handle_id;
 
         VkWriteDescriptorSet write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-        write.pNext                = nullptr;
+        write.pNext                = wrapper->write_pnext;
         write.dstSet               = reinterpret_cast<VkDescriptorSet>(&encode_wrapper);
 
         for (const auto& binding_entry : wrapper->bindings)
@@ -2259,10 +2259,6 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
 
     const VkCopyDescriptorSet* copy = nullptr;
 
-    // write_accel_struct may be used in the pNext chain of the VkWriteDescriptorSet and needs to stay in scope until
-    // after VkWriteDescriptorSet is encoded.
-    VkWriteDescriptorSetAccelerationStructureKHR write_accel_struct;
-
     switch (write->descriptorType)
     {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -2273,7 +2269,6 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = &binding->images[write->dstArrayElement];
             write->pTexelBufferView = nullptr;
-            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
@@ -2282,14 +2277,12 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             write->pBufferInfo      = &binding->buffers[write->dstArrayElement];
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = nullptr;
-            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = &binding->texel_buffer_views[write->dstArrayElement];
-            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
             // TODO
@@ -2299,15 +2292,9 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             break;
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
         {
-            write_accel_struct.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
-            write_accel_struct.pNext = nullptr;
-            write_accel_struct.accelerationStructureCount = write->descriptorCount;
-            write_accel_struct.pAccelerationStructures    = &binding->acceleration_structures[write->dstArrayElement];
-
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = nullptr;
-            write->pNext            = &write_accel_struct;
         }
         break;
         default:
