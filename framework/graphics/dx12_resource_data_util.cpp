@@ -473,11 +473,12 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
     HRESULT               result = target_resource->GetHeapProperties(&target_heap_properties, &target_heap_flags);
     if (SUCCEEDED(result))
     {
-        bool is_cpu_accessible = (target_heap_properties.Type == D3D12_HEAP_TYPE_UPLOAD) ||
-                                 (target_heap_properties.Type == D3D12_HEAP_TYPE_READBACK) ||
-                                 ((target_heap_properties.Type == D3D12_HEAP_TYPE_CUSTOM) &&
-                                  (target_heap_properties.CPUPageProperty != D3D12_CPU_PAGE_PROPERTY_UNKNOWN) &&
-                                  (target_heap_properties.CPUPageProperty != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE));
+        bool is_cpu_accessible =
+            ((target_heap_properties.Type == D3D12_HEAP_TYPE_UPLOAD) && (copy_type == kCopyTypeWrite)) ||
+            ((target_heap_properties.Type == D3D12_HEAP_TYPE_READBACK) && (copy_type == kCopyTypeRead)) ||
+            ((target_heap_properties.Type == D3D12_HEAP_TYPE_CUSTOM) &&
+             (target_heap_properties.CPUPageProperty != D3D12_CPU_PAGE_PROPERTY_UNKNOWN) &&
+             (target_heap_properties.CPUPageProperty != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE));
 
         if (is_cpu_accessible)
         {
@@ -527,7 +528,7 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                                              const std::vector<dx12::ResourceStateInfo>&            before_states,
                                              const std::vector<dx12::ResourceStateInfo>&            after_states)
 {
-    const dx12::ResourceStateInfo kReadState  = { D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE };
+    const dx12::ResourceStateInfo kReadState  = { D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE };
     const dx12::ResourceStateInfo kWriteState = { D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE };
 
     // The resource state required to copy data to the target resource.
