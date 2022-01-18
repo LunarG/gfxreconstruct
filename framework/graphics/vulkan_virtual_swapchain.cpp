@@ -285,13 +285,27 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(uint64_t    timeout,
 VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(const VkAcquireNextImageInfoKHR* pAcquireInfo,
                                                       uint32_t*                        pImageIndex)
 {
-    auto vkResult = VK_ERROR_UNKNOWN;
+    auto vkResult = VK_INCOMPLETE;
+    if (pAcquireInfo && pImageIndex)
+    {
+        assert(pAcquireInfo->swapchain == m_vk_swapchain);
+    }
     return vkResult;
 }
 
-VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo)
+VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkQueue vkQueue, const VkPresentInfoKHR* pPresentInfo)
 {
-    auto vkResult = VK_ERROR_UNKNOWN;
+    auto vkResult = VK_INCOMPLETE;
+    if (vkQueue && pPresentInfo)
+    {
+        // NOTE : If/when we need to handle multiple VkSwapchainKHR objects, we should
+        //  have a higher level class to keep track of that...if/when we need to cross
+        //  that bridge, vkQueuePresentKHR() should be moved to that class...for now we
+        //  just assume one VkSwapchainKHR in use at a time.
+        assert(pPresentInfo->swapchainCount == 1);
+        assert(pPresentInfo->pSwapchains);
+        assert(pPresentInfo->pSwapchains[0] == m_vk_swapchain);
+    }
     return vkResult;
 }
 
