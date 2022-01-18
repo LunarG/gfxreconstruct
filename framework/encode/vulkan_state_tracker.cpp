@@ -23,6 +23,7 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "encode/vulkan_state_info.h"
+#include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_util.h"
 
 #include <algorithm>
@@ -208,10 +209,8 @@ void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buff
     wrapper->address   = address;
 }
 
-void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
-                                                  VkBuffer       buffer,
-                                                  VkDeviceMemory memory,
-                                                  VkDeviceSize   memoryOffset)
+void VulkanStateTracker::TrackBufferMemoryBinding(
+    VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* pnext)
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
@@ -219,19 +218,32 @@ void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
     wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
     wrapper->bind_memory_id = GetWrappedId(memory);
     wrapper->bind_offset    = memoryOffset;
+    wrapper->bind_pnext     = nullptr;
+    wrapper->bind_pnext_memory.Reset();
+
+    if (pnext != nullptr)
+    {
+        wrapper->bind_pnext = TrackPNextStruct(pnext, &wrapper->bind_pnext_memory);
+    }
 }
 
-void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
-                                                 VkImage        image,
-                                                 VkDeviceMemory memory,
-                                                 VkDeviceSize   memoryOffset)
+void VulkanStateTracker::TrackImageMemoryBinding(
+    VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* pnext)
 {
-    assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
+    // If VkBindImageMemorySwapchainInfoKHR is in pnext, memory must be VK_NULL_HANDLE.
+    assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
     auto wrapper            = reinterpret_cast<ImageWrapper*>(image);
     wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
     wrapper->bind_memory_id = GetWrappedId(memory);
     wrapper->bind_offset    = memoryOffset;
+    wrapper->bind_pnext     = nullptr;
+    wrapper->bind_pnext_memory.Reset();
+
+    if (pnext != nullptr)
+    {
+        wrapper->bind_pnext = TrackPNextStruct(pnext, &wrapper->bind_pnext_memory);
+    }
 }
 
 void VulkanStateTracker::TrackMappedMemory(VkDevice         device,

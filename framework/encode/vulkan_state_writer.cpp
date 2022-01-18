@@ -1200,7 +1200,8 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
         const DeviceMemoryWrapper* memory_wrapper = snapshot_entry.memory_wrapper;
         const uint8_t*             bytes          = nullptr;
 
-        assert((image_wrapper != nullptr) && (memory_wrapper != nullptr));
+        assert((image_wrapper != nullptr) && ((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
+                                              (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr)));
 
         if (snapshot_entry.need_staging_copy)
         {
@@ -1368,7 +1369,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
                 }
             }
         }
-        else
+        else if (!image_wrapper->is_swapchain_image)
         {
             assert((memory_wrapper != nullptr) &&
                    ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
@@ -1401,73 +1402,76 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
             }
         }
 
-        format::InitImageCommandHeader upload_cmd;
-
-        // Packet size without the resource data.
-        upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd);
-        upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-        upload_cmd.meta_header.meta_data_id =
-            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kInitImageCommand);
-        upload_cmd.thread_id = thread_id_;
-        upload_cmd.device_id = device_wrapper->handle_id;
-        upload_cmd.image_id  = image_wrapper->handle_id;
-        upload_cmd.aspect    = snapshot_entry.aspect;
-        upload_cmd.layout    = image_wrapper->current_layout;
-
-        if (bytes != nullptr)
+        if (!image_wrapper->is_swapchain_image)
         {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, snapshot_entry.resource_size);
+            format::InitImageCommandHeader upload_cmd;
 
-            size_t data_size = static_cast<size_t>(snapshot_entry.resource_size);
+            // Packet size without the resource data.
+            upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd);
+            upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+            upload_cmd.meta_header.meta_data_id =
+                format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kInitImageCommand);
+            upload_cmd.thread_id = thread_id_;
+            upload_cmd.device_id = device_wrapper->handle_id;
+            upload_cmd.image_id  = image_wrapper->handle_id;
+            upload_cmd.aspect    = snapshot_entry.aspect;
+            upload_cmd.layout    = image_wrapper->current_layout;
 
-            // Store uncompressed data size in packet.
-            upload_cmd.data_size   = data_size;
-            upload_cmd.level_count = image_wrapper->mip_levels;
-
-            if (compressor_ != nullptr)
+            if (bytes != nullptr)
             {
-                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, snapshot_entry.resource_size);
 
-                if ((compressed_size > 0) && (compressed_size < data_size))
+                size_t data_size = static_cast<size_t>(snapshot_entry.resource_size);
+
+                // Store uncompressed data size in packet.
+                upload_cmd.data_size   = data_size;
+                upload_cmd.level_count = image_wrapper->mip_levels;
+
+                if (compressor_ != nullptr)
                 {
-                    upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+                    size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
 
-                    bytes     = compressed_parameter_buffer_.data();
-                    data_size = compressed_size;
+                    if ((compressed_size > 0) && (compressed_size < data_size))
+                    {
+                        upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                        bytes     = compressed_parameter_buffer_.data();
+                        data_size = compressed_size;
+                    }
                 }
-            }
 
-            // Calculate size of packet with compressed or uncompressed data size.
-            assert(!snapshot_entry.level_sizes.empty() &&
-                   (snapshot_entry.level_sizes.size() == upload_cmd.level_count));
-            size_t levels_size = snapshot_entry.level_sizes.size() * sizeof(snapshot_entry.level_sizes[0]);
+                // Calculate size of packet with compressed or uncompressed data size.
+                assert(!snapshot_entry.level_sizes.empty() &&
+                       (snapshot_entry.level_sizes.size() == upload_cmd.level_count));
+                size_t levels_size = snapshot_entry.level_sizes.size() * sizeof(snapshot_entry.level_sizes[0]);
 
-            upload_cmd.meta_header.block_header.size += levels_size + data_size;
+                upload_cmd.meta_header.block_header.size += levels_size + data_size;
 
-            output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-            output_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
-            output_stream_->Write(bytes, data_size);
+                output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+                output_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
+                output_stream_->Write(bytes, data_size);
 
-            if (snapshot_entry.need_staging_copy)
-            {
-                device_table->UnmapMemory(device_wrapper->handle, staging_memory);
+                if (snapshot_entry.need_staging_copy)
+                {
+                    device_table->UnmapMemory(device_wrapper->handle, staging_memory);
+                }
+                else
+                {
+                    if (memory_wrapper->mapped_data == nullptr)
+                    {
+                        device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
+                    }
+                }
             }
             else
             {
-                if (memory_wrapper->mapped_data == nullptr)
-                {
-                    device_table->UnmapMemory(device_wrapper->handle, memory_wrapper->handle);
-                }
-            }
-        }
-        else
-        {
-            // Write a packet without resource data; replay must still perform a layout transition at image
-            // initialization.
-            upload_cmd.data_size   = 0;
-            upload_cmd.level_count = 0;
+                // Write a packet without resource data; replay must still perform a layout transition at image
+                // initialization.
+                upload_cmd.data_size   = 0;
+                upload_cmd.level_count = 0;
 
-            output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+                output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+            }
         }
     }
 }
@@ -1505,13 +1509,32 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             parameter_stream_.Reset();
 
             // Write memory bind command.
-            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-            encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
-            encoder_.EncodeEnumValue(VK_SUCCESS);
+            if (wrapper->bind_pnext == nullptr)
+            {
+                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+                encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+                encoder_.EncodeEnumValue(VK_SUCCESS);
 
-            WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+                WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+            }
+            else
+            {
+                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                encoder_.EncodeUInt32Value(1);
+
+                VkBindBufferMemoryInfo info = {};
+                info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
+                info.pNext                  = wrapper->bind_pnext;
+                info.buffer                 = reinterpret_cast<VkBuffer>(const_cast<BufferWrapper*>(wrapper));
+                info.memory       = reinterpret_cast<VkDeviceMemory>(const_cast<DeviceMemoryWrapper*>(memory_wrapper));
+                info.memoryOffset = wrapper->bind_offset;
+                EncodeStructArray(&encoder_, &info, 1);
+                encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
+            }
             parameter_stream_.Reset();
 
             // Group buffers with memory bindings by device for memory snapshot.
@@ -1552,7 +1575,8 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
         // Perform memory binding.
         const DeviceMemoryWrapper* memory_wrapper = state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
 
-        if (memory_wrapper != nullptr)
+        if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->bind_device != nullptr) ||
+            (!wrapper->is_swapchain_image && memory_wrapper != nullptr))
         {
             const DeviceWrapper* device_wrapper = wrapper->bind_device;
             const DeviceTable*   device_table   = &device_wrapper->layer_table;
@@ -1572,16 +1596,39 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             parameter_stream_.Reset();
 
             // Write memory bind command.
-            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-            encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
-            encoder_.EncodeEnumValue(VK_SUCCESS);
+            if (wrapper->bind_pnext == nullptr)
+            {
+                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+                encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+                encoder_.EncodeEnumValue(VK_SUCCESS);
 
-            WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
+                WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
+            }
+            else
+            {
+                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                encoder_.EncodeUInt32Value(1);
+
+                VkBindImageMemoryInfo info = {};
+                info.sType                 = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
+                info.pNext                 = wrapper->bind_pnext;
+                info.image                 = reinterpret_cast<VkImage>(const_cast<ImageWrapper*>(wrapper));
+                info.memory       = reinterpret_cast<VkDeviceMemory>(const_cast<DeviceMemoryWrapper*>(memory_wrapper));
+                info.memoryOffset = wrapper->bind_offset;
+                EncodeStructArray(&encoder_, &info, 1);
+                encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
+            }
             parameter_stream_.Reset();
 
-            VkMemoryPropertyFlags memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
+            VkMemoryPropertyFlags memory_properties = 0;
+            if (memory_wrapper != nullptr)
+            {
+                GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
+            }
 
             bool is_transitioned = (wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
                                    (wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED);

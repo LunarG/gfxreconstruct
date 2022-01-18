@@ -78,7 +78,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         self.structs_with_handles = dict()
         self.pnext_structs_with_handles = dict(
         )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and contain handles.
-        self.pnext_structs_without_handles = dict(
+        self.pnext_structs = dict(
         )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and do not contain handles.
 
     def beginFile(self, gen_opts):
@@ -100,7 +100,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         # Generate the pNext shallow copy code, for pNext structs that don't have handles, but need to be preserved in the overall copy for handle wrapping.
         self.newline()
         write(
-            'static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory)',
+            'VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -133,11 +133,9 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         write('        break;', file=self.outFile)
-        for base_type in self.pnext_structs_without_handles:
+        for base_type in self.pnext_structs:
             write(
-                '    case {}:'.format(
-                    self.pnext_structs_without_handles[base_type]
-                ),
+                '    case {}:'.format(self.pnext_structs[base_type]),
                 file=self.outFile
             )
             write(
@@ -227,8 +225,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
                 if stype:
                     if has_handles:
                         self.pnext_structs_with_handles[typename] = stype
-                    else:
-                        self.pnext_structs_without_handles[typename] = stype
+
+                    self.pnext_structs[typename] = stype
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

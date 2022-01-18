@@ -363,7 +363,9 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
     else
     {
         CreateWrappedNonDispatchHandle<ImageWrapper>(handle, get_id);
-        parent_wrapper->child_images.push_back(reinterpret_cast<ImageWrapper*>(*handle));
+        auto image_wrapper                = reinterpret_cast<ImageWrapper*>(*handle);
+        image_wrapper->is_swapchain_image = true;
+        parent_wrapper->child_images.push_back(image_wrapper);
     }
 }
 
