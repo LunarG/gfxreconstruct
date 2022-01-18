@@ -269,7 +269,9 @@ class VulkanStateTracker
 
     void TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice                physical_device,
                                                 VkSurfaceKHR                    surface,
-                                                const VkSurfaceCapabilitiesKHR& capabilities);
+                                                const VkSurfaceCapabilitiesKHR& capabilities,
+                                                const void*                     surface_info_pnext = nullptr,
+                                                const void*                     capabilities_pnext = nullptr);
 
     void TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
                                            VkSurfaceKHR              surface,
@@ -279,7 +281,13 @@ class VulkanStateTracker
     void TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice        physical_device,
                                                 VkSurfaceKHR            surface,
                                                 uint32_t                mode_count,
-                                                const VkPresentModeKHR* modes);
+                                                const VkPresentModeKHR* modes,
+                                                const void*             surface_info_pnext = nullptr);
+
+    void TrackDeviceGroupSurfacePresentModes(VkDevice                          device,
+                                             VkSurfaceKHR                      surface,
+                                             VkDeviceGroupPresentModeFlagsKHR* pModes,
+                                             const void*                       surface_info_pnext = nullptr);
 
     void TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address);
 
@@ -287,10 +295,13 @@ class VulkanStateTracker
                                   VkBuffer       buffer,
                                   VkDeviceMemory memory,
                                   VkDeviceSize   memoryOffset,
-                                  const void*    pnext = nullptr);
+                                  const void*    bind_info_pnext = nullptr);
 
-    void TrackImageMemoryBinding(
-        VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* pnext = nullptr);
+    void TrackImageMemoryBinding(VkDevice       device,
+                                 VkImage        image,
+                                 VkDeviceMemory memory,
+                                 VkDeviceSize   memoryOffset,
+                                 const void*    bind_info_pnext = nullptr);
 
     void TrackMappedMemory(VkDevice         device,
                            VkDeviceMemory   memory,
@@ -361,6 +372,10 @@ class VulkanStateTracker
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
     void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
+
+    void TrackAcquireFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain);
+
+    void TrackReleaseFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
