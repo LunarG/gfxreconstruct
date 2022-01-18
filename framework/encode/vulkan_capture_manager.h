@@ -838,6 +838,31 @@ class VulkanCaptureManager : public CaptureManager
                                  VkMemoryMapFlags flags,
                                  void**           ppData);
 
+    void PostProcess_vkAcquireFullScreenExclusiveModeEXT(VkResult result, VkDevice device, VkSwapchainKHR swapchain);
+
+    void PostProcess_vkGetPhysicalDeviceSurfacePresentModes2EXT(VkResult                               result,
+                                                                VkPhysicalDevice                       physicalDevice,
+                                                                const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                                uint32_t*         pPresentModeCount,
+                                                                VkPresentModeKHR* pPresentModes);
+
+    void PostProcess_vkReleaseFullScreenExclusiveModeEXT(VkResult result, VkDevice device, VkSwapchainKHR swapchain);
+
+    void PostProcess_vkGetDeviceGroupSurfacePresentModesKHR(VkResult                          result,
+                                                            VkDevice                          device,
+                                                            VkSurfaceKHR                      surface,
+                                                            VkDeviceGroupPresentModeFlagsKHR* pModes);
+
+    void PostProcess_vkGetDeviceGroupSurfacePresentModes2EXT(VkResult                               result,
+                                                             VkDevice                               device,
+                                                             const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                             VkDeviceGroupPresentModeFlagsKHR*      pModes);
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(VkResult                               result,
+                                                                VkPhysicalDevice                       physicalDevice,
+                                                                const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                                VkSurfaceCapabilities2KHR* pSurfaceCapabilities);
+
     void PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
                                               uint32_t                   memoryRangeCount,
                                               const VkMappedMemoryRange* pMemoryRanges);
