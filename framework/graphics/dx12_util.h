@@ -49,10 +49,16 @@ typedef _com_ptr_t<_com_IIID<ID3D12CommandAllocator, &__uuidof(ID3D12CommandAllo
 typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList, &__uuidof(ID3D12GraphicsCommandList)>>
     ID3D12GraphicsCommandListComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedData1, &__uuidof(ID3D12DeviceRemovedExtendedData1)>>
-ID3D12DeviceRemovedExtendedData1ComPtr;
-typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedDataSettings1, &__uuidof(ID3D12DeviceRemovedExtendedDataSettings1)>>
-ID3D12DeviceRemovedExtendedDataSettings1ComPtr;
+    ID3D12DeviceRemovedExtendedData1ComPtr;
+typedef _com_ptr_t<
+    _com_IIID<ID3D12DeviceRemovedExtendedDataSettings1, &__uuidof(ID3D12DeviceRemovedExtendedDataSettings1)>>
+                                                                   ID3D12DeviceRemovedExtendedDataSettings1ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Debug, &__uuidof(ID3D12Debug)>> ID3D12DebugComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12StateObjectProperties, &__uuidof(ID3D12StateObjectProperties)>>
+    ID3D12StateObjectPropertiesComPtr;
+typedef _com_ptr_t<
+    _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
+    ID3D12VersionedRootSignatureDeserializerComPtr;
 
 struct ResourceStateInfo
 {
@@ -75,7 +81,7 @@ HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_R
 // Waits for the given queue to complete all pending tasks.
 HRESULT WaitForQueue(ID3D12CommandQueue* queue);
 
-// Utility function to analyze DRED output. 
+// Utility function to analyze DRED output.
 // This function is meant to be called when device gets removed, to get extended debug information.
 // For it to work, gfxrecon-replay must be launched with: --debug-device-lost
 void AnalyzeDeviceRemoved(ID3D12Device* device);
