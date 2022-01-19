@@ -68,77 +68,72 @@
                         {
                             "key": "F1",
                             "label": "F1",
-                            "description": ""
+                            "description": "F1 Key"
                         },
                         {
                             "key": "F2",
                             "label": "F2",
-                            "description": ""
+                            "description": "F2 Key"
                         },
                         {
                             "key": "F3",
                             "label": "F3",
-                            "description": ""
+                            "description": "F3 Key"
                         },
                         {
                             "key": "F4",
                             "label": "F4",
-                            "description": ""
+                            "description": "F4 Key"
                         },
                         {
                             "key": "F5",
                             "label": "F5",
-                            "description": ""
+                            "description": "F5 Key"
                         },
                         {
                             "key": "F6",
                             "label": "F6",
-                            "description": ""
+                            "description": "F6 Key"
                         },
                         {
                             "key": "F7",
                             "label": "F7",
-                            "description": ""
+                            "description": "F7 Key"
                         },
                         {
                             "key": "F8",
                             "label": "F8",
-                            "description": ""
+                            "description": "F8 Key"
                         },
                         {
                             "key": "F9",
                             "label": "F9",
-                            "description": ""
+                            "description": "F9 Key"
                         },
                         {
                             "key": "F10",
                             "label": "F10",
-                            "description": ""
-                        },
-                        {
-                            "key": "F10",
-                            "label": "F10",
-                            "description": ""
+                            "description": "F10 Key"
                         },
                         {
                             "key": "F11",
                             "label": "F11",
-                            "description": ""
+                            "description": "F11 Key"
                         },
                         {
                             "key": "F12",
                             "label": "F12",
-                            "description": ""
+                            "description": "F12 Key"
                         },
                         {
                             "key": "TAB",
                             "label": "TAB",
-                            "description": ""
+                            "description": "TAB Key"
                         },
                         {
                             "key": "CONTROL",
                             "label": "CONTROL",
-                            "description": ""
+                            "description": "CONTROL Key"
                         }
                     ],
                     "default": ""
@@ -158,7 +153,7 @@
                     "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
                     "type": "SAVE_FILE",
                     "filter": "*.gfxr",
-                    "default": "${LOCAL}/gfxrecon_capture.gfxr",
+                    "default": "",
                     "settings": [
                         {
                             "key": "capture_file_timestamp",
@@ -174,7 +169,7 @@
                             "label": "Capture File Flush After Write",
                             "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
                             "type": "BOOL",
-                            "default": true
+                            "default": false
                         }
                     ]
                 },
@@ -305,6 +300,27 @@
                                     }
                                 ]
                             }
+                        },
+                        {
+                            "key": "page_guard_align_buffer_sizes",
+                            "env": "GFXRECON_PAGE_GUARD_ALIGN_BUFFER_SIZES",
+                            "label": "Page Guard Align Buffer Sizes",
+                            "description": "When the page_guard memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size. This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the page_guard shadow allocation to the real allocation. This data loss can result in visible corruption during capture. Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page. This option is only available for the Vulkan API.",
+                            "type": "BOOL",
+                            "default": false,
+                            "dependence": {
+                                "mode": "ALL",
+                                "settings": [
+                                    {
+                                        "key": "memory_tracking_mode",
+                                        "value": "page_guard"
+                                    },
+                                    {
+                                        "key": "page_guard_external_memory",
+                                        "value": false
+                                    }
+                                ]
+                            }
                         }
                     ]
                 },
@@ -354,6 +370,14 @@
                             "env": "GFXRECON_LOG_DETAILED",
                             "label": "Log Name and Line Number",
                             "description": "Include name and line number from the file responsible.",
+                            "type": "BOOL",
+                            "default": false
+                        },
+                        {
+                            "key": "log_allow_indents",
+                            "env": "GFXRECON_LOG_ALLOW_INDENTS",
+                            "label": "Log Name and Line Number",
+                            "description": "Apply additional indentation formatting to log messages.",
                             "type": "BOOL",
                             "default": false
                         },
