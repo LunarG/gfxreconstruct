@@ -286,5 +286,24 @@ void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*      wrapp
     }
 }
 
+void MapStructObjects(Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC* wrapper,
+                      const Dx12ObjectInfoTable&               object_info_table,
+                      const graphics::Dx12GpuVaMap&            gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->ViewDimension)
+        {
+            case D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE:
+                MapStructObjects(wrapper->RaytracingAccelerationStructure, object_info_table, gpu_va_map);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

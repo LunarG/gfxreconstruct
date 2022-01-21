@@ -830,7 +830,8 @@ class BaseGenerator(OutputGenerator):
         structs_with_handles,
         structs_with_handle_ptrs=None,
         ignore_output=False,
-        structs_with_map_data=None
+        structs_with_map_data=None,
+        extra_types=None
     ):
         """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
         Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
@@ -840,7 +841,9 @@ class BaseGenerator(OutputGenerator):
         has_handle_pointer = False
         map_data = []
         for value in self.feature_struct_members[typename]:
-            if self.is_handle(value.base_type) or self.is_class(value):
+            if self.is_handle(value.base_type) or self.is_class(value) or (
+                extra_types and value.base_type in extra_types
+            ):
                 # The member is a handle.
                 handles.append(value)
                 if (

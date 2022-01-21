@@ -4713,6 +4713,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateShaderResourceView(
     if (replay_object != nullptr)
     {
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         MapStructObjects(&DestDescriptor, GetObjectInfoTable(), GetGpuVaTable());
         replay_object->CreateShaderResourceView(in_pResource,
                                                 pDesc->GetPointer(),

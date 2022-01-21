@@ -108,7 +108,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 self.check_struct_member_handles(
                     struct_name, self.structs_with_handles,
                     self.structs_with_handle_ptrs, True,
-                    self.structs_with_map_data
+                    self.structs_with_map_data, ['D3D12_GPU_VIRTUAL_ADDRESS']
                 )
 
     def generate_feature(self):
