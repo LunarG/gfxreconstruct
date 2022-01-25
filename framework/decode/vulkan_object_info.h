@@ -71,13 +71,14 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV = 12,
     kPhysicalDeviceArrayGetPhysicalDeviceSurfacePresentModes2EXT                        = 13,
     kPhysicalDeviceArrayEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR   = 14,
-    kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT                              = 15,
+    kPhysicalDeviceArrayGetPhysicalDeviceToolProperties                                 = 15,
     kPhysicalDeviceArrayGetPhysicalDeviceFragmentShadingRatesKHR                        = 16,
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2,
     kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2KHR =
-        kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2
+        kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2,
+    kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT = kPhysicalDeviceArrayGetPhysicalDeviceToolProperties
 };
 
 enum DeviceArrayIndices : uint32_t
@@ -86,9 +87,10 @@ enum DeviceArrayIndices : uint32_t
     kDeviceArrayGetPipelineExecutablePropertiesKHR              = 1,
     kDeviceArrayGetPipelineExecutableStatisticsKHR              = 2,
     kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR = 3,
-    kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR       = 4,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirements          = 4,
     // Aliases for extensions functions that were promoted to core.
-    kDeviceArrayGetImageSparseMemoryRequirements2KHR = kDeviceArrayGetImageSparseMemoryRequirements2
+    kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR = kDeviceArrayGetDeviceImageSparseMemoryRequirements
 };
 
 enum QueueArrayIndices : uint32_t
@@ -182,6 +184,7 @@ typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
 typedef VulkanObjectInfo<VkImageView>                     ImageViewInfo;
 typedef VulkanObjectInfo<VkShaderModule>                  ShaderModuleInfo;
 typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
+typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;

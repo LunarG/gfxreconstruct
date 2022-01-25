@@ -103,7 +103,33 @@ void TrackCmdDrawIndexedIndirectCountHandles(CommandBufferWrapper* wrapper, VkBu
 
 void TrackCmdBeginRenderPass2Handles(CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
 
-void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfoKHR* pRenderingInfo);
+void TrackCmdSetEvent2Handles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
+
+void TrackCmdResetEvent2Handles(CommandBufferWrapper* wrapper, VkEvent event);
+
+void TrackCmdWaitEvents2Handles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
+
+void TrackCmdPipelineBarrier2Handles(CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
+
+void TrackCmdWriteTimestamp2Handles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+
+void TrackCmdCopyBuffer2Handles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
+
+void TrackCmdCopyImage2Handles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo);
+
+void TrackCmdCopyBufferToImage2Handles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
+
+void TrackCmdCopyImageToBuffer2Handles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
+
+void TrackCmdBlitImage2Handles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo);
+
+void TrackCmdResolveImage2Handles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
+
+void TrackCmdBeginRenderingHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo);
+
+void TrackCmdBindVertexBuffers2Handles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
+
+void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo);
 
 void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
 
@@ -113,29 +139,29 @@ void TrackCmdDrawIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer
 
 void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfoKHR* pDependencyInfo);
+void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
 
 void TrackCmdResetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event);
 
-void TrackCmdWaitEvents2KHRHandles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfoKHR* pDependencyInfos);
+void TrackCmdWaitEvents2KHRHandles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
 
-void TrackCmdPipelineBarrier2KHRHandles(CommandBufferWrapper* wrapper, const VkDependencyInfoKHR* pDependencyInfo);
+void TrackCmdPipelineBarrier2KHRHandles(CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
 
 void TrackCmdWriteTimestamp2KHRHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
 void TrackCmdWriteBufferMarker2AMDHandles(CommandBufferWrapper* wrapper, VkBuffer dstBuffer);
 
-void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2KHR* pCopyBufferInfo);
+void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
 
-void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2KHR* pCopyImageInfo);
+void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo);
 
-void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2KHR* pCopyBufferToImageInfo);
+void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
 
-void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2KHR* pCopyImageToBufferInfo);
+void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
 
-void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2KHR* pBlitImageInfo);
+void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo);
 
-void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2KHR* pResolveImageInfo);
+void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
 
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
