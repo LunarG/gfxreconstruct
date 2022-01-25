@@ -297,6 +297,9 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
 };
 
+struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
+{};
+
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
