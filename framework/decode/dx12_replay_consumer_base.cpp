@@ -1812,9 +1812,9 @@ void* Dx12ReplayConsumerBase::OverrideGetShaderIdentifier(DxObjectInfo*         
     auto new_shader_identifier_ptr =
         static_cast<uint8_t*>(replay_object->GetShaderIdentifier(pExportName->GetPointer()));
 
-    if ((original_result != 0) && (new_shader_identifier_ptr != 0))
+    if ((original_result != nullptr) && !original_result->IsNull() && (new_shader_identifier_ptr != nullptr))
     {
-        shader_id_map_.Add(replay_object_info->capture_id, original_result->GetPointer(), new_shader_identifier_ptr);
+        shader_id_map_.Add(original_result->GetPointer(), new_shader_identifier_ptr);
     }
     return new_shader_identifier_ptr;
 }

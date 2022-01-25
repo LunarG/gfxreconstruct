@@ -36,24 +36,24 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 typedef std::array<uint8_t, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES> Dx12ShaderIdentifier;
 
+Dx12ShaderIdentifier PackDx12ShaderIdentifier(const uint8_t* shader_id);
+void                 UnpackDx12ShaderIdentifier(uint8_t* dest, Dx12ShaderIdentifier src);
+
 class Dx12ShaderIdMap
 {
   public:
-    // state_object_properties_id is unused. Leave it for the future.
-    void Add(format::HandleId state_object_properties_id, uint8_t* old_shader_id, uint8_t* new_shader_id);
+    void Add(const uint8_t* old_shader_id, const uint8_t* new_shader_id);
 
-    // TODO: It's not implementation.
-    void Remove(uint8_t* shader_id);
+    void Remove(const uint8_t* old_shader_id);
 
-    void Map(uint8_t** translated_shader_id) const;
+    void Map(uint8_t* translated_shader_id) const;
 
   private:
     // Key is old shader id. Value is new.
     typedef std::map<Dx12ShaderIdentifier, Dx12ShaderIdentifier> ShaderIdMap;
 
   private:
-    Dx12ShaderIdentifier PackDx12ShaderIdentifier(uint8_t* shader_id) const;
-    ShaderIdMap          shader_id_map_;
+    ShaderIdMap shader_id_map_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)
