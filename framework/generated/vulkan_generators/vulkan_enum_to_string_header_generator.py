@@ -56,6 +56,9 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
 class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
+    # TODO: VkFlags64's enum need a diffferent way to print
+    SKIP_ENUM = ["VkFormatFeatureFlagBits2KHR"]
+
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
@@ -124,7 +127,7 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     # yapf: disable
     def generate_feature(self):
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums:
+            if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
                 self.processedEnums.add(enum)
                 if not enum in self.enumAliases:
                     body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
