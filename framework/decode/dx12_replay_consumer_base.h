@@ -32,6 +32,7 @@
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
 #include "graphics/dx12_gpu_va_map.h"
+#include "graphics/dx12_shader_id_map.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_image_renderer.h"
 #include "decode/screenshot_handler_base.h"

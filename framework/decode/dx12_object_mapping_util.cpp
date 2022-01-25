@@ -66,31 +66,6 @@ void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS*    addresses,
     }
 }
 
-void MapRayTracingInstanceDescs(D3D12_RAYTRACING_INSTANCE_DESC** first_rt_ins_desc,
-                                uint64_t                         count,
-                                const graphics::Dx12GpuVaMap&    gpu_va_map)
-{
-    for (uint64_t i = 0; i < count; ++i)
-    {
-        D3D12_RAYTRACING_INSTANCE_DESC* rt_ins_desc = *first_rt_ins_desc + i;
-        object_mapping::MapGpuVirtualAddress(rt_ins_desc->AccelerationStructure, gpu_va_map);
-    }
-}
-
-void MapShaderTables(uint8_t**                        first_shader_table,
-                     uint64_t                         count,
-                     uint64_t                         stride_in_bytes,
-                     const graphics::Dx12ShaderIdMap& shader_id_map)
-{
-    for (uint64_t i = 0; i < count; ++i)
-    {
-        uint8_t* shader_table = *first_shader_table + stride_in_bytes * i;
-        shader_id_map.Map(&shader_table);
-
-        // TODO: Map local root arguments
-    }
-}
-
 GFXRECON_END_NAMESPACE(object_mapping)
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
