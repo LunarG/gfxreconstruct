@@ -35,8 +35,6 @@
 
 #include <cassert>
 
-#include <wrl/client.h>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -2592,6 +2590,218 @@ Dx12ReplayConsumerBase::OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
         CheckReplayResult("IDXGISwapChain::SetFullscreenState", original_result, replay_result);
     }
     return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList(DxObjectInfo*                device_object_info,
+                                                          HRESULT                      original_result,
+                                                          UINT                         node_mask,
+                                                          D3D12_COMMAND_LIST_TYPE      type,
+                                                          DxObjectInfo*                command_allocator_object_info,
+                                                          DxObjectInfo*                initial_state_object_info,
+                                                          Decoded_GUID                 riid,
+                                                          HandlePointerDecoder<void*>* command_list_decoder)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    auto device            = static_cast<ID3D12Device*>(device_object_info->object);
+    auto command_allocator = static_cast<ID3D12CommandAllocator*>(command_allocator_object_info->object);
+
+    ID3D12PipelineState* initial_state = nullptr;
+    if (initial_state_object_info != nullptr)
+    {
+        initial_state = static_cast<ID3D12PipelineState*>(initial_state_object_info->object);
+    }
+
+    auto replay_result = device->CreateCommandList(node_mask,
+                                                   type,
+                                                   command_allocator,
+                                                   initial_state,
+                                                   *riid.decoded_value,
+                                                   command_list_decoder->GetHandlePointer());
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList1(DxObjectInfo*                device4_object_info,
+                                                           HRESULT                      original_result,
+                                                           UINT                         node_mask,
+                                                           D3D12_COMMAND_LIST_TYPE      type,
+                                                           D3D12_COMMAND_LIST_FLAGS     flags,
+                                                           Decoded_GUID                 riid,
+                                                           HandlePointerDecoder<void*>* command_list1_decoder)
+{
+    auto device4 = static_cast<ID3D12Device4*>(device4_object_info->object);
+
+    auto replay_result = device4->CreateCommandList1(
+        node_mask, type, flags, *riid.decoded_value, command_list1_decoder->GetHandlePointer());
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCommandListReset(DxObjectInfo* command_list_object_info,
+                                                         HRESULT       original_result,
+                                                         DxObjectInfo* allocator_object_info,
+                                                         DxObjectInfo* initial_state_object_info)
+{
+    auto command_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+    auto allocator    = static_cast<ID3D12CommandAllocator*>(allocator_object_info->object);
+
+    ID3D12PipelineState* initial_state = nullptr;
+    if (initial_state_object_info != nullptr)
+    {
+        initial_state = static_cast<ID3D12PipelineState*>(initial_state_object_info->object);
+    }
+
+    HRESULT replay_result = command_list->Reset(allocator, initial_state);
+
+    return replay_result;
+}
+
+void Dx12ReplayConsumerBase::OverrideCopyResource(DxObjectInfo* command_list_object_info,
+                                                  DxObjectInfo* dst_resource_object_info,
+                                                  DxObjectInfo* src_resource_object_info)
+{
+    auto command_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+    auto dst_resource = static_cast<ID3D12Resource*>(dst_resource_object_info->object);
+    auto src_resource = static_cast<ID3D12Resource*>(src_resource_object_info->object);
+    command_list->CopyResource(dst_resource, src_resource);
+}
+
+void Dx12ReplayConsumerBase::OverrideCopyBufferRegion(DxObjectInfo* command_list_object_info,
+                                                      DxObjectInfo* dst_buffer_object_info,
+                                                      UINT64        dst_offset,
+                                                      DxObjectInfo* src_buffer_object_info,
+                                                      UINT64        src_offset,
+                                                      UINT64        num_bytes)
+{
+    auto command_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+    auto dst_buffer   = static_cast<ID3D12Resource*>(dst_buffer_object_info->object);
+    auto src_buffer   = static_cast<ID3D12Resource*>(src_buffer_object_info->object);
+    command_list->CopyBufferRegion(dst_buffer, dst_offset, src_buffer, src_offset, num_bytes);
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateCommandSignature(
+    DxObjectInfo*                                               device_object_info,
+    HRESULT                                                     original_result,
+    StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* desc_decoder,
+    DxObjectInfo*                                               root_signature_object_info,
+    Decoded_GUID                                                riid,
+    HandlePointerDecoder<void*>*                                command_signature_decoder)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    auto        device = static_cast<ID3D12Device*>(device_object_info->object);
+    const auto* desc   = desc_decoder->GetPointer();
+
+    ID3D12RootSignature* root_signature = nullptr;
+    if (root_signature_object_info != nullptr)
+    {
+        root_signature = static_cast<ID3D12RootSignature*>(root_signature_object_info->object);
+    }
+
+    auto replay_result = device->CreateCommandSignature(
+        desc, root_signature, *riid.decoded_value, command_signature_decoder->GetHandlePointer());
+    return replay_result;
+}
+
+void Dx12ReplayConsumerBase::OverrideExecuteIndirect(DxObjectInfo* command_list_object_info,
+                                                     DxObjectInfo* command_signature_object_info,
+                                                     UINT          max_command_count,
+                                                     DxObjectInfo* argument_buffer_object_info,
+                                                     UINT64        argument_buffer_offset,
+                                                     DxObjectInfo* count_buffer_object_info,
+                                                     UINT64        count_buffer_offset)
+{
+    auto command_list      = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+    auto command_signature = static_cast<ID3D12CommandSignature*>(command_signature_object_info->object);
+    auto argument_buffer   = static_cast<ID3D12Resource*>(argument_buffer_object_info->object);
+
+    ID3D12Resource* count_buffer = nullptr;
+    if (count_buffer_object_info != nullptr)
+    {
+        count_buffer = static_cast<ID3D12Resource*>(count_buffer_object_info->object);
+    }
+
+    command_list->ExecuteIndirect(command_signature,
+                                  max_command_count,
+                                  argument_buffer,
+                                  argument_buffer_offset,
+                                  count_buffer,
+                                  count_buffer_offset);
+}
+
+void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
+    DxObjectInfo*                                                                     command_list4_object_info,
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* desc,
+    UINT                                                                              num_post_build_info_descs,
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* post_build_info_descs)
+{
+    auto  command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
+    auto* build_desc    = desc->GetPointer();
+
+    command_list4->BuildRaytracingAccelerationStructure(
+        build_desc, num_post_build_info_descs, post_build_info_descs->GetPointer());
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*            device_object_info,
+                                                            HRESULT                  original_result,
+                                                            UINT                     node_mask,
+                                                            PointerDecoder<uint8_t>* blob_with_root_signature_decoder,
+                                                            SIZE_T                   blob_length_in_bytes,
+                                                            Decoded_GUID             riid,
+                                                            HandlePointerDecoder<void*>* root_signature_decoder)
+{
+    auto device = static_cast<ID3D12Device*>(device_object_info->object);
+
+    auto replay_result = device->CreateRootSignature(node_mask,
+                                                     blob_with_root_signature_decoder->GetPointer(),
+                                                     blob_length_in_bytes,
+                                                     *riid.decoded_value,
+                                                     root_signature_decoder->GetHandlePointer());
+
+    return replay_result;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_info,
+                                                  HRESULT       original_result,
+                                                  StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
+                                                  Decoded_GUID                                           riid_decoder,
+                                                  HandlePointerDecoder<void*>* state_object_decoder)
+{
+    auto device5 = static_cast<ID3D12Device5*>(device5_object_info->object);
+
+    auto replay_result = device5->CreateStateObject(
+        desc_decoder->GetPointer(), *riid_decoder.decoded_value, state_object_decoder->GetHandlePointer());
+    return replay_result;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideAddToStateObject(
+    DxObjectInfo*                                          device7_object_info,
+    HRESULT                                                original_result,
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* addition_decoder,
+    DxObjectInfo*                                          state_object_to_grow_from_object_info,
+    Decoded_GUID                                           riid_decoder,
+    HandlePointerDecoder<void*>*                           new_state_object_decoder)
+{
+    auto device7                   = static_cast<ID3D12Device7*>(device7_object_info->object);
+    auto state_object_to_grow_from = static_cast<ID3D12StateObject*>(state_object_to_grow_from_object_info->object);
+
+    auto replay_result = device7->AddToStateObject(addition_decoder->GetPointer(),
+                                                   state_object_to_grow_from,
+                                                   *riid_decoder.decoded_value,
+                                                   new_state_object_decoder->GetHandlePointer());
+
+    return replay_result;
+}
+
+void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_object_info,
+                                                  StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder)
+{
+    auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
+    command_list4->DispatchRays(desc_decoder->GetPointer());
 }
 
 QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)

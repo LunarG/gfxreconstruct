@@ -453,6 +453,85 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                        BOOL          Fullscreen,
                                        DxObjectInfo* pTarget);
 
+    HRESULT OverrideCreateCommandList(DxObjectInfo*                device_object_info,
+                                      HRESULT                      original_result,
+                                      UINT                         node_mask,
+                                      D3D12_COMMAND_LIST_TYPE      type,
+                                      DxObjectInfo*                command_allocator_object_info,
+                                      DxObjectInfo*                initial_state_object_info,
+                                      Decoded_GUID                 riid,
+                                      HandlePointerDecoder<void*>* command_list_decoder);
+
+    HRESULT OverrideCreateCommandList1(DxObjectInfo*                device4_object_info,
+                                       HRESULT                      original_result,
+                                       UINT                         node_mask,
+                                       D3D12_COMMAND_LIST_TYPE      type,
+                                       D3D12_COMMAND_LIST_FLAGS     flags,
+                                       Decoded_GUID                 riid,
+                                       HandlePointerDecoder<void*>* command_list1_decoder);
+
+    HRESULT OverrideCommandListReset(DxObjectInfo* command_list_object_info,
+                                     HRESULT       original_result,
+                                     DxObjectInfo* allocator_object_info,
+                                     DxObjectInfo* initial_state_object_info);
+
+    void OverrideCopyResource(DxObjectInfo* command_list_object_info,
+                              DxObjectInfo* dst_resource_object_info,
+                              DxObjectInfo* src_resource_object_info);
+
+    void OverrideCopyBufferRegion(DxObjectInfo* command_list_object_info,
+                                  DxObjectInfo* dst_buffer_object_info,
+                                  UINT64        dst_offset,
+                                  DxObjectInfo* src_buffer_object_info,
+                                  UINT64        src_offset,
+                                  UINT64        num_bytes);
+
+    HRESULT OverrideCreateCommandSignature(DxObjectInfo* device_object_info,
+                                           HRESULT       original_result,
+                                           StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* desc_decoder,
+                                           DxObjectInfo*                root_signature_object_info,
+                                           Decoded_GUID                 riid,
+                                           HandlePointerDecoder<void*>* command_signature_decoder);
+
+    void OverrideExecuteIndirect(DxObjectInfo* command_list_object_info,
+                                 DxObjectInfo* command_signature_object_info,
+                                 UINT          max_command_count,
+                                 DxObjectInfo* argument_buffer_object_info,
+                                 UINT64        argument_buffer_offset,
+                                 DxObjectInfo* count_buffer_object_info,
+                                 UINT64        count_buffer_offset);
+
+    void OverrideBuildRaytracingAccelerationStructure(
+        DxObjectInfo*                                                                     command_list4_object_info,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* desc,
+        UINT                                                                              num_post_build_info_descs,
+        StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>*
+            post_build_info_descs);
+
+    HRESULT OverrideCreateRootSignature(DxObjectInfo*                device_object_info,
+                                        HRESULT                      original_result,
+                                        UINT                         node_mask,
+                                        PointerDecoder<uint8_t>*     blob_with_root_signature_decoder,
+                                        SIZE_T                       blob_length_in_bytes,
+                                        Decoded_GUID                 riid,
+                                        HandlePointerDecoder<void*>* root_signature_decoder);
+
+    HRESULT OverrideCreateStateObject(DxObjectInfo*                                          device5_object_info,
+                                      HRESULT                                                original_result,
+                                      StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
+                                      Decoded_GUID                                           riid_decoder,
+                                      HandlePointerDecoder<void*>*                           state_object_decoder);
+
+    HRESULT OverrideAddToStateObject(DxObjectInfo*                                          device7_object_info,
+                                     HRESULT                                                original_result,
+                                     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* addition_decoder,
+                                     DxObjectInfo*                state_object_to_grow_from_object_info,
+                                     Decoded_GUID                 riid_decoder,
+                                     HandlePointerDecoder<void*>* new_state_object_decoder);
+
+    void OverrideDispatchRays(DxObjectInfo*                                           command_list4_object_info,
+                              StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }

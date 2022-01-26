@@ -3287,13 +3287,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
     format::HandleId                            pAllocator,
     format::HandleId                            pInitialState)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pAllocator = MapObject<ID3D12CommandAllocator>(pAllocator);
-        auto in_pInitialState = MapObject<ID3D12PipelineState>(pInitialState);
-        auto replay_result = replay_object->Reset(in_pAllocator,
-                                                  in_pInitialState);
+        auto in_pAllocator = GetObjectInfo(pAllocator);
+        auto in_pInitialState = GetObjectInfo(pInitialState);
+        auto replay_result = OverrideCommandListReset(replay_object,
+                                                      return_value,
+                                                      in_pAllocator,
+                                                      in_pInitialState);
         CheckReplayResult("ID3D12GraphicsCommandList_Reset", return_value, replay_result);
     }
 }
@@ -3374,16 +3376,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
     UINT64                                      SrcOffset,
     UINT64                                      NumBytes)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pDstBuffer = MapObject<ID3D12Resource>(pDstBuffer);
-        auto in_pSrcBuffer = MapObject<ID3D12Resource>(pSrcBuffer);
-        replay_object->CopyBufferRegion(in_pDstBuffer,
-                                        DstOffset,
-                                        in_pSrcBuffer,
-                                        SrcOffset,
-                                        NumBytes);
+        auto in_pDstBuffer = GetObjectInfo(pDstBuffer);
+        auto in_pSrcBuffer = GetObjectInfo(pSrcBuffer);
+        OverrideCopyBufferRegion(replay_object,
+                                 in_pDstBuffer,
+                                 DstOffset,
+                                 in_pSrcBuffer,
+                                 SrcOffset,
+                                 NumBytes);
     }
 }
 
@@ -3417,13 +3420,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
     format::HandleId                            pDstResource,
     format::HandleId                            pSrcResource)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pDstResource = MapObject<ID3D12Resource>(pDstResource);
-        auto in_pSrcResource = MapObject<ID3D12Resource>(pSrcResource);
-        replay_object->CopyResource(in_pDstResource,
-                                    in_pSrcResource);
+        auto in_pDstResource = GetObjectInfo(pDstResource);
+        auto in_pSrcResource = GetObjectInfo(pSrcResource);
+        OverrideCopyResource(replay_object,
+                             in_pDstResource,
+                             in_pSrcResource);
     }
 }
 
@@ -4109,18 +4113,19 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
     format::HandleId                            pCountBuffer,
     UINT64                                      CountBufferOffset)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pCommandSignature = MapObject<ID3D12CommandSignature>(pCommandSignature);
-        auto in_pArgumentBuffer = MapObject<ID3D12Resource>(pArgumentBuffer);
-        auto in_pCountBuffer = MapObject<ID3D12Resource>(pCountBuffer);
-        replay_object->ExecuteIndirect(in_pCommandSignature,
-                                       MaxCommandCount,
-                                       in_pArgumentBuffer,
-                                       ArgumentBufferOffset,
-                                       in_pCountBuffer,
-                                       CountBufferOffset);
+        auto in_pCommandSignature = GetObjectInfo(pCommandSignature);
+        auto in_pArgumentBuffer = GetObjectInfo(pArgumentBuffer);
+        auto in_pCountBuffer = GetObjectInfo(pCountBuffer);
+        OverrideExecuteIndirect(replay_object,
+                                in_pCommandSignature,
+                                MaxCommandCount,
+                                in_pArgumentBuffer,
+                                ArgumentBufferOffset,
+                                in_pCountBuffer,
+                                CountBufferOffset);
     }
 }
 
@@ -4593,23 +4598,25 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppCommandList)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pCommandAllocator = MapObject<ID3D12CommandAllocator>(pCommandAllocator);
-        auto in_pInitialState = MapObject<ID3D12PipelineState>(pInitialState);
+        auto in_pCommandAllocator = GetObjectInfo(pCommandAllocator);
+        auto in_pInitialState = GetObjectInfo(pInitialState);
         if(!ppCommandList->IsNull()) ppCommandList->SetHandleLength(1);
-        auto out_p_ppCommandList    = ppCommandList->GetPointer();
-        auto out_hp_ppCommandList   = ppCommandList->GetHandlePointer();
-        auto replay_result = replay_object->CreateCommandList(nodeMask,
-                                                              type,
-                                                              in_pCommandAllocator,
-                                                              in_pInitialState,
-                                                              *riid.decoded_value,
-                                                              out_hp_ppCommandList);
+        DxObjectInfo object_info{};
+        ppCommandList->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateCommandList(replay_object,
+                                                       return_value,
+                                                       nodeMask,
+                                                       type,
+                                                       in_pCommandAllocator,
+                                                       in_pInitialState,
+                                                       riid,
+                                                       ppCommandList);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppCommandList, out_hp_ppCommandList);
+            AddObject(ppCommandList->GetPointer(), ppCommandList->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device_CreateCommandList", return_value, replay_result);
     }
@@ -4667,20 +4674,22 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvRootSignature)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppvRootSignature->IsNull()) ppvRootSignature->SetHandleLength(1);
-        auto out_p_ppvRootSignature    = ppvRootSignature->GetPointer();
-        auto out_hp_ppvRootSignature   = ppvRootSignature->GetHandlePointer();
-        auto replay_result = replay_object->CreateRootSignature(nodeMask,
-                                                                pBlobWithRootSignature->GetPointer(),
-                                                                blobLengthInBytes,
-                                                                *riid.decoded_value,
-                                                                out_hp_ppvRootSignature);
+        DxObjectInfo object_info{};
+        ppvRootSignature->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateRootSignature(replay_object,
+                                                         return_value,
+                                                         nodeMask,
+                                                         pBlobWithRootSignature,
+                                                         blobLengthInBytes,
+                                                         riid,
+                                                         ppvRootSignature);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvRootSignature, out_hp_ppvRootSignature);
+            AddObject(ppvRootSignature->GetPointer(), ppvRootSignature->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device_CreateRootSignature", return_value, replay_result);
     }
@@ -5221,20 +5230,22 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvCommandSignature)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pRootSignature = MapObject<ID3D12RootSignature>(pRootSignature);
+        auto in_pRootSignature = GetObjectInfo(pRootSignature);
         if(!ppvCommandSignature->IsNull()) ppvCommandSignature->SetHandleLength(1);
-        auto out_p_ppvCommandSignature    = ppvCommandSignature->GetPointer();
-        auto out_hp_ppvCommandSignature   = ppvCommandSignature->GetHandlePointer();
-        auto replay_result = replay_object->CreateCommandSignature(pDesc->GetPointer(),
-                                                                   in_pRootSignature,
-                                                                   *riid.decoded_value,
-                                                                   out_hp_ppvCommandSignature);
+        DxObjectInfo object_info{};
+        ppvCommandSignature->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateCommandSignature(replay_object,
+                                                            return_value,
+                                                            pDesc,
+                                                            in_pRootSignature,
+                                                            riid,
+                                                            ppvCommandSignature);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvCommandSignature, out_hp_ppvCommandSignature);
+            AddObject(ppvCommandSignature->GetPointer(), ppvCommandSignature->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device_CreateCommandSignature", return_value, replay_result);
     }
@@ -5646,20 +5657,22 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppCommandList)
 {
-    auto replay_object = MapObject<ID3D12Device4>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppCommandList->IsNull()) ppCommandList->SetHandleLength(1);
-        auto out_p_ppCommandList    = ppCommandList->GetPointer();
-        auto out_hp_ppCommandList   = ppCommandList->GetHandlePointer();
-        auto replay_result = replay_object->CreateCommandList1(nodeMask,
-                                                               type,
-                                                               flags,
-                                                               *riid.decoded_value,
-                                                               out_hp_ppCommandList);
+        DxObjectInfo object_info{};
+        ppCommandList->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateCommandList1(replay_object,
+                                                        return_value,
+                                                        nodeMask,
+                                                        type,
+                                                        flags,
+                                                        riid,
+                                                        ppCommandList);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppCommandList, out_hp_ppCommandList);
+            AddObject(ppCommandList->GetPointer(), ppCommandList->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device4_CreateCommandList1", return_value, replay_result);
     }
@@ -6079,19 +6092,21 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppStateObject)
 {
-    auto replay_object = MapObject<ID3D12Device5>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         if(!ppStateObject->IsNull()) ppStateObject->SetHandleLength(1);
-        auto out_p_ppStateObject    = ppStateObject->GetPointer();
-        auto out_hp_ppStateObject   = ppStateObject->GetHandlePointer();
-        auto replay_result = replay_object->CreateStateObject(pDesc->GetPointer(),
-                                                              *riid.decoded_value,
-                                                              out_hp_ppStateObject);
+        DxObjectInfo object_info{};
+        ppStateObject->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateStateObject(replay_object,
+                                                       return_value,
+                                                       pDesc,
+                                                       riid,
+                                                       ppStateObject);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppStateObject, out_hp_ppStateObject);
+            AddObject(ppStateObject->GetPointer(), ppStateObject->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device5_CreateStateObject", return_value, replay_result);
     }
@@ -6321,21 +6336,23 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppNewStateObject)
 {
-    auto replay_object = MapObject<ID3D12Device7>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pAddition->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        auto in_pStateObjectToGrowFrom = MapObject<ID3D12StateObject>(pStateObjectToGrowFrom);
+        auto in_pStateObjectToGrowFrom = GetObjectInfo(pStateObjectToGrowFrom);
         if(!ppNewStateObject->IsNull()) ppNewStateObject->SetHandleLength(1);
-        auto out_p_ppNewStateObject    = ppNewStateObject->GetPointer();
-        auto out_hp_ppNewStateObject   = ppNewStateObject->GetHandlePointer();
-        auto replay_result = replay_object->AddToStateObject(pAddition->GetPointer(),
-                                                             in_pStateObjectToGrowFrom,
-                                                             *riid.decoded_value,
-                                                             out_hp_ppNewStateObject);
+        DxObjectInfo object_info{};
+        ppNewStateObject->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideAddToStateObject(replay_object,
+                                                      return_value,
+                                                      pAddition,
+                                                      in_pStateObjectToGrowFrom,
+                                                      riid,
+                                                      ppNewStateObject);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppNewStateObject, out_hp_ppNewStateObject);
+            AddObject(ppNewStateObject->GetPointer(), ppNewStateObject->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device7_AddToStateObject", return_value, replay_result);
     }
@@ -6658,14 +6675,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccel
     UINT                                        NumPostbuildInfoDescs,
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         MapStructArrayObjects(pPostbuildInfoDescs->GetMetaStructPointer(), pPostbuildInfoDescs->GetLength(), GetObjectInfoTable(), GetGpuVaTable());
-        replay_object->BuildRaytracingAccelerationStructure(pDesc->GetPointer(),
-                                                            NumPostbuildInfoDescs,
-                                                            pPostbuildInfoDescs->GetPointer());
+        OverrideBuildRaytracingAccelerationStructure(replay_object,
+                                                     pDesc,
+                                                     NumPostbuildInfoDescs,
+                                                     pPostbuildInfoDescs);
     }
 }
 
@@ -6726,11 +6744,12 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* pDesc)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        replay_object->DispatchRays(pDesc->GetPointer());
+        OverrideDispatchRays(replay_object,
+                             pDesc);
     }
 }
 

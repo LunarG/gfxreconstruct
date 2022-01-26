@@ -26,7 +26,10 @@
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize",
       "CreateReservedResource": "OverrideCreateReservedResource",
       "CreateGraphicsPipelineState": "OverrideCreateGraphicsPipelineState",
-      "CreateComputePipelineState": "OverrideCreateComputePipelineState"
+      "CreateComputePipelineState": "OverrideCreateComputePipelineState",
+      "CreateCommandSignature": "OverrideCreateCommandSignature",
+      "CreateCommandList": "OverrideCreateCommandList",
+      "CreateRootSignature": "OverrideCreateRootSignature"
     },
     "ID3D12Device1": {
       "CreatePipelineLibrary": "OverrideCreatePipelineLibrary"
@@ -37,7 +40,14 @@
     },
     "ID3D12Device4": {
       "CreateReservedResource1": "OverrideCreateReservedResource1",
-      "CreateCreateCommittedResource1": "OverrideCreateCommittedResource1"
+      "CreateCreateCommittedResource1": "OverrideCreateCommittedResource1",
+      "CreateCommandList1": "OverrideCreateCommandList1"
+    },
+    "ID3D12Device5": {
+      "CreateStateObject": "OverrideCreateStateObject"
+    },
+    "ID3D12Device7": {
+      "AddToStateObject": "OverrideAddToStateObject"
     },
     "ID3D12Device8": {
       "CreateCreateCommittedResource2": "OverrideCreateCommittedResource2"
@@ -72,6 +82,16 @@
     },
     "ID3D12StateObjectProperties": {
       "GetShaderIdentifier": "OverrideGetShaderIdentifier"
+    },
+    "ID3D12GraphicsCommandList": {
+      "CopyBufferRegion": "OverrideCopyBufferRegion",
+      "CopyResource": "OverrideCopyResource",
+      "ExecuteIndirect": "OverrideExecuteIndirect",
+      "Reset": "OverrideCommandListReset"
+    },
+    "ID3D12GraphicsCommandList4": {
+      "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",
+      "DispatchRays": "OverrideDispatchRays"
     },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"
