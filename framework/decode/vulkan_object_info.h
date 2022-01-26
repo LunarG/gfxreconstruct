@@ -293,9 +293,9 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
     // The following values are only used when loading the initial state for trimmed files.
-    VkMemoryPropertyFlags               memory_property_flags{ 0 };
-    VkBufferUsageFlags                  usage{ 0 };
-    uint32_t                            queue_family_index{ 0 };
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
+    VkBufferUsageFlags    usage{ 0 };
+    uint32_t              queue_family_index{ 0 };
 };
 
 struct ImageInfo : public VulkanObjectInfo<VkImage>
@@ -357,11 +357,14 @@ struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 {
     Window*                              window{ nullptr };
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    std::unordered_map<VkPhysicalDevice, VkSurfaceCapabilitiesKHR> surface_capabilities;
 };
 
 struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
     VkSurfaceKHR                         surface{ VK_NULL_HANDLE };
+    format::HandleId                     surface_id{ format::kNullHandleId };
     DeviceInfo*                          device_info{ nullptr };
     uint32_t                             width{ 0 };
     uint32_t                             height{ 0 };
