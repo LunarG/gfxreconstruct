@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2019-2022 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -167,6 +168,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
+
+    virtual void Process_vkCreateRayTracingPipelinesKHR(
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
@@ -738,6 +749,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                               Display*                            dpy,
                                               RROutput                            rrOutput,
                                               HandlePointerDecoder<VkDisplayKHR>* pDisplay);
+
+    VkResult OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR func,
+                                              VkResult                       original_result,
+                                              const DeviceInfo*              device_info,
+                                              DeferredOperationKHRInfo*      deferred_operation_info);
+
+    VkResult OverrideGetDeferredOperationResultKHR(PFN_vkGetDeferredOperationResultKHR func,
+                                                   VkResult                            original_result,
+                                                   const DeviceInfo*                   device_info,
+                                                   DeferredOperationKHRInfo*           deferred_operation_info);
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.

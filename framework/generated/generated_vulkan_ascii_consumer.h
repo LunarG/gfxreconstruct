@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2019-2022 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2828,16 +2829,6 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         uint32_t                                    width,
         uint32_t                                    height,
         uint32_t                                    depth) override;
-
-    virtual void Process_vkCreateRayTracingPipelinesKHR(
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            deferredOperation,
-        format::HandleId                            pipelineCache,
-        uint32_t                                    createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkPipeline>*           pPipelines) override;
 
     virtual void Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
         VkResult                                    returnValue,

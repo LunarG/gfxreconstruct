@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2021 Advanced Micro Devices, Inc.
+** Copyright (c) 2019-2022 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -31,8 +31,6 @@
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/vulkan_handle_mapping_util.h"
-#include "decode/deferred_operation_info_create_ray_tracing_pipelines.h"
-#include "decode/deferred_operation_info_manager.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/defines.h"
@@ -3933,49 +3931,23 @@ void VulkanReplayConsumer::Process_vkGetDeferredOperationResultKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_operation = MapHandle<DeferredOperationKHRInfo>(operation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_operation = GetObjectInfoTable().GetDeferredOperationKHRInfo(operation);
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetDeferredOperationResultKHR(in_device, in_operation);
+    VkResult replay_result = OverrideGetDeferredOperationResultKHR(GetDeviceTable(in_device->handle)->GetDeferredOperationResultKHR, returnValue, in_device, in_operation);
     CheckResult("vkGetDeferredOperationResultKHR", returnValue, replay_result);
 }
 
 void VulkanReplayConsumer::Process_vkDeferredOperationJoinKHR(
-    VkResult                                    return_value,
+    VkResult                                    returnValue,
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_operation = MapHandle<DeferredOperationKHRInfo>(operation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
-    VkResult replay_result = VK_NOT_READY;
-    if (return_value == VK_SUCCESS)
-    {
-        while(replay_result != VK_SUCCESS)
-        {
-            replay_result = GetDeviceTable(in_device)->DeferredOperationJoinKHR(in_device, in_operation);
-        }
-        CheckResult("vkDeferredOperationJoinKHR", return_value, replay_result);
-    }
-    else
-    {
-        replay_result = GetDeviceTable(in_device)->DeferredOperationJoinKHR(in_device, in_operation);
-    }
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_operation = GetObjectInfoTable().GetDeferredOperationKHRInfo(operation);
 
-    if (replay_result == VK_SUCCESS)
-    {
-        DeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines = static_cast<DeferredOperationInfoCreateRayTracingPipelines*>(DeferredOperationInfoManager::Get()->find(operation).get());
-        if (deferred_operation_create_ray_tracing_pipelines != nullptr)
-        {
-            AddHandles<PipelineInfo>(deferred_operation_create_ray_tracing_pipelines->GetDeviceId(),
-                                 deferred_operation_create_ray_tracing_pipelines->GetPipelines().GetPointer(),
-                                 deferred_operation_create_ray_tracing_pipelines->GetPipelines().GetLength(),
-                                 deferred_operation_create_ray_tracing_pipelines->GetPipelines().GetHandlePointer(),
-                                 deferred_operation_create_ray_tracing_pipelines->GetCreateInfoCount(),
-                                 std::move(*deferred_operation_create_ray_tracing_pipelines->GetPipelineHandleInfo()),
-                                 &VulkanObjectInfoTable::AddPipelineInfo);
-            DeferredOperationInfoManager::Get()->Remove(operation);
-        }
-    }
+    VkResult replay_result = OverrideDeferredOperationJoinKHR(GetDeviceTable(in_device->handle)->DeferredOperationJoinKHR, returnValue, in_device, in_operation);
+    CheckResult("vkDeferredOperationJoinKHR", returnValue, replay_result);
 }
 
 void VulkanReplayConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
@@ -6626,43 +6598,6 @@ void VulkanReplayConsumer::Process_vkCmdTraceRaysKHR(
     const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
 
     GetDeviceTable(in_commandBuffer)->CmdTraceRaysKHR(in_commandBuffer, in_pRaygenShaderBindingTable, in_pMissShaderBindingTable, in_pHitShaderBindingTable, in_pCallableShaderBindingTable, width, height, depth);
-}
-
-void VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesKHR(
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            deferredOperation,
-    format::HandleId                            pipelineCache,
-    uint32_t                                    createInfoCount,
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkPipeline>*           pPipelines)
-{
-    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
-    auto in_deferredOperation = GetObjectInfoTable().GetDeferredOperationKHRInfo(deferredOperation);
-    auto in_pipelineCache = GetObjectInfoTable().GetPipelineCacheInfo(pipelineCache);
-
-    MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
-    if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
-    std::unique_ptr<std::vector<PipelineInfo>> handle_info =
-        std::make_unique<std::vector<PipelineInfo>>(createInfoCount);
-
-    for (size_t i = 0; i < createInfoCount; ++i)
-    {
-        pPipelines->SetConsumerData(i, &handle_info.get()[i]);
-    }
-
-    VkResult replay_result = OverrideCreateRayTracingPipelinesKHR(GetDeviceTable(in_device->handle)->CreateRayTracingPipelinesKHR, returnValue, in_device, in_deferredOperation, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
-    if (deferredOperation == gfxrecon::format::kNullHandleId)
-    {
-        CheckResult("vkCreateRayTracingPipelinesKHR", returnValue, replay_result);
-        AddHandles<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), pPipelines->GetHandlePointer(), createInfoCount, std::move(*handle_info), &VulkanObjectInfoTable::AddPipelineInfo);
-    }
-    else
-    {
-        DeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines = static_cast<DeferredOperationInfoCreateRayTracingPipelines*>(DeferredOperationInfoManager::Get()->find(deferredOperation).get());
-        deferred_operation_create_ray_tracing_pipelines->SetPipelineHandleInfo(handle_info);
-    }
 }
 
 void VulkanReplayConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(

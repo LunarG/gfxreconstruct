@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2019-2022 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -57,6 +58,14 @@ BuildAccelerationStructuresKHR(VkDevice                                         
 VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice                                  device,
                                                             VkDeferredOperationKHR                    deferredOperation,
                                                             const VkCopyAccelerationStructureInfoKHR* pInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice                                 device,
+                                                            VkDeferredOperationKHR                   deferredOperation,
+                                                            VkPipelineCache                          pipelineCache,
+                                                            uint32_t                                 createInfoCount,
+                                                            const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                            const VkAllocationCallbacks*             pAllocator,
+                                                            VkPipeline*                              pPipelines);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
