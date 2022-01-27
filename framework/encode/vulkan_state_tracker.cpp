@@ -23,6 +23,7 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "encode/vulkan_state_info.h"
+#include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_util.h"
 
 #include <algorithm>
@@ -167,12 +168,29 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceSupport(VkPhysicalDevice phys
 
 void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice                physical_device,
                                                                 VkSurfaceKHR                    surface,
-                                                                const VkSurfaceCapabilitiesKHR& capabilities)
+                                                                const VkSurfaceCapabilitiesKHR& capabilities,
+                                                                const void*                     surface_info_pnext,
+                                                                const void*                     capabilities_pnext)
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-    auto wrapper                                                 = reinterpret_cast<SurfaceKHRWrapper*>(surface);
-    wrapper->surface_capabilities[GetWrappedId(physical_device)] = capabilities;
+    auto  wrapper      = reinterpret_cast<SurfaceKHRWrapper*>(surface);
+    auto& entry        = wrapper->surface_capabilities[GetWrappedId(physical_device)];
+    entry.capabilities = capabilities;
+
+    entry.surface_info_pnext = nullptr;
+    entry.surface_info_pnext_memory.Reset();
+    if (surface_info_pnext != nullptr)
+    {
+        entry.surface_info_pnext = TrackPNextStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
+    }
+
+    entry.capabilities_pnext = nullptr;
+    entry.capabilities_pnext_memory.Reset();
+    if (capabilities_pnext != nullptr)
+    {
+        entry.capabilities_pnext = TrackPNextStruct(capabilities_pnext, &entry.capabilities_pnext_memory);
+    }
 }
 
 void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
@@ -190,13 +208,40 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
 void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice        physical_device,
                                                                 VkSurfaceKHR            surface,
                                                                 uint32_t                mode_count,
-                                                                const VkPresentModeKHR* modes)
+                                                                const VkPresentModeKHR* modes,
+                                                                const void*             surface_info_pnext)
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (modes != nullptr));
 
     auto  wrapper = reinterpret_cast<SurfaceKHRWrapper*>(surface);
     auto& entry   = wrapper->surface_present_modes[GetWrappedId(physical_device)];
-    entry.assign(modes, modes + mode_count);
+    entry.present_modes.assign(modes, modes + mode_count);
+
+    entry.surface_info_pnext = nullptr;
+    entry.surface_info_pnext_memory.Reset();
+    if (surface_info_pnext != nullptr)
+    {
+        entry.surface_info_pnext = TrackPNextStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
+    }
+}
+
+void VulkanStateTracker::TrackDeviceGroupSurfacePresentModes(VkDevice                          device,
+                                                             VkSurfaceKHR                      surface,
+                                                             VkDeviceGroupPresentModeFlagsKHR* pModes,
+                                                             const void*                       surface_info_pnext)
+{
+    assert((device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (pModes != nullptr));
+
+    auto  wrapper       = reinterpret_cast<SurfaceKHRWrapper*>(surface);
+    auto& entry         = wrapper->group_surface_present_modes[GetWrappedId(device)];
+    entry.present_modes = *pModes;
+
+    entry.surface_info_pnext = nullptr;
+    entry.surface_info_pnext_memory.Reset();
+    if (surface_info_pnext != nullptr)
+    {
+        entry.surface_info_pnext = TrackPNextStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
+    }
 }
 
 void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address)
@@ -208,10 +253,8 @@ void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buff
     wrapper->address   = address;
 }
 
-void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
-                                                  VkBuffer       buffer,
-                                                  VkDeviceMemory memory,
-                                                  VkDeviceSize   memoryOffset)
+void VulkanStateTracker::TrackBufferMemoryBinding(
+    VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* bind_info_pnext)
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
@@ -219,19 +262,32 @@ void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
     wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
     wrapper->bind_memory_id = GetWrappedId(memory);
     wrapper->bind_offset    = memoryOffset;
+    wrapper->bind_pnext     = nullptr;
+    wrapper->bind_pnext_memory.Reset();
+
+    if (bind_info_pnext != nullptr)
+    {
+        wrapper->bind_pnext = TrackPNextStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
+    }
 }
 
-void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
-                                                 VkImage        image,
-                                                 VkDeviceMemory memory,
-                                                 VkDeviceSize   memoryOffset)
+void VulkanStateTracker::TrackImageMemoryBinding(
+    VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset, const void* bind_info_pnext)
 {
-    assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
+    // If VkBindImageMemorySwapchainInfoKHR is in pnext, memory must be VK_NULL_HANDLE.
+    assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
     auto wrapper            = reinterpret_cast<ImageWrapper*>(image);
     wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
     wrapper->bind_memory_id = GetWrappedId(memory);
     wrapper->bind_offset    = memoryOffset;
+    wrapper->bind_pnext     = nullptr;
+    wrapper->bind_pnext_memory.Reset();
+
+    if (bind_info_pnext != nullptr)
+    {
+        wrapper->bind_pnext = TrackPNextStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
+    }
 }
 
 void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
@@ -421,6 +477,13 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             const VkWriteDescriptorSet* write   = &writes[i];
             auto                        wrapper = reinterpret_cast<DescriptorSetWrapper*>(write->dstSet);
             assert(wrapper != nullptr);
+
+            wrapper->write_pnext = nullptr;
+            wrapper->write_pnext_memory.Reset();
+            if (write->pNext != nullptr)
+            {
+                wrapper->write_pnext = TrackPNextStruct(write->pNext, &wrapper->write_pnext_memory);
+            }
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to consecutive bindings, where the next binding is dstBinding+1 and
@@ -1066,6 +1129,22 @@ void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
     const uint8_t* byte_data = reinterpret_cast<const uint8_t*>(data);
     wrapper->device_id       = GetWrappedId(device);
     wrapper->shader_group_handle_data.assign(byte_data, byte_data + data_size);
+}
+
+void VulkanStateTracker::TrackAcquireFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain)
+{
+    assert(swapchain != VK_NULL_HANDLE);
+
+    auto wrapper                                = reinterpret_cast<SwapchainKHRWrapper*>(swapchain);
+    wrapper->acquire_full_screen_exclusive_mode = true;
+}
+
+void VulkanStateTracker::TrackReleaseFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain)
+{
+    assert(swapchain != VK_NULL_HANDLE);
+
+    auto wrapper                                = reinterpret_cast<SwapchainKHRWrapper*>(swapchain);
+    wrapper->release_full_screen_exclusive_mode = true;
 }
 
 void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)

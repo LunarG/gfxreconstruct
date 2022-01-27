@@ -70,6 +70,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, PipelineWrapper* wrapper) { return InsertEntry(id, wrapper, pipeline_map_); }
     bool InsertWrapper(format::HandleId id, PipelineCacheWrapper* wrapper) { return InsertEntry(id, wrapper, pipelineCache_map_); }
     bool InsertWrapper(format::HandleId id, PipelineLayoutWrapper* wrapper) { return InsertEntry(id, wrapper, pipelineLayout_map_); }
+    bool InsertWrapper(format::HandleId id, PrivateDataSlotWrapper* wrapper) { return InsertEntry(id, wrapper, privateDataSlot_map_); }
     bool InsertWrapper(format::HandleId id, PrivateDataSlotEXTWrapper* wrapper) { return InsertEntry(id, wrapper, privateDataSlotEXT_map_); }
     bool InsertWrapper(format::HandleId id, QueryPoolWrapper* wrapper) { return InsertEntry(id, wrapper, queryPool_map_); }
     bool InsertWrapper(format::HandleId id, QueueWrapper* wrapper) { return InsertEntry(id, wrapper, queue_map_); }
@@ -111,6 +112,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const PipelineWrapper* wrapper) { return RemoveEntry(wrapper, pipeline_map_); }
     bool RemoveWrapper(const PipelineCacheWrapper* wrapper) { return RemoveEntry(wrapper, pipelineCache_map_); }
     bool RemoveWrapper(const PipelineLayoutWrapper* wrapper) { return RemoveEntry(wrapper, pipelineLayout_map_); }
+    bool RemoveWrapper(const PrivateDataSlotWrapper* wrapper) { return RemoveEntry(wrapper, privateDataSlot_map_); }
     bool RemoveWrapper(const PrivateDataSlotEXTWrapper* wrapper) { return RemoveEntry(wrapper, privateDataSlotEXT_map_); }
     bool RemoveWrapper(const QueryPoolWrapper* wrapper) { return RemoveEntry(wrapper, queryPool_map_); }
     bool RemoveWrapper(const QueueWrapper* wrapper) { return RemoveEntry(wrapper, queue_map_); }
@@ -152,6 +154,7 @@ class VulkanStateTable : VulkanStateTableBase
     const PipelineWrapper* GetPipelineWrapper(format::HandleId id) const { return GetWrapper<PipelineWrapper>(id, pipeline_map_); }
     const PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) const { return GetWrapper<PipelineCacheWrapper>(id, pipelineCache_map_); }
     const PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const { return GetWrapper<PipelineLayoutWrapper>(id, pipelineLayout_map_); }
+    const PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) const { return GetWrapper<PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
     const PrivateDataSlotEXTWrapper* GetPrivateDataSlotEXTWrapper(format::HandleId id) const { return GetWrapper<PrivateDataSlotEXTWrapper>(id, privateDataSlotEXT_map_); }
     const QueryPoolWrapper* GetQueryPoolWrapper(format::HandleId id) const { return GetWrapper<QueryPoolWrapper>(id, queryPool_map_); }
     const QueueWrapper* GetQueueWrapper(format::HandleId id) const { return GetWrapper<QueueWrapper>(id, queue_map_); }
@@ -193,6 +196,7 @@ class VulkanStateTable : VulkanStateTableBase
     PipelineWrapper* GetPipelineWrapper(format::HandleId id) { return GetWrapper<PipelineWrapper>(id, pipeline_map_); }
     PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) { return GetWrapper<PipelineCacheWrapper>(id, pipelineCache_map_); }
     PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) { return GetWrapper<PipelineLayoutWrapper>(id, pipelineLayout_map_); }
+    PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) { return GetWrapper<PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
     PrivateDataSlotEXTWrapper* GetPrivateDataSlotEXTWrapper(format::HandleId id) { return GetWrapper<PrivateDataSlotEXTWrapper>(id, privateDataSlotEXT_map_); }
     QueryPoolWrapper* GetQueryPoolWrapper(format::HandleId id) { return GetWrapper<QueryPoolWrapper>(id, queryPool_map_); }
     QueueWrapper* GetQueueWrapper(format::HandleId id) { return GetWrapper<QueueWrapper>(id, queue_map_); }
@@ -234,6 +238,7 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(PipelineWrapper*)> visitor) const { for (auto entry : pipeline_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PipelineCacheWrapper*)> visitor) const { for (auto entry : pipelineCache_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PipelineLayoutWrapper*)> visitor) const { for (auto entry : pipelineLayout_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(PrivateDataSlotWrapper*)> visitor) const { for (auto entry : privateDataSlot_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PrivateDataSlotEXTWrapper*)> visitor) const { for (auto entry : privateDataSlotEXT_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(QueryPoolWrapper*)> visitor) const { for (auto entry : queryPool_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(QueueWrapper*)> visitor) const { for (auto entry : queue_map_) { visitor(entry.second); } }
@@ -276,6 +281,7 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, PipelineWrapper*> pipeline_map_;
     std::map<format::HandleId, PipelineCacheWrapper*> pipelineCache_map_;
     std::map<format::HandleId, PipelineLayoutWrapper*> pipelineLayout_map_;
+    std::map<format::HandleId, PrivateDataSlotWrapper*> privateDataSlot_map_;
     std::map<format::HandleId, PrivateDataSlotEXTWrapper*> privateDataSlotEXT_map_;
     std::map<format::HandleId, QueryPoolWrapper*> queryPool_map_;
     std::map<format::HandleId, QueueWrapper*> queue_map_;

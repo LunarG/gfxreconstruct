@@ -17,7 +17,7 @@ Copyright &copy; 2018-2020 LunarG, Inc.
 3. [Repository Set-Up](#repository-set-up)
 4. [Windows Build](#building-for-windows)
 5. [Linux Build](#building-for-linux)
-6. [Android Build](#android)
+6. [Android Build](#building-for-android)
 
 ## Introduction
 
