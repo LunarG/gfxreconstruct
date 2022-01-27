@@ -389,7 +389,237 @@ void TrackCmdBeginRenderPass2Handles(CommandBufferWrapper* wrapper, const VkRend
     }
 }
 
-void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfoKHR* pRenderingInfo)
+void TrackCmdSetEvent2Handles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo)
+{
+    assert(wrapper != nullptr);
+
+    if(event != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::EventHandle].insert(GetWrappedId(event));
+
+    if (pDependencyInfo != nullptr)
+    {
+        if (pDependencyInfo->pBufferMemoryBarriers != nullptr)
+        {
+            for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfo->bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+            {
+                if(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+            }
+        }
+
+        if (pDependencyInfo->pImageMemoryBarriers != nullptr)
+        {
+            for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfo->imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+            {
+                if(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+            }
+        }
+    }
+}
+
+void TrackCmdResetEvent2Handles(CommandBufferWrapper* wrapper, VkEvent event)
+{
+    assert(wrapper != nullptr);
+
+    if(event != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::EventHandle].insert(GetWrappedId(event));
+}
+
+void TrackCmdWaitEvents2Handles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos)
+{
+    assert(wrapper != nullptr);
+
+    if (pEvents != nullptr)
+    {
+        for (uint32_t pEvents_index = 0; pEvents_index < eventCount; ++pEvents_index)
+        {
+            if(pEvents[pEvents_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::EventHandle].insert(GetWrappedId(pEvents[pEvents_index]));
+        }
+    }
+
+    if (pDependencyInfos != nullptr)
+    {
+        for (uint32_t pDependencyInfos_index = 0; pDependencyInfos_index < eventCount; ++pDependencyInfos_index)
+        {
+            if (pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers != nullptr)
+            {
+                for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+                {
+                    if(pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+                }
+            }
+
+            if (pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers != nullptr)
+            {
+                for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+                {
+                    if(pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+                }
+            }
+        }
+    }
+}
+
+void TrackCmdPipelineBarrier2Handles(CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pDependencyInfo != nullptr)
+    {
+        if (pDependencyInfo->pBufferMemoryBarriers != nullptr)
+        {
+            for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfo->bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+            {
+                if(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+            }
+        }
+
+        if (pDependencyInfo->pImageMemoryBarriers != nullptr)
+        {
+            for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfo->imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+            {
+                if(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+            }
+        }
+    }
+}
+
+void TrackCmdWriteTimestamp2Handles(CommandBufferWrapper* wrapper, VkQueryPool queryPool)
+{
+    assert(wrapper != nullptr);
+
+    if(queryPool != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::QueryPoolHandle].insert(GetWrappedId(queryPool));
+}
+
+void TrackCmdCopyBuffer2Handles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyBufferInfo != nullptr)
+    {
+        if(pCopyBufferInfo->srcBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyBufferInfo->srcBuffer));
+        if(pCopyBufferInfo->dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyBufferInfo->dstBuffer));
+    }
+}
+
+void TrackCmdCopyImage2Handles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyImageInfo != nullptr)
+    {
+        if(pCopyImageInfo->srcImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyImageInfo->srcImage));
+        if(pCopyImageInfo->dstImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyImageInfo->dstImage));
+    }
+}
+
+void TrackCmdCopyBufferToImage2Handles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyBufferToImageInfo != nullptr)
+    {
+        if(pCopyBufferToImageInfo->srcBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyBufferToImageInfo->srcBuffer));
+        if(pCopyBufferToImageInfo->dstImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyBufferToImageInfo->dstImage));
+    }
+}
+
+void TrackCmdCopyImageToBuffer2Handles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyImageToBufferInfo != nullptr)
+    {
+        if(pCopyImageToBufferInfo->srcImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyImageToBufferInfo->srcImage));
+        if(pCopyImageToBufferInfo->dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyImageToBufferInfo->dstBuffer));
+    }
+}
+
+void TrackCmdBlitImage2Handles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pBlitImageInfo != nullptr)
+    {
+        if(pBlitImageInfo->srcImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pBlitImageInfo->srcImage));
+        if(pBlitImageInfo->dstImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pBlitImageInfo->dstImage));
+    }
+}
+
+void TrackCmdResolveImage2Handles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pResolveImageInfo != nullptr)
+    {
+        if(pResolveImageInfo->srcImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pResolveImageInfo->srcImage));
+        if(pResolveImageInfo->dstImage != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pResolveImageInfo->dstImage));
+    }
+}
+
+void TrackCmdBeginRenderingHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pRenderingInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header);
+                    if(pnext_value->imageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pnext_value->imageView));
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pnext_header);
+                    if(pnext_value->imageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pnext_value->imageView));
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+
+        if (pRenderingInfo->pColorAttachments != nullptr)
+        {
+            for (uint32_t pColorAttachments_index = 0; pColorAttachments_index < pRenderingInfo->colorAttachmentCount; ++pColorAttachments_index)
+            {
+                if(pRenderingInfo->pColorAttachments[pColorAttachments_index].imageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pColorAttachments[pColorAttachments_index].imageView));
+                if(pRenderingInfo->pColorAttachments[pColorAttachments_index].resolveImageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pColorAttachments[pColorAttachments_index].resolveImageView));
+            }
+        }
+
+        if (pRenderingInfo->pDepthAttachment != nullptr)
+        {
+            if(pRenderingInfo->pDepthAttachment->imageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pDepthAttachment->imageView));
+            if(pRenderingInfo->pDepthAttachment->resolveImageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pDepthAttachment->resolveImageView));
+        }
+
+        if (pRenderingInfo->pStencilAttachment != nullptr)
+        {
+            if(pRenderingInfo->pStencilAttachment->imageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pStencilAttachment->imageView));
+            if(pRenderingInfo->pStencilAttachment->resolveImageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pRenderingInfo->pStencilAttachment->resolveImageView));
+        }
+    }
+}
+
+void TrackCmdBindVertexBuffers2Handles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)
+{
+    assert(wrapper != nullptr);
+
+    if (pBuffers != nullptr)
+    {
+        for (uint32_t pBuffers_index = 0; pBuffers_index < bindingCount; ++pBuffers_index)
+        {
+            if(pBuffers[pBuffers_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pBuffers[pBuffers_index]));
+        }
+    }
+}
+
+void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo)
 {
     assert(wrapper != nullptr);
 
@@ -490,7 +720,7 @@ void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, V
     if(countBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
 }
 
-void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfoKHR* pDependencyInfo)
+void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo)
 {
     assert(wrapper != nullptr);
 
@@ -523,7 +753,7 @@ void TrackCmdResetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event)
     if(event != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::EventHandle].insert(GetWrappedId(event));
 }
 
-void TrackCmdWaitEvents2KHRHandles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfoKHR* pDependencyInfos)
+void TrackCmdWaitEvents2KHRHandles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos)
 {
     assert(wrapper != nullptr);
 
@@ -558,7 +788,7 @@ void TrackCmdWaitEvents2KHRHandles(CommandBufferWrapper* wrapper, uint32_t event
     }
 }
 
-void TrackCmdPipelineBarrier2KHRHandles(CommandBufferWrapper* wrapper, const VkDependencyInfoKHR* pDependencyInfo)
+void TrackCmdPipelineBarrier2KHRHandles(CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo)
 {
     assert(wrapper != nullptr);
 
@@ -596,7 +826,7 @@ void TrackCmdWriteBufferMarker2AMDHandles(CommandBufferWrapper* wrapper, VkBuffe
     if(dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(dstBuffer));
 }
 
-void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2KHR* pCopyBufferInfo)
+void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo)
 {
     assert(wrapper != nullptr);
 
@@ -607,7 +837,7 @@ void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBu
     }
 }
 
-void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2KHR* pCopyImageInfo)
+void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo)
 {
     assert(wrapper != nullptr);
 
@@ -618,7 +848,7 @@ void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyIma
     }
 }
 
-void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2KHR* pCopyBufferToImageInfo)
+void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo)
 {
     assert(wrapper != nullptr);
 
@@ -629,7 +859,7 @@ void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const V
     }
 }
 
-void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2KHR* pCopyImageToBufferInfo)
+void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)
 {
     assert(wrapper != nullptr);
 
@@ -640,7 +870,7 @@ void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const V
     }
 }
 
-void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2KHR* pBlitImageInfo)
+void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo)
 {
     assert(wrapper != nullptr);
 
@@ -651,7 +881,7 @@ void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitIma
     }
 }
 
-void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2KHR* pResolveImageInfo)
+void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo)
 {
     assert(wrapper != nullptr);
 

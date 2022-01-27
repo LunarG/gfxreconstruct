@@ -390,6 +390,80 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetDeviceMemoryOpaqueCaptureAddress(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetPhysicalDeviceToolProperties(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreatePrivateDataSlot(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkDestroyPrivateDataSlot(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkSetPrivateData(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPrivateData(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetEvent2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdResetEvent2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWaitEvents2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdPipelineBarrier2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWriteTimestamp2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkQueueSubmit2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyBuffer2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyImage2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyBufferToImage2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyImageToBuffer2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBlitImage2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdResolveImage2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBeginRendering(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdEndRendering(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCullMode(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetFrontFace(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPrimitiveTopology(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetViewportWithCount(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetScissorWithCount(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBindVertexBuffers2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthTestEnable(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthWriteEnable(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthCompareOp(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthBoundsTestEnable(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetStencilTestEnable(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetStencilOp(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetRasterizerDiscardEnable(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthBiasEnable(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPrimitiveRestartEnable(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceBufferMemoryRequirements(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceImageMemoryRequirements(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceImageSparseMemoryRequirements(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkDestroySurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceSurfaceSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);

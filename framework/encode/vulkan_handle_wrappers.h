@@ -297,6 +297,9 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
 };
 
+struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
+{};
+
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
@@ -335,6 +338,9 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
     // Members for trimming state tracking.
     DeviceWrapper* device{ nullptr };
 
+    const void*        write_pnext{ nullptr };
+    HandleUnwrapMemory write_pnext_memory;
+
     // Map for descriptor binding index to array of descriptor info.
     std::unordered_map<uint32_t, DescriptorInfo> bindings;
 
@@ -360,15 +366,44 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
     uint32_t queue_family_index{ 0 };
 };
 
+// For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+struct SurfaceCapabilities
+{
+    VkSurfaceCapabilitiesKHR capabilities{};
+    const void*              surface_info_pnext{ nullptr };
+    HandleUnwrapMemory       surface_info_pnext_memory;
+    const void*              capabilities_pnext{ nullptr };
+    HandleUnwrapMemory       capabilities_pnext_memory;
+};
+
+// For vkGetPhysicalDeviceSurfacePresentModesKHR
+struct SurfacePresentModes
+{
+    std::vector<VkPresentModeKHR> present_modes;
+    const void*                   surface_info_pnext{ nullptr };
+    HandleUnwrapMemory            surface_info_pnext_memory;
+};
+
+// For vkGetDeviceGroupSurfacePresentModesKHR
+struct GroupSurfacePresentModes
+{
+    VkDeviceGroupPresentModeFlagsKHR present_modes{ 0 };
+    const void*                      surface_info_pnext{ nullptr };
+    HandleUnwrapMemory               surface_info_pnext_memory;
+};
+
 struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
 {
     // Track results from calls to vkGetPhysicalDeviceSurfaceSupportKHR to write to the state snapshot after surface
     // creation. The call is only written to the state snapshot if it was previously called by the application.
     // Keys are the VkPhysicalDevice handle ID.
     std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>> surface_support;
-    std::unordered_map<format::HandleId, VkSurfaceCapabilitiesKHR>               surface_capabilities;
+    std::unordered_map<format::HandleId, SurfaceCapabilities>                    surface_capabilities;
     std::unordered_map<format::HandleId, std::vector<VkSurfaceFormatKHR>>        surface_formats;
-    std::unordered_map<format::HandleId, std::vector<VkPresentModeKHR>>          surface_present_modes;
+    std::unordered_map<format::HandleId, SurfacePresentModes>                    surface_present_modes;
+
+    // Keys are the VkDevice handle ID.
+    std::unordered_map<format::HandleId, GroupSurfacePresentModes> group_surface_present_modes;
 };
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
@@ -386,6 +421,8 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     uint32_t                       array_layers{ 0 };
     uint32_t                       last_presented_image{ std::numeric_limits<uint32_t>::max() };
     std::vector<ImageAcquiredInfo> image_acquired_info;
+    bool                           acquire_full_screen_exclusive_mode{ false };
+    bool                           release_full_screen_exclusive_mode{ false };
 };
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
