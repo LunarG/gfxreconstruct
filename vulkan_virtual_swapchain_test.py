@@ -34,13 +34,10 @@ def set_env_var(key, value):
         del os.environ[key]
 
 def main():
-    vulkansdk = os.getenv('VULKAN_SDK')
-    vkcube = os.path.join(vulkansdk, 'bin/vkcube.exe')
-
     parser = argparse.ArgumentParser(description='TODO : Description')
-    parser.add_argument('--application', type=str, default=vkcube)
+    parser.add_argument('--application', type=str, default=os.path.join(os.getenv('VULKAN_SDK'), 'bin/vkcube.exe'))
     parser.add_argument('--directory', type=str, default=os.getcwd())
-    parser.add_argument('--vulkansdk', type=str, default=vulkansdk)
+    parser.add_argument('--vulkansdk', type=str, default=os.getenv('VULKAN_SDK'))
     parser.add_argument('--duration', type=int, default=5)
     args = parser.parse_args()
 
@@ -83,7 +80,7 @@ def main():
     set_env_var('VK_SCREENSHOT_FRAMES', '8,16')
 
     # Replay .gfxr and take screenshots at the same frame indices as capture time...
-    gfxr_replay = os.path.join(vulkansdk, 'bin/gfxrecon-replay.exe')
+    gfxr_replay = os.path.join(args.vulkansdk, 'bin/gfxrecon-replay.exe')
     
     time.sleep(1)
     subprocess.run([gfxr_replay, gfxr_file_path])
