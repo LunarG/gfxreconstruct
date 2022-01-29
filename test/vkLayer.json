@@ -1,0 +1,21 @@
+{
+  "file_format_version" : "1.0.0",
+  "layer" : {
+    "name": "VK_LAYER_SAMPLE_SampleLayer",
+    "type": "GLOBAL",
+    "library_path": ".\sample_layer.dll",
+    "api_version": "1.0.0",
+    "implementation_version": "1",
+    "description": "TODO : Description",
+    "functions": {
+      "vkGetInstanceProcAddr": "SampleLayer_GetInstanceProcAddr",
+      "vkGetDeviceProcAddr": "SampleLayer_GetDeviceProcAddr"
+    },
+    "enable_environment": {
+      "ENABLE_SAMPLE_LAYER": "1"
+    },
+    "disable_environment": {
+      "DISABLE_SAMPLE_LAYER": "1"
+    }
+  }
+}

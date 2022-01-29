@@ -27,15 +27,6 @@ import os
 import subprocess
 import time
 
-def get_options():
-    parser = argparse.ArgumentParser(description='TODO : Description')
-    parser.add_argument('--application', type=str, default=vkcube)
-    parser.add_argument('--gfxrjson', type=str)
-    parser.add_argument('--directory', type=str, default=os.getcwd())
-    parser.add_argument('--vulkansdk', type=str, default=vulkansdk)
-    parser.add_argument('--duration', type=int, default=5)
-    args = parser.parse_args()
-
 def set_env_var(key, value):
     if value is not None:
         os.environ[key] = value
@@ -48,7 +39,6 @@ def main():
 
     parser = argparse.ArgumentParser(description='TODO : Description')
     parser.add_argument('--application', type=str, default=vkcube)
-    parser.add_argument('--gfxrjson', type=str)
     parser.add_argument('--directory', type=str, default=os.getcwd())
     parser.add_argument('--vulkansdk', type=str, default=vulkansdk)
     parser.add_argument('--duration', type=int, default=5)
