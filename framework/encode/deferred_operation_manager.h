@@ -42,9 +42,9 @@ class DeferredOperationManager
 
     ~DeferredOperationManager() {}
 
-    static std::unique_ptr<DeferredOperationManager>& Get() { return instance_; }
+    static std::shared_ptr<DeferredOperationManager>& Get() { return instance_; }
 
-    void add(VkDeferredOperationKHR deferred_operation_handle, std::unique_ptr<DeferredOperation> operation)
+    void add(VkDeferredOperationKHR deferred_operation_handle, std::shared_ptr<DeferredOperation> operation)
     {
         const std::lock_guard<std::mutex> lock(mutex_);
         if ((deferred_operation_handle != VK_NULL_HANDLE) && (operation))
@@ -53,7 +53,7 @@ class DeferredOperationManager
         }
     }
 
-    std::unique_ptr<DeferredOperation>& Find(VkDeferredOperationKHR deferred_operation_handle)
+    std::shared_ptr<DeferredOperation>& Find(VkDeferredOperationKHR deferred_operation_handle)
     {
         const std::lock_guard<std::mutex> lock(mutex_);
         return FindDeferredOperation(deferred_operation_handle);
@@ -62,7 +62,7 @@ class DeferredOperationManager
     void PostProcess(VkDeferredOperationKHR deferred_operation_handle)
     {
         const std::lock_guard<std::mutex>   lock(mutex_);
-        std::unique_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
+        std::shared_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
         if (deferred_operation)
         {
             deferred_operation->PostProcess();
@@ -77,7 +77,7 @@ class DeferredOperationManager
         const std::lock_guard<std::mutex> lock(mutex_);
         VkResult                          result = VK_ERROR_UNKNOWN;
 
-        std::unique_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
+        std::shared_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
         if (deferred_operation)
         {
             result = deferred_operation->GetStatus();
@@ -86,7 +86,7 @@ class DeferredOperationManager
     }
 
   protected:
-    std::unique_ptr<DeferredOperation>& FindDeferredOperation(VkDeferredOperationKHR deferred_operation_handle)
+    std::shared_ptr<DeferredOperation>& FindDeferredOperation(VkDeferredOperationKHR deferred_operation_handle)
     {
         if (deferred_operations_.find(deferred_operation_handle) != deferred_operations_.end())
         {
@@ -100,9 +100,9 @@ class DeferredOperationManager
 
   private:
     std::mutex                                                                     mutex_;
-    std::unordered_map<VkDeferredOperationKHR, std::unique_ptr<DeferredOperation>> deferred_operations_;
-    static std::unique_ptr<DeferredOperationManager>                               instance_;
-    std::unique_ptr<DeferredOperation> null_operation_ = std::unique_ptr<DeferredOperation>(nullptr);
+    std::unordered_map<VkDeferredOperationKHR, std::shared_ptr<DeferredOperation>> deferred_operations_;
+    static std::shared_ptr<DeferredOperationManager>                               instance_;
+    std::shared_ptr<DeferredOperation> null_operation_ = std::shared_ptr<DeferredOperation>(nullptr);
 };
 
 GFXRECON_END_NAMESPACE(encode)

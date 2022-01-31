@@ -41,9 +41,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DeferredOperationInfoManager
 {
   public:
-    static std::unique_ptr<DeferredOperationInfoManager>& Get() { return instance_; }
+    static std::shared_ptr<DeferredOperationInfoManager>& Get() { return instance_; }
 
-    void add(format::HandleId deferred_operation_handle, std::unique_ptr<DeferredOperationInfo> operation)
+    void add(format::HandleId deferred_operation_handle, std::shared_ptr<DeferredOperationInfo> operation)
     {
         if ((deferred_operation_handle != gfxrecon::format::kNullHandleId) && (operation))
         {
@@ -51,7 +51,7 @@ class DeferredOperationInfoManager
         }
     }
 
-    std::unique_ptr<DeferredOperationInfo>& find(format::HandleId deferred_operation_handle)
+    std::shared_ptr<DeferredOperationInfo>& find(format::HandleId deferred_operation_handle)
     {
         if (deferred_operations_.find(deferred_operation_handle) != deferred_operations_.end())
         {
@@ -60,7 +60,7 @@ class DeferredOperationInfoManager
         else
         {
             // The return of this function is a reference. If changed to nullptr
-            // , a std::unique_ptr instance will be initialized with nullptr in
+            // , a std::shared_ptr instance will be initialized with nullptr in
             // the function, the instance's reference will be return. But the
             // instance will be destroyed when the function end. So caller get
             // a reference of destroyed instance. This is the reason we use
@@ -71,7 +71,7 @@ class DeferredOperationInfoManager
 
     void Remove(format::HandleId deferred_operation_handle)
     {
-        std::unique_ptr<DeferredOperationInfo> deferred_operation = std::move(find(deferred_operation_handle));
+        std::shared_ptr<DeferredOperationInfo> deferred_operation = std::move(find(deferred_operation_handle));
         deferred_operations_.erase(deferred_operation_handle);
     }
 
@@ -80,9 +80,9 @@ class DeferredOperationInfoManager
     ~DeferredOperationInfoManager() {}
 
   protected:
-    std::unordered_map<format::HandleId, std::unique_ptr<DeferredOperationInfo>> deferred_operations_;
-    static std::unique_ptr<DeferredOperationInfoManager>                         instance_;
-    std::unique_ptr<DeferredOperationInfo> null_operation_ = std::unique_ptr<DeferredOperationInfo>(nullptr);
+    std::unordered_map<format::HandleId, std::shared_ptr<DeferredOperationInfo>> deferred_operations_;
+    static std::shared_ptr<DeferredOperationInfoManager>                         instance_;
+    std::shared_ptr<DeferredOperationInfo> null_operation_ = std::shared_ptr<DeferredOperationInfo>(nullptr);
 };
 
 GFXRECON_END_NAMESPACE(decode)

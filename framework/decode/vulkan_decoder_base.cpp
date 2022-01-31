@@ -34,8 +34,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-std::unique_ptr<DeferredOperationInfoManager> DeferredOperationInfoManager::instance_ =
-    std::make_unique<DeferredOperationInfoManager>();
+std::shared_ptr<DeferredOperationInfoManager> DeferredOperationInfoManager::instance_ =
+    std::make_shared<DeferredOperationInfoManager>();
 
 void VulkanDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
 {
@@ -353,8 +353,8 @@ size_t VulkanDecoderBase::Decode_vkCreateRayTracingPipelinesKHR(const uint8_t* p
     // have lifecycle beyond current API call, and the lifecycle must cover
     // the range until deferred operation finished later when it might be in
     // some other thread, these ref variables will be released at that time.
-    std::unique_ptr<DeferredOperationInfoCreateRayTracingPipelines>&& deferred_operation_info_instance =
-        std::make_unique<DeferredOperationInfoCreateRayTracingPipelines>();
+    std::shared_ptr<DeferredOperationInfoCreateRayTracingPipelines>&& deferred_operation_info_instance =
+        std::make_shared<DeferredOperationInfoCreateRayTracingPipelines>();
     format::HandleId& device            = deferred_operation_info_instance->GetDeviceId();
     format::HandleId& deferredOperation = deferred_operation_info_instance->GetDeferredOperationId();
     format::HandleId& pipelineCache     = deferred_operation_info_instance->GetPipelineCacheId();

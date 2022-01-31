@@ -71,16 +71,16 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DeferredOperationInfo
 {
   public:
-    DeferredOperationInfo(format::ApiCallId call_id) : api_call_id_(call_id), process_done_(false) {}
+    DeferredOperationInfo(format::ApiCallId call_id) : api_call_id_(call_id), operation_completed_(false) {}
     ~DeferredOperationInfo() {}
 
     format::ApiCallId GetApiCallId() { return api_call_id_; }
-    bool              IsProcessDone() { return process_done_; }
-    void              ProcessDone() { process_done_ = true; }
+    bool              IsOperationCompleted() { return operation_completed_; }
+    void              MarkOperationCompleted() { operation_completed_ = true; }
 
   protected:
     format::ApiCallId api_call_id_;
-    bool              process_done_;
+    bool              operation_completed_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

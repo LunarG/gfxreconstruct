@@ -35,7 +35,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 /*
    If some API call is a deferred operation, the process of that call will
    not be finished when the call return to caller, the task of the call will
-   be processed on other threads inside the defered operation.
+   be processed on other threads inside the deferred operation.
 
    For such title, if vkCreateRayTracingPipelinesKHR is set to a deferred
    operation, when call to vkCreateRayTracingPipelinesKHR return, the real

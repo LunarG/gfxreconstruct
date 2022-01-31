@@ -34,6 +34,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+template <typename T>
+struct DeferredOperationCustomArrayDeleter
+{
+    void operator()(T const* p) { delete[] p; }
+};
+
 class DeferredOperationCreateRayTracingPipelines : public DeferredOperation
 {
   public:
@@ -47,14 +53,15 @@ class DeferredOperationCreateRayTracingPipelines : public DeferredOperation
         DeferredOperation(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR, device, deferredOperation),
         pipeline_cache_(pipelineCache), create_info_count_(createInfoCount),
         create_infos_(pCreateInfos), allocator_(pAllocator), pipelines_(pPipelines),
-        modified_create_infos_(std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount))
+        modified_create_infos_(new VkRayTracingPipelineCreateInfoKHR[createInfoCount],
+                               DeferredOperationCustomArrayDeleter<VkRayTracingPipelineCreateInfoKHR>())
     {}
 
     virtual ~DeferredOperationCreateRayTracingPipelines() {}
 
     void PostProcess();
 
-    std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]>& GetModifiedCreateInfos() { return modified_create_infos_; }
+    std::shared_ptr<VkRayTracingPipelineCreateInfoKHR>& GetModifiedCreateInfos() { return modified_create_infos_; }
     HandleUnwrapMemory&                                   GetHandleUnwrapMemory() { return handle_unwrap_memory_; }
     const VkRayTracingPipelineCreateInfoKHR*&             GetCreateInfosUnwrapped() { return create_infos_unwrapped_; }
 
@@ -66,7 +73,7 @@ class DeferredOperationCreateRayTracingPipelines : public DeferredOperation
     VkPipeline*                              pipelines_;
 
     HandleUnwrapMemory                                   handle_unwrap_memory_;
-    std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]> modified_create_infos_;
+    std::shared_ptr<VkRayTracingPipelineCreateInfoKHR> modified_create_infos_;
     const VkRayTracingPipelineCreateInfoKHR*             create_infos_unwrapped_;
 };
 

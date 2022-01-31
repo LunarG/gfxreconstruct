@@ -1068,8 +1068,8 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                            const VkAllocationCallbacks*             pAllocator,
                                                            VkPipeline*                              pPipelines)
 {
-    std::unique_ptr<DeferredOperationCreateRayTracingPipelines>&& deferred_operation_instance =
-        std::make_unique<DeferredOperationCreateRayTracingPipelines>(
+    std::shared_ptr<DeferredOperationCreateRayTracingPipelines>&& deferred_operation_instance =
+        std::make_shared<DeferredOperationCreateRayTracingPipelines>(
             device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
     VkDevice               device_unwrapped            = device_wrapper->handle;
@@ -1085,12 +1085,13 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     VkResult result;
     if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
-        std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]>& modified_create_infos =
+        std::shared_ptr<VkRayTracingPipelineCreateInfoKHR>& modified_create_infos =
             deferred_operation_instance->GetModifiedCreateInfos();
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
-            modified_create_infos[i] = pCreateInfos_unwrapped[i];
-            modified_create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+            modified_create_infos.get()[i] = pCreateInfos_unwrapped[i];
+            modified_create_infos.get()[i].flags |=
+                VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
         }
         result = device_table->CreateRayTracingPipelinesKHR(device_unwrapped,
                                                             deferredOperation_unwrapped,

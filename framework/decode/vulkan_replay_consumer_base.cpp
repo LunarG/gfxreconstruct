@@ -5696,10 +5696,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
         // Modify pipeline create infos with capture replay flag and data.
-        std::unique_ptr<std::vector<VkRayTracingPipelineCreateInfoKHR>> modified_create_infos =
-            std::make_unique<std::vector<VkRayTracingPipelineCreateInfoKHR>>();
-        std::unique_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>> modified_pgroups =
-            std::make_unique<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>>();
+        std::shared_ptr<std::vector<VkRayTracingPipelineCreateInfoKHR>> modified_create_infos =
+            std::make_shared<std::vector<VkRayTracingPipelineCreateInfoKHR>>();
+        std::shared_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>> modified_pgroups =
+            std::make_shared<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>>();
         modified_create_infos->reserve(createInfoCount);
         modified_pgroups->resize(createInfoCount);
         for (uint32_t create_info_i = 0; create_info_i < createInfoCount; ++create_info_i)
@@ -5708,7 +5708,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
             // Enable capture replay flag.
             modified_create_infos->push_back(in_pCreateInfos[create_info_i]);
-            (*modified_create_infos.get())[create_info_i].flags |=
+            modified_create_infos->at(create_info_i).flags |=
                 VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
 
             uint32_t group_info_count = in_pCreateInfos[create_info_i].groupCount;
@@ -6216,8 +6216,8 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     {
         pPipelines->SetHandleLength(createInfoCount);
     }
-    std::unique_ptr<std::vector<PipelineInfo>> handle_info =
-        std::make_unique<std::vector<PipelineInfo>>(createInfoCount);
+    std::shared_ptr<std::vector<PipelineInfo>> handle_info =
+        std::make_shared<std::vector<PipelineInfo>>(createInfoCount);
 
     for (size_t i = 0; i < createInfoCount; ++i)
     {

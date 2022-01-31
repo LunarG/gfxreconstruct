@@ -20,31 +20,17 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
-
 #include "encode/vulkan_capture_manager.h"
 
-#include "encode/vulkan_handle_wrapper_util.h"
-#include "encode/vulkan_state_writer.h"
-#include "format/format_util.h"
-#include "generated/generated_vulkan_struct_handle_wrappers.h"
-#include "graphics/vulkan_device_util.h"
-#include "util/compressor.h"
-#include "util/file_path.h"
-#include "util/logging.h"
-#include "util/page_guard_manager.h"
-#include "util/platform.h"
 #include "encode/deferred_operation_manager.h"
 #include "encode/deferred_operation_create_ray_tracing_pipelines.h"
 
-#include <cassert>
-#include <unordered_set>
 #include <encode/struct_pointer_encoder.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-std::unique_ptr<DeferredOperationManager> DeferredOperationManager::instance_ =
-    std::make_unique<DeferredOperationManager>();
+std::shared_ptr<DeferredOperationManager> DeferredOperationManager::instance_ =
+    std::make_shared<DeferredOperationManager>();
 
 VkResult DeferredOperation::GetStatus()
 {
