@@ -283,7 +283,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
         // provided extensions.
         result = encode::GetInstanceTable(physicalDevice)
                      ->EnumerateDeviceExtensionProperties(
-                         encode::GetWrappedHandle(physicalDevice), nullptr, pPropertyCount, pProperties);
+                         encode::GetWrappedHandle(physicalDevice), pLayerName, pPropertyCount, pProperties);
     }
 
     return result;
@@ -354,7 +354,7 @@ extern "C"
 {
 
     VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-                                        vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
+    vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
     {
         assert(pVersionStruct != NULL);
         assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
@@ -391,10 +391,10 @@ extern "C"
     // The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties
     // and extensions from both the layer's JSON file and during the negotiation process.
     VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-                                        vkEnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
-                                                                             const char*            pLayerName,
-                                                                             uint32_t*              pPropertyCount,
-                                                                             VkExtensionProperties* pProperties)
+    vkEnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                         const char*            pLayerName,
+                                         uint32_t*              pPropertyCount,
+                                         VkExtensionProperties* pProperties)
     {
         assert(physicalDevice == VK_NULL_HANDLE);
         return gfxrecon::EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
