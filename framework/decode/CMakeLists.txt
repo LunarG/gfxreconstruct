@@ -84,9 +84,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
-                    ${CMAKE_CURRENT_LIST_DIR}/deferred_operation_info.h
-                    ${CMAKE_CURRENT_LIST_DIR}/deferred_operation_info_create_ray_tracing_pipelines.h
-                    ${CMAKE_CURRENT_LIST_DIR}/deferred_operation_info_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_deferred_operation_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_deferred_operation_info_create_ray_tracing_pipelines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_deferred_operation_info_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_realign_allocator.h

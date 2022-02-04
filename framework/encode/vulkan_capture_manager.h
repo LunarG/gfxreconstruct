@@ -40,8 +40,8 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/defines.h"
-#include "encode/deferred_operation_create_ray_tracing_pipelines.h"
-#include "encode/deferred_operation_manager.h"
+#include "encode/vulkan_deferred_operation_create_ray_tracing_pipelines.h"
+#include "encode/vulkan_deferred_operation_manager.h"
 
 #include "vulkan/vulkan.h"
 

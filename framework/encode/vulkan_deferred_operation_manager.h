@@ -23,7 +23,7 @@
 #ifndef GFXRECON_ENCODE_DEFERRED_OPERATION_MANAGER_H
 #define GFXRECON_ENCODE_DEFERRED_OPERATION_MANAGER_H
 
-#include "encode/deferred_operation.h"
+#include "encode/vulkan_deferred_operation.h"
 
 #include "vulkan/vulkan.h"
 
@@ -34,17 +34,17 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-class DeferredOperationManager
+class VulkanDeferredOperationManager
 {
   public:
 
-    DeferredOperationManager() {}
+    VulkanDeferredOperationManager() {}
 
-    ~DeferredOperationManager() {}
+    ~VulkanDeferredOperationManager() {}
 
-    static std::shared_ptr<DeferredOperationManager>& Get() { return instance_; }
+    static std::shared_ptr<VulkanDeferredOperationManager>& Get() { return instance_; }
 
-    void add(VkDeferredOperationKHR deferred_operation_handle, std::shared_ptr<DeferredOperation> operation)
+    void add(VkDeferredOperationKHR deferred_operation_handle, std::shared_ptr<VulkanDeferredOperation> operation)
     {
         const std::lock_guard<std::mutex> lock(mutex_);
         if ((deferred_operation_handle != VK_NULL_HANDLE) && (operation))
@@ -53,7 +53,7 @@ class DeferredOperationManager
         }
     }
 
-    std::shared_ptr<DeferredOperation>& Find(VkDeferredOperationKHR deferred_operation_handle)
+    std::shared_ptr<VulkanDeferredOperation>& Find(VkDeferredOperationKHR deferred_operation_handle)
     {
         const std::lock_guard<std::mutex> lock(mutex_);
         return FindDeferredOperation(deferred_operation_handle);
@@ -62,7 +62,7 @@ class DeferredOperationManager
     void PostProcess(VkDeferredOperationKHR deferred_operation_handle)
     {
         const std::lock_guard<std::mutex>   lock(mutex_);
-        std::shared_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
+        std::shared_ptr<VulkanDeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
         if (deferred_operation)
         {
             deferred_operation->PostProcess();
@@ -77,7 +77,7 @@ class DeferredOperationManager
         const std::lock_guard<std::mutex> lock(mutex_);
         VkResult                          result = VK_ERROR_UNKNOWN;
 
-        std::shared_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
+        std::shared_ptr<VulkanDeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
         if (deferred_operation)
         {
             result = deferred_operation->GetStatus();
@@ -86,7 +86,7 @@ class DeferredOperationManager
     }
 
   protected:
-    std::shared_ptr<DeferredOperation>& FindDeferredOperation(VkDeferredOperationKHR deferred_operation_handle)
+    std::shared_ptr<VulkanDeferredOperation>& FindDeferredOperation(VkDeferredOperationKHR deferred_operation_handle)
     {
         if (deferred_operations_.find(deferred_operation_handle) != deferred_operations_.end())
         {
@@ -100,9 +100,9 @@ class DeferredOperationManager
 
   private:
     std::mutex                                                                     mutex_;
-    std::unordered_map<VkDeferredOperationKHR, std::shared_ptr<DeferredOperation>> deferred_operations_;
-    static std::shared_ptr<DeferredOperationManager>                               instance_;
-    std::shared_ptr<DeferredOperation> null_operation_ = std::shared_ptr<DeferredOperation>(nullptr);
+    std::unordered_map<VkDeferredOperationKHR, std::shared_ptr<VulkanDeferredOperation>> deferred_operations_;
+    static std::shared_ptr<VulkanDeferredOperationManager>                               instance_;
+    std::shared_ptr<VulkanDeferredOperation> null_operation_ = std::shared_ptr<VulkanDeferredOperation>(nullptr);
 };
 
 GFXRECON_END_NAMESPACE(encode)

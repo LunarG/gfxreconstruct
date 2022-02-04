@@ -22,17 +22,17 @@
 
 #include "encode/vulkan_capture_manager.h"
 
-#include "encode/deferred_operation_manager.h"
-#include "encode/deferred_operation_create_ray_tracing_pipelines.h"
+#include "encode/vulkan_deferred_operation_manager.h"
+#include "encode/vulkan_deferred_operation_create_ray_tracing_pipelines.h"
 
 #include <encode/struct_pointer_encoder.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-std::shared_ptr<DeferredOperationManager> DeferredOperationManager::instance_ =
-    std::make_shared<DeferredOperationManager>();
+std::shared_ptr<VulkanDeferredOperationManager> VulkanDeferredOperationManager::instance_ =
+    std::make_shared<VulkanDeferredOperationManager>();
 
-VkResult DeferredOperation::GetStatus()
+VkResult VulkanDeferredOperation::GetStatus()
 {
     VkDevice               device_unwrapped    = GetWrappedHandle<VkDevice>(device_);
     VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferred_operation_);
@@ -41,7 +41,7 @@ VkResult DeferredOperation::GetStatus()
     return result;
 }
 
-void DeferredOperationCreateRayTracingPipelines::PostProcess()
+void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess()
 {
     VkResult result = VK_SUCCESS;
     if (pipelines_ != nullptr)

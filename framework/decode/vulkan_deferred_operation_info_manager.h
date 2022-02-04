@@ -25,7 +25,7 @@
 
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "decode/vulkan_object_info.h"
-#include "decode/deferred_operation_info.h"
+#include "decode/vulkan_deferred_operation_info.h"
 
 #include "vulkan/vulkan.h"
 
@@ -38,12 +38,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DeferredOperationInfoManager
+class VulkanDeferredOperationInfoManager
 {
   public:
-    static std::shared_ptr<DeferredOperationInfoManager>& Get() { return instance_; }
+    static std::shared_ptr<VulkanDeferredOperationInfoManager>& Get() { return instance_; }
 
-    void add(format::HandleId deferred_operation_handle, std::shared_ptr<DeferredOperationInfo> operation)
+    void add(format::HandleId deferred_operation_handle, std::shared_ptr<VulkanDeferredOperationInfo> operation)
     {
         if ((deferred_operation_handle != gfxrecon::format::kNullHandleId) && (operation))
         {
@@ -51,7 +51,7 @@ class DeferredOperationInfoManager
         }
     }
 
-    std::shared_ptr<DeferredOperationInfo>& find(format::HandleId deferred_operation_handle)
+    std::shared_ptr<VulkanDeferredOperationInfo>& find(format::HandleId deferred_operation_handle)
     {
         if (deferred_operations_.find(deferred_operation_handle) != deferred_operations_.end())
         {
@@ -71,18 +71,18 @@ class DeferredOperationInfoManager
 
     void Remove(format::HandleId deferred_operation_handle)
     {
-        std::shared_ptr<DeferredOperationInfo> deferred_operation = std::move(find(deferred_operation_handle));
+        std::shared_ptr<VulkanDeferredOperationInfo> deferred_operation = std::move(find(deferred_operation_handle));
         deferred_operations_.erase(deferred_operation_handle);
     }
 
-    DeferredOperationInfoManager() {}
+    VulkanDeferredOperationInfoManager() {}
 
-    ~DeferredOperationInfoManager() {}
+    ~VulkanDeferredOperationInfoManager() {}
 
   protected:
-    std::unordered_map<format::HandleId, std::shared_ptr<DeferredOperationInfo>> deferred_operations_;
-    static std::shared_ptr<DeferredOperationInfoManager>                         instance_;
-    std::shared_ptr<DeferredOperationInfo> null_operation_ = std::shared_ptr<DeferredOperationInfo>(nullptr);
+    std::unordered_map<format::HandleId, std::shared_ptr<VulkanDeferredOperationInfo>> deferred_operations_;
+    static std::shared_ptr<VulkanDeferredOperationInfoManager>                         instance_;
+    std::shared_ptr<VulkanDeferredOperationInfo> null_operation_ = std::shared_ptr<VulkanDeferredOperationInfo>(nullptr);
 };
 
 GFXRECON_END_NAMESPACE(decode)

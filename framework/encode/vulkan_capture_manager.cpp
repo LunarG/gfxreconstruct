@@ -48,8 +48,8 @@
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
 #endif
-#include <encode/deferred_operation_create_ray_tracing_pipelines.h>
-#include <encode/deferred_operation_manager.h>
+#include <encode/vulkan_deferred_operation_create_ray_tracing_pipelines.h>
+#include <encode/vulkan_deferred_operation_manager.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -1068,8 +1068,8 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                            const VkAllocationCallbacks*             pAllocator,
                                                            VkPipeline*                              pPipelines)
 {
-    std::shared_ptr<DeferredOperationCreateRayTracingPipelines>&& deferred_operation_instance =
-        std::make_shared<DeferredOperationCreateRayTracingPipelines>(
+    std::shared_ptr<VulkanDeferredOperationCreateRayTracingPipelines>&& deferred_operation_instance =
+        std::make_shared<VulkanDeferredOperationCreateRayTracingPipelines>(
             device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
     VkDevice               device_unwrapped            = device_wrapper->handle;
@@ -1142,7 +1142,7 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     }
     if (deferredOperation != VK_NULL_HANDLE)
     {
-        DeferredOperationManager::Get()->add(deferredOperation, std::move(deferred_operation_instance));
+        VulkanDeferredOperationManager::Get()->add(deferredOperation, std::move(deferred_operation_instance));
     }
     return result;
 }
@@ -1157,7 +1157,7 @@ VkResult VulkanCaptureManager::OverrideDeferredOperationJoinKHR(VkDevice device,
     if (result == VK_SUCCESS)
     {
         // The deferred operation done and return VK_SUCCESS
-        DeferredOperationManager::Get()->PostProcess(operation);
+        VulkanDeferredOperationManager::Get()->PostProcess(operation);
     }
     return result;
 }
@@ -1170,7 +1170,7 @@ VkResult VulkanCaptureManager::OverrideGetDeferredOperationResultKHR(VkDevice de
     if (result == VK_SUCCESS)
     {
         // The deferred operation done and return VK_SUCCESS
-        DeferredOperationManager::Get()->PostProcess(operation);
+        VulkanDeferredOperationManager::Get()->PostProcess(operation);
     }
     return result;
 }

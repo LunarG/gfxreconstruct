@@ -28,14 +28,14 @@
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/value_decoder.h"
-#include "decode/deferred_operation_info_create_ray_tracing_pipelines.h"
-#include "decode/deferred_operation_info_manager.h"
+#include "decode/vulkan_deferred_operation_info_create_ray_tracing_pipelines.h"
+#include "decode/vulkan_deferred_operation_info_manager.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-std::shared_ptr<DeferredOperationInfoManager> DeferredOperationInfoManager::instance_ =
-    std::make_shared<DeferredOperationInfoManager>();
+std::shared_ptr<VulkanDeferredOperationInfoManager> VulkanDeferredOperationInfoManager::instance_ =
+    std::make_shared<VulkanDeferredOperationInfoManager>();
 
 void VulkanDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
 {
@@ -353,8 +353,8 @@ size_t VulkanDecoderBase::Decode_vkCreateRayTracingPipelinesKHR(const uint8_t* p
     // have lifecycle beyond current API call, and the lifecycle must cover
     // the range until deferred operation finished later when it might be in
     // some other thread, these ref variables will be released at that time.
-    std::shared_ptr<DeferredOperationInfoCreateRayTracingPipelines>&& deferred_operation_info_instance =
-        std::make_shared<DeferredOperationInfoCreateRayTracingPipelines>();
+    std::shared_ptr<VulkanDeferredOperationInfoCreateRayTracingPipelines>&& deferred_operation_info_instance =
+        std::make_shared<VulkanDeferredOperationInfoCreateRayTracingPipelines>();
     format::HandleId& device            = deferred_operation_info_instance->GetDeviceId();
     format::HandleId& deferredOperation = deferred_operation_info_instance->GetDeferredOperationId();
     format::HandleId& pipelineCache     = deferred_operation_info_instance->GetPipelineCacheId();
@@ -371,7 +371,7 @@ size_t VulkanDecoderBase::Decode_vkCreateRayTracingPipelinesKHR(const uint8_t* p
         (parameter_buffer + bytes_read), (buffer_size - bytes_read), &deferredOperation);
     if (deferredOperation != gfxrecon::format::kNullHandleId)
     {
-        DeferredOperationInfoManager::Get()->add(deferredOperation, std::move(deferred_operation_info_instance));
+        VulkanDeferredOperationInfoManager::Get()->add(deferredOperation, std::move(deferred_operation_info_instance));
     }
 
     bytes_read +=

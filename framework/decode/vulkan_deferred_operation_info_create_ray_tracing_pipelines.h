@@ -25,7 +25,7 @@
 
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "decode/vulkan_object_info.h"
-#include "decode/deferred_operation_info.h"
+#include "decode/vulkan_deferred_operation_info.h"
 
 #include "vulkan/vulkan.h"
 
@@ -38,14 +38,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DeferredOperationInfoCreateRayTracingPipelines : public DeferredOperationInfo
+class VulkanDeferredOperationInfoCreateRayTracingPipelines : public VulkanDeferredOperationInfo
 {
   public:
-    DeferredOperationInfoCreateRayTracingPipelines() :
-        DeferredOperationInfo(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR)
+    VulkanDeferredOperationInfoCreateRayTracingPipelines() :
+        VulkanDeferredOperationInfo(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR)
     {}
 
-    ~DeferredOperationInfoCreateRayTracingPipelines() {}
+    ~VulkanDeferredOperationInfoCreateRayTracingPipelines() {}
 
     format::HandleId& GetDeviceId() { return device_; }
 

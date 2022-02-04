@@ -23,7 +23,7 @@
 #ifndef GFXRECON_ENCODE_DEFERRED_OPERATION_CREATE_RAY_TRACING_PIPELINES_H
 #define GFXRECON_ENCODE_DEFERRED_OPERATION_CREATE_RAY_TRACING_PIPELINES_H
 
-#include "encode/deferred_operation.h"
+#include "encode/vulkan_deferred_operation.h"
 
 #include "vulkan/vulkan.h"
 
@@ -35,29 +35,29 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <typename T>
-struct DeferredOperationCustomArrayDeleter
+struct VulkanDeferredOperationCustomArrayDeleter
 {
     void operator()(T const* p) { delete[] p; }
 };
 
-class DeferredOperationCreateRayTracingPipelines : public DeferredOperation
+class VulkanDeferredOperationCreateRayTracingPipelines : public VulkanDeferredOperation
 {
   public:
-    DeferredOperationCreateRayTracingPipelines(VkDevice                                 device,
+    VulkanDeferredOperationCreateRayTracingPipelines(VkDevice                                 device,
                                                VkDeferredOperationKHR                   deferredOperation,
                                                VkPipelineCache                          pipelineCache,
                                                uint32_t                                 createInfoCount,
                                                const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
                                                const VkAllocationCallbacks*             pAllocator,
                                                VkPipeline*                              pPipelines) :
-        DeferredOperation(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR, device, deferredOperation),
+        VulkanDeferredOperation(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR, device, deferredOperation),
         pipeline_cache_(pipelineCache), create_info_count_(createInfoCount),
         create_infos_(pCreateInfos), allocator_(pAllocator), pipelines_(pPipelines),
         modified_create_infos_(new VkRayTracingPipelineCreateInfoKHR[createInfoCount],
-                               DeferredOperationCustomArrayDeleter<VkRayTracingPipelineCreateInfoKHR>())
+                               VulkanDeferredOperationCustomArrayDeleter<VkRayTracingPipelineCreateInfoKHR>())
     {}
 
-    virtual ~DeferredOperationCreateRayTracingPipelines() {}
+    virtual ~VulkanDeferredOperationCreateRayTracingPipelines() {}
 
     void PostProcess();
 

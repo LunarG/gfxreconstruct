@@ -36,8 +36,8 @@
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
-#include "encode/deferred_operation_create_ray_tracing_pipelines.h"
-#include "encode/deferred_operation_manager.h"
+#include "encode/vulkan_deferred_operation_create_ray_tracing_pipelines.h"
+#include "encode/vulkan_deferred_operation_manager.h"
 
 #include <cassert>
 

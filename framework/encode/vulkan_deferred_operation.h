@@ -69,16 +69,16 @@ GFXRECON_BEGIN_NAMESPACE(encode)
        memory buffer , GFXR need to do some wrap/unwrap handling for the
        returned pipeline handle. Such handling need happened in other threads
        where API vkDeferredOperationJoinKHR was called on that thread if the
-       DeferredOperation was finished.
+       VulkanDeferredOperation was finished.
 
 */
-class DeferredOperation
+class VulkanDeferredOperation
 {
   public:
-    DeferredOperation(format::ApiCallId call_id, VkDevice device, VkDeferredOperationKHR deferred_operation_handle) :
+    VulkanDeferredOperation(format::ApiCallId call_id, VkDevice device, VkDeferredOperationKHR deferred_operation_handle) :
         api_call_id_(call_id), deferred_operation_(deferred_operation_handle), device_(device)
     {}
-    virtual ~DeferredOperation() {}
+    virtual ~VulkanDeferredOperation() {}
 
     virtual VkResult GetStatus();
     virtual void     PostProcess() = 0;

@@ -61,18 +61,18 @@ GFXRECON_BEGIN_NAMESPACE(decode)
        by caller.
 
     So for such API, we store all related variables in an instance of
-    DeferredOperationInfo. Because different API call as deferred operation
+    VulkanDeferredOperationInfo. Because different API call as deferred operation
     will need to store different related variables, so here the class
-    DeferredOperationInfo is a parent class, class for specific API need
-    to be derived from DeferredOperationInfo, for example, the derived class
-    DeferredOperationInfoCreateRayTracingPipelines is used for API
+    VulkanDeferredOperationInfo is a parent class, class for specific API need
+    to be derived from VulkanDeferredOperationInfo, for example, the derived class
+    VulkanDeferredOperationInfoCreateRayTracingPipelines is used for API
     vkCreateRayTracingPipelines.
 */
-class DeferredOperationInfo
+class VulkanDeferredOperationInfo
 {
   public:
-    DeferredOperationInfo(format::ApiCallId call_id) : api_call_id_(call_id), operation_completed_(false) {}
-    ~DeferredOperationInfo() {}
+    VulkanDeferredOperationInfo(format::ApiCallId call_id) : api_call_id_(call_id), operation_completed_(false) {}
+    ~VulkanDeferredOperationInfo() {}
 
     format::ApiCallId GetApiCallId() { return api_call_id_; }
     bool              IsOperationCompleted() { return operation_completed_; }

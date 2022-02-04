@@ -29,8 +29,8 @@
 #include "decode/vulkan_enum_util.h"
 #include "decode/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
-#include "decode/deferred_operation_info_create_ray_tracing_pipelines.h"
-#include "decode/deferred_operation_info_manager.h"
+#include "decode/vulkan_deferred_operation_info_create_ray_tracing_pipelines.h"
+#include "decode/vulkan_deferred_operation_info_manager.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "graphics/vulkan_device_util.h"
@@ -5343,9 +5343,9 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
         VkResult target_operation_result = table->GetDeferredOperationResultKHR(device, in_operation);
         if (target_operation_result == VK_SUCCESS)
         {
-            DeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
-                static_cast<DeferredOperationInfoCreateRayTracingPipelines*>(
-                    DeferredOperationInfoManager::Get()->find(operation).get());
+            VulkanDeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
+                static_cast<VulkanDeferredOperationInfoCreateRayTracingPipelines*>(
+                    VulkanDeferredOperationInfoManager::Get()->find(operation).get());
             if (deferred_operation_create_ray_tracing_pipelines != nullptr)
             {
                 AddHandles<PipelineInfo>(
@@ -5356,7 +5356,7 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
                     deferred_operation_create_ray_tracing_pipelines->GetCreateInfoCount(),
                     std::move(*deferred_operation_create_ray_tracing_pipelines->GetPipelineHandleInfo()),
                     &VulkanObjectInfoTable::AddPipelineInfo);
-                DeferredOperationInfoManager::Get()->Remove(operation);
+                VulkanDeferredOperationInfoManager::Get()->Remove(operation);
             }
         }
     }
@@ -5375,9 +5375,9 @@ VulkanReplayConsumerBase::OverrideGetDeferredOperationResultKHR(PFN_vkGetDeferre
     VkResult               replay_result = func(device, in_operation);
     if (replay_result == VK_SUCCESS)
     {
-        DeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
-            static_cast<DeferredOperationInfoCreateRayTracingPipelines*>(
-                DeferredOperationInfoManager::Get()->find(operation).get());
+        VulkanDeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
+            static_cast<VulkanDeferredOperationInfoCreateRayTracingPipelines*>(
+                VulkanDeferredOperationInfoManager::Get()->find(operation).get());
         if (deferred_operation_create_ray_tracing_pipelines != nullptr)
         {
             AddHandles<PipelineInfo>(
@@ -5388,7 +5388,7 @@ VulkanReplayConsumerBase::OverrideGetDeferredOperationResultKHR(PFN_vkGetDeferre
                 deferred_operation_create_ray_tracing_pipelines->GetCreateInfoCount(),
                 std::move(*deferred_operation_create_ray_tracing_pipelines->GetPipelineHandleInfo()),
                 &VulkanObjectInfoTable::AddPipelineInfo);
-            DeferredOperationInfoManager::Get()->Remove(operation);
+            VulkanDeferredOperationInfoManager::Get()->Remove(operation);
         }
     }
 
@@ -5762,9 +5762,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
         if ((deferred_operation_info != nullptr) &&
             (deferred_operation_info->capture_id != gfxrecon::format::kNullHandleId))
         {
-            DeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
-                static_cast<DeferredOperationInfoCreateRayTracingPipelines*>(
-                    DeferredOperationInfoManager::Get()->find(deferred_operation_info->capture_id).get());
+            VulkanDeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
+                static_cast<VulkanDeferredOperationInfoCreateRayTracingPipelines*>(
+                    VulkanDeferredOperationInfoManager::Get()->find(deferred_operation_info->capture_id).get());
             deferred_operation_create_ray_tracing_pipelines->SetModifiedCreateInfos(modified_create_infos);
             deferred_operation_create_ray_tracing_pipelines->SetModifiedGroups(modified_pgroups);
         }
@@ -6247,9 +6247,9 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     }
     else
     {
-        DeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
-            static_cast<DeferredOperationInfoCreateRayTracingPipelines*>(
-                DeferredOperationInfoManager::Get()->find(deferredOperation).get());
+        VulkanDeferredOperationInfoCreateRayTracingPipelines* deferred_operation_create_ray_tracing_pipelines =
+            static_cast<VulkanDeferredOperationInfoCreateRayTracingPipelines*>(
+                VulkanDeferredOperationInfoManager::Get()->find(deferredOperation).get());
         deferred_operation_create_ray_tracing_pipelines->SetPipelineHandleInfo(handle_info);
     }
 }
