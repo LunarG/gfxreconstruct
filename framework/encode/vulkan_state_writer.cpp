@@ -152,7 +152,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     WritePipelineLayoutState(state_table);
     StandardCreateWrite<PipelineCacheWrapper>(state_table);
     WritePipelineState(state_table);
-    StandardCreateWrite<AccelerationStructureKHRWrapper>(state_table);
+    WriteAccelerationStructureKHRState(state_table);
     StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
 
     // Descriptor creation.
