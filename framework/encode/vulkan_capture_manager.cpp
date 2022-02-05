@@ -1987,6 +1987,34 @@ void VulkanCaptureManager::PreProcess_vkGetBufferDeviceAddress(VkDevice device, 
     }
 }
 
+void VulkanCaptureManager::PreProcess_vkGetBufferOpaqueCaptureAddress(VkDevice                         device,
+                                                                      const VkBufferDeviceAddressInfo* pInfo)
+{
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (!device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR_ONCE(
+            "The application is using vkGetBufferOpaqueCaptureAddress, which requires the "
+            "bufferDeviceAddressCaptureReplay "
+            "feature for accurate capture and replay. The capture device does not support this feature, so replay of "
+            "the captured file may fail.");
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkGetDeviceMemoryOpaqueCaptureAddress(
+    VkDevice device, const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
+{
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (!device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR_ONCE(
+            "The application is using vkGetDeviceMemoryOpaqueCaptureAddress, which requires the "
+            "bufferDeviceAddressCaptureReplay "
+            "feature for accurate capture and replay. The capture device does not support this feature, so replay of "
+            "the captured file may fail.");
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkGetAccelerationStructureDeviceAddressKHR(
     VkDevice device, const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)
 {
