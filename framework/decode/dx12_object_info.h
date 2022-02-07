@@ -152,6 +152,12 @@ struct D3D12CommandQueueInfo : DxObjectExtraInfo
     uint64_t                          sync_value{ 0 };
     DxObjectInfo                      sync_fence_info;
     HANDLE                            sync_event{ nullptr };
+
+    // Synchronization used for mapping values in resource data.
+    graphics::dx12::ID3D12FenceComPtr resource_value_map_fence{ nullptr };
+    uint64_t                          resource_value_map_fence_value{ 0 };
+    DxObjectInfo                      resource_value_map_fence_info;
+    HANDLE                            resource_value_map_event{ nullptr };
 };
 
 struct D3D12DeviceInfo : DxObjectExtraInfo
@@ -209,6 +215,8 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
     uint64_t                                       replay_address_{ 0 };  ///< Replay GPU VA.
 
     bool is_reserved_resource{ false };
+
+    std::map<uint64_t, uint64_t> mapped_gpu_addresses;
 };
 
 struct D3D12CommandSignatureInfo : DxObjectExtraInfo

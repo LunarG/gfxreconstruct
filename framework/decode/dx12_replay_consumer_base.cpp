@@ -111,7 +111,13 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         InitializeScreenshotHandler();
     }
 
-    resource_value_mapper_ = std::make_unique<Dx12ResourceValueMapper>();
+    auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
+    auto map_gpu_va_func = std::bind(&Dx12ReplayConsumerBase::MapGpuVirtualAddress, this, std::placeholders::_1);
+    auto map_gpu_desc_handle_func =
+        std::bind(&Dx12ReplayConsumerBase::MapGpuDescriptorHandle, this, std::placeholders::_1);
+
+    resource_value_mapper_ =
+        std::make_unique<Dx12ResourceValueMapper>(get_object_func, map_gpu_va_func, map_gpu_desc_handle_func);
 }
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
@@ -1413,7 +1419,14 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
 
     auto replay_object = static_cast<ID3D12CommandQueue*>(replay_object_info->object);
 
+    bool needs_mapping = false;
+    resource_value_mapper_->PreProcessExecuteCommandLists(
+        replay_object_info, num_command_lists, command_lists, needs_mapping);
+
     replay_object->ExecuteCommandLists(num_command_lists, command_lists->GetHandlePointer());
+
+    resource_value_mapper_->PostProcessExecuteCommandLists(
+        replay_object_info, num_command_lists, command_lists, needs_mapping);
 
     if (options_.sync_queue_submissions && !command_lists->IsNull())
     {

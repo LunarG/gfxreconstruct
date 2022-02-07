@@ -40,6 +40,25 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ResourceValueMapper
 {
   public:
+    Dx12ResourceValueMapper(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
+                            std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
+                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func) :
+        get_object_info_func_(get_object_info_func),
+        map_gpu_va_func_(map_gpu_va_func), map_gpu_desc_handle_func_(map_gpu_desc_handle_func)
+    {}
+
+    // Sets needs_mapping = true if the command lists contain resources that need to be mapped.
+    void PreProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,
+                                       UINT                                      num_command_lists,
+                                       HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
+                                       bool&                                     needs_mapping);
+
+    // No-op if needs_mapping is false.
+    void PostProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,
+                                        UINT                                      num_command_lists,
+                                        HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
+                                        bool                                      needs_mapping);
+
     void PostProcessCommandListReset(DxObjectInfo* command_list_object_info);
 
     void PostProcessCreateCommandSignature(HandlePointerDecoder<void*>*        command_signature_decoder,
@@ -52,6 +71,47 @@ class Dx12ResourceValueMapper
                                     UINT64        argument_buffer_offset,
                                     DxObjectInfo* count_buffer_object_info,
                                     UINT64        count_buffer_offset);
+
+  private:
+    struct ProcessResourceMappingsArgs
+    {
+        ID3D12Fence*         fence{ nullptr };
+        uint64_t             fence_value{ 0 };
+        HANDLE               fence_event{ nullptr };
+        ResourceValueInfoMap resource_value_info_map;
+    };
+
+    struct MappedResourceRevertInfo
+    {
+        std::vector<uint8_t>                           data;
+        std::vector<graphics::dx12::ResourceStateInfo> states;
+        std::map<uint64_t, uint64_t>                   mapped_gpu_addresses;
+    };
+
+    void ProcessResourceMappings(ProcessResourceMappingsArgs args);
+
+    void
+    MapValue(const ResourceValueInfo& value_info, std::vector<uint8_t>& result_data, D3D12ResourceInfo* resource_info);
+
+    void MapResources(const ResourceValueInfoMap&                        resource_value_info_map,
+                      std::map<DxObjectInfo*, MappedResourceRevertInfo>& resource_data_to_revert);
+
+    void InitializeRequiredObjects(ID3D12CommandQueue* command_queue, D3D12CommandQueueInfo* command_queue_extra_info);
+
+    QueueSyncEventInfo CreateProcessProcessResourceMappingsSyncEvent(ProcessResourceMappingsArgs args);
+
+  private:
+    std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func_;
+    std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func_;
+    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func_;
+
+    std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
+
+    // Temporary vectors to reduce allocations.
+    std::vector<uint8_t>                           temp_resource_data;
+    std::vector<uint64_t>                          temp_resource_sizes;
+    std::vector<uint64_t>                          temp_resource_offsets;
+    std::vector<graphics::dx12::ResourceStateInfo> temp_resource_states;
 };
 
 GFXRECON_END_NAMESPACE(decode)
