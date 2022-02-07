@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2021-2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -110,6 +110,8 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
     {
         InitializeScreenshotHandler();
     }
+
+    resource_value_mapper_ = std::make_unique<Dx12ResourceValueMapper>();
 }
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
@@ -1444,7 +1446,7 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
                         waiting_objects.wait_events.push_back(sync_event);
                     }
 
-                    command_queue_info->pending_events.emplace_back(CreateSignalQueueSyncEvent(
+                    command_queue_info->pending_events.push_back(CreateSignalQueueSyncEvent(
                         &command_queue_info->sync_fence_info, command_queue_info->sync_value));
                 }
             }
@@ -2148,7 +2150,7 @@ void Dx12ReplayConsumerBase::ProcessQueueSignal(DxObjectInfo* queue_info, DxObje
         {
             // Add an entry for the signal operation to the queue, to be processed after any pending wait operations
             // complete.
-            queue_extra_info->pending_events.emplace_back(CreateSignalQueueSyncEvent(fence_info, value));
+            queue_extra_info->pending_events.push_back(CreateSignalQueueSyncEvent(fence_info, value));
         }
     }
 }
@@ -2164,7 +2166,7 @@ void Dx12ReplayConsumerBase::ProcessQueueWait(DxObjectInfo* queue_info, DxObject
         {
             // Add the an entry to the operation queue for the wait.  Signal operations that are added to the queue
             // after the wait entry will not be processed until after the wait is processed.
-            queue_extra_info->pending_events.emplace_back(CreateWaitQueueSyncEvent(fence_info, value));
+            queue_extra_info->pending_events.push_back(CreateWaitQueueSyncEvent(fence_info, value));
 
             // Add the pointer to the queue info structure to the fence's pending signal list so that the queue can
             // be notified when the fence receives a signal operation for the current value.
@@ -2619,6 +2621,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList(DxObjectInfo*         
                                                    *riid.decoded_value,
                                                    command_list_decoder->GetHandlePointer());
 
+    if (SUCCEEDED(replay_result) && !command_list_decoder->IsNull())
+    {
+        SetExtraInfo(command_list_decoder, std::make_unique<D3D12CommandListInfo>());
+    }
     return replay_result;
 }
 
@@ -2635,6 +2641,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList1(DxObjectInfo*        
     auto replay_result = device4->CreateCommandList1(
         node_mask, type, flags, *riid.decoded_value, command_list1_decoder->GetHandlePointer());
 
+    if (SUCCEEDED(replay_result) && !command_list1_decoder->IsNull())
+    {
+        SetExtraInfo(command_list1_decoder, std::make_unique<D3D12CommandListInfo>());
+    }
     return replay_result;
 }
 
@@ -2653,6 +2663,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideCommandListReset(DxObjectInfo* command_l
     }
 
     HRESULT replay_result = command_list->Reset(allocator, initial_state);
+
+    resource_value_mapper_->PostProcessCommandListReset(command_list_object_info);
 
     return replay_result;
 }
@@ -2702,6 +2714,14 @@ Dx12ReplayConsumerBase::OverrideCreateCommandSignature(
 
     auto replay_result = device->CreateCommandSignature(
         desc, root_signature, *riid.decoded_value, command_signature_decoder->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result) && !command_signature_decoder->IsNull())
+    {
+        SetExtraInfo(command_signature_decoder, std::make_unique<D3D12CommandSignatureInfo>());
+
+        resource_value_mapper_->PostProcessCreateCommandSignature(command_signature_decoder, desc);
+    }
+
     return replay_result;
 }
 
@@ -2729,6 +2749,14 @@ void Dx12ReplayConsumerBase::OverrideExecuteIndirect(DxObjectInfo* command_list_
                                   argument_buffer_offset,
                                   count_buffer,
                                   count_buffer_offset);
+
+    resource_value_mapper_->PostProcessExecuteIndirect(command_list_object_info,
+                                                       command_signature_object_info,
+                                                       max_command_count,
+                                                       argument_buffer_object_info,
+                                                       argument_buffer_offset,
+                                                       count_buffer_object_info,
+                                                       count_buffer_offset);
 }
 
 void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
@@ -2811,7 +2839,7 @@ QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo
 
 QueueSyncEventInfo Dx12ReplayConsumerBase::CreateSignalQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)
 {
-    return QueueSyncEventInfo{ false, false, fence_info, value, [this, fence_info, value]() {
+    return QueueSyncEventInfo{ false, false, nullptr, 0, [this, fence_info, value]() {
                                   ProcessFenceSignal(fence_info, value);
                               } };
 }

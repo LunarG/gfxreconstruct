@@ -58,7 +58,9 @@ enum class DxObjectInfoType : uint32_t
     kID3D12DescriptorHeapInfo,
     kID3D12FenceInfo,
     kID3D12HeapInfo,
-    kID3D12ResourceInfo
+    kID3D12ResourceInfo,
+    kID3D12CommandSignatureInfo,
+    kID3D12CommandListInfo,
 };
 
 //
@@ -88,6 +90,24 @@ struct FenceValueSyncInfo
     std::vector<HANDLE>        wait_events;
     std::vector<DxObjectInfo*> wait_queues;
 };
+
+enum class ResourceValueType : uint8_t
+{
+    kUnknown,
+    kGpuVirtualAddress,
+    kGpuDescriptorHandle
+};
+
+struct ResourceValueInfo
+{
+    uint64_t          offset{ 0 };
+    ResourceValueType type{ ResourceValueType::kUnknown };
+    uint64_t          size{ 0 };
+
+    bool operator<(const ResourceValueInfo& other) const { return offset < other.offset; }
+};
+
+typedef std::map<DxObjectInfo*, std::set<ResourceValueInfo>> ResourceValueInfoMap;
 
 struct DxObjectExtraInfo
 {
@@ -189,6 +209,25 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
     uint64_t                                       replay_address_{ 0 };  ///< Replay GPU VA.
 
     bool is_reserved_resource{ false };
+};
+
+struct D3D12CommandSignatureInfo : DxObjectExtraInfo
+{
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12CommandSignatureInfo;
+    static constexpr char             kObjectType[] = "ID3D12CommandSignature";
+    D3D12CommandSignatureInfo() : DxObjectExtraInfo(kType) {}
+
+    std::set<ResourceValueInfo> resource_value_infos;
+    UINT                        byte_stride{ 0 };
+};
+
+struct D3D12CommandListInfo : DxObjectExtraInfo
+{
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12CommandListInfo;
+    static constexpr char             kObjectType[] = "ID3D12CommandListInfo";
+    D3D12CommandListInfo() : DxObjectExtraInfo(kType) {}
+
+    ResourceValueInfoMap resource_value_info_map;
 };
 
 GFXRECON_END_NAMESPACE(decode)

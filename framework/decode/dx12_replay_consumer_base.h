@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2021-2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -28,6 +28,7 @@
 #include "decode/dx_replay_options.h"
 #include "decode/dx12_object_info.h"
 #include "decode/dx12_object_mapping_util.h"
+#include "decode/dx12_resource_value_mapper.h"
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
@@ -661,6 +662,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     bool                                         set_page_fault_enablement_;
     bool                                         loading_trim_state_;
     graphics::FpsInfo*                           fps_info_;
+    std::unique_ptr<Dx12ResourceValueMapper>     resource_value_mapper_;
 
     struct ResourceInitInfo
     {
