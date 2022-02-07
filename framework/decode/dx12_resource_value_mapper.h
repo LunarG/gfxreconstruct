@@ -61,6 +61,17 @@ class Dx12ResourceValueMapper
 
     void PostProcessCommandListReset(DxObjectInfo* command_list_object_info);
 
+    void PostProcessCopyResource(DxObjectInfo* command_list_object_info,
+                                 DxObjectInfo* dst_resource_object_info,
+                                 DxObjectInfo* src_resource_object_info);
+
+    void PostProcessCopyBufferRegion(DxObjectInfo* command_list_object_info,
+                                     DxObjectInfo* dst_buffer_object_info,
+                                     UINT64        dst_offset,
+                                     DxObjectInfo* src_buffer_object_info,
+                                     UINT64        src_offset,
+                                     UINT64        num_bytes);
+
     void PostProcessCreateCommandSignature(HandlePointerDecoder<void*>*        command_signature_decoder,
                                            const D3D12_COMMAND_SIGNATURE_DESC* desc);
 
@@ -75,10 +86,11 @@ class Dx12ResourceValueMapper
   private:
     struct ProcessResourceMappingsArgs
     {
-        ID3D12Fence*         fence{ nullptr };
-        uint64_t             fence_value{ 0 };
-        HANDLE               fence_event{ nullptr };
-        ResourceValueInfoMap resource_value_info_map;
+        ID3D12Fence*                  fence{ nullptr };
+        uint64_t                      fence_value{ 0 };
+        HANDLE                        fence_event{ nullptr };
+        std::vector<ResourceCopyInfo> resource_copies;
+        ResourceValueInfoMap          resource_value_info_map;
     };
 
     struct MappedResourceRevertInfo
@@ -87,6 +99,10 @@ class Dx12ResourceValueMapper
         std::vector<graphics::dx12::ResourceStateInfo> states;
         std::map<uint64_t, uint64_t>                   mapped_gpu_addresses;
     };
+
+    static void CopyResourceValues(const ResourceCopyInfo& copy_info, ResourceValueInfoMap& resource_value_info_map);
+
+    static void CopyMappedResourceValues(const ResourceCopyInfo& copy_info);
 
     void ProcessResourceMappings(ProcessResourceMappingsArgs args);
 

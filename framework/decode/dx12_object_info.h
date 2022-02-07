@@ -91,6 +91,15 @@ struct FenceValueSyncInfo
     std::vector<DxObjectInfo*> wait_queues;
 };
 
+struct ResourceCopyInfo
+{
+    DxObjectInfo* dst_resource_object_info{ nullptr };
+    uint64_t      dst_offset{ 0 };
+    DxObjectInfo* src_resource_object_info{ nullptr };
+    uint64_t      src_offset{ 0 };
+    uint64_t      num_bytes{ 0 }; ///< 0 indicates copying the entire resource.
+};
+
 enum class ResourceValueType : uint8_t
 {
     kUnknown,
@@ -234,6 +243,8 @@ struct D3D12CommandListInfo : DxObjectExtraInfo
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12CommandListInfo;
     static constexpr char             kObjectType[] = "ID3D12CommandListInfo";
     D3D12CommandListInfo() : DxObjectExtraInfo(kType) {}
+
+    std::vector<ResourceCopyInfo> resource_copies;
 
     ResourceValueInfoMap resource_value_info_map;
 };

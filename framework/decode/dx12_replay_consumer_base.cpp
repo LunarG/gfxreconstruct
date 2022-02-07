@@ -2690,6 +2690,9 @@ void Dx12ReplayConsumerBase::OverrideCopyResource(DxObjectInfo* command_list_obj
     auto dst_resource = static_cast<ID3D12Resource*>(dst_resource_object_info->object);
     auto src_resource = static_cast<ID3D12Resource*>(src_resource_object_info->object);
     command_list->CopyResource(dst_resource, src_resource);
+
+    resource_value_mapper_->PostProcessCopyResource(
+        command_list_object_info, dst_resource_object_info, src_resource_object_info);
 }
 
 void Dx12ReplayConsumerBase::OverrideCopyBufferRegion(DxObjectInfo* command_list_object_info,
@@ -2703,6 +2706,9 @@ void Dx12ReplayConsumerBase::OverrideCopyBufferRegion(DxObjectInfo* command_list
     auto dst_buffer   = static_cast<ID3D12Resource*>(dst_buffer_object_info->object);
     auto src_buffer   = static_cast<ID3D12Resource*>(src_buffer_object_info->object);
     command_list->CopyBufferRegion(dst_buffer, dst_offset, src_buffer, src_offset, num_bytes);
+
+    resource_value_mapper_->PostProcessCopyBufferRegion(
+        command_list_object_info, dst_buffer_object_info, dst_offset, src_buffer_object_info, src_offset, num_bytes);
 }
 
 HRESULT

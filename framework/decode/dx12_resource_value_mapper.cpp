@@ -60,7 +60,30 @@ void Dx12ResourceValueMapper::PostProcessCommandListReset(DxObjectInfo* command_
 {
     // Clear tracked info.
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+    command_list_extra_info->resource_copies.clear();
     command_list_extra_info->resource_value_info_map.clear();
+}
+
+void Dx12ResourceValueMapper::PostProcessCopyResource(DxObjectInfo* command_list_object_info,
+                                                      DxObjectInfo* dst_resource_object_info,
+                                                      DxObjectInfo* src_resource_object_info)
+{
+    // Track copies in order to correctly map resource values.
+    auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+    command_list_extra_info->resource_copies.push_back({ dst_resource_object_info, 0, src_resource_object_info, 0, 0 });
+}
+
+void Dx12ResourceValueMapper::PostProcessCopyBufferRegion(DxObjectInfo* command_list_object_info,
+                                                          DxObjectInfo* dst_buffer_object_info,
+                                                          UINT64        dst_offset,
+                                                          DxObjectInfo* src_buffer_object_info,
+                                                          UINT64        src_offset,
+                                                          UINT64        num_bytes)
+{
+    // Track copies in order to correctly map resource values.
+    auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+    command_list_extra_info->resource_copies.push_back(
+        { dst_buffer_object_info, dst_offset, src_buffer_object_info, src_offset, num_bytes });
 }
 
 void Dx12ResourceValueMapper::PreProcessExecuteCommandLists(
@@ -140,6 +163,10 @@ void Dx12ResourceValueMapper::PostProcessExecuteCommandLists(
             auto command_list_extra_info =
                 GetExtraInfo<D3D12CommandListInfo>(get_object_info_func_(command_lists_decoder->GetPointer()[i]));
             GFXRECON_ASSERT(command_list_extra_info != nullptr);
+
+            process_args.resource_copies.insert(process_args.resource_copies.end(),
+                                                command_list_extra_info->resource_copies.begin(),
+                                                command_list_extra_info->resource_copies.end());
 
             for (const auto& resource_value_info_pair : command_list_extra_info->resource_value_info_map)
             {
@@ -267,6 +294,87 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
     }
 }
 
+void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_info,
+                                                 ResourceValueInfoMap&   resource_value_info_map)
+{
+    // Copy required resource values from dst to src.
+    auto dst_iter = resource_value_info_map.find(copy_info.dst_resource_object_info);
+    if (dst_iter != resource_value_info_map.end())
+    {
+        GFXRECON_ASSERT(!dst_iter->second.empty());
+
+        auto& dst_offsets = dst_iter->second;
+        auto& src_offsets = resource_value_info_map[copy_info.src_resource_object_info];
+
+        // If num_bytes != 0, process CopyBufferRegion else process CopyResource.
+        if (copy_info.num_bytes != 0)
+        {
+            auto dst_offsets_begin = dst_offsets.lower_bound({ copy_info.dst_offset });
+            auto dst_offsets_end   = dst_offsets.upper_bound({ copy_info.dst_offset + copy_info.num_bytes });
+
+            for (auto offsets_iter = dst_offsets_begin; offsets_iter != dst_offsets_end; ++offsets_iter)
+            {
+                auto src_offset = ((*offsets_iter).offset - copy_info.dst_offset) + copy_info.src_offset;
+                src_offsets.insert({ src_offset, (*offsets_iter).type, (*offsets_iter).size });
+            }
+            dst_offsets.erase(dst_offsets_begin, dst_offsets_end);
+        }
+        else
+        {
+            for (auto offsets_iter = dst_offsets.begin(); offsets_iter != dst_offsets.end(); ++offsets_iter)
+            {
+                auto src_offset = ((*offsets_iter).offset - copy_info.dst_offset) + copy_info.src_offset;
+                src_offsets.insert({ src_offset, (*offsets_iter).type, (*offsets_iter).size });
+            }
+            dst_offsets.clear();
+        }
+    }
+}
+
+void Dx12ResourceValueMapper::CopyMappedResourceValues(const ResourceCopyInfo& copy_info)
+{
+    auto dst_extra_info = GetResourceExtraInfo(copy_info.dst_resource_object_info);
+    auto src_extra_info = GetResourceExtraInfo(copy_info.src_resource_object_info);
+
+    auto& dst_mapped_gpu_addresses = dst_extra_info->mapped_gpu_addresses;
+    auto& src_mapped_gpu_addresses = src_extra_info->mapped_gpu_addresses;
+
+    // If num_bytes != 0, process CopyBufferRegion else process CopyResource.
+    if (copy_info.num_bytes != 0)
+    {
+        auto dst_min_offset = copy_info.dst_offset;
+        auto dst_max_offset = dst_min_offset + copy_info.num_bytes;
+        auto src_min_offset = copy_info.src_offset;
+        auto src_max_offset = src_min_offset + copy_info.num_bytes;
+
+        { // Remove current set of mapped values in destination copy range.
+            auto dst_mapped_gpu_addresses_begin = dst_mapped_gpu_addresses.lower_bound(dst_min_offset);
+            auto dst_mapped_gpu_addresses_end   = dst_mapped_gpu_addresses.upper_bound(dst_max_offset);
+            dst_mapped_gpu_addresses.erase(dst_mapped_gpu_addresses_begin, dst_mapped_gpu_addresses_end);
+        }
+
+        { // Copy mapped values from source to destination.
+            auto src_mapped_gpu_addresses_begin = src_mapped_gpu_addresses.lower_bound(src_min_offset);
+            auto src_mapped_gpu_addresses_end   = src_mapped_gpu_addresses.upper_bound(src_max_offset);
+            for (auto src_iter = src_mapped_gpu_addresses_begin; src_iter != src_mapped_gpu_addresses_end; ++src_iter)
+            {
+                auto dst_offset                      = (src_iter->first - copy_info.src_offset) + copy_info.dst_offset;
+                dst_mapped_gpu_addresses[dst_offset] = src_iter->second;
+            }
+        }
+    }
+    else
+    {
+        // Clear destination values and copy from source.
+        dst_mapped_gpu_addresses.clear();
+        for (auto src_iter = src_mapped_gpu_addresses.begin(); src_iter != src_mapped_gpu_addresses.end(); ++src_iter)
+        {
+            auto dst_offset                      = (src_iter->first - copy_info.src_offset) + copy_info.dst_offset;
+            dst_mapped_gpu_addresses[dst_offset] = src_iter->second;
+        }
+    }
+}
+
 void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArgs args)
 {
     GFXRECON_ASSERT(args.fence != nullptr);
@@ -285,9 +393,24 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
         WaitForSingleObject(args.fence_event, INFINITE);
     }
 
+    // Process resource copies so values are mapped in the source resource.
+    const auto copies_size = args.resource_copies.size();
+    for (size_t i = 0; i < copies_size; ++i)
+    {
+        auto& copy_info = args.resource_copies[copies_size - i - 1];
+        CopyResourceValues(copy_info, args.resource_value_info_map);
+    }
+
     // Apply the resource value mappings to the resources on the GPU.
     std::map<DxObjectInfo*, MappedResourceRevertInfo> resource_data_to_revert;
     MapResources(args.resource_value_info_map, resource_data_to_revert);
+
+    // Track mapped values that were copied to other resources.
+    for (size_t i = 0; i < copies_size; ++i)
+    {
+        auto& copy_info = args.resource_copies[i];
+        CopyMappedResourceValues(copy_info);
+    }
 
     // Signal to the command queue that the mapping is completed.
     args.fence->Signal(args.fence_value + 1);
