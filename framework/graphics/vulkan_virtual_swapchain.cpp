@@ -59,14 +59,15 @@ Notes
     etc.
 
     -   There are a handful of extensions that impact VkSwapchainKHR that aren't
-    addressed here
+    addressed here / create edge cases
+
+    -   VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR
 
 TODO
 
     -   Testing plan
     -   Integration
     -   Identify edge cases, extensions, caveats, etc...
-
 
 */
 
@@ -75,13 +76,18 @@ class VulkanVirtualSwapchain::Image final
   public:
     Image() = default;
 
-    static VkResult Create(VmaAllocator vmaAllocator, const VkImageCreateInfo* pImageCreateInfo, Image* pImage)
+    static VkResult Create(VkCommandBuffer          vkCommandBuffer,
+                           VmaAllocator             vmaAllocator,
+                           const VkImageCreateInfo* pImageCreateInfo,
+                           Image*                   pImage)
     {
+        assert(vkCommandBuffer);
         assert(vmaAllocator);
         assert(pImageCreateInfo);
         assert(pImage);
         pImage->Reset();
         pImage->m_vma_allocator = vmaAllocator;
+        pImage->m_vk_command_buffer = vkCommandBuffer;
         VK_RESULT_SCOPE_BEGIN
         {
             VmaAllocationCreateInfo allocation_create_info{};
@@ -123,17 +129,24 @@ class VulkanVirtualSwapchain::Image final
             assert(m_vma_allocator);
             vmaDestroyImage(m_vma_allocator, m_vk_image, m_vma_allocation);
         }
-        m_vma_allocator  = VMA_NULL;
-        m_vk_image       = VK_NULL_HANDLE;
-        m_vma_allocation = VMA_NULL;
+        m_vma_allocator     = VMA_NULL;
+        m_vk_image          = VK_NULL_HANDLE;
+        m_vma_allocation    = VMA_NULL;
+        m_vk_command_buffer = VK_NULL_HANDLE;
     }
 
     VkImage GetVkImage() const { return m_vk_image; }
 
+    void RecordCopyCmds(VkImage vkSwapchainImage)
+    {
+
+    }
+
   private:
-    VmaAllocator  m_vma_allocator{ VMA_NULL };
-    VkImage       m_vk_image{ VK_NULL_HANDLE };
-    VmaAllocation m_vma_allocation{ VMA_NULL };
+    VmaAllocator    m_vma_allocator{ VMA_NULL };
+    VkImage         m_vk_image{ VK_NULL_HANDLE };
+    VmaAllocation   m_vma_allocation{ VMA_NULL };
+    VkCommandBuffer m_vk_command_buffer{ VK_NULL_HANDLE };
 
     Image(const Image&) = default;
     Image& operator=(const Image&) = default;
@@ -146,11 +159,6 @@ VkResult VulkanVirtualSwapchain::Create(VkDevice                vkDevice,
 {
     assert(vkDevice);
     assert(pCreateInfo);
-    assert(pCreateInfo->dispatch.pfn_vkCreateSwapchainKHR);
-    assert(pCreateInfo->dispatch.pfn_vkDestroySwapchainKHR);
-    assert(pCreateInfo->dispatch.pfn_vkGetSwapchainImagesKHR);
-    assert(pCreateInfo->dispatch.pfn_vkAcquireNextImageKHR || pCreateInfo->dispatch.pfn_vkAcquireNextImage2KHR);
-    assert(pCreateInfo->dispatch.pfn_vkQueuePresentKHR);
     assert(vmaAllocator);
     assert(pVulkanVirtualSwapchain);
     pVulkanVirtualSwapchain->Reset();
@@ -195,7 +203,7 @@ VkResult VulkanVirtualSwapchain::Create(VkDevice                vkDevice,
             std::max(static_cast<size_t>(pCreateInfo->imageCount), pVulkanVirtualSwapchain->m_vk_images.size()));
         for (auto& virtual_image : pVulkanVirtualSwapchain->m_virtual_images)
         {
-            VK_RESULT(Image::Create(vmaAllocator, &image_create_info, &virtual_image));
+            VK_RESULT(Image::Create(VK_NULL_HANDLE, vmaAllocator, &image_create_info, &virtual_image));
         }
     }
     VK_RESULT_SCOPE_END
@@ -211,14 +219,16 @@ VulkanVirtualSwapchain& VulkanVirtualSwapchain::operator=(VulkanVirtualSwapchain
 {
     if (this != &other)
     {
-        m_vk_device      = std::move(other.m_vk_device);
-        m_dispatch       = std::move(other.m_dispatch);
-        m_vk_swapchain   = std::move(other.m_vk_swapchain);
-        m_vk_images      = std::move(other.m_vk_images);
-        m_virtual_images = std::move(other.m_virtual_images);
-        // Make sure that we clear m_vk_swapchain in the object we move from since we're using that handle to trigger
-        // cleanup in Reset()...
-        other.m_vk_swapchain = VK_NULL_HANDLE;
+        m_dispatch        = std::move(other.m_dispatch);
+        m_vk_device       = std::move(other.m_vk_device);
+        m_vk_command_pool = std::move(other.m_vk_command_pool);
+        m_vk_swapchain    = std::move(other.m_vk_swapchain);
+        m_vk_images       = std::move(other.m_vk_images);
+        m_virtual_images  = std::move(other.m_virtual_images);
+        // Make sure that m_vk_swapchain and m_vk_command_pool are cleared in the object moved from since they'll
+        // trigger cleanup in Reset()...
+        other.m_vk_swapchain    = VK_NULL_HANDLE;
+        other.m_vk_command_pool = VK_NULL_HANDLE;
     }
     return *this;
 }
@@ -236,13 +246,22 @@ void VulkanVirtualSwapchain::Reset()
         assert(m_dispatch.pfn_vkDestroySwapchainKHR);
         m_dispatch.pfn_vkDestroySwapchainKHR(m_vk_device, m_vk_swapchain, nullptr);
     }
-    m_dispatch     = {};
-    m_vk_device    = VK_NULL_HANDLE;
-    m_vk_swapchain = VK_NULL_HANDLE;
+    if (m_vk_command_pool)
+    {
+        assert(m_vk_device);
+        assert(m_dispatch.pfn_vkDestroyCommandPool);
+        m_dispatch.pfn_vkDestroyCommandPool(m_vk_device, m_vk_command_pool, nullptr);
+    }
+    m_dispatch        = {};
+    m_vk_device       = VK_NULL_HANDLE;
+    m_vk_command_pool = VK_NULL_HANDLE;
+    m_vk_swapchain    = VK_NULL_HANDLE;
     m_vk_images.clear();
     m_virtual_images.clear();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// VkSwapchainKHR entry points
 VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(uint32_t* pSwapchainImageCount, VkImage* pSwapchainImages)
 {
     auto vk_result = VK_INCOMPLETE;
@@ -293,8 +312,11 @@ VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(const VkAcquireNextImageIn
     return vkResult;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// VkQueue entry points
 VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkQueue vkQueue, const VkPresentInfoKHR* pPresentInfo)
 {
+    assert(false);
     auto vkResult = VK_INCOMPLETE;
     if (vkQueue && pPresentInfo)
     {
@@ -307,6 +329,118 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkQueue vkQueue, const VkPresen
         assert(pPresentInfo->pSwapchains[0] == m_vk_swapchain);
     }
     return vkResult;
+}
+
+VkResult VulkanVirtualSwapchain::QueueSubmit(VkQueue             vkQueue,
+                                             uint32_t            submitCount,
+                                             const VkSubmitInfo* pSubmits,
+                                             VkFence             vkFence)
+{
+    return m_dispatch.pfn_vkQueueSubmit(vkQueue, submitCount, pSubmits, vkFence);
+}
+
+VkResult VulkanVirtualSwapchain::QueueSubmit2(VkQueue              vkQueue,
+                                              uint32_t             submitCount,
+                                              const VkSubmitInfo2* pSubmits,
+                                              VkFence              vkFence)
+{
+    return m_dispatch.pfn_vkQueueSubmit2(vkQueue, submitCount, pSubmits, vkFence);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// VkRenderPass entry points
+VkResult VulkanVirtualSwapchain::CreateRenderPass(const VkRenderPassCreateInfo* pCreateInfo,
+                                                  VkRenderPass*                 pVkRenderPass)
+{
+    return m_dispatch.pfn_vkCreateRenderPass(m_vk_device, pCreateInfo, nullptr, pVkRenderPass);
+}
+
+VkResult VulkanVirtualSwapchain::CreateRenderPass2(const VkRenderPassCreateInfo2* pCreateInfo,
+                                                   VkRenderPass*                  pVkRenderPass)
+{
+    return m_dispatch.pfn_vkCreateRenderPass2(m_vk_device, pCreateInfo, nullptr, pVkRenderPass);
+}
+
+void VulkanVirtualSwapchain::DestroyRenderPass(VkRenderPass pVkRenderPass)
+{
+    m_dispatch.pfn_vkDestroyRenderPass(m_vk_device, pVkRenderPass, nullptr);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// VkCmdBuffer entry points
+void VulkanVirtualSwapchain::CmdBeginRendering(VkCommandBuffer vkCommandBuffer, const VkRenderingInfo* pRenderingInfo)
+{
+    m_dispatch.pfn_vkCmdBeginRendering(vkCommandBuffer, pRenderingInfo);
+}
+
+void VulkanVirtualSwapchain::CmdBeginRenderPass(VkCommandBuffer              vkCommandBuffer,
+                                                const VkRenderPassBeginInfo* pRenderPassBeginInfo,
+                                                VkSubpassContents            subpassContents)
+{
+    m_dispatch.pfn_vkCmdBeginRenderPass(vkCommandBuffer, pRenderPassBeginInfo, subpassContents);
+}
+
+void VulkanVirtualSwapchain::CmdBeginRenderPass2(VkCommandBuffer              vkCommandBuffer,
+                                                 const VkRenderPassBeginInfo* pRenderPassBeginInfo,
+                                                 const VkSubpassBeginInfo*    pSubpassBeginInfo)
+{
+    m_dispatch.pfn_vkCmdBeginRenderPass2(vkCommandBuffer, pRenderPassBeginInfo, pSubpassBeginInfo);
+}
+
+void VulkanVirtualSwapchain::CmdEndRendering(VkCommandBuffer vkCommandBuffer)
+{
+    m_dispatch.pfn_vkCmdEndRendering(vkCommandBuffer);
+}
+
+void VulkanVirtualSwapchain::CmdEndRenderPass(VkCommandBuffer vkCommandBuffer)
+{
+    m_dispatch.pfn_vkCmdEndRenderPass(vkCommandBuffer);
+}
+
+void VulkanVirtualSwapchain::CmdEndRenderPass2(VkCommandBuffer vkCommandBuffer, const VkSubpassEndInfo* pSubpassEndInfo)
+{
+    m_dispatch.pfn_vkCmdEndRenderPass2(vkCommandBuffer, pSubpassEndInfo);
+}
+
+void VulkanVirtualSwapchain::CmdNextSubpass(VkCommandBuffer vkCommandBuffer, VkSubpassContents contents)
+{
+    m_dispatch.pfn_vkCmdNextSubpass(vkCommandBuffer, contents);
+}
+
+void VulkanVirtualSwapchain::CmdNextSubpass2(VkCommandBuffer           vkCommandBuffer,
+                                             const VkSubpassBeginInfo* pSubpassBeginInfo,
+                                             const VkSubpassEndInfo*   pSubpassEndInfo)
+{
+    m_dispatch.pfn_vkCmdNextSubpass2(vkCommandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+}
+
+void VulkanVirtualSwapchain::CmdPipelineBarrier(VkCommandBuffer              vkCommandBuffer,
+                                                VkPipelineStageFlags         srcStageMask,
+                                                VkPipelineStageFlags         dstStageMask,
+                                                VkDependencyFlags            dependencyFlags,
+                                                uint32_t                     memoryBarrierCount,
+                                                const VkMemoryBarrier*       pMemoryBarriers,
+                                                uint32_t                     bufferMemoryBarrierCount,
+                                                const VkBufferMemoryBarrier* pBufferMemoryBarriers,
+                                                uint32_t                     imageMemoryBarrierCount,
+                                                const VkImageMemoryBarrier*  pImageMemoryBarriers)
+{
+    m_dispatch.pfn_vkCmdPipelineBarrier(vkCommandBuffer,
+                                        srcStageMask,
+                                        dstStageMask,
+                                        dependencyFlags,
+                                        memoryBarrierCount,
+                                        pMemoryBarriers,
+                                        bufferMemoryBarrierCount,
+                                        pBufferMemoryBarriers,
+                                        imageMemoryBarrierCount,
+                                        pImageMemoryBarriers);
+}
+
+void VulkanVirtualSwapchain::CmdPipelineBarrier2(VkCommandBuffer         vkCommandBuffer,
+                                                 const VkDependencyInfo* pDependencyInfo)
+{
+    m_dispatch.pfn_vkCmdPipelineBarrier2(vkCommandBuffer, pDependencyInfo);
 }
 
 GFXRECON_END_NAMESPACE(graphics)
