@@ -23,23 +23,13 @@
 
 #include "project_version.h"
 
-#include "decode/file_processor.h"
+#include "tool_settings.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
-#include "generated/generated_vulkan_decoder.h"
-#include "util/argument_parser.h"
-#include "util/logging.h"
-
-#include "vulkan/vulkan_core.h"
-
-#include <cstdlib>
-
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
-const char kVersionOption[]   = "--version";
-const char kNoDebugPopup[]    = "--no-debug-popup";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
+
+const char kArguments[] = "--output";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -58,53 +48,19 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --output <filepath>\tFilepath, relative to the current working directory, to write JSON "
+                           "output to. Default is <.gfxr filepath/filename>.txt.");
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
 }
 
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
-        {
-            app_name.replace(0, dir_location + 1, "");
-        }
-
-        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
-                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-        return true;
-    }
-
-    return false;
-}
-
 int main(int argc, const char** argv)
 {
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
@@ -137,6 +93,11 @@ int main(int argc, const char** argv)
     }
 
     output_filename += ".txt";
+    auto output_arg = arg_parser.GetArgumentValue(kOutput);
+    if (!output_arg.empty())
+    {
+        output_filename = output_arg;
+    }
 
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
