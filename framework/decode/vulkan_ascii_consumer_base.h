@@ -48,9 +48,9 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     void Destroy();
 
-    bool IsValid() const { return (m_file != nullptr); }
+    bool IsValid() const { return (file_ != nullptr); }
 
-    const std::string& GetFilename() const { return m_filename; }
+    const std::string& GetFilename() const { return filename_; }
 
     virtual void
     Process_vkAllocateCommandBuffers(VkResult                                                   returnValue,
@@ -110,16 +110,16 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
                                    ToStringFunctionType toStringFunction)
     {
         using namespace util;
-        fprintf(m_file, "%s\n", (m_apiCallCount ? "," : ""));
-        fprintf(m_file, "\"[%s]%s\":", std::to_string(m_apiCallCount++).c_str(), functionName.c_str());
-        fprintf(m_file, "%s", GetWhitespaceString(toStringFlags).c_str());
-        fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+        fprintf(file_, "%s\n", (api_call_count_ ? "," : ""));
+        fprintf(file_, "\"[%s]%s\":", std::to_string(api_call_count_++).c_str(), functionName.c_str());
+        fprintf(file_, "%s", GetWhitespaceString(toStringFlags).c_str());
+        fprintf(file_, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
     }
 
   private:
-    FILE*       m_file;
-    std::string m_filename;
-    uint64_t    m_apiCallCount{ 0 };
+    FILE*       file_;
+    std::string filename_;
+    uint64_t    api_call_count_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
