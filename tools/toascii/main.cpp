@@ -30,7 +30,7 @@
 #include "generated/generated_dx12_ascii_consumer.h"
 #endif
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--json-object";
 
 const char kArguments[] = ""
 #if defined(WIN32)
@@ -62,6 +62,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --json-object\t\tOutput a single JSON object, the default is to output concatenated JSON objects.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay (Windows only).");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
@@ -144,13 +145,21 @@ int main(int argc, const char** argv)
 
             if (dx_replay_options.enable_d3d12)
             {
-                dx12_ascii_consumer.Initialize(output_filename, file);
+                auto to_string_flags = gfxrecon::util::kToString_Default;
+                if (arg_parser.IsOptionSet(kJsonObjectArgument)){
+                    to_string_flags = gfxrecon::util::kToString_Formatted;
+                }
+                dx12_ascii_consumer.Initialize(output_filename, file, to_string_flags);
                 dx12_decoder.AddConsumer(&dx12_ascii_consumer);
 
                 file_processor.AddDecoder(&dx12_decoder);
             }
 #endif
             file_processor.ProcessAllFrames();
+
+#if defined(WIN32)
+            dx12_ascii_consumer.Destroy();
+#endif
             gfxrecon::util::platform::FileClose(file);
         }
         else

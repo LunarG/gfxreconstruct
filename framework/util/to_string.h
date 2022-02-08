@@ -40,7 +40,7 @@ enum ToStringFlagBits
     kToString_Unformatted  = 0,
     kToString_Formatted    = 1,
     kToString_Concatenated = 2,
-    kToString_Default      = kToString_Formatted | kToString_Concatenated,
+    kToString_Default      = kToString_Concatenated,
 };
 
 typedef uint32_t ToStringFlags;

@@ -108,7 +108,6 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         code += inspect.cleandoc('''
             {{
                 using namespace gfxrecon::util;
-                ToStringFlags to_string_flags = kToString_Default;
                 uint32_t tab_count = 0;
                 uint32_t tab_size = 4;
                 WriteApiCallToFileInfo writeApiCallToFileInfo{{}};
@@ -118,13 +117,13 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 std::string returnValue = {3};
                 writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
                 WriteApiCallToFile(
-                    writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+                    writeApiCallToFileInfo, tab_count, tab_size,
                     [&](std::stringstream& str_strm)
                     {{
             '''.format(
                 '"' + class_name + '"' if class_name else 'nullptr',
                 'object_id' if class_name else '0', class_method_name,
-                'DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size)' if not 'void' in return_type else 'std::string()'))
+                'DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size)' if not 'void' in return_type else 'std::string()'))
         code += '\n'
         code += self.make_consumer_func_body(class_name, method_info, return_type)
         code += inspect.cleandoc('''
@@ -145,23 +144,27 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             #   below without being handled the generated code will fail to compile
             to_string = 'static_assert(false, "Unhandled value in `dx12_ascii_consumer_body_generator.py`")'
 
+            # StringDecoder and WStringDecoder require custom handling
+            if 'LPCSTR' in value.full_type or 'LPCWSTR' in value.full_type:
+                to_string = 'StringDecoderToString({0})'
+
             # There's some repeated code in this if/else block...It's easier (imo) to reason
             #   about each case when they're all listed explictly
-            if value.is_pointer:
+            elif value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled dynamic array of handles in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
+                        to_string = 'StructPointerDecoderArrayToString({1}, {0}, to_string_flags_, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
-                        to_string = 'EnumPointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
+                        to_string = 'EnumPointerDecoderArrayToString({1}, {0}, to_string_flags_, tab_count, tab_size)'
                     else:
-                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
+                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags_, tab_count, tab_size)'
                 else:
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled pointer to handle in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        to_string = 'PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)'
+                        to_string = 'StructPointerDecoderToString({0}, to_string_flags_, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
                         to_string = 'EnumPointerDecoderToString({0})'
                     elif self.get_category_type(value.base_type) == 'class' or value.base_type == 'void':
@@ -170,7 +173,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                         else:
                             to_string = 'HandleIdToString({0})'
                     else:
-                        to_string = 'PointerDecoderToString({0}, to_string_flags, tab_count, tab_size)'
+                        to_string = 'PointerDecoderToString({0}, to_string_flags_, tab_count, tab_size)'
             else:
                 if value.is_array:
                     if self.is_handle(value.base_type):
@@ -180,16 +183,16 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     elif self.is_enum(value.base_type):
                         to_string = 'static_assert(false, "Unhandled static array of enums in `dx12_ascii_consumer_body_generator.py`")'
                     else:
-                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags, tab_count, tab_size)'
+                        to_string = 'PointerDecoderArrayToString({1}, {0}, to_string_flags_, tab_count, tab_size)'
                 else:
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled handle in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        to_string = 'ToString(*{0}.decoded_value, to_string_flags, tab_count, tab_size)'
+                        to_string = 'ToString(*{0}.decoded_value, to_string_flags_, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
-                        to_string = '\'"\' + ToString({0}, to_string_flags, tab_count, tab_size) + \'"\''
+                        to_string = '\'"\' + ToString({0}, to_string_flags_, tab_count, tab_size) + \'"\''
                     else:
-                        to_string = 'ToString({0}, to_string_flags, tab_count, tab_size)'
+                        to_string = 'ToString({0}, to_string_flags_, tab_count, tab_size)'
 
             first_field = 'true' if not code else 'false'
             value_name = ('[out]' if self.is_output(value) else '') + value.name
@@ -197,5 +200,5 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             if array_length and type(array_length) == str and array_length[0] == '*':
                 array_length = array_length.replace('* ', '')
             to_string = to_string.format(value.name, array_length)
-            code += '            FieldToString(str_strm, {0}, "{1}", to_string_flags, tab_count, tab_size, {2});\n'.format(first_field, value_name, to_string)
+            code += '            FieldToString(str_strm, {0}, "{1}", to_string_flags_, tab_count, tab_size, {2});\n'.format(first_field, value_name, to_string)
         return code

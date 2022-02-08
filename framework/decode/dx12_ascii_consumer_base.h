@@ -37,13 +37,13 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     Dx12AsciiConsumerBase();
     virtual ~Dx12AsciiConsumerBase();
 
-    void Initialize(const std::string& filename, FILE* file);
+    void Initialize(const std::string& filename, FILE* file, gfxrecon::util::ToStringFlags toStringFlags);
 
     void Destroy();
 
-    bool IsValid() const { return (m_file != nullptr); }
+    bool IsValid() const { return (file_ != nullptr); }
 
-    const std::string& GetFilename() const { return m_filename; }
+    const std::string& GetFilename() const { return filename_; }
 
     void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                   HRESULT          original_result,
@@ -60,8 +60,9 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                                                    UINT             feature_data_size) override;
 
   protected:
-    FILE*    GetFile() const { return m_file; }
-    uint32_t current_frame_number_;
+    FILE*                         GetFile() const { return file_; }
+    uint32_t                      current_frame_number_{ 0 };
+    gfxrecon::util::ToStringFlags to_string_flags_{ gfxrecon::util::kToString_Default };
 
     struct WriteApiCallToFileInfo
     {
@@ -73,30 +74,30 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
 
     // clang-format off
     template <typename ToStringFunctionType>
-    inline void WriteApiCallToFile(const WriteApiCallToFileInfo& writeApiCallToFileInfo, util::ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
+    inline void WriteApiCallToFile(const WriteApiCallToFileInfo& writeApiCallToFileInfo, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
     {
         using namespace util;
         // Add a comma between JSON objects unless we're concatenating JSON objects
-        fprintf(m_file, "%s\n", (m_apiCallCount && !(toStringFlags & kToString_Concatenated) ? "," : ""));
-        fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize,
+        fprintf(file_, "%s\n", (api_call_count_ && !(to_string_flags_ & kToString_Concatenated) ? "," : ""));
+        fprintf(file_, "%s", ObjectToString(to_string_flags_, tabCount, tabSize,
             [&](std::stringstream& strStrm)
             {
                 // Output the API call index
-                FieldToString(strStrm, true, "index", toStringFlags, tabCount, tabSize, ToString(m_apiCallCount++, toStringFlags, tabCount, tabSize));
+                FieldToString(strStrm, true, "index", to_string_flags_, tabCount, tabSize, ToString(api_call_count_++, to_string_flags_, tabCount, tabSize));
 
                 // Output the method/function name
                 assert(writeApiCallToFileInfo.pFunctionName);
                 auto fieldName = writeApiCallToFileInfo.pObjectTypeName ? "method" : "function";
-                FieldToString(strStrm, false, fieldName, toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
+                FieldToString(strStrm, false, fieldName, to_string_flags_, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pFunctionName) + '"');
 
                 // If the API call is an object method we output the object type and handle
                 if (writeApiCallToFileInfo.pObjectTypeName) {
-                    FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize,
-                        ObjectToString(toStringFlags, tabCount, tabSize,
+                    FieldToString(strStrm, false, "object", to_string_flags_, tabCount, tabSize,
+                        ObjectToString(to_string_flags_, tabCount, tabSize,
                             [&](std::stringstream& objectStrStrm)
                             {
-                                FieldToString(objectStrStrm, true, "type", toStringFlags, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pObjectTypeName) + '"');
-                                FieldToString(objectStrStrm, false, "handle", toStringFlags, tabCount, tabSize, HandleIdToString(writeApiCallToFileInfo.handleId));
+                                FieldToString(objectStrStrm, true, "type", to_string_flags_, tabCount, tabSize, '"' + std::string(writeApiCallToFileInfo.pObjectTypeName) + '"');
+                                FieldToString(objectStrStrm, false, "handle", to_string_flags_, tabCount, tabSize, HandleIdToString(writeApiCallToFileInfo.handleId));
                             }
                         )
                     );
@@ -105,16 +106,16 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                 // Output the return value
                 if (writeApiCallToFileInfo.pReturnValue)
                 {
-                    FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, std::string(writeApiCallToFileInfo.pReturnValue));
+                    FieldToString(strStrm, false, "return", to_string_flags_, tabCount, tabSize, std::string(writeApiCallToFileInfo.pReturnValue));
                 }
 
                 // Output the method/function parameters
-                const auto& parametersStr = ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction);
+                const auto& parametersStr = ObjectToString(to_string_flags_, tabCount, tabSize, toStringFunction);
                 for (auto c : parametersStr)
                 {
                     if (c != '{' && !isspace(static_cast<int>(c)) && c != '}')
                     {
-                        FieldToString(strStrm, false, "parameters", toStringFlags, tabCount, tabSize, parametersStr);
+                        FieldToString(strStrm, false, "parameters", to_string_flags_, tabCount, tabSize, parametersStr);
                         break;
                     }
                 }
@@ -125,9 +126,9 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     // clang-format on
 
   private:
-    FILE*       m_file;
-    std::string m_filename;
-    uint64_t    m_apiCallCount{ 0 };
+    FILE*       file_{ nullptr };
+    std::string filename_;
+    uint64_t    api_call_count_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

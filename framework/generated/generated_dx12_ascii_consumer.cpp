@@ -47,21 +47,20 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory(
         HandlePointerDecoder<void*>* ppFactory)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "CreateDXGIFactory";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
         }
     );
 }
@@ -73,21 +72,20 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
         HandlePointerDecoder<void*>* ppFactory)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "CreateDXGIFactory1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
         }
     );
 }
@@ -101,22 +99,21 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIObject";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetPrivateData";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Name", to_string_flags, tab_count, tab_size, ToString(*Name.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Name", to_string_flags_, tab_count, tab_size, ToString(*Name.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -129,21 +126,20 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
         format::HandleId pUnknown)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIObject";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetPrivateDataInterface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Name", to_string_flags, tab_count, tab_size, ToString(*Name.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pUnknown", to_string_flags, tab_count, tab_size, HandleIdToString(pUnknown));
+            FieldToString(str_strm, true, "Name", to_string_flags_, tab_count, tab_size, ToString(*Name.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pUnknown", to_string_flags_, tab_count, tab_size, HandleIdToString(pUnknown));
         }
     );
 }
@@ -157,22 +153,21 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIObject";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetPrivateData";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Name", to_string_flags, tab_count, tab_size, ToString(*Name.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDataSize", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDataSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pDataSize, pData, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Name", to_string_flags_, tab_count, tab_size, ToString(*Name.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDataSize", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pDataSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(pDataSize, pData, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -185,21 +180,20 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
         HandlePointerDecoder<void*>* ppParent)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIObject";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetParent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppParent", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppParent));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppParent", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppParent));
         }
     );
 }
@@ -212,21 +206,20 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
         HandlePointerDecoder<void*>* ppDevice)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDeviceSubObject";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDevice";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppDevice));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppDevice));
         }
     );
 }
@@ -238,20 +231,19 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
         PointerDecoder<uint64_t, void*>* pSharedHandle)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIResource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetSharedHandle";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pSharedHandle", to_string_flags, tab_count, tab_size, HandleIdToString(pSharedHandle));
+            FieldToString(str_strm, true, "[out]pSharedHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(pSharedHandle));
         }
     );
 }
@@ -263,20 +255,19 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
         PointerDecoder<DXGI_USAGE>* pUsage)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIResource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetUsage";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pUsage", to_string_flags, tab_count, tab_size, PointerDecoderToString(pUsage, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pUsage", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pUsage, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -288,20 +279,19 @@ void Dx12AsciiConsumer::Process_IDXGIResource_SetEvictionPriority(
         UINT EvictionPriority)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIResource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetEvictionPriority";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "EvictionPriority", to_string_flags, tab_count, tab_size, ToString(EvictionPriority, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "EvictionPriority", to_string_flags_, tab_count, tab_size, ToString(EvictionPriority, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -313,20 +303,19 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
         PointerDecoder<UINT>* pEvictionPriority)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIResource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetEvictionPriority";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pEvictionPriority", to_string_flags, tab_count, tab_size, PointerDecoderToString(pEvictionPriority, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pEvictionPriority", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pEvictionPriority, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -339,21 +328,20 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
         DWORD dwMilliseconds)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIKeyedMutex";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AcquireSync";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Key", to_string_flags, tab_count, tab_size, ToString(Key, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "dwMilliseconds", to_string_flags, tab_count, tab_size, ToString(dwMilliseconds, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Key", to_string_flags_, tab_count, tab_size, ToString(Key, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "dwMilliseconds", to_string_flags_, tab_count, tab_size, ToString(dwMilliseconds, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -365,20 +353,19 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
         UINT64 Key)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIKeyedMutex";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReleaseSync";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Key", to_string_flags, tab_count, tab_size, ToString(Key, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Key", to_string_flags_, tab_count, tab_size, ToString(Key, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -390,20 +377,19 @@ void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
         StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISurface";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -416,21 +402,20 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
         UINT MapFlags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISurface";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Map";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pLockedRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pLockedRect, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "MapFlags", to_string_flags, tab_count, tab_size, ToString(MapFlags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pLockedRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pLockedRect, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "MapFlags", to_string_flags_, tab_count, tab_size, ToString(MapFlags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -441,17 +426,16 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Unmap(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISurface";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Unmap";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -466,21 +450,20 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
         PointerDecoder<uint64_t, void*>* phdc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISurface1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDC";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Discard", to_string_flags, tab_count, tab_size, ToString(Discard, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]phdc", to_string_flags, tab_count, tab_size, HandleIdToString(phdc));
+            FieldToString(str_strm, true, "Discard", to_string_flags_, tab_count, tab_size, ToString(Discard, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]phdc", to_string_flags_, tab_count, tab_size, HandleIdToString(phdc));
         }
     );
 }
@@ -492,20 +475,19 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_ReleaseDC(
         StructPointerDecoder<Decoded_tagRECT>* pDirtyRect)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISurface1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReleaseDC";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDirtyRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDirtyRect, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDirtyRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDirtyRect, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -518,21 +500,20 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumOutputs";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Output", to_string_flags, tab_count, tab_size, ToString(Output, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppOutput", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutput));
+            FieldToString(str_strm, true, "Output", to_string_flags_, tab_count, tab_size, ToString(Output, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppOutput", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppOutput));
         }
     );
 }
@@ -544,20 +525,19 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -570,21 +550,20 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
         StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CheckInterfaceSupport";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "InterfaceName", to_string_flags, tab_count, tab_size, ToString(*InterfaceName.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pUMDVersion", to_string_flags, tab_count, tab_size, PointerDecoderToString(pUMDVersion, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "InterfaceName", to_string_flags_, tab_count, tab_size, ToString(*InterfaceName.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pUMDVersion", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pUMDVersion, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -596,20 +575,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -624,23 +602,22 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDisplayModeList";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "EnumFormat", to_string_flags, tab_count, tab_size, '"' + ToString(EnumFormat, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pNumModes", to_string_flags, tab_count, tab_size, PointerDecoderToString(pNumModes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pNumModes, pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "EnumFormat", to_string_flags_, tab_count, tab_size, '"' + ToString(EnumFormat, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pNumModes", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pNumModes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(pNumModes, pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -654,22 +631,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         format::HandleId pConcernedDevice)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "FindClosestMatchingMode";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pModeToMatch", to_string_flags, tab_count, tab_size, PointerDecoderToString(pModeToMatch, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pClosestMatch", to_string_flags, tab_count, tab_size, PointerDecoderToString(pClosestMatch, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pConcernedDevice));
+            FieldToString(str_strm, true, "pModeToMatch", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pModeToMatch, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pClosestMatch", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pClosestMatch, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pConcernedDevice));
         }
     );
 }
@@ -680,17 +656,16 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_WaitForVBlank(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "WaitForVBlank";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -705,21 +680,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
         BOOL Exclusive)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "TakeOwnership";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "Exclusive", to_string_flags, tab_count, tab_size, ToString(Exclusive, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "Exclusive", to_string_flags_, tab_count, tab_size, ToString(Exclusive, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -729,7 +703,6 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_ReleaseOwnership(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -739,7 +712,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_ReleaseOwnership(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -753,20 +726,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetGammaControlCapabilities";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pGammaCaps", to_string_flags, tab_count, tab_size, PointerDecoderToString(pGammaCaps, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pGammaCaps", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pGammaCaps, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -778,20 +750,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetGammaControl(
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetGammaControl";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pArray", to_string_flags, tab_count, tab_size, PointerDecoderToString(pArray, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pArray", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pArray, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -803,20 +774,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetGammaControl";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pArray", to_string_flags, tab_count, tab_size, PointerDecoderToString(pArray, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pArray", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pArray, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -828,20 +798,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
         format::HandleId pScanoutSurface)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetDisplaySurface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pScanoutSurface", to_string_flags, tab_count, tab_size, HandleIdToString(pScanoutSurface));
+            FieldToString(str_strm, true, "pScanoutSurface", to_string_flags_, tab_count, tab_size, HandleIdToString(pScanoutSurface));
         }
     );
 }
@@ -853,20 +822,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
         format::HandleId pDestination)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDisplaySurfaceData";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDestination", to_string_flags, tab_count, tab_size, HandleIdToString(pDestination));
+            FieldToString(str_strm, true, "pDestination", to_string_flags_, tab_count, tab_size, HandleIdToString(pDestination));
         }
     );
 }
@@ -878,20 +846,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFrameStatistics";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pStats", to_string_flags, tab_count, tab_size, PointerDecoderToString(pStats, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pStats", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pStats, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -904,21 +871,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
         UINT Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Present";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "SyncInterval", to_string_flags, tab_count, tab_size, ToString(SyncInterval, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "SyncInterval", to_string_flags_, tab_count, tab_size, ToString(SyncInterval, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -932,22 +898,21 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
         HandlePointerDecoder<void*>* ppSurface)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetBuffer";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Buffer", to_string_flags, tab_count, tab_size, ToString(Buffer, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSurface));
+            FieldToString(str_strm, true, "Buffer", to_string_flags_, tab_count, tab_size, ToString(Buffer, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSurface));
         }
     );
 }
@@ -960,21 +925,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
         format::HandleId pTarget)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetFullscreenState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Fullscreen", to_string_flags, tab_count, tab_size, ToString(Fullscreen, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pTarget", to_string_flags, tab_count, tab_size, HandleIdToString(pTarget));
+            FieldToString(str_strm, true, "Fullscreen", to_string_flags_, tab_count, tab_size, ToString(Fullscreen, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pTarget", to_string_flags_, tab_count, tab_size, HandleIdToString(pTarget));
         }
     );
 }
@@ -987,21 +951,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
         HandlePointerDecoder<IDXGIOutput*>* ppTarget)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFullscreenState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pFullscreen", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFullscreen, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppTarget", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppTarget));
+            FieldToString(str_strm, true, "[out]pFullscreen", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pFullscreen, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppTarget", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppTarget));
         }
     );
 }
@@ -1013,20 +976,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1042,24 +1004,23 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
         UINT SwapChainFlags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ResizeBuffers";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "BufferCount", to_string_flags, tab_count, tab_size, ToString(BufferCount, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Width", to_string_flags, tab_count, tab_size, ToString(Width, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Height", to_string_flags, tab_count, tab_size, ToString(Height, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NewFormat", to_string_flags, tab_count, tab_size, '"' + ToString(NewFormat, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "SwapChainFlags", to_string_flags, tab_count, tab_size, ToString(SwapChainFlags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "BufferCount", to_string_flags_, tab_count, tab_size, ToString(BufferCount, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Width", to_string_flags_, tab_count, tab_size, ToString(Width, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Height", to_string_flags_, tab_count, tab_size, ToString(Height, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NewFormat", to_string_flags_, tab_count, tab_size, '"' + ToString(NewFormat, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "SwapChainFlags", to_string_flags_, tab_count, tab_size, ToString(SwapChainFlags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1071,20 +1032,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeTarget(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ResizeTarget";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pNewTargetParameters", to_string_flags, tab_count, tab_size, PointerDecoderToString(pNewTargetParameters, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pNewTargetParameters", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pNewTargetParameters, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1096,20 +1056,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetContainingOutput";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]ppOutput", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutput));
+            FieldToString(str_strm, true, "[out]ppOutput", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppOutput));
         }
     );
 }
@@ -1121,20 +1080,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFrameStatistics";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pStats", to_string_flags, tab_count, tab_size, PointerDecoderToString(pStats, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pStats", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pStats, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1146,20 +1104,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
         PointerDecoder<UINT>* pLastPresentCount)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetLastPresentCount";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pLastPresentCount", to_string_flags, tab_count, tab_size, PointerDecoderToString(pLastPresentCount, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pLastPresentCount", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pLastPresentCount, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1172,21 +1129,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumAdapters";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Adapter", to_string_flags, tab_count, tab_size, ToString(Adapter, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
+            FieldToString(str_strm, true, "Adapter", to_string_flags_, tab_count, tab_size, ToString(Adapter, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
         }
     );
 }
@@ -1199,21 +1155,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
         UINT Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "MakeWindowAssociation";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "WindowHandle", to_string_flags, tab_count, tab_size, HandleIdToString(WindowHandle));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "WindowHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(WindowHandle));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1225,20 +1180,19 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
         PointerDecoder<uint64_t, void*>* pWindowHandle)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetWindowAssociation";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pWindowHandle", to_string_flags, tab_count, tab_size, HandleIdToString(pWindowHandle));
+            FieldToString(str_strm, true, "[out]pWindowHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(pWindowHandle));
         }
     );
 }
@@ -1252,22 +1206,21 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
         HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSwapChain";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -1280,21 +1233,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSoftwareAdapter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Module", to_string_flags, tab_count, tab_size, HandleIdToString(Module));
-            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
+            FieldToString(str_strm, true, "Module", to_string_flags_, tab_count, tab_size, HandleIdToString(Module));
+            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
         }
     );
 }
@@ -1306,20 +1258,19 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
         HandlePointerDecoder<IDXGIAdapter*>* pAdapter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetAdapter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(pAdapter));
+            FieldToString(str_strm, true, "[out]pAdapter", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(pAdapter));
         }
     );
 }
@@ -1335,24 +1286,23 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
         HandlePointerDecoder<IDXGISurface*>* ppSurface)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSurface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumSurfaces", to_string_flags, tab_count, tab_size, ToString(NumSurfaces, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Usage", to_string_flags, tab_count, tab_size, ToString(Usage, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSharedResource", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSharedResource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSurfaces, ppSurface, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumSurfaces", to_string_flags_, tab_count, tab_size, ToString(NumSurfaces, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Usage", to_string_flags_, tab_count, tab_size, ToString(Usage, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSharedResource", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pSharedResource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumSurfaces, ppSurface, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1366,22 +1316,21 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
         UINT NumResources)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "QueryResourceResidency";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ppResources", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pResidencyStatus", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(NumResources, pResidencyStatus, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumResources", to_string_flags, tab_count, tab_size, ToString(NumResources, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "ppResources", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pResidencyStatus", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(NumResources, pResidencyStatus, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumResources", to_string_flags_, tab_count, tab_size, ToString(NumResources, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1393,20 +1342,19 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
         INT Priority)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetGPUThreadPriority";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Priority", to_string_flags, tab_count, tab_size, ToString(Priority, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Priority", to_string_flags_, tab_count, tab_size, ToString(Priority, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1418,20 +1366,19 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
         PointerDecoder<INT>* pPriority)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetGPUThreadPriority";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pPriority", to_string_flags, tab_count, tab_size, PointerDecoderToString(pPriority, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pPriority", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pPriority, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1444,21 +1391,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
         HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumAdapters1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Adapter", to_string_flags, tab_count, tab_size, ToString(Adapter, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
+            FieldToString(str_strm, true, "Adapter", to_string_flags_, tab_count, tab_size, ToString(Adapter, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppAdapter", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppAdapter));
         }
     );
 }
@@ -1469,17 +1415,16 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_IsCurrent(
         BOOL return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "IsCurrent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -1493,20 +1438,19 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1518,20 +1462,19 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
         UINT MaxLatency)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetMaximumFrameLatency";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "MaxLatency", to_string_flags, tab_count, tab_size, ToString(MaxLatency, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "MaxLatency", to_string_flags_, tab_count, tab_size, ToString(MaxLatency, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1543,20 +1486,19 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
         PointerDecoder<UINT>* pMaxLatency)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetMaximumFrameLatency";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pMaxLatency", to_string_flags, tab_count, tab_size, PointerDecoderToString(pMaxLatency, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pMaxLatency", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pMaxLatency, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1571,17 +1513,16 @@ void Dx12AsciiConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
         BOOL return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDisplayControl";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "IsStereoEnabled";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -1594,7 +1535,6 @@ void Dx12AsciiConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
         BOOL enabled)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -1604,10 +1544,10 @@ void Dx12AsciiConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "enabled", to_string_flags, tab_count, tab_size, ToString(enabled, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "enabled", to_string_flags_, tab_count, tab_size, ToString(enabled, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1618,7 +1558,6 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetDesc(
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -1628,10 +1567,10 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetDesc(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1645,22 +1584,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
         HandlePointerDecoder<IDXGIResource*>* ppDesktopResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutputDuplication";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AcquireNextFrame";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "TimeoutInMilliseconds", to_string_flags, tab_count, tab_size, ToString(TimeoutInMilliseconds, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pFrameInfo", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFrameInfo, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppDesktopResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppDesktopResource));
+            FieldToString(str_strm, true, "TimeoutInMilliseconds", to_string_flags_, tab_count, tab_size, ToString(TimeoutInMilliseconds, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pFrameInfo", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pFrameInfo, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppDesktopResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppDesktopResource));
         }
     );
 }
@@ -1674,22 +1612,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
         PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutputDuplication";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFrameDirtyRects";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "DirtyRectsBufferSize", to_string_flags, tab_count, tab_size, ToString(DirtyRectsBufferSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDirtyRectsBuffer", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DirtyRectsBufferSize/sizeof tagRECT, pDirtyRectsBuffer, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDirtyRectsBufferSizeRequired", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDirtyRectsBufferSizeRequired, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "DirtyRectsBufferSize", to_string_flags_, tab_count, tab_size, ToString(DirtyRectsBufferSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pDirtyRectsBuffer", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(DirtyRectsBufferSize/sizeof tagRECT, pDirtyRectsBuffer, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pDirtyRectsBufferSizeRequired", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pDirtyRectsBufferSizeRequired, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1703,22 +1640,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
         PointerDecoder<UINT>* pMoveRectsBufferSizeRequired)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutputDuplication";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFrameMoveRects";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "MoveRectsBufferSize", to_string_flags, tab_count, tab_size, ToString(MoveRectsBufferSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pMoveRectBuffer", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(MoveRectsBufferSize/sizeof DXGI_OUTDUPL_MOVE_RECT, pMoveRectBuffer, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pMoveRectsBufferSizeRequired", to_string_flags, tab_count, tab_size, PointerDecoderToString(pMoveRectsBufferSizeRequired, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "MoveRectsBufferSize", to_string_flags_, tab_count, tab_size, ToString(MoveRectsBufferSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pMoveRectBuffer", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(MoveRectsBufferSize/sizeof DXGI_OUTDUPL_MOVE_RECT, pMoveRectBuffer, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pMoveRectsBufferSizeRequired", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pMoveRectsBufferSizeRequired, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1733,23 +1669,22 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO>* pPointerShapeInfo)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutputDuplication";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFramePointerShape";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "PointerShapeBufferSize", to_string_flags, tab_count, tab_size, ToString(PointerShapeBufferSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pPointerShapeBuffer", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(PointerShapeBufferSize, pPointerShapeBuffer, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pPointerShapeBufferSizeRequired", to_string_flags, tab_count, tab_size, PointerDecoderToString(pPointerShapeBufferSizeRequired, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pPointerShapeInfo", to_string_flags, tab_count, tab_size, PointerDecoderToString(pPointerShapeInfo, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "PointerShapeBufferSize", to_string_flags_, tab_count, tab_size, ToString(PointerShapeBufferSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pPointerShapeBuffer", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(PointerShapeBufferSize, pPointerShapeBuffer, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pPointerShapeBufferSizeRequired", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pPointerShapeBufferSizeRequired, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pPointerShapeInfo", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pPointerShapeInfo, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1761,20 +1696,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
         StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutputDuplication";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "MapDesktopSurface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pLockedRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pLockedRect, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pLockedRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pLockedRect, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1785,17 +1719,16 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutputDuplication";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "UnMapDesktopSurface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -1808,17 +1741,16 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutputDuplication";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReleaseFrame";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -1834,22 +1766,21 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
         PointerDecoder<UINT>* pSubresourceIndex)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISurface2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetResource";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppParentResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppParentResource));
-            FieldToString(str_strm, false, "[out]pSubresourceIndex", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSubresourceIndex, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppParentResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppParentResource));
+            FieldToString(str_strm, false, "[out]pSubresourceIndex", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pSubresourceIndex, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1862,21 +1793,20 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
         HandlePointerDecoder<IDXGISurface2*>* ppSurface)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIResource1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSubresourceSurface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "index", to_string_flags, tab_count, tab_size, ToString(index, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSurface));
+            FieldToString(str_strm, true, "index", to_string_flags_, tab_count, tab_size, ToString(index, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppSurface", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSurface));
         }
     );
 }
@@ -1891,23 +1821,22 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
         PointerDecoder<uint64_t, void*>* pHandle)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIResource1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSharedHandle";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pAttributes", to_string_flags, tab_count, tab_size, PointerDecoderToString(pAttributes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "dwAccess", to_string_flags, tab_count, tab_size, ToString(dwAccess, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "lpName", to_string_flags, tab_count, tab_size, PointerDecoderToString(lpName, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pHandle", to_string_flags, tab_count, tab_size, HandleIdToString(pHandle));
+            FieldToString(str_strm, true, "pAttributes", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pAttributes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "dwAccess", to_string_flags_, tab_count, tab_size, ToString(dwAccess, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "lpName", to_string_flags_, tab_count, tab_size, StringDecoderToString(lpName));
+            FieldToString(str_strm, false, "[out]pHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(pHandle));
         }
     );
 }
@@ -1921,22 +1850,21 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
         DXGI_OFFER_RESOURCE_PRIORITY Priority)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "OfferResources";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumResources", to_string_flags, tab_count, tab_size, ToString(NumResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppResources", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Priority", to_string_flags, tab_count, tab_size, '"' + ToString(Priority, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "NumResources", to_string_flags_, tab_count, tab_size, ToString(NumResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppResources", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Priority", to_string_flags_, tab_count, tab_size, '"' + ToString(Priority, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -1950,22 +1878,21 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
         PointerDecoder<BOOL>* pDiscarded)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReclaimResources";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumResources", to_string_flags, tab_count, tab_size, ToString(NumResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppResources", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDiscarded", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResources, pDiscarded, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumResources", to_string_flags_, tab_count, tab_size, ToString(NumResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppResources", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pDiscarded", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumResources, pDiscarded, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -1977,20 +1904,19 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
         uint64_t hEvent)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnqueueSetEvent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, true, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
         }
     );
 }
@@ -2002,20 +1928,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2027,20 +1952,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFullscreenDesc";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2052,20 +1976,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
         PointerDecoder<uint64_t, void*>* pHwnd)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetHwnd";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pHwnd", to_string_flags, tab_count, tab_size, HandleIdToString(pHwnd));
+            FieldToString(str_strm, true, "[out]pHwnd", to_string_flags_, tab_count, tab_size, HandleIdToString(pHwnd));
         }
     );
 }
@@ -2078,21 +2001,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
         HandlePointerDecoder<void*>* ppUnk)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetCoreWindow";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "refiid", to_string_flags, tab_count, tab_size, ToString(*refiid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppUnk", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppUnk));
+            FieldToString(str_strm, true, "refiid", to_string_flags_, tab_count, tab_size, ToString(*refiid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppUnk", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppUnk));
         }
     );
 }
@@ -2106,22 +2028,21 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
         StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Present1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "SyncInterval", to_string_flags, tab_count, tab_size, ToString(SyncInterval, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "PresentFlags", to_string_flags, tab_count, tab_size, ToString(PresentFlags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pPresentParameters", to_string_flags, tab_count, tab_size, PointerDecoderToString(pPresentParameters, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "SyncInterval", to_string_flags_, tab_count, tab_size, ToString(SyncInterval, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "PresentFlags", to_string_flags_, tab_count, tab_size, ToString(PresentFlags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pPresentParameters", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pPresentParameters, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2132,17 +2053,16 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
         BOOL return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "IsTemporaryMonoSupported";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -2156,20 +2076,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
         HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetRestrictToOutput";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]ppRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(ppRestrictToOutput));
+            FieldToString(str_strm, true, "[out]ppRestrictToOutput", to_string_flags_, tab_count, tab_size, HandleIdToString(ppRestrictToOutput));
         }
     );
 }
@@ -2181,20 +2100,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetBackgroundColor";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pColor", to_string_flags, tab_count, tab_size, PointerDecoderToString(pColor, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pColor", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pColor, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2206,20 +2124,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetBackgroundColor";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pColor", to_string_flags, tab_count, tab_size, PointerDecoderToString(pColor, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pColor", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pColor, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2231,20 +2148,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetRotation(
         DXGI_MODE_ROTATION Rotation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetRotation";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Rotation", to_string_flags, tab_count, tab_size, '"' + ToString(Rotation, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Rotation", to_string_flags_, tab_count, tab_size, '"' + ToString(Rotation, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -2256,20 +2172,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRotation(
         PointerDecoder<DXGI_MODE_ROTATION>* pRotation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetRotation";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pRotation", to_string_flags, tab_count, tab_size, EnumPointerDecoderToString(pRotation));
+            FieldToString(str_strm, true, "[out]pRotation", to_string_flags_, tab_count, tab_size, EnumPointerDecoderToString(pRotation));
         }
     );
 }
@@ -2280,17 +2195,16 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
         BOOL return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "IsWindowedStereoEnabled";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -2309,25 +2223,24 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSwapChainForHwnd";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "hWnd", to_string_flags, tab_count, tab_size, HandleIdToString(hWnd));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pFullscreenDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFullscreenDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "hWnd", to_string_flags_, tab_count, tab_size, HandleIdToString(hWnd));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pFullscreenDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pFullscreenDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags_, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -2343,24 +2256,23 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSwapChainForCoreWindow";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "pWindow", to_string_flags, tab_count, tab_size, HandleIdToString(pWindow));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "pWindow", to_string_flags_, tab_count, tab_size, HandleIdToString(pWindow));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags_, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -2373,21 +2285,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
         StructPointerDecoder<Decoded_LUID>* pLuid)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetSharedResourceAdapterLuid";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hResource", to_string_flags, tab_count, tab_size, HandleIdToString(hResource));
-            FieldToString(str_strm, false, "[out]pLuid", to_string_flags, tab_count, tab_size, PointerDecoderToString(pLuid, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "hResource", to_string_flags_, tab_count, tab_size, HandleIdToString(hResource));
+            FieldToString(str_strm, false, "[out]pLuid", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pLuid, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2401,22 +2312,21 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
         PointerDecoder<DWORD>* pdwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterStereoStatusWindow";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "WindowHandle", to_string_flags, tab_count, tab_size, HandleIdToString(WindowHandle));
-            FieldToString(str_strm, false, "wMsg", to_string_flags, tab_count, tab_size, ToString(wMsg, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "WindowHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(WindowHandle));
+            FieldToString(str_strm, false, "wMsg", to_string_flags_, tab_count, tab_size, ToString(wMsg, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2429,21 +2339,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
         PointerDecoder<DWORD>* pdwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterStereoStatusEvent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
-            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2454,7 +2363,6 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
         DWORD dwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -2464,10 +2372,10 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "dwCookie", to_string_flags, tab_count, tab_size, ToString(dwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "dwCookie", to_string_flags_, tab_count, tab_size, ToString(dwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2481,22 +2389,21 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         PointerDecoder<DWORD>* pdwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterOcclusionStatusWindow";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "WindowHandle", to_string_flags, tab_count, tab_size, HandleIdToString(WindowHandle));
-            FieldToString(str_strm, false, "wMsg", to_string_flags, tab_count, tab_size, ToString(wMsg, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "WindowHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(WindowHandle));
+            FieldToString(str_strm, false, "wMsg", to_string_flags_, tab_count, tab_size, ToString(wMsg, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2509,21 +2416,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
         PointerDecoder<DWORD>* pdwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterOcclusionStatusEvent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
-            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2534,7 +2440,6 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
         DWORD dwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -2544,10 +2449,10 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "dwCookie", to_string_flags, tab_count, tab_size, ToString(dwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "dwCookie", to_string_flags_, tab_count, tab_size, ToString(dwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2562,23 +2467,22 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSwapChainForComposition";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags_, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -2590,20 +2494,19 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc2";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2618,23 +2521,22 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDisplayModeList1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "EnumFormat", to_string_flags, tab_count, tab_size, '"' + ToString(EnumFormat, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pNumModes", to_string_flags, tab_count, tab_size, PointerDecoderToString(pNumModes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pNumModes, pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "EnumFormat", to_string_flags_, tab_count, tab_size, '"' + ToString(EnumFormat, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pNumModes", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pNumModes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(pNumModes, pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2648,22 +2550,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         format::HandleId pConcernedDevice)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "FindClosestMatchingMode1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pModeToMatch", to_string_flags, tab_count, tab_size, PointerDecoderToString(pModeToMatch, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pClosestMatch", to_string_flags, tab_count, tab_size, PointerDecoderToString(pClosestMatch, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pConcernedDevice));
+            FieldToString(str_strm, true, "pModeToMatch", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pModeToMatch, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pClosestMatch", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pClosestMatch, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pConcernedDevice));
         }
     );
 }
@@ -2675,20 +2576,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
         format::HandleId pDestination)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDisplaySurfaceData1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDestination", to_string_flags, tab_count, tab_size, HandleIdToString(pDestination));
+            FieldToString(str_strm, true, "pDestination", to_string_flags_, tab_count, tab_size, HandleIdToString(pDestination));
         }
     );
 }
@@ -2701,21 +2601,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "DuplicateOutput";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutputDuplication));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppOutputDuplication));
         }
     );
 }
@@ -2732,22 +2631,21 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
         HandlePointerDecoder<void*>* ppFactory)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "CreateDXGIFactory2";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
+            FieldToString(str_strm, true, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppFactory", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppFactory));
         }
     );
 }
@@ -2760,22 +2658,21 @@ void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
         HandlePointerDecoder<void*>* pDebug)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "DXGIGetDebugInterface1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDebug", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(pDebug));
+            FieldToString(str_strm, true, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pDebug", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(pDebug));
         }
     );
 }
@@ -2785,7 +2682,6 @@ void Dx12AsciiConsumer::Process_IDXGIDevice3_Trim(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -2795,7 +2691,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice3_Trim(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -2810,21 +2706,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
         UINT Height)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetSourceSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Width", to_string_flags, tab_count, tab_size, ToString(Width, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Height", to_string_flags, tab_count, tab_size, ToString(Height, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Width", to_string_flags_, tab_count, tab_size, ToString(Width, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Height", to_string_flags_, tab_count, tab_size, ToString(Height, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2837,21 +2732,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
         PointerDecoder<UINT>* pHeight)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetSourceSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pWidth", to_string_flags, tab_count, tab_size, PointerDecoderToString(pWidth, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pHeight", to_string_flags, tab_count, tab_size, PointerDecoderToString(pHeight, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pWidth", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pWidth, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pHeight", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pHeight, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2863,20 +2757,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
         UINT MaxLatency)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetMaximumFrameLatency";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "MaxLatency", to_string_flags, tab_count, tab_size, ToString(MaxLatency, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "MaxLatency", to_string_flags_, tab_count, tab_size, ToString(MaxLatency, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2888,20 +2781,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
         PointerDecoder<UINT>* pMaxLatency)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetMaximumFrameLatency";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pMaxLatency", to_string_flags, tab_count, tab_size, PointerDecoderToString(pMaxLatency, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pMaxLatency", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pMaxLatency, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2912,17 +2804,16 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
         uint64_t return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFrameLatencyWaitableObject";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -2936,20 +2827,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetMatrixTransform";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pMatrix", to_string_flags, tab_count, tab_size, PointerDecoderToString(pMatrix, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pMatrix", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pMatrix, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2961,20 +2851,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetMatrixTransform";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pMatrix", to_string_flags, tab_count, tab_size, PointerDecoderToString(pMatrix, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pMatrix", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pMatrix, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -2985,17 +2874,16 @@ void Dx12AsciiConsumer::Process_IDXGIOutput2_SupportsOverlays(
         BOOL return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SupportsOverlays";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -3008,17 +2896,16 @@ void Dx12AsciiConsumer::Process_IDXGIFactory3_GetCreationFlags(
         UINT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetCreationFlags";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -3034,22 +2921,21 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
         UINT Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "PresentBuffer";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "BufferToPresent", to_string_flags, tab_count, tab_size, ToString(BufferToPresent, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SyncInterval", to_string_flags, tab_count, tab_size, ToString(SyncInterval, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "BufferToPresent", to_string_flags_, tab_count, tab_size, ToString(BufferToPresent, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SyncInterval", to_string_flags_, tab_count, tab_size, ToString(SyncInterval, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3061,20 +2947,19 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetSourceRect";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRect, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRect, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3086,20 +2971,19 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetTargetRect";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRect, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRect, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3112,21 +2996,20 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
         UINT Height)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetDestSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Width", to_string_flags, tab_count, tab_size, ToString(Width, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Height", to_string_flags, tab_count, tab_size, ToString(Height, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Width", to_string_flags_, tab_count, tab_size, ToString(Width, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Height", to_string_flags_, tab_count, tab_size, ToString(Height, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3138,20 +3021,19 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetSourceRect";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRect, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRect, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3163,20 +3045,19 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetTargetRect";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRect, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRect, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3189,21 +3070,20 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
         PointerDecoder<UINT>* pHeight)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDestSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pWidth", to_string_flags, tab_count, tab_size, PointerDecoderToString(pWidth, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pHeight", to_string_flags, tab_count, tab_size, PointerDecoderToString(pHeight, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pWidth", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pWidth, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pHeight", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pHeight, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3215,20 +3095,19 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
         DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetColorSpace";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ColorSpace", to_string_flags, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "ColorSpace", to_string_flags_, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -3239,17 +3118,16 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
         DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDecodeSwapChain";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetColorSpace";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -3267,24 +3145,23 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactoryMedia";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSwapChainForCompositionSurfaceHandle";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "hSurface", to_string_flags, tab_count, tab_size, HandleIdToString(hSurface));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "hSurface", to_string_flags_, tab_count, tab_size, HandleIdToString(hSurface));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags_, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -3301,25 +3178,24 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
         HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactoryMedia";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateDecodeSwapChainForCompositionSurfaceHandle";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "hSurface", to_string_flags, tab_count, tab_size, HandleIdToString(hSurface));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pYuvDecodeBuffers", to_string_flags, tab_count, tab_size, HandleIdToString(pYuvDecodeBuffers));
-            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
-            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "hSurface", to_string_flags_, tab_count, tab_size, HandleIdToString(hSurface));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pYuvDecodeBuffers", to_string_flags_, tab_count, tab_size, HandleIdToString(pYuvDecodeBuffers));
+            FieldToString(str_strm, false, "pRestrictToOutput", to_string_flags_, tab_count, tab_size, HandleIdToString(pRestrictToOutput));
+            FieldToString(str_strm, false, "[out]ppSwapChain", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSwapChain));
         }
     );
 }
@@ -3331,20 +3207,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChainMedia";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFrameStatisticsMedia";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pStats", to_string_flags, tab_count, tab_size, PointerDecoderToString(pStats, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pStats", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pStats, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3356,20 +3231,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
         UINT Duration)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChainMedia";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetPresentDuration";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Duration", to_string_flags, tab_count, tab_size, ToString(Duration, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Duration", to_string_flags_, tab_count, tab_size, ToString(Duration, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3383,22 +3257,21 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
         PointerDecoder<UINT>* pClosestLargerPresentDuration)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChainMedia";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CheckPresentDurationSupport";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "DesiredPresentDuration", to_string_flags, tab_count, tab_size, ToString(DesiredPresentDuration, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pClosestSmallerPresentDuration", to_string_flags, tab_count, tab_size, PointerDecoderToString(pClosestSmallerPresentDuration, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pClosestLargerPresentDuration", to_string_flags, tab_count, tab_size, PointerDecoderToString(pClosestLargerPresentDuration, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "DesiredPresentDuration", to_string_flags_, tab_count, tab_size, ToString(DesiredPresentDuration, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pClosestSmallerPresentDuration", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pClosestSmallerPresentDuration, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pClosestLargerPresentDuration", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pClosestLargerPresentDuration, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3412,22 +3285,21 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         PointerDecoder<UINT>* pFlags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CheckOverlaySupport";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "EnumFormat", to_string_flags, tab_count, tab_size, '"' + ToString(EnumFormat, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pConcernedDevice));
-            FieldToString(str_strm, false, "[out]pFlags", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFlags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "EnumFormat", to_string_flags_, tab_count, tab_size, '"' + ToString(EnumFormat, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pConcernedDevice));
+            FieldToString(str_strm, false, "[out]pFlags", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pFlags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3442,17 +3314,16 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
         UINT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetCurrentBackBufferIndex";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -3467,21 +3338,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
         PointerDecoder<UINT>* pColorSpaceSupport)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CheckColorSpaceSupport";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ColorSpace", to_string_flags, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]pColorSpaceSupport", to_string_flags, tab_count, tab_size, PointerDecoderToString(pColorSpaceSupport, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "ColorSpace", to_string_flags_, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]pColorSpaceSupport", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pColorSpaceSupport, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3493,20 +3363,19 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_SetColorSpace1(
         DXGI_COLOR_SPACE_TYPE ColorSpace)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetColorSpace1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ColorSpace", to_string_flags, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "ColorSpace", to_string_flags_, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -3524,26 +3393,25 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
         HandlePointerDecoder<IUnknown*>* ppPresentQueue)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ResizeBuffers1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "BufferCount", to_string_flags, tab_count, tab_size, ToString(BufferCount, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Width", to_string_flags, tab_count, tab_size, ToString(Width, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Height", to_string_flags, tab_count, tab_size, ToString(Height, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Format", to_string_flags, tab_count, tab_size, '"' + ToString(Format, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "SwapChainFlags", to_string_flags, tab_count, tab_size, ToString(SwapChainFlags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pCreationNodeMask", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(BufferCount, pCreationNodeMask, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppPresentQueue", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(BufferCount, ppPresentQueue, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "BufferCount", to_string_flags_, tab_count, tab_size, ToString(BufferCount, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Width", to_string_flags_, tab_count, tab_size, ToString(Width, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Height", to_string_flags_, tab_count, tab_size, ToString(Height, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Format", to_string_flags_, tab_count, tab_size, '"' + ToString(Format, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "SwapChainFlags", to_string_flags_, tab_count, tab_size, ToString(SwapChainFlags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pCreationNodeMask", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(BufferCount, pCreationNodeMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppPresentQueue", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(BufferCount, ppPresentQueue, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3558,23 +3426,22 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
         PointerDecoder<UINT>* pFlags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CheckOverlayColorSpaceSupport";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Format", to_string_flags, tab_count, tab_size, '"' + ToString(Format, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "ColorSpace", to_string_flags, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pConcernedDevice));
-            FieldToString(str_strm, false, "[out]pFlags", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFlags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Format", to_string_flags_, tab_count, tab_size, '"' + ToString(Format, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "ColorSpace", to_string_flags_, tab_count, tab_size, '"' + ToString(ColorSpace, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pConcernedDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pConcernedDevice));
+            FieldToString(str_strm, false, "[out]pFlags", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pFlags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3588,22 +3455,21 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
         HandlePointerDecoder<void*>* ppvAdapter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumAdapterByLuid";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "AdapterLuid", to_string_flags, tab_count, tab_size, ToString(*AdapterLuid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
+            FieldToString(str_strm, true, "AdapterLuid", to_string_flags_, tab_count, tab_size, ToString(*AdapterLuid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
         }
     );
 }
@@ -3616,21 +3482,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
         HandlePointerDecoder<void*>* ppvAdapter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumWarpAdapter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
         }
     );
 }
@@ -3643,21 +3508,20 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionT
         PointerDecoder<DWORD>* pdwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterHardwareContentProtectionTeardownStatusEvent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
-            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3668,7 +3532,6 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectio
         DWORD dwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -3678,10 +3541,10 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectio
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "dwCookie", to_string_flags, tab_count, tab_size, ToString(dwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "dwCookie", to_string_flags_, tab_count, tab_size, ToString(dwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3695,22 +3558,21 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
         StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "QueryVideoMemoryInfo";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NodeIndex", to_string_flags, tab_count, tab_size, ToString(NodeIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "MemorySegmentGroup", to_string_flags, tab_count, tab_size, '"' + ToString(MemorySegmentGroup, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]pVideoMemoryInfo", to_string_flags, tab_count, tab_size, PointerDecoderToString(pVideoMemoryInfo, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NodeIndex", to_string_flags_, tab_count, tab_size, ToString(NodeIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "MemorySegmentGroup", to_string_flags_, tab_count, tab_size, '"' + ToString(MemorySegmentGroup, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]pVideoMemoryInfo", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pVideoMemoryInfo, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3724,22 +3586,21 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
         UINT64 Reservation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetVideoMemoryReservation";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NodeIndex", to_string_flags, tab_count, tab_size, ToString(NodeIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "MemorySegmentGroup", to_string_flags, tab_count, tab_size, '"' + ToString(MemorySegmentGroup, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Reservation", to_string_flags, tab_count, tab_size, ToString(Reservation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NodeIndex", to_string_flags_, tab_count, tab_size, ToString(NodeIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "MemorySegmentGroup", to_string_flags_, tab_count, tab_size, '"' + ToString(MemorySegmentGroup, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Reservation", to_string_flags_, tab_count, tab_size, ToString(Reservation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3752,21 +3613,20 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNot
         PointerDecoder<DWORD>* pdwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterVideoMemoryBudgetChangeNotificationEvent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
-            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3777,7 +3637,6 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeN
         DWORD dwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -3787,10 +3646,10 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeN
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "dwCookie", to_string_flags, tab_count, tab_size, ToString(dwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "dwCookie", to_string_flags_, tab_count, tab_size, ToString(dwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3810,24 +3669,23 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput5";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "DuplicateOutput1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDevice", to_string_flags, tab_count, tab_size, HandleIdToString(pDevice));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SupportedFormatsCount", to_string_flags, tab_count, tab_size, ToString(SupportedFormatsCount, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSupportedFormats", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(SupportedFormatsCount, pSupportedFormats, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppOutputDuplication));
+            FieldToString(str_strm, true, "pDevice", to_string_flags_, tab_count, tab_size, HandleIdToString(pDevice));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SupportedFormatsCount", to_string_flags_, tab_count, tab_size, ToString(SupportedFormatsCount, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSupportedFormats", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(SupportedFormatsCount, pSupportedFormats, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppOutputDuplication", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppOutputDuplication));
         }
     );
 }
@@ -3841,22 +3699,21 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
         PointerDecoder<uint8_t>* pMetaData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGISwapChain4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetHDRMetaData";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Size", to_string_flags, tab_count, tab_size, ToString(Size, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pMetaData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Size, pMetaData, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Size", to_string_flags_, tab_count, tab_size, ToString(Size, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pMetaData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Size, pMetaData, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3871,23 +3728,22 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
         UINT Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "OfferResources1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumResources", to_string_flags, tab_count, tab_size, ToString(NumResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppResources", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Priority", to_string_flags, tab_count, tab_size, '"' + ToString(Priority, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, ToString(Flags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumResources", to_string_flags_, tab_count, tab_size, ToString(NumResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppResources", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Priority", to_string_flags_, tab_count, tab_size, '"' + ToString(Priority, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, ToString(Flags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3901,22 +3757,21 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIDevice4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReclaimResources1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumResources", to_string_flags, tab_count, tab_size, ToString(NumResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppResources", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pResults", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(NumResources, pResults, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumResources", to_string_flags_, tab_count, tab_size, ToString(NumResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppResources", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumResources, ppResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pResults", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(NumResources, pResults, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3930,17 +3785,16 @@ void Dx12AsciiConsumer::Process_DXGIDeclareAdapterRemovalSupport(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "DXGIDeclareAdapterRemovalSupport";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -3954,20 +3808,19 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIAdapter4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc3";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -3979,20 +3832,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput6";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4004,20 +3856,19 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
         PointerDecoder<UINT>* pFlags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIOutput6";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CheckHardwareCompositionSupport";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pFlags", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFlags, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pFlags", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pFlags, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4032,23 +3883,22 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
         HandlePointerDecoder<void*>* ppvAdapter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory6";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumAdapterByGpuPreference";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Adapter", to_string_flags, tab_count, tab_size, ToString(Adapter, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "GpuPreference", to_string_flags, tab_count, tab_size, '"' + ToString(GpuPreference, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
+            FieldToString(str_strm, true, "Adapter", to_string_flags_, tab_count, tab_size, ToString(Adapter, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "GpuPreference", to_string_flags_, tab_count, tab_size, '"' + ToString(GpuPreference, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvAdapter", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvAdapter));
         }
     );
 }
@@ -4061,21 +3911,20 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         PointerDecoder<DWORD>* pdwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory7";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterAdaptersChangedEvent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
-            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, false, "[out]pdwCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pdwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4087,20 +3936,19 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
         DWORD dwCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IDXGIFactory7";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "UnregisterAdaptersChangedEvent";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "dwCookie", to_string_flags, tab_count, tab_size, ToString(dwCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "dwCookie", to_string_flags_, tab_count, tab_size, ToString(dwCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4118,23 +3966,22 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
         HandlePointerDecoder<ID3D10Blob*>* ppErrorBlob)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "D3D12SerializeRootSignature";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pRootSignature", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRootSignature, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Version", to_string_flags, tab_count, tab_size, '"' + ToString(Version, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]ppBlob", to_string_flags, tab_count, tab_size, HandleIdToString(ppBlob));
-            FieldToString(str_strm, false, "[out]ppErrorBlob", to_string_flags, tab_count, tab_size, HandleIdToString(ppErrorBlob));
+            FieldToString(str_strm, true, "pRootSignature", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRootSignature, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Version", to_string_flags_, tab_count, tab_size, '"' + ToString(Version, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]ppBlob", to_string_flags_, tab_count, tab_size, HandleIdToString(ppBlob));
+            FieldToString(str_strm, false, "[out]ppErrorBlob", to_string_flags_, tab_count, tab_size, HandleIdToString(ppErrorBlob));
         }
     );
 }
@@ -4147,22 +3994,21 @@ void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
         HandlePointerDecoder<ID3D10Blob*>* ppErrorBlob)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "D3D12SerializeVersionedRootSignature";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pRootSignature", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRootSignature, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppBlob", to_string_flags, tab_count, tab_size, HandleIdToString(ppBlob));
-            FieldToString(str_strm, false, "[out]ppErrorBlob", to_string_flags, tab_count, tab_size, HandleIdToString(ppErrorBlob));
+            FieldToString(str_strm, true, "pRootSignature", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRootSignature, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppBlob", to_string_flags_, tab_count, tab_size, HandleIdToString(ppBlob));
+            FieldToString(str_strm, false, "[out]ppErrorBlob", to_string_flags_, tab_count, tab_size, HandleIdToString(ppErrorBlob));
         }
     );
 }
@@ -4176,23 +4022,22 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
         HandlePointerDecoder<void*>* ppRootSignatureDeserializer)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "D3D12CreateVersionedRootSignatureDeserializer";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pSrcData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(SrcDataSizeInBytes, pSrcData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SrcDataSizeInBytes", to_string_flags, tab_count, tab_size, ToString(SrcDataSizeInBytes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRootSignatureDeserializerInterface", to_string_flags, tab_count, tab_size, ToString(*pRootSignatureDeserializerInterface.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppRootSignatureDeserializer", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppRootSignatureDeserializer));
+            FieldToString(str_strm, true, "pSrcData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(SrcDataSizeInBytes, pSrcData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SrcDataSizeInBytes", to_string_flags_, tab_count, tab_size, ToString(SrcDataSizeInBytes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRootSignatureDeserializerInterface", to_string_flags_, tab_count, tab_size, ToString(*pRootSignatureDeserializerInterface.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppRootSignatureDeserializer", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppRootSignatureDeserializer));
         }
     );
 }
@@ -4206,23 +4051,22 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
         HandlePointerDecoder<void*>* ppDevice)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "D3D12CreateDevice";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pAdapter", to_string_flags, tab_count, tab_size, HandleIdToString(pAdapter));
-            FieldToString(str_strm, false, "MinimumFeatureLevel", to_string_flags, tab_count, tab_size, '"' + ToString(MinimumFeatureLevel, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppDevice));
+            FieldToString(str_strm, true, "pAdapter", to_string_flags_, tab_count, tab_size, HandleIdToString(pAdapter));
+            FieldToString(str_strm, false, "MinimumFeatureLevel", to_string_flags_, tab_count, tab_size, '"' + ToString(MinimumFeatureLevel, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppDevice", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppDevice));
         }
     );
 }
@@ -4234,21 +4078,20 @@ void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
         HandlePointerDecoder<void*>* ppvDebug)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "D3D12GetDebugInterface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvDebug", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvDebug));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvDebug", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvDebug));
         }
     );
 }
@@ -4262,23 +4105,22 @@ void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
         PointerDecoder<UINT>* pConfigurationStructSizes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "D3D12EnableExperimentalFeatures";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumFeatures", to_string_flags, tab_count, tab_size, ToString(NumFeatures, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pIIDs", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumFeatures, pIIDs, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pConfigurationStructs", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumFeatures, pConfigurationStructs, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pConfigurationStructSizes", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumFeatures, pConfigurationStructSizes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumFeatures", to_string_flags_, tab_count, tab_size, ToString(NumFeatures, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pIIDs", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumFeatures, pIIDs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pConfigurationStructs", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumFeatures, pConfigurationStructs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pConfigurationStructSizes", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumFeatures, pConfigurationStructSizes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4291,22 +4133,21 @@ void Dx12AsciiConsumer::Process_D3D12GetInterface(
         HandlePointerDecoder<void*>* ppvDebug)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = nullptr;
     writeApiCallToFileInfo.handleId = 0;
     writeApiCallToFileInfo.pFunctionName = "D3D12GetInterface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "rclsid", to_string_flags, tab_count, tab_size, ToString(*rclsid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvDebug", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvDebug));
+            FieldToString(str_strm, true, "rclsid", to_string_flags_, tab_count, tab_size, ToString(*rclsid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvDebug", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvDebug));
         }
     );
 }
@@ -4320,22 +4161,21 @@ void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Object";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetPrivateData";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "guid", to_string_flags, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDataSize", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDataSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pDataSize, pData, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "guid", to_string_flags_, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDataSize", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pDataSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(pDataSize, pData, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4349,22 +4189,21 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Object";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetPrivateData";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "guid", to_string_flags, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "guid", to_string_flags_, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4377,21 +4216,20 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
         format::HandleId pData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Object";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetPrivateDataInterface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "guid", to_string_flags, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, HandleIdToString(pData));
+            FieldToString(str_strm, true, "guid", to_string_flags_, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, HandleIdToString(pData));
         }
     );
 }
@@ -4403,20 +4241,19 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetName(
         WStringDecoder* Name)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Object";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetName";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Name", to_string_flags, tab_count, tab_size, PointerDecoderToString(Name, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Name", to_string_flags_, tab_count, tab_size, StringDecoderToString(Name));
         }
     );
 }
@@ -4429,21 +4266,20 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
         HandlePointerDecoder<void*>* ppvDevice)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DeviceChild";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDevice";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvDevice", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvDevice));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvDevice", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvDevice));
         }
     );
 }
@@ -4456,21 +4292,20 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* ppDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12VersionedRootSignatureDeserializer";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetRootSignatureDescAtVersion";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "convertToVersion", to_string_flags, tab_count, tab_size, '"' + ToString(convertToVersion, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]ppDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(ppDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "convertToVersion", to_string_flags_, tab_count, tab_size, '"' + ToString(convertToVersion, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]ppDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(ppDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4484,22 +4319,21 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
         PointerDecoder<uint64_t, void*>* ppData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Map";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Subresource", to_string_flags, tab_count, tab_size, ToString(Subresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pReadRange", to_string_flags, tab_count, tab_size, PointerDecoderToString(pReadRange, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppData", to_string_flags, tab_count, tab_size, HandleIdToString(ppData));
+            FieldToString(str_strm, true, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pReadRange", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pReadRange, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppData", to_string_flags_, tab_count, tab_size, HandleIdToString(ppData));
         }
     );
 }
@@ -4511,7 +4345,6 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Unmap(
         StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -4521,11 +4354,11 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Unmap(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Subresource", to_string_flags, tab_count, tab_size, ToString(Subresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pWrittenRange", to_string_flags, tab_count, tab_size, PointerDecoderToString(pWrittenRange, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pWrittenRange", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pWrittenRange, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4536,17 +4369,16 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
         D3D12_GPU_VIRTUAL_ADDRESS return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetGPUVirtualAddress";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -4564,24 +4396,23 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
         UINT SrcDepthPitch)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "WriteToSubresource";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "DstSubresource", to_string_flags, tab_count, tab_size, ToString(DstSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDstBox", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDstBox, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcData", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcData));
-            FieldToString(str_strm, false, "SrcRowPitch", to_string_flags, tab_count, tab_size, ToString(SrcRowPitch, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SrcDepthPitch", to_string_flags, tab_count, tab_size, ToString(SrcDepthPitch, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "DstSubresource", to_string_flags_, tab_count, tab_size, ToString(DstSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDstBox", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDstBox, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcData", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcData));
+            FieldToString(str_strm, false, "SrcRowPitch", to_string_flags_, tab_count, tab_size, ToString(SrcRowPitch, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SrcDepthPitch", to_string_flags_, tab_count, tab_size, ToString(SrcDepthPitch, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4597,24 +4428,23 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
         StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReadFromSubresource";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pDstData", to_string_flags, tab_count, tab_size, HandleIdToString(pDstData));
-            FieldToString(str_strm, false, "DstRowPitch", to_string_flags, tab_count, tab_size, ToString(DstRowPitch, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DstDepthPitch", to_string_flags, tab_count, tab_size, ToString(DstDepthPitch, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SrcSubresource", to_string_flags, tab_count, tab_size, ToString(SrcSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcBox", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSrcBox, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pDstData", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstData));
+            FieldToString(str_strm, false, "DstRowPitch", to_string_flags_, tab_count, tab_size, ToString(DstRowPitch, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DstDepthPitch", to_string_flags_, tab_count, tab_size, ToString(DstDepthPitch, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SrcSubresource", to_string_flags_, tab_count, tab_size, ToString(SrcSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcBox", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pSrcBox, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4627,21 +4457,20 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
         PointerDecoder<D3D12_HEAP_FLAGS>* pHeapFlags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetHeapProperties";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pHeapProperties", to_string_flags, tab_count, tab_size, PointerDecoderToString(pHeapProperties, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pHeapFlags", to_string_flags, tab_count, tab_size, EnumPointerDecoderToString(pHeapFlags));
+            FieldToString(str_strm, true, "[out]pHeapProperties", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pHeapProperties, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pHeapFlags", to_string_flags_, tab_count, tab_size, EnumPointerDecoderToString(pHeapFlags));
         }
     );
 }
@@ -4652,17 +4481,16 @@ void Dx12AsciiConsumer::Process_ID3D12CommandAllocator_Reset(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12CommandAllocator";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Reset";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -4675,17 +4503,16 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_GetCompletedValue(
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Fence";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetCompletedValue";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -4700,21 +4527,20 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
         uint64_t hEvent)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Fence";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetEventOnCompletion";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Value", to_string_flags, tab_count, tab_size, ToString(Value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, true, "Value", to_string_flags_, tab_count, tab_size, ToString(Value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
         }
     );
 }
@@ -4726,20 +4552,19 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_Signal(
         UINT64 Value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Fence";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Signal";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Value", to_string_flags, tab_count, tab_size, ToString(Value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Value", to_string_flags_, tab_count, tab_size, ToString(Value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4750,17 +4575,16 @@ void Dx12AsciiConsumer::Process_ID3D12Fence1_GetCreationFlags(
         D3D12_FENCE_FLAGS return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Fence1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetCreationFlags";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -4774,20 +4598,19 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         HandlePointerDecoder<ID3D10Blob*>* ppBlob)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12PipelineState";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetCachedBlob";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]ppBlob", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppBlob));
+            FieldToString(str_strm, true, "[out]ppBlob", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppBlob));
         }
     );
 }
@@ -4798,17 +4621,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12GraphicsCommandList";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Close";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -4823,21 +4645,20 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
         format::HandleId pInitialState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12GraphicsCommandList";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Reset";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pAllocator", to_string_flags, tab_count, tab_size, HandleIdToString(pAllocator));
-            FieldToString(str_strm, false, "pInitialState", to_string_flags, tab_count, tab_size, HandleIdToString(pInitialState));
+            FieldToString(str_strm, true, "pAllocator", to_string_flags_, tab_count, tab_size, HandleIdToString(pAllocator));
+            FieldToString(str_strm, false, "pInitialState", to_string_flags_, tab_count, tab_size, HandleIdToString(pInitialState));
         }
     );
 }
@@ -4848,7 +4669,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearState(
         format::HandleId pPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -4858,10 +4678,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearState(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(pPipelineState));
+            FieldToString(str_strm, true, "pPipelineState", to_string_flags_, tab_count, tab_size, HandleIdToString(pPipelineState));
         }
     );
 }
@@ -4875,7 +4695,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
         UINT StartInstanceLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -4885,13 +4704,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "VertexCountPerInstance", to_string_flags, tab_count, tab_size, ToString(VertexCountPerInstance, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InstanceCount", to_string_flags, tab_count, tab_size, ToString(InstanceCount, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "StartVertexLocation", to_string_flags, tab_count, tab_size, ToString(StartVertexLocation, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "StartInstanceLocation", to_string_flags, tab_count, tab_size, ToString(StartInstanceLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "VertexCountPerInstance", to_string_flags_, tab_count, tab_size, ToString(VertexCountPerInstance, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InstanceCount", to_string_flags_, tab_count, tab_size, ToString(InstanceCount, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "StartVertexLocation", to_string_flags_, tab_count, tab_size, ToString(StartVertexLocation, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "StartInstanceLocation", to_string_flags_, tab_count, tab_size, ToString(StartInstanceLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4906,7 +4725,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
         UINT StartInstanceLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -4916,14 +4734,14 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "IndexCountPerInstance", to_string_flags, tab_count, tab_size, ToString(IndexCountPerInstance, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InstanceCount", to_string_flags, tab_count, tab_size, ToString(InstanceCount, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "StartIndexLocation", to_string_flags, tab_count, tab_size, ToString(StartIndexLocation, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BaseVertexLocation", to_string_flags, tab_count, tab_size, ToString(BaseVertexLocation, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "StartInstanceLocation", to_string_flags, tab_count, tab_size, ToString(StartInstanceLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "IndexCountPerInstance", to_string_flags_, tab_count, tab_size, ToString(IndexCountPerInstance, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InstanceCount", to_string_flags_, tab_count, tab_size, ToString(InstanceCount, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "StartIndexLocation", to_string_flags_, tab_count, tab_size, ToString(StartIndexLocation, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BaseVertexLocation", to_string_flags_, tab_count, tab_size, ToString(BaseVertexLocation, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "StartInstanceLocation", to_string_flags_, tab_count, tab_size, ToString(StartInstanceLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4936,7 +4754,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
         UINT ThreadGroupCountZ)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -4946,12 +4763,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ThreadGroupCountX", to_string_flags, tab_count, tab_size, ToString(ThreadGroupCountX, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ThreadGroupCountY", to_string_flags, tab_count, tab_size, ToString(ThreadGroupCountY, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ThreadGroupCountZ", to_string_flags, tab_count, tab_size, ToString(ThreadGroupCountZ, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "ThreadGroupCountX", to_string_flags_, tab_count, tab_size, ToString(ThreadGroupCountX, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ThreadGroupCountY", to_string_flags_, tab_count, tab_size, ToString(ThreadGroupCountY, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ThreadGroupCountZ", to_string_flags_, tab_count, tab_size, ToString(ThreadGroupCountZ, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4966,7 +4783,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
         UINT64 NumBytes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -4976,14 +4792,14 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDstBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pDstBuffer));
-            FieldToString(str_strm, false, "DstOffset", to_string_flags, tab_count, tab_size, ToString(DstOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcBuffer));
-            FieldToString(str_strm, false, "SrcOffset", to_string_flags, tab_count, tab_size, ToString(SrcOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumBytes", to_string_flags, tab_count, tab_size, ToString(NumBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDstBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstBuffer));
+            FieldToString(str_strm, false, "DstOffset", to_string_flags_, tab_count, tab_size, ToString(DstOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcBuffer));
+            FieldToString(str_strm, false, "SrcOffset", to_string_flags_, tab_count, tab_size, ToString(SrcOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumBytes", to_string_flags_, tab_count, tab_size, ToString(NumBytes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -4999,7 +4815,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
         StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5009,15 +4824,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDst", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDst, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DstX", to_string_flags, tab_count, tab_size, ToString(DstX, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DstY", to_string_flags, tab_count, tab_size, ToString(DstY, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DstZ", to_string_flags, tab_count, tab_size, ToString(DstZ, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSrc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcBox", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSrcBox, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDst", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDst, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DstX", to_string_flags_, tab_count, tab_size, ToString(DstX, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DstY", to_string_flags_, tab_count, tab_size, ToString(DstY, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DstZ", to_string_flags_, tab_count, tab_size, ToString(DstZ, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pSrc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcBox", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pSrcBox, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5029,7 +4844,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
         format::HandleId pSrcResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5039,11 +4853,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDstResource", to_string_flags, tab_count, tab_size, HandleIdToString(pDstResource));
-            FieldToString(str_strm, false, "pSrcResource", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcResource));
+            FieldToString(str_strm, true, "pDstResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstResource));
+            FieldToString(str_strm, false, "pSrcResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcResource));
         }
     );
 }
@@ -5059,7 +4873,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
         D3D12_TILE_COPY_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5069,15 +4882,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pTiledResource", to_string_flags, tab_count, tab_size, HandleIdToString(pTiledResource));
-            FieldToString(str_strm, false, "pTileRegionStartCoordinate", to_string_flags, tab_count, tab_size, PointerDecoderToString(pTileRegionStartCoordinate, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pTileRegionSize", to_string_flags, tab_count, tab_size, PointerDecoderToString(pTileRegionSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pBuffer));
-            FieldToString(str_strm, false, "BufferStartOffsetInBytes", to_string_flags, tab_count, tab_size, ToString(BufferStartOffsetInBytes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "pTiledResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pTiledResource));
+            FieldToString(str_strm, false, "pTileRegionStartCoordinate", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pTileRegionStartCoordinate, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pTileRegionSize", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pTileRegionSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pBuffer));
+            FieldToString(str_strm, false, "BufferStartOffsetInBytes", to_string_flags_, tab_count, tab_size, ToString(BufferStartOffsetInBytes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -5092,7 +4905,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
         DXGI_FORMAT Format)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5102,14 +4914,14 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDstResource", to_string_flags, tab_count, tab_size, HandleIdToString(pDstResource));
-            FieldToString(str_strm, false, "DstSubresource", to_string_flags, tab_count, tab_size, ToString(DstSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcResource", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcResource));
-            FieldToString(str_strm, false, "SrcSubresource", to_string_flags, tab_count, tab_size, ToString(SrcSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Format", to_string_flags, tab_count, tab_size, '"' + ToString(Format, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "pDstResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstResource));
+            FieldToString(str_strm, false, "DstSubresource", to_string_flags_, tab_count, tab_size, ToString(DstSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcResource));
+            FieldToString(str_strm, false, "SrcSubresource", to_string_flags_, tab_count, tab_size, ToString(SrcSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Format", to_string_flags_, tab_count, tab_size, '"' + ToString(Format, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -5120,7 +4932,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopology
         D3D_PRIMITIVE_TOPOLOGY PrimitiveTopology)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5130,10 +4941,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopology
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "PrimitiveTopology", to_string_flags, tab_count, tab_size, '"' + ToString(PrimitiveTopology, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "PrimitiveTopology", to_string_flags_, tab_count, tab_size, '"' + ToString(PrimitiveTopology, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -5145,7 +4956,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
         StructPointerDecoder<Decoded_D3D12_VIEWPORT>* pViewports)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5155,11 +4965,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumViewports", to_string_flags, tab_count, tab_size, ToString(NumViewports, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pViewports", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumViewports, pViewports, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumViewports", to_string_flags_, tab_count, tab_size, ToString(NumViewports, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pViewports", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumViewports, pViewports, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5171,7 +4981,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5181,11 +4990,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumRects", to_string_flags, tab_count, tab_size, ToString(NumRects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRects, pRects, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumRects", to_string_flags_, tab_count, tab_size, ToString(NumRects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRects", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumRects, pRects, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5196,7 +5005,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
         PointerDecoder<FLOAT> BlendFactor [4])
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5206,10 +5014,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "BlendFactor", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(4, BlendFactor, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "BlendFactor", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(4, BlendFactor, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5220,7 +5028,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
         UINT StencilRef)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5230,10 +5037,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "StencilRef", to_string_flags, tab_count, tab_size, ToString(StencilRef, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "StencilRef", to_string_flags_, tab_count, tab_size, ToString(StencilRef, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5244,7 +5051,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
         format::HandleId pPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5254,10 +5060,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pPipelineState", to_string_flags, tab_count, tab_size, HandleIdToString(pPipelineState));
+            FieldToString(str_strm, true, "pPipelineState", to_string_flags_, tab_count, tab_size, HandleIdToString(pPipelineState));
         }
     );
 }
@@ -5268,7 +5074,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
         format::HandleId pCommandList)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5278,10 +5083,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pCommandList", to_string_flags, tab_count, tab_size, HandleIdToString(pCommandList));
+            FieldToString(str_strm, true, "pCommandList", to_string_flags_, tab_count, tab_size, HandleIdToString(pCommandList));
         }
     );
 }
@@ -5293,7 +5098,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
         HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5303,11 +5107,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumDescriptorHeaps", to_string_flags, tab_count, tab_size, ToString(NumDescriptorHeaps, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppDescriptorHeaps", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumDescriptorHeaps, ppDescriptorHeaps, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumDescriptorHeaps", to_string_flags_, tab_count, tab_size, ToString(NumDescriptorHeaps, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppDescriptorHeaps", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumDescriptorHeaps, ppDescriptorHeaps, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5318,7 +5122,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatur
         format::HandleId pRootSignature)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5328,10 +5131,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatur
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pRootSignature", to_string_flags, tab_count, tab_size, HandleIdToString(pRootSignature));
+            FieldToString(str_strm, true, "pRootSignature", to_string_flags_, tab_count, tab_size, HandleIdToString(pRootSignature));
         }
     );
 }
@@ -5342,7 +5145,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignatu
         format::HandleId pRootSignature)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5352,10 +5154,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignatu
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pRootSignature", to_string_flags, tab_count, tab_size, HandleIdToString(pRootSignature));
+            FieldToString(str_strm, true, "pRootSignature", to_string_flags_, tab_count, tab_size, HandleIdToString(pRootSignature));
         }
     );
 }
@@ -5367,7 +5169,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescript
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5377,11 +5178,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescript
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BaseDescriptor", to_string_flags, tab_count, tab_size, ToString(*BaseDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BaseDescriptor", to_string_flags_, tab_count, tab_size, ToString(*BaseDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5393,7 +5194,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescrip
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5403,11 +5203,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescrip
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BaseDescriptor", to_string_flags, tab_count, tab_size, ToString(*BaseDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BaseDescriptor", to_string_flags_, tab_count, tab_size, ToString(*BaseDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5420,7 +5220,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
         UINT DestOffsetIn32BitValues)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5430,12 +5229,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SrcData", to_string_flags, tab_count, tab_size, ToString(SrcData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SrcData", to_string_flags_, tab_count, tab_size, ToString(SrcData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags_, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5448,7 +5247,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
         UINT DestOffsetIn32BitValues)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5458,12 +5256,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SrcData", to_string_flags, tab_count, tab_size, ToString(SrcData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SrcData", to_string_flags_, tab_count, tab_size, ToString(SrcData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags_, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5477,7 +5275,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
         UINT DestOffsetIn32BitValues)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5487,13 +5284,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Num32BitValuesToSet", to_string_flags, tab_count, tab_size, ToString(Num32BitValuesToSet, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Num32BitValuesToSet * sizeof ( UINT ), pSrcData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Num32BitValuesToSet", to_string_flags_, tab_count, tab_size, ToString(Num32BitValuesToSet, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Num32BitValuesToSet * sizeof ( UINT ), pSrcData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags_, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5507,7 +5304,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
         UINT DestOffsetIn32BitValues)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5517,13 +5313,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Num32BitValuesToSet", to_string_flags, tab_count, tab_size, ToString(Num32BitValuesToSet, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Num32BitValuesToSet * sizeof ( UINT ), pSrcData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Num32BitValuesToSet", to_string_flags_, tab_count, tab_size, ToString(Num32BitValuesToSet, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Num32BitValuesToSet * sizeof ( UINT ), pSrcData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestOffsetIn32BitValues", to_string_flags_, tab_count, tab_size, ToString(DestOffsetIn32BitValues, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5535,7 +5331,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstant
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5545,11 +5340,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstant
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BufferLocation", to_string_flags, tab_count, tab_size, ToString(BufferLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BufferLocation", to_string_flags_, tab_count, tab_size, ToString(BufferLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5561,7 +5356,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstan
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5571,11 +5365,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstan
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BufferLocation", to_string_flags, tab_count, tab_size, ToString(BufferLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BufferLocation", to_string_flags_, tab_count, tab_size, ToString(BufferLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5587,7 +5381,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderRe
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5597,11 +5390,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderRe
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BufferLocation", to_string_flags, tab_count, tab_size, ToString(BufferLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BufferLocation", to_string_flags_, tab_count, tab_size, ToString(BufferLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5613,7 +5406,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderR
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5623,11 +5415,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderR
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BufferLocation", to_string_flags, tab_count, tab_size, ToString(BufferLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BufferLocation", to_string_flags_, tab_count, tab_size, ToString(BufferLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5639,7 +5431,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnordere
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5649,11 +5440,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnordere
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BufferLocation", to_string_flags, tab_count, tab_size, ToString(BufferLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BufferLocation", to_string_flags_, tab_count, tab_size, ToString(BufferLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5665,7 +5456,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorder
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5675,11 +5465,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorder
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BufferLocation", to_string_flags, tab_count, tab_size, ToString(BufferLocation, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RootParameterIndex", to_string_flags_, tab_count, tab_size, ToString(RootParameterIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BufferLocation", to_string_flags_, tab_count, tab_size, ToString(BufferLocation, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5690,7 +5480,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
         StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5700,10 +5489,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pView", to_string_flags, tab_count, tab_size, PointerDecoderToString(pView, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pView", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pView, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5716,7 +5505,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
         StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* pViews)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5726,12 +5514,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "StartSlot", to_string_flags, tab_count, tab_size, ToString(StartSlot, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumViews", to_string_flags, tab_count, tab_size, ToString(NumViews, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pViews", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumViews, pViews, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "StartSlot", to_string_flags_, tab_count, tab_size, ToString(StartSlot, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumViews", to_string_flags_, tab_count, tab_size, ToString(NumViews, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pViews", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumViews, pViews, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5744,7 +5532,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
         StructPointerDecoder<Decoded_D3D12_STREAM_OUTPUT_BUFFER_VIEW>* pViews)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5754,12 +5541,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "StartSlot", to_string_flags, tab_count, tab_size, ToString(StartSlot, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumViews", to_string_flags, tab_count, tab_size, ToString(NumViews, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pViews", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumViews, pViews, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "StartSlot", to_string_flags_, tab_count, tab_size, ToString(StartSlot, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumViews", to_string_flags_, tab_count, tab_size, ToString(NumViews, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pViews", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumViews, pViews, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5773,7 +5560,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
         StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5783,13 +5569,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumRenderTargetDescriptors", to_string_flags, tab_count, tab_size, ToString(NumRenderTargetDescriptors, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRenderTargetDescriptors", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors, pRenderTargetDescriptors, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "RTsSingleHandleToDescriptorRange", to_string_flags, tab_count, tab_size, ToString(RTsSingleHandleToDescriptorRange, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDepthStencilDescriptor", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDepthStencilDescriptor, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumRenderTargetDescriptors", to_string_flags_, tab_count, tab_size, ToString(NumRenderTargetDescriptors, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRenderTargetDescriptors", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors, pRenderTargetDescriptors, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "RTsSingleHandleToDescriptorRange", to_string_flags_, tab_count, tab_size, ToString(RTsSingleHandleToDescriptorRange, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDepthStencilDescriptor", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDepthStencilDescriptor, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5805,7 +5591,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5815,15 +5600,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "DepthStencilView", to_string_flags, tab_count, tab_size, ToString(*DepthStencilView.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ClearFlags", to_string_flags, tab_count, tab_size, '"' + ToString(ClearFlags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Depth", to_string_flags, tab_count, tab_size, ToString(Depth, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Stencil", to_string_flags, tab_count, tab_size, ToString(Stencil, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumRects", to_string_flags, tab_count, tab_size, ToString(NumRects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRects, pRects, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "DepthStencilView", to_string_flags_, tab_count, tab_size, ToString(*DepthStencilView.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ClearFlags", to_string_flags_, tab_count, tab_size, '"' + ToString(ClearFlags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Depth", to_string_flags_, tab_count, tab_size, ToString(Depth, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Stencil", to_string_flags_, tab_count, tab_size, ToString(Stencil, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumRects", to_string_flags_, tab_count, tab_size, ToString(NumRects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRects", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumRects, pRects, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5837,7 +5622,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5847,13 +5631,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "RenderTargetView", to_string_flags, tab_count, tab_size, ToString(*RenderTargetView.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ColorRGBA", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(4, ColorRGBA, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumRects", to_string_flags, tab_count, tab_size, ToString(NumRects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRects, pRects, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "RenderTargetView", to_string_flags_, tab_count, tab_size, ToString(*RenderTargetView.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ColorRGBA", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(4, ColorRGBA, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumRects", to_string_flags_, tab_count, tab_size, ToString(NumRects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRects", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumRects, pRects, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5869,7 +5653,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5879,15 +5662,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ViewGPUHandleInCurrentHeap", to_string_flags, tab_count, tab_size, ToString(*ViewGPUHandleInCurrentHeap.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ViewCPUHandle", to_string_flags, tab_count, tab_size, ToString(*ViewCPUHandle.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "Values", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(4, Values, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumRects", to_string_flags, tab_count, tab_size, ToString(NumRects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRects, pRects, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "ViewGPUHandleInCurrentHeap", to_string_flags_, tab_count, tab_size, ToString(*ViewGPUHandleInCurrentHeap.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ViewCPUHandle", to_string_flags_, tab_count, tab_size, ToString(*ViewCPUHandle.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "Values", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(4, Values, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumRects", to_string_flags_, tab_count, tab_size, ToString(NumRects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRects", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumRects, pRects, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5903,7 +5686,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5913,15 +5695,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ViewGPUHandleInCurrentHeap", to_string_flags, tab_count, tab_size, ToString(*ViewGPUHandleInCurrentHeap.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ViewCPUHandle", to_string_flags, tab_count, tab_size, ToString(*ViewCPUHandle.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "Values", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(4, Values, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumRects", to_string_flags, tab_count, tab_size, ToString(NumRects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRects, pRects, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "ViewGPUHandleInCurrentHeap", to_string_flags_, tab_count, tab_size, ToString(*ViewGPUHandleInCurrentHeap.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ViewCPUHandle", to_string_flags_, tab_count, tab_size, ToString(*ViewCPUHandle.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "Values", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(4, Values, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumRects", to_string_flags_, tab_count, tab_size, ToString(NumRects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRects", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumRects, pRects, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5933,7 +5715,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
         StructPointerDecoder<Decoded_D3D12_DISCARD_REGION>* pRegion)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5943,11 +5724,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "pRegion", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRegion, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "pRegion", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRegion, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5960,7 +5741,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
         UINT Index)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5970,12 +5750,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pQueryHeap", to_string_flags, tab_count, tab_size, HandleIdToString(pQueryHeap));
-            FieldToString(str_strm, false, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Index", to_string_flags, tab_count, tab_size, ToString(Index, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pQueryHeap", to_string_flags_, tab_count, tab_size, HandleIdToString(pQueryHeap));
+            FieldToString(str_strm, false, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Index", to_string_flags_, tab_count, tab_size, ToString(Index, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -5988,7 +5768,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
         UINT Index)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -5998,12 +5777,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pQueryHeap", to_string_flags, tab_count, tab_size, HandleIdToString(pQueryHeap));
-            FieldToString(str_strm, false, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Index", to_string_flags, tab_count, tab_size, ToString(Index, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pQueryHeap", to_string_flags_, tab_count, tab_size, HandleIdToString(pQueryHeap));
+            FieldToString(str_strm, false, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Index", to_string_flags_, tab_count, tab_size, ToString(Index, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6019,7 +5798,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
         UINT64 AlignedDestinationBufferOffset)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6029,15 +5807,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pQueryHeap", to_string_flags, tab_count, tab_size, HandleIdToString(pQueryHeap));
-            FieldToString(str_strm, false, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "StartIndex", to_string_flags, tab_count, tab_size, ToString(StartIndex, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumQueries", to_string_flags, tab_count, tab_size, ToString(NumQueries, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDestinationBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pDestinationBuffer));
-            FieldToString(str_strm, false, "AlignedDestinationBufferOffset", to_string_flags, tab_count, tab_size, ToString(AlignedDestinationBufferOffset, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pQueryHeap", to_string_flags_, tab_count, tab_size, HandleIdToString(pQueryHeap));
+            FieldToString(str_strm, false, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "StartIndex", to_string_flags_, tab_count, tab_size, ToString(StartIndex, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumQueries", to_string_flags_, tab_count, tab_size, ToString(NumQueries, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDestinationBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pDestinationBuffer));
+            FieldToString(str_strm, false, "AlignedDestinationBufferOffset", to_string_flags_, tab_count, tab_size, ToString(AlignedDestinationBufferOffset, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6050,7 +5828,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
         D3D12_PREDICATION_OP Operation)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6060,12 +5837,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pBuffer));
-            FieldToString(str_strm, false, "AlignedBufferOffset", to_string_flags, tab_count, tab_size, ToString(AlignedBufferOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Operation", to_string_flags, tab_count, tab_size, '"' + ToString(Operation, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "pBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pBuffer));
+            FieldToString(str_strm, false, "AlignedBufferOffset", to_string_flags_, tab_count, tab_size, ToString(AlignedBufferOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Operation", to_string_flags_, tab_count, tab_size, '"' + ToString(Operation, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -6078,7 +5855,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
         UINT Size)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6088,12 +5864,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Metadata", to_string_flags, tab_count, tab_size, ToString(Metadata, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Size", to_string_flags, tab_count, tab_size, ToString(Size, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Metadata", to_string_flags_, tab_count, tab_size, ToString(Metadata, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Size", to_string_flags_, tab_count, tab_size, ToString(Size, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6106,7 +5882,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
         UINT Size)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6116,12 +5891,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Metadata", to_string_flags, tab_count, tab_size, ToString(Metadata, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Size", to_string_flags, tab_count, tab_size, ToString(Size, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Metadata", to_string_flags_, tab_count, tab_size, ToString(Metadata, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Size", to_string_flags_, tab_count, tab_size, ToString(Size, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6131,7 +5906,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6141,7 +5915,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -6159,7 +5933,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
         UINT64 CountBufferOffset)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6169,15 +5942,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pCommandSignature", to_string_flags, tab_count, tab_size, HandleIdToString(pCommandSignature));
-            FieldToString(str_strm, false, "MaxCommandCount", to_string_flags, tab_count, tab_size, ToString(MaxCommandCount, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pArgumentBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pArgumentBuffer));
-            FieldToString(str_strm, false, "ArgumentBufferOffset", to_string_flags, tab_count, tab_size, ToString(ArgumentBufferOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pCountBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pCountBuffer));
-            FieldToString(str_strm, false, "CountBufferOffset", to_string_flags, tab_count, tab_size, ToString(CountBufferOffset, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pCommandSignature", to_string_flags_, tab_count, tab_size, HandleIdToString(pCommandSignature));
+            FieldToString(str_strm, false, "MaxCommandCount", to_string_flags_, tab_count, tab_size, ToString(MaxCommandCount, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pArgumentBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pArgumentBuffer));
+            FieldToString(str_strm, false, "ArgumentBufferOffset", to_string_flags_, tab_count, tab_size, ToString(ArgumentBufferOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pCountBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pCountBuffer));
+            FieldToString(str_strm, false, "CountBufferOffset", to_string_flags_, tab_count, tab_size, ToString(CountBufferOffset, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6194,7 +5967,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64>* pDependentSubresourceRanges)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6204,16 +5976,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDstBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pDstBuffer));
-            FieldToString(str_strm, false, "DstOffset", to_string_flags, tab_count, tab_size, ToString(DstOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcBuffer));
-            FieldToString(str_strm, false, "SrcOffset", to_string_flags, tab_count, tab_size, ToString(SrcOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Dependencies", to_string_flags, tab_count, tab_size, ToString(Dependencies, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppDependentResources", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Dependencies, ppDependentResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDependentSubresourceRanges", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Dependencies, pDependentSubresourceRanges, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDstBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstBuffer));
+            FieldToString(str_strm, false, "DstOffset", to_string_flags_, tab_count, tab_size, ToString(DstOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcBuffer));
+            FieldToString(str_strm, false, "SrcOffset", to_string_flags_, tab_count, tab_size, ToString(SrcOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Dependencies", to_string_flags_, tab_count, tab_size, ToString(Dependencies, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppDependentResources", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Dependencies, ppDependentResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDependentSubresourceRanges", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(Dependencies, pDependentSubresourceRanges, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6230,7 +6002,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT6
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64>* pDependentSubresourceRanges)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6240,16 +6011,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT6
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDstBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pDstBuffer));
-            FieldToString(str_strm, false, "DstOffset", to_string_flags, tab_count, tab_size, ToString(DstOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcBuffer", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcBuffer));
-            FieldToString(str_strm, false, "SrcOffset", to_string_flags, tab_count, tab_size, ToString(SrcOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Dependencies", to_string_flags, tab_count, tab_size, ToString(Dependencies, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppDependentResources", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Dependencies, ppDependentResources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDependentSubresourceRanges", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Dependencies, pDependentSubresourceRanges, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDstBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstBuffer));
+            FieldToString(str_strm, false, "DstOffset", to_string_flags_, tab_count, tab_size, ToString(DstOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcBuffer", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcBuffer));
+            FieldToString(str_strm, false, "SrcOffset", to_string_flags_, tab_count, tab_size, ToString(SrcOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Dependencies", to_string_flags_, tab_count, tab_size, ToString(Dependencies, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppDependentResources", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Dependencies, ppDependentResources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDependentSubresourceRanges", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(Dependencies, pDependentSubresourceRanges, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6261,7 +6032,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
         FLOAT Max)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6271,11 +6041,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Min", to_string_flags, tab_count, tab_size, ToString(Min, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Max", to_string_flags, tab_count, tab_size, ToString(Max, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Min", to_string_flags_, tab_count, tab_size, ToString(Min, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Max", to_string_flags_, tab_count, tab_size, ToString(Max, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6288,7 +6058,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
         StructPointerDecoder<Decoded_D3D12_SAMPLE_POSITION>* pSamplePositions)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6298,12 +6067,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumSamplesPerPixel", to_string_flags, tab_count, tab_size, ToString(NumSamplesPerPixel, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumPixels", to_string_flags, tab_count, tab_size, ToString(NumPixels, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSamplePositions", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSamplesPerPixel * NumPixels, pSamplePositions, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumSamplesPerPixel", to_string_flags_, tab_count, tab_size, ToString(NumSamplesPerPixel, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumPixels", to_string_flags_, tab_count, tab_size, ToString(NumPixels, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSamplePositions", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumSamplesPerPixel * NumPixels, pSamplePositions, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6322,7 +6091,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
         D3D12_RESOLVE_MODE ResolveMode)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6332,18 +6100,18 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDstResource", to_string_flags, tab_count, tab_size, HandleIdToString(pDstResource));
-            FieldToString(str_strm, false, "DstSubresource", to_string_flags, tab_count, tab_size, ToString(DstSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DstX", to_string_flags, tab_count, tab_size, ToString(DstX, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DstY", to_string_flags, tab_count, tab_size, ToString(DstY, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcResource", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcResource));
-            FieldToString(str_strm, false, "SrcSubresource", to_string_flags, tab_count, tab_size, ToString(SrcSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcRect", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSrcRect, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Format", to_string_flags, tab_count, tab_size, '"' + ToString(Format, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "ResolveMode", to_string_flags, tab_count, tab_size, '"' + ToString(ResolveMode, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "pDstResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstResource));
+            FieldToString(str_strm, false, "DstSubresource", to_string_flags_, tab_count, tab_size, ToString(DstSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DstX", to_string_flags_, tab_count, tab_size, ToString(DstX, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DstY", to_string_flags_, tab_count, tab_size, ToString(DstY, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcResource));
+            FieldToString(str_strm, false, "SrcSubresource", to_string_flags_, tab_count, tab_size, ToString(SrcSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcRect", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pSrcRect, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Format", to_string_flags_, tab_count, tab_size, '"' + ToString(Format, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "ResolveMode", to_string_flags_, tab_count, tab_size, '"' + ToString(ResolveMode, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -6354,7 +6122,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
         UINT Mask)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6364,10 +6131,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Mask", to_string_flags, tab_count, tab_size, ToString(Mask, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Mask", to_string_flags_, tab_count, tab_size, ToString(Mask, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6380,7 +6147,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
         PointerDecoder<D3D12_WRITEBUFFERIMMEDIATE_MODE>* pModes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6390,12 +6156,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Count", to_string_flags, tab_count, tab_size, ToString(Count, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pParams", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Count, pParams, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pModes", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(Count, pModes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Count", to_string_flags_, tab_count, tab_size, ToString(Count, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pParams", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(Count, pParams, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pModes", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(Count, pModes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6415,7 +6181,6 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         D3D12_TILE_MAPPING_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6425,19 +6190,19 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "NumResourceRegions", to_string_flags, tab_count, tab_size, ToString(NumResourceRegions, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pResourceRegionStartCoordinates", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResourceRegions, pResourceRegionStartCoordinates, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pResourceRegionSizes", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumResourceRegions, pResourceRegionSizes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pHeap", to_string_flags, tab_count, tab_size, HandleIdToString(pHeap));
-            FieldToString(str_strm, false, "NumRanges", to_string_flags, tab_count, tab_size, ToString(NumRanges, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRangeFlags", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(NumRanges, pRangeFlags, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pHeapRangeStartOffsets", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRanges, pHeapRangeStartOffsets, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRangeTileCounts", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRanges, pRangeTileCounts, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "NumResourceRegions", to_string_flags_, tab_count, tab_size, ToString(NumResourceRegions, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pResourceRegionStartCoordinates", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumResourceRegions, pResourceRegionStartCoordinates, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pResourceRegionSizes", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumResourceRegions, pResourceRegionSizes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pHeap", to_string_flags_, tab_count, tab_size, HandleIdToString(pHeap));
+            FieldToString(str_strm, false, "NumRanges", to_string_flags_, tab_count, tab_size, ToString(NumRanges, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRangeFlags", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(NumRanges, pRangeFlags, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pHeapRangeStartOffsets", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumRanges, pHeapRangeStartOffsets, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRangeTileCounts", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumRanges, pRangeTileCounts, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -6453,7 +6218,6 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
         D3D12_TILE_MAPPING_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6463,15 +6227,15 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDstResource", to_string_flags, tab_count, tab_size, HandleIdToString(pDstResource));
-            FieldToString(str_strm, false, "pDstRegionStartCoordinate", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDstRegionStartCoordinate, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcResource", to_string_flags, tab_count, tab_size, HandleIdToString(pSrcResource));
-            FieldToString(str_strm, false, "pSrcRegionStartCoordinate", to_string_flags, tab_count, tab_size, PointerDecoderToString(pSrcRegionStartCoordinate, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRegionSize", to_string_flags, tab_count, tab_size, PointerDecoderToString(pRegionSize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "pDstResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pDstResource));
+            FieldToString(str_strm, false, "pDstRegionStartCoordinate", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDstRegionStartCoordinate, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcResource));
+            FieldToString(str_strm, false, "pSrcRegionStartCoordinate", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pSrcRegionStartCoordinate, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRegionSize", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pRegionSize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -6483,7 +6247,6 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
         HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6493,11 +6256,11 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumCommandLists", to_string_flags, tab_count, tab_size, ToString(NumCommandLists, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppCommandLists", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumCommandLists, ppCommandLists, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumCommandLists", to_string_flags_, tab_count, tab_size, ToString(NumCommandLists, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppCommandLists", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumCommandLists, ppCommandLists, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6510,7 +6273,6 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_SetMarker(
         UINT Size)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6520,12 +6282,12 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_SetMarker(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Metadata", to_string_flags, tab_count, tab_size, ToString(Metadata, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Size", to_string_flags, tab_count, tab_size, ToString(Size, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Metadata", to_string_flags_, tab_count, tab_size, ToString(Metadata, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Size", to_string_flags_, tab_count, tab_size, ToString(Size, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6538,7 +6300,6 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_BeginEvent(
         UINT Size)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6548,12 +6309,12 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_BeginEvent(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Metadata", to_string_flags, tab_count, tab_size, ToString(Metadata, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Size", to_string_flags, tab_count, tab_size, ToString(Size, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Metadata", to_string_flags_, tab_count, tab_size, ToString(Metadata, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(Size, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Size", to_string_flags_, tab_count, tab_size, ToString(Size, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6563,7 +6324,6 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_EndEvent(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6573,7 +6333,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_EndEvent(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -6588,21 +6348,20 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
         UINT64 Value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12CommandQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Signal";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pFence", to_string_flags, tab_count, tab_size, HandleIdToString(pFence));
-            FieldToString(str_strm, false, "Value", to_string_flags, tab_count, tab_size, ToString(Value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pFence", to_string_flags_, tab_count, tab_size, HandleIdToString(pFence));
+            FieldToString(str_strm, false, "Value", to_string_flags_, tab_count, tab_size, ToString(Value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6615,21 +6374,20 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
         UINT64 Value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12CommandQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Wait";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pFence", to_string_flags, tab_count, tab_size, HandleIdToString(pFence));
-            FieldToString(str_strm, false, "Value", to_string_flags, tab_count, tab_size, ToString(Value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pFence", to_string_flags_, tab_count, tab_size, HandleIdToString(pFence));
+            FieldToString(str_strm, false, "Value", to_string_flags_, tab_count, tab_size, ToString(Value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6641,20 +6399,19 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
         PointerDecoder<UINT64>* pFrequency)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12CommandQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetTimestampFrequency";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pFrequency", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFrequency, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pFrequency", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pFrequency, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6667,21 +6424,20 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
         PointerDecoder<UINT64>* pCpuTimestamp)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12CommandQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetClockCalibration";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pGpuTimestamp", to_string_flags, tab_count, tab_size, PointerDecoderToString(pGpuTimestamp, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pCpuTimestamp", to_string_flags, tab_count, tab_size, PointerDecoderToString(pCpuTimestamp, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pGpuTimestamp", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pGpuTimestamp, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pCpuTimestamp", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pCpuTimestamp, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6692,17 +6448,16 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetNodeCount(
         UINT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetNodeCount";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -6718,22 +6473,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
         HandlePointerDecoder<void*>* ppCommandQueue)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommandQueue";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandQueue", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandQueue));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppCommandQueue", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppCommandQueue));
         }
     );
 }
@@ -6747,22 +6501,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
         HandlePointerDecoder<void*>* ppCommandAllocator)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommandAllocator";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "type", to_string_flags, tab_count, tab_size, '"' + ToString(type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandAllocator", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandAllocator));
+            FieldToString(str_strm, true, "type", to_string_flags_, tab_count, tab_size, '"' + ToString(type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppCommandAllocator", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppCommandAllocator));
         }
     );
 }
@@ -6776,22 +6529,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateGraphicsPipelineState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -6805,22 +6557,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateComputePipelineState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -6837,25 +6588,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
         HandlePointerDecoder<void*>* ppCommandList)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommandList";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "nodeMask", to_string_flags, tab_count, tab_size, ToString(nodeMask, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "type", to_string_flags, tab_count, tab_size, '"' + ToString(type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pCommandAllocator", to_string_flags, tab_count, tab_size, HandleIdToString(pCommandAllocator));
-            FieldToString(str_strm, false, "pInitialState", to_string_flags, tab_count, tab_size, HandleIdToString(pInitialState));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandList));
+            FieldToString(str_strm, true, "nodeMask", to_string_flags_, tab_count, tab_size, ToString(nodeMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "type", to_string_flags_, tab_count, tab_size, '"' + ToString(type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pCommandAllocator", to_string_flags_, tab_count, tab_size, HandleIdToString(pCommandAllocator));
+            FieldToString(str_strm, false, "pInitialState", to_string_flags_, tab_count, tab_size, HandleIdToString(pInitialState));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppCommandList));
         }
     );
 }
@@ -6869,22 +6619,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateDescriptorHeap";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDescriptorHeapDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDescriptorHeapDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
+            FieldToString(str_strm, true, "pDescriptorHeapDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDescriptorHeapDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -6896,20 +6645,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDescriptorHandleIncrementSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "DescriptorHeapType", to_string_flags, tab_count, tab_size, '"' + ToString(DescriptorHeapType, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "DescriptorHeapType", to_string_flags_, tab_count, tab_size, '"' + ToString(DescriptorHeapType, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -6921,7 +6669,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateConstantBufferView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6931,11 +6678,11 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateConstantBufferView(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestDescriptor", to_string_flags, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestDescriptor", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6948,7 +6695,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6958,12 +6704,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestDescriptor", to_string_flags, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestDescriptor", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -6977,7 +6723,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -6987,13 +6732,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "pCounterResource", to_string_flags, tab_count, tab_size, HandleIdToString(pCounterResource));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestDescriptor", to_string_flags, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "pCounterResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pCounterResource));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestDescriptor", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7006,7 +6751,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -7016,12 +6760,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestDescriptor", to_string_flags, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestDescriptor", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7034,7 +6778,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -7044,12 +6787,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestDescriptor", to_string_flags, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestDescriptor", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7061,7 +6804,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSampler(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -7071,11 +6813,11 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSampler(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestDescriptor", to_string_flags, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestDescriptor", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7092,7 +6834,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -7102,16 +6843,16 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumDestDescriptorRanges", to_string_flags, tab_count, tab_size, ToString(NumDestDescriptorRanges, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDestDescriptorRangeStarts", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumDestDescriptorRanges, pDestDescriptorRangeStarts, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDestDescriptorRangeSizes", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumDestDescriptorRanges, pDestDescriptorRangeSizes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumSrcDescriptorRanges", to_string_flags, tab_count, tab_size, ToString(NumSrcDescriptorRanges, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcDescriptorRangeStarts", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSrcDescriptorRanges, pSrcDescriptorRangeStarts, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSrcDescriptorRangeSizes", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSrcDescriptorRanges, pSrcDescriptorRangeSizes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DescriptorHeapsType", to_string_flags, tab_count, tab_size, '"' + ToString(DescriptorHeapsType, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "NumDestDescriptorRanges", to_string_flags_, tab_count, tab_size, ToString(NumDestDescriptorRanges, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDestDescriptorRangeStarts", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumDestDescriptorRanges, pDestDescriptorRangeStarts, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDestDescriptorRangeSizes", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumDestDescriptorRanges, pDestDescriptorRangeSizes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumSrcDescriptorRanges", to_string_flags_, tab_count, tab_size, ToString(NumSrcDescriptorRanges, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcDescriptorRangeStarts", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumSrcDescriptorRanges, pSrcDescriptorRangeStarts, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSrcDescriptorRangeSizes", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumSrcDescriptorRanges, pSrcDescriptorRangeSizes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DescriptorHeapsType", to_string_flags_, tab_count, tab_size, '"' + ToString(DescriptorHeapsType, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -7125,7 +6866,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -7135,13 +6875,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumDescriptors", to_string_flags, tab_count, tab_size, ToString(NumDescriptors, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DestDescriptorRangeStart", to_string_flags, tab_count, tab_size, ToString(*DestDescriptorRangeStart.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SrcDescriptorRangeStart", to_string_flags, tab_count, tab_size, ToString(*SrcDescriptorRangeStart.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DescriptorHeapsType", to_string_flags, tab_count, tab_size, '"' + ToString(DescriptorHeapsType, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "NumDescriptors", to_string_flags_, tab_count, tab_size, ToString(NumDescriptors, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DestDescriptorRangeStart", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptorRangeStart.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SrcDescriptorRangeStart", to_string_flags_, tab_count, tab_size, ToString(*SrcDescriptorRangeStart.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DescriptorHeapsType", to_string_flags_, tab_count, tab_size, '"' + ToString(DescriptorHeapsType, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -7159,26 +6899,25 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
         HandlePointerDecoder<void*>* ppvResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommittedResource";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pHeapProperties", to_string_flags, tab_count, tab_size, PointerDecoderToString(pHeapProperties, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "HeapFlags", to_string_flags, tab_count, tab_size, '"' + ToString(HeapFlags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitialResourceState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialResourceState, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, true, "pHeapProperties", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pHeapProperties, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "HeapFlags", to_string_flags_, tab_count, tab_size, '"' + ToString(HeapFlags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitialResourceState", to_string_flags_, tab_count, tab_size, '"' + ToString(InitialResourceState, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOptimizedClearValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riidResource", to_string_flags_, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -7192,22 +6931,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateHeap";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7225,26 +6963,25 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
         HandlePointerDecoder<void*>* ppvResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreatePlacedResource";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pHeap", to_string_flags, tab_count, tab_size, HandleIdToString(pHeap));
-            FieldToString(str_strm, false, "HeapOffset", to_string_flags, tab_count, tab_size, ToString(HeapOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitialState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, true, "pHeap", to_string_flags_, tab_count, tab_size, HandleIdToString(pHeap));
+            FieldToString(str_strm, false, "HeapOffset", to_string_flags_, tab_count, tab_size, ToString(HeapOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitialState", to_string_flags_, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOptimizedClearValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -7260,24 +6997,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
         HandlePointerDecoder<void*>* ppvResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateReservedResource";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitialState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitialState", to_string_flags_, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOptimizedClearValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -7293,24 +7029,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
         PointerDecoder<uint64_t, void*>* pHandle)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateSharedHandle";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pObject", to_string_flags, tab_count, tab_size, HandleIdToString(pObject));
-            FieldToString(str_strm, false, "pAttributes", to_string_flags, tab_count, tab_size, PointerDecoderToString(pAttributes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Access", to_string_flags, tab_count, tab_size, ToString(Access, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Name", to_string_flags, tab_count, tab_size, PointerDecoderToString(Name, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pHandle", to_string_flags, tab_count, tab_size, HandleIdToString(pHandle));
+            FieldToString(str_strm, true, "pObject", to_string_flags_, tab_count, tab_size, HandleIdToString(pObject));
+            FieldToString(str_strm, false, "pAttributes", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pAttributes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Access", to_string_flags_, tab_count, tab_size, ToString(Access, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Name", to_string_flags_, tab_count, tab_size, StringDecoderToString(Name));
+            FieldToString(str_strm, false, "[out]pHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(pHandle));
         }
     );
 }
@@ -7324,22 +7059,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
         HandlePointerDecoder<void*>* ppvObj)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "OpenSharedHandle";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NTHandle", to_string_flags, tab_count, tab_size, HandleIdToString(NTHandle));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvObj", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvObj));
+            FieldToString(str_strm, true, "NTHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(NTHandle));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvObj", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvObj));
         }
     );
 }
@@ -7353,22 +7087,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
         PointerDecoder<uint64_t, void*>* pNTHandle)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "OpenSharedHandleByName";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Name", to_string_flags, tab_count, tab_size, PointerDecoderToString(Name, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Access", to_string_flags, tab_count, tab_size, ToString(Access, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pNTHandle", to_string_flags, tab_count, tab_size, HandleIdToString(pNTHandle));
+            FieldToString(str_strm, true, "Name", to_string_flags_, tab_count, tab_size, StringDecoderToString(Name));
+            FieldToString(str_strm, false, "Access", to_string_flags_, tab_count, tab_size, ToString(Access, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pNTHandle", to_string_flags_, tab_count, tab_size, HandleIdToString(pNTHandle));
         }
     );
 }
@@ -7381,21 +7114,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "MakeResident";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumObjects", to_string_flags, tab_count, tab_size, ToString(NumObjects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppObjects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumObjects", to_string_flags_, tab_count, tab_size, ToString(NumObjects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppObjects", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7408,21 +7140,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Evict";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumObjects", to_string_flags, tab_count, tab_size, ToString(NumObjects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppObjects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumObjects", to_string_flags_, tab_count, tab_size, ToString(NumObjects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppObjects", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7437,23 +7168,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
         HandlePointerDecoder<void*>* ppFence)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateFence";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "InitialValue", to_string_flags, tab_count, tab_size, ToString(InitialValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFence", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFence));
+            FieldToString(str_strm, true, "InitialValue", to_string_flags_, tab_count, tab_size, ToString(InitialValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppFence", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppFence));
         }
     );
 }
@@ -7464,17 +7194,16 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDeviceRemovedReason";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -7494,7 +7223,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
         PointerDecoder<UINT64>* pTotalBytes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -7504,17 +7232,17 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResourceDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pResourceDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "FirstSubresource", to_string_flags, tab_count, tab_size, ToString(FirstSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumSubresources", to_string_flags, tab_count, tab_size, ToString(NumSubresources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BaseOffset", to_string_flags, tab_count, tab_size, ToString(BaseOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pLayouts", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pLayouts, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pNumRows", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pNumRows, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pRowSizeInBytes", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pRowSizeInBytes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pTotalBytes", to_string_flags, tab_count, tab_size, PointerDecoderToString(pTotalBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResourceDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pResourceDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "FirstSubresource", to_string_flags_, tab_count, tab_size, ToString(FirstSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumSubresources", to_string_flags_, tab_count, tab_size, ToString(NumSubresources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BaseOffset", to_string_flags_, tab_count, tab_size, ToString(BaseOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pLayouts", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumSubresources, pLayouts, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pNumRows", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pNumRows, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pRowSizeInBytes", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pRowSizeInBytes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pTotalBytes", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pTotalBytes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7528,22 +7256,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateQueryHeap";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7555,20 +7282,19 @@ void Dx12AsciiConsumer::Process_ID3D12Device_SetStablePowerState(
         BOOL Enable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetStablePowerState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enable", to_string_flags, tab_count, tab_size, ToString(Enable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Enable", to_string_flags_, tab_count, tab_size, ToString(Enable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7583,23 +7309,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
         HandlePointerDecoder<void*>* ppvCommandSignature)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommandSignature";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRootSignature", to_string_flags, tab_count, tab_size, HandleIdToString(pRootSignature));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvCommandSignature", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvCommandSignature));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRootSignature", to_string_flags_, tab_count, tab_size, HandleIdToString(pRootSignature));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvCommandSignature", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvCommandSignature));
         }
     );
 }
@@ -7616,7 +7341,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_TILING>* pSubresourceTilingsForNonPackedMips)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -7626,16 +7350,16 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pTiledResource", to_string_flags, tab_count, tab_size, HandleIdToString(pTiledResource));
-            FieldToString(str_strm, false, "[out]pNumTilesForEntireResource", to_string_flags, tab_count, tab_size, PointerDecoderToString(pNumTilesForEntireResource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pPackedMipDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pPackedMipDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pStandardTileShapeForNonPackedMips", to_string_flags, tab_count, tab_size, PointerDecoderToString(pStandardTileShapeForNonPackedMips, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pNumSubresourceTilings", to_string_flags, tab_count, tab_size, PointerDecoderToString(pNumSubresourceTilings, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "FirstSubresourceTilingToGet", to_string_flags, tab_count, tab_size, ToString(FirstSubresourceTilingToGet, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pSubresourceTilingsForNonPackedMips", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pNumSubresourceTilings, pSubresourceTilingsForNonPackedMips, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pTiledResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pTiledResource));
+            FieldToString(str_strm, false, "[out]pNumTilesForEntireResource", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pNumTilesForEntireResource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pPackedMipDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pPackedMipDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pStandardTileShapeForNonPackedMips", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pStandardTileShapeForNonPackedMips, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pNumSubresourceTilings", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pNumSubresourceTilings, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "FirstSubresourceTilingToGet", to_string_flags_, tab_count, tab_size, ToString(FirstSubresourceTilingToGet, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pSubresourceTilingsForNonPackedMips", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(pNumSubresourceTilings, pSubresourceTilingsForNonPackedMips, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7648,21 +7372,20 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         format::HandleId pPipeline)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12PipelineLibrary";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "StorePipeline";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pName, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pPipeline", to_string_flags, tab_count, tab_size, HandleIdToString(pPipeline));
+            FieldToString(str_strm, true, "pName", to_string_flags_, tab_count, tab_size, StringDecoderToString(pName));
+            FieldToString(str_strm, false, "pPipeline", to_string_flags_, tab_count, tab_size, HandleIdToString(pPipeline));
         }
     );
 }
@@ -7677,23 +7400,22 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12PipelineLibrary";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "LoadGraphicsPipeline";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pName, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
+            FieldToString(str_strm, true, "pName", to_string_flags_, tab_count, tab_size, StringDecoderToString(pName));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7708,23 +7430,22 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12PipelineLibrary";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "LoadComputePipeline";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pName, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
+            FieldToString(str_strm, true, "pName", to_string_flags_, tab_count, tab_size, StringDecoderToString(pName));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7735,17 +7456,16 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
         SIZE_T return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12PipelineLibrary";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetSerializedSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -7760,21 +7480,20 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
         SIZE_T DataSizeInBytes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12PipelineLibrary";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Serialize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSizeInBytes, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSizeInBytes", to_string_flags, tab_count, tab_size, ToString(DataSizeInBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSizeInBytes, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSizeInBytes", to_string_flags_, tab_count, tab_size, ToString(DataSizeInBytes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7789,23 +7508,22 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12PipelineLibrary1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "LoadPipeline";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pName, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
+            FieldToString(str_strm, true, "pName", to_string_flags_, tab_count, tab_size, StringDecoderToString(pName));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7821,24 +7539,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         uint64_t hEvent)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetEventOnMultipleFenceCompletion";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ppFences", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumFences, ppFences, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pFenceValues", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumFences, pFenceValues, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumFences", to_string_flags, tab_count, tab_size, ToString(NumFences, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "hEvent", to_string_flags, tab_count, tab_size, HandleIdToString(hEvent));
+            FieldToString(str_strm, true, "ppFences", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumFences, ppFences, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pFenceValues", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumFences, pFenceValues, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumFences", to_string_flags_, tab_count, tab_size, ToString(NumFences, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "hEvent", to_string_flags_, tab_count, tab_size, HandleIdToString(hEvent));
         }
     );
 }
@@ -7852,22 +7569,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
         PointerDecoder<D3D12_RESIDENCY_PRIORITY>* pPriorities)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetResidencyPriority";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumObjects", to_string_flags, tab_count, tab_size, ToString(NumObjects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppObjects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pPriorities", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(NumObjects, pPriorities, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "NumObjects", to_string_flags_, tab_count, tab_size, ToString(NumObjects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppObjects", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pPriorities", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(NumObjects, pPriorities, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -7881,22 +7597,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreatePipelineState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppPipelineState", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppPipelineState));
         }
     );
 }
@@ -7910,22 +7625,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "OpenExistingHeapFromAddress";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pAddress", to_string_flags, tab_count, tab_size, HandleIdToString(pAddress));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
+            FieldToString(str_strm, true, "pAddress", to_string_flags_, tab_count, tab_size, HandleIdToString(pAddress));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7939,22 +7653,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "OpenExistingHeapFromFileMapping";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "hFileMapping", to_string_flags, tab_count, tab_size, HandleIdToString(hFileMapping));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
+            FieldToString(str_strm, true, "hFileMapping", to_string_flags_, tab_count, tab_size, HandleIdToString(hFileMapping));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -7970,24 +7683,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
         UINT64 FenceValueToSignal)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device3";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnqueueMakeResident";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "NumObjects", to_string_flags, tab_count, tab_size, ToString(NumObjects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ppObjects", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pFenceToSignal", to_string_flags, tab_count, tab_size, HandleIdToString(pFenceToSignal));
-            FieldToString(str_strm, false, "FenceValueToSignal", to_string_flags, tab_count, tab_size, ToString(FenceValueToSignal, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "NumObjects", to_string_flags_, tab_count, tab_size, ToString(NumObjects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppObjects", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumObjects, ppObjects, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pFenceToSignal", to_string_flags_, tab_count, tab_size, HandleIdToString(pFenceToSignal));
+            FieldToString(str_strm, false, "FenceValueToSignal", to_string_flags_, tab_count, tab_size, ToString(FenceValueToSignal, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8000,21 +7712,20 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
         HandlePointerDecoder<void*>* ppFence)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12ProtectedSession";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetStatusFence";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppFence", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppFence));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppFence", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppFence));
         }
     );
 }
@@ -8025,17 +7736,16 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
         D3D12_PROTECTED_SESSION_STATUS return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12ProtectedSession";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetSessionStatus";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -8053,24 +7763,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
         HandlePointerDecoder<void*>* ppCommandList)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommandList1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "nodeMask", to_string_flags, tab_count, tab_size, ToString(nodeMask, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "type", to_string_flags, tab_count, tab_size, '"' + ToString(type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "flags", to_string_flags, tab_count, tab_size, '"' + ToString(flags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandList));
+            FieldToString(str_strm, true, "nodeMask", to_string_flags_, tab_count, tab_size, ToString(nodeMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "type", to_string_flags_, tab_count, tab_size, '"' + ToString(type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "flags", to_string_flags_, tab_count, tab_size, '"' + ToString(flags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppCommandList", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppCommandList));
         }
     );
 }
@@ -8084,22 +7793,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
         HandlePointerDecoder<void*>* ppSession)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateProtectedResourceSession";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSession));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppSession", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSession));
         }
     );
 }
@@ -8118,27 +7826,26 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         HandlePointerDecoder<void*>* ppvResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommittedResource1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pHeapProperties", to_string_flags, tab_count, tab_size, PointerDecoderToString(pHeapProperties, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "HeapFlags", to_string_flags, tab_count, tab_size, '"' + ToString(HeapFlags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitialResourceState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialResourceState, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
-            FieldToString(str_strm, false, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, true, "pHeapProperties", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pHeapProperties, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "HeapFlags", to_string_flags_, tab_count, tab_size, '"' + ToString(HeapFlags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitialResourceState", to_string_flags_, tab_count, tab_size, '"' + ToString(InitialResourceState, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOptimizedClearValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pProtectedSession", to_string_flags_, tab_count, tab_size, HandleIdToString(pProtectedSession));
+            FieldToString(str_strm, false, "riidResource", to_string_flags_, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -8153,23 +7860,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateHeap1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pProtectedSession", to_string_flags_, tab_count, tab_size, HandleIdToString(pProtectedSession));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvHeap", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvHeap));
         }
     );
 }
@@ -8186,25 +7892,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
         HandlePointerDecoder<void*>* ppvResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device4";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateReservedResource1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitialState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitialState", to_string_flags_, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOptimizedClearValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pProtectedSession", to_string_flags_, tab_count, tab_size, HandleIdToString(pProtectedSession));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -8215,7 +7920,6 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
         D3D12_LIFETIME_STATE NewState)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8225,10 +7929,10 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NewState", to_string_flags, tab_count, tab_size, '"' + ToString(NewState, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "NewState", to_string_flags_, tab_count, tab_size, '"' + ToString(NewState, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -8239,17 +7943,16 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
         Decoded_LUID return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12SwapChainAssistant";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetLUID";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -8264,21 +7967,20 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
         HandlePointerDecoder<void*>* ppv)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12SwapChainAssistant";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetSwapChainObject";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppv", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppv));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppv", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppv));
         }
     );
 }
@@ -8293,23 +7995,22 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
         HandlePointerDecoder<void*>* ppvQueue)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12SwapChainAssistant";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetCurrentResourceAndCommandQueue";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
-            FieldToString(str_strm, false, "riidQueue", to_string_flags, tab_count, tab_size, ToString(*riidQueue.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvQueue", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvQueue));
+            FieldToString(str_strm, true, "riidResource", to_string_flags_, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, false, "riidQueue", to_string_flags_, tab_count, tab_size, ToString(*riidQueue.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvQueue", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvQueue));
         }
     );
 }
@@ -8320,17 +8021,16 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12SwapChainAssistant";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "InsertImplicitSync";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -8344,20 +8044,19 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
         format::HandleId pObject)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12LifetimeTracker";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "DestroyOwnedObject";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pObject", to_string_flags, tab_count, tab_size, HandleIdToString(pObject));
+            FieldToString(str_strm, true, "pObject", to_string_flags_, tab_count, tab_size, HandleIdToString(pObject));
         }
     );
 }
@@ -8369,7 +8068,6 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
         WStringDecoder* pExportName)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8379,10 +8077,10 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pExportName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pExportName, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pExportName", to_string_flags_, tab_count, tab_size, StringDecoderToString(pExportName));
         }
     );
 }
@@ -8394,20 +8092,19 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
         WStringDecoder* pExportName)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12StateObjectProperties";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetShaderStackSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pExportName", to_string_flags, tab_count, tab_size, PointerDecoderToString(pExportName, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pExportName", to_string_flags_, tab_count, tab_size, StringDecoderToString(pExportName));
         }
     );
 }
@@ -8418,17 +8115,16 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12StateObjectProperties";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetPipelineStackSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -8441,7 +8137,6 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize
         UINT64 PipelineStackSizeInBytes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8451,10 +8146,10 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "PipelineStackSizeInBytes", to_string_flags, tab_count, tab_size, ToString(PipelineStackSizeInBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "PipelineStackSizeInBytes", to_string_flags_, tab_count, tab_size, ToString(PipelineStackSizeInBytes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8468,22 +8163,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         HandlePointerDecoder<void*>* ppvTracker)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device5";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateLifetimeTracker";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pOwner", to_string_flags, tab_count, tab_size, HandleIdToString(pOwner));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvTracker", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvTracker));
+            FieldToString(str_strm, true, "pOwner", to_string_flags_, tab_count, tab_size, HandleIdToString(pOwner));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvTracker", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvTracker));
         }
     );
 }
@@ -8493,7 +8187,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_RemoveDevice(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8503,7 +8196,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_RemoveDevice(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -8518,21 +8211,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
         StructPointerDecoder<Decoded_D3D12_META_COMMAND_DESC>* pDescs)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device5";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumerateMetaCommands";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pNumMetaCommands", to_string_flags, tab_count, tab_size, PointerDecoderToString(pNumMetaCommands, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pDescs", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pNumMetaCommands, pDescs, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pNumMetaCommands", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pNumMetaCommands, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pDescs", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(pNumMetaCommands, pDescs, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8548,24 +8240,23 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
         StructPointerDecoder<Decoded_D3D12_META_COMMAND_PARAMETER_DESC>* pParameterDescs)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device5";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "EnumerateMetaCommandParameters";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "CommandId", to_string_flags, tab_count, tab_size, ToString(*CommandId.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Stage", to_string_flags, tab_count, tab_size, '"' + ToString(Stage, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]pTotalStructureSizeInBytes", to_string_flags, tab_count, tab_size, PointerDecoderToString(pTotalStructureSizeInBytes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pParameterCount", to_string_flags, tab_count, tab_size, PointerDecoderToString(pParameterCount, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pParameterDescs", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pParameterCount, pParameterDescs, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "CommandId", to_string_flags_, tab_count, tab_size, ToString(*CommandId.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Stage", to_string_flags_, tab_count, tab_size, '"' + ToString(Stage, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]pTotalStructureSizeInBytes", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pTotalStructureSizeInBytes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pParameterCount", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pParameterCount, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pParameterDescs", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(pParameterCount, pParameterDescs, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8582,25 +8273,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
         HandlePointerDecoder<void*>* ppMetaCommand)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device5";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateMetaCommand";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "CommandId", to_string_flags, tab_count, tab_size, ToString(*CommandId.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NodeMask", to_string_flags, tab_count, tab_size, ToString(NodeMask, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pCreationParametersData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(CreationParametersDataSizeInBytes, pCreationParametersData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "CreationParametersDataSizeInBytes", to_string_flags, tab_count, tab_size, ToString(CreationParametersDataSizeInBytes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppMetaCommand", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppMetaCommand));
+            FieldToString(str_strm, true, "CommandId", to_string_flags_, tab_count, tab_size, ToString(*CommandId.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NodeMask", to_string_flags_, tab_count, tab_size, ToString(NodeMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pCreationParametersData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(CreationParametersDataSizeInBytes, pCreationParametersData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "CreationParametersDataSizeInBytes", to_string_flags_, tab_count, tab_size, ToString(CreationParametersDataSizeInBytes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppMetaCommand", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppMetaCommand));
         }
     );
 }
@@ -8614,22 +8304,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
         HandlePointerDecoder<void*>* ppStateObject)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device5";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateStateObject";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppStateObject", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppStateObject));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppStateObject", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppStateObject));
         }
     );
 }
@@ -8641,7 +8330,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructure
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO>* pInfo)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8651,11 +8339,11 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructure
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pInfo", to_string_flags, tab_count, tab_size, PointerDecoderToString(pInfo, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pInfo", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pInfo, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8668,21 +8356,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
         StructPointerDecoder<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>* pIdentifierToCheck)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device5";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CheckDriverMatchingIdentifier";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "SerializedDataType", to_string_flags, tab_count, tab_size, '"' + ToString(SerializedDataType, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pIdentifierToCheck", to_string_flags, tab_count, tab_size, PointerDecoderToString(pIdentifierToCheck, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "SerializedDataType", to_string_flags_, tab_count, tab_size, '"' + ToString(SerializedDataType, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pIdentifierToCheck", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pIdentifierToCheck, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8693,7 +8380,6 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAutoB
         D3D12_DRED_ENABLEMENT Enablement)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8703,10 +8389,10 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAutoB
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enablement", to_string_flags, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Enablement", to_string_flags_, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -8717,7 +8403,6 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPageF
         D3D12_DRED_ENABLEMENT Enablement)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8727,10 +8412,10 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPageF
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enablement", to_string_flags, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Enablement", to_string_flags_, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -8741,7 +8426,6 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWatso
         D3D12_DRED_ENABLEMENT Enablement)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8751,10 +8435,10 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWatso
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enablement", to_string_flags, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Enablement", to_string_flags_, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -8765,7 +8449,6 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBrea
         D3D12_DRED_ENABLEMENT Enablement)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -8775,10 +8458,10 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBrea
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enablement", to_string_flags, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Enablement", to_string_flags_, tab_count, tab_size, '"' + ToString(Enablement, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -8790,20 +8473,19 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrum
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT>* pOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DeviceRemovedExtendedData";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetAutoBreadcrumbsOutput";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pOutput", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOutput, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pOutput", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOutput, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8815,20 +8497,19 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllo
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT>* pOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DeviceRemovedExtendedData";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetPageFaultAllocationOutput";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pOutput", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOutput, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pOutput", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOutput, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8840,20 +8521,19 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcru
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>* pOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DeviceRemovedExtendedData1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetAutoBreadcrumbsOutput1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pOutput", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOutput, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pOutput", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOutput, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8865,20 +8545,19 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAll
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* pOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DeviceRemovedExtendedData1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetPageFaultAllocationOutput1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pOutput", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOutput, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pOutput", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOutput, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8890,20 +8569,19 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetPageFaultAll
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2>* pOutput)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DeviceRemovedExtendedData2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetPageFaultAllocationOutput2";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "[out]pOutput", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOutput, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "[out]pOutput", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOutput, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8914,17 +8592,16 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetDeviceState(
         D3D12_DRED_DEVICE_STATE return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DeviceRemovedExtendedData2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDeviceState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -8941,23 +8618,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
         PointerDecoder<BOOL>* pbFurtherMeasurementsDesired)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device6";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetBackgroundProcessingMode";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Mode", to_string_flags, tab_count, tab_size, '"' + ToString(Mode, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "MeasurementsAction", to_string_flags, tab_count, tab_size, '"' + ToString(MeasurementsAction, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "hEventToSignalUponCompletion", to_string_flags, tab_count, tab_size, HandleIdToString(hEventToSignalUponCompletion));
-            FieldToString(str_strm, false, "[out]pbFurtherMeasurementsDesired", to_string_flags, tab_count, tab_size, PointerDecoderToString(pbFurtherMeasurementsDesired, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Mode", to_string_flags_, tab_count, tab_size, '"' + ToString(Mode, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "MeasurementsAction", to_string_flags_, tab_count, tab_size, '"' + ToString(MeasurementsAction, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "hEventToSignalUponCompletion", to_string_flags_, tab_count, tab_size, HandleIdToString(hEventToSignalUponCompletion));
+            FieldToString(str_strm, false, "[out]pbFurtherMeasurementsDesired", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pbFurtherMeasurementsDesired, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -8968,17 +8644,16 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
         Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12ProtectedResourceSession1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -8995,23 +8670,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
         HandlePointerDecoder<void*>* ppNewStateObject)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device7";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AddToStateObject";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pAddition", to_string_flags, tab_count, tab_size, PointerDecoderToString(pAddition, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pStateObjectToGrowFrom", to_string_flags, tab_count, tab_size, HandleIdToString(pStateObjectToGrowFrom));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppNewStateObject", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppNewStateObject));
+            FieldToString(str_strm, true, "pAddition", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pAddition, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pStateObjectToGrowFrom", to_string_flags_, tab_count, tab_size, HandleIdToString(pStateObjectToGrowFrom));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppNewStateObject", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppNewStateObject));
         }
     );
 }
@@ -9025,22 +8699,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
         HandlePointerDecoder<void*>* ppSession)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device7";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateProtectedResourceSession1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppSession));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppSession", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppSession));
         }
     );
 }
@@ -9055,23 +8728,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device8";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetResourceAllocationInfo2";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "visibleMask", to_string_flags, tab_count, tab_size, ToString(visibleMask, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "numResourceDescs", to_string_flags, tab_count, tab_size, ToString(numResourceDescs, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pResourceDescs", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(numResourceDescs, pResourceDescs, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pResourceAllocationInfo1", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(numResourceDescs, pResourceAllocationInfo1, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "visibleMask", to_string_flags_, tab_count, tab_size, ToString(visibleMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "numResourceDescs", to_string_flags_, tab_count, tab_size, ToString(numResourceDescs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pResourceDescs", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(numResourceDescs, pResourceDescs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pResourceAllocationInfo1", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(numResourceDescs, pResourceAllocationInfo1, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9090,27 +8762,26 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         HandlePointerDecoder<void*>* ppvResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device8";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommittedResource2";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pHeapProperties", to_string_flags, tab_count, tab_size, PointerDecoderToString(pHeapProperties, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "HeapFlags", to_string_flags, tab_count, tab_size, '"' + ToString(HeapFlags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitialResourceState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialResourceState, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pProtectedSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedSession));
-            FieldToString(str_strm, false, "riidResource", to_string_flags, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, true, "pHeapProperties", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pHeapProperties, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "HeapFlags", to_string_flags_, tab_count, tab_size, '"' + ToString(HeapFlags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitialResourceState", to_string_flags_, tab_count, tab_size, '"' + ToString(InitialResourceState, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOptimizedClearValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pProtectedSession", to_string_flags_, tab_count, tab_size, HandleIdToString(pProtectedSession));
+            FieldToString(str_strm, false, "riidResource", to_string_flags_, tab_count, tab_size, ToString(*riidResource.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -9128,26 +8799,25 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         HandlePointerDecoder<void*>* ppvResource)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device8";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreatePlacedResource1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pHeap", to_string_flags, tab_count, tab_size, HandleIdToString(pHeap));
-            FieldToString(str_strm, false, "HeapOffset", to_string_flags, tab_count, tab_size, ToString(HeapOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitialState", to_string_flags, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags, tab_count, tab_size, PointerDecoderToString(pOptimizedClearValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
+            FieldToString(str_strm, true, "pHeap", to_string_flags_, tab_count, tab_size, HandleIdToString(pHeap));
+            FieldToString(str_strm, false, "HeapOffset", to_string_flags_, tab_count, tab_size, ToString(HeapOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitialState", to_string_flags_, tab_count, tab_size, '"' + ToString(InitialState, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pOptimizedClearValue", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pOptimizedClearValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvResource", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvResource));
         }
     );
 }
@@ -9160,7 +8830,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcce
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9170,12 +8839,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcce
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pTargetedResource", to_string_flags, tab_count, tab_size, HandleIdToString(pTargetedResource));
-            FieldToString(str_strm, false, "pFeedbackResource", to_string_flags, tab_count, tab_size, HandleIdToString(pFeedbackResource));
-            FieldToString(str_strm, false, "DestDescriptor", to_string_flags, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pTargetedResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pTargetedResource));
+            FieldToString(str_strm, false, "pFeedbackResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pFeedbackResource));
+            FieldToString(str_strm, false, "DestDescriptor", to_string_flags_, tab_count, tab_size, ToString(*DestDescriptor.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9193,7 +8862,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
         PointerDecoder<UINT64>* pTotalBytes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9203,17 +8871,17 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResourceDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pResourceDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "FirstSubresource", to_string_flags, tab_count, tab_size, ToString(FirstSubresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumSubresources", to_string_flags, tab_count, tab_size, ToString(NumSubresources, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "BaseOffset", to_string_flags, tab_count, tab_size, ToString(BaseOffset, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pLayouts", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pLayouts, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pNumRows", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pNumRows, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pRowSizeInBytes", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pRowSizeInBytes, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pTotalBytes", to_string_flags, tab_count, tab_size, PointerDecoderToString(pTotalBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResourceDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pResourceDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "FirstSubresource", to_string_flags_, tab_count, tab_size, ToString(FirstSubresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumSubresources", to_string_flags_, tab_count, tab_size, ToString(NumSubresources, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "BaseOffset", to_string_flags_, tab_count, tab_size, ToString(BaseOffset, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pLayouts", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumSubresources, pLayouts, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pNumRows", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pNumRows, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pRowSizeInBytes", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumSubresources, pRowSizeInBytes, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pTotalBytes", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pTotalBytes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9226,21 +8894,20 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetProtectedResourceSession";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppProtectedSession));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppProtectedSession));
         }
     );
 }
@@ -9251,17 +8918,16 @@ void Dx12AsciiConsumer::Process_ID3D12Resource2_GetDesc1(
         Decoded_D3D12_RESOURCE_DESC1 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -9276,21 +8942,20 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Heap1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetProtectedResourceSession";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppProtectedSession));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppProtectedSession", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppProtectedSession));
         }
     );
 }
@@ -9301,7 +8966,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceS
         format::HandleId pProtectedResourceSession)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9311,10 +8975,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceS
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pProtectedResourceSession", to_string_flags, tab_count, tab_size, HandleIdToString(pProtectedResourceSession));
+            FieldToString(str_strm, true, "pProtectedResourceSession", to_string_flags_, tab_count, tab_size, HandleIdToString(pProtectedResourceSession));
         }
     );
 }
@@ -9327,21 +8991,20 @@ void Dx12AsciiConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSi
         UINT ParameterIndex)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12MetaCommand";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetRequiredParameterResourceSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Stage", to_string_flags, tab_count, tab_size, '"' + ToString(Stage, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "ParameterIndex", to_string_flags, tab_count, tab_size, ToString(ParameterIndex, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Stage", to_string_flags_, tab_count, tab_size, '"' + ToString(Stage, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "ParameterIndex", to_string_flags_, tab_count, tab_size, ToString(ParameterIndex, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9355,7 +9018,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
         D3D12_RENDER_PASS_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9365,13 +9027,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "NumRenderTargets", to_string_flags, tab_count, tab_size, ToString(NumRenderTargets, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRenderTargets", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumRenderTargets, pRenderTargets, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pDepthStencil", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDepthStencil, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "NumRenderTargets", to_string_flags_, tab_count, tab_size, ToString(NumRenderTargets, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRenderTargets", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumRenderTargets, pRenderTargets, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pDepthStencil", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDepthStencil, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -9381,7 +9043,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9391,7 +9052,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -9406,7 +9067,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand
         SIZE_T InitializationParametersDataSizeInBytes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9416,12 +9076,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pMetaCommand", to_string_flags, tab_count, tab_size, HandleIdToString(pMetaCommand));
-            FieldToString(str_strm, false, "pInitializationParametersData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(InitializationParametersDataSizeInBytes, pInitializationParametersData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "InitializationParametersDataSizeInBytes", to_string_flags, tab_count, tab_size, ToString(InitializationParametersDataSizeInBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pMetaCommand", to_string_flags_, tab_count, tab_size, HandleIdToString(pMetaCommand));
+            FieldToString(str_strm, false, "pInitializationParametersData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(InitializationParametersDataSizeInBytes, pInitializationParametersData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "InitializationParametersDataSizeInBytes", to_string_flags_, tab_count, tab_size, ToString(InitializationParametersDataSizeInBytes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9434,7 +9094,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
         SIZE_T ExecutionParametersDataSizeInBytes)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9444,12 +9103,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pMetaCommand", to_string_flags, tab_count, tab_size, HandleIdToString(pMetaCommand));
-            FieldToString(str_strm, false, "pExecutionParametersData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(ExecutionParametersDataSizeInBytes, pExecutionParametersData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ExecutionParametersDataSizeInBytes", to_string_flags, tab_count, tab_size, ToString(ExecutionParametersDataSizeInBytes, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pMetaCommand", to_string_flags_, tab_count, tab_size, HandleIdToString(pMetaCommand));
+            FieldToString(str_strm, false, "pExecutionParametersData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(ExecutionParametersDataSizeInBytes, pExecutionParametersData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ExecutionParametersDataSizeInBytes", to_string_flags_, tab_count, tab_size, ToString(ExecutionParametersDataSizeInBytes, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9462,7 +9121,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccele
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9472,12 +9130,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccele
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumPostbuildInfoDescs", to_string_flags, tab_count, tab_size, ToString(NumPostbuildInfoDescs, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pPostbuildInfoDescs", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumPostbuildInfoDescs, pPostbuildInfoDescs, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumPostbuildInfoDescs", to_string_flags_, tab_count, tab_size, ToString(NumPostbuildInfoDescs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pPostbuildInfoDescs", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(NumPostbuildInfoDescs, pPostbuildInfoDescs, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9490,7 +9148,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAcceler
         PointerDecoder<D3D12_GPU_VIRTUAL_ADDRESS>* pSourceAccelerationStructureData)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9500,12 +9157,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAcceler
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "NumSourceAccelerationStructures", to_string_flags, tab_count, tab_size, ToString(NumSourceAccelerationStructures, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pSourceAccelerationStructureData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(NumSourceAccelerationStructures, pSourceAccelerationStructureData, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "NumSourceAccelerationStructures", to_string_flags_, tab_count, tab_size, ToString(NumSourceAccelerationStructures, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pSourceAccelerationStructureData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(NumSourceAccelerationStructures, pSourceAccelerationStructureData, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9518,7 +9175,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAcceler
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9528,12 +9184,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAcceler
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "DestAccelerationStructureData", to_string_flags, tab_count, tab_size, ToString(DestAccelerationStructureData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SourceAccelerationStructureData", to_string_flags, tab_count, tab_size, ToString(SourceAccelerationStructureData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "Mode", to_string_flags, tab_count, tab_size, '"' + ToString(Mode, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "DestAccelerationStructureData", to_string_flags_, tab_count, tab_size, ToString(DestAccelerationStructureData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SourceAccelerationStructureData", to_string_flags_, tab_count, tab_size, ToString(SourceAccelerationStructureData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "Mode", to_string_flags_, tab_count, tab_size, '"' + ToString(Mode, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -9544,7 +9200,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
         format::HandleId pStateObject)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9554,10 +9209,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pStateObject", to_string_flags, tab_count, tab_size, HandleIdToString(pStateObject));
+            FieldToString(str_strm, true, "pStateObject", to_string_flags_, tab_count, tab_size, HandleIdToString(pStateObject));
         }
     );
 }
@@ -9568,7 +9223,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
         StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* pDesc)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9578,10 +9232,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9596,23 +9250,22 @@ void Dx12AsciiConsumer::Process_ID3D12ShaderCacheSession_FindValue(
         PointerDecoder<UINT>* pValueSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12ShaderCacheSession";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "FindValue";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pKey", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(KeySize, pKey, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "KeySize", to_string_flags, tab_count, tab_size, ToString(KeySize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]pValue", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(pValueSize, pValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pValueSize", to_string_flags, tab_count, tab_size, PointerDecoderToString(pValueSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pKey", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(KeySize, pKey, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "KeySize", to_string_flags_, tab_count, tab_size, ToString(KeySize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pValue", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(pValueSize, pValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pValueSize", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pValueSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9627,23 +9280,22 @@ void Dx12AsciiConsumer::Process_ID3D12ShaderCacheSession_StoreValue(
         UINT ValueSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12ShaderCacheSession";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "StoreValue";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pKey", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(KeySize, pKey, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "KeySize", to_string_flags, tab_count, tab_size, ToString(KeySize, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pValue", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(ValueSize, pValue, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ValueSize", to_string_flags, tab_count, tab_size, ToString(ValueSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pKey", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(KeySize, pKey, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "KeySize", to_string_flags_, tab_count, tab_size, ToString(KeySize, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pValue", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(ValueSize, pValue, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ValueSize", to_string_flags_, tab_count, tab_size, ToString(ValueSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9653,7 +9305,6 @@ void Dx12AsciiConsumer::Process_ID3D12ShaderCacheSession_SetDeleteOnDestroy(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9663,7 +9314,7 @@ void Dx12AsciiConsumer::Process_ID3D12ShaderCacheSession_SetDeleteOnDestroy(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -9676,17 +9327,16 @@ void Dx12AsciiConsumer::Process_ID3D12ShaderCacheSession_GetDesc(
         Decoded_D3D12_SHADER_CACHE_SESSION_DESC return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12ShaderCacheSession";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDesc";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -9702,22 +9352,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device9_CreateShaderCacheSession(
         HandlePointerDecoder<void*>* ppvSession)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device9";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateShaderCacheSession";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvSession", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvSession));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvSession", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvSession));
         }
     );
 }
@@ -9730,21 +9379,20 @@ void Dx12AsciiConsumer::Process_ID3D12Device9_ShaderCacheControl(
         D3D12_SHADER_CACHE_CONTROL_FLAGS Control)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device9";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ShaderCacheControl";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Kinds", to_string_flags, tab_count, tab_size, '"' + ToString(Kinds, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Control", to_string_flags, tab_count, tab_size, '"' + ToString(Control, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Kinds", to_string_flags_, tab_count, tab_size, '"' + ToString(Kinds, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Control", to_string_flags_, tab_count, tab_size, '"' + ToString(Control, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -9759,23 +9407,22 @@ void Dx12AsciiConsumer::Process_ID3D12Device9_CreateCommandQueue1(
         HandlePointerDecoder<void*>* ppCommandQueue)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device9";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "CreateCommandQueue1";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pDesc", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDesc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "CreatorID", to_string_flags, tab_count, tab_size, ToString(*CreatorID.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppCommandQueue", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppCommandQueue));
+            FieldToString(str_strm, true, "pDesc", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDesc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "CreatorID", to_string_flags_, tab_count, tab_size, ToString(*CreatorID.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppCommandQueue", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppCommandQueue));
         }
     );
 }
@@ -9786,7 +9433,6 @@ void Dx12AsciiConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
         BOOL bEnable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9796,10 +9442,10 @@ void Dx12AsciiConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "bEnable", to_string_flags, tab_count, tab_size, ToString(bEnable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "bEnable", to_string_flags_, tab_count, tab_size, ToString(bEnable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9810,17 +9456,16 @@ void Dx12AsciiConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
         BOOL return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Tools";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ShaderInstrumentationEnabled";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -9835,21 +9480,20 @@ void Dx12AsciiConsumer::Process_ID3D12SDKConfiguration_SetSDKVersion(
         StringDecoder* SDKPath)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12SDKConfiguration";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetSDKVersion";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "SDKVersion", to_string_flags, tab_count, tab_size, ToString(SDKVersion, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "SDKPath", to_string_flags, tab_count, tab_size, PointerDecoderToString(SDKPath, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "SDKVersion", to_string_flags_, tab_count, tab_size, ToString(SDKVersion, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SDKPath", to_string_flags_, tab_count, tab_size, StringDecoderToString(SDKPath));
         }
     );
 }
@@ -9861,7 +9505,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         PointerDecoder<D3D12_SHADING_RATE_COMBINER>* combiners)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9871,11 +9514,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "baseShadingRate", to_string_flags, tab_count, tab_size, '"' + ToString(baseShadingRate, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "combiners", to_string_flags, tab_count, tab_size, EnumPointerDecoderArrayToString(D3D12_RS_SET_SHADING_RATE_COMBINER_COUNT, combiners, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "baseShadingRate", to_string_flags_, tab_count, tab_size, '"' + ToString(baseShadingRate, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "combiners", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(D3D12_RS_SET_SHADING_RATE_COMBINER_COUNT, combiners, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9886,7 +9529,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage
         format::HandleId shadingRateImage)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9896,10 +9538,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "shadingRateImage", to_string_flags, tab_count, tab_size, HandleIdToString(shadingRateImage));
+            FieldToString(str_strm, true, "shadingRateImage", to_string_flags_, tab_count, tab_size, HandleIdToString(shadingRateImage));
         }
     );
 }
@@ -9912,7 +9554,6 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
         UINT ThreadGroupCountZ)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -9922,12 +9563,12 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ThreadGroupCountX", to_string_flags, tab_count, tab_size, ToString(ThreadGroupCountX, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ThreadGroupCountY", to_string_flags, tab_count, tab_size, ToString(ThreadGroupCountY, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "ThreadGroupCountZ", to_string_flags, tab_count, tab_size, ToString(ThreadGroupCountZ, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "ThreadGroupCountX", to_string_flags_, tab_count, tab_size, ToString(ThreadGroupCountX, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ThreadGroupCountY", to_string_flags_, tab_count, tab_size, ToString(ThreadGroupCountY, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ThreadGroupCountZ", to_string_flags_, tab_count, tab_size, ToString(ThreadGroupCountZ, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -9942,17 +9583,16 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferPointer(
         uint64_t return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D10Blob";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetBufferPointer";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -9965,17 +9605,16 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferSize(
         SIZE_T return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D10Blob";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetBufferSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -9991,22 +9630,21 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallb
         PointerDecoder<UINT>* pCallbackID)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3DDestructionNotifier";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterDestructionCallback";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "callbackFn", to_string_flags, tab_count, tab_size, ToString(callbackFn, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, HandleIdToString(pData));
-            FieldToString(str_strm, false, "[out]pCallbackID", to_string_flags, tab_count, tab_size, PointerDecoderToString(pCallbackID, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "callbackFn", to_string_flags_, tab_count, tab_size, ToString(callbackFn, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, HandleIdToString(pData));
+            FieldToString(str_strm, false, "[out]pCallbackID", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pCallbackID, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10018,20 +9656,19 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCal
         UINT callbackID)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3DDestructionNotifier";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "UnregisterDestructionCallback";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "callbackID", to_string_flags, tab_count, tab_size, ToString(callbackID, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "callbackID", to_string_flags_, tab_count, tab_size, ToString(callbackID, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10045,7 +9682,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug_EnableDebugLayer(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10055,7 +9691,7 @@ void Dx12AsciiConsumer::Process_ID3D12Debug_EnableDebugLayer(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10067,7 +9703,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_EnableDebugLayer(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10077,7 +9712,7 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_EnableDebugLayer(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10090,7 +9725,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableGPUBasedValidation(
         BOOL Enable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10100,10 +9734,10 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableGPUBasedValidation(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enable", to_string_flags, tab_count, tab_size, ToString(Enable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Enable", to_string_flags_, tab_count, tab_size, ToString(Enable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10114,7 +9748,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableSynchronizedCommandQueueVa
         BOOL Enable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10124,10 +9757,10 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableSynchronizedCommandQueueVa
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enable", to_string_flags, tab_count, tab_size, ToString(Enable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Enable", to_string_flags_, tab_count, tab_size, ToString(Enable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10138,7 +9771,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10148,10 +9780,10 @@ void Dx12AsciiConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -10162,7 +9794,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableGPUBasedValidation(
         BOOL Enable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10172,10 +9803,10 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableGPUBasedValidation(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enable", to_string_flags, tab_count, tab_size, ToString(Enable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Enable", to_string_flags_, tab_count, tab_size, ToString(Enable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10186,7 +9817,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableSynchronizedCommandQueueVa
         BOOL Enable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10196,10 +9826,10 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableSynchronizedCommandQueueVa
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enable", to_string_flags, tab_count, tab_size, ToString(Enable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Enable", to_string_flags_, tab_count, tab_size, ToString(Enable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10210,7 +9840,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10220,10 +9849,10 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -10233,7 +9862,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug4_DisableDebugLayer(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10243,7 +9871,7 @@ void Dx12AsciiConsumer::Process_ID3D12Debug4_DisableDebugLayer(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10256,7 +9884,6 @@ void Dx12AsciiConsumer::Process_ID3D12Debug5_SetEnableAutoName(
         BOOL Enable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10266,10 +9893,10 @@ void Dx12AsciiConsumer::Process_ID3D12Debug5_SetEnableAutoName(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Enable", to_string_flags, tab_count, tab_size, ToString(Enable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Enable", to_string_flags_, tab_count, tab_size, ToString(Enable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10283,22 +9910,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10312,22 +9938,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10339,20 +9964,19 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
         D3D12_RLDO_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReportLiveDeviceObjects";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -10364,20 +9988,19 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
         D3D12_DEBUG_FEATURE Mask)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetFeatureMask";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Mask", to_string_flags, tab_count, tab_size, '"' + ToString(Mask, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Mask", to_string_flags_, tab_count, tab_size, '"' + ToString(Mask, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -10388,17 +10011,16 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
         D3D12_DEBUG_FEATURE return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFeatureMask";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10412,20 +10034,19 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
         D3D12_RLDO_FLAGS Flags)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "ReportLiveDeviceObjects";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Flags", to_string_flags, tab_count, tab_size, '"' + ToString(Flags, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Flags", to_string_flags_, tab_count, tab_size, '"' + ToString(Flags, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -10439,22 +10060,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10468,22 +10088,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugDevice2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10497,22 +10116,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
         UINT State)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AssertResourceState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "Subresource", to_string_flags, tab_count, tab_size, ToString(Subresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "State", to_string_flags, tab_count, tab_size, ToString(State, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "State", to_string_flags_, tab_count, tab_size, ToString(State, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10526,22 +10144,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
         UINT State)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AssertResourceState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "Subresource", to_string_flags, tab_count, tab_size, ToString(Subresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "State", to_string_flags, tab_count, tab_size, ToString(State, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "State", to_string_flags_, tab_count, tab_size, ToString(State, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10555,22 +10172,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10584,22 +10200,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10613,22 +10228,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
         UINT State)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AssertResourceState";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "Subresource", to_string_flags, tab_count, tab_size, ToString(Subresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "State", to_string_flags, tab_count, tab_size, ToString(State, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "State", to_string_flags_, tab_count, tab_size, ToString(State, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10640,20 +10254,19 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
         D3D12_DEBUG_FEATURE Mask)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetFeatureMask";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Mask", to_string_flags, tab_count, tab_size, '"' + ToString(Mask, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Mask", to_string_flags_, tab_count, tab_size, '"' + ToString(Mask, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -10664,17 +10277,16 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
         D3D12_DEBUG_FEATURE return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetFeatureMask";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10690,22 +10302,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10719,22 +10330,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
         UINT DataSize)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DebugCommandList2";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetDebugParameter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Type", to_string_flags, tab_count, tab_size, '"' + ToString(Type, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "[out]pData", to_string_flags, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "DataSize", to_string_flags, tab_count, tab_size, ToString(DataSize, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Type", to_string_flags_, tab_count, tab_size, '"' + ToString(Type, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "[out]pData", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(DataSize, pData, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DataSize", to_string_flags_, tab_count, tab_size, ToString(DataSize, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10747,7 +10357,6 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
         uint64_t window)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10757,12 +10366,12 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pResource", to_string_flags, tab_count, tab_size, HandleIdToString(pResource));
-            FieldToString(str_strm, false, "Subresource", to_string_flags, tab_count, tab_size, ToString(Subresource, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "window", to_string_flags, tab_count, tab_size, HandleIdToString(window));
+            FieldToString(str_strm, true, "pResource", to_string_flags_, tab_count, tab_size, HandleIdToString(pResource));
+            FieldToString(str_strm, false, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "window", to_string_flags_, tab_count, tab_size, HandleIdToString(window));
         }
     );
 }
@@ -10774,7 +10383,6 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
         UINT64 FenceValue)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10784,11 +10392,11 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pFence", to_string_flags, tab_count, tab_size, HandleIdToString(pFence));
-            FieldToString(str_strm, false, "FenceValue", to_string_flags, tab_count, tab_size, ToString(FenceValue, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pFence", to_string_flags_, tab_count, tab_size, HandleIdToString(pFence));
+            FieldToString(str_strm, false, "FenceValue", to_string_flags_, tab_count, tab_size, ToString(FenceValue, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10799,7 +10407,6 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_BeginCapturableWork(
         Decoded_GUID guid)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10809,10 +10416,10 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_BeginCapturableWork(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "guid", to_string_flags, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "guid", to_string_flags_, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10823,7 +10430,6 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
         Decoded_GUID guid)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10833,10 +10439,10 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "guid", to_string_flags, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "guid", to_string_flags_, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10848,20 +10454,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
         UINT64 MessageCountLimit)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetMessageCountLimit";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "MessageCountLimit", to_string_flags, tab_count, tab_size, ToString(MessageCountLimit, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "MessageCountLimit", to_string_flags_, tab_count, tab_size, ToString(MessageCountLimit, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -10871,7 +10476,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -10881,7 +10485,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10894,17 +10498,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFi
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetNumMessagesAllowedByStorageFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10917,17 +10520,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFil
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetNumMessagesDeniedByStorageFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10940,17 +10542,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetNumStoredMessages";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10963,17 +10564,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRet
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetNumStoredMessagesAllowedByRetrievalFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -10986,17 +10586,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessage
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetNumMessagesDiscardedByMessageCountLimit";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11009,17 +10608,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
         UINT64 return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetMessageCountLimit";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11033,20 +10631,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AddStorageFilterEntries";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pFilter", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFilter, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pFilter", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pFilter, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11056,7 +10653,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -11066,7 +10662,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11079,17 +10675,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "PushEmptyStorageFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11102,17 +10697,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "PushCopyOfStorageFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11126,20 +10720,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "PushStorageFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pFilter", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFilter, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pFilter", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pFilter, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11149,7 +10742,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -11159,7 +10751,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11172,17 +10764,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
         UINT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetStorageFilterStackSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11196,20 +10787,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AddRetrievalFilterEntries";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pFilter", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFilter, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pFilter", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pFilter, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11219,7 +10809,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -11229,7 +10818,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11242,17 +10831,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "PushEmptyRetrievalFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11265,17 +10853,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
         HRESULT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "PushCopyOfRetrievalFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11289,20 +10876,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "PushRetrievalFilter";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "pFilter", to_string_flags, tab_count, tab_size, PointerDecoderToString(pFilter, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "pFilter", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pFilter, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11312,7 +10898,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
         format::HandleId object_id)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -11322,7 +10907,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11335,17 +10920,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
         UINT return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetRetrievalFilterStackSize";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11362,23 +10946,22 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
         StringDecoder* pDescription)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AddMessage";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Category", to_string_flags, tab_count, tab_size, '"' + ToString(Category, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "Severity", to_string_flags, tab_count, tab_size, '"' + ToString(Severity, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "ID", to_string_flags, tab_count, tab_size, '"' + ToString(ID, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pDescription", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDescription, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Category", to_string_flags_, tab_count, tab_size, '"' + ToString(Category, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "Severity", to_string_flags_, tab_count, tab_size, '"' + ToString(Severity, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "ID", to_string_flags_, tab_count, tab_size, '"' + ToString(ID, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pDescription", to_string_flags_, tab_count, tab_size, StringDecoderToString(pDescription));
         }
     );
 }
@@ -11391,21 +10974,20 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
         StringDecoder* pDescription)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AddApplicationMessage";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Severity", to_string_flags, tab_count, tab_size, '"' + ToString(Severity, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pDescription", to_string_flags, tab_count, tab_size, PointerDecoderToString(pDescription, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Severity", to_string_flags_, tab_count, tab_size, '"' + ToString(Severity, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pDescription", to_string_flags_, tab_count, tab_size, StringDecoderToString(pDescription));
         }
     );
 }
@@ -11418,21 +11000,20 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
         BOOL bEnable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetBreakOnCategory";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Category", to_string_flags, tab_count, tab_size, '"' + ToString(Category, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "bEnable", to_string_flags, tab_count, tab_size, ToString(bEnable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Category", to_string_flags_, tab_count, tab_size, '"' + ToString(Category, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "bEnable", to_string_flags_, tab_count, tab_size, ToString(bEnable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11445,21 +11026,20 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
         BOOL bEnable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetBreakOnSeverity";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Severity", to_string_flags, tab_count, tab_size, '"' + ToString(Severity, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "bEnable", to_string_flags, tab_count, tab_size, ToString(bEnable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "Severity", to_string_flags_, tab_count, tab_size, '"' + ToString(Severity, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "bEnable", to_string_flags_, tab_count, tab_size, ToString(bEnable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11472,21 +11052,20 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
         BOOL bEnable)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "SetBreakOnID";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ID", to_string_flags, tab_count, tab_size, '"' + ToString(ID, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "bEnable", to_string_flags, tab_count, tab_size, ToString(bEnable, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "ID", to_string_flags_, tab_count, tab_size, '"' + ToString(ID, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "bEnable", to_string_flags_, tab_count, tab_size, ToString(bEnable, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11498,20 +11077,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
         D3D12_MESSAGE_CATEGORY Category)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetBreakOnCategory";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Category", to_string_flags, tab_count, tab_size, '"' + ToString(Category, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Category", to_string_flags_, tab_count, tab_size, '"' + ToString(Category, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -11523,20 +11101,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
         D3D12_MESSAGE_SEVERITY Severity)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetBreakOnSeverity";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "Severity", to_string_flags, tab_count, tab_size, '"' + ToString(Severity, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "Severity", to_string_flags_, tab_count, tab_size, '"' + ToString(Severity, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -11548,20 +11125,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
         D3D12_MESSAGE_ID ID)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetBreakOnID";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "ID", to_string_flags, tab_count, tab_size, '"' + ToString(ID, to_string_flags, tab_count, tab_size) + '"');
+            FieldToString(str_strm, true, "ID", to_string_flags_, tab_count, tab_size, '"' + ToString(ID, to_string_flags_, tab_count, tab_size) + '"');
         }
     );
 }
@@ -11572,7 +11148,6 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
         BOOL bMute)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
@@ -11582,10 +11157,10 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
     std::string returnValue = std::string();
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "bMute", to_string_flags, tab_count, tab_size, ToString(bMute, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "bMute", to_string_flags_, tab_count, tab_size, ToString(bMute, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11596,17 +11171,16 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
         BOOL return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "GetMuteDebugOutput";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11623,23 +11197,22 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
         PointerDecoder<DWORD>* pCallbackCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "RegisterMessageCallback";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "CallbackFunc", to_string_flags, tab_count, tab_size, ToString(CallbackFunc, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "CallbackFilterFlags", to_string_flags, tab_count, tab_size, '"' + ToString(CallbackFilterFlags, to_string_flags, tab_count, tab_size) + '"');
-            FieldToString(str_strm, false, "pContext", to_string_flags, tab_count, tab_size, HandleIdToString(pContext));
-            FieldToString(str_strm, false, "pCallbackCookie", to_string_flags, tab_count, tab_size, PointerDecoderToString(pCallbackCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "CallbackFunc", to_string_flags_, tab_count, tab_size, ToString(CallbackFunc, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "CallbackFilterFlags", to_string_flags_, tab_count, tab_size, '"' + ToString(CallbackFilterFlags, to_string_flags_, tab_count, tab_size) + '"');
+            FieldToString(str_strm, false, "pContext", to_string_flags_, tab_count, tab_size, HandleIdToString(pContext));
+            FieldToString(str_strm, false, "pCallbackCookie", to_string_flags_, tab_count, tab_size, PointerDecoderToString(pCallbackCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11651,20 +11224,19 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue1_UnregisterMessageCallback(
         DWORD CallbackCookie)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12InfoQueue1";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "UnregisterMessageCallback";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "CallbackCookie", to_string_flags, tab_count, tab_size, ToString(CallbackCookie, to_string_flags, tab_count, tab_size));
+            FieldToString(str_strm, true, "CallbackCookie", to_string_flags_, tab_count, tab_size, ToString(CallbackCookie, to_string_flags_, tab_count, tab_size));
         }
     );
 }
@@ -11681,21 +11253,20 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
         HandlePointerDecoder<void*>* ppvObject)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IUnknown";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "QueryInterface";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
-            FieldToString(str_strm, true, "riid", to_string_flags, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppvObject", to_string_flags, tab_count, tab_size, OutPtrDecoderToString(ppvObject));
+            FieldToString(str_strm, true, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvObject", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvObject));
         }
     );
 }
@@ -11706,17 +11277,16 @@ void Dx12AsciiConsumer::Process_IUnknown_AddRef(
         ULONG return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IUnknown";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "AddRef";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }
@@ -11729,17 +11299,16 @@ void Dx12AsciiConsumer::Process_IUnknown_Release(
         ULONG return_value)
 {
     using namespace gfxrecon::util;
-    ToStringFlags to_string_flags = kToString_Default;
     uint32_t tab_count = 0;
     uint32_t tab_size = 4;
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "IUnknown";
     writeApiCallToFileInfo.handleId = object_id;
     writeApiCallToFileInfo.pFunctionName = "Release";
-    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags, tab_count, tab_size);
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
-        writeApiCallToFileInfo, to_string_flags, tab_count, tab_size,
+        writeApiCallToFileInfo, tab_count, tab_size,
         [&](std::stringstream& str_strm)
         {
         }

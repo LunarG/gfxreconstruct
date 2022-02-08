@@ -91,6 +91,7 @@ const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
 const char kForceWindowedShortArgument[]       = "--fw";
 const char kForceWindowedLongArgument[]        = "--force-windowed";
+const char kJsonObjectArgument[]               = "--json-object";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 const char kDxTwoPassReplay[] = "--dx12-two-pass-replay";
