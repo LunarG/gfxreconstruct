@@ -323,6 +323,78 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
     }
 }
 
+void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
+    DxObjectInfo*                                                                     command_list4_object_info,
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* desc)
+{
+    auto* build_desc = desc->GetPointer();
+    if ((build_desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL) &&
+        (build_desc->Inputs.NumDescs > 0))
+    {
+        GFXRECON_ASSERT(build_desc->Inputs.InstanceDescs != 0);
+
+        format::HandleId resource_id = format::kNullHandleId;
+        reverse_gpu_va_map_.Map(build_desc->Inputs.InstanceDescs, &resource_id);
+        if (resource_id != format::kNullHandleId)
+        {
+            auto resouce_object_info = get_object_info_func_(resource_id);
+            GFXRECON_ASSERT(resouce_object_info != nullptr);
+            GFXRECON_ASSERT(resouce_object_info->object != nullptr);
+
+            auto  resource                = static_cast<ID3D12Resource*>(resouce_object_info->object);
+            auto  command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
+            auto& resource_value_infos    = command_list_extra_info->resource_value_info_map[resouce_object_info];
+
+            GFXRECON_ASSERT(build_desc->Inputs.InstanceDescs >= resource->GetGPUVirtualAddress());
+            auto offset_to_instance_descs_start = build_desc->Inputs.InstanceDescs - resource->GetGPUVirtualAddress();
+
+            // Add the D3D12_RAYTRACING_INSTANCE_DESC::AccelerationStructure(s) referenced by
+            // D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC::Inputs to the command list's resource GPU VAs.
+            if (build_desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
+            {
+                constexpr auto accel_struct_gpu_va_stride = sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
+                GFXRECON_ASSERT((accel_struct_gpu_va_stride % D3D12_RAYTRACING_INSTANCE_DESCS_BYTE_ALIGNMENT) == 0);
+                constexpr auto accel_struct_gpu_va_offset =
+                    offsetof(D3D12_RAYTRACING_INSTANCE_DESC, AccelerationStructure);
+                for (UINT i = 0; i < build_desc->Inputs.NumDescs; ++i)
+                {
+                    resource_value_infos.insert(
+                        { offset_to_instance_descs_start + accel_struct_gpu_va_stride * i + accel_struct_gpu_va_offset,
+                          ResourceValueType::kGpuVirtualAddress,
+                          sizeof(D3D12_GPU_VIRTUAL_ADDRESS) });
+                }
+            }
+            else
+            {
+                // TODO (GH #424): Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
+                GFXRECON_LOG_ERROR("Unsupported instance descs layout %d used in BuildRaytracingAccelerationStructure. "
+                                   "Replay mail fail.",
+                                   build_desc->Inputs.DescsLayout);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to find the resource containing the D3D12_GPU_VIRTUAL_ADDRESS (%" PRIu64
+                               ") of InstanceDescs in call to BuildRaytracingAccelerationStructure. GPU addresses "
+                               "pointed to by InstanceDescs may be incorrect.",
+                               build_desc->Inputs.InstanceDescs);
+        }
+    }
+}
+
+void Dx12ResourceValueMapper::AddReplayGpuVa(format::HandleId          resource_id,
+                                             D3D12_GPU_VIRTUAL_ADDRESS replay_address,
+                                             UINT64                    width,
+                                             D3D12_GPU_VIRTUAL_ADDRESS capture_address)
+{
+    reverse_gpu_va_map_.Add(resource_id, replay_address, width, capture_address);
+}
+
+void Dx12ResourceValueMapper::RemoveReplayGpuVa(format::HandleId resource_id, uint64_t replay_address)
+{
+    reverse_gpu_va_map_.Remove(resource_id, replay_address);
+}
+
 void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_info,
                                                  ResourceValueInfoMap&   resource_value_info_map)
 {

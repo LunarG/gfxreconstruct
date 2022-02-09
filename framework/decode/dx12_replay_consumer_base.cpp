@@ -1197,6 +1197,9 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
             auto desc = replay_object->GetDesc();
 
             gpu_va_map_.Add(replay_object_info->capture_id, original_result, desc.Width, replay_result);
+
+            resource_value_mapper_->AddReplayGpuVa(
+                replay_object_info->capture_id, replay_result, desc.Width, original_result);
         }
     }
 
@@ -2038,7 +2041,11 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
             if (resource_info->capture_address_ != 0)
             {
+                GFXRECON_ASSERT(resource_info->replay_address_ != 0);
+
                 gpu_va_map_.Remove(info->capture_id, resource_info->capture_address_);
+
+                resource_value_mapper_->RemoveReplayGpuVa(info->capture_id, resource_info->replay_address_);
             }
 
             for (const auto& entry : resource_info->mapped_memory_info)
@@ -2784,11 +2791,15 @@ void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
     UINT                                                                              num_post_build_info_descs,
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* post_build_info_descs)
 {
-    auto  command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
-    auto* build_desc    = desc->GetPointer();
+    GFXRECON_ASSERT(command_list4_object_info != nullptr);
+    GFXRECON_ASSERT(command_list4_object_info->object != nullptr);
+
+    auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
 
     command_list4->BuildRaytracingAccelerationStructure(
-        build_desc, num_post_build_info_descs, post_build_info_descs->GetPointer());
+        desc->GetPointer(), num_post_build_info_descs, post_build_info_descs->GetPointer());
+
+    resource_value_mapper_->PostProcessBuildRaytracingAccelerationStructure(command_list4_object_info, desc);
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*            device_object_info,

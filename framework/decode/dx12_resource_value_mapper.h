@@ -83,6 +83,17 @@ class Dx12ResourceValueMapper
                                     DxObjectInfo* count_buffer_object_info,
                                     UINT64        count_buffer_offset);
 
+    void PostProcessBuildRaytracingAccelerationStructure(
+        DxObjectInfo*                                                                     command_list4_object_info,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* desc);
+
+    void AddReplayGpuVa(format::HandleId          resource_id,
+                        D3D12_GPU_VIRTUAL_ADDRESS replay_address,
+                        UINT64                    width,
+                        D3D12_GPU_VIRTUAL_ADDRESS capture_address);
+
+    void RemoveReplayGpuVa(format::HandleId resource_id, uint64_t replay_address);
+
   private:
     struct ProcessResourceMappingsArgs
     {
@@ -120,6 +131,8 @@ class Dx12ResourceValueMapper
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func_;
     std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func_;
     std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func_;
+
+    graphics::Dx12GpuVaMap reverse_gpu_va_map_; ///< Used to lookup a resource ID from a replay GPU VA.
 
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
 
