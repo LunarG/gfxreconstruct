@@ -338,9 +338,6 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
     // Members for trimming state tracking.
     DeviceWrapper* device{ nullptr };
 
-    const void*        write_pnext{ nullptr };
-    HandleUnwrapMemory write_pnext_memory;
-
     // Map for descriptor binding index to array of descriptor info.
     std::unordered_map<uint32_t, DescriptorInfo> bindings;
 
