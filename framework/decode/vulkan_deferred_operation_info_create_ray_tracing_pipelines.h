@@ -38,6 +38,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+typedef std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> VkRayTracingShaderGroupCreateInfoKHR_Vec2D;
+typedef std::vector<VkRayTracingPipelineCreateInfoKHR> VkRayTracingPipelineCreateInfoKHR_Vec;
+
 class VulkanDeferredOperationInfoCreateRayTracingPipelines : public VulkanDeferredOperationInfo
 {
   public:
@@ -47,13 +50,21 @@ class VulkanDeferredOperationInfoCreateRayTracingPipelines : public VulkanDeferr
 
     ~VulkanDeferredOperationInfoCreateRayTracingPipelines() {}
 
-    format::HandleId& GetDeviceId() { return device_; }
+    format::HandleId GetDeviceId() { return device_; }
 
-    format::HandleId& GetDeferredOperationId() { return deferred_operation_; }
+    void SetDeviceId(format::HandleId device_id) { device_ = device_id; }
 
-    format::HandleId& GetPipelineCacheId() { return pipeline_cache_; }
+    format::HandleId GetDeferredOperationId() { return deferred_operation_; }
 
-    uint32_t& GetCreateInfoCount() { return create_info_count_; }
+    void SetDeferredOperationId(format::HandleId deferred_operation_id) { deferred_operation_ = deferred_operation_id; }
+
+    format::HandleId GetPipelineCacheId() { return pipeline_cache_; }
+
+    void SetPipelineCacheId(format::HandleId pipeline_cache_id) { pipeline_cache_ = pipeline_cache_id; }
+
+    uint32_t GetCreateInfoCount() { return create_info_count_; }
+
+    void SetCreateInfoCount(uint32_t create_info_count) { create_info_count_ = create_info_count; }
 
     StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>& GetCreateInfos() { return create_infos_; }
 
@@ -68,23 +79,23 @@ class VulkanDeferredOperationInfoCreateRayTracingPipelines : public VulkanDeferr
 
     std::shared_ptr<std::vector<PipelineInfo>>& GetPipelineHandleInfo() { return pipeline_handle_info_; }
 
-    void SetModifiedCreateInfos(std::shared_ptr<std::vector<VkRayTracingPipelineCreateInfoKHR>>& modified_create_infos)
+    void SetModifiedCreateInfos(std::shared_ptr<VkRayTracingPipelineCreateInfoKHR_Vec>& modified_create_infos)
     {
         modified_create_infos_ = std::move(modified_create_infos);
     }
 
-    std::shared_ptr<std::vector<VkRayTracingPipelineCreateInfoKHR>>& GetModifiedCreateInfos()
+    std::shared_ptr<VkRayTracingPipelineCreateInfoKHR_Vec>& GetModifiedCreateInfos()
     {
         return modified_create_infos_;
     }
 
     void
-    SetModifiedGroups(std::shared_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>>& modified_groups)
+    SetModifiedGroups(std::shared_ptr<VkRayTracingShaderGroupCreateInfoKHR_Vec2D>& modified_groups)
     {
         modified_groups_ = std::move(modified_groups);
     }
 
-    std::shared_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>>& GetModifiedGroups()
+    std::shared_ptr<VkRayTracingShaderGroupCreateInfoKHR_Vec2D>& GetModifiedGroups()
     {
         return modified_groups_;
     };
@@ -99,7 +110,7 @@ class VulkanDeferredOperationInfoCreateRayTracingPipelines : public VulkanDeferr
     StructPointerDecoder<Decoded_VkAllocationCallbacks>                             allocator_;
     StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>                 create_infos_;
     std::shared_ptr<std::vector<VkRayTracingPipelineCreateInfoKHR>>                 modified_create_infos_;
-    std::shared_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>> modified_groups_;
+    std::shared_ptr<VkRayTracingShaderGroupCreateInfoKHR_Vec2D> modified_groups_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

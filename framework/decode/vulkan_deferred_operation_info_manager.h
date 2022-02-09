@@ -43,7 +43,7 @@ class VulkanDeferredOperationInfoManager
   public:
     static std::shared_ptr<VulkanDeferredOperationInfoManager>& Get() { return instance_; }
 
-    void add(format::HandleId deferred_operation_handle, std::shared_ptr<VulkanDeferredOperationInfo> operation)
+    void Add(format::HandleId deferred_operation_handle, std::shared_ptr<VulkanDeferredOperationInfo> operation)
     {
         if ((deferred_operation_handle != gfxrecon::format::kNullHandleId) && (operation))
         {
@@ -51,7 +51,7 @@ class VulkanDeferredOperationInfoManager
         }
     }
 
-    std::shared_ptr<VulkanDeferredOperationInfo>& find(format::HandleId deferred_operation_handle)
+    std::shared_ptr<VulkanDeferredOperationInfo>& Find(format::HandleId deferred_operation_handle)
     {
         if (deferred_operations_.find(deferred_operation_handle) != deferred_operations_.end())
         {
@@ -71,7 +71,7 @@ class VulkanDeferredOperationInfoManager
 
     void Remove(format::HandleId deferred_operation_handle)
     {
-        std::shared_ptr<VulkanDeferredOperationInfo> deferred_operation = std::move(find(deferred_operation_handle));
+        std::shared_ptr<VulkanDeferredOperationInfo> deferred_operation = std::move(Find(deferred_operation_handle));
         deferred_operations_.erase(deferred_operation_handle);
     }
 

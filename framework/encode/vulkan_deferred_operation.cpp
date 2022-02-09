@@ -57,8 +57,9 @@ void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess()
             {
                 PipelineWrapper* pipeline_wrapper = reinterpret_cast<PipelineWrapper*>(pipelines_[i]);
 
-                uint32_t data_size = device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
-                                     create_infos_[i].groupCount;
+                const uint32_t data_size =
+                    device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
+                    create_infos_[i].groupCount;
                 std::vector<uint8_t> data(data_size);
 
                 device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(device_wrapper->handle,

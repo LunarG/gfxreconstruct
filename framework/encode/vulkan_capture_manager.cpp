@@ -1068,9 +1068,8 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                            const VkAllocationCallbacks*             pAllocator,
                                                            VkPipeline*                              pPipelines)
 {
-    std::shared_ptr<VulkanDeferredOperationCreateRayTracingPipelines>&& deferred_operation_instance =
-        std::make_shared<VulkanDeferredOperationCreateRayTracingPipelines>(
-            device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    auto&& deferred_operation_instance = std::make_shared<VulkanDeferredOperationCreateRayTracingPipelines>(
+        device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
     VkDevice               device_unwrapped            = device_wrapper->handle;
     const DeviceTable*     device_table                = GetDeviceTable(device);
