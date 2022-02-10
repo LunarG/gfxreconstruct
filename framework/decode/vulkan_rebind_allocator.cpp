@@ -34,6 +34,8 @@
 #include "util/logging.h"
 #include "util/platform.h"
 
+#include "generated/generated_vulkan_enum_to_string.h"
+
 #include <algorithm>
 #include <cassert>
 
@@ -948,7 +950,7 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
         else
         {
             GFXRECON_LOG_ERROR("Failed to map device memory: vmaMapMemory returned %s",
-                               enumutil::GetResultValueString(result));
+                               util::ToString<VkResult>(result).c_str());
         }
     }
     else
