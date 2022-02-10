@@ -44,7 +44,7 @@ T* GetExtraInfo(const DxObjectInfo* info)
     return nullptr;
 }
 
-static D3D12ResourceInfo* GetResourceExtraInfo(DxObjectInfo* resource_object_info)
+D3D12ResourceInfo* GetResourceExtraInfo(DxObjectInfo* resource_object_info)
 {
     GFXRECON_ASSERT(resource_object_info != nullptr);
     if (resource_object_info->extra_info == nullptr)
@@ -52,6 +52,35 @@ static D3D12ResourceInfo* GetResourceExtraInfo(DxObjectInfo* resource_object_inf
         resource_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
     }
     return GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
+}
+
+// This is a helper for CopyResourceValues. It copies ResourceValueInfos (with updated offset) from dst to src.
+void CopyResourceValuesFromDstToSrc(std::set<ResourceValueInfo>&          src,
+                                    const std::set<ResourceValueInfo>&    dst,
+                                    std::set<ResourceValueInfo>::iterator dst_begin,
+                                    std::set<ResourceValueInfo>::iterator dst_end,
+                                    const ResourceCopyInfo&               copy_info)
+{
+    for (auto dst_iter = dst_begin; dst_iter != dst_end; ++dst_iter)
+    {
+        auto src_offset = ((*dst_iter).offset - copy_info.dst_offset) + copy_info.src_offset;
+        src.insert({ src_offset, (*dst_iter).type, (*dst_iter).size });
+    }
+}
+
+// This is a helper for CopyMappedResourceValues. It copies mapped gpu address entries (with updated offset) from src to
+// dst.
+void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, uint64_t>&          dst,
+                                          const std::map<uint64_t, uint64_t>&    src,
+                                          std::map<uint64_t, uint64_t>::iterator src_begin,
+                                          std::map<uint64_t, uint64_t>::iterator src_end,
+                                          const ResourceCopyInfo&                copy_info)
+{
+    for (auto src_iter = src_begin; src_iter != src_end; ++src_iter)
+    {
+        auto dst_offset = (src_iter->first - copy_info.src_offset) + copy_info.dst_offset;
+        dst[dst_offset] = src_iter->second;
+    }
 }
 
 } // namespace
@@ -303,30 +332,21 @@ void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_in
     {
         GFXRECON_ASSERT(!dst_iter->second.empty());
 
-        auto& dst_offsets = dst_iter->second;
-        auto& src_offsets = resource_value_info_map[copy_info.src_resource_object_info];
+        auto& dst_values = dst_iter->second;
+        auto& src_values = resource_value_info_map[copy_info.src_resource_object_info];
 
-        // If num_bytes != 0, process CopyBufferRegion else process CopyResource.
+        // If num_bytes != 0, process CopyBufferRegion (partial copy) else process CopyResource (full copy).
         if (copy_info.num_bytes != 0)
         {
-            auto dst_offsets_begin = dst_offsets.lower_bound({ copy_info.dst_offset });
-            auto dst_offsets_end   = dst_offsets.upper_bound({ copy_info.dst_offset + copy_info.num_bytes });
-
-            for (auto offsets_iter = dst_offsets_begin; offsets_iter != dst_offsets_end; ++offsets_iter)
-            {
-                auto src_offset = ((*offsets_iter).offset - copy_info.dst_offset) + copy_info.src_offset;
-                src_offsets.insert({ src_offset, (*offsets_iter).type, (*offsets_iter).size });
-            }
-            dst_offsets.erase(dst_offsets_begin, dst_offsets_end);
+            auto dst_values_begin = dst_values.lower_bound({ copy_info.dst_offset });
+            auto dst_values_end   = dst_values.upper_bound({ copy_info.dst_offset + copy_info.num_bytes });
+            CopyResourceValuesFromDstToSrc(src_values, dst_values, dst_values_begin, dst_values_end, copy_info);
+            dst_values.erase(dst_values_begin, dst_values_end);
         }
         else
         {
-            for (auto offsets_iter = dst_offsets.begin(); offsets_iter != dst_offsets.end(); ++offsets_iter)
-            {
-                auto src_offset = ((*offsets_iter).offset - copy_info.dst_offset) + copy_info.src_offset;
-                src_offsets.insert({ src_offset, (*offsets_iter).type, (*offsets_iter).size });
-            }
-            dst_offsets.clear();
+            CopyResourceValuesFromDstToSrc(src_values, dst_values, dst_values.begin(), dst_values.end(), copy_info);
+            dst_values.clear();
         }
     }
 }
@@ -356,22 +376,22 @@ void Dx12ResourceValueMapper::CopyMappedResourceValues(const ResourceCopyInfo& c
         { // Copy mapped values from source to destination.
             auto src_mapped_gpu_addresses_begin = src_mapped_gpu_addresses.lower_bound(src_min_offset);
             auto src_mapped_gpu_addresses_end   = src_mapped_gpu_addresses.upper_bound(src_max_offset);
-            for (auto src_iter = src_mapped_gpu_addresses_begin; src_iter != src_mapped_gpu_addresses_end; ++src_iter)
-            {
-                auto dst_offset                      = (src_iter->first - copy_info.src_offset) + copy_info.dst_offset;
-                dst_mapped_gpu_addresses[dst_offset] = src_iter->second;
-            }
+            CopyMappedResourceValuesFromSrcToDst(dst_mapped_gpu_addresses,
+                                                 src_mapped_gpu_addresses,
+                                                 src_mapped_gpu_addresses_begin,
+                                                 src_mapped_gpu_addresses_end,
+                                                 copy_info);
         }
     }
     else
     {
         // Clear destination values and copy from source.
         dst_mapped_gpu_addresses.clear();
-        for (auto src_iter = src_mapped_gpu_addresses.begin(); src_iter != src_mapped_gpu_addresses.end(); ++src_iter)
-        {
-            auto dst_offset                      = (src_iter->first - copy_info.src_offset) + copy_info.dst_offset;
-            dst_mapped_gpu_addresses[dst_offset] = src_iter->second;
-        }
+        CopyMappedResourceValuesFromSrcToDst(dst_mapped_gpu_addresses,
+                                             src_mapped_gpu_addresses,
+                                             src_mapped_gpu_addresses.begin(),
+                                             src_mapped_gpu_addresses.end(),
+                                             copy_info);
     }
 }
 
