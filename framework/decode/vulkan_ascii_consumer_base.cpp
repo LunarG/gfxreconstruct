@@ -40,7 +40,7 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
 bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
 {
     assert(!file_);
-    if (filename == "stdout")
+    if (util::platform::StringCompare(filename.c_str(), "stdout") == 0)
     {
         file_ = stdout;
     }
