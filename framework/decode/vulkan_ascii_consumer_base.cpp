@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : m_file(nullptr) {}
+VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : file_(nullptr) {}
 
 VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
 {
@@ -39,28 +39,31 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
 
 bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
 {
-    bool success = false;
-
-    if (m_file == nullptr)
+    assert(!file_);
+    if (filename == "stdout")
     {
-        int32_t result = util::platform::FileOpen(&m_file, filename.c_str(), "w");
-        if (result == 0)
-        {
-            success    = true;
-            m_filename = filename;
-            fprintf(m_file, "{");
-        }
+        file_ = stdout;
     }
-
-    return success;
+    else
+    {
+        util::platform::FileOpen(&file_, filename.c_str(), "w");
+    }
+    if (file_)
+    {
+        fprintf(file_, "{");
+    }
+    return file_ != nullptr;
 }
 
 void VulkanAsciiConsumerBase::Destroy()
 {
-    if (m_file != nullptr)
+    if (file_ != nullptr)
     {
-        fprintf(m_file, "\n}\n");
-        util::platform::FileClose(m_file);
+        fprintf(file_, "\n}\n");
+        if (file_ != stdout)
+        {
+            util::platform::FileClose(file_);
+        }
     }
 }
 
