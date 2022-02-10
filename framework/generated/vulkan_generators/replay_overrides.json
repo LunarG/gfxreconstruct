@@ -12,6 +12,8 @@
     "vkGetPhysicalDeviceMemoryProperties": "OverrideGetPhysicalDeviceMemoryProperties",
     "vkGetPhysicalDeviceMemoryProperties2": "OverrideGetPhysicalDeviceMemoryProperties2",
     "vkGetPhysicalDeviceMemoryProperties2KHR": "OverrideGetPhysicalDeviceMemoryProperties2",
+    "vkGetPhysicalDeviceSurfaceCapabilitiesKHR": "OverrideGetPhysicalDeviceSurfaceCapabilitiesKHR",
+    "vkGetPhysicalDeviceSurfaceCapabilities2KHR": "OverrideGetPhysicalDeviceSurfaceCapabilities2KHR",
     "vkWaitForFences": "OverrideWaitForFences",
     "vkGetFenceStatus": "OverrideGetFenceStatus",
     "vkGetEventStatus": "OverrideGetEventStatus",

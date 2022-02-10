@@ -655,15 +655,24 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
         VkSurfaceKHR     surface         = swapchain_info->surface;
         assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-        auto instance_table = GetInstanceTable(physical_device);
-        auto device_table   = GetDeviceTable(device);
-        assert((instance_table != nullptr) && (device_table != nullptr));
+        SurfaceKHRInfo* surface_info   = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface_id);
+        auto            instance_table = GetInstanceTable(physical_device);
+        auto            device_table   = GetDeviceTable(device);
+        assert((surface_info != nullptr) && (instance_table != nullptr) && (device_table != nullptr));
 
         VkSurfaceCapabilitiesKHR surface_caps;
         uint32_t                 image_count = 0;
 
-        VkResult result =
-            instance_table->GetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps);
+        const auto& entry  = surface_info->surface_capabilities.find(physical_device);
+        VkResult    result = VK_SUCCESS;
+        if (entry != surface_info->surface_capabilities.end())
+        {
+            surface_caps = entry->second;
+        }
+        else
+        {
+            result = instance_table->GetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps);
+        }
 
         if (result == VK_SUCCESS)
         {
@@ -2912,6 +2921,53 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties2(
         physical_device_info, &capture_properties->memoryProperties, &replay_properties->memoryProperties);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilitiesKHR(
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR           func,
+    VkResult                                                original_result,
+    PhysicalDeviceInfo*                                     physical_device_info,
+    SurfaceKHRInfo*                                         surface_info,
+    StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities)
+{
+    assert((physical_device_info != nullptr) && (surface_info != nullptr) && (pSurfaceCapabilities != nullptr) &&
+           !pSurfaceCapabilities->IsNull() && (pSurfaceCapabilities->GetOutputPointer() != nullptr));
+
+    VkPhysicalDevice physical_device             = physical_device_info->handle;
+    VkSurfaceKHR     surface                     = surface_info->handle;
+    auto             replay_surface_capabilities = pSurfaceCapabilities->GetOutputPointer();
+
+    VkResult result = func(physical_device, surface, replay_surface_capabilities);
+    if (result == VK_SUCCESS)
+    {
+        surface_info->surface_capabilities[physical_device] = *replay_surface_capabilities;
+    }
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilities2KHR(
+    PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR                 func,
+    VkResult                                                       original_result,
+    PhysicalDeviceInfo*                                            physical_device_info,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
+    StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>*       pSurfaceCapabilities)
+{
+    assert((physical_device_info != nullptr) && (pSurfaceInfo != nullptr) && (!pSurfaceInfo->IsNull()) &&
+           (pSurfaceInfo->GetPointer() != nullptr) && (pSurfaceCapabilities != nullptr) &&
+           !pSurfaceCapabilities->IsNull() && (pSurfaceCapabilities->GetOutputPointer() != nullptr));
+
+    VkPhysicalDevice physical_device             = physical_device_info->handle;
+    auto             replay_surface_info         = pSurfaceInfo->GetPointer();
+    auto             replay_surface_capabilities = pSurfaceCapabilities->GetOutputPointer();
+
+    VkResult result = func(physical_device, replay_surface_info, replay_surface_capabilities);
+    if (result == VK_SUCCESS)
+    {
+        auto surface_id                                     = pSurfaceInfo->GetMetaStructPointer()->surface;
+        auto surface_info                                   = GetObjectInfoTable().GetSurfaceKHRInfo(surface_id);
+        surface_info->surface_capabilities[physical_device] = replay_surface_capabilities->surfaceCapabilities;
+    }
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences                  func,
                                                          VkResult                             original_result,
                                                          const DeviceInfo*                    device_info,
@@ -4562,6 +4618,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         --dummy_handle;
 
         swapchain_info->surface            = VK_NULL_HANDLE;
+        swapchain_info->surface_id         = format::kNullHandleId;
         swapchain_info->image_flags        = replay_create_info->flags;
         swapchain_info->image_array_layers = replay_create_info->imageArrayLayers;
         swapchain_info->image_usage        = replay_create_info->imageUsage;
@@ -4581,6 +4638,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         }
 
         swapchain_info->surface     = replay_create_info->surface;
+        swapchain_info->surface_id  = pCreateInfo->GetMetaStructPointer()->surface;
         swapchain_info->device_info = device_info;
         swapchain_info->width       = replay_create_info->imageExtent.width;
         swapchain_info->height      = replay_create_info->imageExtent.height;

@@ -451,6 +451,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         PhysicalDeviceInfo*                                              physical_device_info,
         StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties);
 
+    VkResult OverrideGetPhysicalDeviceSurfaceCapabilitiesKHR(
+        PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR           func,
+        VkResult                                                original_result,
+        PhysicalDeviceInfo*                                     physical_device_info,
+        SurfaceKHRInfo*                                         surface_info,
+        StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities);
+
+    VkResult OverrideGetPhysicalDeviceSurfaceCapabilities2KHR(
+        PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR                 func,
+        VkResult                                                       original_result,
+        PhysicalDeviceInfo*                                            physical_device_info,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
+        StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>*       pSurfaceCapabilities);
+
     VkResult OverrideWaitForFences(PFN_vkWaitForFences                  func,
                                    VkResult                             original_result,
                                    const DeviceInfo*                    device_info,
