@@ -100,14 +100,11 @@ int main(int argc, const char** argv)
     }
 
     gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
+    gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
+    if (file_processor.Initialize(input_filename) && ascii_consumer.Initialize(output_filename))
     {
-        gfxrecon::decode::VulkanDecoder       decoder;
-        gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
-
-        ascii_consumer.Initialize(output_filename);
+        gfxrecon::decode::VulkanDecoder decoder;
         decoder.AddConsumer(&ascii_consumer);
-
         file_processor.AddDecoder(&decoder);
         file_processor.ProcessAllFrames();
     }

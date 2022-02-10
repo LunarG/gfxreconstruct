@@ -40,6 +40,7 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
 bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
 {
     assert(!file_);
+
     if (util::platform::StringCompare(filename.c_str(), "stdout") == 0)
     {
         file_ = stdout;
@@ -48,10 +49,16 @@ bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
     {
         util::platform::FileOpen(&file_, filename.c_str(), "w");
     }
+
     if (file_)
     {
         fprintf(file_, "{");
     }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"; is the path valid?", filename.c_str());
+    }
+
     return file_ != nullptr;
 }
 
