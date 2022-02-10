@@ -26,6 +26,7 @@
 #include "tool_settings.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
+#include "util/platform.h"
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
 
@@ -100,13 +101,35 @@ int main(int argc, const char** argv)
     }
 
     gfxrecon::decode::FileProcessor file_processor;
-    gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
-    if (file_processor.Initialize(input_filename) && ascii_consumer.Initialize(output_filename))
+    if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::VulkanDecoder decoder;
-        decoder.AddConsumer(&ascii_consumer);
-        file_processor.AddDecoder(&decoder);
-        file_processor.ProcessAllFrames();
+        FILE* output_file = nullptr;
+        if (gfxrecon::util::platform::StringCompare(output_filename.c_str(), "stdout") == 0)
+        {
+            output_file = stdout;
+        }
+        else
+        {
+            gfxrecon::util::platform::FileOpen(&output_file, output_filename.c_str(), "w");
+        }
+
+        if (output_file)
+        {
+            gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
+            ascii_consumer.Initialize(output_file);
+            gfxrecon::decode::VulkanDecoder decoder;
+            decoder.AddConsumer(&ascii_consumer);
+            file_processor.AddDecoder(&decoder);
+            file_processor.ProcessAllFrames();
+            if (output_file != stdout)
+            {
+                gfxrecon::util::platform::FileClose(output_file);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"; is the path valid?", output_filename.c_str());
+        }
     }
 
     gfxrecon::util::Log::Release();

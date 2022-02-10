@@ -25,8 +25,6 @@
 #include "decode/custom_vulkan_ascii_consumer.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
 
-#include "util/platform.h"
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -37,29 +35,11 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
     Destroy();
 }
 
-bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
+void VulkanAsciiConsumerBase::Initialize(FILE* file)
 {
-    assert(!file_);
-
-    if (util::platform::StringCompare(filename.c_str(), "stdout") == 0)
-    {
-        file_ = stdout;
-    }
-    else
-    {
-        util::platform::FileOpen(&file_, filename.c_str(), "w");
-    }
-
-    if (file_)
-    {
-        fprintf(file_, "{");
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"; is the path valid?", filename.c_str());
-    }
-
-    return file_ != nullptr;
+    assert(file);
+    file_ = file;
+    fprintf(file_, "{");
 }
 
 void VulkanAsciiConsumerBase::Destroy()
@@ -67,10 +47,6 @@ void VulkanAsciiConsumerBase::Destroy()
     if (file_ != nullptr)
     {
         fprintf(file_, "\n}\n");
-        if (file_ != stdout)
-        {
-            util::platform::FileClose(file_);
-        }
     }
 }
 
