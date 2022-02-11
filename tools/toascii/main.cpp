@@ -49,12 +49,33 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-    GFXRECON_WRITE_CONSOLE("  --output <'stdout' or filepath>\t'stdout' or a working directory relative filepath to "
-                           "write JSON output to. Default is <.gfxr filepath/filename>.txt.");
+    GFXRECON_WRITE_CONSOLE("  --output file\t\t'stdout' or a path to a file to write JSON output");
+    GFXRECON_WRITE_CONSOLE("        \t\tto. Default is the input filepath with \"gfxr\" replaced by \"txt\".");
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
+}
+
+static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser,
+                                     const std::string&                    input_filename)
+{
+    std::string output_filename;
+    if (arg_parser.IsArgumentSet(kOutput))
+    {
+        output_filename = arg_parser.GetArgumentValue(kOutput);
+    }
+    else
+    {
+        std::string output_filename = input_filename;
+        size_t      suffix_pos      = output_filename.find(GFXRECON_FILE_EXTENSION);
+        if (suffix_pos != std::string::npos)
+        {
+            output_filename = output_filename.substr(0, suffix_pos);
+        }
+        output_filename += ".txt";
+    }
+    return output_filename;
 }
 
 int main(int argc, const char** argv)
@@ -74,6 +95,12 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(-1);
     }
+    else if (arg_parser.IsArgumentSet(kOutput) && arg_parser.GetArgumentValue(kOutput).empty())
+    {
+        GFXRECON_LOG_ERROR("Empty string given for argument \"--output\"; must be a valid path or 'stdout'");
+        gfxrecon::util::Log::Release();
+        exit(-1);
+    }
     else
     {
 #if defined(WIN32) && defined(_DEBUG)
@@ -84,21 +111,9 @@ int main(int argc, const char** argv)
 #endif
     }
 
-    const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
-    std::string                     input_filename       = positional_arguments[0];
-    std::string                     output_filename      = input_filename;
-    size_t                          suffix_pos           = output_filename.find(GFXRECON_FILE_EXTENSION);
-    if (suffix_pos != std::string::npos)
-    {
-        output_filename = output_filename.substr(0, suffix_pos);
-    }
-
-    output_filename += ".txt";
-    auto output_arg = arg_parser.GetArgumentValue(kOutput);
-    if (!output_arg.empty())
-    {
-        output_filename = output_arg;
-    }
+    const auto& positional_arguments = arg_parser.GetPositionalArguments();
+    std::string input_filename       = positional_arguments[0];
+    std::string output_filename      = GetOutputFileName(arg_parser, input_filename);
 
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
@@ -121,6 +136,7 @@ int main(int argc, const char** argv)
             decoder.AddConsumer(&ascii_consumer);
             file_processor.AddDecoder(&decoder);
             file_processor.ProcessAllFrames();
+            ascii_consumer.Destroy();
             if (output_file != stdout)
             {
                 gfxrecon::util::platform::FileClose(output_file);

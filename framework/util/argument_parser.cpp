@@ -278,6 +278,11 @@ bool ArgumentParser::IsOptionSet(const std::string& option) const
     return false;
 }
 
+bool ArgumentParser::IsArgumentSet(const std::string& argument) const
+{
+    return static_cast<bool>(arguments_indices_.count(argument));
+}
+
 const std::string& ArgumentParser::GetArgumentValue(const std::string& argument) const
 {
     static const std::string empty_string;
