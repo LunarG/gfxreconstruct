@@ -59,6 +59,8 @@ class Dx12ResourceValueMapper
                                         HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
                                         bool                                      needs_mapping);
 
+    void PostProcessGetShaderIdentifier(const uint8_t* old_shader_id, const uint8_t* new_shader_id);
+
     void PostProcessCommandListReset(DxObjectInfo* command_list_object_info);
 
     void PostProcessCopyResource(DxObjectInfo* command_list_object_info,
@@ -87,6 +89,9 @@ class Dx12ResourceValueMapper
         DxObjectInfo*                                                                     command_list4_object_info,
         StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* desc);
 
+    void PostProcessDispatchRays(DxObjectInfo*                                           command_list4_object_info,
+                                 StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
+
     void AddReplayGpuVa(format::HandleId          resource_id,
                         D3D12_GPU_VIRTUAL_ADDRESS replay_address,
                         UINT64                    width,
@@ -106,9 +111,10 @@ class Dx12ResourceValueMapper
 
     struct MappedResourceRevertInfo
     {
-        std::vector<uint8_t>                           data;
-        std::vector<graphics::dx12::ResourceStateInfo> states;
-        std::map<uint64_t, uint64_t>                   mapped_gpu_addresses;
+        std::vector<uint8_t>                               data;
+        std::vector<graphics::dx12::ResourceStateInfo>     states;
+        std::map<uint64_t, uint64_t>                       mapped_gpu_addresses;
+        std::map<uint64_t, graphics::Dx12ShaderIdentifier> mapped_shader_ids;
     };
 
     static void CopyResourceValues(const ResourceCopyInfo& copy_info, ResourceValueInfoMap& resource_value_info_map);
@@ -125,6 +131,11 @@ class Dx12ResourceValueMapper
 
     void InitializeRequiredObjects(ID3D12CommandQueue* command_queue, D3D12CommandQueueInfo* command_queue_extra_info);
 
+    void GetShaderTableResourceValues(D3D12CommandListInfo*     command_list_extra_info,
+                                      D3D12_GPU_VIRTUAL_ADDRESS start_address,
+                                      UINT64                    size,
+                                      UINT64                    stride);
+
     QueueSyncEventInfo CreateProcessProcessResourceMappingsSyncEvent(ProcessResourceMappingsArgs args);
 
   private:
@@ -132,7 +143,8 @@ class Dx12ResourceValueMapper
     std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func_;
     std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func_;
 
-    graphics::Dx12GpuVaMap reverse_gpu_va_map_; ///< Used to lookup a resource ID from a replay GPU VA.
+    graphics::Dx12GpuVaMap    reverse_gpu_va_map_; ///< Used to lookup a resource ID from a replay GPU VA.
+    graphics::Dx12ShaderIdMap shader_id_map_;
 
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
 

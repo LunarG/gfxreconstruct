@@ -70,11 +70,12 @@ void CopyResourceValuesFromDstToSrc(std::set<ResourceValueInfo>&          src,
 
 // This is a helper for CopyMappedResourceValues. It copies mapped gpu address entries (with updated offset) from src to
 // dst.
-void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, uint64_t>&          dst,
-                                          const std::map<uint64_t, uint64_t>&    src,
-                                          std::map<uint64_t, uint64_t>::iterator src_begin,
-                                          std::map<uint64_t, uint64_t>::iterator src_end,
-                                          const ResourceCopyInfo&                copy_info)
+template <typename T>
+void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, T>&                   dst,
+                                          const std::map<uint64_t, T>&             src,
+                                          typename std::map<uint64_t, T>::iterator src_begin,
+                                          typename std::map<uint64_t, T>::iterator src_end,
+                                          const ResourceCopyInfo&                  copy_info)
 {
     for (auto src_iter = src_begin; src_iter != src_end; ++src_iter)
     {
@@ -220,6 +221,14 @@ void Dx12ResourceValueMapper::PostProcessExecuteCommandLists(
 
         command_queue_extra_info->resource_value_map_fence_value += 4;
     }
+}
+
+void Dx12ResourceValueMapper::PostProcessGetShaderIdentifier(const uint8_t* old_shader_id, const uint8_t* new_shader_id)
+{
+    GFXRECON_ASSERT(old_shader_id != nullptr);
+    GFXRECON_ASSERT(new_shader_id != nullptr);
+
+    shader_id_map_.Add(old_shader_id, new_shader_id);
 }
 
 void Dx12ResourceValueMapper::PostProcessCreateCommandSignature(HandlePointerDecoder<void*>* command_signature_decoder,
@@ -382,6 +391,39 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
     }
 }
 
+void Dx12ResourceValueMapper::PostProcessDispatchRays(
+    DxObjectInfo* command_list4_object_info, StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder)
+{
+    const auto* desc = desc_decoder->GetPointer();
+
+    // Skip empty dispatch.
+    if ((desc->Width == 0) || (desc->Height == 0) || (desc->Depth == 0))
+    {
+        return;
+    }
+
+    auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
+    GFXRECON_ASSERT(command_list_extra_info != nullptr);
+
+    // Ray gen only has 1 record, so stride == size
+    GetShaderTableResourceValues(command_list_extra_info,
+                                 desc->RayGenerationShaderRecord.StartAddress,
+                                 desc->RayGenerationShaderRecord.SizeInBytes,
+                                 desc->RayGenerationShaderRecord.SizeInBytes);
+    GetShaderTableResourceValues(command_list_extra_info,
+                                 desc->MissShaderTable.StartAddress,
+                                 desc->MissShaderTable.SizeInBytes,
+                                 desc->MissShaderTable.StrideInBytes);
+    GetShaderTableResourceValues(command_list_extra_info,
+                                 desc->HitGroupTable.StartAddress,
+                                 desc->HitGroupTable.SizeInBytes,
+                                 desc->HitGroupTable.StrideInBytes);
+    GetShaderTableResourceValues(command_list_extra_info,
+                                 desc->CallableShaderTable.StartAddress,
+                                 desc->CallableShaderTable.SizeInBytes,
+                                 desc->CallableShaderTable.StrideInBytes);
+}
+
 void Dx12ResourceValueMapper::AddReplayGpuVa(format::HandleId          resource_id,
                                              D3D12_GPU_VIRTUAL_ADDRESS replay_address,
                                              UINT64                    width,
@@ -430,8 +472,10 @@ void Dx12ResourceValueMapper::CopyMappedResourceValues(const ResourceCopyInfo& c
 
     auto& dst_mapped_gpu_addresses = dst_extra_info->mapped_gpu_addresses;
     auto& src_mapped_gpu_addresses = src_extra_info->mapped_gpu_addresses;
+    auto& dst_mapped_shader_ids    = dst_extra_info->mapped_shader_ids;
+    auto& src_mapped_shader_ids    = src_extra_info->mapped_shader_ids;
 
-    // If num_bytes != 0, process CopyBufferRegion else process CopyResource.
+    // If num_bytes != 0, process CopyBufferRegion (partial copy) else process CopyResource (full copy).
     if (copy_info.num_bytes != 0)
     {
         auto dst_min_offset = copy_info.dst_offset;
@@ -454,6 +498,22 @@ void Dx12ResourceValueMapper::CopyMappedResourceValues(const ResourceCopyInfo& c
                                                  src_mapped_gpu_addresses_end,
                                                  copy_info);
         }
+
+        { // Remove current set of mapped shader IDs in destination copy range.
+            auto dst_mapped_shader_ids_begin = dst_mapped_shader_ids.lower_bound(dst_min_offset);
+            auto dst_mapped_shader_ids_end   = dst_mapped_shader_ids.upper_bound(dst_max_offset);
+            dst_mapped_shader_ids.erase(dst_mapped_shader_ids_begin, dst_mapped_shader_ids_end);
+        }
+
+        { // Copy mapped shader IDs from source to destination.
+            auto src_mapped_shader_ids_begin = src_mapped_shader_ids.lower_bound(src_min_offset);
+            auto src_mapped_shader_ids_end   = src_mapped_shader_ids.upper_bound(src_max_offset);
+            CopyMappedResourceValuesFromSrcToDst(dst_mapped_shader_ids,
+                                                 src_mapped_shader_ids,
+                                                 src_mapped_shader_ids_begin,
+                                                 src_mapped_shader_ids_end,
+                                                 copy_info);
+        }
     }
     else
     {
@@ -463,6 +523,14 @@ void Dx12ResourceValueMapper::CopyMappedResourceValues(const ResourceCopyInfo& c
                                              src_mapped_gpu_addresses,
                                              src_mapped_gpu_addresses.begin(),
                                              src_mapped_gpu_addresses.end(),
+                                             copy_info);
+
+        // Clear destination shader IDs and copy from source.
+        dst_mapped_shader_ids.clear();
+        CopyMappedResourceValuesFromSrcToDst(dst_mapped_shader_ids,
+                                             src_mapped_shader_ids,
+                                             src_mapped_shader_ids.begin(),
+                                             src_mapped_shader_ids.end(),
                                              copy_info);
     }
 }
@@ -532,6 +600,7 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
             // The mapped values were reverted in the resource data, so revert the set of mapped values here.
             auto extra_info                  = GetResourceExtraInfo(resource_data_pair.first);
             extra_info->mapped_gpu_addresses = std::move(resource_data_pair.second.mapped_gpu_addresses);
+            extra_info->mapped_shader_ids    = std::move(resource_data_pair.second.mapped_shader_ids);
         }
         else
         {
@@ -603,6 +672,30 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
             }
         }
     }
+    else if (value_info.type == ResourceValueType::kShaderRecord)
+    {
+        constexpr graphics::Dx12ShaderIdentifier zero_id = { 0 };
+
+        uint8_t*                       shader_id_ptr = result_data.data() + value_info.offset;
+        graphics::Dx12ShaderIdentifier current_id    = graphics::PackDx12ShaderIdentifier(shader_id_ptr);
+
+        // Don't attempt to map shader records with shader ID == 0.
+        if (current_id == zero_id)
+        {
+            return;
+        }
+
+        // Map the shader ID if it wasn't previously mapped.
+        auto mapped_shader_id_iter = resource_info->mapped_shader_ids.find(value_info.offset);
+        if ((mapped_shader_id_iter == resource_info->mapped_shader_ids.end()) ||
+            (current_id != mapped_shader_id_iter->second))
+        {
+            shader_id_map_.Map(shader_id_ptr);
+        }
+
+        // Track mapped shader IDs within a resource.
+        resource_info->mapped_shader_ids[value_info.offset] = graphics::PackDx12ShaderIdentifier(shader_id_ptr);
+    }
     else
     {
         GFXRECON_ASSERT(false && "Unrecognized resource value type.");
@@ -664,6 +757,7 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
             revert_info.data                                    = temp_resource_data;
             revert_info.states                                  = temp_resource_states;
             revert_info.mapped_gpu_addresses                    = resource_extra_info->mapped_gpu_addresses;
+            revert_info.mapped_shader_ids                       = resource_extra_info->mapped_shader_ids;
             resource_data_to_revert[resource_value_infos.first] = std::move(revert_info);
 
             for (const auto& value_info : value_infos)
@@ -720,6 +814,49 @@ void Dx12ResourceValueMapper::InitializeRequiredObjects(ID3D12CommandQueue*    c
     if (resource_data_util_ == nullptr)
     {
         resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, 0);
+    }
+}
+
+void Dx12ResourceValueMapper::GetShaderTableResourceValues(D3D12CommandListInfo*     command_list_extra_info,
+                                                           D3D12_GPU_VIRTUAL_ADDRESS start_address,
+                                                           UINT64                    size,
+                                                           UINT64                    stride)
+{
+    if (start_address == 0)
+    {
+        return;
+    }
+    format::HandleId resource_id = format::kNullHandleId;
+    reverse_gpu_va_map_.Map(start_address, &resource_id);
+    if (resource_id == format::kNullHandleId)
+    {
+        return;
+    }
+
+    // Verify alignments.
+    GFXRECON_ASSERT((start_address % D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) == 0);
+    GFXRECON_ASSERT((stride % D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT) == 0);
+
+    auto resouce_object_info = get_object_info_func_(resource_id);
+    GFXRECON_ASSERT((resouce_object_info != nullptr) && (resouce_object_info->object != nullptr));
+    auto resource = static_cast<ID3D12Resource*>(resouce_object_info->object);
+
+    auto& resource_value_infos = command_list_extra_info->resource_value_info_map[resouce_object_info];
+
+    UINT64 shader_record_count = 1;
+    UINT64 shader_record_size  = size;
+    if (stride != 0)
+    {
+        GFXRECON_ASSERT((size % stride) == 0);
+        shader_record_count = (size / stride);
+        shader_record_size  = stride;
+    }
+    auto byte_offset = start_address - resource->GetGPUVirtualAddress();
+    GFXRECON_ASSERT((byte_offset % D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) == 0);
+    for (UINT64 i = 0; i < shader_record_count; ++i)
+    {
+        resource_value_infos.insert({ byte_offset, ResourceValueType::kShaderRecord, shader_record_size });
+        byte_offset += shader_record_size;
     }
 }
 

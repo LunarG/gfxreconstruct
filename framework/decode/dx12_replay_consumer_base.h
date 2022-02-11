@@ -33,7 +33,6 @@
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
 #include "graphics/dx12_gpu_va_map.h"
-#include "graphics/dx12_shader_id_map.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_image_renderer.h"
 #include "decode/screenshot_handler_base.h"
@@ -556,10 +555,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     graphics::Dx12GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
 
-    const graphics::Dx12ShaderIdMap& GetShaderIdTable() const { return shader_id_map_; }
-
-    graphics::Dx12ShaderIdMap& GetShaderIdTable() { return shader_id_map_; }
-
     void ReplaceWindowedResolution(uint32_t& width, uint32_t& height)
     {
         if (options_.force_windowed)
@@ -652,7 +647,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::function<void(const char*)>             fatal_error_handler_;
     Dx12DescriptorMap                            descriptor_map_;
     graphics::Dx12GpuVaMap                       gpu_va_map_;
-    graphics::Dx12ShaderIdMap                    shader_id_map_;
     std::unique_ptr<uint8_t[]>                   debug_message_;
     SIZE_T                                       current_message_length_;
     IDXGIInfoQueue*                              info_queue_;

@@ -25,6 +25,7 @@
 
 #include "decode/window.h"
 #include "format/format.h"
+#include "graphics/dx12_shader_id_map.h"
 #include "graphics/dx12_util.h"
 #include "util/defines.h"
 #include "decode/dx12_descriptor_map.h"
@@ -104,7 +105,8 @@ enum class ResourceValueType : uint8_t
 {
     kUnknown,
     kGpuVirtualAddress,
-    kGpuDescriptorHandle
+    kGpuDescriptorHandle,
+    kShaderRecord
 };
 
 struct ResourceValueInfo
@@ -225,7 +227,8 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
 
     bool is_reserved_resource{ false };
 
-    std::map<uint64_t, uint64_t> mapped_gpu_addresses;
+    std::map<uint64_t, uint64_t>                       mapped_gpu_addresses;
+    std::map<uint64_t, graphics::Dx12ShaderIdentifier> mapped_shader_ids;
 };
 
 struct D3D12CommandSignatureInfo : DxObjectExtraInfo

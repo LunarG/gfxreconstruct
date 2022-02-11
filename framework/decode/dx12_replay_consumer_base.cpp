@@ -1830,7 +1830,8 @@ void* Dx12ReplayConsumerBase::OverrideGetShaderIdentifier(DxObjectInfo*         
 
     if ((original_result != nullptr) && !original_result->IsNull() && (new_shader_identifier_ptr != nullptr))
     {
-        shader_id_map_.Add(original_result->GetPointer(), new_shader_identifier_ptr);
+        resource_value_mapper_->PostProcessGetShaderIdentifier(original_result->GetPointer(),
+                                                               new_shader_identifier_ptr);
     }
     return new_shader_identifier_ptr;
 }
@@ -2860,6 +2861,8 @@ void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_ob
 {
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
     command_list4->DispatchRays(desc_decoder->GetPointer());
+
+    resource_value_mapper_->PostProcessDispatchRays(command_list4_object_info, desc_decoder);
 }
 
 QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)
