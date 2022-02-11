@@ -137,7 +137,10 @@ int main(int argc, const char** argv)
             file_processor.AddDecoder(&decoder);
             file_processor.ProcessAllFrames();
             ascii_consumer.Destroy();
-            gfxrecon::util::platform::FileClose(output_file);
+            if (output_file != stdout)
+            {
+                gfxrecon::util::platform::FileClose(output_file);
+            }
         }
         else
         {
