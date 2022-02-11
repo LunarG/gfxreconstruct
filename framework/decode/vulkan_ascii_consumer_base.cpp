@@ -47,7 +47,7 @@ void VulkanAsciiConsumerBase::Destroy()
     if (file_ != nullptr)
     {
         fprintf(file_, "\n}\n");
-        file = nullptr;
+        file_ = nullptr;
     }
 }
 
