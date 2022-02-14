@@ -889,6 +889,11 @@ class VulkanCaptureManager : public CaptureManager
 
     void PreProcess_vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
 
+    void PreProcess_vkGetBufferOpaqueCaptureAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
+
+    void PreProcess_vkGetDeviceMemoryOpaqueCaptureAddress(VkDevice                                      device,
+                                                          const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo);
+
     void
     PreProcess_vkGetAccelerationStructureDeviceAddressKHR(VkDevice                                           device,
                                                           const VkAccelerationStructureDeviceAddressInfoKHR* pInfo);

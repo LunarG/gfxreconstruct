@@ -478,13 +478,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             auto                        wrapper = reinterpret_cast<DescriptorSetWrapper*>(write->dstSet);
             assert(wrapper != nullptr);
 
-            wrapper->write_pnext = nullptr;
-            wrapper->write_pnext_memory.Reset();
-            if (write->pNext != nullptr)
-            {
-                wrapper->write_pnext = TrackPNextStruct(write->pNext, &wrapper->write_pnext_memory);
-            }
-
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to consecutive bindings, where the next binding is dstBinding+1 and
             // starting from array element 0.  Track the current count, binding, and array element to handle
@@ -497,6 +490,13 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             for (;;)
             {
                 auto& binding = wrapper->bindings[current_binding];
+
+                binding.write_pnext = nullptr;
+                binding.write_pnext_memory.Reset();
+                if (write->pNext != nullptr)
+                {
+                    binding.write_pnext = TrackPNextStruct(write->pNext, &binding.write_pnext_memory);
+                }
 
                 // Update current and write counts for binding's descriptor count. If current count is
                 // greater than the count for the descriptor range defined by dstArrayElement through binding count,

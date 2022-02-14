@@ -152,7 +152,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     WritePipelineLayoutState(state_table);
     StandardCreateWrite<PipelineCacheWrapper>(state_table);
     WritePipelineState(state_table);
-    StandardCreateWrite<AccelerationStructureKHRWrapper>(state_table);
+    WriteAccelerationStructureKHRState(state_table);
     StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
 
     // Descriptor creation.
@@ -716,7 +716,6 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
         encode_wrapper.handle_id = wrapper->handle_id;
 
         VkWriteDescriptorSet write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-        write.pNext                = wrapper->write_pnext;
         write.dstSet               = reinterpret_cast<VkDescriptorSet>(&encode_wrapper);
 
         for (const auto& binding_entry : wrapper->bindings)
@@ -724,6 +723,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             const DescriptorInfo* binding = &binding_entry.second;
             bool                  active  = false;
 
+            write.pNext      = binding->write_pnext;
             write.dstBinding = binding_entry.first;
 
             for (uint32_t i = 0; i < binding->count; ++i)
