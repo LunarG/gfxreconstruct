@@ -4667,10 +4667,10 @@ void VulkanReplayConsumer::Process_vkGetDeferredOperationMaxConcurrencyKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_operation = MapHandle<DeferredOperationKHRInfo>(operation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_operation = GetObjectInfoTable().GetDeferredOperationKHRInfo(operation);
 
-    GetDeviceTable(in_device)->GetDeferredOperationMaxConcurrencyKHR(in_device, in_operation);
+    OverrideGetDeferredOperationMaxConcurrencyKHR(GetDeviceTable(in_device->handle)->GetDeferredOperationMaxConcurrencyKHR, in_device, in_operation);
 }
 
 void VulkanReplayConsumer::Process_vkGetDeferredOperationResultKHR(
@@ -4679,10 +4679,10 @@ void VulkanReplayConsumer::Process_vkGetDeferredOperationResultKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_operation = MapHandle<DeferredOperationKHRInfo>(operation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_operation = GetObjectInfoTable().GetDeferredOperationKHRInfo(operation);
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetDeferredOperationResultKHR(in_device, in_operation);
+    VkResult replay_result = OverrideGetDeferredOperationResultKHR(GetDeviceTable(in_device->handle)->GetDeferredOperationResultKHR, returnValue, in_device, in_operation);
     CheckResult("vkGetDeferredOperationResultKHR", returnValue, replay_result);
 }
 
@@ -4692,10 +4692,10 @@ void VulkanReplayConsumer::Process_vkDeferredOperationJoinKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_operation = MapHandle<DeferredOperationKHRInfo>(operation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_operation = GetObjectInfoTable().GetDeferredOperationKHRInfo(operation);
 
-    VkResult replay_result = GetDeviceTable(in_device)->DeferredOperationJoinKHR(in_device, in_operation);
+    VkResult replay_result = OverrideDeferredOperationJoinKHR(GetDeviceTable(in_device->handle)->DeferredOperationJoinKHR, returnValue, in_device, in_operation);
     CheckResult("vkDeferredOperationJoinKHR", returnValue, replay_result);
 }
 

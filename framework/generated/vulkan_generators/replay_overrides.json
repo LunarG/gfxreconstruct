@@ -80,6 +80,9 @@
     "vkGetBufferDeviceAddressKHR": "OverrideGetBufferDeviceAddress",
     "vkGetAccelerationStructureDeviceAddressKHR": "OverrideGetAccelerationStructureDeviceAddressKHR",
     "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR",
-    "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID"
+    "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID",
+    "vkGetDeferredOperationMaxConcurrencyKHR": "OverrideGetDeferredOperationMaxConcurrencyKHR",
+    "vkDeferredOperationJoinKHR": "OverrideDeferredOperationJoinKHR",
+    "vkGetDeferredOperationResultKHR": "OverrideGetDeferredOperationResultKHR"
   }
 }

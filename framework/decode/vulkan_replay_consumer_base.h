@@ -876,6 +876,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const struct AHardwareBuffer*                                           hardware_buffer,
         StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties);
 
+    void OverrideGetDeferredOperationMaxConcurrencyKHR(PFN_vkGetDeferredOperationMaxConcurrencyKHR func,
+                                                       const DeviceInfo*                           device_info,
+                                                       const DeferredOperationKHRInfo* deferred_operation_info);
+
+    VkResult OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR  func,
+                                              VkResult                        original_result,
+                                              const DeviceInfo*               device_info,
+                                              const DeferredOperationKHRInfo* deferred_operation_info);
+
+    VkResult OverrideGetDeferredOperationResultKHR(PFN_vkGetDeferredOperationResultKHR func,
+                                                   VkResult                            original_result,
+                                                   const DeviceInfo*                   device_info,
+                                                   const DeferredOperationKHRInfo*     deferred_operation_info);
+
   private:
     void RaiseFatalError(const char* message) const;
 
@@ -982,6 +996,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void ProcessSwapchainFullScreenExclusiveInfo(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
     void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
+
+    void ProcessDeferredOperation(const DeviceInfo& device_info, VkDeferredOperationKHR deferred_operation);
 
     void SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 

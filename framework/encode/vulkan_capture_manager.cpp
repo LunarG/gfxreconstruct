@@ -1111,17 +1111,27 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                             pPipelines);
     }
 
-    if ((result == VK_SUCCESS) && (pPipelines != nullptr))
+    if (((result == VK_SUCCESS) || (result == VK_OPERATION_DEFERRED_KHR) ||
+         (result == VK_OPERATION_NOT_DEFERRED_KHR)) &&
+        (pPipelines != nullptr))
     {
         CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
             device, deferredOperation, pPipelines, createInfoCount, GetUniqueId);
 
-        if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+        for (uint32_t i = 0; i < createInfoCount; ++i)
         {
-            for (uint32_t i = 0; i < createInfoCount; ++i)
-            {
-                PipelineWrapper* pipeline_wrapper = reinterpret_cast<PipelineWrapper*>(pPipelines[i]);
+            PipelineWrapper* pipeline_wrapper = reinterpret_cast<PipelineWrapper*>(pPipelines[i]);
 
+            if (deferredOperation != VK_NULL_HANDLE)
+            {
+                auto deferred_operation_wrapper = reinterpret_cast<DeferredOperationKHRWrapper*>(deferredOperation);
+                assert(deferred_operation_wrapper != nullptr);
+                pipeline_wrapper->deferred_operation.handle_id         = deferred_operation_wrapper->handle_id;
+                pipeline_wrapper->deferred_operation.create_call_id    = deferred_operation_wrapper->create_call_id;
+                pipeline_wrapper->deferred_operation.create_parameters = deferred_operation_wrapper->create_parameters;
+            }
+            if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+            {
                 uint32_t data_size = device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
                                      pCreateInfos[i].groupCount;
                 std::vector<uint8_t> data(data_size);

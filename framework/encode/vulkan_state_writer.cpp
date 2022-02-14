@@ -505,6 +505,7 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_layouts;
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_deferred_operations;
 
     // First pass over pipeline table to sort pipelines by type and determine which dependencies need to be created
     // temporarily.
@@ -571,6 +572,13 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
             {
                 ray_tracing_pipelines_khr.push_back(wrapper->create_parameters.get());
                 processed_ray_tracing_pipelines_khr.insert(wrapper->create_parameters.get());
+            }
+
+            if (wrapper->deferred_operation.handle_id != format::kNullHandleId)
+            {
+                auto        create_parameters = wrapper->deferred_operation.create_parameters.get();
+                const auto& inserted          = temp_deferred_operations.insert(
+                    std::make_pair(wrapper->deferred_operation.handle_id, create_parameters));
             }
         }
 
@@ -668,6 +676,17 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     for (const auto& entry : temp_layouts)
     {
         DestroyTemporaryDeviceObject(format::ApiCall_vkDestroyPipelineLayout, entry.first, entry.second);
+    }
+
+    for (const auto& entry : temp_deferred_operations)
+    {
+        format::HandleId device_id = *reinterpret_cast<const format::HandleId*>(entry.second->GetData());
+
+        encoder_.EncodeHandleIdValue(device_id);
+        encoder_.EncodeHandleIdValue(entry.first);
+        encoder_.EncodeEnumValue(VK_SUCCESS);
+        WriteFunctionCall(format::ApiCall_vkGetDeferredOperationResultKHR, &parameter_stream_);
+        parameter_stream_.Reset();
     }
 }
 
