@@ -92,7 +92,7 @@ static const char* GetResultDescription(VkResult result)
         case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT: return "An operation on a swapchain created with "
                                                                   "VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did "
                                                                   "not have exlusive full-screen access. This may occur due to "
-                                                                  "implementation-dependent reasons, outside of the application’s control.";
+                                                                  "implementation-dependent reasons, outside of the application's control.";
         case VK_THREAD_IDLE_KHR:                return "A deferred operation is not complete but there is currently no work "
                                                        "for this thread to do at the time of this call.";
         case VK_THREAD_DONE_KHR:                return "A deferred operation is not complete but there is no work remaining "
