@@ -106,7 +106,7 @@ def main():
 
     encoding_py3 = {}
     if sys.version_info[0] >= 3:
-        encoding_py3['encoding'] = 'utf-8'
+        encoding_py3['encoding'] = 'iso-8859-1'
 
     p = subprocess.Popen(command,
                          stdout=subprocess.PIPE,
