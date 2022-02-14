@@ -23,23 +23,14 @@
 
 #include "project_version.h"
 
-#include "decode/file_processor.h"
+#include "tool_settings.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
-#include "generated/generated_vulkan_decoder.h"
-#include "util/argument_parser.h"
-#include "util/logging.h"
-
-#include "vulkan/vulkan_core.h"
-
-#include <cstdlib>
-
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
-const char kVersionOption[]   = "--version";
-const char kNoDebugPopup[]    = "--no-debug-popup";
+#include "util/platform.h"
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
+
+const char kArguments[] = "--output";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -58,53 +49,40 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --output file\t\t'stdout' or a path to a file to write JSON output");
+    GFXRECON_WRITE_CONSOLE("        \t\tto. Default is the input filepath with \"gfxr\" replaced by \"txt\".");
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
 }
 
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser,
+                                     const std::string&                    input_filename)
 {
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    std::string output_filename;
+    if (arg_parser.IsArgumentSet(kOutput))
     {
-        PrintUsage(exe_name);
-        return true;
+        output_filename = arg_parser.GetArgumentValue(kOutput);
     }
-
-    return false;
-}
-
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
+    else
     {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
+        std::string output_filename = input_filename;
+        size_t      suffix_pos      = output_filename.find(GFXRECON_FILE_EXTENSION);
+        if (suffix_pos != std::string::npos)
         {
-            app_name.replace(0, dir_location + 1, "");
+            output_filename = output_filename.substr(0, suffix_pos);
         }
-
-        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
-                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-        return true;
+        output_filename += ".txt";
     }
-
-    return false;
+    return output_filename;
 }
 
 int main(int argc, const char** argv)
 {
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
@@ -114,6 +92,12 @@ int main(int argc, const char** argv)
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
+        gfxrecon::util::Log::Release();
+        exit(-1);
+    }
+    else if (arg_parser.IsArgumentSet(kOutput) && arg_parser.GetArgumentValue(kOutput).empty())
+    {
+        GFXRECON_LOG_ERROR("Empty string given for argument \"--output\"; must be a valid path or 'stdout'");
         gfxrecon::util::Log::Release();
         exit(-1);
     }
@@ -127,28 +111,41 @@ int main(int argc, const char** argv)
 #endif
     }
 
-    const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
-    std::string                     input_filename       = positional_arguments[0];
-    std::string                     output_filename      = input_filename;
-    size_t                          suffix_pos           = output_filename.find(GFXRECON_FILE_EXTENSION);
-    if (suffix_pos != std::string::npos)
-    {
-        output_filename = output_filename.substr(0, suffix_pos);
-    }
-
-    output_filename += ".txt";
+    const auto& positional_arguments = arg_parser.GetPositionalArguments();
+    std::string input_filename       = positional_arguments[0];
+    std::string output_filename      = GetOutputFileName(arg_parser, input_filename);
 
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::VulkanDecoder       decoder;
-        gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
+        FILE* output_file = nullptr;
+        if (gfxrecon::util::platform::StringCompare(output_filename.c_str(), "stdout") == 0)
+        {
+            output_file = stdout;
+        }
+        else
+        {
+            gfxrecon::util::platform::FileOpen(&output_file, output_filename.c_str(), "w");
+        }
 
-        ascii_consumer.Initialize(output_filename);
-        decoder.AddConsumer(&ascii_consumer);
-
-        file_processor.AddDecoder(&decoder);
-        file_processor.ProcessAllFrames();
+        if (output_file)
+        {
+            gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
+            ascii_consumer.Initialize(output_file);
+            gfxrecon::decode::VulkanDecoder decoder;
+            decoder.AddConsumer(&ascii_consumer);
+            file_processor.AddDecoder(&decoder);
+            file_processor.ProcessAllFrames();
+            ascii_consumer.Destroy();
+            if (output_file != stdout)
+            {
+                gfxrecon::util::platform::FileClose(output_file);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"; is the path valid?", output_filename.c_str());
+        }
     }
 
     gfxrecon::util::Log::Release();
