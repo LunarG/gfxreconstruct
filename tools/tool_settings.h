@@ -84,6 +84,7 @@ const char kScreenshotRangeArgument[]          = "--screenshots";
 const char kScreenshotFormatArgument[]         = "--screenshot-format";
 const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
+const char kOutput[]                           = "--output";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 #endif

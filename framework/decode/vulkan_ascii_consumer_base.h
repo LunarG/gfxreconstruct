@@ -44,13 +44,11 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     virtual ~VulkanAsciiConsumerBase() override;
 
-    bool Initialize(const std::string& filename);
+    void Initialize(FILE* file);
 
     void Destroy();
 
     bool IsValid() const { return (file_ != nullptr); }
-
-    const std::string& GetFilename() const { return filename_; }
 
     virtual void
     Process_vkAllocateCommandBuffers(VkResult                                                   returnValue,
@@ -117,9 +115,8 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
     }
 
   private:
-    FILE*       file_;
-    std::string filename_;
-    uint64_t    api_call_count_{ 0 };
+    FILE*    file_{ nullptr };
+    uint64_t api_call_count_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
