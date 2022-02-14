@@ -103,11 +103,17 @@ def main():
     command.extend(lines)
     if args.style:
       command.extend(['-style', args.style])
+
+    encoding_py3 = {}
+    if sys.version_info[0] >= 3:
+        encoding_py3['encoding'] = 'utf-8'
+
     p = subprocess.Popen(command,
                          stdout=subprocess.PIPE,
                          stderr=None,
                          stdin=subprocess.PIPE,
-                         universal_newlines=True)
+                         universal_newlines=True,
+                         **encoding_py3)
     stdout, stderr = p.communicate()
     if p.returncode != 0:
       sys.exit(p.returncode)
