@@ -25,8 +25,6 @@
 #include "decode/custom_vulkan_ascii_consumer.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
 
-#include "util/platform.h"
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -37,22 +35,11 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
     Destroy();
 }
 
-bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
+void VulkanAsciiConsumerBase::Initialize(FILE* file)
 {
-    bool success = false;
-
-    if (file_ == nullptr)
-    {
-        int32_t result = util::platform::FileOpen(&file_, filename.c_str(), "w");
-        if (result == 0)
-        {
-            success   = true;
-            filename_ = filename;
-            fprintf(file_, "{");
-        }
-    }
-
-    return success;
+    assert(file);
+    file_ = file;
+    fprintf(file_, "{");
 }
 
 void VulkanAsciiConsumerBase::Destroy()
@@ -60,7 +47,7 @@ void VulkanAsciiConsumerBase::Destroy()
     if (file_ != nullptr)
     {
         fprintf(file_, "\n}\n");
-        util::platform::FileClose(file_);
+        file_ = nullptr;
     }
 }
 
