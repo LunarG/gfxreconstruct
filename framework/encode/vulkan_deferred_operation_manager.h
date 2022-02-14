@@ -44,9 +44,10 @@ class VulkanDeferredOperationManager
 
     static std::shared_ptr<VulkanDeferredOperationManager>& Get() { return instance_; }
 
-    void add(VkDeferredOperationKHR deferred_operation_handle, std::shared_ptr<VulkanDeferredOperation> operation)
+    void Add(VkDeferredOperationKHR deferred_operation_handle, std::shared_ptr<VulkanDeferredOperation> operation)
     {
         const std::lock_guard<std::mutex> lock(mutex_);
+
         if ((deferred_operation_handle != VK_NULL_HANDLE) && (operation))
         {
             deferred_operations_[deferred_operation_handle] = std::move(operation);
@@ -63,6 +64,7 @@ class VulkanDeferredOperationManager
     {
         const std::lock_guard<std::mutex>   lock(mutex_);
         std::shared_ptr<VulkanDeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
+
         if (deferred_operation)
         {
             deferred_operation->PostProcess();
