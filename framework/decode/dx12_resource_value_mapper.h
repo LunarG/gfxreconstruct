@@ -89,6 +89,10 @@ class Dx12ResourceValueMapper
         DxObjectInfo*                                                                     command_list4_object_info,
         StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* desc);
 
+    void PostProcessCreateRootSignature(PointerDecoder<uint8_t>*     blob_with_root_signature_decoder,
+                                        SIZE_T                       blob_length_in_bytes,
+                                        HandlePointerDecoder<void*>* root_signature_decoder);
+
     void PostProcessDispatchRays(DxObjectInfo*                                           command_list4_object_info,
                                  StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
 

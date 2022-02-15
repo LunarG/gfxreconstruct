@@ -44,6 +44,24 @@ T* GetExtraInfo(const DxObjectInfo* info)
     return nullptr;
 }
 
+template <typename T>
+T* GetExtraInfo(HandlePointerDecoder<void*>* handle_ptr_decoder)
+{
+    GFXRECON_ASSERT(handle_ptr_decoder != nullptr);
+
+    auto object_info = static_cast<DxObjectInfo*>(handle_ptr_decoder->GetConsumerData(0));
+
+    if ((object_info != nullptr) && (object_info->extra_info != nullptr) &&
+        (object_info->extra_info->extra_info_type == T::kType))
+    {
+        return static_cast<T*>(object_info->extra_info.get());
+    }
+
+    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+
+    return nullptr;
+}
+
 D3D12ResourceInfo* GetResourceExtraInfo(DxObjectInfo* resource_object_info)
 {
     GFXRECON_ASSERT(resource_object_info != nullptr);
@@ -52,6 +70,53 @@ D3D12ResourceInfo* GetResourceExtraInfo(DxObjectInfo* resource_object_info)
         resource_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
     }
     return GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
+}
+
+constexpr UINT AlignOffset(UINT offset, UINT alignment)
+{
+    GFXRECON_ASSERT(alignment != 0);
+    return ((offset + (alignment - 1)) / alignment) * alignment;
+}
+
+template <typename T>
+void GetRootSignatureResourceValueInfos(const T* root_signature_desc, std::set<ResourceValueInfo>& value_infos)
+{
+    value_infos.clear();
+    UINT byte_offset = 0;
+    for (UINT i = 0; i < root_signature_desc->NumParameters; ++i)
+    {
+        auto& param_desc = root_signature_desc->pParameters[i];
+        switch (param_desc.ParameterType)
+        {
+            case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
+                byte_offset =
+                    AlignOffset(byte_offset, sizeof(UINT32)) + param_desc.Constants.Num32BitValues * sizeof(UINT32);
+                break;
+            case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
+            {
+                auto aligned_offset = AlignOffset(byte_offset, sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr));
+                value_infos.insert({ aligned_offset,
+                                     ResourceValueType::kGpuDescriptorHandle,
+                                     sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr) });
+                byte_offset = aligned_offset + sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr);
+            }
+            break;
+            case D3D12_ROOT_PARAMETER_TYPE_CBV:
+            case D3D12_ROOT_PARAMETER_TYPE_SRV:
+            case D3D12_ROOT_PARAMETER_TYPE_UAV:
+            {
+                auto aligned_offset = AlignOffset(byte_offset, sizeof(D3D12_GPU_VIRTUAL_ADDRESS));
+                value_infos.insert(
+                    { aligned_offset, ResourceValueType::kGpuVirtualAddress, sizeof(D3D12_GPU_VIRTUAL_ADDRESS) });
+                byte_offset = aligned_offset + sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+            }
+            break;
+            default:
+                GFXRECON_LOG_ERROR("Ignoring unrecognized root signature parameter type (%d)",
+                                   param_desc.ParameterType);
+                break;
+        }
+    }
 }
 
 // This is a helper for CopyResourceValues. It copies ResourceValueInfos (with updated offset) from dst to src.
@@ -388,6 +453,51 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
                                "pointed to by InstanceDescs may be incorrect.",
                                build_desc->Inputs.InstanceDescs);
         }
+    }
+}
+
+void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint8_t>* blob_with_root_signature_decoder,
+                                                             SIZE_T                   blob_length_in_bytes,
+                                                             HandlePointerDecoder<void*>* root_signature_decoder)
+{
+    // Store root signature GPU VAs and descriptor handles with the root signature's extra info.
+    auto root_sig_id              = *root_signature_decoder->GetPointer();
+    auto root_sig_extra_info      = GetExtraInfo<D3D12RootSignatureInfo>(root_signature_decoder);
+    auto blob_with_root_signature = blob_with_root_signature_decoder->GetPointer();
+
+    GFXRECON_ASSERT(root_sig_id != format::kNullHandleId);
+    GFXRECON_ASSERT(root_sig_extra_info != nullptr);
+    GFXRECON_ASSERT(blob_with_root_signature != nullptr);
+    GFXRECON_ASSERT(blob_length_in_bytes != 0);
+
+    graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr root_sig_deserializer{ nullptr };
+    HRESULT result = D3D12CreateVersionedRootSignatureDeserializer(
+        blob_with_root_signature, blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
+    if (SUCCEEDED(result))
+    {
+        auto                             versioned_root_sig = root_sig_deserializer->GetUnconvertedRootSignatureDesc();
+        const D3D12_ROOT_SIGNATURE_DESC* root_signature_desc{ nullptr };
+        switch (versioned_root_sig->Version)
+        {
+            case D3D_ROOT_SIGNATURE_VERSION_1_0:
+                GetRootSignatureResourceValueInfos(&versioned_root_sig->Desc_1_0,
+                                                   root_sig_extra_info->resource_value_infos);
+                break;
+            case D3D_ROOT_SIGNATURE_VERSION_1_1:
+                GetRootSignatureResourceValueInfos(&versioned_root_sig->Desc_1_1,
+                                                   root_sig_extra_info->resource_value_infos);
+                break;
+            default:
+                GFXRECON_LOG_ERROR("Ignoring unrecognized root signature version (%d) for root signature (id=%" PRIu64
+                                   ").",
+                                   versioned_root_sig->Version,
+                                   root_sig_id);
+                break;
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to deserialize root signature (id=%" PRIu64 ").", root_sig_id);
     }
 }
 

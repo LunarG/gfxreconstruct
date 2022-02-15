@@ -62,6 +62,7 @@ enum class DxObjectInfoType : uint32_t
     kID3D12ResourceInfo,
     kID3D12CommandSignatureInfo,
     kID3D12CommandListInfo,
+    kID3D12RootSignatureInfo
 };
 
 //
@@ -250,6 +251,15 @@ struct D3D12CommandListInfo : DxObjectExtraInfo
     std::vector<ResourceCopyInfo> resource_copies;
 
     ResourceValueInfoMap resource_value_info_map;
+};
+
+struct D3D12RootSignatureInfo : DxObjectExtraInfo
+{
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12RootSignatureInfo;
+    static constexpr char             kObjectType[] = "ID3D12RootSignatureInfo";
+    D3D12RootSignatureInfo() : DxObjectExtraInfo(kType) {}
+
+    std::set<ResourceValueInfo> resource_value_infos;
 };
 
 GFXRECON_END_NAMESPACE(decode)

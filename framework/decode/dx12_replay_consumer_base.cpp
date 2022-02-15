@@ -2819,6 +2819,14 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
                                                      *riid.decoded_value,
                                                      root_signature_decoder->GetHandlePointer());
 
+    if (SUCCEEDED(replay_result) && !root_signature_decoder->IsNull())
+    {
+        SetExtraInfo(root_signature_decoder, std::make_unique<D3D12RootSignatureInfo>());
+
+        resource_value_mapper_->PostProcessCreateRootSignature(
+            blob_with_root_signature_decoder, blob_length_in_bytes, root_signature_decoder);
+    }
+
     return replay_result;
 }
 
