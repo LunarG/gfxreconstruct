@@ -28,10 +28,10 @@
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
-    "screenshot-all,--dcp,--discard-cached-psos";
+    "screenshot-all,--dcp,--discard-cached-psos,--qamr|--quit-after-measurement-range,--fmr|--flush-measurement-range";
 const char kArguments[] = "--log-level,--log-file,--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--"
                           "replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
-                          "screenshot-dir,--screenshot-prefix";
+                          "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -77,6 +77,21 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
 #endif
+    GFXRECON_WRITE_CONSOLE("  --measurement-frame-range <start_frame>-<end_frame>");
+    GFXRECON_WRITE_CONSOLE("          \t\tCustom framerange to measure FPS for.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThis range will include the start frame but not the end frame.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe measurement frame range defaults to all frames except the loading");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe but can be configured for any range. If the end frame is past the");
+    GFXRECON_WRITE_CONSOLE("          \t\tlast frame in the trace it will be clamped to the frame after the last");
+    GFXRECON_WRITE_CONSOLE("          \t\t(so in that case the results would include the last frame).");
+    GFXRECON_WRITE_CONSOLE("  --quit-after-measurement-range");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will abort");
+    GFXRECON_WRITE_CONSOLE("          \t\twhen it reaches the <end_frame> specified in");
+    GFXRECON_WRITE_CONSOLE("          \t\tthe --measurement-frame-range argument.");
+    GFXRECON_WRITE_CONSOLE("  --flush-measurement-range");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will flush")
+    GFXRECON_WRITE_CONSOLE("          \t\tand wait for all current GPU work to finish at the");
+    GFXRECON_WRITE_CONSOLE("          \t\tstart and end of the measurement range.");
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices.  Replay may fail");

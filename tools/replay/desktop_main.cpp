@@ -114,9 +114,11 @@ int main(int argc, const char** argv)
 
             gfxrecon::graphics::FpsInfo                    fps_info;
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-            gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                application, GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table));
-            gfxrecon::decode::VulkanDecoder decoder;
+            gfxrecon::decode::VulkanReplayOptions          replay_options =
+                GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+            gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
+            gfxrecon::decode::VulkanDecoder        decoder;
+            std::pair<uint32_t, uint32_t>          measurement_frame_range = GetMeasurementFrameRange(arg_parser);
 
             replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
             replay_consumer.SetFpsInfo(&fps_info);
@@ -128,14 +130,58 @@ int main(int argc, const char** argv)
             // Warn if the capture layer is active.
             CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
 
-            fps_info.Begin();
+            bool did_begin_fps = false;
 
-            application->Run();
+            auto check_and_begin_fps = [&did_begin_fps, &fps_info, &measurement_frame_range, &file_processor](
+                                           gfxrecon::application::Application* app) -> bool {
+                bool begin =
+                    !did_begin_fps && (file_processor.GetCurrentFrameNumber() >= measurement_frame_range.first - 1);
+                if (begin)
+                {
+                    fps_info.Begin(file_processor.GetCurrentFrameNumber() + 1);
+                    did_begin_fps = true;
+                }
+                return true;
+            };
+
+            bool did_log_fps = false;
+
+            auto check_and_end_fps =
+                [&did_log_fps, &fps_info, &measurement_frame_range, &file_processor, &replay_options](
+                    gfxrecon::application::Application* app) -> bool {
+                bool end = (file_processor.GetCurrentFrameNumber() > measurement_frame_range.second - 1);
+                if (end)
+                {
+                    if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                    {
+                        GFXRECON_LOG_ERROR(
+                            "A failure has occurred during replay, cannot calculate measurement range FPS.");
+                    }
+                    else
+                    {
+                        if (!did_log_fps)
+                        {
+                            file_processor.WaitDecodersIdle();
+                            fps_info.EndAndLog(file_processor.GetCurrentFrameNumber());
+                            did_log_fps = true;
+                        }
+                    }
+                }
+                bool quit = end && replay_options.quit_after_measurement_frame_range;
+                return !quit;
+            };
+
+            fps_info.SetStartTime();
+            application->Run(check_and_begin_fps, check_and_end_fps);
 
             if ((file_processor.GetCurrentFrameNumber() > 0) &&
                 (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
             {
-                fps_info.EndAndLog(file_processor.GetCurrentFrameNumber());
+                if (!did_log_fps)
+                {
+                    file_processor.WaitDecodersIdle();
+                    fps_info.EndAndLog(file_processor.GetCurrentFrameNumber());
+                }
             }
             else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {

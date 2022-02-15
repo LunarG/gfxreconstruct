@@ -54,12 +54,17 @@ WriteFpsToConsole(const char* prefix, uint64_t start_frame, uint64_t end_frame, 
                            end_frame);
 }
 
+void FpsInfo::SetStartTime()
+{
+    start_time_ = util::datetime::GetTimestamp();
+}
+
 void FpsInfo::Begin(uint64_t start_frame)
 {
     // Save the start frame/time information for the FPS result.
     replay_start_frame_ = start_frame;
-    start_time_         = util::datetime::GetTimestamp();
-    replay_start_time_  = start_time_;
+    begin_frame_        = start_frame;
+    replay_start_time_  = util::datetime::GetTimestamp();
 }
 
 void FpsInfo::EndAndLog(uint64_t end_frame)
@@ -67,14 +72,22 @@ void FpsInfo::EndAndLog(uint64_t end_frame)
     // Get the end frame/time information and calculate FPS.
     int64_t end_time = util::datetime::GetTimestamp();
 
-    if (replay_start_time_ != start_time_)
-    {
-        GFXRECON_WRITE_CONSOLE("Load time:  %f seconds", GetElapsedSeconds(start_time_, replay_start_time_));
-    }
-    GFXRECON_WRITE_CONSOLE("Total time: %f seconds", GetElapsedSeconds(start_time_, end_time));
+    bool include_load = begin_frame_ == 1;
 
-    WriteFpsToConsole(
-        "Replay FPS:", replay_start_frame_, end_frame + replay_start_frame_ - 1, replay_start_time_, end_time);
+    if (include_load)
+    {
+        if (replay_start_time_ != start_time_)
+        {
+            GFXRECON_WRITE_CONSOLE("Load time:  %f seconds", GetElapsedSeconds(start_time_, replay_start_time_));
+        }
+        GFXRECON_WRITE_CONSOLE("Total time: %f seconds", GetElapsedSeconds(start_time_, end_time));
+        WriteFpsToConsole(
+            "Replay FPS:", replay_start_frame_, end_frame + replay_start_frame_ - 1, replay_start_time_, end_time);
+    }
+    else
+    {
+        WriteFpsToConsole("Measurement range FPS:", begin_frame_, end_frame - 1, replay_start_time_, end_time);
+    }
 }
 
 void FpsInfo::ProcessStateEndMarker(uint64_t frame)

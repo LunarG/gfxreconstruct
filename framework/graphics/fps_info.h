@@ -34,6 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class FpsInfo
 {
   public:
+    void SetStartTime();
     void Begin(uint64_t start_frame = 1);
     void EndAndLog(uint64_t current_frame);
 
@@ -43,6 +44,7 @@ class FpsInfo
     int64_t  start_time_;
     uint64_t replay_start_frame_;
     int64_t  replay_start_time_;
+    uint64_t begin_frame_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)
