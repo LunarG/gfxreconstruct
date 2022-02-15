@@ -53,6 +53,8 @@ class VulkanDecoderBase : public ApiDecoder
         consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer));
     }
 
+    virtual void WaitIdle() override;
+
     virtual bool SupportsApiCall(format::ApiCallId call_id) override
     {
         return (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_Vulkan);

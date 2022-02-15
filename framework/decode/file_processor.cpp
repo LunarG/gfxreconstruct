@@ -56,6 +56,13 @@ FileProcessor::~FileProcessor()
     DecodeAllocator::DestroyInstance();
 }
 
+void FileProcessor::WaitDecodersIdle()
+{
+    for (auto decoder : decoders_)
+    {
+        decoder->WaitIdle();
+    }
+};
 bool FileProcessor::Initialize(const std::string& filename)
 {
     bool success = false;

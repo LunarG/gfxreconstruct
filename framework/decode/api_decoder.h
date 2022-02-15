@@ -45,6 +45,7 @@ class ApiDecoder
   public:
     virtual ~ApiDecoder() {}
 
+    virtual void WaitIdle()                            = 0;
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
     virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) = 0;

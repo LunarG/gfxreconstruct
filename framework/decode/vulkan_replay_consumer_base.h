@@ -72,6 +72,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual ~VulkanReplayConsumerBase() override;
 
+    virtual void WaitDevicesIdle() override;
+
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
 
     void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }

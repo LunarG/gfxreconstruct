@@ -62,6 +62,8 @@ class FileProcessor
 
     ~FileProcessor();
 
+    void WaitDecodersIdle();
+
     void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
 
     void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
