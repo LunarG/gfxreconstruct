@@ -110,18 +110,39 @@ WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool au
     return const_cast<WsiContext*>(wsi_context);
 }
 
-void Application::Run()
+void Application::Run(std::function<bool(Application*)> pre_frame_callback,
+                      std::function<bool(Application*)> post_frame_callback)
 {
     running_ = true;
 
     while (running_)
     {
-        ProcessEvents(paused_);
+        bool proceed = false;
 
-        // Only process the next frame if a quit event was not processed or not paused.
-        if (running_ && !paused_)
+        if (pre_frame_callback != nullptr)
         {
-            PlaySingleFrame();
+            proceed = pre_frame_callback(this);
+        }
+
+        if (proceed)
+        {
+            ProcessEvents(paused_);
+
+            // Only process the next frame if a quit event was not processed or not paused.
+            if (running_ && !paused_)
+            {
+                PlaySingleFrame();
+            }
+
+            if (post_frame_callback != nullptr)
+            {
+                proceed = post_frame_callback(this);
+            }
+        }
+
+        if (!proceed)
+        {
+            running_ = false;
         }
     }
 }

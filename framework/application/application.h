@@ -34,6 +34,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <functional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -57,7 +58,10 @@ class Application final
 
     bool IsRunning() const { return running_; }
 
-    void Run();
+    // Note that FileProcessor::FrameNumber() will be N at the time of pre_frame_callback and
+    // N+1 at the time of post_frame_callback.
+    void Run(std::function<bool(Application*)> pre_frame_callback = nullptr,
+             std::function<bool(Application*)> post_frame_allback = nullptr);
 
     void StopRunning() { running_ = false; }
 
