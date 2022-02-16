@@ -62,8 +62,6 @@ class Application final
 
     void Run();
 
-    void StopRunning() { running_ = false; }
-
     bool GetPaused() const { return paused_; }
 
     void SetPaused(bool paused);
@@ -76,10 +74,10 @@ class Application final
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);
 
+    void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
+
   protected:
     void StopRunning() { running_ = false; }
-
-    void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
   private:
     // clang-format off
