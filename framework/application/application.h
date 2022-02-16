@@ -76,10 +76,6 @@ class Application final
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);
 
-  protected:
-    void StopRunning() { running_ = false; }
-
-
     void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
   private:

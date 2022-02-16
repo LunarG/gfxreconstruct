@@ -40,17 +40,20 @@ class FpsInfo
             bool     quit_after_range        = false,
             bool     flush_measurement_range = false);
 
-    void SetFileProcessor(gfxrecon::decode::FileProcessor* file_processor);
+    void LogToConsole();
 
-    void HandleMeasurementRange();
-    void WriteMeasurementRangeFpsToConsole();
+    void BeginFile();
+    bool ShouldWaitIdleBeforeFrame(uint64_t file_processor_frame);
+    bool ShouldWaitIdleAfterFrame(uint64_t file_processor_frame);
+    bool ShouldQuit(uint64_t file_processor_frame);
+    void BeginFrame(uint64_t file_processor_frame);
+    void EndFrame(uint64_t file_processor_frame);
+    void EndFile(uint64_t end_file_processor_frame);
+    void ProcessStateEndMarker(uint64_t file_processor_frame);
 
-    void ProcessStateEndMarker(uint64_t frame);
-
-    bool ShouldQuit();
 
   private:
-    gfxrecon::decode::FileProcessor* file_processor_;
+    uint64_t start_time_;
 
     uint64_t measurement_start_frame_;
     uint64_t measurement_end_frame_;
@@ -58,8 +61,14 @@ class FpsInfo
     int64_t measurement_start_time_;
     int64_t measurement_end_time_;
 
+    uint64_t replay_start_time_;
+    int64_t replay_start_frame_;
+
     bool quit_after_range_;
     bool flush_measurement_range_;
+
+    bool started_measurement_;
+    bool ended_measurement_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)

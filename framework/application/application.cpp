@@ -118,7 +118,6 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
         return;
     }
 
-    fps_info->SetFileProcessor(file_processor_);
     fps_info_ = fps_info;
 }
 
@@ -136,16 +135,32 @@ void Application::Run()
 
             if (fps_info_ != nullptr)
             {
-                fps_info_->HandleMeasurementRange();
-
-                if (fps_info_->ShouldQuit())
+                if (fps_info_->ShouldQuit(file_processor_->GetCurrentFrameNumber()))
                 {
                     running_ = false;
                     break;
                 }
+
+                if(fps_info_->ShouldWaitIdleBeforeFrame(file_processor_->GetCurrentFrameNumber()))
+                {
+                    file_processor_->WaitDecodersIdle();
+                }
+
+
+                fps_info_->BeginFrame(file_processor_->GetCurrentFrameNumber());
             }
 
             PlaySingleFrame();
+
+            if (fps_info_ != nullptr)
+            {
+                fps_info_->EndFrame(file_processor_->GetCurrentFrameNumber());
+
+                if(fps_info_->ShouldWaitIdleAfterFrame(file_processor_->GetCurrentFrameNumber()))
+                {
+                    file_processor_->WaitDecodersIdle();
+                }
+            }
         }
     }
 }
