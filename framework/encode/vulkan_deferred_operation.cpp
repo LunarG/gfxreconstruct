@@ -37,7 +37,9 @@ VkResult VulkanDeferredOperation::GetStatus()
     VkDevice               device_unwrapped    = GetWrappedHandle<VkDevice>(device_);
     VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferred_operation_);
 
-    VkResult result = GetDeviceTable(device_)->GetDeferredOperationResultKHR(device_unwrapped, operation_unwrapped);
+    auto device_table = GetDeviceTable(device_);
+    GFXRECON_ASSERT(device_table != nullptr);
+    VkResult result = device_table->GetDeferredOperationResultKHR(device_unwrapped, operation_unwrapped);
     return result;
 }
 
@@ -46,8 +48,11 @@ void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess()
     VkResult result = VK_SUCCESS;
     if (pipelines_ != nullptr)
     {
-        auto               device_wrapper = reinterpret_cast<DeviceWrapper*>(device_);
-        const DeviceTable* device_table   = GetDeviceTable(device_);
+        auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device_);
+        auto device_table   = GetDeviceTable(device_);
+        GFXRECON_ASSERT(device_table != nullptr);
+        auto capture_manager = VulkanCaptureManager::Get();
+        GFXRECON_ASSERT(capture_manager != nullptr);
         CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
             device_, deferred_operation_, pipelines_, create_info_count_, VulkanCaptureManager::GetUniqueId);
 
@@ -69,19 +74,19 @@ void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess()
                                                                               data_size,
                                                                               data.data());
 
-                VulkanCaptureManager::Get()->WriteSetRayTracingShaderGroupHandlesCommand(
+                capture_manager->WriteSetRayTracingShaderGroupHandlesCommand(
                     device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
 
-                if ((VulkanCaptureManager::Get()->GetCaptureMode() & VulkanCaptureManager::CaptureModeFlags::kModeTrack) ==
+                if ((capture_manager->GetCaptureMode() & VulkanCaptureManager::CaptureModeFlags::kModeTrack) ==
                     VulkanCaptureManager::CaptureModeFlags::kModeTrack)
                 {
-                    VulkanCaptureManager::Get()->GetStateTracker()->TrackRayTracingShaderGroupHandles(
+                    capture_manager->GetStateTracker()->TrackRayTracingShaderGroupHandles(
                         device_, pipelines_[i], data_size, data.data());
                 }
             }
         }
         auto encoder =
-            VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
+            capture_manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
         if (encoder)
         {
             encoder->EncodeHandleValue(device_);
@@ -92,12 +97,11 @@ void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess()
             EncodeStructPtr(encoder, allocator_);
             encoder->EncodeHandleArray(pipelines_, create_info_count_, false);
             encoder->EncodeEnumValue(VK_OPERATION_DEFERRED_KHR);
-            VulkanCaptureManager::Get()
-                ->EndGroupCreateApiCallCapture<VkDevice,
-                                             VkDeferredOperationKHR,
-                                             PipelineWrapper,
-                                             VkRayTracingPipelineCreateInfoKHR>(
-                    result, device_, deferred_operation_, create_info_count_, pipelines_, create_infos_);
+            capture_manager->EndGroupCreateApiCallCapture<VkDevice,
+                                                          VkDeferredOperationKHR,
+                                                          PipelineWrapper,
+                                                          VkRayTracingPipelineCreateInfoKHR>(
+                result, device_, deferred_operation_, create_info_count_, pipelines_, create_infos_);
         }
     }
 }

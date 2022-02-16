@@ -101,7 +101,7 @@ class VulkanDeferredOperationManager
     }
 
   private:
-    std::mutex                                                                     mutex_;
+    std::mutex                                                                           mutex_;
     std::unordered_map<VkDeferredOperationKHR, std::shared_ptr<VulkanDeferredOperation>> deferred_operations_;
     static std::shared_ptr<VulkanDeferredOperationManager>                               instance_;
     std::shared_ptr<VulkanDeferredOperation> null_operation_ = std::shared_ptr<VulkanDeferredOperation>(nullptr);
