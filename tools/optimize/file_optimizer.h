@@ -38,12 +38,12 @@ class FileOptimizer : public decode::FileTransformer
     FileOptimizer(std::unordered_set<format::HandleId>&& unreferenced_ids);
 
   protected:
-    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type) override;
+    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id) override;
 
   private:
-    bool FilterInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
+    bool FilterInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
-    bool FilterInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
+    bool FilterInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
   private:
     std::unordered_set<format::HandleId> unreferenced_ids_;

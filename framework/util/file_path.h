@@ -32,6 +32,16 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(filepath)
 
+#if defined(WIN32)
+const char kPathSep         = '\\';
+const char kPathSepStr[]    = "\\";
+const char kAltPathSep      = '/';
+const char kAltPathSepStr[] = "/";
+#else
+const char kPathSep      = '/';
+const char kPathSepStr[] = "/";
+#endif
+
 bool Exists(const std::string& path);
 
 bool IsFile(const std::string& path);
@@ -43,6 +53,8 @@ std::string Join(const std::string& lhs, const std::string& rhs);
 std::string InsertFilenamePostfix(const std::string& filename, const std::string& postfix);
 
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
+
+bool GetWindowsSystemLibrariesPath(std::string& base_path);
 
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)

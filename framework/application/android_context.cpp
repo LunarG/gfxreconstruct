@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,8 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "application/android_application.h"
-
+#include "application/android_context.h"
+#include "application/application.h"
 #include "application/android_window.h"
 
 #include <jni.h>
@@ -30,22 +30,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-AndroidApplication::AndroidApplication(const std::string& name, struct android_app* app) :
-    Application(name), window_(nullptr), android_app_(app)
+AndroidContext::AndroidContext(Application* application, struct android_app* app) :
+    WsiContext(application), android_app_(app)
 {
-    assert(app != nullptr);
+    assert(android_app_);
+    window_factory_ = std::make_unique<AndroidWindowFactory>(this);
 }
 
-bool AndroidApplication::Initialize(decode::FileProcessor* file_processor)
+AndroidContext::~AndroidContext() {}
+
+void AndroidContext::ProcessEvents(bool wait_for_input)
 {
-
-    SetFileProcessor(file_processor);
-
-    return true;
-}
-
-void AndroidApplication::ProcessEvents(bool wait_for_input)
-{
+    assert(application_);
+    assert(android_app_);
     // Process all pending events.
     for (;;)
     {
@@ -72,7 +69,7 @@ void AndroidApplication::ProcessEvents(bool wait_for_input)
 
             if (android_app_->destroyRequested != 0)
             {
-                StopRunning();
+                application_->StopRunning();
                 break;
             }
         }
@@ -83,12 +80,12 @@ void AndroidApplication::ProcessEvents(bool wait_for_input)
     }
 }
 
-void AndroidApplication::InitWindow()
+void AndroidContext::InitWindow()
 {
     window_ = std::make_unique<AndroidWindow>(this, android_app_->window);
 }
 
-void AndroidApplication::SetOrientation(ScreenOrientation orientation)
+void AndroidContext::SetOrientation(ScreenOrientation orientation)
 {
     JavaVM* jni_vm       = nullptr;
     jobject jni_activity = nullptr;

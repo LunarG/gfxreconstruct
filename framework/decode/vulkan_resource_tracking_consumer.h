@@ -43,7 +43,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanResourceTrackingConsumer : public VulkanConsumer
 {
   public:
-    VulkanResourceTrackingConsumer(const ReplayOptions&          options,
+    VulkanResourceTrackingConsumer(const VulkanReplayOptions&    options,
                                    VulkanTrackedObjectInfoTable* tracked_object_info_table);
 
     virtual ~VulkanResourceTrackingConsumer() override;
@@ -171,7 +171,7 @@ class VulkanResourceTrackingConsumer : public VulkanConsumer
     PFN_vkCreateInstance      create_instance_function_;
     PFN_vkGetInstanceProcAddr get_instance_proc_addr_;
 
-    ReplayOptions                 options_;
+    VulkanReplayOptions           options_;
     VulkanTrackedObjectInfoTable* tracked_object_info_table_;
 };
 

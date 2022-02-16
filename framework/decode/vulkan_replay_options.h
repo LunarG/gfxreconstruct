@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2019-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -24,6 +24,8 @@
 #ifndef GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
 #define GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
 
+#include "decode/replay_options.h"
+
 #include "decode/vulkan_resource_allocator.h"
 #include "util/defines.h"
 
@@ -39,22 +41,9 @@ typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
 // Default log level to use prior to loading settings.
 const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
-const char kDefaultScreenshotFilePrefix[] = "screenshot";
-
-enum class ScreenshotFormat : uint32_t
+struct VulkanReplayOptions : public ReplayOptions
 {
-    kBmp = 0
-};
-
-struct ScreenshotRange
-{
-    uint32_t first{ 0 }; // First frame to capture.
-    uint32_t last{ 0 };  // Last frame to capture.
-};
-
-struct ReplayOptions
-{
-    bool                         sync_queue_submissions{ false };
+    bool                         enable_vulkan{ true };
     bool                         skip_failed_allocations{ false };
     bool                         omit_pipeline_cache_data{ false };
     bool                         remove_unsupported_features{ false };

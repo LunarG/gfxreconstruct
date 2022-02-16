@@ -181,6 +181,7 @@ class PageGuardManager
   private:
     size_t GetSystemPageSize() const;
     size_t GetSystemPagePotShift() const;
+    void   InitializeSystemExceptionContext();
 
     void AddExceptionHandler();
     void RemoveExceptionHandler();

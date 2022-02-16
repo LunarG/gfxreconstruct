@@ -1,5 +1,4 @@
 /*
-** Copyright (c) 2021, Arm Limited.
 ** Copyright (c) 2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -21,30 +20,54 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_HEADLESS_APPLICATION_H
-#define GFXRECON_APPLICATION_HEADLESS_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_WSI_CONTEXT_H
+#define GFXRECON_APPLICATION_WSI_CONTEXT_H
 
-#include "application/application.h"
+#include "decode/window.h"
 #include "util/defines.h"
+
+#include <memory>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class HeadlessWindow;
+class Application;
 
-class HeadlessApplication : public Application
+class WsiContext
 {
   public:
-    HeadlessApplication(const std::string& name);
+    WsiContext(Application* application);
 
-    virtual ~HeadlessApplication() override{};
+    virtual ~WsiContext() = 0;
 
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
+    const Application* GetApplication() const { return application_; }
 
-    virtual void ProcessEvents(bool wait_for_input) override;
+    Application* GetApplication() { return application_; }
+
+    const decode::WindowFactory* GetWindowFactory() const { return window_factory_.get(); }
+
+    decode::WindowFactory* GetWindowFactory() { return window_factory_.get(); }
+
+    const std::vector<decode::Window*>& GetWindows() const { return windows_; }
+
+    bool RegisterWindow(decode::Window* window);
+
+    bool UnregisterWindow(decode::Window* window);
+
+    virtual void ProcessEvents(bool wait_for_input);
+
+    bool Valid() const;
+
+  protected:
+    Application*                           application_;
+    std::unique_ptr<decode::WindowFactory> window_factory_;
+
+  private:
+    std::vector<decode::Window*> windows_;
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_HEADLESS_APPLICATION_H
+#endif // GFXRECON_APPLICATION_WSI_CONTEXT_H

@@ -1,5 +1,7 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,46 +22,34 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_XLIB_APPLICATION_H
-#define GFXRECON_APPLICATION_XLIB_APPLICATION_H
+#ifndef GFXRECON_UTIL_OPTIONS_H
+#define GFXRECON_UTIL_OPTIONS_H
 
-#include "application/application.h"
 #include "util/defines.h"
-#include "util/xlib_loader.h"
+
+#include <string>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(util)
 
-class XlibWindow;
-
-class XlibApplication : public Application
+struct FrameRange
 {
-  public:
-    XlibApplication(const std::string& name);
-
-    virtual ~XlibApplication() override;
-
-    const util::XlibLoader::FunctionTable& GetXlibFunctionTable() const { return xlib_loader_.GetFunctionTable(); }
-
-    Display* OpenDisplay();
-
-    void CloseDisplay(Display* display);
-
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
-
-    bool RegisterXlibWindow(XlibWindow* window);
-
-    bool UnregisterXlibWindow(XlibWindow* window);
-
-    virtual void ProcessEvents(bool wait_for_input) override;
-
-  private:
-    Display*         display_;
-    size_t           display_open_count_;
-    util::XlibLoader xlib_loader_;
+    uint32_t first{ 0 };
+    uint32_t last{ 0 };
 };
 
-GFXRECON_END_NAMESPACE(application)
+std::vector<FrameRange> GetFrameRanges(const std::string& args);
+
+//----------------------------------------------------------------------------
+/// Read a boolean value out of a string
+/// \param  value_string Input string
+/// \param  default_value Default value in case it couldn't be read
+/// \return True or false interpretation of input string
+//----------------------------------------------------------------------------
+bool ParseBoolString(const std::string& value_string, bool default_value);
+
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_XLIB_APPLICATION_H
+#endif // GFXRECON_UTIL_OPTIONS_H

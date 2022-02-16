@@ -208,13 +208,14 @@ bool FileTransformer::ProcessNextBlock()
         }
         else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
         {
-            format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
+            format::MetaDataId meta_data_id =
+                format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kUnknownMetaDataType);
 
-            success = ReadBytes(&meta_type, sizeof(meta_type));
+            success = ReadBytes(&meta_data_id, sizeof(meta_data_id));
 
             if (success)
             {
-                success = ProcessMetaData(block_header, meta_type);
+                success = ProcessMetaData(block_header, meta_data_id);
             }
             else
             {
@@ -464,7 +465,7 @@ bool FileTransformer::ProcessFunctionCall(const format::BlockHeader& block_heade
     return true;
 }
 
-bool FileTransformer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
+bool FileTransformer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
     // Copy block data from old file to new file.
     if (!WriteBlockHeader(block_header))
@@ -472,13 +473,13 @@ bool FileTransformer::ProcessMetaData(const format::BlockHeader& block_header, f
         return false;
     }
 
-    if (!WriteBytes(&meta_type, sizeof(meta_type)))
+    if (!WriteBytes(&meta_data_id, sizeof(meta_data_id)))
     {
         HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write meta-data block header");
         return false;
     }
 
-    if (!CopyBytes(block_header.size - sizeof(meta_type)))
+    if (!CopyBytes(block_header.size - sizeof(meta_data_id)))
     {
         HandleBlockCopyError(kErrorCopyingBlockData, "Failed to copy meta-data block data");
         return false;

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -40,6 +40,11 @@ GFXRECON_BEGIN_NAMESPACE(format)
 constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
 {
     return ((static_cast<uint32_t>(family) << 16) & 0xffff0000) | (static_cast<uint32_t>(api_call) & 0x0000ffff);
+}
+
+constexpr uint16_t GetApiCallFamily(uint32_t call_id)
+{
+    return static_cast<uint16_t>((call_id >> 16) & 0x0000ffff);
 }
 
 enum ApiFamilyId : uint16_t
@@ -538,6 +543,52 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDrmDisplayEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1241),
     ApiCall_vkCmdDrawMultiEXT                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1242),
     ApiCall_vkCmdDrawMultiIndexedEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1243),
+    ApiCall_vkWaitForPresentKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1244),
+    ApiCall_vkCmdBindInvocationMaskHUAWEI                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1245),
+    ApiCall_vkGetMemoryRemoteAddressNV                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1246),
+    ApiCall_vkGetDeviceBufferMemoryRequirementsKHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1247),
+    ApiCall_vkGetDeviceImageMemoryRequirementsKHR                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1248),
+    ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1249),
+    ApiCall_vkSetDeviceMemoryPriorityEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x124a),
+    ApiCall_vkCmdBeginRenderingKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x124b),
+    ApiCall_vkCmdEndRenderingKHR                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x124c),
+    ApiCall_vkGetPhysicalDeviceToolProperties                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x124d),
+    ApiCall_vkCreatePrivateDataSlot                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x124e),
+    ApiCall_vkDestroyPrivateDataSlot                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x124f),
+    ApiCall_vkSetPrivateData                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1250),
+    ApiCall_vkGetPrivateData                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1251),
+    ApiCall_vkCmdSetEvent2                                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1252),
+    ApiCall_vkCmdResetEvent2                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1253),
+    ApiCall_vkCmdWaitEvents2                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1254),
+    ApiCall_vkCmdPipelineBarrier2                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1255),
+    ApiCall_vkCmdWriteTimestamp2                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1256),
+    ApiCall_vkQueueSubmit2                                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1257),
+    ApiCall_vkCmdCopyBuffer2                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1258),
+    ApiCall_vkCmdCopyImage2                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1259),
+    ApiCall_vkCmdCopyBufferToImage2                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x125a),
+    ApiCall_vkCmdCopyImageToBuffer2                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x125b),
+    ApiCall_vkCmdBlitImage2                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x125c),
+    ApiCall_vkCmdResolveImage2                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x125d),
+    ApiCall_vkCmdBeginRendering                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x125e),
+    ApiCall_vkCmdEndRendering                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x125f),
+    ApiCall_vkCmdSetCullMode                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1260),
+    ApiCall_vkCmdSetFrontFace                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1261),
+    ApiCall_vkCmdSetPrimitiveTopology                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1262),
+    ApiCall_vkCmdSetViewportWithCount                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1263),
+    ApiCall_vkCmdSetScissorWithCount                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1264),
+    ApiCall_vkCmdBindVertexBuffers2                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1265),
+    ApiCall_vkCmdSetDepthTestEnable                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1266),
+    ApiCall_vkCmdSetDepthWriteEnable                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1267),
+    ApiCall_vkCmdSetDepthCompareOp                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1268),
+    ApiCall_vkCmdSetDepthBoundsTestEnable                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1269),
+    ApiCall_vkCmdSetStencilTestEnable                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x126a),
+    ApiCall_vkCmdSetStencilOp                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x126b),
+    ApiCall_vkCmdSetRasterizerDiscardEnable                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x126c),
+    ApiCall_vkCmdSetDepthBiasEnable                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x126d),
+    ApiCall_vkCmdSetPrimitiveRestartEnable                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x126e),
+    ApiCall_vkGetDeviceBufferMemoryRequirements                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x126f),
+    ApiCall_vkGetDeviceImageMemoryRequirements                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1270),
+    ApiCall_vkGetDeviceImageSparseMemoryRequirements                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1271),
 
     ApiCall_VulkanLast
     // clang-format on

@@ -25,7 +25,7 @@
 
 #include "layer/trace_layer.h"
 
-#include "encode/trace_manager.h"
+#include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
@@ -127,9 +127,9 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                 {
                     add_instance_handle(*pInstance);
 
-                    encode::TraceManager* manager = encode::TraceManager::Get();
+                    encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
-                    manager->InitInstance(pInstance, fpGetInstanceProcAddr);
+                    manager->InitVkInstance(pInstance, fpGetInstanceProcAddr);
                 }
             }
         }
@@ -168,9 +168,9 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
 
                 if ((result == VK_SUCCESS) && pDevice && (*pDevice != nullptr))
                 {
-                    encode::TraceManager* manager = encode::TraceManager::Get();
+                    encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
-                    manager->InitDevice(pDevice, fpGetDeviceProcAddr);
+                    manager->InitVkDevice(pDevice, fpGetDeviceProcAddr);
                 }
             }
         }
@@ -283,7 +283,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
         // provided extensions.
         result = encode::GetInstanceTable(physicalDevice)
                      ->EnumerateDeviceExtensionProperties(
-                         encode::GetWrappedHandle(physicalDevice), nullptr, pPropertyCount, pProperties);
+                         encode::GetWrappedHandle(physicalDevice), pLayerName, pPropertyCount, pProperties);
     }
 
     return result;
@@ -354,7 +354,7 @@ extern "C"
 {
 
     VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-                                        vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
+    vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
     {
         assert(pVersionStruct != NULL);
         assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
@@ -391,10 +391,10 @@ extern "C"
     // The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties
     // and extensions from both the layer's JSON file and during the negotiation process.
     VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-                                        vkEnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
-                                                                             const char*            pLayerName,
-                                                                             uint32_t*              pPropertyCount,
-                                                                             VkExtensionProperties* pProperties)
+    vkEnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                         const char*            pLayerName,
+                                         uint32_t*              pPropertyCount,
+                                         VkExtensionProperties* pProperties)
     {
         assert(physicalDevice == VK_NULL_HANDLE);
         return gfxrecon::EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);

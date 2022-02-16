@@ -1,5 +1,4 @@
 /*
-** Copyright (c) 2021, Arm Limited.
 ** Copyright (c) 2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -21,19 +20,16 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "application/headless_application.h"
-
+#include "application/headless_context.h"
+#include "application/application.h"
 #include "application/headless_window.h"
 #include "decode/vulkan_feature_util.h"
 #include "graphics/vulkan_util.h"
-#include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-HeadlessApplication::HeadlessApplication(const std::string& name) : Application(name) {}
-
-bool HeadlessApplication::Initialize(decode::FileProcessor* file_processor)
+HeadlessContext::HeadlessContext(Application* application, bool dpi_aware) : WsiContext(application)
 {
     bool supported = false;
 
@@ -64,16 +60,13 @@ bool HeadlessApplication::Initialize(decode::FileProcessor* file_processor)
 
     if (supported)
     {
-        SetFileProcessor(file_processor);
+        window_factory_ = std::make_unique<HeadlessWindowFactory>(this);
     }
-
-    return supported;
 }
 
-void HeadlessApplication::ProcessEvents(bool wait_for_input)
+void HeadlessContext::ProcessEvents(bool wait_for_input)
 {
     // No winsys events to process for headless.
-    return;
 }
 
 GFXRECON_END_NAMESPACE(application)

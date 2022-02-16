@@ -72,8 +72,10 @@ enum BlockType : uint32_t
     kMetaDataBlock               = 3,
     kFunctionCallBlock           = 4,
     kAnnotation                  = 5,
+    kMethodCallBlock             = 6,
     kCompressedMetaDataBlock     = MakeCompressedBlockType(kMetaDataBlock),
-    kCompressedFunctionCallBlock = MakeCompressedBlockType(kFunctionCallBlock)
+    kCompressedFunctionCallBlock = MakeCompressedBlockType(kFunctionCallBlock),
+    kCompressedMethodCallBlock   = MakeCompressedBlockType(kMethodCallBlock),
 };
 
 enum MarkerType : uint32_t
@@ -91,7 +93,7 @@ enum AnnotationType : uint32_t
     kXml     = 3
 };
 
-enum MetaDataType : uint32_t
+enum class MetaDataType : uint16_t
 {
     kUnknownMetaDataType                    = 0,
     kDisplayMessageCommand                  = 1,
@@ -108,8 +110,29 @@ enum MetaDataType : uint32_t
     kSetDeviceMemoryPropertiesCommand       = 12,
     kResizeWindowCommand2                   = 13,
     kSetOpaqueAddressCommand                = 14,
-    kSetRayTracingShaderGroupHandlesCommand = 15
+    kSetRayTracingShaderGroupHandlesCommand = 15,
+    kCreateHeapAllocationCommand            = 16,
+    kInitSubresourceCommand                 = 17
 };
+
+// MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
+typedef uint32_t MetaDataId;
+
+constexpr uint32_t MakeMetaDataId(ApiFamilyId api_family, MetaDataType meta_data_type)
+{
+    return ((static_cast<uint32_t>(api_family) << 16) & 0xffff0000) |
+           (static_cast<uint32_t>(meta_data_type) & 0x0000ffff);
+}
+
+inline ApiFamilyId GetMetaDataApi(MetaDataId meta_data_id)
+{
+    return static_cast<ApiFamilyId>((meta_data_id >> 16) & 0x0000ffff);
+}
+
+inline MetaDataType GetMetaDataType(MetaDataId meta_data_id)
+{
+    return static_cast<MetaDataType>(meta_data_id & 0x0000ffff);
+}
 
 enum CompressionType : uint32_t
 {
@@ -208,8 +231,17 @@ struct MethodCallHeader
 {
     BlockHeader      block_header;
     ApiCallId        api_call_id;
-    uint64_t         object_id;
+    format::HandleId object_id;
     format::ThreadId thread_id;
+};
+
+struct CompressedMethodCallHeader
+{
+    BlockHeader      block_header;
+    ApiCallId        api_call_id;
+    format::HandleId object_id;
+    format::ThreadId thread_id;
+    uint64_t         uncompressed_size;
 };
 
 struct AnnotationHeader
@@ -223,8 +255,8 @@ struct AnnotationHeader
 // Metadata block headers and data types.
 struct MetaDataHeader
 {
-    BlockHeader  block_header;
-    MetaDataType meta_data_type;
+    BlockHeader block_header;
+    MetaDataId  meta_data_id; // Encodes ApiFamilyId in upper 2 bytes and MetaDataType in lower 2 bytes.
 };
 
 struct FillMemoryCommandHeader
@@ -242,7 +274,7 @@ struct DisplayMessageCommandHeader
 {
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
-    // NOTE: Message size is determined by subtracting the sizeof(MetaDataType) + sizeof(ThreadId) from
+    // NOTE: Message size is determined by subtracting the sizeof(MetaDataId) + sizeof(ThreadId) from
     // BlockHeader::size.  This computed size is the length of the ASCII message string, not including the null
     // terminator.
 };
@@ -361,6 +393,19 @@ struct InitImageCommandHeader
     uint32_t         level_count;
 };
 
+struct InitSubresourceCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId resource_id;
+    uint32_t         subresource;
+    uint32_t         initial_state;
+    uint32_t         resource_state;
+    uint32_t         barrier_flags;
+    uint64_t         data_size;
+};
+
 struct SetDeviceMemoryPropertiesCommand
 {
     MetaDataHeader   meta_header;
@@ -412,6 +457,14 @@ struct SetRayTracingShaderGroupHandlesCommandHeader
     format::HandleId device_id;
     format::HandleId pipeline_id;
     size_t           data_size;
+};
+
+struct CreateHeapAllocationCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    uint64_t         allocation_id;
+    uint64_t         allocation_size;
 };
 
 #pragma pack(pop)

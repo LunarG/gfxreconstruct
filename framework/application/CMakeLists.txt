@@ -32,25 +32,31 @@ target_sources(gfxrecon_application
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/application.h
                     ${CMAKE_CURRENT_LIST_DIR}/application.cpp
-                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_application.h>
+                    ${CMAKE_CURRENT_LIST_DIR}/wsi_context.h
+                    ${CMAKE_CURRENT_LIST_DIR}/wsi_context.cpp
+                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.h>
-                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_application.cpp>
+                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.cpp>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.cpp>
-                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_application.h>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_context.h>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_window.h>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_context.cpp>
+                    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/display_window.cpp>
+                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_context.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_window.h>
-                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_application.cpp>
+                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_context.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_window.cpp>
-                    $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_application.h>
+                    $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_context.h>
                     $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_window.h>
-                    $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_application.cpp>
+                    $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_context.cpp>
                     $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_window.cpp>
-                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_application.h>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_context.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_window.h>
-                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_application.cpp>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_context.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_window.cpp>
-                    $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_application.h>
+                    $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_context.h>
                     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_window.h>
-                    $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_application.cpp>
+                    $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_context.cpp>
                     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_window.cpp>
               )
 
@@ -77,4 +83,3 @@ if (${RUN_TESTS})
     common_build_directives(gfxrecon_application_test)
     common_test_directives(gfxrecon_application_test)
 endif()
-

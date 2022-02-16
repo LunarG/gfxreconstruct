@@ -23,7 +23,7 @@
 #ifndef GFXRECON_APPLICATION_XLIB_WINDOW_H
 #define GFXRECON_APPLICATION_XLIB_WINDOW_H
 
-#include "application/xlib_application.h"
+#include "application/xlib_context.h"
 #include "decode/window.h"
 #include "util/defines.h"
 
@@ -33,7 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class XlibWindow : public decode::Window
 {
   public:
-    XlibWindow(XlibApplication* application);
+    XlibWindow(XlibContext* xlib_context);
 
     virtual ~XlibWindow() override;
 
@@ -60,6 +60,8 @@ class XlibWindow : public decode::Window
 
     virtual bool GetNativeHandle(HandleType type, void** handle) override;
 
+    virtual std::string GetWsiExtension() const override;
+
     virtual VkResult CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
                                    VkFlags                      flags,
@@ -72,21 +74,21 @@ class XlibWindow : public decode::Window
 
   private:
   private:
-    XlibApplication* xlib_application_;
-    Display*         display_;
-    ::Window         window_;
-    uint32_t         width_;
-    uint32_t         height_;
-    uint32_t         screen_width_;
-    uint32_t         screen_height_;
-    bool             visible_;
-    bool             fullscreen_;
+    XlibContext* xlib_context_;
+    Display*     display_;
+    ::Window     window_;
+    uint32_t     width_;
+    uint32_t     height_;
+    uint32_t     screen_width_;
+    uint32_t     screen_height_;
+    bool         visible_;
+    bool         fullscreen_;
 };
 
 class XlibWindowFactory : public decode::WindowFactory
 {
   public:
-    XlibWindowFactory(XlibApplication* application);
+    XlibWindowFactory(XlibContext* xlib_context);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_XLIB_SURFACE_EXTENSION_NAME; }
 
@@ -100,7 +102,7 @@ class XlibWindowFactory : public decode::WindowFactory
                                                           uint32_t                     queue_family_index) override;
 
   private:
-    XlibApplication* xlib_application_;
+    XlibContext* xlib_context_;
 };
 
 GFXRECON_END_NAMESPACE(application)

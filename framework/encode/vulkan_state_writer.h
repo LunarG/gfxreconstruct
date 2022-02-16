@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2019-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,7 +25,7 @@
 
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "encode/vulkan_state_table.h"
+#include "generated/generated_vulkan_state_table.h"
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -184,19 +184,25 @@ class VulkanStateWriter
                                               format::HandleId surface_id,
                                               VkBool32         supported);
 
-    void WriteGetPhysicalDeviceSurfaceCapabilities(format::HandleId                physical_device_id,
-                                                   format::HandleId                surface_id,
-                                                   const VkSurfaceCapabilitiesKHR& capabilities);
+    void WriteGetPhysicalDeviceSurfaceCapabilities(format::HandleId           physical_device_id,
+                                                   format::HandleId           surface_id,
+                                                   const SurfaceCapabilities& capabilities,
+                                                   const VulkanStateTable&    state_table);
 
     void WriteGetPhysicalDeviceSurfaceFormats(format::HandleId          physical_device_id,
                                               format::HandleId          surface_id,
                                               uint32_t                  format_count,
                                               const VkSurfaceFormatKHR* formats);
 
-    void WriteGetPhysicalDeviceSurfacePresentModes(format::HandleId        physical_device_id,
-                                                   format::HandleId        surface_id,
-                                                   uint32_t                mode_count,
-                                                   const VkPresentModeKHR* pPresentModes);
+    void WriteGetPhysicalDeviceSurfacePresentModes(format::HandleId           physical_device_id,
+                                                   format::HandleId           surface_id,
+                                                   const SurfacePresentModes& present_modes,
+                                                   const VulkanStateTable&    state_table);
+
+    void WriteGetDeviceGroupSurfacePresentModes(format::HandleId                device_id,
+                                                format::HandleId                surface_id,
+                                                const GroupSurfacePresentModes& present_modes,
+                                                const VulkanStateTable&         state_table);
 
     void WriteCommandProcessingCreateCommands(format::HandleId device_id,
                                               uint32_t         queue_family_index,

@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_VULKAN_HANDLE_WRAPPER_UTIL_H
 #define GFXRECON_ENCODE_VULKAN_HANDLE_WRAPPER_UTIL_H
 
+#include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -30,6 +31,7 @@
 #include "util/defines.h"
 
 #include <algorithm>
+#include <iterator>
 #include <cassert>
 #include <vector>
 
@@ -37,63 +39,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 typedef format::HandleId (*PFN_GetHandleId)();
-
-typedef std::vector<uint8_t> HandleUnwrapBuffer;
-
-class HandleUnwrapMemory
-{
-  public:
-    HandleUnwrapMemory() : current_buffer_(0) {}
-
-    uint8_t* GetBuffer(size_t len)
-    {
-        HandleUnwrapBuffer* next_buffer = nullptr;
-        size_t              next_index  = current_buffer_++;
-
-        if (next_index < buffers_.size())
-        {
-            next_buffer = &buffers_[next_index];
-
-            if (len > next_buffer->size())
-            {
-                next_buffer->resize(len);
-            }
-        }
-        else
-        {
-            buffers_.emplace_back(len);
-            next_buffer = &buffers_[next_index];
-        }
-
-        return next_buffer->data();
-    }
-
-    uint8_t* GetFilledBuffer(const uint8_t* data, size_t len)
-    {
-        HandleUnwrapBuffer* next_buffer = nullptr;
-        size_t              next_index  = current_buffer_++;
-
-        if (next_index < buffers_.size())
-        {
-            next_buffer = &buffers_[next_index];
-            next_buffer->clear();
-            next_buffer->insert(next_buffer->end(), data, data + len);
-        }
-        else
-        {
-            buffers_.emplace_back(data, data + len);
-            next_buffer = &buffers_[next_index];
-        }
-
-        return next_buffer->data();
-    }
-
-    void Reset() { current_buffer_ = 0; }
-
-  private:
-    size_t                          current_buffer_;
-    std::vector<HandleUnwrapBuffer> buffers_;
-};
 
 template <typename T>
 T GetWrappedHandle(const T& handle)
@@ -418,7 +363,9 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
     else
     {
         CreateWrappedNonDispatchHandle<ImageWrapper>(handle, get_id);
-        parent_wrapper->child_images.push_back(reinterpret_cast<ImageWrapper*>(*handle));
+        auto image_wrapper                = reinterpret_cast<ImageWrapper*>(*handle);
+        image_wrapper->is_swapchain_image = true;
+        parent_wrapper->child_images.push_back(image_wrapper);
     }
 }
 

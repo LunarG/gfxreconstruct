@@ -21,55 +21,76 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
-from base_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
+
 
 class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class for Vulkan capture file replay"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+    """Options for generating a C++ class for Vulkan capture file replay."""
 
-# VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
-# Generates C++ member definitions for the VulkanReplayConsumer class responsible for
-# replaying decoded Vulkan API call parameter data.
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
+        extraVulkanHeaders=[]
+    ):
+        BaseGeneratorOptions.__init__(
+            self,
+            blacklists,
+            platform_types,
+            filename,
+            directory,
+            prefix_text,
+            protect_file,
+            protect_feature,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+
+
 class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
-    """Generate a C++ class for Vulkan capture file replay"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=True, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+    """VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
+    Generates C++ member definitions for the VulkanReplayConsumer class responsible for
+    replaying decoded Vulkan API call parameter data.
+    Generate a C++ class for Vulkan capture file replay.
+    """
+
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=True,
+            process_structs=True,
+            feature_break=False,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
-        self.structsWithHandles = dict()
+        self.structs_with_handles = dict()
 
-    # Method override
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -77,58 +98,56 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles)
+            self.check_struct_member_handles(
+                typename, self.structs_with_handles
+            )
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        if self.featureCmdParams:
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    def generateFeature(self):
-        first = True
-        for cmd in self.getFilteredCmdNames():
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        for cmd in self.get_filtered_cmd_names():
+            info = self.feature_cmd_params[cmd]
             values = info[2]
 
-            if values and (len(values) > 1) and (values[0].baseType == 'VkCommandBuffer'):
+            if values and (len(values) >
+                           1) and (values[0].base_type == 'VkCommandBuffer'):
                 # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
-                handles = self.getParamListHandles(values[1:])
+                handles = self.get_param_list_handles(values[1:])
 
                 if (handles):
                     # Generate a function to build a list of handle types and values.
                     cmddef = '\n'
-                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {});'.format(cmd[2:], self.getArgList(handles))
+                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {});'.format(
+                        cmd[2:], self.get_arg_list(handles)
+                    )
                     write(cmddef, file=self.outFile)
-                    first = False
 
-    #
-    # Create list of parameters that have handle types or are structs that contain handles.
-    def getParamListHandles(self, values):
+    def get_param_list_handles(self, values):
+        """Create list of parameters that have handle types or are structs that contain handles."""
         handles = []
         for value in values:
-            if self.isHandle(value.baseType):
+            if self.is_handle(value.base_type):
                 handles.append(value)
-            elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+            elif self.is_struct(
+                value.base_type
+            ) and (value.base_type in self.structs_with_handles):
                 handles.append(value)
         return handles
 
-    #
-    #
-    def getArgList(self, values):
+    def get_arg_list(self, values):
         args = []
         for value in values:
-            if value.arrayLength:
-                args.append('uint32_t {}'.format(value.arrayLength))
-            args.append('{} {}'.format(value.fullType, value.name))
-        return ', '.join(self.makeUniqueList(args))
+            if value.array_length:
+                args.append('uint32_t {}'.format(value.array_length))
+            args.append('{} {}'.format(value.full_type, value.name))
+        return ', '.join(self.make_unique_list(args))
