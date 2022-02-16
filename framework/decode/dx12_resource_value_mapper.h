@@ -93,6 +93,10 @@ class Dx12ResourceValueMapper
                                         SIZE_T                       blob_length_in_bytes,
                                         HandlePointerDecoder<void*>* root_signature_decoder);
 
+    void PostProcessCreateStateObject(HandlePointerDecoder<void*>*                           state_object_decoder,
+                                      StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
+                                      const std::map<std::wstring, format::HandleId>&        in_lrs_associations_map);
+
     void PostProcessDispatchRays(DxObjectInfo*                                           command_list4_object_info,
                                  StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
 
@@ -139,6 +143,17 @@ class Dx12ResourceValueMapper
                                       D3D12_GPU_VIRTUAL_ADDRESS start_address,
                                       UINT64                    size,
                                       UINT64                    stride);
+
+    // Parse the D3D12_STATE_OBJECT_DESC for LRS association information.
+    void GetStateObjectLrsAssociationInfo(
+        format::HandleId                                       state_object_id,
+        StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
+        std::set<std::wstring>&                                export_names,
+        std::vector<format::HandleId>&                         local_root_signature_ids,
+        format::HandleId&                                      explicit_default_local_root_signature_id,
+        std::map<std::wstring, format::HandleId>&              explicit_local_root_signature_associations,
+        std::map<std::wstring, std::set<std::wstring>>&        hit_group_imports,
+        std::map<std::wstring, format::HandleId>&              lrs_associations_map);
 
     QueueSyncEventInfo CreateProcessProcessResourceMappingsSyncEvent(ProcessResourceMappingsArgs args);
 

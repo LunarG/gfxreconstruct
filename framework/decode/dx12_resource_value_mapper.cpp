@@ -501,6 +501,138 @@ void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint
     }
 }
 
+void Dx12ResourceValueMapper::PostProcessCreateStateObject(
+    HandlePointerDecoder<void*>*                           state_object_decoder,
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
+    const std::map<std::wstring, format::HandleId>&        in_lrs_associations_map)
+{
+    auto                                           state_object_id = *state_object_decoder->GetPointer();
+    std::set<std::wstring>                         export_names;
+    std::vector<format::HandleId>                  local_root_signature_ids;
+    format::HandleId                               explicit_default_local_root_signature_id = format::kNullHandleId;
+    std::map<std::wstring, format::HandleId>       explicit_local_root_signature_associations;
+    std::map<std::wstring, std::set<std::wstring>> hit_group_imports;
+    std::map<std::wstring, format::HandleId>       lrs_associations_map = in_lrs_associations_map;
+
+    GetStateObjectLrsAssociationInfo(state_object_id,
+                                     desc_decoder,
+                                     export_names,
+                                     local_root_signature_ids,
+                                     explicit_default_local_root_signature_id,
+                                     explicit_local_root_signature_associations,
+                                     hit_group_imports,
+                                     lrs_associations_map);
+
+    if (!export_names.empty())
+    {
+        // Determine if there is a default LRS for this state object.
+        std::set<format::HandleId> associated_local_root_sig_ids;
+        if (explicit_default_local_root_signature_id != format::kNullHandleId)
+        {
+            associated_local_root_sig_ids.insert(explicit_default_local_root_signature_id);
+        }
+        for (auto association_pair : explicit_local_root_signature_associations)
+        {
+            associated_local_root_sig_ids.insert(association_pair.second);
+        }
+        format::HandleId implicit_default_local_root_sig_id = format::kNullHandleId;
+        for (auto local_root_sig_id : local_root_signature_ids)
+        {
+            if (associated_local_root_sig_ids.find(local_root_sig_id) == associated_local_root_sig_ids.end())
+            {
+                if (implicit_default_local_root_sig_id != format::kNullHandleId)
+                {
+                    GFXRECON_LOG_WARNING("CreateStateObject: Found multiple unassociated local root signatures in "
+                                         "state object (id=%" PRIu64
+                                         "). Shader ID to LRS associations may be incorrect.",
+                                         state_object_id);
+                }
+                implicit_default_local_root_sig_id = local_root_sig_id;
+            }
+        }
+
+        // Resolve associations between shader exports and LRSs.
+        for (auto& export_name : export_names)
+        {
+            // Initialize to implicit default root signature.
+            format::HandleId export_local_root_sig_id = implicit_default_local_root_sig_id;
+
+            // Check for explicit default LRS assocation.
+            if (explicit_default_local_root_signature_id != format::kNullHandleId)
+            {
+                export_local_root_sig_id = explicit_default_local_root_signature_id;
+            }
+
+            // Check for explicit shader ID to LRS association from existing a state object dependency (from an existing
+            // collection or input to AddToStateObject).
+            if (lrs_associations_map.find(export_name) != lrs_associations_map.end())
+            {
+                export_local_root_sig_id = lrs_associations_map[export_name];
+            }
+
+            // Promote explicit LRS associations of hit group imports to the LRS association of the hit group export.
+            auto hit_group_import_iter = hit_group_imports.find(export_name);
+            if (hit_group_import_iter != hit_group_imports.end())
+            {
+                auto explicit_import_lrs = format::kNullHandleId;
+                for (const auto& hit_group_import : hit_group_import_iter->second)
+                {
+                    auto explicit_association_pair = explicit_local_root_signature_associations.find(hit_group_import);
+                    if (explicit_association_pair != explicit_local_root_signature_associations.end())
+                    {
+                        GFXRECON_ASSERT((explicit_import_lrs == format::kNullHandleId) ||
+                                        (explicit_import_lrs == explicit_association_pair->second));
+                        explicit_import_lrs      = explicit_association_pair->second;
+                        export_local_root_sig_id = explicit_import_lrs;
+                    }
+                }
+            }
+
+            // Apply explicit shader ID to LRS association.
+            auto explicit_association_pair = explicit_local_root_signature_associations.find(export_name);
+            if (explicit_association_pair != explicit_local_root_signature_associations.end())
+            {
+                export_local_root_sig_id = explicit_association_pair->second;
+            }
+
+            // Save the result.
+            lrs_associations_map[export_name] = export_local_root_sig_id;
+        }
+
+        // Store the shader ID LRS map with the state object extra info, to be referenced if this state object is used
+        // as a dependency in the creation of another SO.
+        auto state_object_extra_info                 = GetExtraInfo<D3D12StateObjectInfo>(state_object_decoder);
+        state_object_extra_info->export_name_lrs_map = lrs_associations_map;
+
+        // Populate the state object's shader_id_lrs_map for shaders that were exported.
+        graphics::dx12::ID3D12StateObjectPropertiesComPtr props;
+        auto    state_object = static_cast<ID3D12StateObject*>(*state_object_decoder->GetHandlePointer());
+        HRESULT hr           = state_object->QueryInterface(IID_PPV_ARGS(&props));
+        GFXRECON_ASSERT(SUCCEEDED(hr));
+        for (auto& root_sig_pair : lrs_associations_map)
+        {
+            auto export_local_root_sig_id = root_sig_pair.second;
+            if (export_local_root_sig_id != format::kNullHandleId)
+            {
+                const auto& export_name        = root_sig_pair.first;
+                auto new_shader_identifier_ptr = static_cast<uint8_t*>(props->GetShaderIdentifier(export_name.c_str()));
+                if (new_shader_identifier_ptr != nullptr)
+                {
+                    auto replay_shader_id = graphics::PackDx12ShaderIdentifier(new_shader_identifier_ptr);
+
+                    auto local_root_sig_object_info = get_object_info_func_(export_local_root_sig_id);
+                    GFXRECON_ASSERT(local_root_sig_object_info != nullptr);
+
+                    auto local_root_sig_extra_info = GetExtraInfo<D3D12RootSignatureInfo>(local_root_sig_object_info);
+                    GFXRECON_ASSERT(local_root_sig_extra_info != nullptr);
+
+                    state_object_extra_info->shader_id_lrs_map[replay_shader_id] = local_root_sig_extra_info;
+                }
+            }
+        }
+    }
+}
+
 void Dx12ResourceValueMapper::PostProcessDispatchRays(
     DxObjectInfo* command_list4_object_info, StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder)
 {
@@ -967,6 +1099,194 @@ void Dx12ResourceValueMapper::GetShaderTableResourceValues(D3D12CommandListInfo*
     {
         resource_value_infos.insert({ byte_offset, ResourceValueType::kShaderRecord, shader_record_size });
         byte_offset += shader_record_size;
+    }
+}
+
+void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
+    format::HandleId                                       state_object_id,
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
+    std::set<std::wstring>&                                export_names,
+    std::vector<format::HandleId>&                         local_root_signature_ids,
+    format::HandleId&                                      explicit_default_local_root_signature_id,
+    std::map<std::wstring, format::HandleId>&              explicit_local_root_signature_associations,
+    std::map<std::wstring, std::set<std::wstring>>&        hit_group_imports,
+    std::map<std::wstring, format::HandleId>&              lrs_associations_map)
+{
+    const auto* desc               = desc_decoder->GetPointer();
+    const auto* subobject_decoders = desc_decoder->GetMetaStructPointer()->subobjects;
+
+    for (UINT i = 0; i < desc->NumSubobjects; ++i)
+    {
+        const auto  subobject_type    = desc->pSubobjects[i].Type;
+        const auto& subobject_decoder = subobject_decoders->GetMetaStructPointer()[i];
+
+        if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP)
+        {
+            GFXRECON_ASSERT(subobject_decoder.hit_group_desc != nullptr);
+            auto hit_group_desc_decoder = subobject_decoder.hit_group_desc;
+            auto export_name            = hit_group_desc_decoder->GetMetaStructPointer()->HitGroupExport.GetPointer();
+
+            if (hit_group_desc_decoder->GetMetaStructPointer()->ClosestHitShaderImport.GetPointer() != nullptr)
+            {
+                auto import_name = hit_group_desc_decoder->GetMetaStructPointer()->ClosestHitShaderImport.GetPointer();
+                hit_group_imports[export_name].insert(import_name);
+            }
+            if (hit_group_desc_decoder->GetMetaStructPointer()->IntersectionShaderImport.GetPointer() != nullptr)
+            {
+                auto import_name =
+                    hit_group_desc_decoder->GetMetaStructPointer()->IntersectionShaderImport.GetPointer();
+                hit_group_imports[export_name].insert(import_name);
+            }
+            if (hit_group_desc_decoder->GetMetaStructPointer()->AnyHitShaderImport.GetPointer() != nullptr)
+            {
+                auto import_name = hit_group_desc_decoder->GetMetaStructPointer()->AnyHitShaderImport.GetPointer();
+                hit_group_imports[export_name].insert(import_name);
+            }
+
+            export_names.insert(export_name);
+        }
+        else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG)
+        {
+            // TODO (GH #432): handle external dependencies for resolving exports and LRS associations.
+            if ((subobject_decoder.state_object_config->GetPointer()->Flags &
+                 D3D12_STATE_OBJECT_FLAG_ALLOW_LOCAL_DEPENDENCIES_ON_EXTERNAL_DEFINITIONS) != 0)
+            {
+                GFXRECON_LOG_WARNING_ONCE("State object created with flag "
+                                          "D3D12_STATE_OBJECT_FLAG_ALLOW_LOCAL_DEPENDENCIES_ON_EXTERNAL_DEFINITIONS. "
+                                          "Dependencies between state objects may not be fully supported.");
+            }
+            if ((subobject_decoder.state_object_config->GetPointer()->Flags &
+                 D3D12_STATE_OBJECT_FLAG_ALLOW_EXTERNAL_DEPENDENCIES_ON_LOCAL_DEFINITIONS) != 0)
+            {
+                GFXRECON_LOG_WARNING_ONCE("State object created with flag "
+                                          "D3D12_STATE_OBJECT_FLAG_ALLOW_EXTERNAL_DEPENDENCIES_ON_LOCAL_DEFINITIONS. "
+                                          "Dependencies between state objects may not be fully supported.");
+            }
+        }
+        else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY)
+        {
+            // TODO (GH #431): Parse local root signatures and their shader associations from the DXIL library.
+            GFXRECON_LOG_WARNING_ONCE("A state object is being created with a DXIL library subobject. Some usages of "
+                                      "DXIL library subobjects may not be fully supported by GFXR replay.");
+
+            GFXRECON_ASSERT(subobject_decoder.dxil_library_desc != nullptr);
+            auto dxil_lib_desc_decoder = subobject_decoder.dxil_library_desc;
+            auto num_exports           = dxil_lib_desc_decoder->GetPointer()->NumExports;
+            if (num_exports == 0)
+            {
+                // TODO (GH #431): Parse the names of all shaders exported from the DXIL library.
+            }
+            else
+            {
+                for (UINT j = 0; j < num_exports; ++j)
+                {
+                    export_names.insert(dxil_lib_desc_decoder->GetMetaStructPointer()
+                                            ->pExports->GetMetaStructPointer()[j]
+                                            .Name.GetPointer());
+                }
+            }
+        }
+        else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION)
+        {
+            GFXRECON_ASSERT(subobject_decoder.existing_collection_desc != nullptr);
+            auto existing_collection_desc_decoder = subobject_decoder.existing_collection_desc;
+            auto existing_collection_object_info =
+                get_object_info_func_(existing_collection_desc_decoder->GetMetaStructPointer()->pExistingCollection);
+            GFXRECON_ASSERT(existing_collection_object_info != nullptr);
+            auto existing_collection_extra_info = GetExtraInfo<D3D12StateObjectInfo>(existing_collection_object_info);
+
+            // Include LRS associations from the existing collection.
+            for (auto& assocation : existing_collection_extra_info->export_name_lrs_map)
+            {
+                lrs_associations_map.insert(assocation);
+            }
+
+            auto num_exports = existing_collection_desc_decoder->GetPointer()->NumExports;
+            if (num_exports == 0)
+            {
+                // Include all exports from the existing collection.
+                for (auto& assocation : existing_collection_extra_info->export_name_lrs_map)
+                {
+                    export_names.insert(assocation.first);
+                }
+            }
+            else
+            {
+                // Include the specified exports from the existing collection. Rename the export if ExportToRename !=
+                // nullptr.
+                for (UINT j = 0; j < num_exports; ++j)
+                {
+                    export_names.insert(existing_collection_desc_decoder->GetPointer()->pExports[j].Name);
+
+                    if (existing_collection_desc_decoder->GetPointer()->pExports[j].ExportToRename != nullptr)
+                    {
+                        auto existing_association_iter = lrs_associations_map.find(
+                            existing_collection_desc_decoder->GetPointer()->pExports[j].ExportToRename);
+                        if (existing_association_iter != lrs_associations_map.end())
+                        {
+                            lrs_associations_map[existing_collection_desc_decoder->GetPointer()->pExports[j].Name] =
+                                existing_association_iter->second;
+                            lrs_associations_map.erase(existing_association_iter);
+                        }
+                    }
+                }
+            }
+        }
+        else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE)
+        {
+            GFXRECON_ASSERT(subobject_decoder.local_root_signature != nullptr);
+            auto local_root_signature_handle_id =
+                subobject_decoder.local_root_signature->GetMetaStructPointer()->pLocalRootSignature;
+            if (local_root_signature_handle_id != format::kNullHandleId)
+            {
+                local_root_signature_ids.push_back(local_root_signature_handle_id);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("State object (id=%" PRIu64
+                                   ") includes a local root signature subobject with a null handle ID.",
+                                   state_object_id);
+            }
+        }
+        else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION)
+        {
+            GFXRECON_LOG_WARNING("CreateStateObject: DXIL subobject export associations are not currently "
+                                 "supported. Shader ID to LRS associations may be incorrect.");
+        }
+        else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION)
+        {
+            auto& subobjects_exports_association_desc_decoder = subobject_decoder.subobject_to_exports_association;
+            auto  local_root_signature_decoder = subobjects_exports_association_desc_decoder->GetMetaStructPointer()
+                                                    ->pSubobjectToAssociate->GetMetaStructPointer()
+                                                    ->local_root_signature;
+            if ((local_root_signature_decoder != nullptr) && !(local_root_signature_decoder->IsNull()))
+            {
+                auto local_root_signature_id =
+                    local_root_signature_decoder->GetMetaStructPointer()->pLocalRootSignature;
+                auto num_exports = subobjects_exports_association_desc_decoder->GetPointer()->NumExports;
+                if (num_exports == 0)
+                {
+                    if (explicit_default_local_root_signature_id != format::kNullHandleId)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Found multiple explicit default local root signatures in state object (id=%" PRIu64
+                            "). Shader ID to LRS associations may be incorrect.",
+                            state_object_id);
+                    }
+                    explicit_default_local_root_signature_id = local_root_signature_id;
+                }
+                else
+                {
+                    for (UINT j = 0; j < num_exports; ++j)
+                    {
+                        auto export_name = subobjects_exports_association_desc_decoder->GetMetaStructPointer()
+                                               ->pExports.GetPointer()[j];
+                        export_names.insert(export_name);
+                        explicit_local_root_signature_associations[export_name] = local_root_signature_id;
+                    }
+                }
+            }
+        }
     }
 }
 

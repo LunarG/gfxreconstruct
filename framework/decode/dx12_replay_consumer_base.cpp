@@ -2841,6 +2841,14 @@ Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_i
 
     auto replay_result = device5->CreateStateObject(
         desc_decoder->GetPointer(), *riid_decoder.decoded_value, state_object_decoder->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result) && !state_object_decoder->IsNull())
+    {
+        SetExtraInfo(state_object_decoder, std::make_unique<D3D12StateObjectInfo>());
+
+        resource_value_mapper_->PostProcessCreateStateObject(state_object_decoder, desc_decoder, {});
+    }
+
     return replay_result;
 }
 
@@ -2860,6 +2868,16 @@ Dx12ReplayConsumerBase::OverrideAddToStateObject(
                                                    state_object_to_grow_from,
                                                    *riid_decoder.decoded_value,
                                                    new_state_object_decoder->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result) && !new_state_object_decoder->IsNull())
+    {
+        SetExtraInfo(new_state_object_decoder, std::make_unique<D3D12StateObjectInfo>());
+
+        auto state_object_to_grow_from_extra_info =
+            GetExtraInfo<D3D12StateObjectInfo>(state_object_to_grow_from_object_info);
+        resource_value_mapper_->PostProcessCreateStateObject(
+            new_state_object_decoder, addition_decoder, state_object_to_grow_from_extra_info->export_name_lrs_map);
+    }
 
     return replay_result;
 }
