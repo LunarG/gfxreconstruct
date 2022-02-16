@@ -34,7 +34,7 @@ target_sources(gfxrecon-toascii
                     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
               )
 
-target_include_directories(gfxrecon-toascii PUBLIC ${CMAKE_BINARY_DIR})
+target_include_directories(gfxrecon-toascii PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/..)
 
 target_link_libraries(gfxrecon-toascii gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
 
