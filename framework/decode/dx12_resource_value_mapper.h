@@ -100,6 +100,8 @@ class Dx12ResourceValueMapper
     void PostProcessDispatchRays(DxObjectInfo*                                           command_list4_object_info,
                                  StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
 
+    void PostProcessSetPipelineState1(DxObjectInfo* command_list4_object_info, DxObjectInfo* state_object_object_info);
+
     void AddReplayGpuVa(format::HandleId          resource_id,
                         D3D12_GPU_VIRTUAL_ADDRESS replay_address,
                         UINT64                    width,
@@ -131,8 +133,10 @@ class Dx12ResourceValueMapper
 
     void ProcessResourceMappings(ProcessResourceMappingsArgs args);
 
-    void
-    MapValue(const ResourceValueInfo& value_info, std::vector<uint8_t>& result_data, D3D12ResourceInfo* resource_info);
+    void MapValue(const ResourceValueInfo& value_info,
+                  std::vector<uint8_t>&    result_data,
+                  D3D12ResourceInfo*       resource_info,
+                  uint64_t                 base_offset = 0);
 
     void MapResources(const ResourceValueInfoMap&                        resource_value_info_map,
                       std::map<DxObjectInfo*, MappedResourceRevertInfo>& resource_data_to_revert);

@@ -129,7 +129,7 @@ void CopyResourceValuesFromDstToSrc(std::set<ResourceValueInfo>&          src,
     for (auto dst_iter = dst_begin; dst_iter != dst_end; ++dst_iter)
     {
         auto src_offset = ((*dst_iter).offset - copy_info.dst_offset) + copy_info.src_offset;
-        src.insert({ src_offset, (*dst_iter).type, (*dst_iter).size });
+        src.insert({ src_offset, (*dst_iter).type, (*dst_iter).size, (*dst_iter).state_object });
     }
 }
 
@@ -157,6 +157,7 @@ void Dx12ResourceValueMapper::PostProcessCommandListReset(DxObjectInfo* command_
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
     command_list_extra_info->resource_copies.clear();
     command_list_extra_info->resource_value_info_map.clear();
+    command_list_extra_info->active_state_object = nullptr;
 }
 
 void Dx12ResourceValueMapper::PostProcessCopyResource(DxObjectInfo* command_list_object_info,
@@ -647,6 +648,13 @@ void Dx12ResourceValueMapper::PostProcessDispatchRays(
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
     GFXRECON_ASSERT(command_list_extra_info != nullptr);
 
+    if (command_list_extra_info->active_state_object == nullptr)
+    {
+        GFXRECON_LOG_ERROR("No ID3D12StateObject was set on the command list before DispatchRays was called. Unable to "
+                           "map the values in the shader table. Replay may fail.");
+        return;
+    }
+
     // Ray gen only has 1 record, so stride == size
     GetShaderTableResourceValues(command_list_extra_info,
                                  desc->RayGenerationShaderRecord.StartAddress,
@@ -664,6 +672,13 @@ void Dx12ResourceValueMapper::PostProcessDispatchRays(
                                  desc->CallableShaderTable.StartAddress,
                                  desc->CallableShaderTable.SizeInBytes,
                                  desc->CallableShaderTable.StrideInBytes);
+}
+
+void Dx12ResourceValueMapper::PostProcessSetPipelineState1(DxObjectInfo* command_list4_object_info,
+                                                           DxObjectInfo* state_object_object_info)
+{
+    auto command_list_extra_info                 = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
+    command_list_extra_info->active_state_object = state_object_object_info;
 }
 
 void Dx12ResourceValueMapper::AddReplayGpuVa(format::HandleId          resource_id,
@@ -857,13 +872,16 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
 
 void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                                        std::vector<uint8_t>&    result_data,
-                                       D3D12ResourceInfo*       resource_info)
+                                       D3D12ResourceInfo*       resource_info,
+                                       uint64_t                 base_offset)
 {
+    uint64_t final_offset = value_info.offset + base_offset;
+
     if ((value_info.type == ResourceValueType::kGpuVirtualAddress) ||
         (value_info.type == ResourceValueType::kGpuDescriptorHandle))
     {
         D3D12_GPU_VIRTUAL_ADDRESS* address =
-            reinterpret_cast<D3D12_GPU_VIRTUAL_ADDRESS*>(result_data.data() + value_info.offset);
+            reinterpret_cast<D3D12_GPU_VIRTUAL_ADDRESS*>(result_data.data() + final_offset);
         auto current_address = *address;
 
         if (current_address == 0)
@@ -873,7 +891,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 
         // If the current value at the given offset matches the result of a previous mapping, don't attempt to map
         // again.
-        auto mapped_value_iter = resource_info->mapped_gpu_addresses.find(value_info.offset);
+        auto mapped_value_iter = resource_info->mapped_gpu_addresses.find(final_offset);
         if (mapped_value_iter != resource_info->mapped_gpu_addresses.end())
         {
             if (current_address == mapped_value_iter->second)
@@ -888,12 +906,12 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 
             if ((*address) == current_address)
             {
-                GFXRECON_LOG_WARNING_ONCE("Mapping a GPU virtual address resulted in no change.");
+                GFXRECON_LOG_DEBUG_ONCE("Mapping a GPU virtual address resulted in no change.");
             }
             else
             {
                 // Track the mapped value.
-                resource_info->mapped_gpu_addresses[value_info.offset] = *address;
+                resource_info->mapped_gpu_addresses[final_offset] = *address;
             }
         }
         else if (value_info.type == ResourceValueType::kGpuDescriptorHandle)
@@ -905,20 +923,22 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 
             if ((*address) == current_address)
             {
-                GFXRECON_LOG_WARNING_ONCE("Mapping a GPU descriptor handle resulted in no change.");
+                GFXRECON_LOG_DEBUG_ONCE("Mapping a GPU descriptor handle resulted in no change.");
             }
             else
             {
                 // Track the mapped value.
-                resource_info->mapped_gpu_addresses[value_info.offset] = *address;
+                resource_info->mapped_gpu_addresses[final_offset] = *address;
             }
         }
     }
     else if (value_info.type == ResourceValueType::kShaderRecord)
     {
+        GFXRECON_ASSERT(value_info.state_object != nullptr);
+
         constexpr graphics::Dx12ShaderIdentifier zero_id = { 0 };
 
-        uint8_t*                       shader_id_ptr = result_data.data() + value_info.offset;
+        uint8_t*                       shader_id_ptr = result_data.data() + final_offset;
         graphics::Dx12ShaderIdentifier current_id    = graphics::PackDx12ShaderIdentifier(shader_id_ptr);
 
         // Don't attempt to map shader records with shader ID == 0.
@@ -928,15 +948,44 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         }
 
         // Map the shader ID if it wasn't previously mapped.
-        auto mapped_shader_id_iter = resource_info->mapped_shader_ids.find(value_info.offset);
+        auto mapped_shader_id_iter = resource_info->mapped_shader_ids.find(final_offset);
         if ((mapped_shader_id_iter == resource_info->mapped_shader_ids.end()) ||
             (current_id != mapped_shader_id_iter->second))
         {
             shader_id_map_.Map(shader_id_ptr);
         }
 
+        auto replay_shader_id = graphics::PackDx12ShaderIdentifier(shader_id_ptr);
+
         // Track mapped shader IDs within a resource.
-        resource_info->mapped_shader_ids[value_info.offset] = graphics::PackDx12ShaderIdentifier(shader_id_ptr);
+        resource_info->mapped_shader_ids[final_offset] = replay_shader_id;
+
+        // Map values in the shader record's local root signature.
+        auto shader_id_lrs_iter = value_info.state_object->shader_id_lrs_map.find(replay_shader_id);
+        if (shader_id_lrs_iter != value_info.state_object->shader_id_lrs_map.end())
+        {
+            for (const auto& shader_record_value_info : shader_id_lrs_iter->second->resource_value_infos)
+            {
+                if ((shader_record_value_info.offset + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES) < value_info.size)
+                {
+                    MapValue(shader_record_value_info,
+                             result_data,
+                             resource_info,
+                             final_offset + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+                }
+            }
+        }
+        else
+        {
+            // Warn if a local root signature could be present in the shader record (based on record size) but the LRS
+            // association was not found by PostProcessCreateStateObject.
+            if (value_info.size > D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES)
+            {
+                GFXRECON_LOG_WARNING_ONCE("Did not find an associated local root signature for one or more shader IDs "
+                                          "used in a shader record. If the shader record contains GPU virtual "
+                                          "addresses or descriptor handles, replay may fail.");
+            }
+        }
     }
     else
     {
@@ -1097,7 +1146,11 @@ void Dx12ResourceValueMapper::GetShaderTableResourceValues(D3D12CommandListInfo*
     GFXRECON_ASSERT((byte_offset % D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) == 0);
     for (UINT64 i = 0; i < shader_record_count; ++i)
     {
-        resource_value_infos.insert({ byte_offset, ResourceValueType::kShaderRecord, shader_record_size });
+        resource_value_infos.insert(
+            { byte_offset,
+              ResourceValueType::kShaderRecord,
+              shader_record_size,
+              GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object) });
         byte_offset += shader_record_size;
     }
 }

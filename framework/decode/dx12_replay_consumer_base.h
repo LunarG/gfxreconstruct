@@ -532,6 +532,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void OverrideDispatchRays(DxObjectInfo*                                           command_list4_object_info,
                               StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
 
+    void OverrideSetPipelineState1(DxObjectInfo* command_list4_object_info, DxObjectInfo* state_object_object_info);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }

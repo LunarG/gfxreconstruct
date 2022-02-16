@@ -71,6 +71,7 @@ enum class DxObjectInfoType : uint32_t
 //
 
 struct DxObjectInfo;
+struct D3D12StateObjectInfo;
 
 struct MappedMemoryInfo
 {
@@ -113,9 +114,10 @@ enum class ResourceValueType : uint8_t
 
 struct ResourceValueInfo
 {
-    uint64_t          offset{ 0 };
-    ResourceValueType type{ ResourceValueType::kUnknown };
-    uint64_t          size{ 0 };
+    uint64_t              offset{ 0 };
+    ResourceValueType     type{ ResourceValueType::kUnknown };
+    uint64_t              size{ 0 };
+    D3D12StateObjectInfo* state_object{ nullptr }; ///< Used to map values in shader records.
 
     bool operator<(const ResourceValueInfo& other) const { return offset < other.offset; }
 };
@@ -252,6 +254,7 @@ struct D3D12CommandListInfo : DxObjectExtraInfo
     std::vector<ResourceCopyInfo> resource_copies;
 
     ResourceValueInfoMap resource_value_info_map;
+    DxObjectInfo*        active_state_object{ nullptr };
 };
 
 struct D3D12RootSignatureInfo : DxObjectExtraInfo

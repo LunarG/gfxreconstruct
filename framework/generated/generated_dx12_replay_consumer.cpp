@@ -6731,11 +6731,12 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
     format::HandleId                            object_id,
     format::HandleId                            pStateObject)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pStateObject = MapObject<ID3D12StateObject>(pStateObject);
-        replay_object->SetPipelineState1(in_pStateObject);
+        auto in_pStateObject = GetObjectInfo(pStateObject);
+        OverrideSetPipelineState1(replay_object,
+                                  in_pStateObject);
     }
 }
 

@@ -91,7 +91,8 @@
     },
     "ID3D12GraphicsCommandList4": {
       "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",
-      "DispatchRays": "OverrideDispatchRays"
+      "DispatchRays": "OverrideDispatchRays",
+      "SetPipelineState1": "OverrideSetPipelineState1"
     },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"

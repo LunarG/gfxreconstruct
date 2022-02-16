@@ -2891,6 +2891,16 @@ void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_ob
     resource_value_mapper_->PostProcessDispatchRays(command_list4_object_info, desc_decoder);
 }
 
+void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_list4_object_info,
+                                                       DxObjectInfo* state_object_object_info)
+{
+    auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
+    auto state_object  = static_cast<ID3D12StateObject*>(state_object_object_info->object);
+    command_list4->SetPipelineState1(state_object);
+
+    resource_value_mapper_->PostProcessSetPipelineState1(command_list4_object_info, state_object_object_info);
+}
+
 QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)
 {
     return QueueSyncEventInfo{ true, false, fence_info, value, []() {} };
