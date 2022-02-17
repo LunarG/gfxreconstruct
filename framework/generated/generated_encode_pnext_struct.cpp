@@ -403,6 +403,18 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDisplayPresentInfoKHR*>(base));
             break;
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_2_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkQueueFamilyQueryResultStatusProperties2KHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_QUEUE_FAMILY_PROPERTIES_2_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoQueueFamilyProperties2KHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_PROFILE_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoProfileKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_PROFILES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoProfilesKHR*>(base));
+            break;
         case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(base));
             break;
@@ -534,6 +546,30 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPipelineRasterizationStateStreamCreateInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264ProfileEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264CapabilitiesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264SessionCreateInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264SessionParametersAddInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264SessionParametersCreateInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264PictureInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_MVC_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264MvcEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264DpbSlotInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             EncodeStructPtr(encoder, reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(base));

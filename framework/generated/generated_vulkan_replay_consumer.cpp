@@ -3398,6 +3398,193 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKH
     OverrideGetPhysicalDeviceWin32PresentationSupportKHR(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceWin32PresentationSupportKHR, in_physicalDevice, queueFamilyIndex);
 }
 
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    StructPointerDecoder<Decoded_VkVideoProfileKHR>* pVideoProfile,
+    StructPointerDecoder<Decoded_VkVideoCapabilitiesKHR>* pCapabilities)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    const VkVideoProfileKHR* in_pVideoProfile = pVideoProfile->GetPointer();
+    VkVideoCapabilitiesKHR* out_pCapabilities = pCapabilities->IsNull() ? nullptr : pCapabilities->AllocateOutputData(1, { VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR, nullptr });
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceVideoCapabilitiesKHR(in_physicalDevice, in_pVideoProfile, out_pCapabilities);
+    CheckResult("vkGetPhysicalDeviceVideoCapabilitiesKHR", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceVideoFormatInfoKHR>* pVideoFormatInfo,
+    PointerDecoder<uint32_t>*                   pVideoFormatPropertyCount,
+    StructPointerDecoder<Decoded_VkVideoFormatPropertiesKHR>* pVideoFormatProperties)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    const VkPhysicalDeviceVideoFormatInfoKHR* in_pVideoFormatInfo = pVideoFormatInfo->GetPointer();
+    uint32_t* out_pVideoFormatPropertyCount = pVideoFormatPropertyCount->IsNull() ? nullptr : pVideoFormatPropertyCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, PhysicalDeviceInfo>("vkGetPhysicalDeviceVideoFormatPropertiesKHR", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceVideoFormatPropertiesKHR, pVideoFormatPropertyCount, pVideoFormatProperties, &VulkanObjectInfoTable::GetPhysicalDeviceInfo));
+    VkVideoFormatPropertiesKHR* out_pVideoFormatProperties = pVideoFormatProperties->IsNull() ? nullptr : pVideoFormatProperties->AllocateOutputData(*out_pVideoFormatPropertyCount, VkVideoFormatPropertiesKHR{ VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR, nullptr });
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceVideoFormatPropertiesKHR(in_physicalDevice, in_pVideoFormatInfo, out_pVideoFormatPropertyCount, out_pVideoFormatProperties);
+    CheckResult("vkGetPhysicalDeviceVideoFormatPropertiesKHR", returnValue, replay_result);
+
+    if (pVideoFormatProperties->IsNull()) { SetOutputArrayCount<PhysicalDeviceInfo>(physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceVideoFormatPropertiesKHR, *out_pVideoFormatPropertyCount, &VulkanObjectInfoTable::GetPhysicalDeviceInfo); }
+}
+
+void VulkanReplayConsumer::Process_vkCreateVideoSessionKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkVideoSessionCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    const VkVideoSessionCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    if (!pVideoSession->IsNull()) { pVideoSession->SetHandleLength(1); }
+    VkVideoSessionKHR* out_pVideoSession = pVideoSession->GetHandlePointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->CreateVideoSessionKHR(in_device, in_pCreateInfo, in_pAllocator, out_pVideoSession);
+    CheckResult("vkCreateVideoSessionKHR", returnValue, replay_result);
+
+    AddHandle<VideoSessionKHRInfo>(device, pVideoSession->GetPointer(), out_pVideoSession, &VulkanObjectInfoTable::AddVideoSessionKHRInfo);
+}
+
+void VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(
+    format::HandleId                            device,
+    format::HandleId                            videoSession,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkVideoSessionKHR in_videoSession = MapHandle<VideoSessionKHRInfo>(videoSession, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    GetDeviceTable(in_device)->DestroyVideoSessionKHR(in_device, in_videoSession, in_pAllocator);
+    RemoveHandle(videoSession, &VulkanObjectInfoTable::RemoveVideoSessionKHRInfo);
+}
+
+void VulkanReplayConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            videoSession,
+    PointerDecoder<uint32_t>*                   pVideoSessionMemoryRequirementsCount,
+    StructPointerDecoder<Decoded_VkVideoGetMemoryPropertiesKHR>* pVideoSessionMemoryRequirements)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkVideoSessionKHR in_videoSession = MapHandle<VideoSessionKHRInfo>(videoSession, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
+    uint32_t* out_pVideoSessionMemoryRequirementsCount = pVideoSessionMemoryRequirementsCount->IsNull() ? nullptr : pVideoSessionMemoryRequirementsCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VideoSessionKHRInfo>("vkGetVideoSessionMemoryRequirementsKHR", returnValue, videoSession, kVideoSessionKHRArrayGetVideoSessionMemoryRequirementsKHR, pVideoSessionMemoryRequirementsCount, pVideoSessionMemoryRequirements, &VulkanObjectInfoTable::GetVideoSessionKHRInfo));
+    VkVideoGetMemoryPropertiesKHR* out_pVideoSessionMemoryRequirements = pVideoSessionMemoryRequirements->IsNull() ? nullptr : pVideoSessionMemoryRequirements->AllocateOutputData(*out_pVideoSessionMemoryRequirementsCount, VkVideoGetMemoryPropertiesKHR{ VK_STRUCTURE_TYPE_VIDEO_GET_MEMORY_PROPERTIES_KHR, nullptr });
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetVideoSessionMemoryRequirementsKHR(in_device, in_videoSession, out_pVideoSessionMemoryRequirementsCount, out_pVideoSessionMemoryRequirements);
+    CheckResult("vkGetVideoSessionMemoryRequirementsKHR", returnValue, replay_result);
+
+    if (pVideoSessionMemoryRequirements->IsNull()) { SetOutputArrayCount<VideoSessionKHRInfo>(videoSession, kVideoSessionKHRArrayGetVideoSessionMemoryRequirementsKHR, *out_pVideoSessionMemoryRequirementsCount, &VulkanObjectInfoTable::GetVideoSessionKHRInfo); }
+}
+
+void VulkanReplayConsumer::Process_vkBindVideoSessionMemoryKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            videoSession,
+    uint32_t                                    videoSessionBindMemoryCount,
+    StructPointerDecoder<Decoded_VkVideoBindMemoryKHR>* pVideoSessionBindMemories)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkVideoSessionKHR in_videoSession = MapHandle<VideoSessionKHRInfo>(videoSession, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
+    const VkVideoBindMemoryKHR* in_pVideoSessionBindMemories = pVideoSessionBindMemories->GetPointer();
+    MapStructArrayHandles(pVideoSessionBindMemories->GetMetaStructPointer(), pVideoSessionBindMemories->GetLength(), GetObjectInfoTable());
+
+    VkResult replay_result = GetDeviceTable(in_device)->BindVideoSessionMemoryKHR(in_device, in_videoSession, videoSessionBindMemoryCount, in_pVideoSessionBindMemories);
+    CheckResult("vkBindVideoSessionMemoryKHR", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkCreateVideoSessionParametersKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkVideoSessionParametersCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    const VkVideoSessionParametersCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    if (!pVideoSessionParameters->IsNull()) { pVideoSessionParameters->SetHandleLength(1); }
+    VkVideoSessionParametersKHR* out_pVideoSessionParameters = pVideoSessionParameters->GetHandlePointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->CreateVideoSessionParametersKHR(in_device, in_pCreateInfo, in_pAllocator, out_pVideoSessionParameters);
+    CheckResult("vkCreateVideoSessionParametersKHR", returnValue, replay_result);
+
+    AddHandle<VideoSessionParametersKHRInfo>(device, pVideoSessionParameters->GetPointer(), out_pVideoSessionParameters, &VulkanObjectInfoTable::AddVideoSessionParametersKHRInfo);
+}
+
+void VulkanReplayConsumer::Process_vkUpdateVideoSessionParametersKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            videoSessionParameters,
+    StructPointerDecoder<Decoded_VkVideoSessionParametersUpdateInfoKHR>* pUpdateInfo)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkVideoSessionParametersKHR in_videoSessionParameters = MapHandle<VideoSessionParametersKHRInfo>(videoSessionParameters, &VulkanObjectInfoTable::GetVideoSessionParametersKHRInfo);
+    const VkVideoSessionParametersUpdateInfoKHR* in_pUpdateInfo = pUpdateInfo->GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->UpdateVideoSessionParametersKHR(in_device, in_videoSessionParameters, in_pUpdateInfo);
+    CheckResult("vkUpdateVideoSessionParametersKHR", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(
+    format::HandleId                            device,
+    format::HandleId                            videoSessionParameters,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkVideoSessionParametersKHR in_videoSessionParameters = MapHandle<VideoSessionParametersKHRInfo>(videoSessionParameters, &VulkanObjectInfoTable::GetVideoSessionParametersKHRInfo);
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    GetDeviceTable(in_device)->DestroyVideoSessionParametersKHR(in_device, in_videoSessionParameters, in_pAllocator);
+    RemoveHandle(videoSessionParameters, &VulkanObjectInfoTable::RemoveVideoSessionParametersKHRInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdBeginVideoCodingKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkVideoBeginCodingInfoKHR* in_pBeginInfo = pBeginInfo->GetPointer();
+    MapStructHandles(pBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBeginVideoCodingKHR(in_commandBuffer, in_pBeginInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdEndVideoCodingKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkVideoEndCodingInfoKHR* in_pEndCodingInfo = pEndCodingInfo->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdEndVideoCodingKHR(in_commandBuffer, in_pEndCodingInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdControlVideoCodingKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkVideoCodingControlInfoKHR* in_pCodingControlInfo = pCodingControlInfo->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdControlVideoCodingKHR(in_commandBuffer, in_pCodingControlInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdDecodeVideoKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pFrameInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkVideoDecodeInfoKHR* in_pFrameInfo = pFrameInfo->GetPointer();
+    MapStructHandles(pFrameInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDecodeVideoKHR(in_commandBuffer, in_pFrameInfo);
+}
+
 void VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)

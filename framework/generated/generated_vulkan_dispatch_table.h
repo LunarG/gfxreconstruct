@@ -105,6 +105,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSuppor
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(VkInstance, const VkAndroidSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAndroidSurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(VkInstance, const VkWin32SurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateWin32SurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceWin32PresentationSupportKHR was called, resulting in no-op behavior."); return VK_TRUE; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoCapabilitiesKHR(VkPhysicalDevice, const VkVideoProfileKHR*, VkVideoCapabilitiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceVideoCapabilitiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoFormatPropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceVideoFormatInfoKHR*, uint32_t*, VkVideoFormatPropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceVideoFormatPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(VkPhysicalDevice, VkPhysicalDeviceFeatures2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFeatures2KHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(VkPhysicalDevice, VkPhysicalDeviceProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceProperties2KHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevice, VkFormat, VkFormatProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFormatProperties2KHR was called, resulting in no-op behavior."); }
@@ -352,6 +354,17 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(VkDev
 static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(VkDevice, VkSurfaceKHR, VkDeviceGroupPresentModeFlagsKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupSurfacePresentModesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(VkDevice, const VkAcquireNextImageInfoKHR*, uint32_t*) { GFXRECON_LOG_WARNING("Unsupported function vkAcquireNextImage2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(VkDevice, uint32_t, const VkSwapchainCreateInfoKHR*, const VkAllocationCallbacks*, VkSwapchainKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateSharedSwapchainsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateVideoSessionKHR(VkDevice, const VkVideoSessionCreateInfoKHR*, const VkAllocationCallbacks*, VkVideoSessionKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateVideoSessionKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionKHR(VkDevice, VkVideoSessionKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyVideoSessionKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetVideoSessionMemoryRequirementsKHR(VkDevice, VkVideoSessionKHR, uint32_t*, VkVideoGetMemoryPropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetVideoSessionMemoryRequirementsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL BindVideoSessionMemoryKHR(VkDevice, VkVideoSessionKHR, uint32_t, const VkVideoBindMemoryKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkBindVideoSessionMemoryKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateVideoSessionParametersKHR(VkDevice, const VkVideoSessionParametersCreateInfoKHR*, const VkAllocationCallbacks*, VkVideoSessionParametersKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateVideoSessionParametersKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL UpdateVideoSessionParametersKHR(VkDevice, VkVideoSessionParametersKHR, const VkVideoSessionParametersUpdateInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkUpdateVideoSessionParametersKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionParametersKHR(VkDevice, VkVideoSessionParametersKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyVideoSessionParametersKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginVideoCodingKHR(VkCommandBuffer, const VkVideoBeginCodingInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginVideoCodingKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndVideoCodingKHR(VkCommandBuffer, const VkVideoEndCodingInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndVideoCodingKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdControlVideoCodingKHR(VkCommandBuffer, const VkVideoCodingControlInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdControlVideoCodingKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDecodeVideoKHR(VkCommandBuffer, const VkVideoDecodeInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDecodeVideoKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderingKHR(VkCommandBuffer, const VkRenderingInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginRenderingKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdEndRenderingKHR(VkCommandBuffer) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndRenderingKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(VkDevice, uint32_t, uint32_t, uint32_t, VkPeerMemoryFeatureFlags*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupPeerMemoryFeaturesKHR was called, resulting in no-op behavior."); }
@@ -628,6 +641,8 @@ struct InstanceTable
     PFN_vkCreateAndroidSurfaceKHR CreateAndroidSurfaceKHR{ noop::CreateAndroidSurfaceKHR };
     PFN_vkCreateWin32SurfaceKHR CreateWin32SurfaceKHR{ noop::CreateWin32SurfaceKHR };
     PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR GetPhysicalDeviceWin32PresentationSupportKHR{ noop::GetPhysicalDeviceWin32PresentationSupportKHR };
+    PFN_vkGetPhysicalDeviceVideoCapabilitiesKHR GetPhysicalDeviceVideoCapabilitiesKHR{ noop::GetPhysicalDeviceVideoCapabilitiesKHR };
+    PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR GetPhysicalDeviceVideoFormatPropertiesKHR{ noop::GetPhysicalDeviceVideoFormatPropertiesKHR };
     PFN_vkGetPhysicalDeviceFeatures2KHR GetPhysicalDeviceFeatures2KHR{ noop::GetPhysicalDeviceFeatures2KHR };
     PFN_vkGetPhysicalDeviceProperties2KHR GetPhysicalDeviceProperties2KHR{ noop::GetPhysicalDeviceProperties2KHR };
     PFN_vkGetPhysicalDeviceFormatProperties2KHR GetPhysicalDeviceFormatProperties2KHR{ noop::GetPhysicalDeviceFormatProperties2KHR };
@@ -879,6 +894,17 @@ struct DeviceTable
     PFN_vkGetDeviceGroupSurfacePresentModesKHR GetDeviceGroupSurfacePresentModesKHR{ noop::GetDeviceGroupSurfacePresentModesKHR };
     PFN_vkAcquireNextImage2KHR AcquireNextImage2KHR{ noop::AcquireNextImage2KHR };
     PFN_vkCreateSharedSwapchainsKHR CreateSharedSwapchainsKHR{ noop::CreateSharedSwapchainsKHR };
+    PFN_vkCreateVideoSessionKHR CreateVideoSessionKHR{ noop::CreateVideoSessionKHR };
+    PFN_vkDestroyVideoSessionKHR DestroyVideoSessionKHR{ noop::DestroyVideoSessionKHR };
+    PFN_vkGetVideoSessionMemoryRequirementsKHR GetVideoSessionMemoryRequirementsKHR{ noop::GetVideoSessionMemoryRequirementsKHR };
+    PFN_vkBindVideoSessionMemoryKHR BindVideoSessionMemoryKHR{ noop::BindVideoSessionMemoryKHR };
+    PFN_vkCreateVideoSessionParametersKHR CreateVideoSessionParametersKHR{ noop::CreateVideoSessionParametersKHR };
+    PFN_vkUpdateVideoSessionParametersKHR UpdateVideoSessionParametersKHR{ noop::UpdateVideoSessionParametersKHR };
+    PFN_vkDestroyVideoSessionParametersKHR DestroyVideoSessionParametersKHR{ noop::DestroyVideoSessionParametersKHR };
+    PFN_vkCmdBeginVideoCodingKHR CmdBeginVideoCodingKHR{ noop::CmdBeginVideoCodingKHR };
+    PFN_vkCmdEndVideoCodingKHR CmdEndVideoCodingKHR{ noop::CmdEndVideoCodingKHR };
+    PFN_vkCmdControlVideoCodingKHR CmdControlVideoCodingKHR{ noop::CmdControlVideoCodingKHR };
+    PFN_vkCmdDecodeVideoKHR CmdDecodeVideoKHR{ noop::CmdDecodeVideoKHR };
     PFN_vkCmdBeginRenderingKHR CmdBeginRenderingKHR{ noop::CmdBeginRenderingKHR };
     PFN_vkCmdEndRenderingKHR CmdEndRenderingKHR{ noop::CmdEndRenderingKHR };
     PFN_vkGetDeviceGroupPeerMemoryFeaturesKHR GetDeviceGroupPeerMemoryFeaturesKHR{ noop::GetDeviceGroupPeerMemoryFeaturesKHR };
@@ -1160,6 +1186,8 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkCreateAndroidSurfaceKHR", &table->CreateAndroidSurfaceKHR);
     LoadFunction(gpa, instance, "vkCreateWin32SurfaceKHR", &table->CreateWin32SurfaceKHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceWin32PresentationSupportKHR", &table->GetPhysicalDeviceWin32PresentationSupportKHR);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceVideoCapabilitiesKHR", &table->GetPhysicalDeviceVideoCapabilitiesKHR);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceVideoFormatPropertiesKHR", &table->GetPhysicalDeviceVideoFormatPropertiesKHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceFeatures2KHR", &table->GetPhysicalDeviceFeatures2KHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceProperties2KHR", &table->GetPhysicalDeviceProperties2KHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceFormatProperties2KHR", &table->GetPhysicalDeviceFormatProperties2KHR);
@@ -1413,6 +1441,17 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetDeviceGroupSurfacePresentModesKHR", &table->GetDeviceGroupSurfacePresentModesKHR);
     LoadFunction(gpa, device, "vkAcquireNextImage2KHR", &table->AcquireNextImage2KHR);
     LoadFunction(gpa, device, "vkCreateSharedSwapchainsKHR", &table->CreateSharedSwapchainsKHR);
+    LoadFunction(gpa, device, "vkCreateVideoSessionKHR", &table->CreateVideoSessionKHR);
+    LoadFunction(gpa, device, "vkDestroyVideoSessionKHR", &table->DestroyVideoSessionKHR);
+    LoadFunction(gpa, device, "vkGetVideoSessionMemoryRequirementsKHR", &table->GetVideoSessionMemoryRequirementsKHR);
+    LoadFunction(gpa, device, "vkBindVideoSessionMemoryKHR", &table->BindVideoSessionMemoryKHR);
+    LoadFunction(gpa, device, "vkCreateVideoSessionParametersKHR", &table->CreateVideoSessionParametersKHR);
+    LoadFunction(gpa, device, "vkUpdateVideoSessionParametersKHR", &table->UpdateVideoSessionParametersKHR);
+    LoadFunction(gpa, device, "vkDestroyVideoSessionParametersKHR", &table->DestroyVideoSessionParametersKHR);
+    LoadFunction(gpa, device, "vkCmdBeginVideoCodingKHR", &table->CmdBeginVideoCodingKHR);
+    LoadFunction(gpa, device, "vkCmdEndVideoCodingKHR", &table->CmdEndVideoCodingKHR);
+    LoadFunction(gpa, device, "vkCmdControlVideoCodingKHR", &table->CmdControlVideoCodingKHR);
+    LoadFunction(gpa, device, "vkCmdDecodeVideoKHR", &table->CmdDecodeVideoKHR);
     LoadFunction(gpa, device, "vkCmdBeginRenderingKHR", &table->CmdBeginRenderingKHR);
     LoadFunction(gpa, device, "vkCmdEndRenderingKHR", &table->CmdEndRenderingKHR);
     LoadFunction(gpa, device, "vkGetDeviceGroupPeerMemoryFeaturesKHR", &table->GetDeviceGroupPeerMemoryFeaturesKHR);

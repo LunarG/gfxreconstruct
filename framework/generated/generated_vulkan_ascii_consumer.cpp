@@ -4990,6 +4990,269 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKHR
     );
 }
 
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    StructPointerDecoder<Decoded_VkVideoProfileKHR>* pVideoProfile,
+    StructPointerDecoder<Decoded_VkVideoCapabilitiesKHR>* pCapabilities)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkGetPhysicalDeviceVideoCapabilitiesKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
+            FieldToString(strStrm, false, "pVideoProfile", toStringFlags, tabCount, tabSize, PointerDecoderToString(pVideoProfile, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pCapabilities", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCapabilities, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceVideoFormatInfoKHR>* pVideoFormatInfo,
+    PointerDecoder<uint32_t>*                   pVideoFormatPropertyCount,
+    StructPointerDecoder<Decoded_VkVideoFormatPropertiesKHR>* pVideoFormatProperties)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkGetPhysicalDeviceVideoFormatPropertiesKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
+            FieldToString(strStrm, false, "pVideoFormatInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pVideoFormatInfo, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pVideoFormatPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pVideoFormatPropertyCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pVideoFormatProperties", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(pVideoFormatPropertyCount, pVideoFormatProperties, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCreateVideoSessionKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkVideoSessionCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkCreateVideoSessionKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pVideoSession", toStringFlags, tabCount, tabSize, HandlePointerDecoderToString(pVideoSession));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkDestroyVideoSessionKHR(
+    format::HandleId                            device,
+    format::HandleId                            videoSession,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkDestroyVideoSessionKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "videoSession", toStringFlags, tabCount, tabSize, HandleIdToString(videoSession));
+            FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            videoSession,
+    PointerDecoder<uint32_t>*                   pVideoSessionMemoryRequirementsCount,
+    StructPointerDecoder<Decoded_VkVideoGetMemoryPropertiesKHR>* pVideoSessionMemoryRequirements)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkGetVideoSessionMemoryRequirementsKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "videoSession", toStringFlags, tabCount, tabSize, HandleIdToString(videoSession));
+            FieldToString(strStrm, false, "[out]pVideoSessionMemoryRequirementsCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pVideoSessionMemoryRequirementsCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pVideoSessionMemoryRequirements", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(pVideoSessionMemoryRequirementsCount, pVideoSessionMemoryRequirements, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkBindVideoSessionMemoryKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            videoSession,
+    uint32_t                                    videoSessionBindMemoryCount,
+    StructPointerDecoder<Decoded_VkVideoBindMemoryKHR>* pVideoSessionBindMemories)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkBindVideoSessionMemoryKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "videoSession", toStringFlags, tabCount, tabSize, HandleIdToString(videoSession));
+            FieldToString(strStrm, false, "videoSessionBindMemoryCount", toStringFlags, tabCount, tabSize, ToString(videoSessionBindMemoryCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pVideoSessionBindMemories", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(videoSessionBindMemoryCount, pVideoSessionBindMemories, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCreateVideoSessionParametersKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkVideoSessionParametersCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkCreateVideoSessionParametersKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pVideoSessionParameters", toStringFlags, tabCount, tabSize, HandlePointerDecoderToString(pVideoSessionParameters));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkUpdateVideoSessionParametersKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            videoSessionParameters,
+    StructPointerDecoder<Decoded_VkVideoSessionParametersUpdateInfoKHR>* pUpdateInfo)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkUpdateVideoSessionParametersKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "videoSessionParameters", toStringFlags, tabCount, tabSize, HandleIdToString(videoSessionParameters));
+            FieldToString(strStrm, false, "pUpdateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pUpdateInfo, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkDestroyVideoSessionParametersKHR(
+    format::HandleId                            device,
+    format::HandleId                            videoSessionParameters,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkDestroyVideoSessionParametersKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "videoSessionParameters", toStringFlags, tabCount, tabSize, HandleIdToString(videoSessionParameters));
+            FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBeginVideoCodingKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkCmdBeginVideoCodingKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "pBeginInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBeginInfo, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCmdEndVideoCodingKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkCmdEndVideoCodingKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "pEndCodingInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pEndCodingInfo, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCmdControlVideoCodingKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkCmdControlVideoCodingKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "pCodingControlInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCodingControlInfo, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCmdDecodeVideoKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pFrameInfo)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile("vkCmdDecodeVideoKHR", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "pFrameInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFrameInfo, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 void VulkanAsciiConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)

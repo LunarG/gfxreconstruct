@@ -2981,6 +2981,146 @@ template <> std::string ToString<VkDisplayPlaneAlphaFlagBitsKHR>(VkFlags vkFlags
     return BitmaskToString<VkDisplayPlaneAlphaFlagBitsKHR>(vkFlags);
 }
 
+template <> std::string ToString<VkQueryResultStatusKHR>(const VkQueryResultStatusKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_QUERY_RESULT_STATUS_ERROR_KHR: return "VK_QUERY_RESULT_STATUS_ERROR_KHR";
+    case VK_QUERY_RESULT_STATUS_NOT_READY_KHR: return "VK_QUERY_RESULT_STATUS_NOT_READY_KHR";
+    case VK_QUERY_RESULT_STATUS_COMPLETE_KHR: return "VK_QUERY_RESULT_STATUS_COMPLETE_KHR";
+    default: break;
+    }
+    return "Unhandled VkQueryResultStatusKHR";
+}
+
+template <> std::string ToString<VkVideoCapabilityFlagBitsKHR>(const VkVideoCapabilityFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_CAPABILITY_PROTECTED_CONTENT_BIT_KHR: return "VK_VIDEO_CAPABILITY_PROTECTED_CONTENT_BIT_KHR";
+    case VK_VIDEO_CAPABILITY_SEPARATE_REFERENCE_IMAGES_BIT_KHR: return "VK_VIDEO_CAPABILITY_SEPARATE_REFERENCE_IMAGES_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoCapabilityFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoCapabilityFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoCapabilityFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoChromaSubsamplingFlagBitsKHR>(const VkVideoChromaSubsamplingFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_CHROMA_SUBSAMPLING_INVALID_BIT_KHR: return "VK_VIDEO_CHROMA_SUBSAMPLING_INVALID_BIT_KHR";
+    case VK_VIDEO_CHROMA_SUBSAMPLING_MONOCHROME_BIT_KHR: return "VK_VIDEO_CHROMA_SUBSAMPLING_MONOCHROME_BIT_KHR";
+    case VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR: return "VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR";
+    case VK_VIDEO_CHROMA_SUBSAMPLING_422_BIT_KHR: return "VK_VIDEO_CHROMA_SUBSAMPLING_422_BIT_KHR";
+    case VK_VIDEO_CHROMA_SUBSAMPLING_444_BIT_KHR: return "VK_VIDEO_CHROMA_SUBSAMPLING_444_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoChromaSubsamplingFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoChromaSubsamplingFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoChromaSubsamplingFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoCodecOperationFlagBitsKHR>(const VkVideoCodecOperationFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_CODEC_OPERATION_INVALID_BIT_KHR: return "VK_VIDEO_CODEC_OPERATION_INVALID_BIT_KHR";
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT: return "VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT";
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_EXT: return "VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_EXT";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_EXT: return "VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_EXT";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_EXT: return "VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkVideoCodecOperationFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoCodecOperationFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoCodecOperationFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoCodingControlFlagBitsKHR>(const VkVideoCodingControlFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_CODING_CONTROL_DEFAULT_KHR: return "VK_VIDEO_CODING_CONTROL_DEFAULT_KHR";
+    case VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR: return "VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoCodingControlFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoCodingControlFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoCodingControlFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoCodingQualityPresetFlagBitsKHR>(const VkVideoCodingQualityPresetFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_CODING_QUALITY_PRESET_NORMAL_BIT_KHR: return "VK_VIDEO_CODING_QUALITY_PRESET_NORMAL_BIT_KHR";
+    case VK_VIDEO_CODING_QUALITY_PRESET_POWER_BIT_KHR: return "VK_VIDEO_CODING_QUALITY_PRESET_POWER_BIT_KHR";
+    case VK_VIDEO_CODING_QUALITY_PRESET_QUALITY_BIT_KHR: return "VK_VIDEO_CODING_QUALITY_PRESET_QUALITY_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoCodingQualityPresetFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoCodingQualityPresetFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoCodingQualityPresetFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoComponentBitDepthFlagBitsKHR>(const VkVideoComponentBitDepthFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_COMPONENT_BIT_DEPTH_INVALID_KHR: return "VK_VIDEO_COMPONENT_BIT_DEPTH_INVALID_KHR";
+    case VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR: return "VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR";
+    case VK_VIDEO_COMPONENT_BIT_DEPTH_10_BIT_KHR: return "VK_VIDEO_COMPONENT_BIT_DEPTH_10_BIT_KHR";
+    case VK_VIDEO_COMPONENT_BIT_DEPTH_12_BIT_KHR: return "VK_VIDEO_COMPONENT_BIT_DEPTH_12_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoComponentBitDepthFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoComponentBitDepthFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoComponentBitDepthFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoSessionCreateFlagBitsKHR>(const VkVideoSessionCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_SESSION_CREATE_DEFAULT_KHR: return "VK_VIDEO_SESSION_CREATE_DEFAULT_KHR";
+    case VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR: return "VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoSessionCreateFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoSessionCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoSessionCreateFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoDecodeFlagBitsKHR>(const VkVideoDecodeFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_DECODE_DEFAULT_KHR: return "VK_VIDEO_DECODE_DEFAULT_KHR";
+    case VK_VIDEO_DECODE_RESERVED_0_BIT_KHR: return "VK_VIDEO_DECODE_RESERVED_0_BIT_KHR";
+    default: break;
+    }
+    return "Unhandled VkVideoDecodeFlagBitsKHR";
+}
+
+template <> std::string ToString<VkVideoDecodeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoDecodeFlagBitsKHR>(vkFlags);
+}
+
 template <> std::string ToString<VkAcquireProfilingLockFlagBitsKHR>(const VkAcquireProfilingLockFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
 {
     return "Unhandled VkAcquireProfilingLockFlagBitsKHR";
@@ -3160,6 +3300,22 @@ template <> std::string ToString<VkRasterizationOrderAMD>(const VkRasterizationO
     default: break;
     }
     return "Unhandled VkRasterizationOrderAMD";
+}
+
+template <> std::string ToString<VkVideoDecodeH264PictureLayoutFlagBitsEXT>(const VkVideoDecodeH264PictureLayoutFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_EXT: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_EXT";
+    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_EXT: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_EXT";
+    case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_EXT: return "VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_EXT";
+    default: break;
+    }
+    return "Unhandled VkVideoDecodeH264PictureLayoutFlagBitsEXT";
+}
+
+template <> std::string ToString<VkVideoDecodeH264PictureLayoutFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoDecodeH264PictureLayoutFlagBitsEXT>(vkFlags);
 }
 
 template <> std::string ToString<VkShaderInfoTypeAMD>(const VkShaderInfoTypeAMD& value, ToStringFlags, uint32_t, uint32_t)

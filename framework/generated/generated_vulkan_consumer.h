@@ -1471,6 +1471,79 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex) {}
 
+    virtual void Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkVideoProfileKHR>* pVideoProfile,
+        StructPointerDecoder<Decoded_VkVideoCapabilitiesKHR>* pCapabilities) {}
+
+    virtual void Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceVideoFormatInfoKHR>* pVideoFormatInfo,
+        PointerDecoder<uint32_t>*                   pVideoFormatPropertyCount,
+        StructPointerDecoder<Decoded_VkVideoFormatPropertiesKHR>* pVideoFormatProperties) {}
+
+    virtual void Process_vkCreateVideoSessionKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkVideoSessionCreateInfoKHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession) {}
+
+    virtual void Process_vkDestroyVideoSessionKHR(
+        format::HandleId                            device,
+        format::HandleId                            videoSession,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkGetVideoSessionMemoryRequirementsKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            videoSession,
+        PointerDecoder<uint32_t>*                   pVideoSessionMemoryRequirementsCount,
+        StructPointerDecoder<Decoded_VkVideoGetMemoryPropertiesKHR>* pVideoSessionMemoryRequirements) {}
+
+    virtual void Process_vkBindVideoSessionMemoryKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            videoSession,
+        uint32_t                                    videoSessionBindMemoryCount,
+        StructPointerDecoder<Decoded_VkVideoBindMemoryKHR>* pVideoSessionBindMemories) {}
+
+    virtual void Process_vkCreateVideoSessionParametersKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkVideoSessionParametersCreateInfoKHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters) {}
+
+    virtual void Process_vkUpdateVideoSessionParametersKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            videoSessionParameters,
+        StructPointerDecoder<Decoded_VkVideoSessionParametersUpdateInfoKHR>* pUpdateInfo) {}
+
+    virtual void Process_vkDestroyVideoSessionParametersKHR(
+        format::HandleId                            device,
+        format::HandleId                            videoSessionParameters,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkCmdBeginVideoCodingKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo) {}
+
+    virtual void Process_vkCmdEndVideoCodingKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo) {}
+
+    virtual void Process_vkCmdControlVideoCodingKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo) {}
+
+    virtual void Process_vkCmdDecodeVideoKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pFrameInfo) {}
+
     virtual void Process_vkCmdBeginRenderingKHR(
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) {}

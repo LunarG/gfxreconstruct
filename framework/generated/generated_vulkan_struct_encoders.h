@@ -354,6 +354,26 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKHR
 
 void EncodeStruct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyQueryResultStatusProperties2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoQueueFamilyProperties2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoProfileKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoProfilesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoCapabilitiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoFormatInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoFormatPropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoPictureResourceKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoReferenceSlotKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoGetMemoryPropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoBindMemoryKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionCreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionParametersCreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionParametersUpdateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoBeginCodingInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEndCodingInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoCodingControlInfoKHR& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeInfoKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentShadingRateAttachmentInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentDensityMapAttachmentInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentSampleCountInfoAMD& value);
@@ -467,6 +487,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationStateS
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewHandleInfoNVX& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewAddressPropertiesNVX& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264ProfileEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264CapabilitiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionCreateInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParametersAddInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParametersCreateInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264PictureInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264MvcEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264DpbSlotInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkTextureLODGatherFormatPropertiesAMD& value);
 

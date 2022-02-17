@@ -289,6 +289,14 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         PointerDecoder<VkDeviceSize>*               pSizes,
         PointerDecoder<VkDeviceSize>*               pStrides) override;
 
+    virtual void Process_vkCmdBeginVideoCodingKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo) override;
+
+    virtual void Process_vkCmdDecodeVideoKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pFrameInfo) override;
+
     virtual void Process_vkCmdBeginRenderingKHR(
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;

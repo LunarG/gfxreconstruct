@@ -526,6 +526,32 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetPhysicalDeviceWin32PresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetPhysicalDeviceVideoCapabilitiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceVideoFormatPropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateVideoSessionKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkDestroyVideoSessionKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetVideoSessionMemoryRequirementsKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkBindVideoSessionMemoryKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateVideoSessionParametersKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkUpdateVideoSessionParametersKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkDestroyVideoSessionParametersKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBeginVideoCodingKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdEndVideoCodingKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdControlVideoCodingKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDecodeVideoKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdBeginRenderingKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdEndRenderingKHR(const uint8_t* parameter_buffer, size_t buffer_size);

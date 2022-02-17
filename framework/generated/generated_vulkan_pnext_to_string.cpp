@@ -260,6 +260,14 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkDeviceGroupSwapchainCreateInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
             return ToString(*reinterpret_cast<const VkDisplayPresentInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_2_KHR:
+            return ToString(*reinterpret_cast<const VkQueueFamilyQueryResultStatusProperties2KHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_QUEUE_FAMILY_PROPERTIES_2_KHR:
+            return ToString(*reinterpret_cast<const VkVideoQueueFamilyProperties2KHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_PROFILE_KHR:
+            return ToString(*reinterpret_cast<const VkVideoProfileKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_PROFILES_KHR:
+            return ToString(*reinterpret_cast<const VkVideoProfilesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
             return ToString(*reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
@@ -348,6 +356,22 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceTransformFeedbackPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
             return ToString(*reinterpret_cast<const VkPipelineRasterizationStateStreamCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264ProfileEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264CapabilitiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_CREATE_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264SessionCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264SessionParametersAddInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264SessionParametersCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264PictureInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_MVC_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264MvcEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkVideoDecodeH264DpbSlotInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             return ToString(*reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:

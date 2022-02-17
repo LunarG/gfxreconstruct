@@ -3160,6 +3160,174 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& 
     encoder->EncodeVoidPtr(value.hwnd);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyQueryResultStatusProperties2KHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.supported);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoQueueFamilyProperties2KHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.videoCodecOperations);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoProfileKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.videoCodecOperation);
+    encoder->EncodeFlagsValue(value.chromaSubsampling);
+    encoder->EncodeFlagsValue(value.lumaBitDepth);
+    encoder->EncodeFlagsValue(value.chromaBitDepth);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoProfilesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.profileCount);
+    EncodeStructPtr(encoder, value.pProfiles);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoCapabilitiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.capabilityFlags);
+    encoder->EncodeVkDeviceSizeValue(value.minBitstreamBufferOffsetAlignment);
+    encoder->EncodeVkDeviceSizeValue(value.minBitstreamBufferSizeAlignment);
+    EncodeStruct(encoder, value.videoPictureExtentGranularity);
+    EncodeStruct(encoder, value.minExtent);
+    EncodeStruct(encoder, value.maxExtent);
+    encoder->EncodeUInt32Value(value.maxReferencePicturesSlotsCount);
+    encoder->EncodeUInt32Value(value.maxReferencePicturesActiveCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoFormatInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.imageUsage);
+    EncodeStructPtr(encoder, value.pVideoProfiles);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoFormatPropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoPictureResourceKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.codedOffset);
+    EncodeStruct(encoder, value.codedExtent);
+    encoder->EncodeUInt32Value(value.baseArrayLayer);
+    encoder->EncodeHandleValue(value.imageViewBinding);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoReferenceSlotKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeInt8Value(value.slotIndex);
+    EncodeStructPtr(encoder, value.pPictureResource);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoGetMemoryPropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.memoryBindIndex);
+    EncodeStructPtr(encoder, value.pMemoryRequirements);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoBindMemoryKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.memoryBindIndex);
+    encoder->EncodeHandleValue(value.memory);
+    encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
+    encoder->EncodeVkDeviceSizeValue(value.memorySize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.queueFamilyIndex);
+    encoder->EncodeFlagsValue(value.flags);
+    EncodeStructPtr(encoder, value.pVideoProfile);
+    encoder->EncodeEnumValue(value.pictureFormat);
+    EncodeStruct(encoder, value.maxCodedExtent);
+    encoder->EncodeEnumValue(value.referencePicturesFormat);
+    encoder->EncodeUInt32Value(value.maxReferencePicturesSlotsCount);
+    encoder->EncodeUInt32Value(value.maxReferencePicturesActiveCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionParametersCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.videoSessionParametersTemplate);
+    encoder->EncodeHandleValue(value.videoSession);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionParametersUpdateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.updateSequenceCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoBeginCodingInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeFlagsValue(value.codecQualityPreset);
+    encoder->EncodeHandleValue(value.videoSession);
+    encoder->EncodeHandleValue(value.videoSessionParameters);
+    encoder->EncodeUInt32Value(value.referenceSlotCount);
+    EncodeStructArray(encoder, value.pReferenceSlots, value.referenceSlotCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEndCodingInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoCodingControlInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    EncodeStruct(encoder, value.codedOffset);
+    EncodeStruct(encoder, value.codedExtent);
+    encoder->EncodeHandleValue(value.srcBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.srcBufferOffset);
+    encoder->EncodeVkDeviceSizeValue(value.srcBufferRange);
+    EncodeStruct(encoder, value.dstPictureResource);
+    EncodeStructPtr(encoder, value.pSetupReferenceSlot);
+    encoder->EncodeUInt32Value(value.referenceSlotCount);
+    EncodeStructArray(encoder, value.pReferenceSlots, value.referenceSlotCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentShadingRateAttachmentInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3865,6 +4033,73 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewAddressPropertiesN
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
     encoder->EncodeVkDeviceSizeValue(value.size);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264ProfileEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeStdVideoH264ProfileIdcValue(value.stdProfileIdc);
+    encoder->EncodeFlagsValue(value.pictureLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264CapabilitiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxLevel);
+    EncodeStruct(encoder, value.fieldOffsetGranularity);
+    EncodeStruct(encoder, value.stdExtensionVersion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    EncodeStructPtr(encoder, value.pStdExtensionVersion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParametersAddInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.spsStdCount);
+    encoder->EncodeStdVideoH264SequenceParameterSetArray(value.pSpsStd, value.spsStdCount);
+    encoder->EncodeUInt32Value(value.ppsStdCount);
+    encoder->EncodeStdVideoH264PictureParameterSetArray(value.pPpsStd, value.ppsStdCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParametersCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxSpsStdCount);
+    encoder->EncodeUInt32Value(value.maxPpsStdCount);
+    EncodeStructPtr(encoder, value.pParametersAddInfo);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264PictureInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeStdVideoDecodeH264PictureInfoPtr(value.pStdPictureInfo);
+    encoder->EncodeUInt32Value(value.slicesCount);
+    encoder->EncodeUInt32Array(value.pSlicesDataOffsets, value.slicesCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264MvcEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeStdVideoDecodeH264MvcPtr(value.pStdMvc);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264DpbSlotInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeStdVideoDecodeH264ReferenceInfoPtr(value.pStdReferenceInfo);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkTextureLODGatherFormatPropertiesAMD& value)
