@@ -24,33 +24,45 @@
 #ifndef GFXRECON_APPLICATION_APPLICATION_H
 #define GFXRECON_APPLICATION_APPLICATION_H
 
+#include "application/wsi_context.h"
 #include "decode/file_processor.h"
 #include "decode/window.h"
 #include "util/defines.h"
 #include "util/date_time.h"
 #include "graphics/fps_info.h"
 
+#include <memory>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 #include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class Application
+class Application final
 {
   public:
-    Application(const std::string& name);
+    Application(const std::string& name, decode::FileProcessor* file_processor);
 
-    virtual ~Application();
+    Application(const std::string& name, const std::string& cli_wsi_extension, decode::FileProcessor* file_processor);
+
+    ~Application();
 
     const std::string& GetName() const { return name_; }
 
-    virtual bool Initialize(decode::FileProcessor* file_processor) = 0;
+    const std::unordered_map<std::string, std::unique_ptr<WsiContext>>& GetWsiContexts() const { return wsi_contexts_; }
+
+    const WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false) const;
+
+    WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false);
 
     bool IsRunning() const { return running_; }
 
     void Run();
+
+    void StopRunning() { running_ = false; }
 
     bool GetPaused() const { return paused_; }
 
@@ -60,32 +72,22 @@ class Application
 
     bool PlaySingleFrame();
 
-    bool RegisterWindow(decode::Window* window);
-
-    bool UnregisterWindow(decode::Window* window);
+    void ProcessEvents(bool wait_for_input);
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);
 
-    virtual void ProcessEvents(bool wait_for_input) = 0;
-
-  protected:
-    void StopRunning() { running_ = false; }
-
-    void SetFileProcessor(decode::FileProcessor* file_processor);
+    void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
   private:
     // clang-format off
-    std::vector<decode::Window*> windows_;                  ///< List of windows that have been registered with the application.
-    decode::FileProcessor*       file_processor_;           ///< The FileProcessor object responsible for decoding and processing
+    std::string                                                  name_;              ///< Application name to display in window title bar.
     graphics::FpsInfo*           fps_info_;                 ///< A optional FPS info object that logs the FPS across a configured framerange.
-                                                            ///< capture file data.
-    bool                         running_;                  ///< Indicates that the application is actively processing system
-                                                            ///< events for playback.
-    bool                         paused_;                   ///< Indicates that the playback has been paused.  When paused the
-                                                            ///< application will stop rendering, but will continue processing
-                                                            ///< system events.
-    std::string                  name_;                     ///< Application name to display in window title bar.
-    uint32_t                     pause_frame_;              ///< The number for a frame that replay should pause after.
+    decode::FileProcessor*                                       file_processor_;    ///< The FileProcessor object responsible for decoding and processing capture file data.
+    bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
+    bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
+    uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
+    std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
+    std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
     // clang-format on
 };
 

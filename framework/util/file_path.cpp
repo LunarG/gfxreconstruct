@@ -40,16 +40,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(filepath)
 
-#if defined(WIN32)
-const char kPathSep         = '\\';
-const char kPathSepStr[]    = "\\";
-const char kAltPathSep      = '/';
-const char kAltPathSepStr[] = "/";
-#else
-const char kPathSep      = '/';
-const char kPathSepStr[] = "/";
-#endif
-
 bool Exists(const std::string& path)
 {
 #if defined(WIN32)
@@ -170,6 +160,37 @@ std::string GenerateTimestampedFilename(const std::string& filename, bool use_gm
     std::string timestamp = "_";
     timestamp += util::datetime::GetDateTimeString(use_gmt);
     return InsertFilenamePostfix(filename, timestamp);
+}
+
+bool GetWindowsSystemLibrariesPath(std::string& base_path)
+{
+#if defined(WIN32)
+    std::string windows_dir = util::platform::GetEnv("WINDIR");
+
+    char module_name[MAX_PATH] = {};
+    GetModuleFileNameA(nullptr, module_name, MAX_PATH);
+
+    DWORD bin_type = 0;
+    bool  success  = GetBinaryTypeA(module_name, &bin_type) == TRUE;
+
+    if (success == true)
+    {
+        if (bin_type == SCS_64BIT_BINARY)
+        {
+            windows_dir += "\\System32";
+        }
+        else if (bin_type == SCS_32BIT_BINARY)
+        {
+            windows_dir += "\\SysWOW64";
+        }
+
+        base_path = windows_dir;
+    }
+
+    return success;
+#else
+    return false;
+#endif
 }
 
 GFXRECON_END_NAMESPACE(filepath)

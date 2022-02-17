@@ -21,76 +21,113 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
-from base_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo, write
+
 
 class VulkanCommandBufferUtilBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class for Vulkan capture file replay"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+    """Options for generating a C++ class for Vulkan capture file replay."""
 
-# VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
-# Generates C++ member definitions for the VulkanReplayConsumer class responsible for
-# replaying decoded Vulkan API call parameter data.
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
+        extraVulkanHeaders=[]
+    ):
+        BaseGeneratorOptions.__init__(
+            self,
+            blacklists,
+            platform_types,
+            filename,
+            directory,
+            prefix_text,
+            protect_file,
+            protect_feature,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+
+
 class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
-    """Generate a C++ class for Vulkan capture file replay"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=True, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+    """VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
+    Generates C++ member definitions for the VulkanReplayConsumer class responsible for
+    replaying decoded Vulkan API call parameter data.
+    Generate a C++ class for Vulkan capture file replay.
+    """
+
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=True,
+            process_structs=True,
+            feature_break=False,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
-        self.structsWithHandles = dict()
-        self.pNextStructs = dict()    # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
-        self.commandInfo = dict()     # Map of Vulkan commands to parameter info
+        self.structs_with_handles = dict()
+        self.pnext_structs = dict(
+        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
+        self.command_info = dict()  # Map of Vulkan commands to parameter info
+        # The following functions require custom implementations
+        self.customImplementationRequired = {
+            'CmdPushDescriptorSetKHR'
+        }
 
-    # Method override
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "generated/generated_vulkan_command_buffer_util.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_command_buffer_util.h"',
+            file=self.outFile
+        )
         self.newline()
-        write('#include "encode/vulkan_handle_wrapper_util.h"', file=self.outFile)
+        write(
+            '#include "encode/vulkan_handle_wrapper_util.h"',
+            file=self.outFile
+        )
         write('#include "encode/vulkan_state_info.h"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
-        for cmd, info in self.commandInfo.items():
-            params = info[2]
-            if params and params[0].baseType == 'VkCommandBuffer':
-                # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
-                handles = self.getParamListHandles(params[1:])
+        """Method override."""
+        for cmd, info in self.command_info.items():
+            if not cmd[2:] in self.customImplementationRequired:
+                params = info[2]
+                if params and params[0].base_type == 'VkCommandBuffer':
+                    # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
+                    handles = self.get_param_list_handles(params[1:])
 
-                if (handles):
-                    # Generate a function to build a list of handle types and values.
-                    cmddef = '\n'
-                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {})\n'.format(cmd[2:], self.getArgList(handles))
-                    cmddef += '{\n'
-                    indent = self.INDENT_SIZE * ' '
-                    cmddef += indent + 'assert(wrapper != nullptr);\n'
-                    cmddef += '\n'
-                    for index, handle in enumerate(handles):
-                        cmddef += self.insertCommandHandle(index, handle, indent=indent)
-                    cmddef += '}'
+                    if (handles):
+                        # Generate a function to build a list of handle types and values.
+                        cmddef = '\n'
+                        cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {})\n'.format(
+                            cmd[2:], self.get_arg_list(handles)
+                        )
+                        cmddef += '{\n'
+                        indent = self.INDENT_SIZE * ' '
+                        cmddef += indent + 'assert(wrapper != nullptr);\n'
+                        cmddef += '\n'
+                        for index, handle in enumerate(handles):
+                            cmddef += self.insert_command_handle(
+                                index, handle, indent=indent
+                            )
+                        cmddef += '}'
 
-                    write(cmddef, file=self.outFile)
+                        write(cmddef, file=self.outFile)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -99,99 +136,112 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles)
+            self.check_struct_member_handles(
+                typename, self.structs_with_handles
+            )
 
             # Track this struct if it can be present in a pNext chain.
-            parentStructs = typeinfo.elem.get('structextends')
-            if parentStructs:
-                sType = self.makeStructureTypeEnum(typeinfo, typename)
-                if sType:
-                    self.pNextStructs[typename] = sType
+            parent_structs = typeinfo.elem.get('structextends')
+            if parent_structs:
+                stype = self.make_structure_type_enum(typeinfo, typename)
+                if stype:
+                    self.pnext_structs[typename] = stype
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        if self.featureCmdParams:
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    def generateFeature(self):
-        for cmd in self.getFilteredCmdNames():
-            self.commandInfo[cmd] = self.featureCmdParams[cmd]
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        for cmd in self.get_filtered_cmd_names():
+            self.command_info[cmd] = self.feature_cmd_params[cmd]
 
-    #
-    # Create list of parameters that have handle types or are structs that contain handles.
-    def getParamListHandles(self, values):
+    def get_param_list_handles(self, values):
+        """Create list of parameters that have handle types or are structs that contain handles."""
         handles = []
         for value in values:
-            if self.isHandle(value.baseType):
+            if self.is_handle(value.base_type):
                 handles.append(value)
-            elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+            elif self.is_struct(
+                value.base_type
+            ) and (value.base_type in self.structs_with_handles):
                 handles.append(value)
         return handles
 
-    #
-    #
-    def getArgList(self, values):
+    def get_arg_list(self, values):
         args = []
         for value in values:
-            if value.arrayLength:
-                args.append('uint32_t {}'.format(value.arrayLength))
-            args.append('{} {}'.format(value.fullType, value.name))
-        return ', '.join(self.makeUniqueList(args))
+            if value.array_length:
+                args.append('uint32_t {}'.format(value.array_length))
+            args.append('{} {}'.format(value.full_type, value.name))
+        return ', '.join(self.make_unique_list(args))
 
-    #
-    #
-    def insertCommandHandle(self, index, value, valuePrefix='', indent=''):
+    def insert_command_handle(self, index, value, value_prefix='', indent=''):
         body = ''
         tail = ''
-        indexName = None
-        if (value.isPointer or value.isArray) and value.name != 'pnext_value':
+        index_name = None
+        if (
+            value.is_pointer or value.is_array
+        ) and value.name != 'pnext_value':
             if index > 0:
                 body += '\n'
-            body += indent + 'if ({}{} != nullptr)\n'.format(valuePrefix, value.name)
+            body += indent + 'if ({}{} != nullptr)\n'.format(
+                value_prefix, value.name
+            )
             body += indent + '{\n'
             tail = indent + '}\n' + tail
             indent += ' ' * self.INDENT_SIZE
 
-            if value.isArray:
-                indexName = '{}_index'.format(value.name)
-                body += indent + 'for (uint32_t {i} = 0; {i} < {}{}; ++{i})\n'.format(valuePrefix, value.arrayLength, i=indexName)
+            if value.is_array:
+                index_name = '{}_index'.format(value.name)
+                body += indent + 'for (uint32_t {i} = 0; {i} < {}{}; ++{i})\n'.format(
+                    value_prefix, value.array_length, i=index_name
+                )
                 body += indent + '{\n'
                 tail = indent + '}\n' + tail
                 indent += ' ' * self.INDENT_SIZE
 
-        if self.isHandle(value.baseType):
-            typeEnumValue = '{}Handle'.format(value.baseType[2:])
-            valueName = valuePrefix + value.name
-            if value.isArray:
-                valueName = '{}[{}]'.format(valueName, indexName)
-            elif value.isPointer:
-                valueName = '(*{})'.format(valueName)
+        if self.is_handle(value.base_type):
+            type_enum_value = '{}Handle'.format(value.base_type[2:])
+            value_name = value_prefix + value.name
+            if value.is_array:
+                value_name = '{}[{}]'.format(value_name, index_name)
+            elif value.is_pointer:
+                value_name = '(*{})'.format(value_name)
+            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}));\n'.format(
+                value_name, type_enum_value, value_name
+            )
 
-            body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}));\n'.format(typeEnumValue, valueName)
-
-        elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
-            if value.isArray:
-                accessOperator = '[{}].'.format(indexName)
-            elif value.isPointer:
-                accessOperator = '->'
+        elif self.is_struct(
+            value.base_type
+        ) and (value.base_type in self.structs_with_handles):
+            if value.is_array:
+                access_operator = '[{}].'.format(index_name)
+            elif value.is_pointer:
+                access_operator = '->'
             else:
-                accessOperator = '.'
+                access_operator = '.'
 
-            for index, entry in enumerate(self.structsWithHandles[value.baseType]):
+            for index, entry in enumerate(
+                self.structs_with_handles[value.base_type]
+            ):
                 if entry.name == 'pNext':
-                    extStructsWithHandles = [extStruct for extStruct in self.registry.validextensionstructs[value.baseType] if extStruct in self.structsWithHandles]
-                    if extStructsWithHandles:
-                        body += indent + 'auto pnext_header = reinterpret_cast<const VkBaseInStructure*>({}{}->pNext);\n'.format(valuePrefix, value.name)
+                    ext_structs_with_handles = [
+                        ext_struct for ext_struct in
+                        self.registry.validextensionstructs[value.base_type]
+                        if ext_struct in self.structs_with_handles
+                    ]
+                    if ext_structs_with_handles:
+                        body += indent + 'auto pnext_header = reinterpret_cast<const VkBaseInStructure*>({}{}->pNext);\n'.format(
+                            value_prefix, value.name
+                        )
                         body += indent + 'while (pnext_header)\n'
                         body += indent + '{\n'
                         indent += ' ' * self.INDENT_SIZE
@@ -202,12 +252,24 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                         indent += ' ' * self.INDENT_SIZE
                         body += indent + 'break;\n'
                         indent = indent[:-self.INDENT_SIZE]
-                        for extStruct in extStructsWithHandles:
-                            body += indent + 'case {}:\n'.format(self.pNextStructs[extStruct])
+                        for ext_struct in ext_structs_with_handles:
+                            body += indent + 'case {}:\n'.format(
+                                self.pnext_structs[ext_struct]
+                            )
                             body += indent + '{\n'
                             indent += ' ' * self.INDENT_SIZE
-                            body += indent + 'auto pnext_value = reinterpret_cast<const {}*>(pnext_header);\n'.format(extStruct)
-                            body += self.insertCommandHandle(index, ValueInfo('pnext_value', extStruct, 'const {} *'.format(extStruct), 1), '', indent=indent)
+                            body += indent + 'auto pnext_value = reinterpret_cast<const {}*>(pnext_header);\n'.format(
+                                ext_struct
+                            )
+                            body += self.insert_command_handle(
+                                index,
+                                ValueInfo(
+                                    'pnext_value', ext_struct,
+                                    'const {} *'.format(ext_struct), 1
+                                ),
+                                '',
+                                indent=indent
+                            )
                             body += indent + 'break;\n'
                             indent = indent[:-self.INDENT_SIZE]
                             body += indent + '}\n'
@@ -217,6 +279,9 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                         indent = indent[:-self.INDENT_SIZE]
                         body += indent + '}\n'
                 else:
-                    body += self.insertCommandHandle(index, entry, valuePrefix + value.name + accessOperator, indent)
+                    body += self.insert_command_handle(
+                        index, entry,
+                        value_prefix + value.name + access_operator, indent
+                    )
 
         return body + tail

@@ -124,5 +124,29 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
     }
 }
 
+const void* TrackPNextStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
+{
+    const void*        ret        = nullptr;
+    VkBaseInStructure* pnext      = nullptr;
+    VkBaseInStructure* last_pnext = nullptr;
+    auto               base       = reinterpret_cast<const VkBaseInStructure*>(value);
+    while (base != nullptr)
+    {
+        // Use CopyPNextStruct, instead of UnwrapPNextStructHandles because it doesn't need to wrap handles.
+        pnext = CopyPNextStruct(base, unwrap_memory);
+        if (ret == nullptr)
+        {
+            ret = pnext;
+        }
+        else
+        {
+            last_pnext->pNext = pnext;
+        }
+        base       = base->pNext;
+        last_pnext = pnext;
+    }
+    return ret;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

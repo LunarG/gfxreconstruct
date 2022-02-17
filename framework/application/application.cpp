@@ -22,8 +22,30 @@
 */
 
 #include "application/application.h"
-
 #include "util/logging.h"
+#include "util/platform.h"
+
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#include "application/win32_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#include "application/wayland_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+#include "application/xcb_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+#include "application/xlib_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+#include "application/android_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_DISPLAY_KHR)
+#include "application/display_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+#include "application/headless_context.h"
+#endif
 
 #include <algorithm>
 #include <cassert>
@@ -31,27 +53,61 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-Application::Application(const std::string& name) :
-    file_processor_(nullptr), running_(false), paused_(false), name_(name)
+Application::Application(const std::string& name, decode::FileProcessor* file_processor) :
+    Application(name, std::string(), file_processor)
 {}
 
-Application::~Application()
+Application::Application(const std::string&     name,
+                         const std::string&     cli_wsi_extension,
+                         decode::FileProcessor* file_processor) :
+    name_(name),
+    file_processor_(file_processor), cli_wsi_extension_(cli_wsi_extension), running_(false), paused_(false),
+    pause_frame_(0)
 {
-    if (!windows_.empty())
+    if (!cli_wsi_extension_.empty())
     {
-        GFXRECON_LOG_INFO(
-            "Application manager is destroying windows that were not previously destroyed by their owner");
-
-        for (auto window : windows_)
-        {
-            delete window;
-        }
+        InitializeWsiContext(cli_wsi_extension_.c_str());
     }
 }
 
-void Application::SetFileProcessor(decode::FileProcessor* file_processor)
+Application ::~Application() {}
+
+const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select) const
 {
-    file_processor_ = file_processor;
+    auto itr = wsi_contexts_.end();
+
+    // If auto_select is enabled and a WSI extension was selected on the CLI,
+    //  attempt to get that WSI context
+    if (auto_select && !cli_wsi_extension_.empty())
+    {
+        itr = wsi_contexts_.find(cli_wsi_extension_);
+    }
+
+    // If we don't have a valid WSI context after potential auto_select, fallback
+    //  to the current API call request
+    if (itr == wsi_contexts_.end())
+    {
+        itr = wsi_contexts_.find(wsi_extension);
+    }
+
+    // If auto_select is enabled and we still don't have a valid WSI context, use
+    //  first one we have
+    if (auto_select && itr == wsi_contexts_.end())
+    {
+        itr = wsi_contexts_.begin();
+    }
+
+    // If we've gotten here without a valid WSI context then we'll simply return
+    //  nullptr letting the caller know that we do not have a WSI context loaded
+    //  for the given WSI extension
+    return itr != wsi_contexts_.end() ? itr->second.get() : nullptr;
+}
+
+WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select)
+{
+    auto const_this  = const_cast<const Application*>(this);
+    auto wsi_context = const_this->GetWsiContext(wsi_extension, auto_select);
+    return const_cast<WsiContext*>(wsi_context);
 }
 
 void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
@@ -62,7 +118,6 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
         return;
     }
 
-    fps_info->SetFileProcessor(file_processor_);
     fps_info_ = fps_info;
 }
 
@@ -80,23 +135,37 @@ void Application::Run()
 
             if (fps_info_ != nullptr)
             {
-                fps_info_->HandleMeasurementRange();
-
-                if (fps_info_->ShouldQuit())
+                if (fps_info_->ShouldQuit(file_processor_->GetCurrentFrameNumber()))
                 {
                     running_ = false;
                     break;
                 }
+
+                if (fps_info_->ShouldWaitIdleBeforeFrame(file_processor_->GetCurrentFrameNumber()))
+                {
+                    file_processor_->WaitDecodersIdle();
+                }
+
+                fps_info_->BeginFrame(file_processor_->GetCurrentFrameNumber());
             }
 
             PlaySingleFrame();
+
+            if (fps_info_ != nullptr)
+            {
+                fps_info_->EndFrame(file_processor_->GetCurrentFrameNumber());
+
+                if (fps_info_->ShouldWaitIdleAfterFrame(file_processor_->GetCurrentFrameNumber()))
+                {
+                    file_processor_->WaitDecodersIdle();
+                }
+            }
         }
     }
 }
 
 void Application::SetPaused(bool paused)
 {
-
     paused_ = paused;
 
     if (paused_ && (file_processor_ != nullptr))
@@ -141,37 +210,82 @@ bool Application::PlaySingleFrame()
     return success;
 }
 
-bool Application::RegisterWindow(decode::Window* window)
+void Application::ProcessEvents(bool wait_for_input)
 {
-    assert(window != nullptr);
-
-    if (std::find(windows_.begin(), windows_.end(), window) != windows_.end())
+    for (const auto& itr : wsi_contexts_)
     {
-        GFXRECON_LOG_INFO("A window was registered with the application more than once");
-        return false;
+        const auto& wsi_context       = itr.second;
+        bool        activeWsiContext  = wsi_context && !wsi_context->GetWindows().empty();
+        auto        pWindowFactory    = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+        bool        androidWsiContext = pWindowFactory && (strcmp(pWindowFactory->GetSurfaceExtensionName(),
+                                                           VK_KHR_ANDROID_SURFACE_EXTENSION_NAME) == 0);
+        if (activeWsiContext || androidWsiContext)
+        {
+            wsi_context->ProcessEvents(wait_for_input);
+        }
     }
-
-    windows_.push_back(window);
-
-    return true;
 }
 
-bool Application::UnregisterWindow(decode::Window* window)
+void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* pPlatformSpecificData)
 {
-    assert(window != nullptr);
-
-    auto pos = std::find(windows_.begin(), windows_.end(), window);
-
-    if (pos == windows_.end())
+    assert(pSurfaceExtensionName);
+    auto itr = wsi_contexts_.find(pSurfaceExtensionName);
+    if (itr == wsi_contexts_.end())
     {
-        GFXRECON_LOG_INFO(
-            "A remove window request was made for an window that was never registered with the application");
-        return false;
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_KHR_WIN32_SURFACE_EXTENSION_NAME] = std::make_unique<Win32Context>(this);
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME] = std::make_unique<WaylandContext>(this);
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_KHR_XCB_SURFACE_EXTENSION_NAME] = std::make_unique<XcbContext>(this);
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_KHR_XLIB_SURFACE_EXTENSION_NAME] = std::make_unique<XlibContext>(this);
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_KHR_ANDROID_SURFACE_EXTENSION_NAME] =
+                std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_DISPLAY_KHR)
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_DISPLAY_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_KHR_DISPLAY_EXTENSION_NAME] = std::make_unique<DisplayContext>(this);
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME] = std::make_unique<HeadlessContext>(this);
+        }
+        else
+#endif
+        {
+            // NOOP :
+        }
     }
-
-    windows_.erase(pos);
-
-    return true;
 }
 
 GFXRECON_END_NAMESPACE(application)

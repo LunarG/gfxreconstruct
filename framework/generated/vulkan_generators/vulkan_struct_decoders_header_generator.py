@@ -21,40 +21,67 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
-from base_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from base_struct_decoders_header_generator import BaseStructDecodersHeaderGenerator
+
 
 class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ type declarations for Vulkan struct decoding"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+    """Options for generating C++ type declarations for Vulkan struct decoding."""
 
-# VulkanStructDecodersHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ type declarations for the decoded Vulkan API structure wrappers.
-class VulkanStructDecodersHeaderGenerator(BaseGenerator):
-    """Generate C++ type declarations for Vulkan struct decoding"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
+        extraVulkanHeaders=[]
+    ):
+        BaseGeneratorOptions.__init__(
+            self,
+            blacklists,
+            platform_types,
+            filename,
+            directory,
+            prefix_text,
+            protect_file,
+            protect_feature,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
 
-    # Method override
-    def beginFile(self, genOpts):
-        BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "decode/custom_vulkan_struct_decoders_forward.h"', file=self.outFile)
+class VulkanStructDecodersHeaderGenerator(
+    BaseStructDecodersHeaderGenerator, BaseGenerator
+):
+    """VulkanStructDecodersHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ type declarations for the decoded Vulkan API structure wrappers.
+    Generate C++ type declarations for Vulkan struct decoding.
+    """
+
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
+
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
+
+        write(
+            '#include "decode/custom_vulkan_struct_decoders_forward.h"',
+            file=self.outFile
+        )
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
@@ -63,18 +90,21 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/format.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_struct_decoders_forward.h"',
+            file=self.outFile
+        )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(gen_opts)
         self.newline()
         write('#include <memory>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -82,89 +112,8 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        if self.featureStructMembers or self.featureStructAliases:
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_struct_members or self.feature_struct_aliases:
             return True
         return False
-
-    #
-    # Performs C++ code generation for the feature.
-    def generateFeature(self):
-        first = True
-        for struct in self.getFilteredStructNames():
-            body = '' if first else '\n'
-            body += 'struct Decoded_{}\n'.format(struct)
-            body += '{\n'
-            body += '    using struct_type = {};\n'.format(struct)
-            body += '\n'
-            body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
-
-            decls = self.makeMemberDeclarations(struct, self.featureStructMembers[struct])
-            if decls:
-                body += '\n'
-                body += decls
-
-            body += '};'
-
-            write(body, file=self.outFile)
-            first = False
-
-        # Write typedefs for any aliases
-        for struct in self.featureStructAliases:
-            body = '' if first else '\n'
-            body += 'typedef Decoded_{} Decoded_{};'.format(self.featureStructAliases[struct], struct)
-            write(body, file=self.outFile)
-            first = False
-
-    #
-    # Determines if a Vulkan struct member needs an associated member delcaration in the decoded struct wrapper.
-    def needsMemberDeclaration(self, name, value):
-        if value.isPointer or value.isArray:
-            return True
-        elif self.isFunctionPtr(value.baseType):
-            return True
-        elif self.isHandle(value.baseType):
-            return True
-        elif self.isStruct(value.baseType):
-            return True
-        elif self.isGenericStructHandleValue(name, value.name):
-            return True
-        return False
-
-    #
-    # Determines if the struct member requires default initalization and determines the value to use.
-    def getDefaultInitValue(self, type):
-        if type == 'format::HandleId':
-            # These types represent values recorded for Vulkan handles.
-            return 'format::kNullHandleId'
-        elif type == 'uint64_t':
-            # These types represent values recorded for function pointers and void pointers to non-Vulkan objects.
-            return '0'
-        return None
-
-    #
-    # Generate the struct member declarations for the decoded struct wrapper.
-    def makeMemberDeclarations(self, name, values):
-        body = ''
-
-        for value in values:
-            if value.name == 'pNext':
-                # We have a special type to store the pNext chain
-                body += '    PNextNode* pNext{ nullptr };\n'
-            elif self.needsMemberDeclaration(name, value):
-                typeName = self.makeDecodedParamType(value)
-                if self.isStruct(value.baseType):
-                    typeName = '{}*'.format(typeName)
-
-                defaultValue = self.getDefaultInitValue(typeName)
-                if defaultValue:
-                    body += '    {} {}{{ {} }};\n'.format(typeName, value.name, defaultValue)
-                else:
-                    if self.isStruct(value.baseType):
-                        body += '    {} {}{{ nullptr }};\n'.format(typeName, value.name)
-                    else:
-                        body += '    {} {};\n'.format(typeName, value.name)
-
-        return body

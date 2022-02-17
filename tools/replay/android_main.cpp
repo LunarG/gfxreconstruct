@@ -23,7 +23,7 @@
 
 #include "replay_settings.h"
 
-#include "application/android_application.h"
+#include "application/android_context.h"
 #include "application/android_window.h"
 #include "decode/file_processor.h"
 #include "decode/vulkan_replay_options.h"
@@ -94,9 +94,7 @@ void android_main(struct android_app* app)
 
         try
         {
-            gfxrecon::decode::FileProcessor                            file_processor;
-            std::unique_ptr<gfxrecon::application::AndroidApplication> application;
-            std::unique_ptr<gfxrecon::decode::WindowFactory>           window_factory;
+            gfxrecon::decode::FileProcessor file_processor;
 
             if (!file_processor.Initialize(filename))
             {
@@ -104,53 +102,67 @@ void android_main(struct android_app* app)
             }
             else
             {
-                // Setup platform specific application and window factory.
-                application    = std::make_unique<gfxrecon::application::AndroidApplication>(kApplicationName, app);
-                window_factory = std::make_unique<gfxrecon::application::AndroidWindowFactory>(application.get());
+                auto application =
+                    std::make_shared<gfxrecon::application::Application>(kApplicationName, &file_processor);
+                application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
-                if (!application->Initialize(&file_processor))
+                gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+                gfxrecon::decode::VulkanReplayOptions          replay_options =
+                    GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+                gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
+                gfxrecon::decode::VulkanDecoder        decoder;
+                std::pair<uint32_t, uint32_t>          measurement_frame_range = GetMeasurementFrameRange(arg_parser);
+
+                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_frame_range.first),
+                                                     static_cast<uint64_t>(measurement_frame_range.second),
+                                                     replay_options.quit_after_measurement_frame_range,
+                                                     replay_options.flush_measurement_frame_range);
+
+                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+
+                decoder.AddConsumer(&replay_consumer);
+                file_processor.AddDecoder(&decoder);
+                application->SetPauseFrame(GetPauseFrame(arg_parser));
+
+                // Warn if the capture layer is active.
+                CheckActiveLayers(kLayerProperty);
+
+                // Start the application in the paused state, preventing replay from starting before the app
+                // gained focus event is received.
+                application->SetPaused(true);
+
+                app->userData = application.get();
+                application->SetFpsInfo(&fps_info);
+
+                fps_info.BeginFile();
+
+                application->Run();
+
+                fps_info.EndFile(file_processor.GetCurrentFrameNumber());
+
+                if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    GFXRECON_WRITE_CONSOLE(
-                        "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
-                        "Vulkan platform extensions have been enabled.");
+                    if (file_processor.GetCurrentFrameNumber() < measurement_frame_range.first)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
+                            "Measurements were never started, cannot calculate measurement range FPS.",
+                            measurement_frame_range.first,
+                            file_processor.GetCurrentFrameNumber());
+                    }
+                    else
+                    {
+                        fps_info.LogToConsole();
+                    }
+                }
+                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                {
+                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 }
                 else
                 {
-                    gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                    gfxrecon::decode::ReplayOptions                replay_options =
-                        GetReplayOptions(arg_parser, filename, &tracked_object_info_table);
-                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(), replay_options);
-                    gfxrecon::decode::VulkanDecoder        decoder;
-
-                    replay_consumer.SetFatalErrorHandler(
-                        [](const char* message) { throw std::runtime_error(message); });
-
-                    decoder.AddConsumer(&replay_consumer);
-                    file_processor.AddDecoder(&decoder);
-                    application->SetPauseFrame(GetPauseFrame(arg_parser));
-
-                    std::pair<uint32_t, uint32_t> measurement_frame_range = GetMeasurementFrameRange(arg_parser);
-                    gfxrecon::graphics::FpsInfo   fps_info(static_cast<uint64_t>(measurement_frame_range.first),
-                                                         static_cast<uint64_t>(measurement_frame_range.second),
-                                                         replay_options.quit_after_measurement_frame_range,
-                                                         replay_options.flush_measurement_frame_range);
-
-                    // Warn if the capture layer is active.
-                    CheckActiveLayers(kLayerProperty);
-
-                    // Start the application in the paused state, preventing replay from starting before the app
-                    // gained focus event is received.
-                    application->SetPaused(true);
-
-                    app->userData = application.get();
-                    application->SetFpsInfo(&fps_info);
-                    application->Run();
-
-                    if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                        (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
-                    {
-                        fps_info.WriteMeasurementRangeFpsToConsole();
-                    }
+                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
                 }
             }
         }
@@ -228,24 +240,28 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
 {
     if (app->userData != nullptr)
     {
-        gfxrecon::application::AndroidApplication* android_application =
-            reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+        using namespace gfxrecon::application;
+        auto application = reinterpret_cast<Application*>(app->userData);
+        assert(application);
 
         switch (cmd)
         {
             case APP_CMD_INIT_WINDOW:
             {
-                android_application->InitWindow();
+                auto android_context = reinterpret_cast<AndroidContext*>(
+                    application->GetWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME));
+                assert(android_context);
+                android_context->InitWindow();
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
             {
-                android_application->SetPaused(false);
+                application->SetPaused(false);
                 break;
             }
             case APP_CMD_LOST_FOCUS:
             {
-                android_application->SetPaused(true);
+                application->SetPaused(true);
                 break;
             }
         }
@@ -268,7 +284,8 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
 
             if (action == AMOTION_EVENT_ACTION_UP)
             {
-                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                auto application = reinterpret_cast<gfxrecon::application::Application*>(app->userData);
+                assert(application);
                 int32_t horizontal_distance = 0;
                 int32_t vertical_distance   = 0;
 
@@ -281,10 +298,10 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
                 if (abs(horizontal_distance) > kSwipeDistance)
                 {
                     if ((horizontal_distance < 0) && (abs(horizontal_distance) > abs(vertical_distance)) &&
-                        android_application->GetPaused())
+                        application->GetPaused())
                     {
                         // Treat as swipe right-to-left to advance frame while paused.
-                        android_application->PlaySingleFrame();
+                        application->PlaySingleFrame();
                     }
                 }
                 else if (abs(vertical_distance) > kSwipeDistance)
@@ -294,7 +311,7 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
                 else
                 {
                     // Treat as a tap to toggle pause state.
-                    android_application->SetPaused(!android_application->GetPaused());
+                    application->SetPaused(!application->GetPaused());
                 }
 
                 return 1;
@@ -319,12 +336,13 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
             //  N     = 42
             if (action == AKEY_EVENT_ACTION_UP)
             {
-                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                auto application = reinterpret_cast<gfxrecon::application::Application*>(app->userData);
+                assert(application);
                 switch (key)
                 {
                     case AKEYCODE_SPACE:
                     case AKEYCODE_P:
-                        android_application->SetPaused(!android_application->GetPaused());
+                        application->SetPaused(!application->GetPaused());
                         break;
                     default:
                         break;
@@ -332,14 +350,15 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
             }
             else if (action == AKEY_EVENT_ACTION_DOWN)
             {
-                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                auto application = reinterpret_cast<gfxrecon::application::Application*>(app->userData);
+                assert(application);
                 switch (key)
                 {
                     case AKEYCODE_DPAD_RIGHT:
                     case AKEYCODE_N:
-                        if (android_application->GetPaused())
+                        if (application->GetPaused())
                         {
-                            android_application->PlaySingleFrame();
+                            application->PlaySingleFrame();
                         }
                         break;
                     default:

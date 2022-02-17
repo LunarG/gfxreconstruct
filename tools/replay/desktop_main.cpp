@@ -41,31 +41,6 @@
 #include <utility>
 
 #if defined(WIN32)
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-#include "application/win32_application.h"
-#include "application/win32_window.h"
-#endif
-#else
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-#include "application/xcb_application.h"
-#include "application/xcb_window.h"
-#endif
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
-#include "application/xlib_application.h"
-#include "application/xlib_window.h"
-#endif
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#include "application/wayland_application.h"
-#include "application/wayland_window.h"
-#endif
-#endif
-
-#if defined(VK_USE_PLATFORM_HEADLESS)
-#include "application/headless_application.h"
-#include "application/headless_window.h"
-#endif
-
-#if defined(WIN32)
 #include <conio.h>
 void WaitForExit()
 {
@@ -126,131 +101,71 @@ int main(int argc, const char** argv)
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
         std::string                     filename             = positional_arguments[0];
 
-        gfxrecon::decode::FileProcessor                     file_processor;
-        std::unique_ptr<gfxrecon::application::Application> application;
-        std::unique_ptr<gfxrecon::decode::WindowFactory>    window_factory;
-
+        gfxrecon::decode::FileProcessor file_processor;
         if (!file_processor.Initialize(filename))
         {
             return_code = -1;
         }
         else
         {
-            auto wsi_platform = GetWsiPlatform(arg_parser);
+            // Select WSI context based on CLI
+            std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
+            auto        application =
+                std::make_shared<gfxrecon::application::Application>(kApplicationName, wsi_extension, &file_processor);
 
-            // Setup platform specific application and window factory.
-#if defined(WIN32)
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-            if (wsi_platform == WsiPlatform::kWin32 || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto win32_application = std::make_unique<gfxrecon::application::Win32Application>(kApplicationName);
-                if (win32_application->Initialize(&file_processor))
-                {
-                    window_factory =
-                        std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application.get());
-                    application = std::move(win32_application);
-                }
-            }
-#endif
-#else
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            if (wsi_platform == WsiPlatform::kWayland || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto wayland_application =
-                    std::make_unique<gfxrecon::application::WaylandApplication>(kApplicationName);
-                if (wayland_application->Initialize(&file_processor))
-                {
-                    window_factory =
-                        std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application.get());
-                    application = std::move(wayland_application);
-                }
-            }
-#endif
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-            if (wsi_platform == WsiPlatform::kXcb || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto xcb_application = std::make_unique<gfxrecon::application::XcbApplication>(kApplicationName);
-                if (xcb_application->Initialize(&file_processor))
-                {
-                    window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application.get());
-                    application    = std::move(xcb_application);
-                }
-            }
-#endif
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
-            if (wsi_platform == WsiPlatform::kXlib || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto xlib_application = std::make_unique<gfxrecon::application::XlibApplication>(kApplicationName);
-                if (xlib_application->Initialize(&file_processor))
-                {
-                    window_factory = std::make_unique<gfxrecon::application::XlibWindowFactory>(xlib_application.get());
-                    application    = std::move(xlib_application);
-                }
-            }
-#endif
-#endif
-#if defined(VK_USE_PLATFORM_HEADLESS)
-            if (wsi_platform == WsiPlatform::kHeadless || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto headless_application =
-                    std::make_unique<gfxrecon::application::HeadlessApplication>(kApplicationName);
-                if (headless_application->Initialize(&file_processor))
-                {
-                    window_factory =
-                        std::make_unique<gfxrecon::application::HeadlessWindowFactory>(headless_application.get());
-                    application = std::move(headless_application);
-                }
-            }
-#endif
+            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+            gfxrecon::decode::VulkanReplayOptions          replay_options =
+                GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+            gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
+            gfxrecon::decode::VulkanDecoder        decoder;
+            std::pair<uint32_t, uint32_t>          measurement_frame_range = GetMeasurementFrameRange(arg_parser);
 
-            if (!window_factory || !application)
+            gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_frame_range.first),
+                                                 static_cast<uint64_t>(measurement_frame_range.second),
+                                                 replay_options.quit_after_measurement_frame_range,
+                                                 replay_options.flush_measurement_frame_range);
+
+            replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+            replay_consumer.SetFpsInfo(&fps_info);
+
+            decoder.AddConsumer(&replay_consumer);
+            file_processor.AddDecoder(&decoder);
+            application->SetPauseFrame(GetPauseFrame(arg_parser));
+
+            // Warn if the capture layer is active.
+            CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
+
+            fps_info.BeginFile();
+
+            application->SetFpsInfo(&fps_info);
+            application->Run();
+
+            fps_info.EndFile(file_processor.GetCurrentFrameNumber());
+
+            if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
             {
-                GFXRECON_WRITE_CONSOLE(
-                    "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
-                    "Vulkan platform extensions have been enabled.");
+                if (file_processor.GetCurrentFrameNumber() < measurement_frame_range.first)
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
+                        "Measurements were never started, cannot calculate measurement range FPS.",
+                        measurement_frame_range.first,
+                        file_processor.GetCurrentFrameNumber());
+                }
+                else
+                {
+                    fps_info.LogToConsole();
+                }
+            }
+            else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            {
+                GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 return_code = -1;
             }
             else
             {
-                gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::ReplayOptions                replay_options =
-                    GetReplayOptions(arg_parser, filename, &tracked_object_info_table);
-                gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(), replay_options);
-                gfxrecon::decode::VulkanDecoder        decoder;
-
-                std::pair<uint32_t, uint32_t> measurement_frame_range = GetMeasurementFrameRange(arg_parser);
-                gfxrecon::graphics::FpsInfo   fps_info(static_cast<uint64_t>(measurement_frame_range.first),
-                                                     static_cast<uint64_t>(measurement_frame_range.second),
-                                                     replay_options.quit_after_measurement_frame_range,
-                                                     replay_options.flush_measurement_frame_range);
-
-                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-                replay_consumer.SetFpsInfo(&fps_info);
-
-                decoder.AddConsumer(&replay_consumer);
-                file_processor.AddDecoder(&decoder);
-                application->SetPauseFrame(GetPauseFrame(arg_parser));
-
-                // Warn if the capture layer is active.
-                CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
-
-                application->SetFpsInfo(&fps_info);
-                application->Run();
-
-                if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
-                {
-                    fps_info.WriteMeasurementRangeFpsToConsole();
-                }
-                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-                {
-                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
-                    return_code = -1;
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-                }
+                GFXRECON_WRITE_CONSOLE("File did not contain any frames");
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,7 +25,7 @@
 
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "encode/vulkan_state_table.h"
+#include "generated/generated_vulkan_state_table.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "util/defines.h"
@@ -318,6 +318,32 @@ InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo>(VkDevice   
 }
 
 template <>
+inline void
+InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(VkDevice                       parent_handle,
+                                                                      RenderPassWrapper*             wrapper,
+                                                                      const VkRenderPassCreateInfo2* create_info,
+                                                                      format::ApiCallId              create_call_id,
+                                                                      CreateParameters               create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    if (create_info->pAttachments != nullptr)
+    {
+        for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
+        {
+            wrapper->attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+        }
+    }
+}
+
+template <>
 inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrapper, VkGraphicsPipelineCreateInfo>(
     VkDevice                            parent_handle,
     VkPipelineCache                     secondary_handle,
@@ -352,11 +378,12 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     }
 
     auto render_pass_wrapper = reinterpret_cast<RenderPassWrapper*>(create_info->renderPass);
-    assert(render_pass_wrapper != nullptr);
-
-    wrapper->render_pass_dependency.handle_id         = render_pass_wrapper->handle_id;
-    wrapper->render_pass_dependency.create_call_id    = render_pass_wrapper->create_call_id;
-    wrapper->render_pass_dependency.create_parameters = render_pass_wrapper->create_parameters;
+    if (render_pass_wrapper)
+    {
+        wrapper->render_pass_dependency.handle_id         = render_pass_wrapper->handle_id;
+        wrapper->render_pass_dependency.create_call_id    = render_pass_wrapper->create_call_id;
+        wrapper->render_pass_dependency.create_parameters = render_pass_wrapper->create_parameters;
+    }
 
     auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);

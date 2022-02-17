@@ -40,10 +40,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 9)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 8)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 11)
 
-set(GFXRECON_PROJECT_VERSION_DESIGNATION "-unknown")
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
+
+option(BUILD_STATIC "Build static binaries for HPC clusters (will not build the tracer library)" OFF)
 
 if (NOT DEFINED HEADLESS)
     set(HEADLESS TRUE)
@@ -65,8 +66,10 @@ if (GIT_REFSPEC)
         else()
             set(GIT_BRANCH "")
         endif()
-        set(GFXRECON_PROJECT_VERSION_DESIGNATION "")
-    else()
+        if(NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
+            set(GFXRECON_PROJECT_VERSION_DESIGNATION "")
+        endif()
+    elseif(NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
         set(GFXRECON_PROJECT_VERSION_DESIGNATION "-dev")
     endif()
 elseif(GIT_TAG)
@@ -75,6 +78,8 @@ elseif(GIT_TAG)
         set(GIT_BRANCH ${GIT_TAG})
         set(GFXRECON_PROJECT_VERSION_DESIGNATION "")
     endif()
+elseif(NOT DEFINED GFXRECON_PROJECT_VERSION_DESIGNATION)
+    set(GFXRECON_PROJECT_VERSION_DESIGNATION "-unknown")
 endif()
 
 if (GIT_SHA1)
@@ -137,6 +142,7 @@ find_package(ZSTD)
 if(UNIX)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+    option(BUILD_WSI_DISPLAY_SUPPORT "Build direct-to-display swapchain support" ON)
 
     if(BUILD_WSI_XCB_SUPPORT)
         find_package(XCB)
@@ -148,7 +154,11 @@ if(UNIX)
 endif(UNIX)
 
 # CMake provided find modules
-find_package(ZLIB)
+if(BUILD_STATIC)
+    find_library(ZLIB NAMES libz.a REQUIRED PATH_SUFFIXES lib lib/x86_64-linux-gnu lib64)
+else()
+    find_package(ZLIB)
+endif()
 if(UNIX)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     if(BUILD_WSI_XLIB_SUPPORT)
@@ -166,6 +176,7 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
     $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>
+    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(platform_specific INTERFACE)
@@ -194,7 +205,9 @@ if (${RUN_TESTS})
 endif()
 
 add_subdirectory(framework)
-add_subdirectory(layer)
+if(NOT BUILD_STATIC)
+    add_subdirectory(layer)
+endif()
 add_subdirectory(tools)
 
 if (${RUN_TESTS})

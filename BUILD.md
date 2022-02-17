@@ -17,7 +17,7 @@ Copyright &copy; 2018-2020 LunarG, Inc.
 3. [Repository Set-Up](#repository-set-up)
 4. [Windows Build](#building-for-windows)
 5. [Linux Build](#building-for-linux)
-6. [Android Build](#android)
+6. [Android Build](#building-for-android)
 
 ## Introduction
 
@@ -205,6 +205,12 @@ sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-de
         libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev
 ```
 
+For 32-bit builds (DXVK might require 32-bit):
+```bash
+sudo apt-get install g++-multilib libx11-xcb-dev:i386 libxcb-keysyms1-dev:i386 \
+        libwayland-dev:i386 libxrandr-dev:i386 zlib1g-dev:i386 liblz4-dev:i386 libzstd-dev:i386
+```
+
 For arm64 builds (cross compilation):
 
 ```bash
@@ -353,3 +359,22 @@ Next, add the following lines to the application's `build.gradle` file:
         implementation project(':VkLayer_gfxreconstruct')
     }
 ```
+
+#### Adding the Vulkan Validation Layer to `gfxrecon-replay`
+
+1. Download the latest Android Vulkan Validation Layer binaries from the [GitHub release page](https://github.com/KhronosGroup/Vulkan-ValidationLayers/releases)
+2. Extract the prebuilt layer binaries and include them in the `gfxrecon-replay` APK by adding them to the following directories:
+```text
+gfxreconstruct/android/tools/replay/src/main/jniLibs/
+    arm64-v8a/
+        libVkLayer_khronos_validation.so
+    armeabi-v7a/
+        libVkLayer_khronos_validation.so
+    x86/
+        libVkLayer_khronos_validation.so
+    x86-64/
+        libVkLayer_khronos_validation.so
+```
+3. Rebuild and deploy `gfxrecon-replay`
+
+The [Android Vulkan Validation Guide](https://developer.android.com/ndk/guides/graphics/validation-layer) has further instructions for advanced validation layer usage on Android

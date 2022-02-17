@@ -24,7 +24,7 @@
 #ifndef GFXRECON_APPLICATION_XCB_WINDOW_H
 #define GFXRECON_APPLICATION_XCB_WINDOW_H
 
-#include "application/xcb_application.h"
+#include "application/xcb_context.h"
 #include "decode/window.h"
 #include "util/defines.h"
 
@@ -36,7 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class XcbWindow : public decode::Window
 {
   public:
-    XcbWindow(XcbApplication* application);
+    XcbWindow(XcbContext* xcb_context);
 
     virtual ~XcbWindow() override;
 
@@ -82,6 +82,8 @@ class XcbWindow : public decode::Window
 
     virtual bool GetNativeHandle(HandleType type, void** handle) override;
 
+    virtual std::string GetWsiExtension() const override;
+
     virtual VkResult CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
                                    VkFlags                      flags,
@@ -112,26 +114,26 @@ class XcbWindow : public decode::Window
     };
 
   private:
-    XcbApplication* xcb_application_;
-    uint32_t        width_;
-    uint32_t        height_;
-    uint32_t        screen_width_;
-    uint32_t        screen_height_;
-    EventInfo       pending_event_;
-    bool            visible_;
-    bool            fullscreen_;
-    xcb_window_t    window_;
-    xcb_atom_t      protocol_atom_;
-    xcb_atom_t      delete_window_atom_;
-    xcb_atom_t      state_atom_;
-    xcb_atom_t      state_fullscreen_atom_;
-    xcb_atom_t      bypass_compositor_atom_;
+    XcbContext*  xcb_context_;
+    uint32_t     width_;
+    uint32_t     height_;
+    uint32_t     screen_width_;
+    uint32_t     screen_height_;
+    EventInfo    pending_event_;
+    bool         visible_;
+    bool         fullscreen_;
+    xcb_window_t window_;
+    xcb_atom_t   protocol_atom_;
+    xcb_atom_t   delete_window_atom_;
+    xcb_atom_t   state_atom_;
+    xcb_atom_t   state_fullscreen_atom_;
+    xcb_atom_t   bypass_compositor_atom_;
 };
 
 class XcbWindowFactory : public decode::WindowFactory
 {
   public:
-    XcbWindowFactory(XcbApplication* application);
+    XcbWindowFactory(XcbContext* xcb_context);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_XCB_SURFACE_EXTENSION_NAME; }
 
@@ -145,7 +147,7 @@ class XcbWindowFactory : public decode::WindowFactory
                                                           uint32_t                     queue_family_index) override;
 
   private:
-    XcbApplication* xcb_application_;
+    XcbContext* xcb_context_;
 };
 
 GFXRECON_END_NAMESPACE(application)

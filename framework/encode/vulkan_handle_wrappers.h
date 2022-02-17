@@ -25,6 +25,7 @@
 
 #include "encode/descriptor_update_template_info.h"
 #include "encode/vulkan_state_info.h"
+#include "encode/handle_unwrap_memory.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
@@ -174,7 +175,10 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    DeviceWrapper*   bind_device{ nullptr };
+    DeviceWrapper*     bind_device{ nullptr };
+    const void*        bind_pnext{ nullptr };
+    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
+                                          // HandleUnwrapMemory.
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
@@ -187,7 +191,10 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
-    DeviceWrapper*        bind_device{ nullptr };
+    DeviceWrapper*     bind_device{ nullptr };
+    const void*        bind_pnext{ nullptr };
+    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
+                                          // HandleUnwrapMemory.
     format::HandleId      bind_memory_id{ format::kNullHandleId };
     VkDeviceSize          bind_offset{ 0 };
     uint32_t              queue_family_index{ 0 };
@@ -199,6 +206,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkSampleCountFlagBits samples{};
     VkImageTiling         tiling{};
     VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    bool                  is_swapchain_image{ false };
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
@@ -289,6 +297,9 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
 };
 
+struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
+{};
+
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
@@ -352,15 +363,44 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
     uint32_t queue_family_index{ 0 };
 };
 
+// For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+struct SurfaceCapabilities
+{
+    VkSurfaceCapabilitiesKHR capabilities{};
+    const void*              surface_info_pnext{ nullptr };
+    HandleUnwrapMemory       surface_info_pnext_memory;
+    const void*              capabilities_pnext{ nullptr };
+    HandleUnwrapMemory       capabilities_pnext_memory;
+};
+
+// For vkGetPhysicalDeviceSurfacePresentModesKHR
+struct SurfacePresentModes
+{
+    std::vector<VkPresentModeKHR> present_modes;
+    const void*                   surface_info_pnext{ nullptr };
+    HandleUnwrapMemory            surface_info_pnext_memory;
+};
+
+// For vkGetDeviceGroupSurfacePresentModesKHR
+struct GroupSurfacePresentModes
+{
+    VkDeviceGroupPresentModeFlagsKHR present_modes{ 0 };
+    const void*                      surface_info_pnext{ nullptr };
+    HandleUnwrapMemory               surface_info_pnext_memory;
+};
+
 struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
 {
     // Track results from calls to vkGetPhysicalDeviceSurfaceSupportKHR to write to the state snapshot after surface
     // creation. The call is only written to the state snapshot if it was previously called by the application.
     // Keys are the VkPhysicalDevice handle ID.
     std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>> surface_support;
-    std::unordered_map<format::HandleId, VkSurfaceCapabilitiesKHR>               surface_capabilities;
+    std::unordered_map<format::HandleId, SurfaceCapabilities>                    surface_capabilities;
     std::unordered_map<format::HandleId, std::vector<VkSurfaceFormatKHR>>        surface_formats;
-    std::unordered_map<format::HandleId, std::vector<VkPresentModeKHR>>          surface_present_modes;
+    std::unordered_map<format::HandleId, SurfacePresentModes>                    surface_present_modes;
+
+    // Keys are the VkDevice handle ID.
+    std::unordered_map<format::HandleId, GroupSurfacePresentModes> group_surface_present_modes;
 };
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
@@ -378,6 +418,8 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     uint32_t                       array_layers{ 0 };
     uint32_t                       last_presented_image{ std::numeric_limits<uint32_t>::max() };
     std::vector<ImageAcquiredInfo> image_acquired_info;
+    bool                           acquire_full_screen_exclusive_mode{ false };
+    bool                           release_full_screen_exclusive_mode{ false };
 };
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>

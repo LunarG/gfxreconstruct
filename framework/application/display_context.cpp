@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2021 Broadcom, Inc.
+** Copyright (c) 2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,31 +21,20 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_WIN32_APPLICATION_H
-#define GFXRECON_APPLICATION_WIN32_APPLICATION_H
-
+#include "application/display_context.h"
 #include "application/application.h"
-#include "util/defines.h"
-#include "util/platform.h"
+#include "application/display_window.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class Win32Application : public Application
+DisplayContext::DisplayContext(Application* application) : WsiContext(application), window_(nullptr)
 {
-  public:
-    Win32Application(const std::string& name, bool dpi_aware = true);
+    window_         = std::make_unique<DisplayWindow>(this);
+    window_factory_ = std::make_unique<DisplayWindowFactory>(this);
+}
 
-    virtual ~Win32Application() override {}
-
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
-
-    virtual void ProcessEvents(bool wait_for_input) override;
-
-    static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
-};
+DisplayContext::~DisplayContext() {}
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_APPLICATION_WIN32_APPLICATION_H

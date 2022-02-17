@@ -38,26 +38,27 @@ FileOptimizer::FileOptimizer(std::unordered_set<format::HandleId>&& unreferenced
     unreferenced_ids_(std::move(unreferenced_ids))
 {}
 
-bool FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
+bool FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
-    if (meta_type == format::MetaDataType::kInitBufferCommand)
+    format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
+    if (meta_data_type == format::MetaDataType::kInitBufferCommand)
     {
-        return FilterInitBufferMetaData(block_header, meta_type);
+        return FilterInitBufferMetaData(block_header, meta_data_id);
     }
-    else if (meta_type == format::MetaDataType::kInitImageCommand)
+    else if (meta_data_type == format::MetaDataType::kInitImageCommand)
     {
-        return FilterInitImageMetaData(block_header, meta_type);
+        return FilterInitImageMetaData(block_header, meta_data_id);
     }
     else
     {
         // Copy the meta data block, if it was not filtered.
-        return FileTransformer::ProcessMetaData(block_header, meta_type);
+        return FileTransformer::ProcessMetaData(block_header, meta_data_id);
     }
 }
 
-bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
+bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
-    assert(meta_type == format::MetaDataType::kInitBufferCommand);
+    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitBufferCommand);
 
     format::InitBufferCommandHeader header;
 
@@ -84,7 +85,7 @@ bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_he
         {
             // Copy the block from the input file to the output file.
             header.meta_header.block_header   = block_header;
-            header.meta_header.meta_data_type = meta_type;
+            header.meta_header.meta_data_id   = meta_data_id;
 
             if (!WriteBytes(&header, sizeof(header)))
             {
@@ -109,9 +110,9 @@ bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_he
     return true;
 }
 
-bool FileOptimizer::FilterInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
+bool FileOptimizer::FilterInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
-    assert(meta_type == format::MetaDataType::kInitImageCommand);
+    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitImageCommand);
 
     format::InitImageCommandHeader header;
     std::vector<uint64_t>          level_sizes;
@@ -142,7 +143,7 @@ bool FileOptimizer::FilterInitImageMetaData(const format::BlockHeader& block_hea
         {
             // Copy the block from the input file to the output file.
             header.meta_header.block_header   = block_header;
-            header.meta_header.meta_data_type = meta_type;
+            header.meta_header.meta_data_id   = meta_data_id;
 
             if (!WriteBytes(&header, sizeof(header)))
             {

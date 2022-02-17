@@ -113,7 +113,7 @@ class FileProcessor
 
     bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
 
-    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
+    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
     bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 

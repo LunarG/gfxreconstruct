@@ -26,6 +26,7 @@
 #include "format/format.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
+#include "encode/handle_unwrap_memory.h"
 
 #include "vulkan/vulkan.h"
 
@@ -65,6 +66,8 @@ struct DescriptorBindingInfo
 struct DescriptorInfo
 {
     VkDescriptorType                              type;
+    const void*                                   write_pnext{ nullptr };
+    HandleUnwrapMemory                            write_pnext_memory;
     uint32_t                                      count{ 0 };
     bool                                          immutable_samplers{ 0 };
     std::unique_ptr<bool[]>                       written;

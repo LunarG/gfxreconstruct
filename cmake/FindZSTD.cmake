@@ -40,6 +40,9 @@ unset(_ZSTD_x86)
 list(APPEND _ZSTD_SEARCH_PATH _ZSTD_SEARCH_NORMAL)
 
 set(ZSTD_NAMES zstd zstd_static libzstd libzstd_static)
+if(BUILD_STATIC)
+    set(ZSTD_NAMES libzstd.a ${ZSTD_NAMES})
+endif()
 set(ZSTD_NAMES_DEBUG zstdd zstd_staticd libzstdd libzstd_staticd)
 
 foreach(search ${_ZSTD_SEARCH_PATH})

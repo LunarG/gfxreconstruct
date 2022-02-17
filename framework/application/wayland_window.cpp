@@ -34,11 +34,11 @@ GFXRECON_BEGIN_NAMESPACE(application)
 struct wl_surface_listener       WaylandWindow::surface_listener_;
 struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
 
-WaylandWindow::WaylandWindow(WaylandApplication* application) :
-    wayland_application_(application), surface_(nullptr), shell_surface_(nullptr), width_(0), height_(0), scale_(1),
+WaylandWindow::WaylandWindow(WaylandContext* wayland_context) :
+    wayland_context_(wayland_context), surface_(nullptr), shell_surface_(nullptr), width_(0), height_(0), scale_(1),
     output_(nullptr)
 {
-    assert(application != nullptr);
+    assert(wayland_context_ != nullptr);
 
     // Populate callback structs
     surface_listener_.enter = HandleSurfaceEnter;
@@ -51,7 +51,7 @@ WaylandWindow::WaylandWindow(WaylandApplication* application) :
 
 WaylandWindow::~WaylandWindow()
 {
-    auto& wl = wayland_application_->GetWaylandFunctionTable();
+    auto& wl = wayland_context_->GetWaylandFunctionTable();
     if (surface_)
     {
         if (shell_surface_)
@@ -69,8 +69,8 @@ bool WaylandWindow::Create(
     GFXRECON_UNREFERENCED_PARAMETER(x);
     GFXRECON_UNREFERENCED_PARAMETER(y);
 
-    auto& wl = wayland_application_->GetWaylandFunctionTable();
-    surface_ = wl.compositor_create_surface(wayland_application_->GetCompositor());
+    auto& wl = wayland_context_->GetWaylandFunctionTable();
+    surface_ = wl.compositor_create_surface(wayland_context_->GetCompositor());
 
     if (surface_ == nullptr)
     {
@@ -78,14 +78,14 @@ bool WaylandWindow::Create(
         return false;
     }
 
-    shell_surface_ = wl.shell_get_shell_surface(wayland_application_->GetShell(), surface_);
+    shell_surface_ = wl.shell_get_shell_surface(wayland_context_->GetShell(), surface_);
     if (!shell_surface_)
     {
         GFXRECON_LOG_ERROR("Failed to create Wayland shell surface");
         return false;
     }
 
-    wayland_application_->RegisterWaylandWindow(this);
+    wayland_context_->RegisterWaylandWindow(this);
 
     wl.surface_add_listener(surface_, &WaylandWindow::surface_listener_, this);
     wl.shell_surface_add_listener(shell_surface_, &WaylandWindow::shell_surface_listener_, this);
@@ -102,7 +102,7 @@ bool WaylandWindow::Destroy()
 {
     if (surface_)
     {
-        auto& wl = wayland_application_->GetWaylandFunctionTable();
+        auto& wl = wayland_context_->GetWaylandFunctionTable();
         if (shell_surface_)
         {
             wl.shell_surface_destroy(shell_surface_);
@@ -110,7 +110,7 @@ bool WaylandWindow::Destroy()
         }
 
         wl.surface_destroy(surface_);
-        wayland_application_->UnregisterWaylandWindow(this);
+        wayland_context_->UnregisterWaylandWindow(this);
         surface_ = nullptr;
         return true;
     }
@@ -120,7 +120,7 @@ bool WaylandWindow::Destroy()
 
 void WaylandWindow::SetTitle(const std::string& title)
 {
-    auto& wl = wayland_application_->GetWaylandFunctionTable();
+    auto& wl = wayland_context_->GetWaylandFunctionTable();
     wl.shell_surface_set_title(shell_surface_, title.c_str());
 }
 
@@ -160,7 +160,7 @@ bool WaylandWindow::GetNativeHandle(HandleType type, void** handle)
     switch (type)
     {
         case Window::kWaylandDisplay:
-            *handle = reinterpret_cast<void*>(wayland_application_->GetDisplay());
+            *handle = reinterpret_cast<void*>(wayland_context_->GetDisplay());
             return true;
         case Window::kWaylandSurface:
             *handle = reinterpret_cast<void*>(surface_);
@@ -170,6 +170,11 @@ bool WaylandWindow::GetNativeHandle(HandleType type, void** handle)
     }
 }
 
+std::string WaylandWindow::GetWsiExtension() const
+{
+    return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
+}
+
 VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
                                       VkInstance                   instance,
                                       VkFlags                      flags,
@@ -177,11 +182,9 @@ VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
 {
     if (table != nullptr)
     {
-        VkWaylandSurfaceCreateInfoKHR create_info{ VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
-                                                   nullptr,
-                                                   flags,
-                                                   wayland_application_->GetDisplay(),
-                                                   surface_ };
+        VkWaylandSurfaceCreateInfoKHR create_info{
+            VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR, nullptr, flags, wayland_context_->GetDisplay(), surface_
+        };
 
         return table->CreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
     }
@@ -199,10 +202,10 @@ void WaylandWindow::DestroySurface(const encode::InstanceTable* table, VkInstanc
 
 void WaylandWindow::UpdateWindowSize()
 {
-    auto& wl = wayland_application_->GetWaylandFunctionTable();
+    auto& wl = wayland_context_->GetWaylandFunctionTable();
     if (output_)
     {
-        auto& output_info = wayland_application_->GetOutputInfo(output_);
+        auto& output_info = wayland_context_->GetOutputInfo(output_);
 
         if (output_info.scale > 0 && output_info.scale != scale_)
         {
@@ -237,7 +240,7 @@ void WaylandWindow::HandleSurfaceLeave(void* data, struct wl_surface* surface, s
 
 void WaylandWindow::HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial)
 {
-    auto& wl = reinterpret_cast<WaylandWindow*>(data)->wayland_application_->GetWaylandFunctionTable();
+    auto& wl = reinterpret_cast<WaylandWindow*>(data)->wayland_context_->GetWaylandFunctionTable();
     wl.shell_surface_pong(shell_surface, serial);
 }
 
@@ -247,16 +250,19 @@ void WaylandWindow::HandleConfigure(
 
 void WaylandWindow::HandlePopupDone(void* data, wl_shell_surface* shell_surface) {}
 
-WaylandWindowFactory::WaylandWindowFactory(WaylandApplication* application) : wayland_application_(application)
+WaylandWindowFactory::WaylandWindowFactory(WaylandContext* wayland_context) : wayland_context_(wayland_context)
 {
-    assert(application != nullptr);
+    assert(wayland_context_ != nullptr);
 }
 
 decode::Window*
 WaylandWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    auto window = new WaylandWindow(wayland_application_);
-    window->Create(wayland_application_->GetName(), x, y, width, height);
+    assert(wayland_context_);
+    decode::Window* window      = new WaylandWindow(wayland_context_);
+    auto            application = wayland_context_->GetApplication();
+    assert(application);
+    window->Create(application->GetName(), x, y, width, height);
     return window;
 }
 
@@ -273,9 +279,9 @@ VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(const encode
                                                                     VkPhysicalDevice             physical_device,
                                                                     uint32_t                     queue_family_index)
 {
-    assert(wayland_application_->GetDisplay() != nullptr);
+    assert(wayland_context_->GetDisplay() != nullptr);
     return table->GetPhysicalDeviceWaylandPresentationSupportKHR(
-        physical_device, queue_family_index, wayland_application_->GetDisplay());
+        physical_device, queue_family_index, wayland_context_->GetDisplay());
 }
 
 GFXRECON_END_NAMESPACE(application)

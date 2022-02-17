@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,52 +21,45 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_ANDROID_APPLICATION_H
-#define GFXRECON_APPLICATION_ANDROID_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_XLIB_CONTEXT_H
+#define GFXRECON_APPLICATION_XLIB_CONTEXT_H
 
-#include "application/application.h"
+#include "application/wsi_context.h"
 #include "util/defines.h"
-#include "util/platform.h"
-
-#include <android_native_app_glue.h>
-
-#include <memory>
+#include "util/xlib_loader.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class AndroidWindow;
+class Application;
+class XlibWindow;
 
-class AndroidApplication : public Application
+class XlibContext : public WsiContext
 {
   public:
-    enum ScreenOrientation : int32_t
-    {
-        kLandscape = 0,
-        kPortrait  = 1
-    };
+    XlibContext(Application* application);
 
-  public:
-    AndroidApplication(const std::string& name, struct android_app* app);
+    virtual ~XlibContext() override;
 
-    virtual ~AndroidApplication() override {}
+    const util::XlibLoader::FunctionTable& GetXlibFunctionTable() const { return xlib_loader_.GetFunctionTable(); }
 
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
+    Display* OpenDisplay();
+
+    void CloseDisplay(Display* display);
+
+    bool RegisterXlibWindow(XlibWindow* window);
+
+    bool UnregisterXlibWindow(XlibWindow* window);
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
-    AndroidWindow* GetWindow() const { return window_.get(); }
-
-    void InitWindow();
-
-    void SetOrientation(ScreenOrientation orientation);
-
   private:
-    std::unique_ptr<AndroidWindow> window_;
-    struct android_app*            android_app_;
+    Display*         display_{};
+    size_t           display_open_count_{};
+    util::XlibLoader xlib_loader_{};
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_ANDROID_APPLICATION_H
+#endif // GFXRECON_APPLICATION_XLIB_CONTEXT_H
