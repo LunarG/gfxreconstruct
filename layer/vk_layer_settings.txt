@@ -1,153 +1,190 @@
-###############################################################################
-# VK_LAYER_LUNARG_gfxreconstruct Layer Settings
+# The settings in this file can be used to configure the behavior of
+# layers in this repository.
 #
-# A settings file may be provided to the GFXReconstruct capture layer by
-# setting the following Desktop environment variable or Android system
-# property:
-#     Desktop environment variable:  VK_LAYER_SETTINGS_PATH
-#     Android system property:  debug.gfxrecon.settings_path
-#
-# The environment variable/system property may be set as either the path to
-# the folder containing a file named vk_layer_settings.txt or the full path to
-# a file with a custom name.  When set to a folder, the capture layer will try
-# to open a file in that folder named vk_layer_settings.txt.  When set to a
-# file, the capture layer will try to open a file with the specified name.
-#
-# This settings file may be combined with settings files for other layers.  The
-# capture layer will ignore entries that do not start with the
-# 'lunarg_gfxreconstruct.' prefix.
-###############################################################################
+# Note that this file is not regulary updated, so not all possible layer
+# settings may be listed, and some layer settings may even be obsolete.
 
-# Capture File Name | STRING | Path to use when creating the capture file.
-#     Default is: gfxrecon_capture.gfxr
-#lunarg_gfxreconstruct.capture_file = "gfxrecon_capture.gfxr"
+# VK_LAYER_LUNARG_gfxreconstruct
 
-# Capture Specific Frames | STRING | Specify one or more comma-separated frame
-# ranges to capture. Each range will be written to its own file. A frame range
-# can be specified as a single value, to specify a single frame to capture, or
-# as two hyphenated values, to specify the first and last frame to capture.
-# Frame ranges should be specified in ascending order and cannot overlap. Note
-# that frame numbering is 1-based (i.e. the first frame is frame 1).
-#     Example: 200,301-305 will create two capture files, one containing a
-#              single frame and one containing five frames.
-#     Default is: Empty string (all frames are captured).
-#lunarg_gfxreconstruct.capture_frames = ""
+# Hotkey Capture Trigger
+# =====================
+# <LayerIdentifier>.capture_trigger
+# Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to
+# start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One
+# capture file will be generated for each pair of start/stop hotkey presses.
+# Default is: Empty string (hotkey capture trigger is disabled).
+lunarg_gfxreconstruct.capture_trigger = 
 
-# Hotkey Capture Trigger | STRING | Specify a hotkey (any one of F1-F12, TAB,
-# CONTROL) that will be used to start/stop capture. Example: F3 will set the
-# capture trigger to F3 hotkey. One capture file will be generated for each
-# pair of start/stop hotkey presses.
-#     Note: Only available on Desktop.
-#     Default is: Empty string (hotkey capture trigger is disabled).
-#lunarg_gfxreconstruct.capture_trigger = ""
+# Capture Specific Frames
+# =====================
+# <LayerIdentifier>.capture_frames
+# Specify one or more comma-separated frame ranges to capture. Each range will
+# be written to its own file. A frame range can be specified as a single value,
+# to specify a single frame to capture, or as two hyphenated values, to specify
+# the first and last frame to capture. Frame ranges should be specified in
+# ascending order and cannot overlap. Note that frame numbering is 1-based (i.e.
+# the first frame is frame 1). Example: 200,301-305 will create two capture
+# files, one containing a single frame and one containing five frames. Default
+# is: Empty string (all frames are captured).
+lunarg_gfxreconstruct.capture_frames = 
 
-# Capture File Compression Type | STRING | Compression format to use with the
-# capture file.
-#     Valid values are: LZ4, ZLIB, ZSTD, and NONE.
-#     Default is: LZ4
-#lunarg_gfxreconstruct.capture_compression_type = "LZ4"
+# Capture File Name
+# =====================
+# <LayerIdentifier>.capture_file
+# Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr
+lunarg_gfxreconstruct.capture_file = 
 
-# Capture File Timestamp | BOOL | Add a timestamp to the capture file name.
-#     Default is: true
-#lunarg_gfxreconstruct.capture_file_timestamp = true
+# Capture File Name with Timestamp
+# =====================
+# <LayerIdentifier>.capture_file_timestamp
+# Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.
+lunarg_gfxreconstruct.capture_file_timestamp = true
 
-# Capture File Flush After Write | BOOL | Flush output stream after each packet
-# is written to the capture file.
-#     Default is: false
-#lunarg_gfxreconstruct.capture_file_flush = false
+# Capture File Flush After Write
+# =====================
+# <LayerIdentifier>.capture_file_flush
+# Flush output stream after each packet is written to the capture file. Default
+# is: false.
+lunarg_gfxreconstruct.capture_file_flush = false
 
-# Log Level | STRING | Specify the highest level message to log. The specified
-# level and all levels listed after it will be enabled for logging. For
-# example, choosing the warning level will also enable the error and fatal
-# levels.
-#     Options are: debug, info, warning, error, and fatal.
-#     Default is: info
-#lunarg_gfxreconstruct.log_level = "info"
+# Compression Format
+# =====================
+# <LayerIdentifier>.capture_compression_type
+# Compression format to use with the capture file. Valid values are: LZ4, ZLIB,
+# ZSTD, and NONE. Default is: LZ4
+lunarg_gfxreconstruct.capture_compression_type = LZ4
 
-# Log Output to Console | BOOL | Log messages will be written to stdout.
-#     Default is: true
-#lunarg_gfxreconstruct.log_output_to_console = true
+# Memory Tracking Mode
+# =====================
+# <LayerIdentifier>.memory_tracking_mode
+# Specifies the memory tracking mode to use for detecting modifications to
+# mapped Vulkan memory objects. Available options are: page_guard, assisted, and
+# unassisted.
+lunarg_gfxreconstruct.memory_tracking_mode = page_guard
 
-# Log File | STRING | When set, log messages will be written to a file at the
-# specified path.
-#     Default is: Empty string (file logging disabled).
-#lunarg_gfxreconstruct.log_file = ""
+# Page Guard Copy on Map
+# =====================
+# <LayerIdentifier>.page_guard_copy_on_map
+# When the page_guard memory tracking mode is enabled, copies the content of the
+# mapped memory to the shadow memory immediately after the memory is mapped.
+lunarg_gfxreconstruct.page_guard_copy_on_map = true
 
-# Log Detailed | BOOL | Include name and line number from the file responsible
-# for the log message.
-#     Default is: false
-#lunarg_gfxreconstruct.log_detailed = false
+# Page Guard Separate Read Tracking
+# =====================
+# <LayerIdentifier>.page_guard_separate_read
+# When the page_guard memory tracking mode is enabled, copies the content of
+# pages accessed for read from mapped memory to shadow memory on each read. Can
+# overwrite unprocessed shadow memory content when an application is reading
+# from and writing to the same page.
+lunarg_gfxreconstruct.page_guard_separate_read = true
 
-# Log Allow Indents | BOOL | Apply additional indentation formatting to log
-# messages.
-#     Default is: false
-#lunarg_gfxreconstruct.log_allow_indents = false
+# Page Guard External Memory
+# =====================
+# <LayerIdentifier>.page_guard_external_memory
+# When the page_guard memory tracking mode is enabled, use the
+# VK_EXT_external_memory_host extension to eliminate the need for shadow memory
+# allocations. For each memory allocation from a host visible memory type, the
+# capture layer will create an allocation from system memory, which it can
+# monitor for write access, and provide that allocation to vkAllocateMemory as
+# external memory. Only available on Windows.
+lunarg_gfxreconstruct.page_guard_external_memory = false
 
-# Log Break on Error | BOOL | Trigger a debug break when logging an error.
-#     Default is: false
-#lunarg_gfxreconstruct.log_break_on_error = false
+# Page Guard Persisent Memory
+# =====================
+# <LayerIdentifier>.page_guard_persistent_memory
+# When the page_guard memory tracking mode is enabled, this option changes the
+# way that the shadow memory used to detect modifications to mapped memory is
+# allocated. The default behavior is to allocate and copy the mapped memory
+# range on map and free the allocation on unmap. When this option is enabled, an
+# allocation with a size equal to that of the object being mapped is made once
+# on the first map and is not freed until the object is destroyed. This option
+# is intended to be used with applications that frequently map and unmap large
+# memory ranges, to avoid frequent allocation and copy operations that can have
+# a negative impact on performance. This option is ignored when
+# GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY is enabled.
+lunarg_gfxreconstruct.page_guard_persistent_memory = false
 
-# Log File Create New | BOOL | Specifies that log file initialization should
-# overwrite an existing file when true, or append to an existing file when
-# false.
-#     Default is: true
-#lunarg_gfxreconstruct.log_file_create_new = true
+# Page Guard Align Buffer Sizes
+# =====================
+# <LayerIdentifier>.page_guard_align_buffer_sizes
+# When the page_guard memory tracking mode is enabled, this option overrides the
+# Vulkan API calls that report buffer memory properties to report that buffer
+# sizes and alignments must be a multiple of the system page size. This option
+# is intended to be used with applications that perform CPU writes and GPU
+# writes/copies to different buffers that are bound to the same page of mapped
+# memory, which may result in data being lost when copying pages from the
+# page_guard shadow allocation to the real allocation. This data loss can result
+# in visible corruption during capture. Forcing buffer sizes and alignments to a
+# multiple of the system page size prevents multiple buffers from being bound to
+# the same page, avoiding data loss from simultaneous CPU writes to the shadow
+# allocation and GPU writes to the real allocation for different buffers bound
+# to the same page. This option is only available for the Vulkan API.
+lunarg_gfxreconstruct.page_guard_align_buffer_sizes = false
 
-# Log File Flush After Write | BOOL | Flush the log file to disk after each
-# write when true.
-#     Default is: false
-#lunarg_gfxreconstruct.log_file_flush_after_write = false
+# Level
+# =====================
+# <LayerIdentifier>.log_level
+# Specify the minimum severity level of messages to log. Options are: debug,
+# info, warning, error, and fatal. The specified level and all higher levels
+# will be enabled for logging. For example, choosing the warning level will also
+# enable the error and fatal levels.
+lunarg_gfxreconstruct.log_level = info
 
-# Log File Keep Open | BOOL | Keep the log file open between log messages when
-# true, or close and reopen the log file for each message when false.
-#     Default is: true
-#lunarg_gfxreconstruct.log_file_keep_open = true
+# Log Name and Line Number
+# =====================
+# <LayerIdentifier>.log_detailed
+# Include name and line number from the file responsible.
+lunarg_gfxreconstruct.log_detailed = false
 
-# Log Output to Debug Console | BOOL | Windows only option. Log messages will
-# be written to the Debug Console with OutputDebugStringA.
-#     Note: Only available on Windows.
-#     Default is: false
-#lunarg_gfxreconstruct.log_output_to_os_debug_string = false
+# Log Name and Line Number
+# =====================
+# <LayerIdentifier>.log_allow_indents
+# Apply additional indentation formatting to log messages.
+lunarg_gfxreconstruct.log_allow_indents = false
 
-# Memory Tracking Mode | STRING | Specifies the memory tracking mode to use for
-# detecting modifications to mapped Vulkan memory objects.
-#     Available options are: page_guard, assisted, and unassisted.
-#         * page_guard: tracks modifications to individual memory pages, which
-#           are written to the capture file on calls to
-#           vkFlushMappedMemoryRanges, vkUnmapMemory, and vkQueueSubmit.
-#           Tracking modifications requires allocating shadow memory for all
-#           mapped memory.
-#         * assisted: expects the application to call vkFlushMappedMemoryRanges
-#           after memory is modified; the memory ranges specified to the
-#           vkFlushMappedMemoryRanges call will be written to the capture file
-#           during the call.
-#         * unassisted: writes the full content of mapped memory to the capture
-#           file on calls to vkUnmapMemory and vkQueueSubmit. It is very
-#           inefficient and may be unusable with real-world applications that
-#           map large amounts of memory.
-#     Default is page_guard
-#lunarg_gfxreconstruct.memory_tracking_mode = "page_guard"
+# Log Output to Console / stdout
+# =====================
+# <LayerIdentifier>.log_output_to_console
+# Log messages will be written to stdout.
+lunarg_gfxreconstruct.log_output_to_console = true
 
-# Page Guard Copy on Map | BOOL | When the page_guard memory tracking mode is
-# enabled, copies the content of the mapped memory to the shadow memory
-# immediately after the memory is mapped.
-#     Default is: true
-#lunarg_gfxreconstruct.page_guard_copy_on_map = true
+# Trigger Debug Break on Error
+# =====================
+# <LayerIdentifier>.log_break_on_error
+# Trigger a debug break when logging an error.
+lunarg_gfxreconstruct.log_break_on_error = false
 
-# Page Guard Separate Read Tracking | BOOL | When the page_guard memory
-# tracking mode is enabled, copies the content of pages accessed for read from
-# mapped memory to shadow memory on each read. Can overwrite unprocessed shadow
-# memory content when an application is reading from and writing to the same
-# page.
-#     Default is: true
-#lunarg_gfxreconstruct.page_guard_separate_read = true
+# Log Output to Debug Console
+# =====================
+# <LayerIdentifier>.log_output_to_os_debug_string
+# Windows only option. Log messages will be written to the Debug Console with
+# OutputDebugStringA
+lunarg_gfxreconstruct.log_output_to_os_debug_string = false
 
-# Page Guard External Memory | BOOL | When the page_guard memory tracking mode
-# is enabled, use the VK_EXT_external_memory_host extension to eliminate the
-# need for shadow memory allocations. For each memory allocation from a host
-# visible memory type, the capture layer will create an allocation from system
-# memory, which it can monitor for write access, and provide that allocation to
-# vkAllocateMemory as external memory.
-#     Note: Only available on Windows.
-#     Default is false
-#lunarg_gfxreconstruct.page_guard_external_memory = false
+# Log File
+# =====================
+# <LayerIdentifier>.log_file
+# When set, log messages will be written to a file at the specified path.
+# Default is: Empty string (file logging disabled).
+lunarg_gfxreconstruct.log_file = 
+
+# Log File Flush After Write
+# =====================
+# <LayerIdentifier>.log_file_flush_after_write
+# Flush the log file to disk after each write when true.
+lunarg_gfxreconstruct.log_file_flush_after_write = false
+
+# Log File Keep Open
+# =====================
+# <LayerIdentifier>.log_file_keep_open
+# Keep the log file open between log messages when true, or close and reopen the
+# log file for each message when false.
+lunarg_gfxreconstruct.log_file_keep_open = true
+
+# Log File Overwrite
+# =====================
+# <LayerIdentifier>.log_file_create_new
+# Specifies that log file initialization should overwrite an existing file when
+# true, or append to an existing file when false.
+lunarg_gfxreconstruct.log_file_create_new = true
+
