@@ -101,7 +101,7 @@ void FpsInfo::EndFrame(uint64_t file_processor_frame)
     uint64_t frame = file_processor_frame + 1;
     if (started_measurement_ && !ended_measurement_)
     {
-        if (file_processor_frame > measurement_end_frame_)
+        if (frame > measurement_end_frame_)
         {
             measurement_end_time_ = util::datetime::GetTimestamp();
             ended_measurement_    = true;
