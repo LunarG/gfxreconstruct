@@ -33,10 +33,7 @@ Vulkan API calls on Desktop systems.
     4. [Trimmed File Optimizer](#trimmed-file-optimizer)
     5. [To ASCII](#to-ascii)
     6. [Command Launcher](#command-launcher)
-4. [Layer Details](#layer-details)
-    1. [Layer Properties](#layer-properties)
-    2. [Layer Settings Overview](#layer-settings-overview)
-    3. [Layer Settings Details](#layer-settings-details)
+4. [Layer Options](#layer-options)
 
 ## Capturing API calls
 
@@ -124,7 +121,26 @@ export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct
 
 The GFXReconstruct layer supports several options, which may be enabled
 through environment variables or a layer settings file. The layer options are
-described in the [Layer Details](#layer-details) section below
+described in the Layer Options section of
+the [capture tools documentation](https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html#user-content-layer-options).
+
+#### Windows Options
+
+The following example demonstrates how to set the layer's log level to
+"warning" from the Windows command prompt:
+
+```bat
+set GFXRECON_LOG_LEVEL=warning
+```
+
+#### Linux Options
+
+The following example demonstrates how to set the layer's log level to
+"warning" from the Linux command line:
+
+```bash
+export GFXRECON_LOG_LEVEL=warning
+```
 
 #### Settings File
 
@@ -178,8 +194,9 @@ If the layer fails to open the capture file, it will make the call to
 #### Specifying Capture File Location
 
 The capture file's save location can be specified by setting the
-`GFXRECON_CAPTURE_FILE` environment variable, described below in
-the [Layer Details](#layer-details) section.
+`GFXRECON_CAPTURE_FILE` environment variable,
+as described in the Layer Options section of
+the [capture tools documentation](https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html#user-content-layer-options).
 
 #### Timestamps
 
@@ -550,4 +567,4 @@ the Python3 interpreter before you run the script.
 
 ## Layer Options
 
-The options for the gfxreconstruct layer are specified in VkLayer_gfxreconstruct.json. The option details are in [capture_tools.html](https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html#user-content-layer-details).
+The layers options for the gfxreconstruct layer are documented in the Layer Options section of the [capture tools documentation](https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html#user-content-layer-options).

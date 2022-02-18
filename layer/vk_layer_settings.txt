@@ -32,7 +32,7 @@ lunarg_gfxreconstruct.capture_frames =
 # =====================
 # <LayerIdentifier>.capture_file
 # Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr
-lunarg_gfxreconstruct.capture_file = 
+lunarg_gfxreconstruct.capture_file = gfxrecon_capture.gfxr
 
 # Capture File Name with Timestamp
 # =====================
