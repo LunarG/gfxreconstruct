@@ -6012,9 +6012,9 @@ template <> std::string ToString<VkVideoDecodeH264SessionParametersAddInfoEXT>(c
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "spsStdCount", toStringFlags, tabCount, tabSize, ToString(obj.spsStdCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pSpsStd", toStringFlags, tabCount, tabSize, ArrayToString(obj.spsStdCount, obj.pSpsStd, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pSpsStd", toStringFlags, tabCount, tabSize, "null");
             FieldToString(strStrm, false, "ppsStdCount", toStringFlags, tabCount, tabSize, ToString(obj.ppsStdCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pPpsStd", toStringFlags, tabCount, tabSize, ArrayToString(obj.ppsStdCount, obj.pPpsStd, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pPpsStd", toStringFlags, tabCount, tabSize, "null");
         }
     );
 }
@@ -6040,7 +6040,7 @@ template <> std::string ToString<VkVideoDecodeH264PictureInfoEXT>(const VkVideoD
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pStdPictureInfo", toStringFlags, tabCount, tabSize, (obj.pStdPictureInfo ? ToString(*obj.pStdPictureInfo, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdPictureInfo", toStringFlags, tabCount, tabSize, "null");
             FieldToString(strStrm, false, "slicesCount", toStringFlags, tabCount, tabSize, ToString(obj.slicesCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSlicesDataOffsets", toStringFlags, tabCount, tabSize, ArrayToString(obj.slicesCount, obj.pSlicesDataOffsets, toStringFlags, tabCount, tabSize));
         }
@@ -6054,7 +6054,7 @@ template <> std::string ToString<VkVideoDecodeH264MvcEXT>(const VkVideoDecodeH26
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pStdMvc", toStringFlags, tabCount, tabSize, (obj.pStdMvc ? ToString(*obj.pStdMvc, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdMvc", toStringFlags, tabCount, tabSize, "null");
         }
     );
 }
@@ -6066,7 +6066,7 @@ template <> std::string ToString<VkVideoDecodeH264DpbSlotInfoEXT>(const VkVideoD
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pStdReferenceInfo", toStringFlags, tabCount, tabSize, (obj.pStdReferenceInfo ? ToString(*obj.pStdReferenceInfo, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdReferenceInfo", toStringFlags, tabCount, tabSize, "null");
         }
     );
 }

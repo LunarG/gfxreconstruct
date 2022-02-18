@@ -3471,13 +3471,13 @@ void VulkanReplayConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     VkVideoSessionKHR in_videoSession = MapHandle<VideoSessionKHRInfo>(videoSession, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
-    uint32_t* out_pVideoSessionMemoryRequirementsCount = pVideoSessionMemoryRequirementsCount->IsNull() ? nullptr : pVideoSessionMemoryRequirementsCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VideoSessionKHRInfo>("vkGetVideoSessionMemoryRequirementsKHR", returnValue, videoSession, kVideoSessionKHRArrayGetVideoSessionMemoryRequirementsKHR, pVideoSessionMemoryRequirementsCount, pVideoSessionMemoryRequirements, &VulkanObjectInfoTable::GetVideoSessionKHRInfo));
+    uint32_t* out_pVideoSessionMemoryRequirementsCount = nullptr;
     VkVideoGetMemoryPropertiesKHR* out_pVideoSessionMemoryRequirements = pVideoSessionMemoryRequirements->IsNull() ? nullptr : pVideoSessionMemoryRequirements->AllocateOutputData(*out_pVideoSessionMemoryRequirementsCount, VkVideoGetMemoryPropertiesKHR{ VK_STRUCTURE_TYPE_VIDEO_GET_MEMORY_PROPERTIES_KHR, nullptr });
 
     VkResult replay_result = GetDeviceTable(in_device)->GetVideoSessionMemoryRequirementsKHR(in_device, in_videoSession, out_pVideoSessionMemoryRequirementsCount, out_pVideoSessionMemoryRequirements);
     CheckResult("vkGetVideoSessionMemoryRequirementsKHR", returnValue, replay_result);
 
-    if (pVideoSessionMemoryRequirements->IsNull()) { SetOutputArrayCount<VideoSessionKHRInfo>(videoSession, kVideoSessionKHRArrayGetVideoSessionMemoryRequirementsKHR, *out_pVideoSessionMemoryRequirementsCount, &VulkanObjectInfoTable::GetVideoSessionKHRInfo); }
+    //if (pVideoSessionMemoryRequirements->IsNull()) { SetOutputArrayCount<VideoSessionKHRInfo>(videoSession, kVideoSessionKHRArrayGetVideoSessionMemoryRequirementsKHR, *out_pVideoSessionMemoryRequirementsCount, &VulkanObjectInfoTable::GetVideoSessionKHRInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkBindVideoSessionMemoryKHR(

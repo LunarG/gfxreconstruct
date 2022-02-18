@@ -51,6 +51,7 @@ class ParameterEncoder
 
     // Values
     void EncodeUInt8Value(uint8_t value)                                                                              { EncodeValue(value); }
+    void EncodeInt8Value(int8_t value)                                                                              { EncodeValue(value); }
     void EncodeUInt16Value(uint16_t value)                                                                            { EncodeValue(value); }
     void EncodeInt32Value(int32_t value)                                                                              { EncodeValue(value); }
     void EncodeUInt32Value(uint32_t value)                                                                            { EncodeValue(value); }

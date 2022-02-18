@@ -590,6 +590,22 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDeviceImageMemoryRequirements                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1270),
     ApiCall_vkGetDeviceImageSparseMemoryRequirements                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1271),
 
+    // Vulkan Video
+    ApiCall_vkGetPhysicalDeviceVideoCapabilitiesKHR                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1272),
+    ApiCall_vkGetPhysicalDeviceVideoFormatPropertiesKHR                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1273),
+    ApiCall_vkCreateVideoSessionKHR                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1274),
+    ApiCall_vkDestroyVideoSessionKHR                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1275),
+    ApiCall_vkGetVideoSessionMemoryRequirementsKHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1276),
+    ApiCall_vkBindVideoSessionMemoryKHR                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1277),
+    ApiCall_vkCreateVideoSessionParametersKHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1278),
+    ApiCall_vkUpdateVideoSessionParametersKHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1279),
+    ApiCall_vkDestroyVideoSessionParametersKHR                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x127a),
+    ApiCall_vkCmdBeginVideoCodingKHR                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x127b),
+    ApiCall_vkCmdEndVideoCodingKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x127c),
+    ApiCall_vkCmdControlVideoCodingKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x127d),
+    ApiCall_vkCmdDecodeVideoKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x127e),
+    ApiCall_vkCmdEncodeVideoKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x127f),
+
     ApiCall_VulkanLast
     // clang-format on
 };

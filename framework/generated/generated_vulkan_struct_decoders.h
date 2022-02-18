@@ -4281,8 +4281,8 @@ struct Decoded_VkVideoDecodeH264SessionParametersAddInfoEXT
     VkVideoDecodeH264SessionParametersAddInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    PointerDecoder<StdVideoH264SequenceParameterSet> pSpsStd;
-    PointerDecoder<StdVideoH264PictureParameterSet> pPpsStd;
+    uint64_t pSpsStd{ 0 };
+    uint64_t pPpsStd{ 0 };
 };
 
 struct Decoded_VkVideoDecodeH264SessionParametersCreateInfoEXT
@@ -4302,7 +4302,7 @@ struct Decoded_VkVideoDecodeH264PictureInfoEXT
     VkVideoDecodeH264PictureInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    PointerDecoder<StdVideoDecodeH264PictureInfo> pStdPictureInfo;
+    uint64_t pStdPictureInfo{ 0 };
     PointerDecoder<uint32_t> pSlicesDataOffsets;
 };
 
@@ -4313,7 +4313,7 @@ struct Decoded_VkVideoDecodeH264MvcEXT
     VkVideoDecodeH264MvcEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    PointerDecoder<StdVideoDecodeH264Mvc> pStdMvc;
+    uint64_t pStdMvc{ 0 };
 };
 
 struct Decoded_VkVideoDecodeH264DpbSlotInfoEXT
@@ -4323,7 +4323,7 @@ struct Decoded_VkVideoDecodeH264DpbSlotInfoEXT
     VkVideoDecodeH264DpbSlotInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    PointerDecoder<StdVideoDecodeH264ReferenceInfo> pStdReferenceInfo;
+    uint64_t pStdReferenceInfo{ 0 };
 };
 
 struct Decoded_VkTextureLODGatherFormatPropertiesAMD

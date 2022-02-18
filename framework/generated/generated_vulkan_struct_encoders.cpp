@@ -4039,7 +4039,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264ProfileEXT& 
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeStdVideoH264ProfileIdcValue(value.stdProfileIdc);
+    encoder->EncodeEnumValue(value.stdProfileIdc);
     encoder->EncodeFlagsValue(value.pictureLayout);
 }
 
@@ -4065,9 +4065,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParam
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.spsStdCount);
-    encoder->EncodeStdVideoH264SequenceParameterSetArray(value.pSpsStd, value.spsStdCount);
+    // StdVideoH264SequenceParameterSet
+    encoder->EncodeVoidPtr(value.pSpsStd);
     encoder->EncodeUInt32Value(value.ppsStdCount);
-    encoder->EncodeStdVideoH264PictureParameterSetArray(value.pPpsStd, value.ppsStdCount);
+    // StdVideoH264PictureParameterSet
+    encoder->EncodeVoidPtr(value.pPpsStd);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264SessionParametersCreateInfoEXT& value)
@@ -4083,7 +4085,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264PictureInfoE
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeStdVideoDecodeH264PictureInfoPtr(value.pStdPictureInfo);
+    // StdVideoDecodeH264PictureInfo
+    encoder->EncodeVoidPtr(value.pStdPictureInfo);
     encoder->EncodeUInt32Value(value.slicesCount);
     encoder->EncodeUInt32Array(value.pSlicesDataOffsets, value.slicesCount);
 }
@@ -4092,14 +4095,16 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264MvcEXT& valu
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeStdVideoDecodeH264MvcPtr(value.pStdMvc);
+    // StdVideoDecodeH264Mvc
+    encoder->EncodeVoidPtr(value.pStdMvc);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeH264DpbSlotInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeStdVideoDecodeH264ReferenceInfoPtr(value.pStdReferenceInfo);
+    // StdVideoDecodeH264ReferenceInfo
+    encoder->EncodeVoidPtr(value.pStdReferenceInfo);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkTextureLODGatherFormatPropertiesAMD& value)
