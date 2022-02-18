@@ -257,7 +257,9 @@ void VulkanDecoderBase::DispatchInitImageCommand(format::ThreadId             th
     }
 }
 
-size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                   const uint8_t*     parameter_buffer,
+                                                                   size_t             buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -276,14 +278,16 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, &pData);
+        consumer->Process_vkUpdateDescriptorSetWithTemplate(
+            call_info, device, descriptorSet, descriptorUpdateTemplate, &pData);
     }
 
     return bytes_read;
 }
 
-size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer,
-                                                                       size_t         buffer_size)
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                                       const uint8_t*     parameter_buffer,
+                                                                       size_t             buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -305,14 +309,15 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uin
     for (auto consumer : consumers_)
     {
         consumer->Process_vkCmdPushDescriptorSetWithTemplateKHR(
-            commandBuffer, descriptorUpdateTemplate, layout, set, &pData);
+            call_info, commandBuffer, descriptorUpdateTemplate, layout, set, &pData);
     }
 
     return bytes_read;
 }
 
-size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer,
-                                                                      size_t         buffer_size)
+size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                                      const uint8_t*     parameter_buffer,
+                                                                      size_t             buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -331,7 +336,8 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkUpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, &pData);
+        consumer->Process_vkUpdateDescriptorSetWithTemplateKHR(
+            call_info, device, descriptorSet, descriptorUpdateTemplate, &pData);
     }
 
     return bytes_read;
@@ -347,13 +353,13 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
     switch (call_id)
     {
         case format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate:
-            Decode_vkUpdateDescriptorSetWithTemplate(parameter_buffer, buffer_size);
+            Decode_vkUpdateDescriptorSetWithTemplate(call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR:
-            Decode_vkCmdPushDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
+            Decode_vkCmdPushDescriptorSetWithTemplateKHR(call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR:
-            Decode_vkUpdateDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
+            Decode_vkUpdateDescriptorSetWithTemplateKHR(call_info, parameter_buffer, buffer_size);
             break;
         default:
             break;

@@ -6085,9 +6085,10 @@ VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*       
     return result;
 }
 
-void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
-                                                                         format::HandleId descriptorSet,
-                                                                         format::HandleId descriptorUpdateTemplate,
+void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                         format::HandleId   device,
+                                                                         format::HandleId   descriptorSet,
+                                                                         format::HandleId   descriptorUpdateTemplate,
                                                                          DescriptorUpdateTemplateDecoder* pData)
 {
     assert(pData != nullptr);
@@ -6109,7 +6110,8 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format:
         in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData->GetPointer());
 }
 
-void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
+void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                                             format::HandleId   commandBuffer,
                                                                              format::HandleId descriptorUpdateTemplate,
                                                                              format::HandleId layout,
                                                                              uint32_t         set,
@@ -6135,9 +6137,10 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(for
             in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, pData->GetPointer());
 }
 
-void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
-                                                                            format::HandleId descriptorSet,
-                                                                            format::HandleId descriptorUpdateTemplate,
+void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                                            format::HandleId   device,
+                                                                            format::HandleId   descriptorSet,
+                                                                            format::HandleId   descriptorUpdateTemplate,
                                                                             DescriptorUpdateTemplateDecoder* pData)
 {
     assert(pData != nullptr);

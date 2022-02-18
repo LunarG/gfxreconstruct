@@ -137,6 +137,7 @@ class FileProcessor
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
+    uint64_t                            call_index_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

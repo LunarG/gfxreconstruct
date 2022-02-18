@@ -131,7 +131,7 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         first = True
         for cmd in self.get_filtered_cmd_names():
             cmddef = '' if first else '\n'
-            cmddef += '    size_t Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size);'.format(
+            cmddef += '    size_t Decode_{}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'.format(
                 cmd
             )
             write(cmddef, file=self.outFile)

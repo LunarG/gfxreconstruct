@@ -42,7 +42,7 @@ class BaseDecoderBodyGenerator():
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += 'size_t {}Decoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(
+            cmddef += 'size_t {}Decoder::Decode_{}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(
                 platform_type, cmd
             )
             cmddef += '{\n'
@@ -137,6 +137,7 @@ class BaseDecoderBodyGenerator():
 
         if arglist[-2:] == ', ':
             arglist = arglist[:-2]
+        arglist = 'call_info, ' + arglist
 
         body += '    for (auto consumer : GetConsumers())\n'
         body += '    {\n'
@@ -247,7 +248,7 @@ class BaseDecoderBodyGenerator():
 
         for cmd in self.cmd_names:
             cmddef = '    case format::ApiCallId::ApiCall_{}:\n'.format(cmd)
-            cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(
+            cmddef += '        Decode_{}(call_info, parameter_buffer, buffer_size);\n'.format(
                 cmd
             )
             cmddef += '        break;'
