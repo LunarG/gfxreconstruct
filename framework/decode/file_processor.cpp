@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr)
+    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), call_info_{}
 {}
 
 FileProcessor::~FileProcessor()
@@ -443,6 +443,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                 {
                     DecodeAllocator::Begin();
                     decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
+                    ++call_info.index;
                     DecodeAllocator::End();
                 }
             }

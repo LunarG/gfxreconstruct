@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 
 #include "format/platform_types.h"
+#include "decode/api_decoder.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/handle_pointer_decoder.h"
@@ -125,20 +126,23 @@ class VulkanConsumerBase
                                          const uint8_t*               data)
     {}
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                           format::HandleId                 device,
                                                            format::HandleId                 descriptorSet,
                                                            format::HandleId                 descriptorUpdateTemplate,
                                                            DescriptorUpdateTemplateDecoder* pData)
     {}
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                               format::HandleId   commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
                                                                uint32_t         set,
                                                                DescriptorUpdateTemplateDecoder* pData)
     {}
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                              format::HandleId                 device,
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData)

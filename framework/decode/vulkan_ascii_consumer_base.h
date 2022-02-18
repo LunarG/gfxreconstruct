@@ -51,18 +51,21 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
     bool IsValid() const { return (file_ != nullptr); }
 
     virtual void
-    Process_vkAllocateCommandBuffers(VkResult                                                   returnValue,
+    Process_vkAllocateCommandBuffers(const ApiCallInfo& call_info,
+                                     VkResult                                                   returnValue,
                                      format::HandleId                                           device,
                                      StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
                                      HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
 
     virtual void
-    Process_vkAllocateDescriptorSets(VkResult                                                   returnValue,
+    Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
+                                     VkResult                                                   returnValue,
                                      format::HandleId                                           device,
                                      StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                      HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
     virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+        const ApiCallInfo&                                                         call_info,
         format::HandleId                                                           commandBuffer,
         uint32_t                                                                   infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
@@ -71,52 +74,57 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
         PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts) override;
 
     virtual void Process_vkCmdBuildAccelerationStructuresKHR(
+        const ApiCallInfo&                                                         call_info,
         format::HandleId                                                           commandBuffer,
         uint32_t                                                                   infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                               format::HandleId   commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
                                                                uint32_t         set,
                                                                DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkGetAccelerationStructureBuildSizesKHR(
+        const ApiCallInfo&                                                         call_info,
         format::HandleId                                                           device,
         VkAccelerationStructureBuildTypeKHR                                        buildType,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pBuildInfo,
         PointerDecoder<uint32_t>*                                                  pMaxPrimitiveCounts,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>*    pSizeInfo) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                           format::HandleId                 device,
                                                            format::HandleId                 descriptorSet,
                                                            format::HandleId                 descriptorUpdateTemplate,
                                                            DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                              format::HandleId                 device,
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
   protected:
     template <typename ToStringFunctionType>
-    inline void WriteApiCallToFile(const std::string&   functionName,
+    inline void WriteApiCallToFile(const ApiCallInfo&   call_info,
+                                   const std::string&   functionName,
                                    util::ToStringFlags  toStringFlags,
                                    uint32_t&            tabCount,
                                    uint32_t             tabSize,
                                    ToStringFunctionType toStringFunction)
     {
         using namespace util;
-        fprintf(file_, "%s\n", (api_call_count_ ? "," : ""));
-        fprintf(file_, "\"[%s]%s\":", std::to_string(api_call_count_++).c_str(), functionName.c_str());
+        fprintf(file_, "%s\n", (call_info.index ? "," : ""));
+        fprintf(file_, "\"[%s]%s\":", std::to_string(call_info.index).c_str(), functionName.c_str());
         fprintf(file_, "%s", GetWhitespaceString(toStringFlags).c_str());
         fprintf(file_, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
     }
 
   private:
-    FILE*    file_{ nullptr };
-    uint64_t api_call_count_{ 0 };
+    FILE* file_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)
