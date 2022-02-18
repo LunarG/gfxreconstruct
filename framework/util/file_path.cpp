@@ -29,12 +29,14 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#include <winver.h>
 #include <windows.h>
 #else
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -190,6 +192,156 @@ bool GetWindowsSystemLibrariesPath(std::string& base_path)
     return success;
 #else
     return false;
+#endif
+}
+
+void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, ExeFileInfo& info)
+{
+#if defined(WIN32)
+    if (member == kExeInfoCompanyName)
+    {
+        strncpy_s(info.CompanyName, sizeof(info.CompanyName), value.c_str(), value.length());
+    }
+    else if (member == kExeInfoFileDescription)
+    {
+        strncpy_s(info.FileDescription, sizeof(info.FileDescription), value.c_str(), value.length());
+    }
+    else if (member == kExeInfoFileVersion)
+    {
+        strncpy_s(info.FileVersion, sizeof(info.FileVersion), value.c_str(), value.length());
+    }
+    else if (member == kExeInfoInternalName)
+    {
+        strncpy_s(info.InternalName, sizeof(info.InternalName), value.c_str(), value.length());
+    }
+    else if (member == kExeInfoOriginalFilename)
+    {
+        strncpy_s(info.OriginalFilename, sizeof(info.OriginalFilename), value.c_str(), value.length());
+    }
+    else if (member == kExeInfoProductName)
+    {
+        strncpy_s(info.ProductName, sizeof(info.ProductName), value.c_str(), value.length());
+    }
+    else if (member == kExeInfoProductVersion)
+    {
+        strncpy_s(info.ProductVersion, sizeof(info.ProductVersion), value.c_str(), value.length());
+    }
+#endif
+}
+
+bool QueryStringFileInfo(
+    const void* ver_data, std::string& ver_ret_val, uint32_t& query_size, uint32_t len, const char* predef_strings)
+{
+    bool found = false;
+#if defined(WIN32)
+    PSTR ver_ret_val_;
+    char query_str[4096] = {};
+    sprintf_s(query_str, "\\StringFileInfo\\%04X%04X\\%s", GetUserDefaultLangID(), len, predef_strings);
+    found = VerQueryValue((LPSTR)ver_data, query_str, (LPVOID*)&ver_ret_val_, &query_size);
+    if (found)
+    {
+        ver_ret_val = ver_ret_val_;
+    }
+#endif
+    return found;
+}
+
+void GetApplicationFileExeVersion(ExeFileInfo& exe_info, const std::string& file_path)
+{
+#if defined(WIN32)
+    DWORD ver_size = GetFileVersionInfoSize(file_path.c_str(), nullptr);
+
+    if (ver_size > 0)
+    {
+        std::vector<uint8_t> ver_data(ver_size);
+
+        if (file_path.empty() == false)
+        {
+            if (GetFileVersionInfo(file_path.c_str(), 0, ver_size, ver_data.data()))
+            {
+                LPBYTE buffer     = nullptr;
+                UINT   query_size = 0;
+
+                if (VerQueryValue(ver_data.data(), "\\", (VOID FAR * FAR*)&buffer, &query_size))
+                {
+                    if (query_size > 0)
+                    {
+                        static constexpr int code_page_idx_1  = 1252;
+                        static constexpr int code_page_idx_2  = 1200;
+                        static constexpr int exe_version_mask = 0xffff;
+
+                        VS_FIXEDFILEINFO* ver_info = reinterpret_cast<VS_FIXEDFILEINFO*>(buffer);
+
+                        exe_info.AppVersion[0] = (ver_info->dwFileVersionMS >> 16) & exe_version_mask;
+                        exe_info.AppVersion[1] = (ver_info->dwFileVersionMS >> 0) & exe_version_mask;
+                        exe_info.AppVersion[2] = (ver_info->dwFileVersionLS >> 16) & exe_version_mask;
+                        exe_info.AppVersion[3] = (ver_info->dwFileVersionLS >> 0) & exe_version_mask;
+
+                        static const std::unordered_map<ExeInfoMember, const char*> query_map{
+                            { kExeInfoCompanyName, "CompanyName" },
+                            { kExeInfoFileDescription, "FileDescription" },
+                            { kExeInfoFileVersion, "FileVersion" },
+                            { kExeInfoInternalName, "InternalName" },
+                            { kExeInfoOriginalFilename, "OriginalFilename" },
+                            { kExeInfoProductName, "ProductName" },
+                            { kExeInfoProductVersion, "ProductVersion" },
+                        };
+
+                        for (auto& it : query_map)
+                        {
+                            std::string ver_ret_val = "N/A";
+                            BOOL        found       = QueryStringFileInfo(
+                                ver_data.data(), ver_ret_val, query_size, code_page_idx_1, it.second);
+
+                            if (!found)
+                            {
+                                found = QueryStringFileInfo(
+                                    ver_data.data(), ver_ret_val, query_size, code_page_idx_2, it.second);
+                            }
+
+                            UpdateExeFileInfo(it.first, ver_ret_val, exe_info);
+                        }
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "VerQueryValue - no value is available for the specified version-information name");
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "VerQueryValue - specified name does not exist or the specified resource is not valid");
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("GetFileVersionInfo failed");
+            }
+        }
+    }
+#endif
+}
+
+void GetApplicationInfo(ExeFileInfo& file_info)
+{
+#if defined(WIN32)
+    char        module_name[MAX_PATH] = {};
+    auto        size_path             = GetModuleFileNameA(nullptr, module_name, MAX_PATH);
+    std::string filepath              = "";
+    if (size_path > 0)
+    {
+        filepath = module_name;
+        GetApplicationFileExeVersion(file_info, filepath);
+        strncpy_s(file_info.AppExeName,
+                  sizeof(file_info.AppExeName),
+                  filepath.substr(filepath.find_last_of("/\\") + 1).c_str(),
+                  filepath.substr(filepath.find_last_of("/\\") + 1).length());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to retrieve the application executable name");
+    }
 #endif
 }
 

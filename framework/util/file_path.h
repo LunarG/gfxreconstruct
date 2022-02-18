@@ -42,6 +42,32 @@ const char kPathSep      = '/';
 const char kPathSepStr[] = "/";
 #endif
 
+const size_t kMaxExePropertySize = 256;
+
+struct ExeFileInfo
+{
+    char     ProductVersion[kMaxExePropertySize]   = {};
+    char     FileVersion[kMaxExePropertySize]      = {};
+    uint32_t AppVersion[4]                         = {};
+    char     AppExeName[kMaxExePropertySize]       = {};
+    char     CompanyName[kMaxExePropertySize]      = {};
+    char     FileDescription[kMaxExePropertySize]  = {};
+    char     InternalName[kMaxExePropertySize]     = {};
+    char     OriginalFilename[kMaxExePropertySize] = {};
+    char     ProductName[kMaxExePropertySize]      = {};
+};
+
+enum ExeInfoMember
+{
+    kExeInfoCompanyName,
+    kExeInfoFileDescription,
+    kExeInfoFileVersion,
+    kExeInfoInternalName,
+    kExeInfoOriginalFilename,
+    kExeInfoProductName,
+    kExeInfoProductVersion
+};
+
 bool Exists(const std::string& path);
 
 bool IsFile(const std::string& path);
@@ -55,6 +81,15 @@ std::string InsertFilenamePostfix(const std::string& filename, const std::string
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
 
 bool GetWindowsSystemLibrariesPath(std::string& base_path);
+
+bool QueryStringFileInfo(
+    const void* ver_data, std::string& ver_ret_val, uint32_t& query_size, uint32_t len, const char* predef_strings);
+
+void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, ExeFileInfo& info);
+
+void GetApplicationFileExeVersion(ExeFileInfo& exe_info, const std::string& file_path);
+
+void GetApplicationInfo(ExeFileInfo& file_info);
 
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)

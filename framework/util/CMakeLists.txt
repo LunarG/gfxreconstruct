@@ -101,6 +101,7 @@ target_sources(gfxrecon_util
 
 target_include_directories(gfxrecon_util PUBLIC ${CMAKE_SOURCE_DIR}/framework)
 target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
+target_link_libraries(gfxrecon_util $<$<BOOL:${BUILD_D3D12}>:version.lib>)
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc
