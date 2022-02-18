@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr)
+    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), call_index_(0)
 {}
 
 FileProcessor::~FileProcessor()
@@ -388,8 +388,8 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
     ApiCallInfo call_info             = {};
-
-    bool success = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
+    call_info.index                   = call_index_;
+    bool success                      = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
 
     if (success)
     {
@@ -446,6 +446,8 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                     DecodeAllocator::End();
                 }
             }
+
+            ++call_index_;
         }
     }
     else
@@ -1195,7 +1197,6 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
 
     success = ReadBytes(&label_length, sizeof(label_length));
     success = success && ReadBytes(&data_length, sizeof(data_length));
-
     if (success)
     {
         if ((label_length > 0) || (data_length > 0))

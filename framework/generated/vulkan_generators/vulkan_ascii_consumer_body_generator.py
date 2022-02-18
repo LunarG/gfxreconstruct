@@ -144,7 +144,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         ToStringFlags toStringFlags = kToString_Default;
                         uint32_t tabCount = 0;
                         uint32_t tabSize = 4;
-                        WriteApiCallToFile("{0}", toStringFlags, tabCount, tabSize,
+                        WriteApiCallToFile(call_info, "{0}", toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
                             {{
                     '''.format(cmd)

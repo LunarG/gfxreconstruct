@@ -114,6 +114,7 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
     VulkanExtractConsumer(std::string& extract_dir) : extract_dir_(extract_dir) {}
 
     virtual void Process_vkCreateShaderModule(
+        const gfxrecon::decode::ApiCallInfo&                                                        call_info,
         VkResult                                                                                    returnValue,
         gfxrecon::format::HandleId                                                                  shaderModule,
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkShaderModuleCreateInfo>* pCreateInfo,

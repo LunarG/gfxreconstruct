@@ -152,18 +152,21 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const std::vector<uint64_t>& level_sizes,
                                          const uint8_t*               data) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                           format::HandleId                 device,
                                                            format::HandleId                 descriptorSet,
                                                            format::HandleId                 descriptorUpdateTemplate,
                                                            DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
-                                                               format::HandleId descriptorUpdateTemplate,
-                                                               format::HandleId layout,
-                                                               uint32_t         set,
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                               format::HandleId   commandBuffer,
+                                                               format::HandleId   descriptorUpdateTemplate,
+                                                               format::HandleId   layout,
+                                                               uint32_t           set,
                                                                DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                              format::HandleId                 device,
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;

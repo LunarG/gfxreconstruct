@@ -34,9 +34,10 @@ VulkanReferencedResourceConsumerBase::VulkanReferencedResourceConsumerBase() :
     loading_state_(false), loaded_state_(false)
 {}
 
-void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(VkResult         returnValue,
-                                                                 format::HandleId queue,
-                                                                 uint32_t         submitCount,
+void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallInfo& call_info,
+                                                                 VkResult           returnValue,
+                                                                 format::HandleId   queue,
+                                                                 uint32_t           submitCount,
                                                                  StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
                                                                  format::HandleId                            fence)
 {
@@ -66,6 +67,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(VkResult       
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(
+    const ApiCallInfo&                                   call_info,
     VkResult                                             returnValue,
     format::HandleId                                     device,
     StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
@@ -100,6 +102,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateBufferView(
+    const ApiCallInfo&                                    call_info,
     VkResult                                              returnValue,
     format::HandleId                                      device,
     StructPointerDecoder<Decoded_VkBufferViewCreateInfo>* pCreateInfo,
@@ -120,6 +123,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateBufferView(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateImage(
+    const ApiCallInfo&                                   call_info,
     VkResult                                             returnValue,
     format::HandleId                                     device,
     StructPointerDecoder<Decoded_VkImageCreateInfo>*     pCreateInfo,
@@ -154,6 +158,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateImage(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateImageView(
+    const ApiCallInfo&                                   call_info,
     VkResult                                             returnValue,
     format::HandleId                                     device,
     StructPointerDecoder<Decoded_VkImageViewCreateInfo>* pCreateInfo,
@@ -174,6 +179,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateImageView(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateFramebuffer(
+    const ApiCallInfo&                                     call_info,
     VkResult                                               returnValue,
     format::HandleId                                       device,
     StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
@@ -197,6 +203,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateFramebuffer(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(
+    const ApiCallInfo&                                             call_info,
     VkResult                                                       returnValue,
     format::HandleId                                               device,
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
@@ -224,6 +231,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTemplate(
+    const ApiCallInfo&                                                  call_info,
     VkResult                                                            returnValue,
     format::HandleId                                                    device,
     StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
@@ -238,6 +246,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTempl
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTemplateKHR(
+    const ApiCallInfo&                                                  call_info,
     VkResult                                                            returnValue,
     format::HandleId                                                    device,
     StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
@@ -252,6 +261,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTempl
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkDestroyDescriptorPool(
+    const ApiCallInfo&                                   call_info,
     format::HandleId                                     device,
     format::HandleId                                     descriptorPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
@@ -262,7 +272,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkDestroyDescriptorPool(
     table_.ClearContainers(descriptorPool);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkResetDescriptorPool(VkResult                   returnValue,
+void VulkanReferencedResourceConsumerBase::Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
+                                                                         VkResult                   returnValue,
                                                                          format::HandleId           device,
                                                                          format::HandleId           descriptorPool,
                                                                          VkDescriptorPoolResetFlags flags)
@@ -275,6 +286,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkResetDescriptorPool(VkResul
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(
+    const ApiCallInfo&                                         call_info,
     VkResult                                                   returnValue,
     format::HandleId                                           device,
     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
@@ -307,6 +319,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkFreeDescriptorSets(
+    const ApiCallInfo&                     call_info,
     VkResult                               returnValue,
     format::HandleId                       device,
     format::HandleId                       descriptorPool,
@@ -331,6 +344,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkFreeDescriptorSets(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
+    const ApiCallInfo&                                  call_info,
     format::HandleId                                    device,
     uint32_t                                            descriptorWriteCount,
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites,
@@ -466,6 +480,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
+    const ApiCallInfo&               call_info,
     format::HandleId                 device,
     format::HandleId                 descriptorSet,
     format::HandleId                 descriptorUpdateTemplate,
@@ -477,6 +492,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemp
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
+    const ApiCallInfo&               call_info,
     format::HandleId                 commandBuffer,
     format::HandleId                 descriptorUpdateTemplate,
     format::HandleId                 layout,
@@ -490,6 +506,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTem
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
+    const ApiCallInfo&               call_info,
     format::HandleId                 device,
     format::HandleId                 descriptorSet,
     format::HandleId                 descriptorUpdateTemplate,
@@ -501,6 +518,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemp
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkDestroyCommandPool(
+    const ApiCallInfo&                                   call_info,
     format::HandleId                                     device,
     format::HandleId                                     commandPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
@@ -511,7 +529,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkDestroyCommandPool(
     table_.ClearUsers(commandPool);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkResetCommandPool(VkResult                returnValue,
+void VulkanReferencedResourceConsumerBase::Process_vkResetCommandPool(const ApiCallInfo&      call_info,
+                                                                      VkResult                returnValue,
                                                                       format::HandleId        device,
                                                                       format::HandleId        commandPool,
                                                                       VkCommandPoolResetFlags flags)
@@ -524,6 +543,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkResetCommandPool(VkResult  
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkAllocateCommandBuffers(
+    const ApiCallInfo&                                         call_info,
     VkResult                                                   returnValue,
     format::HandleId                                           device,
     StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
@@ -551,6 +571,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateCommandBuffers(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkFreeCommandBuffers(
+    const ApiCallInfo&                     call_info,
     format::HandleId                       device,
     format::HandleId                       commandPool,
     uint32_t                               commandBufferCount,
@@ -573,6 +594,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkFreeCommandBuffers(
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkBeginCommandBuffer(
+    const ApiCallInfo&                                      call_info,
     VkResult                                                returnValue,
     format::HandleId                                        commandBuffer,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
@@ -583,7 +605,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkBeginCommandBuffer(
     table_.ResetUser(commandBuffer);
 }
 
-void VulkanReferencedResourceConsumerBase::Process_vkResetCommandBuffer(VkResult                  returnValue,
+void VulkanReferencedResourceConsumerBase::Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
+                                                                        VkResult                  returnValue,
                                                                         format::HandleId          commandBuffer,
                                                                         VkCommandBufferResetFlags flags)
 {
