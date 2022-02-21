@@ -185,6 +185,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
             argument_index++;
         }
     }
+    arguments_present_.resize(argument_index);
     argument_values_.resize(argument_index);
 
     for (size_t cur_arg = 0; cur_arg < command_line_args.size(); ++cur_arg)
@@ -245,7 +246,8 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
                             }
                             argument_values_[cur_argument.second] = argument_value;
                         }
-                        is_argument = true;
+                        arguments_present_[cur_argument.second] = true;
+                        is_argument                             = true;
                         break;
                     }
                 }
@@ -280,7 +282,14 @@ bool ArgumentParser::IsOptionSet(const std::string& option) const
 
 bool ArgumentParser::IsArgumentSet(const std::string& argument) const
 {
-    return static_cast<bool>(arguments_indices_.count(argument));
+    auto ret_iterator = arguments_indices_.find(argument);
+
+    if (ret_iterator != arguments_indices_.end())
+    {
+        return arguments_present_[ret_iterator->second];
+    }
+
+    return false;
 }
 
 const std::string& ArgumentParser::GetArgumentValue(const std::string& argument) const
