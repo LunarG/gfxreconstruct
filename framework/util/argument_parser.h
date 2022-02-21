@@ -67,6 +67,7 @@ class ArgumentParser
     std::unordered_map<std::string, uint32_t> options_indices_;
     std::vector<bool>                         options_present_;
     std::unordered_map<std::string, uint32_t> arguments_indices_;
+    std::vector<bool>                         arguments_present_;
     std::vector<std::string>                  argument_values_;
     std::vector<std::string>                  positional_arguments_present_;
 };

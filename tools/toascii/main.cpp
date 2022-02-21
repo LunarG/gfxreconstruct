@@ -67,8 +67,8 @@ static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_p
     }
     else
     {
-        std::string output_filename = input_filename;
-        size_t      suffix_pos      = output_filename.find(GFXRECON_FILE_EXTENSION);
+        output_filename   = input_filename;
+        size_t suffix_pos = output_filename.find(GFXRECON_FILE_EXTENSION);
         if (suffix_pos != std::string::npos)
         {
             output_filename = output_filename.substr(0, suffix_pos);
@@ -89,27 +89,24 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(0);
     }
-    else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
+    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
         gfxrecon::util::Log::Release();
         exit(-1);
     }
-    else if (arg_parser.IsArgumentSet(kOutput) && arg_parser.GetArgumentValue(kOutput).empty())
+    if (arg_parser.IsArgumentSet(kOutput) && arg_parser.GetArgumentValue(kOutput).empty())
     {
         GFXRECON_LOG_ERROR("Empty string given for argument \"--output\"; must be a valid path or 'stdout'");
         gfxrecon::util::Log::Release();
         exit(-1);
     }
-    else
-    {
 #if defined(WIN32) && defined(_DEBUG)
-        if (arg_parser.IsOptionSet(kNoDebugPopup))
-        {
-            _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
-        }
-#endif
+    if (arg_parser.IsOptionSet(kNoDebugPopup))
+    {
+        _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
     }
+#endif
 
     const auto& positional_arguments = arg_parser.GetPositionalArguments();
     std::string input_filename       = positional_arguments[0];
