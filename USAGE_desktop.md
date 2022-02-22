@@ -565,6 +565,7 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
+  --output filename     Write output to the provided filename.
 ```
 
 ### Command Launcher
