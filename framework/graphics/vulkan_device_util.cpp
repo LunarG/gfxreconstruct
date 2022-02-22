@@ -192,23 +192,22 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                 
                     GetPhysicalDeviceFeatures(
                         instance_api_version, instance_table, physical_device, supported_features);
 
-                    if (supported_features.rayTracingPipelineShaderGroupHandleCaptureReplay)
-                    {
-                        rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay = VK_TRUE;
-
-                        VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_properties{
-                            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR, nullptr
-                        };
-                        GetPhysicalDeviceProperties(
-                            instance_api_version, instance_table, physical_device, rt_properties);
-
-                        result.property_shaderGroupHandleCaptureReplaySize =
-                            rt_properties.shaderGroupHandleCaptureReplaySize;
-                    }
+                    rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay =
+                        supported_features.rayTracingPipelineShaderGroupHandleCaptureReplay;
                 }
 
                 result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
                     rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
+                if (result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+                {
+                    VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_properties{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR, nullptr
+                    };
+                    GetPhysicalDeviceProperties(instance_api_version, instance_table, physical_device, rt_properties);
+
+                    result.property_shaderGroupHandleCaptureReplaySize =
+                        rt_properties.shaderGroupHandleCaptureReplaySize;
+                }
             }
             break;
             default:
