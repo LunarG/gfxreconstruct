@@ -45,6 +45,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "util/file_path.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -127,6 +128,8 @@ class CaptureManager
     bool IsTrimHotkeyPressed();
 
     void WriteDisplayMessageCmd(const char* message);
+
+    void WriteExeFileInfo(const gfxrecon::util::filepath::ExeFileInfo& info);
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 

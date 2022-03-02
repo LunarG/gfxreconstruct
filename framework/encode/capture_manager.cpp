@@ -687,6 +687,9 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
     {
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
+        gfxrecon::util::filepath::ExeFileInfo info{};
+        gfxrecon::util::filepath::GetApplicationInfo(info);
+        WriteExeFileInfo(info);
     }
     else
     {
@@ -756,6 +759,20 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
     }
+}
+
+void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::ExeFileInfo& info)
+{
+    size_t                   info_length      = sizeof(format::ExeFileInfoBlock);
+    format::ExeFileInfoBlock exe_info_header  = {};
+    exe_info_header.exe_record                = info;
+
+    exe_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
+    exe_info_header.meta_header.meta_data_id = format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfo);
+    exe_info_header.thread_id                = GetThreadData()->thread_id_;
+
+    WriteToFile(&exe_info_header, sizeof(exe_info_header));
 }
 
 void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)

@@ -42,13 +42,14 @@ const char kPathSep      = '/';
 const char kPathSepStr[] = "/";
 #endif
 
-const size_t kMaxExePropertySize = 256;
+static constexpr uint32_t kMaxExePropertySize = 256;
+static constexpr uint8_t  kAppVersionSize     = 4;
 
 struct ExeFileInfo
 {
     char     ProductVersion[kMaxExePropertySize]   = {};
     char     FileVersion[kMaxExePropertySize]      = {};
-    uint32_t AppVersion[4]                         = {};
+    uint32_t AppVersion[kAppVersionSize]           = {};
     char     AppExeName[kMaxExePropertySize]       = {};
     char     CompanyName[kMaxExePropertySize]      = {};
     char     FileDescription[kMaxExePropertySize]  = {};

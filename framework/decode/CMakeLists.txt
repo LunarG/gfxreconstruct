@@ -85,6 +85,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/stat_decoder_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/stat_decoder_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/stat_consumer_base.h
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_consumer_base.h>

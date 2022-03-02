@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,38 +20,38 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_API_DECODE_DECODER_H
-#define GFXRECON_API_DECODE_DECODER_H
+#ifndef GFXRECON_STAT_DECODER_BASE_H
+#define GFXRECON_STAT_DECODER_BASE_H
 
-#include "format/api_call_id.h"
-#include "format/format.h"
-#include "util/defines.h"
-
-#include "vulkan/vulkan.h"
-
-#include <string>
+#include "decode/api_decoder.h"
+#include "decode/struct_pointer_decoder.h"
+#include "decode/stat_consumer_base.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct ApiCallInfo
-{
-    format::ThreadId thread_id{ 0 };
-};
-
-class ApiDecoder
+/*
+** This class implements the ApiDecoder interface
+** Its main purpose is to decode non api application info
+*/
+class StatDecoderBase : public ApiDecoder
 {
   public:
-    virtual ~ApiDecoder() {}
+    StatDecoderBase() {}
 
-    virtual bool SupportsApiCall(format::ApiCallId id) = 0;
+    ~StatDecoderBase() {}
 
-    virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) = 0;
+    void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info);
 
-    virtual void DecodeFunctionCall(format::ApiCallId  id,
-                                    const ApiCallInfo& call_info,
-                                    const uint8_t*     buffer,
-                                    size_t             buffer_size) = 0;
+    void AddConsumer(StatConsumerBase* consumer) { consumers_.push_back(consumer); }
+
+    virtual bool SupportsApiCall(format::ApiCallId id) { return true; }
+
+    virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) { return true; }
+
+    virtual void
+    DecodeFunctionCall(format::ApiCallId id, const ApiCallInfo& call_info, const uint8_t* buffer, size_t buffer_size)
+    {}
 
     virtual void DecodeMethodCall(format::ApiCallId  call_id,
                                   format::HandleId   object_id,
@@ -61,45 +60,46 @@ class ApiDecoder
                                   size_t             buffer_size)
     {}
 
-    virtual void DispatchStateBeginMarker(uint64_t frame_number) = 0;
+    virtual void DispatchStateBeginMarker(uint64_t frame_number);
 
-    virtual void DispatchStateEndMarker(uint64_t frame_number) = 0;
+    virtual void DispatchStateEndMarker(uint64_t frame_number) {}
 
-    virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) = 0;
-
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) = 0;
+    virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) {}
 
     virtual void DispatchFillMemoryCommand(
-        format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) = 0;
+        format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
+    {}
 
     virtual void DispatchResizeWindowCommand(format::ThreadId thread_id,
                                              format::HandleId surface_id,
                                              uint32_t         width,
-                                             uint32_t         height) = 0;
+                                             uint32_t         height)
+    {}
 
     virtual void DispatchResizeWindowCommand2(format::ThreadId thread_id,
                                               format::HandleId surface_id,
                                               uint32_t         width,
                                               uint32_t         height,
-                                              uint32_t         pre_transform) = 0;
+                                              uint32_t         pre_transform)
+    {}
+
+    virtual void DispatchCreateHardwareBufferCommand(format::ThreadId                                    thread_id,
+                                                     format::HandleId                                    memory_id,
+                                                     uint64_t                                            buffer_id,
+                                                     uint32_t                                            format,
+                                                     uint32_t                                            width,
+                                                     uint32_t                                            height,
+                                                     uint32_t                                            stride,
+                                                     uint32_t                                            usage,
+                                                     uint32_t                                            layers,
+                                                     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+    {}
+
+    virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) {}
 
     virtual void
-    DispatchCreateHardwareBufferCommand(format::ThreadId                                    thread_id,
-                                        format::HandleId                                    memory_id,
-                                        uint64_t                                            buffer_id,
-                                        uint32_t                                            format,
-                                        uint32_t                                            width,
-                                        uint32_t                                            height,
-                                        uint32_t                                            stride,
-                                        uint32_t                                            usage,
-                                        uint32_t                                            layers,
-                                        const std::vector<format::HardwareBufferPlaneInfo>& plane_info) = 0;
-
-    virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) = 0;
-
-    virtual void DispatchCreateHeapAllocationCommand(format::ThreadId thread_id,
-                                                     uint64_t         allocation_id,
-                                                     uint64_t         allocation_size) = 0;
+    DispatchCreateHeapAllocationCommand(format::ThreadId thread_id, uint64_t allocation_id, uint64_t allocation_size)
+    {}
 
     virtual void DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
                                                     format::HandleId   physical_device_id,
@@ -109,44 +109,49 @@ class ApiDecoder
                                                     uint32_t           device_id,
                                                     uint32_t           device_type,
                                                     const uint8_t      pipeline_cache_uuid[format::kUuidSize],
-                                                    const std::string& device_name) = 0;
+                                                    const std::string& device_name)
+    {}
 
-    virtual void
-    DispatchSetDeviceMemoryPropertiesCommand(format::ThreadId                             thread_id,
-                                             format::HandleId                             physical_device_id,
-                                             const std::vector<format::DeviceMemoryType>& memory_types,
-                                             const std::vector<format::DeviceMemoryHeap>& memory_heaps) = 0;
+    virtual void DispatchSetDeviceMemoryPropertiesCommand(format::ThreadId thread_id,
+                                                          format::HandleId physical_device_id,
+                                                          const std::vector<format::DeviceMemoryType>& memory_types,
+                                                          const std::vector<format::DeviceMemoryHeap>& memory_heaps)
+    {}
 
     virtual void DispatchSetOpaqueAddressCommand(format::ThreadId thread_id,
                                                  format::HandleId device_id,
                                                  format::HandleId object_id,
-                                                 uint64_t         address) = 0;
+                                                 uint64_t         address)
+    {}
 
     virtual void DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
                                                                 format::HandleId device_id,
                                                                 format::HandleId buffer_id,
                                                                 size_t           data_size,
-                                                                const uint8_t*   data) = 0;
+                                                                const uint8_t*   data)
+    {}
 
-    virtual void
-    DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
-                                          format::HandleId                                    device_id,
-                                          format::HandleId                                    swapchain_id,
-                                          uint32_t                                            last_presented_image,
-                                          const std::vector<format::SwapchainImageStateInfo>& image_state) = 0;
+    virtual void DispatchSetSwapchainImageStateCommand(format::ThreadId thread_id,
+                                                       format::HandleId device_id,
+                                                       format::HandleId swapchain_id,
+                                                       uint32_t         last_presented_image,
+                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
+    {}
 
     virtual void DispatchBeginResourceInitCommand(format::ThreadId thread_id,
                                                   format::HandleId device_id,
                                                   uint64_t         max_resource_size,
-                                                  uint64_t         max_copy_size) = 0;
+                                                  uint64_t         max_copy_size)
+    {}
 
-    virtual void DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id) = 0;
+    virtual void DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id) {}
 
     virtual void DispatchInitBufferCommand(format::ThreadId thread_id,
                                            format::HandleId device_id,
                                            format::HandleId buffer_id,
                                            uint64_t         data_size,
-                                           const uint8_t*   data) = 0;
+                                           const uint8_t*   data)
+    {}
 
     virtual void DispatchInitImageCommand(format::ThreadId             thread_id,
                                           format::HandleId             device_id,
@@ -155,13 +160,18 @@ class ApiDecoder
                                           uint32_t                     aspect,
                                           uint32_t                     layout,
                                           const std::vector<uint64_t>& level_sizes,
-                                          const uint8_t*               data) = 0;
+                                          const uint8_t*               data)
+    {}
 
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
-                                                const uint8_t*                              data) = 0;
+                                                const uint8_t*                              data)
+    {}
+
+  private:
+    std::vector<StatConsumerBase*> consumers_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_API_DECODE_DECODER_H
+#endif // GFXRECON_STAT_DECODER_BASE_H

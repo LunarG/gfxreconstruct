@@ -677,6 +677,33 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read resize window 2 meta-data block");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kExeFileInfo)
+    {
+        format::ExeFileInfoBlock header;
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+
+        success =
+            success && ReadBytes(&header.exe_record.ProductVersion, gfxrecon::util::filepath::kMaxExePropertySize);
+        success = success && ReadBytes(&header.exe_record.FileVersion, gfxrecon::util::filepath::kMaxExePropertySize);
+        success = success && ReadBytes(&header.exe_record.AppVersion,
+                                       sizeof(uint32_t) * gfxrecon::util::filepath::kAppVersionSize);
+        success = success && ReadBytes(&header.exe_record.AppExeName, gfxrecon::util::filepath::kMaxExePropertySize);
+        success = success && ReadBytes(&header.exe_record.CompanyName, gfxrecon::util::filepath::kMaxExePropertySize);
+        success =
+            success && ReadBytes(&header.exe_record.FileDescription, gfxrecon::util::filepath::kMaxExePropertySize);
+        success = success && ReadBytes(&header.exe_record.InternalName, gfxrecon::util::filepath::kMaxExePropertySize);
+        success =
+            success && ReadBytes(&header.exe_record.OriginalFilename, gfxrecon::util::filepath::kMaxExePropertySize);
+        success = success && ReadBytes(&header.exe_record.ProductName, gfxrecon::util::filepath::kMaxExePropertySize);
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchExeFileInfo(header.thread_id, header);
+            }
+        }
+    }
     else if (meta_data_type == format::MetaDataType::kDisplayMessageCommand)
     {
         // This command does not support compression.

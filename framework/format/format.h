@@ -27,6 +27,7 @@
 #include "format/api_call_id.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/file_path.h"
 
 #include <cinttypes>
 #include <type_traits>
@@ -112,7 +113,8 @@ enum class MetaDataType : uint16_t
     kSetOpaqueAddressCommand                = 14,
     kSetRayTracingShaderGroupHandlesCommand = 15,
     kCreateHeapAllocationCommand            = 16,
-    kInitSubresourceCommand                 = 17
+    kInitSubresourceCommand                 = 17,
+    kExeFileInfo                            = 18
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -277,6 +279,13 @@ struct DisplayMessageCommandHeader
     // NOTE: Message size is determined by subtracting the sizeof(MetaDataId) + sizeof(ThreadId) from
     // BlockHeader::size.  This computed size is the length of the ASCII message string, not including the null
     // terminator.
+};
+
+struct ExeFileInfoBlock
+{
+    MetaDataHeader              meta_header;
+    format::ThreadId            thread_id;
+    util::filepath::ExeFileInfo exe_record;
 };
 
 // Not a header because this command does not include a variable length data payload.
