@@ -272,8 +272,8 @@ struct D3D12StateObjectInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D12StateObjectInfo";
     D3D12StateObjectInfo() : DxObjectExtraInfo(kType) {}
 
-    std::map<std::wstring, format::HandleId>                          export_name_lrs_map;
-    std::map<graphics::Dx12ShaderIdentifier, D3D12RootSignatureInfo*> shader_id_lrs_map;
+    std::map<std::wstring, format::HandleId>                              export_name_lrs_map;
+    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map;
 };
 
 GFXRECON_END_NAMESPACE(decode)

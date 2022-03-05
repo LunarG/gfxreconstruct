@@ -627,7 +627,8 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
                     auto local_root_sig_extra_info = GetExtraInfo<D3D12RootSignatureInfo>(local_root_sig_object_info);
                     GFXRECON_ASSERT(local_root_sig_extra_info != nullptr);
 
-                    state_object_extra_info->shader_id_lrs_map[replay_shader_id] = local_root_sig_extra_info;
+                    state_object_extra_info->shader_id_lrs_map[replay_shader_id] =
+                        local_root_sig_extra_info->resource_value_infos;
                 }
             }
         }
@@ -964,7 +965,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         auto shader_id_lrs_iter = value_info.state_object->shader_id_lrs_map.find(replay_shader_id);
         if (shader_id_lrs_iter != value_info.state_object->shader_id_lrs_map.end())
         {
-            for (const auto& shader_record_value_info : shader_id_lrs_iter->second->resource_value_infos)
+            for (const auto& shader_record_value_info : shader_id_lrs_iter->second)
             {
                 if ((shader_record_value_info.offset + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES) < value_info.size)
                 {
