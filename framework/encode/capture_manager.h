@@ -219,6 +219,7 @@ class CaptureManager
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
+    auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
@@ -296,6 +297,7 @@ class CaptureManager
     bool                                    screenshots_enabled_;
     std::vector<uint32_t>                   screenshot_indices_;
     bool                                    disable_dxr_;
+    double                                  accel_struct_padding_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

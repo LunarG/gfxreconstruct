@@ -17641,7 +17641,8 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
             pDesc,
             pInfo);
 
-        GetWrappedObjectAs<ID3D12Device5>()->GetRaytracingAccelerationStructurePrebuildInfo(
+        D3D12CaptureManager::Get()->OverrideGetRaytracingAccelerationStructurePrebuildInfo(
+            this,
             pDesc,
             pInfo);
 

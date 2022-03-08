@@ -568,6 +568,11 @@ class D3D12CaptureManager : public CaptureManager
                                                      void*                 feature_support_data,
                                                      UINT                  feature_support_data_size);
 
+    void OverrideGetRaytracingAccelerationStructurePrebuildInfo(
+        ID3D12Device5_Wrapper*                                      device5_wrapper,
+        const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pDesc,
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO*      pInfo);
+
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
     inline format::HandleId GetEnableDebugLayerObjectId() { return track_enable_debug_layer_object_id_; }

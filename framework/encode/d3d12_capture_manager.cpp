@@ -1970,5 +1970,25 @@ void D3D12CaptureManager::PostProcess_ID3D12Device1_SetResidencyPriority(ID3D12D
     }
 }
 
+void D3D12CaptureManager::OverrideGetRaytracingAccelerationStructurePrebuildInfo(
+    ID3D12Device5_Wrapper*                                      device5_wrapper,
+    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pDesc,
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO*      pInfo)
+{
+    auto device5 = device5_wrapper->GetWrappedObjectAs<ID3D12Device5>();
+
+    device5->GetRaytracingAccelerationStructurePrebuildInfo(pDesc, pInfo);
+
+    auto padding = GetAccelStructPaddingSetting();
+    if (padding > 0.0)
+    {
+        pInfo->ResultDataMaxSizeInBytes =
+            static_cast<UINT64>(std::ceil(pInfo->ResultDataMaxSizeInBytes * (1.0 + padding)));
+        pInfo->ScratchDataSizeInBytes = static_cast<UINT64>(std::ceil(pInfo->ScratchDataSizeInBytes * (1.0 + padding)));
+        pInfo->UpdateScratchDataSizeInBytes =
+            static_cast<UINT64>(std::ceil(pInfo->UpdateScratchDataSizeInBytes * (1.0 + padding)));
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

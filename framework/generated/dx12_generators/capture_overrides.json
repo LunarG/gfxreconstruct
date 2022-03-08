@@ -16,6 +16,9 @@
       "CreateHeap1": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap1",
       "CreateCommittedResource1": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource1"
     },
+    "ID3D12Device5": {
+        "GetRaytracingAccelerationStructurePrebuildInfo": "D3D12CaptureManager::Get()->OverrideGetRaytracingAccelerationStructurePrebuildInfo"
+    },
     "ID3D12Device8": {
       "CreateCommittedResource2": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource2"
     },
