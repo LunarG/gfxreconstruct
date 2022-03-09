@@ -78,7 +78,6 @@ struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsM
 struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
 struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
 struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct DeferredOperationKHRWrapper          : public HandleWrapper<VkDeferredOperationKHR> {};
 struct PrivateDataSlotEXTWrapper            : public HandleWrapper<VkPrivateDataSlotEXT> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
@@ -434,6 +433,13 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
 {
     // TODO: Determine what additional state tracking is needed.
+};
+
+struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
+{
+    // Save data for CreateRayTracingPipelinesKHR
+    std::vector<VkRayTracingPipelineCreateInfoKHR> recored_modified_create_infos;
+    std::vector<VkPipeline>                        recored_original_pipelines;
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.

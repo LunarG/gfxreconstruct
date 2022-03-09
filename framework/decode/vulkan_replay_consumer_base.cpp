@@ -5855,11 +5855,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
         (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
     VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
+    // These data couldn't be released before running vkDeferredOperationJoinKHR.
+    std::vector<VkRayTracingPipelineCreateInfoKHR>                 modified_create_infos;
+    std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> modified_pgroups;
+
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
         // Modify pipeline create infos with capture replay flag and data.
-        std::vector<VkRayTracingPipelineCreateInfoKHR>                 modified_create_infos;
-        std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> modified_pgroups;
         modified_create_infos.reserve(createInfoCount);
         modified_pgroups.resize(createInfoCount);
         for (uint32_t create_info_i = 0; create_info_i < createInfoCount; ++create_info_i)

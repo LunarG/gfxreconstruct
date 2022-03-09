@@ -1079,14 +1079,43 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     const DeviceTable*     device_table                = GetDeviceTable(device);
     auto                   handle_unwrap_memory        = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
-    VkPipelineCache        pipelineCache_unwrapped     = GetWrappedHandle<VkPipelineCache>(pipelineCache);
+    DeferredOperationKHRWrapper* deferred_operation_wrapper = nullptr;
+    if (deferredOperation_unwrapped != VK_NULL_HANDLE)
+    {
+        deferred_operation_wrapper = reinterpret_cast<DeferredOperationKHRWrapper*>(deferredOperation);
+    }
+    VkPipelineCache                          pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
     const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped =
         UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+
+    VkPipeline* output_piplines = nullptr;
+    if (deferred_operation_wrapper != nullptr)
+    {
+        deferred_operation_wrapper->recored_original_pipelines.resize(createInfoCount);
+        output_piplines = deferred_operation_wrapper->recored_original_pipelines.data();
+    }
+    else
+    {
+        output_piplines = pPipelines;
+    }
 
     VkResult result;
     if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
-        auto modified_create_infos = std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount);
+        VkRayTracingPipelineCreateInfoKHR*                   modified_create_infos        = nullptr;
+        std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]> unique_modified_create_infos = nullptr;
+
+        if (deferred_operation_wrapper != nullptr)
+        {
+            deferred_operation_wrapper->recored_modified_create_infos.resize(createInfoCount);
+            modified_create_infos = deferred_operation_wrapper->recored_modified_create_infos.data();
+        }
+        else
+        {
+            unique_modified_create_infos = std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount);
+            modified_create_infos        = unique_modified_create_infos.get();
+        }
+
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
             modified_create_infos[i] = pCreateInfos_unwrapped[i];
@@ -1096,9 +1125,9 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                             deferredOperation_unwrapped,
                                                             pipelineCache_unwrapped,
                                                             createInfoCount,
-                                                            modified_create_infos.get(),
+                                                            modified_create_infos,
                                                             pAllocator,
-                                                            pPipelines);
+                                                            output_piplines);
     }
     else
     {
@@ -1108,21 +1137,24 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                             createInfoCount,
                                                             pCreateInfos_unwrapped,
                                                             pAllocator,
-                                                            pPipelines);
+                                                            output_piplines);
     }
 
     if (((result == VK_SUCCESS) || (result == VK_OPERATION_DEFERRED_KHR) ||
          (result == VK_OPERATION_NOT_DEFERRED_KHR)) &&
         (pPipelines != nullptr))
     {
-        CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
-            device, deferredOperation, pPipelines, createInfoCount, GetUniqueId);
-
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
+            if (deferred_operation_wrapper != nullptr)
+            {
+                pPipelines[i] = output_piplines[i];
+            }
+            CreateWrappedHandle<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
+                device, deferredOperation, &(pPipelines[i]), GetUniqueId);
             PipelineWrapper* pipeline_wrapper = reinterpret_cast<PipelineWrapper*>(pPipelines[i]);
 
-            if (deferredOperation != VK_NULL_HANDLE)
+            if (deferred_operation_wrapper != nullptr)
             {
                 auto deferred_operation_wrapper = reinterpret_cast<DeferredOperationKHRWrapper*>(deferredOperation);
                 assert(deferred_operation_wrapper != nullptr);
