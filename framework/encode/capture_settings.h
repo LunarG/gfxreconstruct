@@ -81,7 +81,7 @@ class CaptureSettings
         bool                          debug_layer{ false };
         bool                          debug_device_lost{ false };
         bool                          disable_dxr{ false };
-        double                        accel_struct_padding{ 0.0 };
+        uint32_t                      accel_struct_padding{ 0 };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

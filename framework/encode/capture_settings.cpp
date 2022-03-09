@@ -420,7 +420,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // DirectX options
     settings->trace_settings_.disable_dxr =
         ParseBoolString(FindOption(options, kOptionDisableDxr), settings->trace_settings_.disable_dxr);
-    settings->trace_settings_.accel_struct_padding = std::atof(FindOption(options, kOptionAccelStructPadding).c_str());
+    settings->trace_settings_.accel_struct_padding = gfxrecon::util::ParseUintString(
+        FindOption(options, kOptionAccelStructPadding), settings->trace_settings_.accel_struct_padding);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)

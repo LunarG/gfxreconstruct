@@ -297,7 +297,7 @@ class CaptureManager
     bool                                    screenshots_enabled_;
     std::vector<uint32_t>                   screenshot_indices_;
     bool                                    disable_dxr_;
-    double                                  accel_struct_padding_;
+    uint32_t                                accel_struct_padding_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

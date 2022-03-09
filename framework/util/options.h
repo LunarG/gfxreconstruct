@@ -49,6 +49,8 @@ std::vector<FrameRange> GetFrameRanges(const std::string& args);
 //----------------------------------------------------------------------------
 bool ParseBoolString(const std::string& value_string, bool default_value);
 
+uint32_t ParseUintString(const std::string& value_string, uint32_t default_value);
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

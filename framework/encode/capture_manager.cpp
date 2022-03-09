@@ -90,7 +90,7 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     debug_layer_(false), debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false),
-    global_frame_count_(0), disable_dxr_(false), accel_struct_padding_(0.0)
+    global_frame_count_(0), disable_dxr_(false), accel_struct_padding_(0)
 {}
 
 CaptureManager::~CaptureManager()

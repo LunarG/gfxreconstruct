@@ -176,5 +176,23 @@ bool ParseBoolString(const std::string& value_string, bool default_value)
     return result;
 }
 
+uint32_t ParseUintString(const std::string& value_string, uint32_t default_value)
+{
+    auto result = default_value;
+
+    try
+    {
+        result = std::stoul(value_string);
+    }
+    catch (...)
+    {
+        result = default_value;
+        GFXRECON_LOG_WARNING("Settings Loader: Ignoring unrecognized unsigned int option value \"%s\"",
+                             value_string.c_str());
+    }
+
+    return result;
+}
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

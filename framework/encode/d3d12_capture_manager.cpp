@@ -1979,14 +1979,14 @@ void D3D12CaptureManager::OverrideGetRaytracingAccelerationStructurePrebuildInfo
 
     device5->GetRaytracingAccelerationStructurePrebuildInfo(pDesc, pInfo);
 
-    auto padding = GetAccelStructPaddingSetting();
-    if (padding > 0.0)
+    auto padding_percent = GetAccelStructPaddingSetting();
+    if (padding_percent > 0)
     {
-        pInfo->ResultDataMaxSizeInBytes =
-            static_cast<UINT64>(std::ceil(pInfo->ResultDataMaxSizeInBytes * (1.0 + padding)));
-        pInfo->ScratchDataSizeInBytes = static_cast<UINT64>(std::ceil(pInfo->ScratchDataSizeInBytes * (1.0 + padding)));
+        double size_scale               = 1.0 + padding_percent / 100.0;
+        pInfo->ResultDataMaxSizeInBytes = static_cast<UINT64>(std::ceil(pInfo->ResultDataMaxSizeInBytes * size_scale));
+        pInfo->ScratchDataSizeInBytes   = static_cast<UINT64>(std::ceil(pInfo->ScratchDataSizeInBytes * size_scale));
         pInfo->UpdateScratchDataSizeInBytes =
-            static_cast<UINT64>(std::ceil(pInfo->UpdateScratchDataSizeInBytes * (1.0 + padding)));
+            static_cast<UINT64>(std::ceil(pInfo->UpdateScratchDataSizeInBytes * size_scale));
     }
 }
 
