@@ -39,6 +39,11 @@ class Dx12ConsumerBase
     Dx12ConsumerBase() {}
     virtual ~Dx12ConsumerBase() {}
 
+    virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record)
+    {
+        gfxrecon::util::filepath::CheckReplayerName(info_record.AppExeName);
+    }
+
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) {}

@@ -79,7 +79,13 @@ class Dx12DecoderBase : public ApiDecoder
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) {}
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+    {
+        for (auto consumer : consumers_)
+        {
+            consumer->Process_ExeFileInfo(info.exe_record);
+        }
+    }
 
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;

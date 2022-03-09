@@ -345,6 +345,41 @@ void GetApplicationInfo(ExeFileInfo& file_info)
 #endif
 }
 
+void CheckReplayerName(const std::string& exe_info_name)
+{
+#if defined(WIN32)
+    static bool warning_printed = false;
+
+    if (!warning_printed)
+    {
+        char module_name[MAX_PATH] = {};
+        auto size_path             = GetModuleFileNameA(nullptr, module_name, MAX_PATH);
+        if (size_path > 0)
+        {
+            warning_printed                   = true;
+            std::string filepath              = module_name;
+            std::string current_replayer_name = filepath.substr(filepath.find_last_of(kAltPathLastSepStr) + 1).c_str();
+
+            if (current_replayer_name != exe_info_name)
+            {
+                GFXRECON_LOG_WARNING("Mismatch:");
+                GFXRECON_LOG_WARNING("Captured application name: %s", exe_info_name.c_str());
+                GFXRECON_LOG_WARNING("Replayer process name: %s", current_replayer_name.c_str());
+                GFXRECON_LOG_WARNING(
+                    "This can lead to diverging driver behavior between the replayer and captured application");
+                GFXRECON_LOG_WARNING(
+                    "Recommendation: Rename gfxrecon-replay.exe to match the application's executable name");
+            }
+            else
+            {
+                GFXRECON_LOG_INFO("Match: Replayer process name vs captured application name");
+            }
+        }
+    }
+
+#endif
+}
+
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

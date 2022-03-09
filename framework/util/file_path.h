@@ -33,10 +33,11 @@ GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(filepath)
 
 #if defined(WIN32)
-const char kPathSep         = '\\';
-const char kPathSepStr[]    = "\\";
-const char kAltPathSep      = '/';
-const char kAltPathSepStr[] = "/";
+const char kPathSep             = '\\';
+const char kPathSepStr[]        = "\\";
+const char kAltPathSep          = '/';
+const char kAltPathSepStr[]     = "/";
+const char kAltPathLastSepStr[] = "/\\";
 #else
 const char kPathSep      = '/';
 const char kPathSepStr[] = "/";
@@ -91,6 +92,8 @@ void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, ExeFileIn
 void GetApplicationFileExeVersion(ExeFileInfo& exe_info, const std::string& file_path);
 
 void GetApplicationInfo(ExeFileInfo& file_info);
+
+void CheckReplayerName(const std::string& exe_info_name);
 
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)

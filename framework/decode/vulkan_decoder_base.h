@@ -167,7 +167,13 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                 const uint8_t*                              data) override;
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) {}
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+    {
+        for (auto consumer : consumers_)
+        {
+            consumer->Process_ExeFileInfo(info.exe_record);
+        }
+    }
 
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
