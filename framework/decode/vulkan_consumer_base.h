@@ -47,10 +47,7 @@ class VulkanConsumerBase
 
     virtual ~VulkanConsumerBase() {}
 
-    virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record)
-    {
-        gfxrecon::util::filepath::CheckReplayerName(info_record.AppExeName);
-    }
+    virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record) {}
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
 
