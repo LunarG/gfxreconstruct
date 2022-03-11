@@ -38,6 +38,16 @@ FileOptimizer::FileOptimizer(std::unordered_set<format::HandleId>&& unreferenced
     unreferenced_ids_(std::move(unreferenced_ids))
 {}
 
+void FileOptimizer::SetUnreferencedBlocks(const std::unordered_set<uint64_t>& unreferenced_blocks)
+{
+    unreferenced_blocks_ = unreferenced_blocks;
+}
+
+uint64_t FileOptimizer::GetUnreferencedBlocksSize()
+{
+    return unreferenced_blocks_.size();
+}
+
 bool FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
@@ -56,9 +66,26 @@ bool FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header, for
     }
 }
 
+bool FileOptimizer::ProcessMethodCall(const format::BlockHeader& block_header,
+                                      format::ApiCallId          api_call_id,
+                                      uint64_t                   block_index)
+{
+    if (api_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState ||
+        api_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState ||
+        api_call_id == format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline)
+    {
+        return FilterMethodCall(block_header, api_call_id, block_index);
+    }
+    else
+    {
+        // Copy the method call block, if it was not filtered.
+        return FileTransformer::ProcessMethodCall(block_header, api_call_id);
+    }
+}
+
 bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
-    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitBufferCommand);
+    GFXRECON_ASSERT(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitBufferCommand);
 
     format::InitBufferCommandHeader header;
 
@@ -84,8 +111,8 @@ bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_he
         else
         {
             // Copy the block from the input file to the output file.
-            header.meta_header.block_header   = block_header;
-            header.meta_header.meta_data_id   = meta_data_id;
+            header.meta_header.block_header = block_header;
+            header.meta_header.meta_data_id = meta_data_id;
 
             if (!WriteBytes(&header, sizeof(header)))
             {
@@ -112,7 +139,7 @@ bool FileOptimizer::FilterInitBufferMetaData(const format::BlockHeader& block_he
 
 bool FileOptimizer::FilterInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
-    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitImageCommand);
+    GFXRECON_ASSERT(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitImageCommand);
 
     format::InitImageCommandHeader header;
     std::vector<uint64_t>          level_sizes;
@@ -142,8 +169,8 @@ bool FileOptimizer::FilterInitImageMetaData(const format::BlockHeader& block_hea
         else
         {
             // Copy the block from the input file to the output file.
-            header.meta_header.block_header   = block_header;
-            header.meta_header.meta_data_id   = meta_data_id;
+            header.meta_header.block_header = block_header;
+            header.meta_header.meta_data_id = meta_data_id;
 
             if (!WriteBytes(&header, sizeof(header)))
             {
@@ -163,6 +190,35 @@ bool FileOptimizer::FilterInitImageMetaData(const format::BlockHeader& block_hea
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init image data meta-data block header");
         return false;
+    }
+
+    return true;
+}
+
+bool FileOptimizer::FilterMethodCall(const format::BlockHeader& block_header,
+                                     format::ApiCallId          api_call_id,
+                                     uint64_t                   block_index)
+{
+    GFXRECON_ASSERT(api_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState ||
+                    api_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState ||
+                    api_call_id == format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline);
+
+    // Total number of bytes remaining to be read for the current block.
+    uint64_t unread_bytes = block_header.size - sizeof(format::ApiCallId);
+
+    // If the buffer is in the unused list, omit the call block from the file.
+    if (unreferenced_blocks_.find(block_index) != unreferenced_blocks_.end())
+    {
+        unreferenced_blocks_.erase(block_index);
+        if (!SkipBytes(unread_bytes))
+        {
+            HandleBlockReadError(kErrorSeekingFile, "Failed to skip method call block data");
+            return false;
+        }
+    }
+    else
+    {
+        return FileTransformer::ProcessMethodCall(block_header, api_call_id);
     }
 
     return true;

@@ -141,6 +141,11 @@ class Dx12ConsumerBase
                                                            void*            replay_feature_data,
                                                            UINT             feature_data_size)
     {}
+
+    void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; };
+
+  protected:
+    uint64_t current_block_index_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

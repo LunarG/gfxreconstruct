@@ -159,6 +159,8 @@ class ApiDecoder
 
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                 const uint8_t*                              data) = 0;
+
+    virtual void SetCurrentBlockIndex(uint64_t block_index){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

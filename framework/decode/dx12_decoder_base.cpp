@@ -276,6 +276,14 @@ void Dx12DecoderBase::DispatchInitSubresourceCommand(const format::InitSubresour
     }
 }
 
+void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->SetCurrentBlockIndex(block_index);
+    }
+}
+
 size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                                 const uint8_t*   parameter_buffer,
                                                                 size_t           buffer_size)

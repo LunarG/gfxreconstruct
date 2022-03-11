@@ -70,6 +70,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/portability.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/referenced_resource_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/referenced_resource_table.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/referenced_object_table.h
+                    ${CMAKE_CURRENT_LIST_DIR}/referenced_object_table.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/replay_options.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.cpp
@@ -100,6 +102,9 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_mapping_util.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_mapping_util.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_enum_util.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer_base.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.h>

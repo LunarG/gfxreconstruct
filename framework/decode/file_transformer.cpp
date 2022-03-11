@@ -102,9 +102,11 @@ bool FileTransformer::Process()
 {
     bool success = true;
 
+    block_index_ = 0;
     while (success)
     {
         success = ProcessNextBlock();
+        block_index_++;
     }
 
     if (!success && (error_state_ == kErrorNone))
@@ -236,6 +238,21 @@ bool FileTransformer::ProcessNextBlock()
             else
             {
                 HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
+            }
+        }
+        else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMethodCallBlock)
+        {
+            format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
+
+            success = ReadBytes(&api_call_id, sizeof(api_call_id));
+
+            if (success)
+            {
+                success = ProcessMethodCall(block_header, api_call_id, block_index_);
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read method call block header");
             }
         }
         else
@@ -459,6 +476,31 @@ bool FileTransformer::ProcessFunctionCall(const format::BlockHeader& block_heade
     if (!CopyBytes(block_header.size - sizeof(call_id)))
     {
         HandleBlockCopyError(kErrorCopyingBlockData, "Failed to copy function call block data");
+        return false;
+    }
+
+    return true;
+}
+
+bool FileTransformer::ProcessMethodCall(const format::BlockHeader& block_header,
+                                        format::ApiCallId          call_id,
+                                        uint64_t                   block_index)
+{
+    // Copy block data from old file to new file.
+    if (!WriteBlockHeader(block_header))
+    {
+        return false;
+    }
+
+    if (!WriteBytes(&call_id, sizeof(call_id)))
+    {
+        HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write method call block header");
+        return false;
+    }
+
+    if (!CopyBytes(block_header.size - sizeof(call_id)))
+    {
+        HandleBlockCopyError(kErrorCopyingBlockData, "Failed to copy method call block data");
         return false;
     }
 

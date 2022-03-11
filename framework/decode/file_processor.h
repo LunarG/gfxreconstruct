@@ -111,7 +111,8 @@ class FileProcessor
 
     bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
 
-    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
+    bool
+    ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, uint64_t block_index = 0);
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
@@ -139,6 +140,7 @@ class FileProcessor
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
+    uint64_t                            block_index_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

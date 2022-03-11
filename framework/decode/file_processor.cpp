@@ -114,6 +114,8 @@ bool FileProcessor::ProcessAllFrames()
 {
     bool success = true;
 
+    block_index_ = 0;
+
     while (success)
     {
         success = ProcessNextFrame();
@@ -189,6 +191,8 @@ bool FileProcessor::ProcessBlocks()
     {
         success = ReadBlockHeader(&block_header);
 
+        block_index_++;
+
         if (success)
         {
             if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
@@ -222,7 +226,7 @@ bool FileProcessor::ProcessBlocks()
 
                 if (success)
                 {
-                    success = ProcessMethodCall(block_header, api_call_id);
+                    success = ProcessMethodCall(block_header, api_call_id, block_index_ - 1);
 
                     // Break from loop on frame delimiter.
                     if (IsFrameDelimiter(api_call_id))
@@ -479,7 +483,9 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     return success;
 }
 
-bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
+                                      format::ApiCallId          call_id,
+                                      uint64_t                   block_index)
 {
     size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t         uncompressed_size     = 0;
@@ -540,6 +546,7 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
                 if (decoder->SupportsApiCall(call_id))
                 {
                     DecodeAllocator::Begin();
+                    decoder->SetCurrentBlockIndex(block_index);
                     decoder->DecodeMethodCall(
                         call_id, object_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
                     DecodeAllocator::End();

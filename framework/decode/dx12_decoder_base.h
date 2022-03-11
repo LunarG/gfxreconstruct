@@ -178,6 +178,8 @@ class Dx12DecoderBase : public ApiDecoder
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                 const uint8_t*                              data) override;
 
+    virtual void SetCurrentBlockIndex(uint64_t block_index) override;
+
   protected:
     const std::vector<Dx12Consumer*>& GetConsumers() const { return consumers_; }
 
