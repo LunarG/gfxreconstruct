@@ -1666,6 +1666,18 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+    ID3D12GraphicsCommandList4_Wrapper*                                list_wrapper,
+    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          pDesc,
+    UINT                                                               NumPostbuildInfoDescs,
+    const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        GFXRECON_LOG_WARNING_ONCE("Trimming is not yet supported for DXR workloads.");
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Device_Wrapper*   device_wrapper,
                                                                      HRESULT                 result,
                                                                      UINT                    nodeMask,

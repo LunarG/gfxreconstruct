@@ -597,6 +597,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device1_SetResiden
     }
 };
 
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
