@@ -2803,6 +2803,52 @@ void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
     resource_value_mapper_->PostProcessBuildRaytracingAccelerationStructure(command_list4_object_info, desc);
 }
 
+void Dx12ReplayConsumerBase::OverrideGetRaytracingAccelerationStructurePrebuildInfo(
+    DxObjectInfo*                                                                        device5_object_info,
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>*  desc_decoder,
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO>* info_decoder)
+{
+    auto device5 = static_cast<ID3D12Device5*>(device5_object_info->object);
+
+    auto desc = desc_decoder->GetPointer();
+    auto info = info_decoder->GetPointer();
+
+    const UINT64 capture_result_data_max_size     = info->ResultDataMaxSizeInBytes;
+    const UINT64 capture_scratch_data_size        = info->ScratchDataSizeInBytes;
+    const UINT64 capture_update_scratch_data_size = info->UpdateScratchDataSizeInBytes;
+
+    device5->GetRaytracingAccelerationStructurePrebuildInfo(desc, info);
+
+    if (capture_result_data_max_size < info->ResultDataMaxSizeInBytes)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "Detected different Acceleration Structure size requirements (ResultDataMaxSizeInBytes) "
+            "between capture (%" PRIu64 ") and replay (%" PRIu64
+            "). Please capture on the same driver; replay may fail.",
+            capture_result_data_max_size,
+            info->ResultDataMaxSizeInBytes);
+    }
+
+    if (capture_scratch_data_size < info->ScratchDataSizeInBytes)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "Detected different Acceleration Structure size requirements (ScratchDataSizeInBytes) "
+            "between capture (%" PRIu64 ") and replay (%" PRIu64
+            "). Please capture on the same driver; replay may fail.",
+            capture_scratch_data_size,
+            info->ScratchDataSizeInBytes);
+    }
+
+    if (capture_update_scratch_data_size < info->UpdateScratchDataSizeInBytes)
+    {
+        GFXRECON_LOG_WARNING_ONCE("Detected different Acceleration Structure size requirements "
+                                  "(UpdateScratchDataSizeInBytes) between capture (%" PRIu64 ") and replay (%" PRIu64
+                                  "). Please capture on the same driver; replay may fail.",
+                                  capture_update_scratch_data_size,
+                                  info->UpdateScratchDataSizeInBytes);
+    }
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*            device_object_info,
                                                             HRESULT                  original_result,
                                                             UINT                     node_mask,

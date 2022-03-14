@@ -513,6 +513,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>*
             post_build_info_descs);
 
+    void OverrideGetRaytracingAccelerationStructurePrebuildInfo(
+        DxObjectInfo*                                                                        device5_object_info,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>*  desc_decoder,
+        StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO>* info_decoder);
+
     HRESULT OverrideCreateRootSignature(DxObjectInfo*                device_object_info,
                                         HRESULT                      original_result,
                                         UINT                         node_mask,

@@ -44,7 +44,8 @@
       "CreateCommandList1": "OverrideCreateCommandList1"
     },
     "ID3D12Device5": {
-      "CreateStateObject": "OverrideCreateStateObject"
+      "CreateStateObject": "OverrideCreateStateObject",
+      "GetRaytracingAccelerationStructurePrebuildInfo": "OverrideGetRaytracingAccelerationStructurePrebuildInfo"
     },
     "ID3D12Device7": {
       "AddToStateObject": "OverrideAddToStateObject"

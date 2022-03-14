@@ -6118,12 +6118,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructur
     StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* pDesc,
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO>* pInfo)
 {
-    auto replay_object = MapObject<ID3D12Device5>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        replay_object->GetRaytracingAccelerationStructurePrebuildInfo(pDesc->GetPointer(),
-                                                                      pInfo->GetPointer());
+        OverrideGetRaytracingAccelerationStructurePrebuildInfo(replay_object,
+                                                               pDesc,
+                                                               pInfo);
     }
 }
 
