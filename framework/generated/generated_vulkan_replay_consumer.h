@@ -1252,6 +1252,227 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo) override;
 
+    virtual void Process_vkGetPhysicalDeviceToolProperties(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        PointerDecoder<uint32_t>*                   pToolCount,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties) override;
+
+    virtual void Process_vkCreatePrivateDataSlot(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot) override;
+
+    virtual void Process_vkDestroyPrivateDataSlot(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            privateDataSlot,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkSetPrivateData(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        VkObjectType                                objectType,
+        uint64_t                                    objectHandle,
+        format::HandleId                            privateDataSlot,
+        uint64_t                                    data) override;
+
+    virtual void Process_vkGetPrivateData(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        VkObjectType                                objectType,
+        uint64_t                                    objectHandle,
+        format::HandleId                            privateDataSlot,
+        PointerDecoder<uint64_t>*                   pData) override;
+
+    virtual void Process_vkCmdSetEvent2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            event,
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+
+    virtual void Process_vkCmdResetEvent2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            event,
+        VkPipelineStageFlags2                       stageMask) override;
+
+    virtual void Process_vkCmdWaitEvents2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    eventCount,
+        HandlePointerDecoder<VkEvent>*              pEvents,
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos) override;
+
+    virtual void Process_vkCmdPipelineBarrier2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+
+    virtual void Process_vkCmdWriteTimestamp2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlags2                       stage,
+        format::HandleId                            queryPool,
+        uint32_t                                    query) override;
+
+    virtual void Process_vkQueueSubmit2(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            queue,
+        uint32_t                                    submitCount,
+        StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+        format::HandleId                            fence) override;
+
+    virtual void Process_vkCmdCopyBuffer2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo) override;
+
+    virtual void Process_vkCmdCopyImage2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo) override;
+
+    virtual void Process_vkCmdCopyBufferToImage2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo) override;
+
+    virtual void Process_vkCmdCopyImageToBuffer2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo) override;
+
+    virtual void Process_vkCmdBlitImage2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo) override;
+
+    virtual void Process_vkCmdResolveImage2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo) override;
+
+    virtual void Process_vkCmdBeginRendering(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
+
+    virtual void Process_vkCmdEndRendering(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer) override;
+
+    virtual void Process_vkCmdSetCullMode(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkCullModeFlags                             cullMode) override;
+
+    virtual void Process_vkCmdSetFrontFace(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkFrontFace                                 frontFace) override;
+
+    virtual void Process_vkCmdSetPrimitiveTopology(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPrimitiveTopology                         primitiveTopology) override;
+
+    virtual void Process_vkCmdSetViewportWithCount(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    viewportCount,
+        StructPointerDecoder<Decoded_VkViewport>*   pViewports) override;
+
+    virtual void Process_vkCmdSetScissorWithCount(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    scissorCount,
+        StructPointerDecoder<Decoded_VkRect2D>*     pScissors) override;
+
+    virtual void Process_vkCmdBindVertexBuffers2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstBinding,
+        uint32_t                                    bindingCount,
+        HandlePointerDecoder<VkBuffer>*             pBuffers,
+        PointerDecoder<VkDeviceSize>*               pOffsets,
+        PointerDecoder<VkDeviceSize>*               pSizes,
+        PointerDecoder<VkDeviceSize>*               pStrides) override;
+
+    virtual void Process_vkCmdSetDepthTestEnable(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthTestEnable) override;
+
+    virtual void Process_vkCmdSetDepthWriteEnable(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthWriteEnable) override;
+
+    virtual void Process_vkCmdSetDepthCompareOp(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkCompareOp                                 depthCompareOp) override;
+
+    virtual void Process_vkCmdSetDepthBoundsTestEnable(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthBoundsTestEnable) override;
+
+    virtual void Process_vkCmdSetStencilTestEnable(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    stencilTestEnable) override;
+
+    virtual void Process_vkCmdSetStencilOp(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkStencilFaceFlags                          faceMask,
+        VkStencilOp                                 failOp,
+        VkStencilOp                                 passOp,
+        VkStencilOp                                 depthFailOp,
+        VkCompareOp                                 compareOp) override;
+
+    virtual void Process_vkCmdSetRasterizerDiscardEnable(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    rasterizerDiscardEnable) override;
+
+    virtual void Process_vkCmdSetDepthBiasEnable(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthBiasEnable) override;
+
+    virtual void Process_vkCmdSetPrimitiveRestartEnable(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    primitiveRestartEnable) override;
+
+    virtual void Process_vkGetDeviceBufferMemoryRequirements(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements>* pInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
+
+    virtual void Process_vkGetDeviceImageMemoryRequirements(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements>* pInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
+
+    virtual void Process_vkGetDeviceImageSparseMemoryRequirements(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements>* pInfo,
+        PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
+        StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements) override;
+
     virtual void Process_vkDestroySurfaceKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            instance,
@@ -1491,7 +1712,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
     virtual void Process_vkCmdBeginRenderingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInfoKHR>* pRenderingInfo) override;
+        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
 
     virtual void Process_vkCmdEndRenderingKHR(
         const ApiCallInfo&                          call_info,
@@ -1988,30 +2209,30 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         format::HandleId                            event,
-        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
 
     virtual void Process_vkCmdResetEvent2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         format::HandleId                            event,
-        VkPipelineStageFlags2KHR                    stageMask) override;
+        VkPipelineStageFlags2                       stageMask) override;
 
     virtual void Process_vkCmdWaitEvents2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         uint32_t                                    eventCount,
         HandlePointerDecoder<VkEvent>*              pEvents,
-        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfos) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos) override;
 
     virtual void Process_vkCmdPipelineBarrier2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
 
     virtual void Process_vkCmdWriteTimestamp2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        VkPipelineStageFlags2KHR                    stage,
+        VkPipelineStageFlags2                       stage,
         format::HandleId                            queryPool,
         uint32_t                                    query) override;
 
@@ -2020,13 +2241,13 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkResult                                    returnValue,
         format::HandleId                            queue,
         uint32_t                                    submitCount,
-        StructPointerDecoder<Decoded_VkSubmitInfo2KHR>* pSubmits,
+        StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
         format::HandleId                            fence) override;
 
     virtual void Process_vkCmdWriteBufferMarker2AMD(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        VkPipelineStageFlags2KHR                    stage,
+        VkPipelineStageFlags2                       stage,
         format::HandleId                            dstBuffer,
         VkDeviceSize                                dstOffset,
         uint32_t                                    marker) override;
@@ -2040,49 +2261,49 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
     virtual void Process_vkCmdCopyBuffer2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo) override;
+        StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo) override;
 
     virtual void Process_vkCmdCopyImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageInfo2KHR>* pCopyImageInfo) override;
+        StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo) override;
 
     virtual void Process_vkCmdCopyBufferToImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR>* pCopyBufferToImageInfo) override;
+        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo) override;
 
     virtual void Process_vkCmdCopyImageToBuffer2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR>* pCopyImageToBufferInfo) override;
+        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo) override;
 
     virtual void Process_vkCmdBlitImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBlitImageInfo2KHR>* pBlitImageInfo) override;
+        StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo) override;
 
     virtual void Process_vkCmdResolveImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo) override;
+        StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo) override;
 
     virtual void Process_vkGetDeviceBufferMemoryRequirementsKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirementsKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
 
     virtual void Process_vkGetDeviceImageMemoryRequirementsKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
 
     virtual void Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements>* pInfo,
         PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
         StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements) override;
 
@@ -2809,7 +3030,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkResult                                    returnValue,
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pToolCount,
-        StructPointerDecoder<Decoded_VkPhysicalDeviceToolPropertiesEXT>* pToolProperties) override;
+        StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties) override;
 
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
         const ApiCallInfo&                          call_info,
@@ -3001,9 +3222,9 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkPrivateDataSlotEXT>* pPrivateDataSlot) override;
+        HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot) override;
 
     virtual void Process_vkDestroyPrivateDataSlotEXT(
         const ApiCallInfo&                          call_info,

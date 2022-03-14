@@ -44,13 +44,11 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     virtual ~VulkanAsciiConsumerBase() override;
 
-    void Initialize(const std::string& filename, FILE* file);
+    void Initialize(FILE* file, gfxrecon::util::ToStringFlags toStringFlags);
 
     void Destroy();
 
-    bool IsValid() const { return (m_file != nullptr); }
-
-    const std::string& GetFilename() const { return m_filename; }
+    bool IsValid() const { return (file_ != nullptr); }
 
     virtual void
     Process_vkAllocateCommandBuffers(const ApiCallInfo&                                         call_info,
@@ -111,23 +109,24 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
   protected:
     template <typename ToStringFunctionType>
-    inline void WriteApiCallToFile(const std::string&   functionName,
+    inline void WriteApiCallToFile(const ApiCallInfo&   call_info,
+                                   const std::string&   functionName,
                                    util::ToStringFlags  toStringFlags,
                                    uint32_t&            tabCount,
                                    uint32_t             tabSize,
                                    ToStringFunctionType toStringFunction)
     {
+        // TODO : The formatting logic for Vulkan and D3D12 need a separate PR to refactor them together...
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         using namespace util;
-        fprintf(m_file, "%s\n", (m_apiCallCount ? "," : ""));
-        fprintf(m_file, "\"[%s]%s\":", std::to_string(m_apiCallCount++).c_str(), functionName.c_str());
-        fprintf(m_file, "%s", GetWhitespaceString(toStringFlags).c_str());
-        fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+        fprintf(file_, "%s\n", (call_info.index ? "," : ""));
+        fprintf(file_, "\"[%s]%s\":", std::to_string(call_info.index).c_str(), functionName.c_str());
+        fprintf(file_, "%s", GetWhitespaceString(toStringFlags).c_str());
+        fprintf(file_, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
     }
 
   private:
-    FILE*       m_file;
-    std::string m_filename;
-    uint64_t    m_apiCallCount{ 0 };
+    FILE* file_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

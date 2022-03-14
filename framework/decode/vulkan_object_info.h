@@ -71,13 +71,14 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV = 12,
     kPhysicalDeviceArrayGetPhysicalDeviceSurfacePresentModes2EXT                        = 13,
     kPhysicalDeviceArrayEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR   = 14,
-    kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT                              = 15,
+    kPhysicalDeviceArrayGetPhysicalDeviceToolProperties                                 = 15,
     kPhysicalDeviceArrayGetPhysicalDeviceFragmentShadingRatesKHR                        = 16,
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2,
     kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2KHR =
-        kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2
+        kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2,
+    kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT = kPhysicalDeviceArrayGetPhysicalDeviceToolProperties
 };
 
 enum DeviceArrayIndices : uint32_t
@@ -86,9 +87,10 @@ enum DeviceArrayIndices : uint32_t
     kDeviceArrayGetPipelineExecutablePropertiesKHR              = 1,
     kDeviceArrayGetPipelineExecutableStatisticsKHR              = 2,
     kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR = 3,
-    kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR       = 4,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirements          = 4,
     // Aliases for extensions functions that were promoted to core.
-    kDeviceArrayGetImageSparseMemoryRequirements2KHR = kDeviceArrayGetImageSparseMemoryRequirements2
+    kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR = kDeviceArrayGetDeviceImageSparseMemoryRequirements
 };
 
 enum QueueArrayIndices : uint32_t
@@ -182,6 +184,7 @@ typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
 typedef VulkanObjectInfo<VkImageView>                     ImageViewInfo;
 typedef VulkanObjectInfo<VkShaderModule>                  ShaderModuleInfo;
 typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
+typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
@@ -293,9 +296,9 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
     // The following values are only used when loading the initial state for trimmed files.
-    VkMemoryPropertyFlags               memory_property_flags{ 0 };
-    VkBufferUsageFlags                  usage{ 0 };
-    uint32_t                            queue_family_index{ 0 };
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
+    VkBufferUsageFlags    usage{ 0 };
+    uint32_t              queue_family_index{ 0 };
 };
 
 struct ImageInfo : public VulkanObjectInfo<VkImage>
@@ -357,11 +360,14 @@ struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 {
     Window*                              window{ nullptr };
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    std::unordered_map<VkPhysicalDevice, VkSurfaceCapabilitiesKHR> surface_capabilities;
 };
 
 struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
     VkSurfaceKHR                         surface{ VK_NULL_HANDLE };
+    format::HandleId                     surface_id{ format::kNullHandleId };
     DeviceInfo*                          device_info{ nullptr };
     uint32_t                             width{ 0 };
     uint32_t                             height{ 0 };

@@ -48,6 +48,7 @@ class ArgumentParser
     bool                            IsInvalid() const { return is_invalid_; }
     const std::vector<std::string>& GetInvalidArgumentOrOptions() const { return invalid_values_present_; };
     bool                            IsOptionSet(const std::string& option) const;
+    bool                            IsArgumentSet(const std::string& argument) const;
     const std::string&              GetArgumentValue(const std::string& argument) const;
     size_t                          GetPositionalArgumentsCount() const { return positional_arguments_present_.size(); }
     const std::vector<std::string>& GetPositionalArguments() const { return positional_arguments_present_; }
@@ -66,6 +67,7 @@ class ArgumentParser
     std::unordered_map<std::string, uint32_t> options_indices_;
     std::vector<bool>                         options_present_;
     std::unordered_map<std::string, uint32_t> arguments_indices_;
+    std::vector<bool>                         arguments_present_;
     std::vector<std::string>                  argument_values_;
     std::vector<std::string>                  positional_arguments_present_;
 };

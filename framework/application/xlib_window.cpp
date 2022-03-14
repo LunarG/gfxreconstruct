@@ -289,6 +289,11 @@ bool XlibWindow::GetNativeHandle(HandleType type, void** handle)
     }
 }
 
+std::string XlibWindow::GetWsiExtension() const
+{
+    return VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
+}
+
 VkResult XlibWindow::CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
                                    VkFlags                      flags,

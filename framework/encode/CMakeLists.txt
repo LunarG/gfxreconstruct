@@ -38,6 +38,7 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_array_size_2d.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_command_buffer_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.cpp
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_api_call_encoders.h>

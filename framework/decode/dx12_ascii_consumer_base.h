@@ -37,7 +37,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     Dx12AsciiConsumerBase();
     virtual ~Dx12AsciiConsumerBase();
 
-    void Initialize(const std::string& filename, FILE* file, gfxrecon::util::ToStringFlags toStringFlags);
+    void Initialize(FILE* file, gfxrecon::util::ToStringFlags toStringFlags);
 
     void Destroy();
 

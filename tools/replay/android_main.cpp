@@ -209,7 +209,7 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
         {
             case APP_CMD_INIT_WINDOW:
             {
-                auto android_context = reinterpret_cast<AndroidContext*>(application->GetWsiContext());
+                auto android_context = reinterpret_cast<AndroidContext*>(application->GetWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME));
                 assert(android_context);
                 android_context->InitWindow();
                 break;

@@ -691,6 +691,56 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressK
 };
 
 template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetBufferDeviceAddress(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetBufferOpaqueCaptureAddress(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetBufferOpaqueCaptureAddress(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetDeviceMemoryOpaqueCaptureAddress(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetDeviceMemoryOpaqueCaptureAddress(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>
 {
     template <typename... Args>
@@ -707,6 +757,66 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGrou
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PreProcess_vkGetRayTracingShaderGroupHandlesKHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkAcquireFullScreenExclusiveModeEXT(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceSurfacePresentModes2EXT(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkReleaseFullScreenExclusiveModeEXT(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkGetDeviceGroupSurfacePresentModesKHR(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkGetDeviceGroupSurfacePresentModes2EXT(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(result, args...);
     }
 };
 

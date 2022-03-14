@@ -36,6 +36,8 @@
 #include "util/hash.h"
 #include "util/platform.h"
 
+#include "generated/generated_vulkan_enum_to_string.h"
+
 #include <cstdint>
 #include <limits>
 #include <unordered_set>
@@ -203,14 +205,12 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         [this](const void* handle) { return GetDeviceTable(handle); });
 
     // Destroy any windows that were created for Vulkan surfaces.
-    auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
-    auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-    if (window_factory)
+    for (auto window : active_windows_)
     {
-        for (auto window : active_windows_)
-        {
-            window_factory->Destroy(window);
-        }
+        auto wsi_context    = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
+        auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+        assert(window_factory);
+        window_factory->Destroy(window);
     }
 
     if (loader_handle_ != nullptr)
@@ -674,15 +674,24 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
         VkSurfaceKHR     surface         = swapchain_info->surface;
         assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-        auto instance_table = GetInstanceTable(physical_device);
-        auto device_table   = GetDeviceTable(device);
-        assert((instance_table != nullptr) && (device_table != nullptr));
+        SurfaceKHRInfo* surface_info   = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface_id);
+        auto            instance_table = GetInstanceTable(physical_device);
+        auto            device_table   = GetDeviceTable(device);
+        assert((surface_info != nullptr) && (instance_table != nullptr) && (device_table != nullptr));
 
         VkSurfaceCapabilitiesKHR surface_caps;
         uint32_t                 image_count = 0;
 
-        VkResult result =
-            instance_table->GetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps);
+        const auto& entry  = surface_info->surface_capabilities.find(physical_device);
+        VkResult    result = VK_SUCCESS;
+        if (entry != surface_info->surface_capabilities.end())
+        {
+            surface_caps = entry->second;
+        }
+        else
+        {
+            result = instance_table->GetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps);
+        }
 
         if (result == VK_SUCCESS)
         {
@@ -1636,8 +1645,8 @@ void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult origi
             GFXRECON_LOG_FATAL("API call %s returned error value %s that does not match the result from the "
                                "capture file: %s.  Replay cannot continue.",
                                func_name,
-                               enumutil::GetResultValueString(replay),
-                               enumutil::GetResultValueString(original));
+                               util::ToString<VkResult>(replay).c_str(),
+                               util::ToString<VkResult>(original).c_str());
 
             RaiseFatalError(enumutil::GetResultDescription(replay));
         }
@@ -1649,8 +1658,8 @@ void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult origi
             GFXRECON_LOG_WARNING(
                 "API call %s returned value %s that does not match return value from capture file: %s.",
                 func_name,
-                enumutil::GetResultValueString(replay),
-                enumutil::GetResultValueString(original));
+                util::ToString<VkResult>(replay).c_str(),
+                util::ToString<VkResult>(original).c_str());
         }
     }
 }
@@ -2087,6 +2096,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
 }
 
 VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                       instance_info,
+                                                 const std::string&                  wsi_extension,
                                                  VkFlags                             flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>* surface)
 {
@@ -2107,7 +2117,7 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
     {
         // Create a window for our surface.
         assert(application_);
-        auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+        auto wsi_context = application_ ? application_->GetWsiContext(wsi_extension, true) : nullptr;
         assert(wsi_context);
         auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
         assert(window_factory);
@@ -2431,22 +2441,25 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         if (replay_create_info->ppEnabledExtensionNames)
         {
-            // If a WSI was selected on the command line we need to add that WSI surface extension name to the
-            // VkInstance
+            // If a specific WSI extension was selected on the command line we need to make sure that extension is
+            // loaded
             assert(application_);
-            auto wsi_context       = application_->GetWsiContext();
-            auto window_factory    = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-            auto cli_wsi_extension = window_factory ? window_factory->GetSurfaceExtensionName() : nullptr;
-            if (cli_wsi_extension)
+            for (const auto& itr : application_->GetWsiContexts())
             {
-                filtered_extensions.push_back(cli_wsi_extension);
+                // TODO : It's kinda ugly to be referencing Dx12 (even if just by name) in the Vulkan codepath, but
+                // having a string associated with the WSI context isn't really something Dx12 has a concept of...this
+                // should be able to be refactored away in another PR
+                if (gfxrecon::util::platform::StringCompareNoCase(itr.first.c_str(), "Dx12WsiContext"))
+                {
+                    filtered_extensions.push_back(itr.first.c_str());
+                }
             }
 
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
             {
                 auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
                 filtered_extensions.push_back(current_extension);
-                if (!cli_wsi_extension && kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+                if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
                 {
                     application_->InitializeWsiContext(current_extension);
                 }
@@ -3016,6 +3029,53 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties2(
         physical_device_info, &capture_properties->memoryProperties, &replay_properties->memoryProperties);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilitiesKHR(
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR           func,
+    VkResult                                                original_result,
+    PhysicalDeviceInfo*                                     physical_device_info,
+    SurfaceKHRInfo*                                         surface_info,
+    StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities)
+{
+    assert((physical_device_info != nullptr) && (surface_info != nullptr) && (pSurfaceCapabilities != nullptr) &&
+           !pSurfaceCapabilities->IsNull() && (pSurfaceCapabilities->GetOutputPointer() != nullptr));
+
+    VkPhysicalDevice physical_device             = physical_device_info->handle;
+    VkSurfaceKHR     surface                     = surface_info->handle;
+    auto             replay_surface_capabilities = pSurfaceCapabilities->GetOutputPointer();
+
+    VkResult result = func(physical_device, surface, replay_surface_capabilities);
+    if (result == VK_SUCCESS)
+    {
+        surface_info->surface_capabilities[physical_device] = *replay_surface_capabilities;
+    }
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceCapabilities2KHR(
+    PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR                 func,
+    VkResult                                                       original_result,
+    PhysicalDeviceInfo*                                            physical_device_info,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
+    StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>*       pSurfaceCapabilities)
+{
+    assert((physical_device_info != nullptr) && (pSurfaceInfo != nullptr) && (!pSurfaceInfo->IsNull()) &&
+           (pSurfaceInfo->GetPointer() != nullptr) && (pSurfaceCapabilities != nullptr) &&
+           !pSurfaceCapabilities->IsNull() && (pSurfaceCapabilities->GetOutputPointer() != nullptr));
+
+    VkPhysicalDevice physical_device             = physical_device_info->handle;
+    auto             replay_surface_info         = pSurfaceInfo->GetPointer();
+    auto             replay_surface_capabilities = pSurfaceCapabilities->GetOutputPointer();
+
+    VkResult result = func(physical_device, replay_surface_info, replay_surface_capabilities);
+    if (result == VK_SUCCESS)
+    {
+        auto surface_id                                     = pSurfaceInfo->GetMetaStructPointer()->surface;
+        auto surface_info                                   = GetObjectInfoTable().GetSurfaceKHRInfo(surface_id);
+        surface_info->surface_capabilities[physical_device] = replay_surface_capabilities->surfaceCapabilities;
+    }
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences                  func,
                                                          VkResult                             original_result,
                                                          const DeviceInfo*                    device_info,
@@ -3553,7 +3613,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
     else
     {
         GFXRECON_LOG_INFO("Skipping vkAllocateDescriptorSets call that failed during capture with error %s",
-                          enumutil::GetResultValueString(original_result));
+                          util::ToString<VkResult>(original_result).c_str());
     }
 
     return result;
@@ -3578,7 +3638,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     else
     {
         GFXRECON_LOG_INFO("Skipping vkAllocateCommandBuffers call that failed during capture with error %s",
-                          enumutil::GetResultValueString(original_result));
+                          util::ToString<VkResult>(original_result).c_str());
     }
 
     return result;
@@ -3682,7 +3742,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
     else
     {
         GFXRECON_LOG_INFO("Skipping vkAllocateMemory call that failed during capture with error %s",
-                          enumutil::GetResultValueString(original_result));
+                          util::ToString<VkResult>(original_result).c_str());
     }
 
     return result;
@@ -4666,6 +4726,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         --dummy_handle;
 
         swapchain_info->surface            = VK_NULL_HANDLE;
+        swapchain_info->surface_id         = format::kNullHandleId;
         swapchain_info->image_flags        = replay_create_info->flags;
         swapchain_info->image_array_layers = replay_create_info->imageArrayLayers;
         swapchain_info->image_usage        = replay_create_info->imageUsage;
@@ -4685,6 +4746,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         }
 
         swapchain_info->surface     = replay_create_info->surface;
+        swapchain_info->surface_id  = pCreateInfo->GetMetaStructPointer()->surface;
         swapchain_info->device_info = device_info;
         swapchain_info->width       = replay_create_info->imageExtent.width;
         swapchain_info->height      = replay_create_info->imageExtent.height;
@@ -5430,7 +5492,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return CreateSurface(instance_info, replay_create_info->flags, pSurface);
+    return CreateSurface(instance_info, "VK_KHR_android_surface", replay_create_info->flags, pSurface);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
@@ -5451,7 +5513,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return CreateSurface(instance_info, replay_create_info->flags, pSurface);
+    return CreateSurface(instance_info, "VK_KHR_win32_surface", replay_create_info->flags, pSurface);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(
@@ -5465,7 +5527,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSup
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto wsi_context    = application_ ? application_->GetWsiContext("VK_KHR_win32_surface") : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
     return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
                                 GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
@@ -5490,7 +5552,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return CreateSurface(instance_info, replay_create_info->flags, pSurface);
+    return CreateSurface(instance_info, "VK_KHR_xcb_surface", replay_create_info->flags, pSurface);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(
@@ -5508,7 +5570,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto wsi_context    = application_ ? application_->GetWsiContext("VK_KHR_xcb_surface") : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
     return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
                                 GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
@@ -5533,7 +5595,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return CreateSurface(instance_info, replay_create_info->flags, pSurface);
+    return CreateSurface(instance_info, "VK_KHR_xlib_surface", replay_create_info->flags, pSurface);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupportKHR(
@@ -5551,7 +5613,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto wsi_context    = application_ ? application_->GetWsiContext("VK_KHR_xlib_surface") : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
     return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
                                 GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
@@ -5576,7 +5638,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return CreateSurface(instance_info, replay_create_info->flags, pSurface);
+    return CreateSurface(instance_info, "VK_KHR_wayland_surface", replay_create_info->flags, pSurface);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(
@@ -5592,7 +5654,7 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationS
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto wsi_context    = application_ ? application_->GetWsiContext("VK_KHR_wayland_surface") : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
     return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
                                 GetInstanceTable(physical_device), physical_device, queueFamilyIndex)
@@ -5621,7 +5683,7 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
     {
         window->DestroySurface(GetInstanceTable(instance), instance, surface);
         active_windows_.erase(window);
-        auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+        auto wsi_context    = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
         auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
         if (window_factory)
         {

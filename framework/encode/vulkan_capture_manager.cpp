@@ -1799,6 +1799,111 @@ void VulkanCaptureManager::PostProcess_vkFreeMemory(VkDevice                    
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkAcquireFullScreenExclusiveModeEXT(VkResult       result,
+                                                                           VkDevice       device,
+                                                                           VkSwapchainKHR swapchain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(swapchain);
+
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        assert(state_tracker_ != nullptr);
+        state_tracker_->TrackAcquireFullScreenExclusiveMode(device, swapchain);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkGetPhysicalDeviceSurfacePresentModes2EXT(
+    VkResult                               result,
+    VkPhysicalDevice                       physicalDevice,
+    const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+    uint32_t*                              pPresentModeCount,
+    VkPresentModeKHR*                      pPresentModes)
+{
+    if ((pPresentModeCount != nullptr) && (pPresentModes != nullptr) && (pSurfaceInfo != nullptr))
+    {
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfacePresentModes(
+                physicalDevice, pSurfaceInfo->surface, *pPresentModeCount, pPresentModes, pSurfaceInfo->pNext);
+        }
+
+#if defined(__ANDROID__)
+        OverrideGetPhysicalDeviceSurfacePresentModesKHR(pPresentModeCount, pPresentModes);
+#endif
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkReleaseFullScreenExclusiveModeEXT(VkResult       result,
+                                                                           VkDevice       device,
+                                                                           VkSwapchainKHR swapchain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(swapchain);
+
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        assert(state_tracker_ != nullptr);
+        state_tracker_->TrackReleaseFullScreenExclusiveMode(device, swapchain);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkGetDeviceGroupSurfacePresentModesKHR(VkResult                          result,
+                                                                              VkDevice                          device,
+                                                                              VkSurfaceKHR                      surface,
+                                                                              VkDeviceGroupPresentModeFlagsKHR* pModes)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    if (pModes != nullptr)
+    {
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackDeviceGroupSurfacePresentModes(device, surface, pModes);
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkGetDeviceGroupSurfacePresentModes2EXT(
+    VkResult                               result,
+    VkDevice                               device,
+    const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+    VkDeviceGroupPresentModeFlagsKHR*      pModes)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    if ((pSurfaceInfo != nullptr) && (pModes != nullptr))
+    {
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackDeviceGroupSurfacePresentModes(
+                device, pSurfaceInfo->surface, pModes, pSurfaceInfo->pNext);
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
+    VkResult                               result,
+    VkPhysicalDevice                       physicalDevice,
+    const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+    VkSurfaceCapabilities2KHR*             pSurfaceCapabilities)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
+
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pSurfaceCapabilities != nullptr))
+    {
+        assert(state_tracker_ != nullptr);
+        state_tracker_->TrackPhysicalDeviceSurfaceCapabilities(physicalDevice,
+                                                               pSurfaceInfo->surface,
+                                                               pSurfaceCapabilities->surfaceCapabilities,
+                                                               pSurfaceInfo->pNext,
+                                                               pSurfaceCapabilities->pNext);
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
                                                     uint32_t            submitCount,
                                                     const VkSubmitInfo* pSubmits,
@@ -1877,6 +1982,34 @@ void VulkanCaptureManager::PreProcess_vkGetBufferDeviceAddress(VkDevice device, 
     {
         GFXRECON_LOG_ERROR_ONCE(
             "The application is using vkGetBufferDeviceAddress, which requires the bufferDeviceAddressCaptureReplay "
+            "feature for accurate capture and replay. The capture device does not support this feature, so replay of "
+            "the captured file may fail.");
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkGetBufferOpaqueCaptureAddress(VkDevice                         device,
+                                                                      const VkBufferDeviceAddressInfo* pInfo)
+{
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (!device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR_ONCE(
+            "The application is using vkGetBufferOpaqueCaptureAddress, which requires the "
+            "bufferDeviceAddressCaptureReplay "
+            "feature for accurate capture and replay. The capture device does not support this feature, so replay of "
+            "the captured file may fail.");
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkGetDeviceMemoryOpaqueCaptureAddress(
+    VkDevice device, const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
+{
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (!device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR_ONCE(
+            "The application is using vkGetDeviceMemoryOpaqueCaptureAddress, which requires the "
+            "bufferDeviceAddressCaptureReplay "
             "feature for accurate capture and replay. The capture device does not support this feature, so replay of "
             "the captured file may fail.");
     }

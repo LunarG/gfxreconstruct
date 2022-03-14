@@ -25,30 +25,31 @@
 #include "decode/custom_vulkan_ascii_consumer.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
 
-#include "util/platform.h"
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : m_file(nullptr) {}
+VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : file_(nullptr) {}
 
 VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
 {
     Destroy();
 }
 
-void VulkanAsciiConsumerBase::Initialize(const std::string& filename, FILE* file)
+void VulkanAsciiConsumerBase::Initialize(FILE* file, gfxrecon::util::ToStringFlags toStringFlags)
 {
-    m_filename = filename;
-    m_file     = file;
+    // TODO : The formatting logic for Vulkan and D3D12 need a separate PR to refactor them together...
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    assert(file);
+    file_ = file;
+    fprintf(file_, "{");
 }
 
 void VulkanAsciiConsumerBase::Destroy()
 {
-    if (m_file != nullptr)
+    if (file_ != nullptr)
     {
-        fprintf(m_file, "\n}\n");
-        util::platform::FileClose(m_file);
+        fprintf(file_, "\n}\n");
+        file_ = nullptr;
     }
 }
 
@@ -70,7 +71,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
@@ -95,7 +96,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
@@ -122,7 +123,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKH
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkCmdBuildAccelerationStructuresIndirectKHR", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
@@ -160,7 +161,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkCmdBuildAccelerationStructuresKHR", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresKHR", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
@@ -197,7 +198,7 @@ void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkGetAccelerationStructureBuildSizesKHR", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkGetAccelerationStructureBuildSizesKHR", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
@@ -225,7 +226,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkCmdPushDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkCmdPushDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
@@ -248,7 +249,7 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkUpdateDescriptorSetWithTemplate", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplate", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
@@ -271,7 +272,7 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     ToStringFlags toStringFlags = kToString_Default;
     uint32_t tabCount = 0;
     uint32_t tabSize = 4;
-    WriteApiCallToFile("vkUpdateDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize,
+    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));

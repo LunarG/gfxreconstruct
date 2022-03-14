@@ -57,7 +57,10 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     # TODO: VkFlags64's enum need a diffferent way to print
-    SKIP_ENUM = ["VkFormatFeatureFlagBits2KHR"]
+    SKIP_ENUM = [
+        "VkFormatFeatureFlagBits2", "VkAccessFlagBits2",
+        "VkPipelineStageFlagBits2"
+    ]
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout

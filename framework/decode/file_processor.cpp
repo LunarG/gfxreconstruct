@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr)
+    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), api_call_index_(0)
 {}
 
 FileProcessor::~FileProcessor()
@@ -416,7 +416,8 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     uint64_t    uncompressed_size     = 0;
     ApiCallInfo call_info             = {};
 
-    bool success = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
+    call_info.index = api_call_index_;
+    bool success    = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
 
     if (success)
     {
@@ -473,6 +474,8 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                     DecodeAllocator::End();
                 }
             }
+
+            ++api_call_index_;
         }
     }
     else
@@ -552,6 +555,8 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
                     DecodeAllocator::End();
                 }
             }
+
+            ++api_call_index_;
         }
     }
     else
