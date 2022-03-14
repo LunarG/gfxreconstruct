@@ -42,6 +42,28 @@ void Dx12ObjectScanningConsumer::Process_ID3D12GraphicsCommandList_ClearState(co
     MarkObjectReferenced(pPipelineState);
 }
 
+void Dx12ObjectScanningConsumer::Process_ID3D12GraphicsCommandList_Reset(const ApiCallInfo& call_info,
+                                                                         format::HandleId   object_id,
+                                                                         HRESULT            return_value,
+                                                                         format::HandleId   pAllocator,
+                                                                         format::HandleId   pInitialState)
+{
+    MarkObjectReferenced(pInitialState);
+}
+
+void Dx12ObjectScanningConsumer::Process_ID3D12Device_CreateCommandList(const ApiCallInfo&           call_info,
+                                                                        format::HandleId             object_id,
+                                                                        HRESULT                      return_value,
+                                                                        UINT                         nodeMask,
+                                                                        D3D12_COMMAND_LIST_TYPE      type,
+                                                                        format::HandleId             pCommandAllocator,
+                                                                        format::HandleId             pInitialState,
+                                                                        Decoded_GUID                 riid,
+                                                                        HandlePointerDecoder<void*>* ppCommandList)
+{
+    MarkObjectReferenced(pInitialState);
+}
+
 void Dx12ObjectScanningConsumer::Process_ID3D12PipelineLibrary_StorePipeline(const ApiCallInfo& call_info,
                                                                              format::HandleId   object_id,
                                                                              HRESULT            return_value,

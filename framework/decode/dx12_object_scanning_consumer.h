@@ -43,6 +43,22 @@ class Dx12ObjectScanningConsumer : public Dx12ObjectScanningConsumerBase
                                                               format::HandleId   object_id,
                                                               format::HandleId   pPipelineState);
 
+    virtual void Process_ID3D12GraphicsCommandList_Reset(const ApiCallInfo& call_info,
+                                                         format::HandleId   object_id,
+                                                         HRESULT            return_value,
+                                                         format::HandleId   pAllocator,
+                                                         format::HandleId   pInitialState);
+
+    virtual void Process_ID3D12Device_CreateCommandList(const ApiCallInfo&           call_info,
+                                                        format::HandleId             object_id,
+                                                        HRESULT                      return_value,
+                                                        UINT                         nodeMask,
+                                                        D3D12_COMMAND_LIST_TYPE      type,
+                                                        format::HandleId             pCommandAllocator,
+                                                        format::HandleId             pInitialState,
+                                                        Decoded_GUID                 riid,
+                                                        HandlePointerDecoder<void*>* ppCommandList);
+
     virtual void Process_ID3D12GraphicsCommandList_SetPipelineState(const ApiCallInfo& call_info,
                                                                     format::HandleId   object_id,
                                                                     format::HandleId   pPipelineState);

@@ -76,7 +76,7 @@ static void PrintUsage(const char* exe_name)
 #endif
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE(
-        "  --d3d12-pso-removal\t\tRemove unused d3d12 pso's. Without it, the trace will be treated as Vulkan.");
+        "  --d3d12-pso-removal\tRemove unused d3d12 pso's. Without it, the trace will be treated as Vulkan.");
 #endif
 }
 
