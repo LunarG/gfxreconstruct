@@ -26,6 +26,7 @@
 #include "decode/api_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "generated/generated_dx12_consumer.h"
+#include "decoder_util.h"
 
 #include <algorithm>
 #include <vector>
@@ -40,6 +41,11 @@ class Dx12DecoderBase : public ApiDecoder
     Dx12DecoderBase() {}
 
     virtual ~Dx12DecoderBase() override {}
+
+    virtual bool IsComplete(uint64_t block_index) override
+    {
+        return decode::IsComplete<Dx12Consumer*>(consumers_, block_index);
+    }
 
     void AddConsumer(Dx12Consumer* consumer) { consumers_.push_back(consumer); }
 

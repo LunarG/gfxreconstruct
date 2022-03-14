@@ -46,6 +46,8 @@ class ApiDecoder
   public:
     virtual ~ApiDecoder() {}
 
+    virtual bool IsComplete(uint64_t block_index) = 0;
+
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
     virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) = 0;

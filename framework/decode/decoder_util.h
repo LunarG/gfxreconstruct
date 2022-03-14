@@ -20,34 +20,42 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/stat_decoder_base.h"
-#include "decoder_util.h"
+#ifndef GFXRECON_DECODE_DECODER_UTIL_H
+#define GFXRECON_DECODE_DECODER_UTIL_H
+
+#include "util/defines.h"
+
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool StatDecoderBase::IsComplete(uint64_t block_index)
+template <typename T>
+bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
 {
-    return decode::IsComplete<StatConsumerBase*>(consumers_, block_index);
-}
-
-void StatDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
-
-    for (auto consumer : consumers_)
+    int completed_consumers = 0;
+    if (consumers.size() == 0)
     {
-        consumer->Process_ExeFileInfo(info.exe_record);
+        return true;
     }
-}
 
-void StatDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
-{
-    for (auto consumer : consumers_)
+    for (auto it = std::begin(consumers); it != std::end(consumers);)
     {
-        consumer->ProcessStateBeginMarker(frame_number);
+        if ((*it)->IsComplete(block_index) == true)
+        {
+            it = consumers.erase(it);
+            completed_consumers++;
+        }
+        else
+        {
+            ++it;
+        }
     }
+
+    return completed_consumers == consumers.size();
 }
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_DECODE_DECODER_UTIL_H

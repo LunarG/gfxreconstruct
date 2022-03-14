@@ -90,7 +90,11 @@ class FileProcessor
 
     Error GetErrorState() const { return error_state_; }
 
+    bool WasEarlyExit() { return early_exit_; }
+
   private:
+    bool ContinueDecoding();
+
     bool ProcessFileHeader();
 
     bool ProcessBlocks();
@@ -142,6 +146,7 @@ class FileProcessor
     util::Compressor*                   compressor_;
     uint64_t                            api_call_index_;
     uint64_t                            block_index_{ 0 };
+    bool                                early_exit_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

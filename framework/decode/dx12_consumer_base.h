@@ -41,6 +41,8 @@ class Dx12ConsumerBase
 
     virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record) {}
 
+    virtual bool IsComplete(uint64_t block_index) { return false; }
+
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) {}

@@ -20,34 +20,44 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/stat_decoder_base.h"
-#include "decoder_util.h"
+#ifndef GFXRECON_DECODE_VULKAN_DETECTION_CONSUMER_H
+#define GFXRECON_DECODE_VULKAN_DETECTION_CONSUMER_H
+
+#include "decode/vulkan_consumer_base.h"
+#include "util/defines.h"
+
+#include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool StatDecoderBase::IsComplete(uint64_t block_index)
-{
-    return decode::IsComplete<StatConsumerBase*>(consumers_, block_index);
-}
+constexpr int kMaxVulkanBlockLimit = 1000;
 
-void StatDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+class VulkanDetectionConsumer : public VulkanConsumer
 {
-    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
-
-    for (auto consumer : consumers_)
+  public:
+    VulkanDetectionConsumer() : vulkan_consumer_usage_(false) {}
+    bool WasVulkanAPIDetected() { return vulkan_consumer_usage_; }
+    virtual void Process_vkCreateDevice(const ApiCallInfo&         call_info,
+                                        VkResult                   returnValue,
+                                        gfxrecon::format::HandleId physicalDevice,
+                                        StructPointerDecoder<Decoded_VkDeviceCreateInfo>*,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*,
+                                        HandlePointerDecoder<VkDevice>*)
     {
-        consumer->Process_ExeFileInfo(info.exe_record);
+        vulkan_consumer_usage_ = true;
     }
-}
-
-void StatDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
-{
-    for (auto consumer : consumers_)
+    virtual bool IsComplete(uint64_t block_index) override
     {
-        consumer->ProcessStateBeginMarker(frame_number);
+        return (block_index > kMaxVulkanBlockLimit) || WasVulkanAPIDetected();
     }
-}
+
+  private:
+    static int const kMaxVulkanBlockLimit = 1000;
+    bool vulkan_consumer_usage_;
+};
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_DECODE_VULKAN_DETECTION_CONSUMER_H

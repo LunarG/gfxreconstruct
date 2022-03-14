@@ -36,6 +36,7 @@ class StatConsumerBase
     virtual ~StatConsumerBase() {}
     virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record) {}
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
+    virtual bool IsComplete(uint64_t block_index) { return false; }
 };
 
 GFXRECON_END_NAMESPACE(decode)

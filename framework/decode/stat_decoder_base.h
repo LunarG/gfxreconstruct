@@ -41,7 +41,9 @@ class StatDecoderBase : public ApiDecoder
 
     ~StatDecoderBase() {}
 
-    void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info);
+    virtual bool IsComplete(uint64_t block_index) override;
+
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
 
     void AddConsumer(StatConsumerBase* consumer) { consumers_.push_back(consumer); }
 

@@ -30,6 +30,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
+#include "decoder_util.h"
 
 #include "vulkan/vulkan.h"
 
@@ -51,6 +52,11 @@ class VulkanDecoderBase : public ApiDecoder
     void RemoveConsumer(VulkanConsumer* consumer)
     {
         consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer));
+    }
+
+    virtual bool IsComplete(uint64_t block_index)
+    {
+        return decode::IsComplete<VulkanConsumer*>(consumers_, block_index);
     }
 
     virtual bool SupportsApiCall(format::ApiCallId call_id) override
@@ -167,13 +173,7 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                 const uint8_t*                              data) override;
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
-    {
-        for (auto consumer : consumers_)
-        {
-            consumer->Process_ExeFileInfo(info.exe_record);
-        }
-    }
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) {}
 
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }

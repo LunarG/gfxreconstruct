@@ -37,7 +37,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), api_call_index_(0)
+    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
+    early_exit_(false)
 {}
 
 FileProcessor::~FileProcessor()
@@ -118,10 +119,35 @@ bool FileProcessor::ProcessAllFrames()
 
     while (success)
     {
-        success = ProcessNextFrame();
+        success = ContinueDecoding();
+
+        if (success)
+        {
+            success = ProcessNextFrame();
+        }
     }
 
     return (error_state_ == kErrorNone);
+}
+
+bool FileProcessor::ContinueDecoding()
+{
+    int completed_decoders = 0;
+
+    for (auto decoder : decoders_)
+    {
+        if (decoder->IsComplete(block_index_) == true)
+        {
+            completed_decoders++;
+        }
+    }
+
+    if (completed_decoders == decoders_.size())
+    {
+        early_exit_ = true;
+    }
+
+    return !early_exit_;
 }
 
 bool FileProcessor::ProcessFileHeader()
