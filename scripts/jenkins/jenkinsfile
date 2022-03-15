@@ -72,7 +72,7 @@ def cloneReposWin() {
                 bat "git clone https://github.com/LunarG/GFXReconstruct-DX12/"
             }
         } catch (Exception err) {
-            echo "Unable to clone the gfxreconstruct github repo"
+            echo "Unable to clone the gfxreconstruct github repo "
             throw err
         }
     }
@@ -94,50 +94,29 @@ def cloneRepos() {
 
 // Check out, then load the script that contains functions that can be used in many projects.
 def setupTools() {
-    def jenkins_tools_linux = "Scripts/LabTools/Jenkins/Generic/JenkinsToolsLib.gvy"
-    def jenkins_tools_windows = "Scripts\\LabTools\\Jenkins\\Generic\\JenkinsToolsLib.gvy"
-    def loaded_tools
+    def jenkinsToolsLinux = "Scripts/lab_tools/Jenkins/Generic/JenkinsToolsLib.gvy"
+    def jenkinsToolsWindows = "Scripts\\lab_tools\\Jenkins\\Generic\\JenkinsToolsLib.gvy"
+
+    def loadedTools
     if (isUnix()) {
-        jenkins_tools = jenkins_tools_linux
+        jenkinsTools = jenkinsToolsLinux
     } else {
-        jenkins_tools = jenkins_tools_windows
+        jenkinsTools = jenkinsToolsWindows
     }
-    if (fileExists('Scripts')) {
-        // If Scripts were checked out, delete the directory and get a fresh copy
-        dir ('Scripts') {
-            try {
-                if (isUnix()) {
-                    sh "git branch -u origin/${commonScriptsBranch}"
-                    sh "git pull"
-                } else {
-                    bat "git branch -u origin/${commonScriptsBranch}"
-                    bat "git pull"
-                }
-            } catch (Exception ePull) {
-                echo "Unable to run the git pull in common-Scripts."
-                deleteDir()
-                git branch: "${commonScriptsBranch}", url: "ssh://gerritgit/DevTools/ec/common-Scripts"
-            }
-        }
-    } else {
-        // Check the repo out
-        try {
+    catchError(stageResult: 'FAILURE', buildResult: 'UNSTABLE', message: 'There was a problem cloning the scripts repo.') {
             dir('Scripts') {
-                git branch: "${commonScriptsBranch}", url: "ssh://gerritgit/DevTools/ec/common-Scripts"
+                git branch: "${commonScriptsBranch}", url: "${commonScriptsUrl}"
             }
-        } catch (Exception eInit) {
-            echo "Unable to checkout the common-Scripts repository"
-            throw eInit
         }
-    }
     // Load the script.
     try {
-        loaded_tools = load(jenkins_tools)
+        loadedTools = load(jenkinsTools)
     } catch (Exception err) {
-        echo "Could not load "+ jenkins_tools + " " + err
+        echo "Could not load "+ jenkinsTools + " " + err
         throw err
     }
-    return loaded_tools
+    echo "jenkinsTools loaded"
+    return loadedTools
 }
 
 // Upload all artifacts
