@@ -355,6 +355,9 @@ class D3D12CaptureManager : public CaptureManager
                                                       D3D12_HEAP_PROPERTIES*  heap_properties,
                                                       D3D12_HEAP_FLAGS*       heap_flags);
 
+    void PostProcess_ID3D12Resource_GetGPUVirtualAddress(ID3D12Resource_Wrapper*   wrapper,
+                                                         D3D12_GPU_VIRTUAL_ADDRESS result);
+
     void Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper);
 
     void PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc);

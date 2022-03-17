@@ -299,6 +299,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetHeapPr
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Resource_GetGPUVirtualAddress(args...);
+    }
+};
+
+template <>
 void CustomWrapperDestroyCall<ID3D12Resource_Wrapper>(ID3D12Resource_Wrapper* wrapper)
 {
     D3D12CaptureManager::Get()->Destroy_ID3D12Resource(wrapper);

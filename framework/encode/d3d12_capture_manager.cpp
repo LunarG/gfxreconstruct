@@ -1107,6 +1107,15 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Res
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Resource_GetGPUVirtualAddress(ID3D12Resource_Wrapper*   wrapper,
+                                                                          D3D12_GPU_VIRTUAL_ADDRESS result)
+{
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result != 0))
+    {
+        state_tracker_->TrackResourceGpuVa(wrapper, result);
+    }
+}
+
 void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper)
 {
     if (wrapper != nullptr)

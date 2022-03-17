@@ -224,6 +224,16 @@ void Dx12StateTracker::TrackResourceCreation(ID3D12Resource_Wrapper* resource_wr
     }
 }
 
+void Dx12StateTracker::TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapper, D3D12_GPU_VIRTUAL_ADDRESS address)
+{
+    GFXRECON_ASSERT(resource_wrapper);
+    GFXRECON_ASSERT(address != 0);
+
+    resource_wrapper->GetObjectInfo()->gpu_va = address;
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
+    state_table_.AddResourceGpuVa(resource_wrapper, address);
+}
+
 void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed)
 {
     auto list_info       = list_wrapper->GetObjectInfo();
@@ -468,6 +478,17 @@ void Dx12StateTracker::TrackRelease(IUnknown_Wrapper* wrapper)
             device_info->residency_priorities.erase(wrapper->GetCaptureId());
         }
     }
+}
+
+ID3D12Resource_Wrapper* Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va)
+{
+    ID3D12Resource_Wrapper* result      = nullptr;
+    auto                    resource_id = state_table_.GetResourceForGpuVa(gpu_va);
+    if (resource_id != format::kNullHandleId)
+    {
+        result = state_table_.GetID3D12Resource_Wrapper(resource_id);
+    }
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(encode)

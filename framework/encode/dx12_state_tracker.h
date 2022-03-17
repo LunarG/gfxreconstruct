@@ -147,6 +147,8 @@ class Dx12StateTracker
                                D3D12_RESOURCE_STATES   initial_state,
                                bool                    swapchain_buffer);
 
+    void TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapper, D3D12_GPU_VIRTUAL_ADDRESS address);
+
     void TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed);
 
     void TrackAcquireImage(UINT image_index, IDXGISwapChain_Wrapper* wrapper);
@@ -208,6 +210,8 @@ class Dx12StateTracker
     void TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
                                format::ApiCallId                  call_id,
                                const util::MemoryOutputStream*    parameter_buffer);
+
+    ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va);
 
   private:
     std::mutex     state_table_mutex_;

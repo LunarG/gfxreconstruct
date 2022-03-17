@@ -40,6 +40,19 @@ class Dx12StateTableBase
 
     ~Dx12StateTableBase() {}
 
+    void AddResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapper, D3D12_GPU_VIRTUAL_ADDRESS address)
+    {
+        gpu_va_map_.Add(resource_wrapper->GetCaptureId(), address, resource_wrapper->GetDesc().Width, address);
+    }
+
+    // Returns the handle ID for the resource that contains the GPU VA address or kNullHandleId if no match is found.
+    format::HandleId GetResourceForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address)
+    {
+        format::HandleId result = format::kNullHandleId;
+        gpu_va_map_.Map(address, &result);
+        return result;
+    }
+
   protected:
     template <typename T>
     bool InsertEntry(format::HandleId id, T* wrapper, std::map<format::HandleId, T*>& map)
@@ -68,6 +81,21 @@ class Dx12StateTableBase
         auto entry = map.find(id);
         return (entry != map.end()) ? entry->second : nullptr;
     }
+
+    // Specializations:
+    template <>
+    bool RemoveEntry(const ID3D12Resource_Wrapper* wrapper, std::map<format::HandleId, ID3D12Resource_Wrapper*>& map)
+    {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        if (wrapper->GetObjectInfo()->gpu_va != 0)
+        {
+            gpu_va_map_.Remove(wrapper->GetCaptureId(), wrapper->GetObjectInfo()->gpu_va);
+        }
+        return (map.erase(wrapper->GetCaptureId()) != 0);
+    }
+
+  private:
+    graphics::Dx12GpuVaMap gpu_va_map_; ///< Used to map GPU VAs to the containing resource's handle.
 };
 
 GFXRECON_END_NAMESPACE(encode)

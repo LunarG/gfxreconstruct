@@ -311,6 +311,8 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     std::vector<DxTileMappingInfo> tile_mappings;
 
     bool is_swapchain_buffer{ false };
+
+    D3D12_GPU_VIRTUAL_ADDRESS gpu_va{ 0 };
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo
