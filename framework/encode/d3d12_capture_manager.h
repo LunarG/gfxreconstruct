@@ -393,9 +393,9 @@ class D3D12CaptureManager : public CaptureManager
 
     void PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
         ID3D12GraphicsCommandList4_Wrapper*                                list_wrapper,
-        const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          pDesc,
-        UINT                                                               NumPostbuildInfoDescs,
-        const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs);
+        const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          desc,
+        UINT                                                               num_postbuild_info_descs,
+        const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* postbuild_info_descs);
 
     void PostProcess_ID3D12Device_CreateCommandList(ID3D12Device_Wrapper*   device_wrapper,
                                                     HRESULT                 result,

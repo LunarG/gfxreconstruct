@@ -541,7 +541,6 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateComma
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12Device_CreateCommandQueue(args...);
-
     }
 };
 

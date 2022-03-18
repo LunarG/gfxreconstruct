@@ -160,6 +160,19 @@ struct DxResizeBuffersInfo
     std::unique_ptr<util::MemoryOutputStream> call_parameters;
 };
 
+struct DxAccelerationStructureBuildInfo
+{
+    // The destination address and associated resource for the acceleration structure build.
+    D3D12_GPU_VIRTUAL_ADDRESS dest_gpu_va{ 0 };
+    ID3D12Resource_Wrapper*   destination_resource{ nullptr };
+
+    // Build inputs.
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{};
+
+    // Save a copy of the inputs' geometry descs for bottom level accel structs.
+    std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> inputs_geometry_descs;
+};
+
 struct IDXGIKeyedMutexInfo : public DxgiWrapperInfo
 {};
 
@@ -316,6 +329,9 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     bool is_swapchain_buffer{ false };
 
     D3D12_GPU_VIRTUAL_ADDRESS gpu_va{ 0 };
+
+    // Track acceleration structures that were built to this resource
+    std::map<D3D12_GPU_VIRTUAL_ADDRESS, DxAccelerationStructureBuildInfo> acceleration_structure_builds;
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo
@@ -358,10 +374,10 @@ enum D3D12GraphicsCommandObjectType : uint32_t
 
 struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 {
-    bool                                 was_reset{ false };
-    bool                                 is_closed{ false };
-    util::MemoryOutputStream             command_data;
-    std::vector<DxTransitionBarrier>     transition_barriers;
+    bool                             was_reset{ false };
+    bool                             is_closed{ false };
+    util::MemoryOutputStream         command_data;
+    std::vector<DxTransitionBarrier> transition_barriers;
 
     // Track command list dependencies.
     std::unordered_set<format::HandleId>          command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];
@@ -370,6 +386,9 @@ struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 
     // Record for future. It's not used for now.
     std::unordered_set<UINT64> command_gpu_descriptor_handles;
+
+    // Track acceleration structure builds that are recorded to this command list.
+    std::vector<DxAccelerationStructureBuildInfo> acceleration_structure_builds;
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo

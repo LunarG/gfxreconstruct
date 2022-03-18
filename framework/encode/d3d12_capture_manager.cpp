@@ -1677,13 +1677,16 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
 
 void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
     ID3D12GraphicsCommandList4_Wrapper*                                list_wrapper,
-    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          pDesc,
-    UINT                                                               NumPostbuildInfoDescs,
-    const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs)
+    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          desc,
+    UINT                                                               num_postbuild_info_descs,
+    const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* postbuild_info_descs)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(num_postbuild_info_descs);
+    GFXRECON_UNREFERENCED_PARAMETER(postbuild_info_descs);
+
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        GFXRECON_LOG_WARNING_ONCE("Trimming is not yet supported for DXR workloads.");
+        state_tracker_->TrackBuildRaytracingAccelerationStructure(list_wrapper, desc);
     }
 }
 

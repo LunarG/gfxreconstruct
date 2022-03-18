@@ -191,6 +191,9 @@ class Dx12StateTracker
 
     void TrackRelease(IUnknown_Wrapper* wrapper);
 
+    void TrackBuildRaytracingAccelerationStructure(ID3D12GraphicsCommandList4_Wrapper* list_wrapper,
+                                                   const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* desc);
+
     void TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
                                   void*                                result,
                                   LPCWSTR                              export_name,

@@ -120,6 +120,9 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* 
         {
             list_info->command_objects[i].clear();
         }
+
+        // Clear pending acceleration structure builds.
+        list_info->acceleration_structure_builds.clear();
     }
 
     if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
@@ -203,6 +206,13 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
                 TrackSubresourceTransitionBarrier(
                     resource_info.get(), transition_barrier, transition_barrier.subresource);
             }
+        }
+
+        // Add acceleration structure build infos to their destination resources.
+        for (const auto& accel_struct_build : list_info->acceleration_structure_builds)
+        {
+            auto dest_resource_info = accel_struct_build.destination_resource->GetObjectInfo();
+            dest_resource_info->acceleration_structure_builds[accel_struct_build.dest_gpu_va] = accel_struct_build;
         }
     }
 }
@@ -477,6 +487,59 @@ void Dx12StateTracker::TrackRelease(IUnknown_Wrapper* wrapper)
             std::unique_lock<std::mutex> lock(state_table_mutex_);
             device_info->residency_priorities.erase(wrapper->GetCaptureId());
         }
+    }
+}
+
+void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
+    ID3D12GraphicsCommandList4_Wrapper* list_wrapper, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* desc)
+{
+    // Get the wrapper of the destination resource.
+    ID3D12Resource_Wrapper* resource_wrapper = nullptr;
+    {
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        resource_wrapper = GetResourceWrapperForGpuVa(desc->DestAccelerationStructureData);
+    }
+
+    if (resource_wrapper)
+    {
+        DxAccelerationStructureBuildInfo build_info;
+        build_info.dest_gpu_va          = desc->DestAccelerationStructureData;
+        build_info.destination_resource = resource_wrapper;
+
+        // Save build input arguments.
+        build_info.inputs = desc->Inputs;
+
+        // Save a copy of the input's geometry desc pointers.
+        if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
+        {
+            for (UINT i = 0; i < desc->Inputs.NumDescs; ++i)
+            {
+                if (desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
+                {
+                    build_info.inputs_geometry_descs.push_back(desc->Inputs.pGeometryDescs[i]);
+                }
+                else if (desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
+                {
+                    build_info.inputs_geometry_descs.push_back(*desc->Inputs.ppGeometryDescs[i]);
+                }
+            }
+
+            // The geometry desc pointers may be invalid when build_info is used in the future, so clear them here.
+            build_info.inputs.pGeometryDescs  = nullptr;
+            build_info.inputs.ppGeometryDescs = nullptr;
+        }
+
+        // Save the build info with the command list info.
+        auto list_info = list_wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(list_info);
+        list_info->acceleration_structure_builds.push_back(build_info);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to find the resource object that corresponds to the DestAccelerationStructureData "
+                           "GPU VA (value=%" PRIu64
+                           ") in BuildRaytracingAccelerationStructure. Acceleration structure trimming may fail.",
+                           desc->DestAccelerationStructureData);
     }
 }
 
