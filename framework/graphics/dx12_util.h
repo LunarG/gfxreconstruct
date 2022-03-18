@@ -25,6 +25,7 @@
 #define GFXRECON_GRAPHICS_DX12_UTIL_H
 
 #include "util/defines.h"
+#include "util/logging.h"
 #include "util/platform.h"
 #include "graphics/dx12_image_renderer.h"
 
@@ -41,6 +42,7 @@ typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGI
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>>                     ID3D12DeviceComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Device5, &__uuidof(ID3D12Device5)>>                   ID3D12Device5ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>>                       ID3D12FenceComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Resource, &__uuidof(ID3D12Resource)>>                 ID3D12ResourceComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12PipelineState, &__uuidof(ID3D12PipelineState)>>       ID3D12PipelineStateComPtr;
@@ -48,6 +50,8 @@ typedef _com_ptr_t<_com_IIID<ID3D12CommandQueue, &__uuidof(ID3D12CommandQueue)>>
 typedef _com_ptr_t<_com_IIID<ID3D12CommandAllocator, &__uuidof(ID3D12CommandAllocator)>> ID3D12CommandAllocatorComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList, &__uuidof(ID3D12GraphicsCommandList)>>
     ID3D12GraphicsCommandListComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList4, &__uuidof(ID3D12GraphicsCommandList4)>>
+    ID3D12GraphicsCommandList4ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedData1, &__uuidof(ID3D12DeviceRemovedExtendedData1)>>
     ID3D12DeviceRemovedExtendedData1ComPtr;
 typedef _com_ptr_t<
@@ -85,6 +89,22 @@ HRESULT WaitForQueue(ID3D12CommandQueue* queue);
 // This function is meant to be called when device gets removed, to get extended debug information.
 // For it to work, gfxrecon-replay must be launched with: --debug-device-lost
 void AnalyzeDeviceRemoved(ID3D12Device* device);
+
+ID3D12ResourceComPtr CreateBufferResource(ID3D12Device*         device,
+                                          uint64_t              size,
+                                          D3D12_HEAP_TYPE       heap_type,
+                                          D3D12_RESOURCE_STATES initial_state,
+                                          D3D12_RESOURCE_FLAGS  flags);
+
+template <typename DeviceT>
+auto GetDeviceComPtrFromChild(ID3D12DeviceChild* device_child)
+{
+    _com_ptr_t<_com_IIID<DeviceT, &__uuidof(DeviceT)>> device = nullptr;
+    HRESULT                                            hr     = device_child->GetDevice(IID_PPV_ARGS(&device));
+    GFXRECON_ASSERT(SUCCEEDED(hr))
+    GFXRECON_ASSERT(device);
+    return device;
+}
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

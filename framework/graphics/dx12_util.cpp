@@ -24,6 +24,7 @@
 #include "graphics/dx12_util.h"
 
 #include "util/image_writer.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -172,15 +173,49 @@ HRESULT WaitForQueue(ID3D12CommandQueue* queue)
 void AnalyzeDeviceRemoved(ID3D12Device* device)
 {
     ID3D12DeviceRemovedExtendedData1ComPtr dred = nullptr;
-    HRESULT hr = device->QueryInterface(IID_PPV_ARGS(&dred));
+    HRESULT                                hr   = device->QueryInterface(IID_PPV_ARGS(&dred));
 
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dred_auto_breadcrumb_output = {};
     hr = dred->GetAutoBreadcrumbsOutput1(&dred_auto_breadcrumb_output);
 
     D3D12_DRED_PAGE_FAULT_OUTPUT dred_page_fault_output = {};
-    hr = dred->GetPageFaultAllocationOutput(&dred_page_fault_output);
+    hr                                                  = dred->GetPageFaultAllocationOutput(&dred_page_fault_output);
 
     // Analyze output structs here
+}
+
+ID3D12ResourceComPtr CreateBufferResource(ID3D12Device*         device,
+                                          uint64_t              size,
+                                          D3D12_HEAP_TYPE       heap_type,
+                                          D3D12_RESOURCE_STATES initial_state,
+                                          D3D12_RESOURCE_FLAGS  flags)
+{
+    D3D12_HEAP_PROPERTIES heap_props;
+    heap_props.Type                 = heap_type;
+    heap_props.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    heap_props.CreationNodeMask     = 1;
+    heap_props.VisibleNodeMask      = 1;
+
+    D3D12_RESOURCE_DESC res_desc;
+    res_desc.Dimension          = D3D12_RESOURCE_DIMENSION_BUFFER;
+    res_desc.Alignment          = 0;
+    res_desc.Width              = size;
+    res_desc.Height             = 1;
+    res_desc.DepthOrArraySize   = 1;
+    res_desc.MipLevels          = 1;
+    res_desc.Format             = DXGI_FORMAT_UNKNOWN;
+    res_desc.SampleDesc.Count   = 1;
+    res_desc.SampleDesc.Quality = 0;
+    res_desc.Layout             = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    res_desc.Flags              = flags;
+
+    ID3D12ResourceComPtr resource = nullptr;
+    device->CreateCommittedResource(
+        &heap_props, D3D12_HEAP_FLAG_NONE, &res_desc, initial_state, nullptr, IID_PPV_ARGS(&resource));
+    GFXRECON_ASSERT(resource);
+
+    return resource;
 }
 
 GFXRECON_END_NAMESPACE(dx12)
