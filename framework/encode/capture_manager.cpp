@@ -312,11 +312,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         else if (!trace_settings.trim_key.empty())
         {
             trim_key_ = trace_settings.trim_key;
+            trim_key_frames_ = trace_settings.trim_key_frames;
 
             // Enable state tracking when hotkey pressed
             if (IsTrimHotkeyPressed())
             {
                 capture_mode_ = kModeWriteAndTrack;
+                trim_key_first_frame_ = current_frame_;
 
                 success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
             }
@@ -490,7 +492,8 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
             }
         }
     }
-    else if (IsTrimHotkeyPressed())
+    else if (IsTrimHotkeyPressed() ||
+             ((trim_key_frames_ > 0) && (current_frame_ >= (trim_key_first_frame_ + trim_key_frames_))))
     {
         // Stop recording and close file.
         DeactivateTrimming();
@@ -523,6 +526,8 @@ void CaptureManager::CheckStartCaptureForTrackMode()
         bool success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
         if (success)
         {
+
+            trim_key_first_frame_ = current_frame_;
             ActivateTrimming();
         }
         else
