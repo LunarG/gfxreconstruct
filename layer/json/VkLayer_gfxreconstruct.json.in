@@ -139,6 +139,14 @@
                     "default": ""
                 },
                 {
+                    "key": "capture_trigger_frames",
+                    "env": "GFXRECON_CAPTURE_TRIGGER_FRAMES",
+                    "label": "Hotkey Capture Frame Limit",
+                    "description": "Specify a limit on the number of frames to be captured via hotkey. Example: 1 will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)",
+                    "type": "STRING",
+                    "default": ""
+                },
+                {
                     "key": "capture_frames",
                     "env": "GFXRECON_CAPTURE_FRAMES",
                     "label": "Capture Specific Frames",

@@ -44,6 +44,7 @@ def UsageMsg():
            '                           [-f captureFrames]' + os.linesep +
            '                           [--no-file-timestamp]' + os.linesep +
            '                           [--trigger {F1-F12,TAB,CTRL}]' + os.linesep +
+           '                           [--trigger-frames frameCount]' + os.linesep +
            '                           [--compression-type {LZ4,ZLIB,ZSTD,NONE}]' + os.linesep +
            '                           [--file-flush]' + os.linesep +
            '                           [--log-level {debug,info,warn,error,fatal}]' + os.linesep +
@@ -100,6 +101,7 @@ def ParseArgs():
     parser.add_argument('-f', '--capture-frames', dest='captureFrames', metavar='<captureFrames>', help='List of frames to capture, default is all frames')
     parser.add_argument('--no-file-timestamp', dest='fileTimestamp', action='store_const', const='false', help='Do not add a timestamp to the capture file name')
     parser.add_argument('--trigger', dest='trigger', choices=triggerKeyChoices, help='Specify a hotkey to start/stop capture')
+    parser.add_argument('--trigger-frames', dest='triggerFrames', metavar='<frameCount>', help='Specify a limit on the number of frames captured via hotkey')
     parser.add_argument('--compression-type', dest='compressionType', choices=compressionTypeChoices, help='Specify the type of compression to use in the capture file, default is LZ4')
     parser.add_argument('--file-flush', dest='fileFlush', action='store_const', const='true', help='Flush output stream after each packet is written to capture file')
     parser.add_argument('--log-level', dest='logLevel', choices=logLevelChoices, help='Specify highest level message to log, default is info')
@@ -127,6 +129,7 @@ def PrintArgs(args):
     print('capture-frames', args.captureFrames)
     print('no-file-timestamp', args.fileTimestamp)
     print('trigger', args.trigger)
+    print('trigger-frames', args.triggerFrames)
     print('compression-type', args.compressionType)
     print('file-flush', args.fileFlush)
     print('log-level', args.logLevel)
@@ -187,6 +190,7 @@ def SetEnvVars(args):
     SetEnvVar('GFXRECON_CAPTURE_FRAMES', args.captureFrames)
     SetEnvVar('GFXRECON_CAPTURE_FILE_TIMESTAMP', args.fileTimestamp)
     SetEnvVar('GFXRECON_CAPTURE_TRIGGER', args.trigger)
+    SetEnvVar('GFXRECON_CAPTURE_TRIGGER_FRAMES', args.triggerFrames)
     SetEnvVar('GFXRECON_CAPTURE_COMPRESSION_TYPE', args.compressionType)
     SetEnvVar('GFXRECON_CAPTURE_FILE_FLUSH', args.fileFlush)
     SetEnvVar('GFXRECON_LOG_LEVEL', args.logLevel)
