@@ -4403,8 +4403,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     std::unique_ptr<char[]> file_code;
     const uint32_t*         orig_code = original_info->pCode;
     size_t                  orig_size = original_info->codeSize;
-    uint32_t                check_sum = util::hash::CheckSum(orig_code, orig_size);
-    std::string             file_name = "sh" + std::to_string(check_sum);
+    uint64_t                handle_id = *pShaderModule->GetPointer();
+    std::string             file_name = "sh" + std::to_string(handle_id);
     std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);
 
     FILE*   fp     = nullptr;
