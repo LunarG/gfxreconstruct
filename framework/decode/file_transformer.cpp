@@ -416,7 +416,7 @@ bool FileTransformer::CreateCompressor(format::CompressionType type, std::unique
 
         if ((*compressor) == nullptr)
         {
-            GFXRECON_LOG_ERROR("Failed to initialized file compression module (type = %u); processing of "
+            GFXRECON_LOG_ERROR("Failed to initialize file compression module (type = %u); processing of "
                                "compressed data will not be possible",
                                type);
             error_state_ = kErrorUnsupportedCompressionType;
