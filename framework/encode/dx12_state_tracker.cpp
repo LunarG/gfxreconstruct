@@ -565,6 +565,12 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             build_info.inputs.ppGeometryDescs = nullptr;
         }
 
+        // Compute the required inputs buffer size and entry information.
+        uint64_t                                       inputs_buffer_size = 0;
+        std::vector<graphics::dx12::InputsBufferEntry> inputs_buffer_entries;
+        graphics::dx12::GetAccelerationStructureInputsBufferEntries(
+            build_info.inputs, build_info.inputs_geometry_descs.data(), inputs_buffer_size, inputs_buffer_entries);
+
         // Save the build info with the command list info.
         auto list_info = list_wrapper->GetObjectInfo();
         GFXRECON_ASSERT(list_info);

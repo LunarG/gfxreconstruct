@@ -436,8 +436,8 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
             else
             {
                 // TODO (GH #424): Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
-                GFXRECON_LOG_ERROR("Unsupported instance descs layout %d used in BuildRaytracingAccelerationStructure. "
-                                   "Replay mail fail.",
+                GFXRECON_LOG_ERROR("Unsupported instance descs layout (DescsLayout=%d) used in "
+                                   "BuildRaytracingAccelerationStructure. Replay may fail.",
                                    build_desc->Inputs.DescsLayout);
             }
         }

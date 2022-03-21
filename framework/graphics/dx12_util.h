@@ -106,6 +106,22 @@ auto GetDeviceComPtrFromChild(ID3D12DeviceChild* device_child)
     return device;
 }
 
+struct InputsBufferEntry
+{
+    uint64_t                   offset{ 0 };      ///< Offset for the inputs data within the inputs buffer.
+    D3D12_GPU_VIRTUAL_ADDRESS* desc_gpu_va{ 0 }; ///< Pointer to the desc's GPU VA that references this inputs data.
+    uint64_t                   size{ 0 };        ///< Size of the inputs data in the inputs buffer.
+};
+
+// This function is used to compute the sizes and offsets of inputs used by BuildRayTracingAccelerationStructure. The
+// inputs are stored on GPU resources and referenced by the INPUTS desc. A non-const D3D12_RAYTRACING_GEOMETRY_DESC*
+// array must be provided as geometry_descs argument and will be referenced instead of
+// inputs_desc.pGeometries/ppGeometries.
+void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& inputs_desc,
+                                                 D3D12_RAYTRACING_GEOMETRY_DESC*                       geometry_descs,
+                                                 uint64_t&                       inputs_buffer_size,
+                                                 std::vector<InputsBufferEntry>& entries);
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
