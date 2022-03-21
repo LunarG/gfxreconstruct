@@ -30,10 +30,12 @@
 #include "format/format_util.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
+#include "decode/exe_info_consumer.h"
+#include "decode/exe_info_decoder_base.h"
 #include "decode/vulkan_detection_consumer.h"
-#include <decode/vulkan_stats_consumer.h>
+#include "decode/vulkan_stats_consumer.h"
 #if defined(WIN32)
-#include <decode/dx12_stats_consumer.h>
+#include "decode/dx12_stats_consumer.h"
 #include "generated/generated_dx12_decoder.h"
 #include "decode/dx12_detection_consumer.h"
 #endif
@@ -50,12 +52,13 @@
 #include <string>
 #include <unordered_map>
 
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
-const char kVersionOption[]   = "--version";
-const char kNoDebugPopup[]    = "--no-debug-popup";
+const char kHelpShortOption[]   = "-h";
+const char kHelpLongOption[]    = "--help";
+const char kVersionOption[]     = "--version";
+const char kNoDebugPopup[]      = "--no-debug-popup";
+const char kExeInfoOnlyOption[] = "--exe-info-only";
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -221,7 +224,6 @@ void GatherVulkanStats(const std::string& input_filename)
                                        trim_start_frame + frame_count - 1);
             }
             GFXRECON_WRITE_CONSOLE("\nApplication info:");
-            GFXRECON_WRITE_CONSOLE("\tApplication exe name: %s", stat_consumer.GetAppExeName().c_str());
 
             uint32_t api_version = vulkan_stats_consumer.GetApiVersion();
 
@@ -345,24 +347,9 @@ void GatherD3D12Stats(const std::string& input_filename)
                                        trim_start_frame,
                                        trim_start_frame + frame_count - 1);
             }
-            GFXRECON_WRITE_CONSOLE("\nApplication info:");
-            GFXRECON_WRITE_CONSOLE("\tApplication exe name: %s", stat_consumer.GetAppExeName().c_str());
 
-            auto exe_version = stat_consumer.GetAppVersion();
-            GFXRECON_WRITE_CONSOLE(
-                "\tApplication version: %d.%d.%d.%d", exe_version[0], exe_version[1], exe_version[2], exe_version[3]);
-            GFXRECON_WRITE_CONSOLE("\tApplication Company name: %s", stat_consumer.GetCompanyName());
-            // we are combining file description and product name and presenting both only if they are not same
-            std::string app_data = stat_consumer.GetFileDescription();
-            if (strcmp(stat_consumer.GetProductName(), "N/A") != 0)
-            {
-                if (strcmp(stat_consumer.GetProductName(), stat_consumer.GetFileDescription()) != 0)
-                {
-                    app_data += " // ";
-                    app_data += stat_consumer.GetProductName();
-                }
-            }
-
+            GFXRECON_WRITE_CONSOLE("");
+            GFXRECON_WRITE_CONSOLE("D3D12 info:");
             GFXRECON_WRITE_CONSOLE("\tAdapter Description: %s",
                                    gfxrecon::util::WCharArrayToString(dx12_consumer.GetAdapterDescription()).c_str());
             GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", dx12_consumer.GetVendorID());
@@ -373,7 +360,7 @@ void GatherD3D12Stats(const std::string& input_filename)
             GFXRECON_WRITE_CONSOLE("\tDedicated System Memory: %u", dx12_consumer.GetDedicatedSystemMemory());
             GFXRECON_WRITE_CONSOLE("\tShared System Memory: %u", dx12_consumer.GetSharedSystemMemory());
             GFXRECON_WRITE_CONSOLE(
-                "\tAdapter LUID:%u %u", dx12_consumer.GetAdapterLUIDHighPart(), dx12_consumer.GetAdapterLUIDLowPart());
+                "\tAdapter LUID: %u %u", dx12_consumer.GetAdapterLUIDHighPart(), dx12_consumer.GetAdapterLUIDLowPart());
         }
         else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
         {
@@ -387,6 +374,42 @@ void GatherD3D12Stats(const std::string& input_filename)
         }
     }
 #endif
+}
+
+void GatherExeInfo(const std::string& input_filename)
+{
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        gfxrecon::decode::ExeInfoDecoderBase exe_info_decoder;
+        gfxrecon::decode::ExeInfoConsumer    exe_info_consumer;
+        exe_info_decoder.AddConsumer(&exe_info_consumer);
+        file_processor.AddDecoder(&exe_info_decoder);
+
+        file_processor.ProcessAllFrames();
+        if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
+        {
+            GFXRECON_WRITE_CONSOLE("Exe info:");
+            GFXRECON_WRITE_CONSOLE("\tApplication exe name: %s", exe_info_consumer.GetAppExeName().c_str());
+
+            auto exe_version = exe_info_consumer.GetAppVersion();
+            GFXRECON_WRITE_CONSOLE(
+                "\tApplication version: %d.%d.%d.%d", exe_version[0], exe_version[1], exe_version[2], exe_version[3]);
+            GFXRECON_WRITE_CONSOLE("\tApplication Company name: %s", exe_info_consumer.GetCompanyName());
+            GFXRECON_WRITE_CONSOLE("");
+
+            // we are combining file description and product name and presenting both only if they are not same
+            std::string app_data = exe_info_consumer.GetFileDescription();
+            if (strcmp(exe_info_consumer.GetProductName(), "N/A") != 0)
+            {
+                if (strcmp(exe_info_consumer.GetProductName(), exe_info_consumer.GetFileDescription()) != 0)
+                {
+                    app_data += " // ";
+                    app_data += exe_info_consumer.GetProductName();
+                }
+            }
+        }
+    }
 }
 
 int main(int argc, const char** argv)
@@ -419,19 +442,26 @@ int main(int argc, const char** argv)
     const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
     std::string                     input_filename       = positional_arguments[0];
 
-    bool detected_d3d12  = false;
-    bool detected_vulkan = false;
+    GatherExeInfo(input_filename);
 
-    if (DetectAPIs(input_filename, detected_d3d12, detected_vulkan))
+    bool exe_info_only = arg_parser.IsOptionSet(kExeInfoOnlyOption);
+
+    if (exe_info_only == false)
     {
-        if (detected_d3d12)
-        {
-            GatherD3D12Stats(input_filename);
-        }
+        bool detected_d3d12  = false;
+        bool detected_vulkan = false;
 
-        if (detected_vulkan)
+        if (DetectAPIs(input_filename, detected_d3d12, detected_vulkan))
         {
-            GatherVulkanStats(input_filename);
+            if (detected_d3d12)
+            {
+                GatherD3D12Stats(input_filename);
+            }
+
+            if (detected_vulkan)
+            {
+                GatherVulkanStats(input_filename);
+            }
         }
     }
 

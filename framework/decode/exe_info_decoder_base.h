@@ -20,12 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_STAT_DECODER_BASE_H
-#define GFXRECON_STAT_DECODER_BASE_H
+#ifndef GFXRECON_EXE_INFO_DECODER_BASE_H
+#define GFXRECON_EXE_INFO_DECODER_BASE_H
 
 #include "decode/api_decoder.h"
 #include "decode/struct_pointer_decoder.h"
-#include "decode/stat_consumer_base.h"
+#include "decode/exe_info_consumer_base.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -34,18 +34,18 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 ** This class implements the ApiDecoder interface
 ** Its main purpose is to decode non api application info
 */
-class StatDecoderBase : public ApiDecoder
+class ExeInfoDecoderBase : public ApiDecoder
 {
   public:
-    StatDecoderBase() {}
+    ExeInfoDecoderBase() {}
 
-    ~StatDecoderBase() {}
+    ~ExeInfoDecoderBase() {}
 
     virtual bool IsComplete(uint64_t block_index) override;
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info){};
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
 
-    void AddConsumer(StatConsumerBase* consumer) { consumers_.push_back(consumer); }
+    void AddConsumer(ExeInfoConsumerBase* consumer) { consumers_.push_back(consumer); }
 
     virtual bool SupportsApiCall(format::ApiCallId id) { return true; }
 
@@ -62,7 +62,7 @@ class StatDecoderBase : public ApiDecoder
                                   size_t             buffer_size)
     {}
 
-    virtual void DispatchStateBeginMarker(uint64_t frame_number);
+    virtual void DispatchStateBeginMarker(uint64_t frame_number) {}
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) {}
 
@@ -170,10 +170,10 @@ class StatDecoderBase : public ApiDecoder
     {}
 
   private:
-    std::vector<StatConsumerBase*> consumers_;
+    std::vector<ExeInfoConsumerBase*> consumers_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_STAT_DECODER_BASE_H
+#endif // GFXRECON_EXE_INFO_DECODER_BASE_H

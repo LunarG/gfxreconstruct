@@ -55,6 +55,10 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_consumer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_decoder_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_decoder_base.cpp
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx_replay_options.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.h

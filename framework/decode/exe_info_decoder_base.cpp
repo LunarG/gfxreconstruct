@@ -20,33 +20,26 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_STAT_CONSUMER_H
-#define GFXRECON_DECODE_STAT_CONSUMER_H
-
-#include "decode/api_decoder.h"
-#include "stat_consumer_base.h"
+#include "decode/exe_info_decoder_base.h"
+#include "decoder_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class StatConsumer : public StatConsumerBase
+bool ExeInfoDecoderBase::IsComplete(uint64_t block_index)
 {
-  public:
-    StatConsumer() {}
-    uint32_t GetTrimmedStartFrame() const { return trimmed_frame_; }
+    return decode::IsComplete<ExeInfoConsumerBase*>(consumers_, block_index);
+}
 
-    virtual void ProcessStateBeginMarker(uint64_t frame_number) override
+void ExeInfoDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
     {
-        GFXRECON_UNREFERENCED_PARAMETER(frame_number);
-        // Theres should only be one of these in a capture file.
-        trimmed_frame_ = static_cast<uint32_t>(frame_number);
+        consumer->Process_ExeFileInfo(info.exe_record);
     }
-
-  private:
-    uint32_t trimmed_frame_{ 0 };
-};
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_DECODE_STAT_CONSUMER_H

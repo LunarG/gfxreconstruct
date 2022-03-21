@@ -31,16 +31,6 @@ bool StatDecoderBase::IsComplete(uint64_t block_index)
     return decode::IsComplete<StatConsumerBase*>(consumers_, block_index);
 }
 
-void StatDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
-
-    for (auto consumer : consumers_)
-    {
-        consumer->Process_ExeFileInfo(info.exe_record);
-    }
-}
-
 void StatDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)
