@@ -172,6 +172,9 @@ struct DxAccelerationStructureBuildInfo
 
     // Save a copy of the inputs' geometry descs for bottom level accel structs.
     std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> inputs_geometry_descs;
+
+    uint64_t                             input_data_size{ 0 };
+    graphics::dx12::ID3D12ResourceComPtr input_data_resource{ nullptr };
 };
 
 struct IDXGIKeyedMutexInfo : public DxgiWrapperInfo

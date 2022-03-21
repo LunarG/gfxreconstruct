@@ -571,6 +571,61 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
         graphics::dx12::GetAccelerationStructureInputsBufferEntries(
             build_info.inputs, build_info.inputs_geometry_descs.data(), inputs_buffer_size, inputs_buffer_entries);
 
+        // Save input data to a secodary resource.
+        build_info.input_data_size = inputs_buffer_size;
+        if (inputs_buffer_size > 0)
+        {
+            // Create (or reuse) ID3D12Resource to copy inputs data to.
+            graphics::dx12::ID3D12ResourceComPtr inputs_data_resource = nullptr;
+            auto                                 resource_info        = resource_wrapper->GetObjectInfo();
+            auto existing_accel_struct = resource_info->acceleration_structure_builds.find(build_info.dest_gpu_va);
+            if (existing_accel_struct != resource_info->acceleration_structure_builds.end())
+            {
+                if (existing_accel_struct->second.input_data_size == inputs_buffer_size)
+                {
+                    inputs_data_resource = existing_accel_struct->second.input_data_resource;
+                }
+            }
+            if (inputs_data_resource == nullptr)
+            {
+                inputs_data_resource = graphics::dx12::CreateBufferResource(device5,
+                                                                            inputs_buffer_size,
+                                                                            D3D12_HEAP_TYPE_READBACK,
+                                                                            D3D12_RESOURCE_STATE_COPY_DEST,
+                                                                            D3D12_RESOURCE_FLAG_NONE);
+            }
+            GFXRECON_ASSERT(inputs_data_resource);
+            build_info.input_data_resource = inputs_data_resource;
+
+            // Add CopyBufferRegion(s) to command list to save the build input resource data.
+            // TODO (GH #474): Add transition barriers before and after CopyBufferRegion as needed.
+            {
+                std::unique_lock<std::mutex> lock(state_table_mutex_);
+                for (auto& inputs_buffer_entry : inputs_buffer_entries)
+                {
+                    auto                    src_gpu_va           = *inputs_buffer_entry.desc_gpu_va;
+                    ID3D12Resource_Wrapper* src_resource_wrapper = GetResourceWrapperForGpuVa(src_gpu_va);
+                    auto                    src_offset = src_gpu_va - src_resource_wrapper->GetObjectInfo()->gpu_va;
+
+                    if (src_resource_wrapper)
+                    {
+                        list_wrapper->CopyBufferRegion(inputs_data_resource,
+                                                       inputs_buffer_entry.offset,
+                                                       src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
+                                                       src_offset,
+                                                       inputs_buffer_entry.size);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR(
+                            "Failed to find the resource object that contains the GPU VA (value=%" PRIu64
+                            ") of acceleration structure build input data. Acceleration structure trimming may fail.",
+                            src_gpu_va);
+                    }
+                }
+            }
+        }
+
         // Save the build info with the command list info.
         auto list_info = list_wrapper->GetObjectInfo();
         GFXRECON_ASSERT(list_info);
