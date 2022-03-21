@@ -157,7 +157,7 @@ bool FileProcessor::ProcessFileHeader()
 
                 if ((compressor_ == nullptr) && (enabled_options_.compression_type != format::CompressionType::kNone))
                 {
-                    GFXRECON_LOG_ERROR("Failed to initialized file compression module (type = %u); replay of "
+                    GFXRECON_LOG_ERROR("Failed to initialize file compression module (type = %u); replay of "
                                        "compressed data will not be possible",
                                        enabled_options_.compression_type);
                     success      = false;
