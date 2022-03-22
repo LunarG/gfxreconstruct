@@ -161,6 +161,10 @@ class Dx12StateWriter
 
     void WriteEnableDRED();
 
+    void WriteAccelerationStructuresState(const Dx12StateTable& state_table);
+
+    void WriteAccelerationStructuresState(std::map<uint64_t, const DxAccelerationStructureBuildInfo*> build_infos);
+
     void WriteStateObjectPropertiesState(const Dx12StateTable& state_table);
 
   private:

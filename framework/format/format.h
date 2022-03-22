@@ -114,7 +114,8 @@ enum class MetaDataType : uint16_t
     kSetRayTracingShaderGroupHandlesCommand = 15,
     kCreateHeapAllocationCommand            = 16,
     kInitSubresourceCommand                 = 17,
-    kExeFileInfo                            = 18
+    kExeFileInfo                            = 18,
+    kInitDx12AccelerationStructureCommand   = 19
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -474,6 +475,39 @@ struct CreateHeapAllocationCommand
     format::ThreadId thread_id;
     uint64_t         allocation_id;
     uint64_t         allocation_size;
+};
+
+struct InitDx12AccelerationStructureCommandHeader
+{
+    MetaDataHeader meta_header{};
+    ThreadId       thread_id;
+    uint64_t       dest_acceleration_structure_data{ 0 };
+    uint64_t       copy_source_gpu_va{ 0 };
+    uint32_t       copy_mode{ 0 };
+    uint32_t       inputs_type{ 0 };
+    uint32_t       inputs_flags{ 0 };
+    uint32_t       inputs_num_instance_descs{ 0 }; ///< NumDescs for TLAS
+    uint32_t       inputs_num_geometry_descs{ 0 }; ///< NumDescs for BLAS
+    uint64_t       inputs_data_size{ 0 };
+
+    // In the capture file, accel struct data is written in the following order:
+    // InitDx12AccelerationStructureCommandHeader
+    // inputs_num_geometry_descs * InitDx12AccelerationStructureGeometryDesc
+    // build inputs data
+};
+
+struct InitDx12AccelerationStructureGeometryDesc
+{
+    uint32_t geometry_type{ 0 };
+    uint32_t geometry_flags{ 0 };
+    uint64_t aabbs_count{ 0 };
+    uint64_t aabbs_stride{ 0 };
+    uint32_t triangles_has_transform{ false };
+    uint32_t triangles_index_format{ 0 };
+    uint32_t triangles_vertex_format{ 0 };
+    uint32_t triangles_index_count{ 0 }; // 0 if no index buffer
+    uint32_t triangles_vertex_count{ 0 };
+    uint64_t triangles_vertex_stride{ 0 };
 };
 
 #pragma pack(pop)

@@ -134,6 +134,9 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12SharingContract_Wrapper>(state_table);
     StandardCreateWrite<ID3D12InfoQueue_Wrapper>(state_table);
 
+    // Acceleration structures
+    WriteAccelerationStructuresState(state_table);
+
     // Command lists
     StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
@@ -578,9 +581,9 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
         else if ((resource_info->initial_state & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
                  D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE)
         {
-            // Skip the capture of any ray tracing resource's data. Its contents will need to be recreated from inputs
-            // during replay.
-            GFXRECON_LOG_WARNING_ONCE(
+            // Skip the capture of any ray tracing resource's data. Acceleration structres will be rebuilt from inputs
+            // during replay. See WriteAccelerationStructuresState.
+            GFXRECON_LOG_DEBUG_ONCE(
                 "Skipping resource data capture for ray tracing acceleration structure resource(s).");
         }
         else if (!resource_info->is_swapchain_buffer) // swapchain buffer state is handled separately.
@@ -1042,7 +1045,6 @@ void Dx12StateWriter::WriteCommandListCreation(const ID3D12GraphicsCommandList_W
     StandardCreateWrite(list_wrapper);
     auto list_info = list_wrapper->GetObjectInfo();
 
-
     // If the command list was created open and reset since creation, write a command to close it. This frees up the
     // command allocator used in creation. This list's command_data will contain a reset, possibly with a different
     // command allocator.
@@ -1278,6 +1280,232 @@ void Dx12StateWriter::WriteEnableDRED()
         WriteMethodCall(
             format::ApiCallId::ApiCall_IUnknown_Release, enable_dred_info.dred_settings1_object_id, &parameter_stream_);
     }
+}
+
+void Dx12StateWriter::WriteAccelerationStructuresState(const Dx12StateTable& state_table)
+{
+    std::map<uint64_t, const DxAccelerationStructureBuildInfo*> build_infos;
+
+    // Find all acceleration structures that exist on resources.
+    state_table.VisitWrappers([&](ID3D12Resource_Wrapper* resource_wrapper) {
+        GFXRECON_ASSERT(resource_wrapper != nullptr);
+        GFXRECON_ASSERT(resource_wrapper->GetObjectInfo() != nullptr);
+
+        const auto resource_info = resource_wrapper->GetObjectInfo();
+
+        for (const auto& pair : resource_info->acceleration_structure_builds)
+        {
+            GFXRECON_ASSERT(build_infos.count(pair.second.id) == 0);
+            build_infos[pair.second.id] = &pair.second;
+        }
+    });
+
+    WriteAccelerationStructuresState(build_infos);
+}
+
+void Dx12StateWriter::WriteAccelerationStructuresState(
+    std::map<uint64_t, const DxAccelerationStructureBuildInfo*> as_builds)
+{
+    uint64_t                            accel_struct_file_bytes = 0;
+    std::set<D3D12_GPU_VIRTUAL_ADDRESS> blas_addresses;
+    std::set<D3D12_GPU_VIRTUAL_ADDRESS> written_addresses;
+
+    // Write accel struct info.
+    for (const auto& as_build_pair : as_builds)
+    {
+        const auto& as_build = *as_build_pair.second;
+
+        GFXRECON_ASSERT(as_build.id != 0);
+
+        // The destination resource must still exist.
+        GFXRECON_ASSERT(CheckGpuVa(as_build.dest_gpu_va));
+
+        if (as_build.input_data_resource == nullptr)
+        {
+            GFXRECON_LOG_ERROR(
+                "Found an unexpected null input data resource when writing acceleration structure (id=%" PRIu64
+                "). The acceleration structure will not be written to the trim state.",
+                as_build.id);
+            continue;
+        }
+
+        uint8_t* inputs_data_ptr = nullptr;
+        HRESULT  hr = graphics::dx12::MapSubresource(as_build.input_data_resource, 0, nullptr, inputs_data_ptr);
+        if (SUCCEEDED(hr) && (inputs_data_ptr != nullptr))
+        {
+            // Check that the instance desc addresses are correct for TLAS.
+            if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
+            {
+                bool           valid          = true;
+                constexpr auto address_stride = sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
+                constexpr auto address_offset = offsetof(D3D12_RAYTRACING_INSTANCE_DESC, AccelerationStructure);
+                for (UINT i = 0; i < as_build.inputs.NumDescs; ++i)
+                {
+                    D3D12_GPU_VIRTUAL_ADDRESS* address = reinterpret_cast<D3D12_GPU_VIRTUAL_ADDRESS*>(
+                        inputs_data_ptr + i * address_stride + address_offset);
+                    if (blas_addresses.count(*address) == 0)
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (!valid)
+                {
+                    continue;
+                }
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Failed to map inputs data resource for writing trimmed state for acceleration "
+                               "structures. The capture file will be invalid.");
+            continue;
+        }
+
+        bool     is_copy            = false;
+        bool     is_in_place_copy   = false;
+        uint64_t copy_source_gpu_va = 0;
+        if (as_build.copy_source_gpu_va != 0)
+        {
+            is_copy = true;
+            if (written_addresses.count(as_build.copy_source_gpu_va) == 0)
+            {
+                is_in_place_copy   = true;
+                copy_source_gpu_va = as_build.dest_gpu_va;
+            }
+            else
+            {
+                is_in_place_copy   = false;
+                copy_source_gpu_va = as_build.copy_source_gpu_va;
+            }
+        }
+
+        bool write_build_data = (!is_copy || is_in_place_copy);
+
+        // Write header.
+        format::InitDx12AccelerationStructureCommandHeader cmd;
+        cmd.meta_header.meta_data_id = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitDx12AccelerationStructureCommand);
+        cmd.meta_header.block_header.type    = format::BlockType::kMetaDataBlock;
+        cmd.thread_id                        = thread_id_;
+        cmd.dest_acceleration_structure_data = as_build.dest_gpu_va;
+        cmd.copy_source_gpu_va               = copy_source_gpu_va;
+        cmd.copy_mode                        = is_copy ? as_build.copy_mode : 0;
+        cmd.inputs_type                      = as_build.inputs.Type;
+
+        // Remove PERFORM_UPDATE flag
+        auto build_flags = as_build.inputs.Flags;
+        if ((build_flags & D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE) ==
+            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE)
+        {
+            build_flags &= ~D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+            build_flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+        }
+        cmd.inputs_flags = build_flags;
+
+        // Get NumDescs and data sizes.
+        size_t inputs_data_ptr_file_size = 0;
+        cmd.inputs_data_size             = 0;
+        cmd.inputs_num_instance_descs    = 0;
+        cmd.inputs_num_geometry_descs    = 0;
+        if (write_build_data)
+        {
+            cmd.inputs_data_size = as_build.input_data_size;
+            if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
+            {
+                cmd.inputs_num_geometry_descs = as_build.inputs.NumDescs;
+            }
+            else if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
+            {
+                cmd.inputs_num_instance_descs = as_build.inputs.NumDescs;
+            }
+            else
+            {
+                GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE.");
+            }
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, as_build.input_data_size);
+            inputs_data_ptr_file_size = static_cast<size_t>(as_build.input_data_size);
+            if (compressor_ != nullptr)
+            {
+                // Compress block data.
+                size_t compressed_size =
+                    compressor_->Compress(inputs_data_ptr_file_size, inputs_data_ptr, &compressed_parameter_buffer_, 0);
+
+                if ((compressed_size > 0) && (compressed_size < as_build.input_data_size))
+                {
+                    cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                    inputs_data_ptr           = compressed_parameter_buffer_.data();
+                    inputs_data_ptr_file_size = compressed_size;
+                }
+            }
+        }
+
+        // Compute file block size and write header to file.
+        cmd.meta_header.block_header.size =
+            format::GetMetaDataBlockBaseSize(cmd) +
+            (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * cmd.inputs_num_geometry_descs) +
+            inputs_data_ptr_file_size;
+        output_stream_->Write(&cmd, sizeof(cmd));
+        accel_struct_file_bytes += sizeof(cmd);
+
+        // Write geometry and inputs data to file.
+        if (write_build_data)
+        {
+            // Write geometry descs for BLAS.
+            if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
+            {
+                GFXRECON_ASSERT(as_build.inputs.NumDescs == as_build.inputs_geometry_descs.size());
+
+                for (const auto& geom : as_build.inputs_geometry_descs)
+                {
+                    format::InitDx12AccelerationStructureGeometryDesc geom_info;
+                    geom_info.geometry_type  = geom.Type;
+                    geom_info.geometry_flags = geom.Flags;
+                    if (geom.Type == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
+                    {
+                        geom_info.aabbs_count  = geom.AABBs.AABBCount;
+                        geom_info.aabbs_stride = geom.AABBs.AABBs.StrideInBytes;
+                    }
+                    else if (geom.Type == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+                    {
+                        geom_info.triangles_has_transform = (geom.Triangles.Transform3x4 == 0) ? 0 : 1;
+                        geom_info.triangles_index_format  = geom.Triangles.IndexFormat;
+                        geom_info.triangles_vertex_format = geom.Triangles.VertexFormat;
+                        geom_info.triangles_index_count =
+                            (geom.Triangles.IndexBuffer == 0) ? 0 : geom.Triangles.IndexCount;
+                        geom_info.triangles_vertex_count  = geom.Triangles.VertexCount;
+                        geom_info.triangles_vertex_stride = geom.Triangles.VertexBuffer.StrideInBytes;
+                    }
+                    else
+                    {
+                        GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_GEOMETRY_TYPE.");
+                    }
+                    output_stream_->Write(&geom_info, sizeof(geom_info));
+                    accel_struct_file_bytes += sizeof(geom_info);
+                }
+            }
+
+            // Write inputs data.
+            output_stream_->Write(inputs_data_ptr, inputs_data_ptr_file_size);
+            accel_struct_file_bytes += inputs_data_ptr_file_size;
+            as_build.input_data_resource->Unmap(0, nullptr);
+        }
+
+        // Track which accel struct addresses have been written to the trim state block.
+        if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
+        {
+            blas_addresses.insert(as_build.dest_gpu_va);
+        }
+        written_addresses.insert(as_build.dest_gpu_va);
+    }
+
+    GFXRECON_LOG_INFO("Wrote acceleration structure build data to trim state block: %" PRIu64 " bottom level, %" PRIu64
+                      " top level, %" PRIu64 " file bytes.",
+                      blas_addresses.size(),
+                      (written_addresses.size() - blas_addresses.size()),
+                      accel_struct_file_bytes);
 }
 
 void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& state_table)
