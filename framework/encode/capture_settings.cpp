@@ -367,7 +367,7 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // with trim key will be parsed only
     // if trim ranges is empty, else it will be ignored
     ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
-    std::string trim_key_option = FindOption(options, kOptionKeyCaptureTrigger);
+    std::string trim_key_option        = FindOption(options, kOptionKeyCaptureTrigger);
     std::string trim_key_frames_option = FindOption(options, kOptionKeyCaptureTriggerFrames);
     if (!trim_key_option.empty())
     {
@@ -718,7 +718,7 @@ uint32_t CaptureSettings::ParseTrimKeyFramesString(const std::string& value_stri
         int value = std::stoi(value_string);
         if (value > 0)
         {
-            frames = (uint32_t)value;
+            frames = static_cast<uint32_t>(value);
             valid  = true;
         }
     }
