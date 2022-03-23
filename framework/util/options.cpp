@@ -182,7 +182,10 @@ uint32_t ParseUintString(const std::string& value_string, uint32_t default_value
 
     try
     {
-        result = std::stoul(value_string);
+        if (!value_string.empty())
+        {
+            result = std::stoul(value_string);
+        }
     }
     catch (...)
     {
