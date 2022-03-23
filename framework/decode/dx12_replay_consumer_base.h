@@ -90,6 +90,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                const uint8_t*                              data) override;
 
+    void ProcessInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data) override;
+
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
                                                           D3D12_FEATURE    feature,

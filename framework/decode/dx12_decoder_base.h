@@ -184,6 +184,11 @@ class Dx12DecoderBase : public ApiDecoder
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                 const uint8_t*                              data) override;
 
+    virtual void DispatchInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data) override;
+
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
   protected:

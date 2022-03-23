@@ -349,6 +349,14 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     resource_init_info_.data.insert(resource_init_info_.data.end(), data, data + command_header.data_size);
 }
 
+void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
+    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                  build_inputs_data)
+{
+    // TODO: Rebuild trimmed acceleration structures here.
+}
+
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
                                                                       DxObjectInfo*       swapchain_info,
                                                                       uint32_t            current_buffer_index)

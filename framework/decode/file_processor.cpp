@@ -1384,6 +1384,94 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read init subresource data meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kInitDx12AccelerationStructureCommand)
+    {
+        // Parse command header.
+        format::InitDx12AccelerationStructureCommandHeader header;
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success &&
+                  ReadBytes(&header.dest_acceleration_structure_data, sizeof(header.dest_acceleration_structure_data));
+        success = success && ReadBytes(&header.copy_source_gpu_va, sizeof(header.copy_source_gpu_va));
+        success = success && ReadBytes(&header.copy_mode, sizeof(header.copy_mode));
+        success = success && ReadBytes(&header.inputs_type, sizeof(header.inputs_type));
+        success = success && ReadBytes(&header.inputs_flags, sizeof(header.inputs_flags));
+        success = success && ReadBytes(&header.inputs_num_instance_descs, sizeof(header.inputs_num_instance_descs));
+        success = success && ReadBytes(&header.inputs_num_geometry_descs, sizeof(header.inputs_num_geometry_descs));
+        success = success && ReadBytes(&header.inputs_data_size, sizeof(header.inputs_data_size));
+
+        // Parse geometry descs.
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc> geom_descs;
+        if (success)
+        {
+            for (uint32_t i = 0; i < header.inputs_num_geometry_descs; ++i)
+            {
+                format::InitDx12AccelerationStructureGeometryDesc geom_desc;
+                success = success && ReadBytes(&geom_desc.geometry_type, sizeof(geom_desc.geometry_type));
+                success = success && ReadBytes(&geom_desc.geometry_flags, sizeof(geom_desc.geometry_flags));
+                success = success && ReadBytes(&geom_desc.aabbs_count, sizeof(geom_desc.aabbs_count));
+                success = success && ReadBytes(&geom_desc.aabbs_stride, sizeof(geom_desc.aabbs_stride));
+                success =
+                    success && ReadBytes(&geom_desc.triangles_has_transform, sizeof(geom_desc.triangles_has_transform));
+                success =
+                    success && ReadBytes(&geom_desc.triangles_index_format, sizeof(geom_desc.triangles_index_format));
+                success =
+                    success && ReadBytes(&geom_desc.triangles_vertex_format, sizeof(geom_desc.triangles_vertex_format));
+                success =
+                    success && ReadBytes(&geom_desc.triangles_index_count, sizeof(geom_desc.triangles_index_count));
+                success =
+                    success && ReadBytes(&geom_desc.triangles_vertex_count, sizeof(geom_desc.triangles_vertex_count));
+                success =
+                    success && ReadBytes(&geom_desc.triangles_vertex_stride, sizeof(geom_desc.triangles_vertex_stride));
+                geom_descs.push_back(geom_desc);
+            }
+        }
+
+        if (success)
+        {
+            if (header.inputs_data_size > 0)
+            {
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.inputs_data_size);
+
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    size_t uncompressed_size = 0;
+                    size_t compressed_size =
+                        static_cast<size_t>(block_header.size) -
+                        (sizeof(header) - sizeof(header.meta_header.block_header)) -
+                        (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * header.inputs_num_geometry_descs);
+
+                    success = ReadCompressedParameterBuffer(
+                        compressed_size, static_cast<size_t>(header.inputs_data_size), &uncompressed_size);
+                }
+                else
+                {
+                    success = ReadParameterBuffer(static_cast<size_t>(header.inputs_data_size));
+                }
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchInitDx12AccelerationStructureCommand(
+                            header, geom_descs, parameter_buffer_.data());
+                    }
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read init DX12 acceleration structure meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read init DX12 acceleration structure meta-data block header");
+        }
+    }
     else
     {
         // Unrecognized metadata type.

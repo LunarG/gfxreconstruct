@@ -136,6 +136,12 @@ class VulkanConsumerBase
                                                const uint8_t*                              data)
     {}
 
+    virtual void ProcessInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data)
+    {}
+
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
                                                            format::HandleId                 device,
                                                            format::HandleId                 descriptorSet,

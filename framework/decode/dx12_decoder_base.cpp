@@ -276,6 +276,17 @@ void Dx12DecoderBase::DispatchInitSubresourceCommand(const format::InitSubresour
     }
 }
 
+void Dx12DecoderBase::DispatchInitDx12AccelerationStructureCommand(
+    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                  build_inputs_data)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessInitDx12AccelerationStructureCommand(command_header, geometry_descs, build_inputs_data);
+    }
+}
+
 void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)
