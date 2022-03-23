@@ -66,20 +66,23 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
-            FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
-            auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
-            auto commandBufferCount = pDecodedAllocateInfo ? pDecodedAllocateInfo->commandBufferCount : 0;
-            FieldToString(strStrm, false, "[out]pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
-        }
-    );
+    uint32_t tabCount           = 0;
+    uint32_t tabSize            = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+        FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
+
+        auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
+        auto commandBufferCount   = pDecodedAllocateInfo ? pDecodedAllocateInfo->commandBufferCount : 0;
+
+        FieldToString(strStrm, false, "[out]pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
+    };
+
+    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
@@ -91,20 +94,23 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
-            FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
-            auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
-            auto descriptorSetCount = pDecodedAllocateInfo ? pDecodedAllocateInfo->descriptorSetCount : 0;
-            FieldToString(strStrm, false, "[out]pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
-        }
-    );
+    uint32_t tabCount           = 0;
+    uint32_t tabSize            = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
+        FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
+
+        auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
+        auto descriptorSetCount   = pDecodedAllocateInfo ? pDecodedAllocateInfo->descriptorSetCount : 0;
+
+        FieldToString(strStrm, false, "[out]pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
+    };
+
+    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
@@ -118,33 +124,35 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKH
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
-            FieldToString(strStrm, false, "infoCount", toStringFlags, tabCount, tabSize, ToString(infoCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pInfos", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pInfos, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pIndirectDeviceAddresses", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pIndirectDeviceAddresses, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pIndirectStrides", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pIndirectStrides, toStringFlags, tabCount, tabSize));
-            auto pDecodedInfos = pInfos ? pInfos->GetPointer() : nullptr;
-            auto ppDecodedMaxPrimitiveCounts = ppMaxPrimitiveCounts ? ppMaxPrimitiveCounts->GetPointer() : nullptr;
-            FieldToString(strStrm, false, "ppMaxPrimitiveCounts", toStringFlags, tabCount, tabSize,
-                ArrayToString(infoCount, pInfos, toStringFlags, tabCount++, tabSize,
-                    [&]()
-                    {
-                        return infoCount && pDecodedInfos && ppDecodedMaxPrimitiveCounts;
-                    },
-                    [&](uint32_t info_i)
-                    {
-                        return ArrayToString(pDecodedInfos[info_i].geometryCount, ppDecodedMaxPrimitiveCounts[info_i], toStringFlags, tabCount--, tabSize);
-                    }
-                )
-            );
-        }
-    );
+    uint32_t tabCount           = 0;
+    uint32_t tabSize            = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+        FieldToString(strStrm, false, "infoCount", toStringFlags, tabCount, tabSize, ToString(infoCount, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pInfos", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pInfos, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pIndirectDeviceAddresses", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pIndirectDeviceAddresses, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pIndirectStrides", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pIndirectStrides, toStringFlags, tabCount, tabSize));
+
+        auto pDecodedInfos               = pInfos ? pInfos->GetPointer() : nullptr;
+        auto ppDecodedMaxPrimitiveCounts = ppMaxPrimitiveCounts ? ppMaxPrimitiveCounts->GetPointer() : nullptr;
+
+        auto validateArray = [&]() {
+            return infoCount && pDecodedInfos && ppDecodedMaxPrimitiveCounts;
+        };
+
+        auto createArrayString = [&](uint32_t info_i) {
+            return ArrayToString(pDecodedInfos[info_i].geometryCount, ppDecodedMaxPrimitiveCounts[info_i], toStringFlags, tabCount, tabSize);
+        };
+
+        auto arrayString = ArrayToString(infoCount, pInfos, toStringFlags, tabCount + 1, tabSize, validateArray, createArrayString);
+
+        FieldToString(strStrm, false, "ppMaxPrimitiveCounts", toStringFlags, tabCount, tabSize, arrayString);
+    };
+
+    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
@@ -156,31 +164,34 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresKHR", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
-            FieldToString(strStrm, false, "infoCount", toStringFlags, tabCount, tabSize, ToString(infoCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pInfos", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pInfos, toStringFlags, tabCount, tabSize));
-            auto pDecodedInfos = pInfos ? pInfos->GetPointer() : nullptr;
-            auto ppDecodedBuildRangeInfos = ppBuildRangeInfos ? ppBuildRangeInfos->GetPointer() : nullptr;
-            FieldToString(strStrm, false, "ppBuildRangeInfos", toStringFlags, tabCount, tabSize,
-                ArrayToString(infoCount, pInfos, toStringFlags, tabCount++, tabSize,
-                    [&]()
-                    {
-                        return infoCount && pDecodedInfos && ppDecodedBuildRangeInfos;
-                    },
-                    [&](uint32_t info_i)
-                    {
-                        return ArrayToString(pDecodedInfos[info_i].geometryCount, ppDecodedBuildRangeInfos[info_i], toStringFlags, tabCount--, tabSize);
-                    }
-                )
-            );
-        }
-    );
+    uint32_t      tabCount      = 0;
+    uint32_t      tabSize       = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+        FieldToString(strStrm, false, "infoCount", toStringFlags, tabCount, tabSize, ToString(infoCount, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pInfos", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(infoCount, pInfos, toStringFlags, tabCount, tabSize));
+
+        auto pDecodedInfos            = pInfos ? pInfos->GetPointer() : nullptr;
+        auto ppDecodedBuildRangeInfos = ppBuildRangeInfos ? ppBuildRangeInfos->GetPointer() : nullptr;
+
+        auto validateArray = [&]() {
+            return infoCount && pDecodedInfos && ppDecodedBuildRangeInfos;
+        };
+
+        auto createArrayString = [&](uint32_t info_i) {
+            uint32_t subTabCount = tabCount + 1;
+            return ArrayToString(pDecodedInfos[info_i].geometryCount, ppDecodedBuildRangeInfos[info_i], toStringFlags, subTabCount, tabSize);
+        };
+
+        auto arrayString = ArrayToString(infoCount, pInfos, toStringFlags, tabCount, tabSize, validateArray, createArrayString);
+
+        FieldToString(strStrm, false, "ppBuildRangeInfos", toStringFlags, tabCount, tabSize, arrayString);
+    };
+
+    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresKHR", toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
@@ -193,22 +204,25 @@ void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkGetAccelerationStructureBuildSizesKHR", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
-            FieldToString(strStrm, false, "buildType", toStringFlags, tabCount, tabSize, '"' + ToString(buildType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "pBuildInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBuildInfo, toStringFlags, tabCount, tabSize));
-            auto pDecodedBuildInfo = pBuildInfo ? pBuildInfo->GetPointer() : nullptr;
-            auto geometryCount = pDecodedBuildInfo ? pDecodedBuildInfo->geometryCount : 0;
-            auto pDecodedMaxPrimitiveCounts = pMaxPrimitiveCounts ? pMaxPrimitiveCounts->GetPointer() : nullptr;
-            FieldToString(strStrm, false, "pMaxPrimitiveCounts", toStringFlags, tabCount, tabSize, ArrayToString(geometryCount, pDecodedMaxPrimitiveCounts, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "[out]pSizeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSizeInfo, toStringFlags, tabCount, tabSize));
-        }
-    );
+    uint32_t      tabCount      = 0;
+    uint32_t      tabSize       = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, false, "buildType", toStringFlags, tabCount, tabSize, '"' + ToString(buildType, toStringFlags, tabCount, tabSize) + '"');
+        FieldToString(strStrm, false, "pBuildInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBuildInfo, toStringFlags, tabCount, tabSize));
+
+        auto pDecodedBuildInfo          = pBuildInfo ? pBuildInfo -> GetPointer() : nullptr;
+        auto geometryCount              = pDecodedBuildInfo ? pDecodedBuildInfo -> geometryCount : 0;
+        auto pDecodedMaxPrimitiveCounts = pMaxPrimitiveCounts ? pMaxPrimitiveCounts -> GetPointer() : nullptr;
+
+        FieldToString(strStrm, false, "pMaxPrimitiveCounts", toStringFlags, tabCount, tabSize, ArrayToString(geometryCount, pDecodedMaxPrimitiveCounts, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "[out]pSizeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSizeInfo, toStringFlags, tabCount, tabSize));
+    };
+
+    WriteApiCallToFile(call_info, "vkGetAccelerationStructureBuildSizesKHR", toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
@@ -221,18 +235,19 @@ void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkCmdPushDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
-            FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, HandleIdToString(layout));
-            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
-        }
-    );
+    uint32_t tabCount           = 0;
+    uint32_t tabSize            = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+        FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
+        FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, HandleIdToString(layout));
+        FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
+    };
+
+    WriteApiCallToFile(call_info, "vkCmdPushDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
@@ -244,18 +259,19 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplate", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
-            FieldToString(strStrm, false, "descriptorSet", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorSet));
-            FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
-            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
-        }
-    );
+    uint32_t      tabCount      = 0;
+    uint32_t      tabSize       = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, false, "descriptorSet", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorSet));
+        FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
+        FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
+    };
+
+    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplate", toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
@@ -267,18 +283,19 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
 )
 {
     using namespace gfxrecon::util;
+
     ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
-            FieldToString(strStrm, false, "descriptorSet", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorSet));
-            FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
-            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
-        }
-    );
+    uint32_t tabCount           = 0;
+    uint32_t tabSize            = 4;
+
+    auto createString = [&](std::stringstream& strStrm) {
+        FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, false, "descriptorSet", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorSet));
+        FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
+        FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
+    };
+
+    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize, createString);
 }
 
 // clang-format on
