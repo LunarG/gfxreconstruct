@@ -233,6 +233,9 @@ void Dx12ReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         fps_info_->ProcessStateEndMarker(frame_number);
     }
+
+    // The accel_struct_builder_ is no longer needed after the trim state load is complete.
+    accel_struct_builder_ = nullptr;
 }
 
 void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
@@ -354,7 +357,20 @@ void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
     std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
     const uint8_t*                                                  build_inputs_data)
 {
-    // TODO: Rebuild trimmed acceleration structures here.
+    if (!accel_struct_builder_)
+    {
+        format::HandleId dest_resource_id = format::kNullHandleId;
+        gpu_va_map_.Map(command_header.dest_acceleration_structure_data, &dest_resource_id);
+        GFXRECON_ASSERT(dest_resource_id != format::kNullHandleId);
+
+        auto* dest_resource = MapObject<ID3D12Resource>(dest_resource_id);
+        GFXRECON_ASSERT(dest_resource);
+
+        auto device5          = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device5>(dest_resource);
+        accel_struct_builder_ = std::make_unique<Dx12AccelerationStructureBuilder>(device5);
+    }
+
+    accel_struct_builder_->Build(gpu_va_map_, command_header, geometry_descs, build_inputs_data);
 }
 
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,

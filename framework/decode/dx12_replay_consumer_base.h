@@ -26,6 +26,7 @@
 
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/dx_replay_options.h"
+#include "decode/dx12_acceleration_structure_builder.h"
 #include "decode/dx12_object_info.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "decode/dx12_resource_value_mapper.h"
@@ -652,28 +653,29 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     QueueSyncEventInfo CreateSignalQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value);
 
   private:
-    std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
-    Dx12ObjectInfoTable                          object_info_table_;
-    std::shared_ptr<application::Application>    application_;
-    DxReplayOptions                              options_;
-    std::unordered_set<Window*>                  active_windows_;
-    std::unordered_map<uint64_t, HWND>           window_handles_;
-    std::unordered_map<uint64_t, void*>          mapped_memory_;
-    std::unordered_map<uint64_t, void*>          heap_allocations_;
-    std::unordered_map<uint64_t, HANDLE>         event_objects_;
-    std::function<void(const char*)>             fatal_error_handler_;
-    Dx12DescriptorMap                            descriptor_map_;
-    graphics::Dx12GpuVaMap                       gpu_va_map_;
-    std::unique_ptr<uint8_t[]>                   debug_message_;
-    SIZE_T                                       current_message_length_;
-    IDXGIInfoQueue*                              info_queue_;
-    bool                                         debug_layer_enabled_;
-    bool                                         set_auto_breadcrumbs_enablement_;
-    bool                                         set_breadcrumb_context_enablement_;
-    bool                                         set_page_fault_enablement_;
-    bool                                         loading_trim_state_;
-    graphics::FpsInfo*                           fps_info_;
-    std::unique_ptr<Dx12ResourceValueMapper>     resource_value_mapper_;
+    std::unique_ptr<graphics::DX12ImageRenderer>      frame_buffer_renderer_;
+    Dx12ObjectInfoTable                               object_info_table_;
+    std::shared_ptr<application::Application>         application_;
+    DxReplayOptions                                   options_;
+    std::unordered_set<Window*>                       active_windows_;
+    std::unordered_map<uint64_t, HWND>                window_handles_;
+    std::unordered_map<uint64_t, void*>               mapped_memory_;
+    std::unordered_map<uint64_t, void*>               heap_allocations_;
+    std::unordered_map<uint64_t, HANDLE>              event_objects_;
+    std::function<void(const char*)>                  fatal_error_handler_;
+    Dx12DescriptorMap                                 descriptor_map_;
+    graphics::Dx12GpuVaMap                            gpu_va_map_;
+    std::unique_ptr<uint8_t[]>                        debug_message_;
+    SIZE_T                                            current_message_length_;
+    IDXGIInfoQueue*                                   info_queue_;
+    bool                                              debug_layer_enabled_;
+    bool                                              set_auto_breadcrumbs_enablement_;
+    bool                                              set_breadcrumb_context_enablement_;
+    bool                                              set_page_fault_enablement_;
+    bool                                              loading_trim_state_;
+    graphics::FpsInfo*                                fps_info_;
+    std::unique_ptr<Dx12ResourceValueMapper>          resource_value_mapper_;
+    std::unique_ptr<Dx12AccelerationStructureBuilder> accel_struct_builder_;
 
     struct ResourceInitInfo
     {
