@@ -68,7 +68,8 @@ template <typename PtrType>
 inline std::string PtrToString(PtrType ptr)
 {
     std::stringstream strStrm;
-    strStrm << "0x" << reinterpret_cast<const void*>(ptr);
+    const void*       val = reinterpret_cast<const void*>(ptr);
+    strStrm << "0x" << std::hex << reinterpret_cast<uint64_t>(val);
     return strStrm.str();
 }
 

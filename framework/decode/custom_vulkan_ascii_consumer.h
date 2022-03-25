@@ -50,7 +50,7 @@ inline std::string HandleIdToString(format::HandleId handleId)
     std::stringstream strStrm;
     if (handleId)
     {
-        strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
+        strStrm << "\"0x" << std::hex << handleId << "\"";
     }
     else
     {
