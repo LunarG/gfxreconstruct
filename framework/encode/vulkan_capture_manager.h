@@ -286,6 +286,8 @@ class VulkanCaptureManager : public CaptureManager
                                                   const VkAllocationCallbacks*             pAllocator,
                                                   VkPipeline*                              pPipelines);
 
+    void ProcessDeferredOperation(const VkDevice device, const VkDeferredOperationKHR deferred_operation);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,

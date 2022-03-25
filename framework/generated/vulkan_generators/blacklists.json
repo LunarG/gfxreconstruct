@@ -11,7 +11,8 @@
     "vkUpdateDescriptorSetWithTemplateKHR",
     "vkCmdPushDescriptorSetWithTemplateKHR",
     "vkBuildAccelerationStructuresKHR",
-    "vkCopyAccelerationStructureKHR"
+    "vkCopyAccelerationStructureKHR",
+    "vkDeferredOperationJoinKHR"
   ],
   "structures": [
     "VkBaseOutStructure",

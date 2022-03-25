@@ -880,11 +880,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                        const DeviceInfo*                           device_info,
                                                        const DeferredOperationKHRInfo* deferred_operation_info);
 
-    VkResult OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR  func,
-                                              VkResult                        original_result,
-                                              const DeviceInfo*               device_info,
-                                              const DeferredOperationKHRInfo* deferred_operation_info);
-
     VkResult OverrideGetDeferredOperationResultKHR(PFN_vkGetDeferredOperationResultKHR func,
                                                    VkResult                            original_result,
                                                    const DeviceInfo*                   device_info,

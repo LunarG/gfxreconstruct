@@ -6125,16 +6125,6 @@ void VulkanReplayConsumerBase::OverrideGetDeferredOperationMaxConcurrencyKHR(
 }
 
 VkResult
-VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR  func,
-                                                           VkResult                        original_result,
-                                                           const DeviceInfo*               device_info,
-                                                           const DeferredOperationKHRInfo* deferred_operation_info)
-{
-    // Replay this in VulkanReplayConsumerBase::ProcessDeferredOperation
-    return original_result;
-}
-
-VkResult
 VulkanReplayConsumerBase::OverrideGetDeferredOperationResultKHR(PFN_vkGetDeferredOperationResultKHR func,
                                                                 VkResult                            original_result,
                                                                 const DeviceInfo*                   device_info,

@@ -6718,26 +6718,6 @@ void VulkanAsciiConsumer::Process_vkGetDeferredOperationResultKHR(
     );
 }
 
-void VulkanAsciiConsumer::Process_vkDeferredOperationJoinKHR(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            operation)
-{
-    using namespace gfxrecon::util;
-    ToStringFlags toStringFlags = kToString_Default;
-    uint32_t tabCount = 0;
-    uint32_t tabSize = 4;
-    WriteApiCallToFile(call_info, "vkDeferredOperationJoinKHR", toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
-            FieldToString(strStrm, false, "operation", toStringFlags, tabCount, tabSize, HandleIdToString(operation));
-        }
-    );
-}
-
 void VulkanAsciiConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

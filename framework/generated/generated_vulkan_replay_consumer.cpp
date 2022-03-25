@@ -4686,19 +4686,6 @@ void VulkanReplayConsumer::Process_vkGetDeferredOperationResultKHR(
     CheckResult("vkGetDeferredOperationResultKHR", returnValue, replay_result);
 }
 
-void VulkanReplayConsumer::Process_vkDeferredOperationJoinKHR(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            operation)
-{
-    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
-    auto in_operation = GetObjectInfoTable().GetDeferredOperationKHRInfo(operation);
-
-    VkResult replay_result = OverrideDeferredOperationJoinKHR(GetDeviceTable(in_device->handle)->DeferredOperationJoinKHR, returnValue, in_device, in_operation);
-    CheckResult("vkDeferredOperationJoinKHR", returnValue, replay_result);
-}
-
 void VulkanReplayConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

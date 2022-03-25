@@ -2175,12 +2175,6 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            device,
         format::HandleId                            operation) override;
 
-    virtual void Process_vkDeferredOperationJoinKHR(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            operation) override;
-
     virtual void Process_vkGetPipelineExecutablePropertiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
