@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_DX12_STATE_TRACKER_INITIALIZERS_H
 #define GFXRECON_ENCODE_DX12_STATE_TRACKER_INITIALIZERS_H
 
+#include "encode/iunknown_wrapper.h"
 #include "format/format.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
@@ -35,10 +36,11 @@ GFXRECON_BEGIN_NAMESPACE(dx12_state_tracker)
 
 // InitializeState for Method calls.
 template <typename Wrapper, typename ParentWrapper>
-void InitializeState(Wrapper*                        wrapper,
-                     format::ApiCallId               create_call_id,
-                     ParentWrapper*                  create_object_wrapper,
-                     const util::MemoryOutputStream* create_parameters)
+typename std::enable_if<!std::is_same<ParentWrapper, IUnknown_Wrapper>::value>::type
+InitializeState(Wrapper*                        wrapper,
+                format::ApiCallId               create_call_id,
+                ParentWrapper*                  create_object_wrapper,
+                const util::MemoryOutputStream* create_parameters)
 {
     assert(wrapper != nullptr);
     assert(wrapper->GetObjectInfo() != nullptr);
@@ -55,6 +57,31 @@ void InitializeState(Wrapper*                        wrapper,
 
     wrapper_info->create_object_id   = create_object_wrapper->GetCaptureId();
     wrapper_info->create_object_info = create_object_wrapper->GetObjectInfo();
+}
+
+// Specialization for method calls where the creating object's wrapper does not have GetObjectInfo(), e.g.,
+// IUnknown::QueryInterface()
+template <typename Wrapper, typename ParentWrapper>
+typename std::enable_if<std::is_same<ParentWrapper, IUnknown_Wrapper>::value>::type
+InitializeState(Wrapper*                        wrapper,
+                format::ApiCallId               create_call_id,
+                ParentWrapper*                  create_object_wrapper,
+                const util::MemoryOutputStream* create_parameters)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+    GFXRECON_ASSERT(create_parameters != nullptr);
+    GFXRECON_ASSERT(create_object_wrapper != nullptr);
+    GFXRECON_ASSERT(create_object_wrapper->GetCaptureId() != format::kNullHandleId);
+
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    wrapper_info->create_call_id = create_call_id;
+    wrapper_info->create_parameters =
+        std::make_unique<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+
+    wrapper_info->create_object_id   = create_object_wrapper->GetCaptureId();
+    wrapper_info->create_object_info = nullptr;
 }
 
 // InitializeState for API calls.

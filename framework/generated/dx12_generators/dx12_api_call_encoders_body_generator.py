@@ -340,15 +340,15 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             )
             if class_name:
                 # Check that the calling class is a wrapper type that contains object info. Some wrapper types (e.g., IDXGIObject_Wrapper)
-                # do not contain object infos because they are base class interfaces for final types.
-                # TODO (GH #83): Is it possible these intermediate object types also need to have wrapper infos?
+                # do not contain object infos because they are base class interfaces for final types. Cast to IUnknown_Wrapper for types
+                # without object info to allow templated code to handle those types separately.
                 class_family_names = self.get_class_family_names(class_name)
                 first_class = class_family_names[0]
                 is_map_class = self.is_map_class(first_class)
                 if is_map_class:
                     end_call_args += ', wrapper'
                 else:
-                    end_call_args += ', static_cast<void*>(nullptr)'
+                    end_call_args += ', static_cast<IUnknown_Wrapper*>(wrapper)'
         elif is_descriptor_create_call:
             begin_call_type = 'Tracked'
             end_call_type = 'CreateDescriptor'

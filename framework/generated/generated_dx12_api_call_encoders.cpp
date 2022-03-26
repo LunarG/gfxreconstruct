@@ -237,7 +237,7 @@ void Encode_IDXGIObject_GetParent(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppParent, omit_output_data);
         encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppParent, static_cast<void*>(nullptr));
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppParent, static_cast<IUnknown_Wrapper*>(wrapper));
     }
 }
 
@@ -258,7 +258,7 @@ void Encode_IDXGIDeviceSubObject_GetDevice(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppDevice, omit_output_data);
         encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppDevice, static_cast<void*>(nullptr));
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppDevice, static_cast<IUnknown_Wrapper*>(wrapper));
     }
 }
 
@@ -3885,7 +3885,7 @@ void Encode_ID3D12DeviceChild_GetDevice(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvDevice, omit_output_data);
         encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvDevice, static_cast<void*>(nullptr));
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvDevice, static_cast<IUnknown_Wrapper*>(wrapper));
     }
 }
 
@@ -7361,7 +7361,7 @@ void Encode_ID3D12ProtectedSession_GetStatusFence(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppFence, omit_output_data);
         encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppFence, static_cast<void*>(nullptr));
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppFence, static_cast<IUnknown_Wrapper*>(wrapper));
     }
 }
 
@@ -10361,7 +10361,7 @@ void Encode_IUnknown_QueryInterface(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvObject, omit_output_data);
         encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvObject, static_cast<void*>(nullptr));
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvObject, static_cast<IUnknown_Wrapper*>(wrapper));
     }
 }
 
