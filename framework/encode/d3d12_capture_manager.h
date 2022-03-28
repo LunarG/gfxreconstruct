@@ -397,6 +397,12 @@ class D3D12CaptureManager : public CaptureManager
         UINT                                                               num_postbuild_info_descs,
         const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* postbuild_info_descs);
 
+    void PostProcess_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
+        ID3D12GraphicsCommandList4_Wrapper*               list_wrapper,
+        D3D12_GPU_VIRTUAL_ADDRESS                         dest_acceleration_structure_data,
+        D3D12_GPU_VIRTUAL_ADDRESS                         source_acceleration_structure_data,
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE mode);
+
     void PostProcess_ID3D12Device_CreateCommandList(ID3D12Device_Wrapper*   device_wrapper,
                                                     HRESULT                 result,
                                                     UINT                    nodeMask,

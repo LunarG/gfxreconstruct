@@ -194,6 +194,11 @@ class Dx12StateTracker
     void TrackBuildRaytracingAccelerationStructure(ID3D12GraphicsCommandList4_Wrapper* list_wrapper,
                                                    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* desc);
 
+    void TrackCopyRaytracingAccelerationStructure(ID3D12GraphicsCommandList4_Wrapper* list_wrapper,
+                                                  D3D12_GPU_VIRTUAL_ADDRESS           dest_acceleration_structure_data,
+                                                  D3D12_GPU_VIRTUAL_ADDRESS source_acceleration_structure_data,
+                                                  D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE mode);
+
     void TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
                                   void*                                result,
                                   LPCWSTR                              export_name,

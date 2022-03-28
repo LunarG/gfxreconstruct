@@ -1690,6 +1690,19 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList4_BuildRaytracing
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
+    ID3D12GraphicsCommandList4_Wrapper*               list_wrapper,
+    D3D12_GPU_VIRTUAL_ADDRESS                         dest_acceleration_structure_data,
+    D3D12_GPU_VIRTUAL_ADDRESS                         source_acceleration_structure_data,
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE mode)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackCopyRaytracingAccelerationStructure(
+            list_wrapper, dest_acceleration_structure_data, source_acceleration_structure_data, mode);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Device_Wrapper*   device_wrapper,
                                                                      HRESULT                 result,
                                                                      UINT                    nodeMask,
