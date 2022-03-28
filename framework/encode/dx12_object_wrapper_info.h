@@ -164,6 +164,7 @@ struct DxAccelerationStructureBuildInfo
 {
     // The destination address and associated resource for the acceleration structure build.
     D3D12_GPU_VIRTUAL_ADDRESS dest_gpu_va{ 0 };
+    UINT64                    dest_size{ 0 };
     ID3D12Resource_Wrapper*   destination_resource{ nullptr };
 
     // Build inputs.

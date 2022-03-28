@@ -211,8 +211,37 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
         // Add acceleration structure build infos to their destination resources.
         for (const auto& accel_struct_build : list_info->acceleration_structure_builds)
         {
-            auto dest_resource_info = accel_struct_build.destination_resource->GetObjectInfo();
-            dest_resource_info->acceleration_structure_builds[accel_struct_build.dest_gpu_va] = accel_struct_build;
+            auto  dest_resource_info = accel_struct_build.destination_resource->GetObjectInfo();
+            auto& builds_map         = dest_resource_info->acceleration_structure_builds;
+            auto  exact_iter         = builds_map.find(accel_struct_build.dest_gpu_va);
+            if (exact_iter != builds_map.end() && exact_iter->second.dest_size == accel_struct_build.dest_size)
+            {
+                // Replace the existing AS build info if the dest_gpu_va and dest_size match.
+                exact_iter->second = accel_struct_build;
+            }
+            else
+            {
+                // Find overlapping acceleration structures that were previously built to the destination resource.
+                auto lower_iter = builds_map.lower_bound(accel_struct_build.dest_gpu_va);
+                auto upper_iter = builds_map.lower_bound(accel_struct_build.dest_gpu_va + accel_struct_build.dest_size);
+
+                // Fixup lower_iter to point to the first map entry that overlaps with accel_struct_build.dest_gpu_va.
+                if (lower_iter != builds_map.begin())
+                {
+                    --lower_iter;
+                }
+                if ((lower_iter != upper_iter) &&
+                    ((lower_iter->second.dest_gpu_va + lower_iter->second.dest_size) <= accel_struct_build.dest_gpu_va))
+                {
+                    ++lower_iter;
+                }
+
+                // Erase entries for AS builds that overlap with the new build.
+                builds_map.erase(lower_iter, upper_iter);
+
+                // Add the new build info to the resource.
+                builds_map[accel_struct_build.dest_gpu_va] = accel_struct_build;
+            }
         }
     }
 }
@@ -502,9 +531,16 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
 
     if (resource_wrapper)
     {
+        auto device5 = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device5>(
+            list_wrapper->GetWrappedObjectAs<ID3D12GraphicsCommandList4>());
+
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info;
+        device5->GetRaytracingAccelerationStructurePrebuildInfo(&desc->Inputs, &prebuild_info);
+
         DxAccelerationStructureBuildInfo build_info;
         build_info.dest_gpu_va          = desc->DestAccelerationStructureData;
         build_info.destination_resource = resource_wrapper;
+        build_info.dest_size            = prebuild_info.ResultDataMaxSizeInBytes;
 
         // Save build input arguments.
         build_info.inputs = desc->Inputs;
