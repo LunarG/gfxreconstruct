@@ -6009,6 +6009,29 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePageableDevic
     encoder->EncodeVkBool32Value(value.pageableDeviceLocalMemory);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.descriptorSetHostMapping);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetBindingReferenceVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.descriptorSetLayout);
+    encoder->EncodeUInt32Value(value.binding);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutHostMappingInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeSizeTValue(value.descriptorOffset);
+    encoder->EncodeUInt32Value(value.descriptorSize);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& value)
 {
     encoder->EncodeEnumValue(value.sType);

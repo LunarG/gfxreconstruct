@@ -549,6 +549,8 @@ static VKAPI_ATTR void                                    VKAPI_CALL CmdSetColor
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMultiEXT(VkCommandBuffer, uint32_t, const VkMultiDrawInfoEXT*, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawMultiEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMultiIndexedEXT(VkCommandBuffer, uint32_t, const VkMultiDrawIndexedInfoEXT*, uint32_t, uint32_t, uint32_t, const int32_t*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawMultiIndexedEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL SetDeviceMemoryPriorityEXT(VkDevice, VkDeviceMemory, float) { GFXRECON_LOG_WARNING("Unsupported function vkSetDeviceMemoryPriorityEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutHostMappingInfoVALVE(VkDevice, const VkDescriptorSetBindingReferenceVALVE*, VkDescriptorSetLayoutHostMappingInfoVALVE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDescriptorSetLayoutHostMappingInfoVALVE was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetHostMappingVALVE(VkDevice, VkDescriptorSet, void**) { GFXRECON_LOG_WARNING("Unsupported function vkGetDescriptorSetHostMappingVALVE was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructuresKHR was called, resulting in no-op behavior."); }
@@ -1076,6 +1078,8 @@ struct DeviceTable
     PFN_vkCmdDrawMultiEXT CmdDrawMultiEXT{ noop::CmdDrawMultiEXT };
     PFN_vkCmdDrawMultiIndexedEXT CmdDrawMultiIndexedEXT{ noop::CmdDrawMultiIndexedEXT };
     PFN_vkSetDeviceMemoryPriorityEXT SetDeviceMemoryPriorityEXT{ noop::SetDeviceMemoryPriorityEXT };
+    PFN_vkGetDescriptorSetLayoutHostMappingInfoVALVE GetDescriptorSetLayoutHostMappingInfoVALVE{ noop::GetDescriptorSetLayoutHostMappingInfoVALVE };
+    PFN_vkGetDescriptorSetHostMappingVALVE GetDescriptorSetHostMappingVALVE{ noop::GetDescriptorSetHostMappingVALVE };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::CreateAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::DestroyAccelerationStructureKHR };
     PFN_vkCmdBuildAccelerationStructuresKHR CmdBuildAccelerationStructuresKHR{ noop::CmdBuildAccelerationStructuresKHR };
@@ -1610,6 +1614,8 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdDrawMultiEXT", &table->CmdDrawMultiEXT);
     LoadFunction(gpa, device, "vkCmdDrawMultiIndexedEXT", &table->CmdDrawMultiIndexedEXT);
     LoadFunction(gpa, device, "vkSetDeviceMemoryPriorityEXT", &table->SetDeviceMemoryPriorityEXT);
+    LoadFunction(gpa, device, "vkGetDescriptorSetLayoutHostMappingInfoVALVE", &table->GetDescriptorSetLayoutHostMappingInfoVALVE);
+    LoadFunction(gpa, device, "vkGetDescriptorSetHostMappingVALVE", &table->GetDescriptorSetHostMappingVALVE);
     LoadFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkCmdBuildAccelerationStructuresKHR", &table->CmdBuildAccelerationStructuresKHR);

@@ -9088,6 +9088,44 @@ template <> std::string ToString<VkPhysicalDevicePageableDeviceLocalMemoryFeatur
     );
 }
 
+template <> std::string ToString<VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "descriptorSetHostMapping", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSetHostMapping, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkDescriptorSetBindingReferenceVALVE>(const VkDescriptorSetBindingReferenceVALVE& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.descriptorSetLayout) + '"');
+            FieldToString(strStrm, false, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkDescriptorSetLayoutHostMappingInfoVALVE>(const VkDescriptorSetLayoutHostMappingInfoVALVE& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "descriptorOffset", toStringFlags, tabCount, tabSize, ToString(obj.descriptorOffset, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "descriptorSize", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSize, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM>(const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,

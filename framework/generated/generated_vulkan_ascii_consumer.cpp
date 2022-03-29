@@ -10590,6 +10590,46 @@ void VulkanAsciiConsumer::Process_vkSetDeviceMemoryPriorityEXT(
     );
 }
 
+void VulkanAsciiConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDescriptorSetBindingReferenceVALVE>* pBindingReference,
+    StructPointerDecoder<Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>* pHostMapping)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile(call_info, "vkGetDescriptorSetLayoutHostMappingInfoVALVE", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "pBindingReference", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBindingReference, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pHostMapping", toStringFlags, tabCount, tabSize, PointerDecoderToString(pHostMapping, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkGetDescriptorSetHostMappingVALVE(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            descriptorSet,
+    PointerDecoder<uint64_t, void*>*            ppData)
+{
+    using namespace gfxrecon::util;
+    ToStringFlags toStringFlags = kToString_Default;
+    uint32_t tabCount = 0;
+    uint32_t tabSize = 4;
+    WriteApiCallToFile(call_info, "vkGetDescriptorSetHostMappingVALVE", toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "descriptorSet", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorSet));
+            FieldToString(strStrm, false, "[out]ppData", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(ppData));
+        }
+    );
+}
+
 void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

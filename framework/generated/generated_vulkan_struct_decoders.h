@@ -6471,6 +6471,34 @@ struct Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE
+{
+    using struct_type = VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE;
+
+    VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorSetBindingReferenceVALVE
+{
+    using struct_type = VkDescriptorSetBindingReferenceVALVE;
+
+    VkDescriptorSetBindingReferenceVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId descriptorSetLayout{ format::kNullHandleId };
+};
+
+struct Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE
+{
+    using struct_type = VkDescriptorSetLayoutHostMappingInfoVALVE;
+
+    VkDescriptorSetLayoutHostMappingInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM
 {
     using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
