@@ -70,22 +70,19 @@ void FpsInfo::BeginFile()
     replay_start_time_ = start_time_ = util::datetime::GetTimestamp();
 }
 
-bool FpsInfo::ShouldWaitIdleBeforeFrame(uint64_t file_processor_frame)
+bool FpsInfo::ShouldWaitIdleBeforeFrame(uint64_t frame)
 {
-    uint64_t frame           = file_processor_frame + 1;
-    bool     range_beginning = frame == measurement_start_frame_;
+    bool range_beginning = frame == measurement_start_frame_;
     return flush_measurement_range_ && range_beginning;
 }
 
-bool FpsInfo::ShouldQuit(uint64_t file_processor_frame)
+bool FpsInfo::ShouldQuit(uint64_t frame)
 {
-    uint64_t frame = file_processor_frame + 1;
     return quit_after_range_ && (frame > measurement_end_frame_);
 }
 
-void FpsInfo::BeginFrame(uint64_t file_processor_frame)
+void FpsInfo::BeginFrame(uint64_t frame)
 {
-    uint64_t frame = file_processor_frame + 1;
     if (!started_measurement_)
     {
         if (frame >= measurement_start_frame_)
@@ -96,12 +93,12 @@ void FpsInfo::BeginFrame(uint64_t file_processor_frame)
     }
 }
 
-void FpsInfo::EndFrame(uint64_t file_processor_frame)
+void FpsInfo::EndFrame(uint64_t frame)
 {
-    uint64_t frame = file_processor_frame + 1;
     if (started_measurement_ && !ended_measurement_)
     {
-        if (frame > measurement_end_frame_)
+        // Measurement frame range end is non-inclusive, as opposed to trim frame range
+        if (frame >= measurement_end_frame_ - 1)
         {
             measurement_end_time_ = util::datetime::GetTimestamp();
             ended_measurement_    = true;
@@ -109,16 +106,14 @@ void FpsInfo::EndFrame(uint64_t file_processor_frame)
     }
 }
 
-bool FpsInfo::ShouldWaitIdleAfterFrame(uint64_t file_processor_frame)
+bool FpsInfo::ShouldWaitIdleAfterFrame(uint64_t frame)
 {
-    uint64_t frame       = file_processor_frame + 1;
-    bool     range_ended = frame == measurement_end_frame_;
+    bool range_ended = frame == measurement_end_frame_;
     return flush_measurement_range_ && range_ended;
 }
 
-void FpsInfo::EndFile(uint64_t file_processor_frame)
+void FpsInfo::EndFile(uint64_t frame)
 {
-    uint64_t frame = file_processor_frame + 1;
     if (!ended_measurement_)
     {
         measurement_end_time_  = gfxrecon::util::datetime::GetTimestamp();
@@ -126,9 +121,9 @@ void FpsInfo::EndFile(uint64_t file_processor_frame)
     }
 }
 
-void FpsInfo::ProcessStateEndMarker(uint64_t file_processor_frame)
+void FpsInfo::ProcessStateEndMarker(uint64_t frame_number)
 {
-    replay_start_frame_ = file_processor_frame;
+    replay_start_frame_ = frame_number;
     replay_start_time_  = util::datetime::GetTimestamp();
 }
 
@@ -148,7 +143,7 @@ void FpsInfo::LogToConsole()
 
         WriteFpsToConsole("Replay FPS:",
                           replay_start_frame_,
-                          measurement_end_frame_ - 1 + replay_start_frame_ - 1,
+                          measurement_end_frame_ + replay_start_frame_ - 1,
                           replay_start_time_,
                           measurement_end_time_);
     }
