@@ -76,7 +76,6 @@ class Application final
 
     void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
-  protected:
     void StopRunning() { running_ = false; }
 
   private:

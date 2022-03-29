@@ -107,11 +107,13 @@ void android_main(struct android_app* app)
                 application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                    application, GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                gfxrecon::decode::VulkanDecoder decoder;
+                gfxrecon::decode::VulkanReplayOptions          replay_options =
+                    GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+                gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
+                gfxrecon::decode::VulkanDecoder        decoder;
                 std::pair<uint32_t, uint32_t>          measurement_frame_range = GetMeasurementFrameRange(arg_parser);
-                gfxrecon::graphics::FpsInfo   fps_info(static_cast<uint64_t>(measurement_frame_range.first),
+
+                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_frame_range.first),
                                                      static_cast<uint64_t>(measurement_frame_range.second),
                                                      replay_options.quit_after_measurement_frame_range,
                                                      replay_options.flush_measurement_frame_range);
@@ -124,7 +126,6 @@ void android_main(struct android_app* app)
 
                 // Warn if the capture layer is active.
                 CheckActiveLayers(kLayerProperty);
-
 
                 // Start the application in the paused state, preventing replay from starting before the app
                 // gained focus event is received.

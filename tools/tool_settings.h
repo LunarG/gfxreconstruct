@@ -669,14 +669,13 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
 
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
     {
-        replay_options.quit_after_measurement_frame_range = true;
+        options.quit_after_measurement_frame_range = true;
     }
 
     if (arg_parser.IsOptionSet(kFlushMeasurementRangeOption))
     {
-        replay_options.flush_measurement_frame_range = true;
+        options.flush_measurement_frame_range = true;
     }
-
 }
 
 static gfxrecon::decode::VulkanReplayOptions

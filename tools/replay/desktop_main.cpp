@@ -114,9 +114,10 @@ int main(int argc, const char** argv)
                 std::make_shared<gfxrecon::application::Application>(kApplicationName, wsi_extension, &file_processor);
 
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-            gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                application, GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table));
-            gfxrecon::decode::VulkanDecoder decoder;
+            gfxrecon::decode::VulkanReplayOptions          replay_options =
+                GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+            gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
+            gfxrecon::decode::VulkanDecoder        decoder;
 
             std::pair<uint32_t, uint32_t> measurement_frame_range = GetMeasurementFrameRange(arg_parser);
 
