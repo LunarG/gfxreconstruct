@@ -65,10 +65,18 @@ inline std::string ToString(uint32_t      apiFlags,
 }
 
 template <typename PtrType>
+inline std::string PtrToString(PtrType* ptr)
+{
+    std::stringstream strStrm;
+    strStrm << "0x" << std::hex << reinterpret_cast<uintptr_t>(ptr);
+    return strStrm.str();
+}
+
+template <typename PtrType>
 inline std::string PtrToString(PtrType ptr)
 {
     std::stringstream strStrm;
-    strStrm << "0x" << reinterpret_cast<const void*>(ptr);
+    strStrm << "0x" << std::hex << ptr;
     return strStrm.str();
 }
 
