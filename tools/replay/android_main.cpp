@@ -138,18 +138,20 @@ void android_main(struct android_app* app)
 
                 application->Run();
 
-                fps_info.EndFile(file_processor.GetCurrentFrameNumber());
+                // Add one so that it matches the trim range frame number semantic
+                uint32_t final_frame_number = file_processor.GetCurrentFrameNumber() + 1;
+                fps_info.EndFile(final_frame_number);
 
-                if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                if ((final_frame_number > 0) &&
                     (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    if (file_processor.GetCurrentFrameNumber() < measurement_frame_range.first)
+                    if (final_frame_number < measurement_frame_range.first)
                     {
                         GFXRECON_LOG_WARNING(
                             "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
                             "Measurements were never started, cannot calculate measurement range FPS.",
                             measurement_frame_range.first,
-                            file_processor.GetCurrentFrameNumber());
+                            final_frame_number);
                     }
                     else
                     {

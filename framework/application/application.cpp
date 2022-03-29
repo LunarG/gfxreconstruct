@@ -132,30 +132,33 @@ void Application::Run()
         // Only process the next frame if a quit event was not processed or not paused.
         if (running_ && !paused_)
         {
+            // Add one to match "trim frame range semantic"
+            uint32_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 
             if (fps_info_ != nullptr)
             {
-                if (fps_info_->ShouldQuit(file_processor_->GetCurrentFrameNumber()))
+                if (fps_info_->ShouldQuit(frame_number))
                 {
                     running_ = false;
                     break;
                 }
 
-                if (fps_info_->ShouldWaitIdleBeforeFrame(file_processor_->GetCurrentFrameNumber()))
+                if (fps_info_->ShouldWaitIdleBeforeFrame(frame_number))
                 {
                     file_processor_->WaitDecodersIdle();
                 }
 
-                fps_info_->BeginFrame(file_processor_->GetCurrentFrameNumber());
+                fps_info_->BeginFrame(frame_number);
             }
 
+            // PlaySingleFrame() increments this->current_frame_number_ *if* there's an end-of-frame
             PlaySingleFrame();
 
             if (fps_info_ != nullptr)
             {
-                fps_info_->EndFrame(file_processor_->GetCurrentFrameNumber());
+                fps_info_->EndFrame(frame_number);
 
-                if (fps_info_->ShouldWaitIdleAfterFrame(file_processor_->GetCurrentFrameNumber()))
+                if (fps_info_->ShouldWaitIdleAfterFrame(frame_number))
                 {
                     file_processor_->WaitDecodersIdle();
                 }
