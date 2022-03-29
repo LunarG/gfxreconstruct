@@ -1610,6 +1610,14 @@ struct Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT* wrapper);
 
+struct Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE;
+struct Decoded_VkDescriptorSetBindingReferenceVALVE;
+struct Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetBindingReferenceVALVE* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE* wrapper);
+
 struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
 struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM;
 struct Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM;

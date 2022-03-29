@@ -3403,6 +3403,18 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            memory,
         float                                       priority) {}
 
+    virtual void Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDescriptorSetBindingReferenceVALVE>* pBindingReference,
+        StructPointerDecoder<Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>* pHostMapping) {}
+
+    virtual void Process_vkGetDescriptorSetHostMappingVALVE(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            descriptorSet,
+        PointerDecoder<uint64_t, void*>*            ppData) {}
+
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

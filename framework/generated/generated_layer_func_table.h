@@ -535,6 +535,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdDrawMultiEXT",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawMultiEXT) },
     { "vkCmdDrawMultiIndexedEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawMultiIndexedEXT) },
     { "vkSetDeviceMemoryPriorityEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(encode::SetDeviceMemoryPriorityEXT) },
+    { "vkGetDescriptorSetLayoutHostMappingInfoVALVE",                                                        reinterpret_cast<PFN_vkVoidFunction>(encode::GetDescriptorSetLayoutHostMappingInfoVALVE) },
+    { "vkGetDescriptorSetHostMappingVALVE",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetDescriptorSetHostMappingVALVE) },
     { "vkCreateAccelerationStructureKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CreateAccelerationStructureKHR) },
     { "vkDestroyAccelerationStructureKHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyAccelerationStructureKHR) },
     { "vkCmdBuildAccelerationStructuresKHR",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBuildAccelerationStructuresKHR) },

@@ -3403,6 +3403,18 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            memory,
         float                                       priority) override;
 
+    virtual void Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDescriptorSetBindingReferenceVALVE>* pBindingReference,
+        StructPointerDecoder<Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>* pHostMapping) override;
+
+    virtual void Process_vkGetDescriptorSetHostMappingVALVE(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            descriptorSet,
+        PointerDecoder<uint64_t, void*>*            ppData) override;
+
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
