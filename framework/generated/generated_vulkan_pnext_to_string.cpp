@@ -38,6 +38,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
     {
         switch (reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)
         {
+        case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
+            return ToString(*reinterpret_cast<const VkShaderModuleCreateInfo*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceSubgroupProperties*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
@@ -322,6 +324,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDevicePresentWaitFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
             return ToString(*reinterpret_cast<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
+            return ToString(*reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
             return ToString(*reinterpret_cast<const VkPresentIdKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
@@ -394,6 +398,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDepthClipEnableFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT:
             return ToString(*reinterpret_cast<const VkPipelineRasterizationDepthClipStateCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkDebugUtilsObjectNameInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
             return ToString(*reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
@@ -602,6 +608,12 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
             return ToString(*reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkGraphicsPipelineLibraryCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV:
@@ -654,6 +666,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT:
             return ToString(*reinterpret_cast<const VkPipelineColorWriteCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceImageViewMinLodFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT:

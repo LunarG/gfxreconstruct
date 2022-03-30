@@ -8452,6 +8452,43 @@ template <> std::string ToString<VkDeviceDiagnosticsConfigCreateInfoNV>(const Vk
     );
 }
 
+template <> std::string ToString<VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "graphicsPipelineLibrary", toStringFlags, tabCount, tabSize, ToString(obj.graphicsPipelineLibrary, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>(const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "graphicsPipelineLibraryFastLinking", toStringFlags, tabCount, tabSize, ToString(obj.graphicsPipelineLibraryFastLinking, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "graphicsPipelineLibraryIndependentInterpolationDecoration", toStringFlags, tabCount, tabSize, ToString(obj.graphicsPipelineLibraryIndependentInterpolationDecoration, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkGraphicsPipelineLibraryCreateInfoEXT>(const VkGraphicsPipelineLibraryCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>(const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8975,6 +9012,20 @@ template <> std::string ToString<VkPipelineColorWriteCreateInfoEXT>(const VkPipe
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pColorWriteEnables", toStringFlags, tabCount, tabSize, ArrayToString(obj.attachmentCount, obj.pColorWriteEnables, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>(const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "primitivesGeneratedQuery", toStringFlags, tabCount, tabSize, ToString(obj.primitivesGeneratedQuery, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "primitivesGeneratedQueryWithRasterizerDiscard", toStringFlags, tabCount, tabSize, ToString(obj.primitivesGeneratedQueryWithRasterizerDiscard, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "primitivesGeneratedQueryWithNonZeroStreams", toStringFlags, tabCount, tabSize, ToString(obj.primitivesGeneratedQueryWithNonZeroStreams, toStringFlags, tabCount, tabSize));
         }
     );
 }
