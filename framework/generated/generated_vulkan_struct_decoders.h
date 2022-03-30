@@ -6024,6 +6024,33 @@ struct Decoded_VkDeviceDiagnosticsConfigCreateInfoNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT;
+
+    VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT;
+
+    VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkGraphicsPipelineLibraryCreateInfoEXT
+{
+    using struct_type = VkGraphicsPipelineLibraryCreateInfoEXT;
+
+    VkGraphicsPipelineLibraryCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV
 {
     using struct_type = VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV;
@@ -6387,6 +6414,15 @@ struct Decoded_VkPipelineColorWriteCreateInfoEXT
 
     PNextNode* pNext{ nullptr };
     PointerDecoder<VkBool32> pColorWriteEnables;
+};
+
+struct Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT;
+
+    VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT;
