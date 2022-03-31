@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -137,6 +138,76 @@ bool CompressionConverter::ProcessFunctionCall(const format::BlockHeader& block_
     return success;
 }
 
+bool CompressionConverter::ProcessMethodCall(const format::BlockHeader& block_header,
+                                             format::ApiCallId          call_id,
+                                             uint64_t                   block_index /*= 0*/)
+{
+    size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
+    uint64_t         uncompressed_size     = 0;
+    format::HandleId object_id             = 0;
+    format::ThreadId thread_id             = 0;
+
+    bool success = ReadBytes(&object_id, sizeof(object_id));
+    success      = success && ReadBytes(&thread_id, sizeof(thread_id));
+
+    if (success)
+    {
+        parameter_buffer_size -= (sizeof(object_id) + sizeof(thread_id));
+
+        if (format::IsBlockCompressed(block_header.type))
+        {
+            success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
+
+            if (success)
+            {
+                parameter_buffer_size -= sizeof(uncompressed_size);
+
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+
+                size_t actual_size = 0;
+                success            = ReadCompressedParameterBuffer(
+                    parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
+
+                if (success)
+                {
+                    assert(actual_size == uncompressed_size);
+                    parameter_buffer_size = static_cast<size_t>(uncompressed_size);
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read compressed method call block data");
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingCompressedBlockHeader,
+                                     "Failed to read compressed method call block header");
+            }
+        }
+        else
+        {
+            success = ReadParameterBuffer(parameter_buffer_size);
+
+            if (!success)
+            {
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read method call block data");
+            }
+        }
+
+        if (success)
+        {
+            success = WriteMethodCall(call_id, object_id, thread_id, parameter_buffer_size);
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read method call block header");
+    }
+
+    return success;
+}
+
 bool CompressionConverter::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
     // Only the meta data blocks that contain resource data support compression.  The rest of the meta data block types
@@ -241,6 +312,92 @@ bool CompressionConverter::WriteFunctionCall(format::ApiCallId call_id, format::
         if (!WriteBytes(buffer.data(), buffer_size))
         {
             HandleBlockWriteError(kErrorWritingBlockData, "Failed to write function call block data");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CompressionConverter::WriteMethodCall(format::ApiCallId call_id,
+                                           format::HandleId  object_id,
+                                           format::ThreadId  thread_id,
+                                           size_t            buffer_size)
+{
+    bool        write_uncompressed = decompressing_;
+    const auto& buffer             = GetParameterBuffer();
+
+    if (!write_uncompressed)
+    {
+        GFXRECON_ASSERT(target_compressor_ != nullptr);
+
+        // Compress the buffer with the new compression format and write to the new file.
+        auto&  compressed_buffer = GetCompressedParameterBuffer();
+        size_t packet_size       = 0;
+        size_t compressed_size   = target_compressor_->Compress(buffer_size, buffer.data(), &compressed_buffer, 0);
+
+        if (0 < compressed_size && compressed_size < buffer_size)
+        {
+            format::CompressedMethodCallHeader compressed_method_call_header = {};
+            compressed_method_call_header.block_header.type = format::BlockType::kCompressedMethodCallBlock;
+            compressed_method_call_header.api_call_id       = call_id;
+            compressed_method_call_header.object_id         = object_id;
+            compressed_method_call_header.thread_id         = thread_id;
+            compressed_method_call_header.uncompressed_size = buffer_size;
+
+            packet_size += sizeof(compressed_method_call_header.api_call_id) +
+                           sizeof(compressed_method_call_header.object_id) +
+                           sizeof(compressed_method_call_header.thread_id) +
+                           sizeof(compressed_method_call_header.uncompressed_size) + compressed_size;
+
+            compressed_method_call_header.block_header.size = packet_size;
+
+            if (!WriteBytes(&compressed_method_call_header, sizeof(compressed_method_call_header)))
+            {
+                HandleBlockWriteError(kErrorWritingCompressedBlockHeader,
+                                      "Failed to write compressed method call block header");
+                return false;
+            }
+
+            if (!WriteBytes(compressed_buffer.data(), compressed_size))
+            {
+                HandleBlockWriteError(kErrorWritingCompressedBlockData,
+                                      "Failed to write compressed method call block data");
+                return false;
+            }
+        }
+        else
+        {
+            // It's bigger compressed than uncompressed, so write the uncompressed data.
+            write_uncompressed = true;
+        }
+    }
+
+    if (write_uncompressed)
+    {
+        // Buffer is currently not compressed; it was decompressed prior to this call.
+        format::MethodCallHeader method_call_header = {};
+        size_t                   packet_size        = 0;
+
+        method_call_header.block_header.type = format::BlockType::kMethodCallBlock;
+        method_call_header.api_call_id       = call_id;
+        method_call_header.object_id         = object_id;
+        method_call_header.thread_id         = thread_id;
+
+        packet_size += sizeof(method_call_header.api_call_id) + sizeof(method_call_header.object_id) +
+                       sizeof(method_call_header.thread_id) + buffer_size;
+
+        method_call_header.block_header.size = packet_size;
+
+        if (!WriteBytes(&method_call_header, sizeof(method_call_header)))
+        {
+            HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write method call block header");
+            return false;
+        }
+
+        if (!WriteBytes(buffer.data(), buffer_size))
+        {
+            HandleBlockWriteError(kErrorWritingBlockData, "Failed to write method call block data");
             return false;
         }
     }
