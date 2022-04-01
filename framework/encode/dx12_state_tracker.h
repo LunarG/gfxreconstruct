@@ -199,6 +199,10 @@ class Dx12StateTracker
                                                   D3D12_GPU_VIRTUAL_ADDRESS source_acceleration_structure_data,
                                                   D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE mode);
 
+    void TrackCreateStateObject(ID3D12Device5_Wrapper*         device5_wrapper,
+                                const D3D12_STATE_OBJECT_DESC* desc,
+                                void**                         state_object_void_ptr);
+
     void TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
                                   void*                                result,
                                   LPCWSTR                              export_name,

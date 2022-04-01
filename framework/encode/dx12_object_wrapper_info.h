@@ -306,11 +306,16 @@ struct ID3D12LifetimeTrackerInfo : public DxWrapperInfo
 {};
 
 struct ID3D12StateObjectInfo : public DxWrapperInfo
-{};
+{
+    //// Begin state tracking members
+
+    std::unordered_map<format::HandleId, std::shared_ptr<const DxWrapperInfo>> root_signature_wrapper_infos;
+};
 
 struct ID3D12StateObjectPropertiesInfo : public DxWrapperInfo
 {
     //// Begin state tracking members
+
     std::unordered_map<std::wstring, std::shared_ptr<util::MemoryOutputStream>> get_shader_identifier_call_parameters;
 };
 

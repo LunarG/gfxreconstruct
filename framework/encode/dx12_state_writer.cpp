@@ -103,7 +103,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12VersionedRootSignatureDeserializer_Wrapper>(state_table);
 
     // State objects
-    StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
+    WriteStateObjectsState(state_table);
     WriteStateObjectPropertiesState(state_table);
 
     // Resources and descriptors
@@ -1506,6 +1506,31 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
                       blas_addresses.size(),
                       (written_addresses.size() - blas_addresses.size()),
                       accel_struct_file_bytes);
+}
+
+void Dx12StateWriter::WriteStateObjectsState(const Dx12StateTable& state_table)
+{
+    std::unordered_set<format::HandleId> written_root_sigs;
+    state_table.VisitWrappers([&](const ID3D12StateObject_Wrapper* state_object_wrapper) {
+        GFXRECON_ASSERT(state_object_wrapper != nullptr);
+        GFXRECON_ASSERT(state_object_wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(state_object_wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        // Create any root signatures that this state object depends on that were released before trimming was
+        // activated.
+        auto state_object_info = state_object_wrapper->GetObjectInfo();
+        for (const auto& root_sig_info_pair : state_object_info->root_signature_wrapper_infos)
+        {
+            auto root_sig_id = root_sig_info_pair.first;
+            if ((root_sig_info_pair.second->GetWrapper() == nullptr) && (written_root_sigs.count(root_sig_id) == 0))
+            {
+                StandardCreateWrite(root_sig_id, *root_sig_info_pair.second.get());
+                written_root_sigs.insert(root_sig_id);
+            }
+        }
+
+        StandardCreateWrite(state_object_wrapper);
+    });
 }
 
 void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& state_table)

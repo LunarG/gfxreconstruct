@@ -2027,6 +2027,19 @@ void D3D12CaptureManager::OverrideGetRaytracingAccelerationStructurePrebuildInfo
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device5_CreateStateObject(ID3D12Device5_Wrapper*         device5_wrapper,
+                                                                      HRESULT                        result,
+                                                                      const D3D12_STATE_OBJECT_DESC* desc,
+                                                                      REFIID                         riid,
+                                                                      void**                         state_object)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack && SUCCEEDED(result) && (state_object != nullptr) &&
+        (*state_object != nullptr))
+    {
+        state_tracker_->TrackCreateStateObject(device5_wrapper, desc, state_object);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
     ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name)
 {

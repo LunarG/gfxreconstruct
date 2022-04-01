@@ -704,6 +704,55 @@ void Dx12StateTracker::TrackCopyRaytracingAccelerationStructure(
     }
 }
 
+void Dx12StateTracker::TrackCreateStateObject(ID3D12Device5_Wrapper*         device5_wrapper,
+                                              const D3D12_STATE_OBJECT_DESC* desc,
+                                              void**                         state_object_void_ptr)
+{
+    // Track root signatures associated with this state object.
+    for (UINT i = 0; i < desc->NumSubobjects; ++i)
+    {
+        const auto&                  subobject              = desc->pSubobjects[i];
+        ID3D12RootSignature_Wrapper* root_signature_wrapper = nullptr;
+        if (subobject.Type == D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE)
+        {
+            if (subobject.pDesc != nullptr)
+            {
+                auto local_root_signature_desc = reinterpret_cast<const D3D12_LOCAL_ROOT_SIGNATURE*>(subobject.pDesc);
+                if (local_root_signature_desc->pLocalRootSignature != nullptr)
+                {
+                    root_signature_wrapper =
+                        reinterpret_cast<ID3D12RootSignature_Wrapper*>(local_root_signature_desc->pLocalRootSignature);
+                }
+            }
+        }
+        else if (subobject.Type == D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE)
+        {
+            if (subobject.pDesc != nullptr)
+            {
+                auto global_root_signature_desc = reinterpret_cast<const D3D12_GLOBAL_ROOT_SIGNATURE*>(subobject.pDesc);
+                if (global_root_signature_desc->pGlobalRootSignature != nullptr)
+                {
+                    root_signature_wrapper = reinterpret_cast<ID3D12RootSignature_Wrapper*>(
+                        global_root_signature_desc->pGlobalRootSignature);
+                }
+            }
+        }
+
+        if (root_signature_wrapper != nullptr)
+        {
+            GFXRECON_ASSERT(state_object_void_ptr != nullptr);
+            GFXRECON_ASSERT(*state_object_void_ptr != nullptr);
+            auto state_object_wrapper = reinterpret_cast<ID3D12StateObject_Wrapper*>(*state_object_void_ptr);
+
+            GFXRECON_ASSERT(state_object_wrapper->GetObjectInfo() != nullptr);
+            GFXRECON_ASSERT(root_signature_wrapper->GetObjectInfo() != nullptr);
+            auto state_object_info = state_object_wrapper->GetObjectInfo();
+            state_object_info->root_signature_wrapper_infos[root_signature_wrapper->GetCaptureId()] =
+                root_signature_wrapper->GetObjectInfo();
+        }
+    }
+}
+
 void Dx12StateTracker::TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
                                                 void*                                result,
                                                 LPCWSTR                              export_name,
