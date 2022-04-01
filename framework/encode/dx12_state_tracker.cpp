@@ -480,6 +480,20 @@ void Dx12StateTracker::TrackRelease(IUnknown_Wrapper* wrapper)
     }
 }
 
+void Dx12StateTracker::TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
+                                                void*                                result,
+                                                LPCWSTR                              export_name,
+                                                const util::MemoryOutputStream*      parameter_buffer)
+{
+    GFXRECON_ASSERT(state_object_properties_wrapper != nullptr);
+    GFXRECON_ASSERT(state_object_properties_wrapper->GetObjectInfo() != nullptr);
+
+    auto         state_object_properties_info = state_object_properties_wrapper->GetObjectInfo();
+    std::wstring export_name_wstring          = export_name;
+    state_object_properties_info->get_shader_identifier_call_parameters[export_name_wstring] =
+        std::make_shared<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
+}
+
 ID3D12Resource_Wrapper* Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va)
 {
     ID3D12Resource_Wrapper* result      = nullptr;

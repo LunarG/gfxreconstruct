@@ -588,6 +588,9 @@ class D3D12CaptureManager : public CaptureManager
 
     inline const EnableDREDInfo& GetEnableDREDInfo() { return track_enable_dred_info_; }
 
+    void PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
+        ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name);
+
   protected:
     D3D12CaptureManager();
 

@@ -191,6 +191,11 @@ class Dx12StateTracker
 
     void TrackRelease(IUnknown_Wrapper* wrapper);
 
+    void TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
+                                  void*                                result,
+                                  LPCWSTR                              export_name,
+                                  const util::MemoryOutputStream*      parameter_buffer);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

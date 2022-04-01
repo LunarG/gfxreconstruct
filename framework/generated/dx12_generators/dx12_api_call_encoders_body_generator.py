@@ -306,7 +306,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         if 'GraphicsCommandList' in class_name:
             is_command_list_call = True
 
-        if ('TileMappings' in method_name) or ('ResizeBuffers' in method_name):
+        if ('TileMappings'
+            in method_name) or ('ResizeBuffers' in method_name
+                                ) or ('GetShaderIdentifier' in method_name):
             is_tracked_method_call = True
 
         # Build begin and end calls.

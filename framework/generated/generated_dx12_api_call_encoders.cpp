@@ -7686,7 +7686,7 @@ void Encode_ID3D12StateObjectProperties_GetShaderIdentifier(
     void* return_value,
     LPCWSTR pExportName)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier, wrapper->GetCaptureId());
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeWString(pExportName);

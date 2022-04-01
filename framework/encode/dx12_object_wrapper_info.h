@@ -266,7 +266,10 @@ struct ID3D12StateObjectInfo : public DxWrapperInfo
 {};
 
 struct ID3D12StateObjectPropertiesInfo : public DxWrapperInfo
-{};
+{
+    //// Begin state tracking members
+    std::unordered_map<std::wstring, std::shared_ptr<util::MemoryOutputStream>> get_shader_identifier_call_parameters;
+};
 
 struct EnableDREDInfo
 {

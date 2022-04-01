@@ -2011,5 +2011,15 @@ void D3D12CaptureManager::OverrideGetRaytracingAccelerationStructurePrebuildInfo
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
+    ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackGetShaderIdentifier(
+            properties_wrapper, result, export_name, GetThreadData()->parameter_buffer_.get());
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

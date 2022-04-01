@@ -104,7 +104,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
 
     // State objects
     StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12StateObjectProperties_Wrapper>(state_table);
+    WriteStateObjectPropertiesState(state_table);
 
     // Resources and descriptors
     WriteResourceState(state_table);
@@ -1278,6 +1278,30 @@ void Dx12StateWriter::WriteEnableDRED()
         WriteMethodCall(
             format::ApiCallId::ApiCall_IUnknown_Release, enable_dred_info.dred_settings1_object_id, &parameter_stream_);
     }
+}
+
+void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& state_table)
+{
+    state_table.VisitWrappers([&](const ID3D12StateObjectProperties_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+        StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
+
+        // Write GetShaderIdentifier calls before potentially releasing the reference to the
+        // ID3D12StateObjectProperties.
+        const auto& call_parameters_map = wrapper->GetObjectInfo()->get_shader_identifier_call_parameters;
+        for (auto& call_parameters_pair : call_parameters_map)
+        {
+            WriteMethodCall(format::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier,
+                            wrapper->GetCaptureId(),
+                            call_parameters_pair.second.get());
+        }
+
+        WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+        WriteAddRefAndReleaseCommands(wrapper);
+    });
 }
 
 GFXRECON_END_NAMESPACE(encode)

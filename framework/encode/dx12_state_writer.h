@@ -161,6 +161,8 @@ class Dx12StateWriter
 
     void WriteEnableDRED();
 
+    void WriteStateObjectPropertiesState(const Dx12StateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
