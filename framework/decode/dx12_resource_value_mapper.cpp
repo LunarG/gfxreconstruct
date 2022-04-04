@@ -72,12 +72,6 @@ D3D12ResourceInfo* GetResourceExtraInfo(DxObjectInfo* resource_object_info)
     return GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
 }
 
-constexpr UINT AlignOffset(UINT offset, UINT alignment)
-{
-    GFXRECON_ASSERT(alignment != 0);
-    return ((offset + (alignment - 1)) / alignment) * alignment;
-}
-
 template <typename T>
 void GetRootSignatureResourceValueInfos(const T* root_signature_desc, std::set<ResourceValueInfo>& value_infos)
 {
@@ -89,12 +83,12 @@ void GetRootSignatureResourceValueInfos(const T* root_signature_desc, std::set<R
         switch (param_desc.ParameterType)
         {
             case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
-                byte_offset =
-                    AlignOffset(byte_offset, sizeof(UINT32)) + param_desc.Constants.Num32BitValues * sizeof(UINT32);
+                byte_offset = util::platform::AlignValue<sizeof(UINT32)>(byte_offset) +
+                              param_desc.Constants.Num32BitValues * sizeof(UINT32);
                 break;
             case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
             {
-                auto aligned_offset = AlignOffset(byte_offset, sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr));
+                auto aligned_offset = util::platform::AlignValue<sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr)>(byte_offset);
                 value_infos.insert({ aligned_offset,
                                      ResourceValueType::kGpuDescriptorHandle,
                                      sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr) });
@@ -105,7 +99,7 @@ void GetRootSignatureResourceValueInfos(const T* root_signature_desc, std::set<R
             case D3D12_ROOT_PARAMETER_TYPE_SRV:
             case D3D12_ROOT_PARAMETER_TYPE_UAV:
             {
-                auto aligned_offset = AlignOffset(byte_offset, sizeof(D3D12_GPU_VIRTUAL_ADDRESS));
+                auto aligned_offset = util::platform::AlignValue<sizeof(D3D12_GPU_VIRTUAL_ADDRESS)>(byte_offset);
                 value_infos.insert(
                     { aligned_offset, ResourceValueType::kGpuVirtualAddress, sizeof(D3D12_GPU_VIRTUAL_ADDRESS) });
                 byte_offset = aligned_offset + sizeof(D3D12_GPU_VIRTUAL_ADDRESS);

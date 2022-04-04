@@ -530,6 +530,19 @@ inline int32_t FileClose(FILE* stream)
     return fclose(stream);
 }
 
+// Align an address/offset value to a given number of bytes. Requires static alignment value.
+template <uint64_t Alignment, typename T>
+inline T AlignValue(T original)
+{
+    // Validate inputs.
+    static_assert(std::is_unsigned<T>::value, "Value to align must be unsigned.");
+    static_assert(std::numeric_limits<T>::max() > Alignment, "Alignment value is too large.");
+    static_assert((Alignment > 0) && (((Alignment - 1) & Alignment) == 0), "Alignment must be a power of two.");
+
+    T alignment_t = static_cast<T>(Alignment);
+    return (original + (alignment_t - 1)) & ~(alignment_t - 1);
+}
+
 GFXRECON_END_NAMESPACE(platform)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
