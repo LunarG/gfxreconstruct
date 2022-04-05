@@ -9101,6 +9101,19 @@ template <> std::string ToString<VkMultiDrawIndexedInfoEXT>(const VkMultiDrawInd
     );
 }
 
+template <> std::string ToString<VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>(const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "image2DViewOf3D", toStringFlags, tabCount, tabSize, ToString(obj.image2DViewOf3D, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "sampler2DViewOf3D", toStringFlags, tabCount, tabSize, ToString(obj.sampler2DViewOf3D, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,

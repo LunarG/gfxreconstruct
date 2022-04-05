@@ -1612,6 +1612,10 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMultiDrawInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMultiDrawIndexedInfoEXT* wrapper);
 
+struct Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT* wrapper);
+
 struct Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;
 struct Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT;
 

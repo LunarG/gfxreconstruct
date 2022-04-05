@@ -829,6 +829,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiDrawProp
 void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawIndexedInfoEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSamplerBorderColorComponentMappingCreateInfoEXT& value);
 

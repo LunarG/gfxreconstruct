@@ -666,6 +666,7 @@ template <> std::string ToString<VkPhysicalDeviceMultiDrawFeaturesEXT>(const VkP
 template <> std::string ToString<VkPhysicalDeviceMultiDrawPropertiesEXT>(const VkPhysicalDeviceMultiDrawPropertiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMultiDrawInfoEXT>(const VkMultiDrawInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMultiDrawIndexedInfoEXT>(const VkMultiDrawIndexedInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>(const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSamplerBorderColorComponentMappingCreateInfoEXT>(const VkSamplerBorderColorComponentMappingCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
