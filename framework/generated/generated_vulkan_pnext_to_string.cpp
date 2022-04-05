@@ -676,6 +676,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceMultiDrawFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceMultiDrawPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:

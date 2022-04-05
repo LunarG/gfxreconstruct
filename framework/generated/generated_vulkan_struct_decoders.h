@@ -6479,6 +6479,15 @@ struct Decoded_VkMultiDrawIndexedInfoEXT
     VkMultiDrawIndexedInfoEXT* decoded_value{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceImage2DViewOf3DFeaturesEXT;
+
+    VkPhysicalDeviceImage2DViewOf3DFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;

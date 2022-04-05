@@ -6017,6 +6017,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawIndexedInfoEXT& va
     encoder->EncodeInt32Value(value.vertexOffset);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.image2DViewOf3D);
+    encoder->EncodeVkBool32Value(value.sampler2DViewOf3D);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);

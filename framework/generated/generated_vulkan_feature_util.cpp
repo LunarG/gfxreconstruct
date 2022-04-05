@@ -2309,6 +2309,24 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(next);
+                VkPhysicalDeviceImage2DViewOf3DFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->image2DViewOf3D == VK_TRUE) && (query.image2DViewOf3D == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature image2DViewOf3D, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(currentNext)->image2DViewOf3D = VK_FALSE;
+                }
+                if ((currentNext->sampler2DViewOf3D == VK_TRUE) && (query.sampler2DViewOf3D == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature sampler2DViewOf3D, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(currentNext)->sampler2DViewOf3D = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             {
                 const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(next);
