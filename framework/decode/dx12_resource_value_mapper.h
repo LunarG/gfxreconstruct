@@ -138,6 +138,8 @@ class Dx12ResourceValueMapper
                   D3D12ResourceInfo*       resource_info,
                   uint64_t                 base_offset = 0);
 
+    bool IsNonEmptyShaderRecord(const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
+
     void MapResources(const ResourceValueInfoMap&                        resource_value_info_map,
                       std::map<DxObjectInfo*, MappedResourceRevertInfo>& resource_data_to_revert);
 

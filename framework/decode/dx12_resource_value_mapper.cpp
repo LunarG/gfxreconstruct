@@ -871,6 +871,23 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
     args.fence->Signal(args.fence_value + 3);
 }
 
+bool Dx12ResourceValueMapper::IsNonEmptyShaderRecord(const std::vector<uint8_t>& data, uint64_t offset, uint64_t size)
+{
+    bool is_empty = false;
+    if (size > D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES)
+    {
+        for (size_t index = 0; index < size - D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES; ++index)
+        {
+            if (data[static_cast<size_t>(offset) + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES + index] != 0x0)
+            {
+                is_empty = true;
+                break;
+            }
+        }
+    }
+    return is_empty;
+}
+
 void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                                        std::vector<uint8_t>&    result_data,
                                        D3D12ResourceInfo*       resource_info,
@@ -978,13 +995,14 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         }
         else
         {
-            // Warn if a local root signature could be present in the shader record (based on record size) but the LRS
+            // Error if a local root signature could be present in the shader record (based on record size) but the LRS
             // association was not found by PostProcessCreateStateObject.
-            if (value_info.size > D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES)
+            if ((value_info.size > D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES) &&
+                IsNonEmptyShaderRecord(result_data, final_offset, value_info.size))
             {
-                GFXRECON_LOG_WARNING_ONCE("Did not find an associated local root signature for one or more shader IDs "
-                                          "used in a shader record. If the shader record contains GPU virtual "
-                                          "addresses or descriptor handles, replay may fail.");
+                GFXRECON_LOG_ERROR_ONCE("Did not find an associated local root signature for one or more shader IDs "
+                                        "used in a shader record. If the shader record contains GPU virtual "
+                                        "addresses or descriptor handles, replay may fail.");
             }
         }
     }
