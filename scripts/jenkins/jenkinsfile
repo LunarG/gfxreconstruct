@@ -10,7 +10,7 @@ kPackageNameRoot = ArchiveName64
 kPackageNameRoot64 = ArchiveName64 + "-x64"
 commonScriptsBranch = "master"
 // Default test run timeout 10 minutes + a buffer
-kTestTimeout = 35
+kTestTimeout = 120
 
 // Artifactory retention settings
 kMaxDays = 14
@@ -21,12 +21,10 @@ if (env.MAX_DAYS) {
 if (env.MAX_BUILDS) {
     kMaxBuilds = env.MAX_BUILDS
 }
-
 if (env.BRANCH_NAME == "feature_d3d12"){
 	kMaxBuilds = 90
 	kMaxDays = 90
 }
-
 email_recip_fail = ""
 email_recip_success = ""
 
@@ -49,6 +47,7 @@ def setupJobVars() {
 		key, value -> println("${key} = ${value}");
 	}
 	println(env.PATH)
+	
     email_recip_fail = ""
     email_recip_success = ""
 
@@ -72,7 +71,7 @@ def cloneReposWin() {
                 bat "git clone https://github.com/LunarG/GFXReconstruct-DX12/"
             }
         } catch (Exception err) {
-            echo "Unable to clone the gfxreconstruct github repo "
+            echo "Unable to clone the gfxreconstruct github repo"
             throw err
         }
     }
@@ -94,29 +93,50 @@ def cloneRepos() {
 
 // Check out, then load the script that contains functions that can be used in many projects.
 def setupTools() {
-    def jenkinsToolsLinux = "Scripts/lab_tools/Jenkins/Generic/JenkinsToolsLib.gvy"
-    def jenkinsToolsWindows = "Scripts\\lab_tools\\Jenkins\\Generic\\JenkinsToolsLib.gvy"
-
-    def loadedTools
+    def jenkins_tools_linux = "Scripts/LabTools/Jenkins/Generic/JenkinsToolsLib.gvy"
+    def jenkins_tools_windows = "Scripts\\LabTools\\Jenkins\\Generic\\JenkinsToolsLib.gvy"
+    def loaded_tools
     if (isUnix()) {
-        jenkinsTools = jenkinsToolsLinux
+        jenkins_tools = jenkins_tools_linux
     } else {
-        jenkinsTools = jenkinsToolsWindows
+        jenkins_tools = jenkins_tools_windows
     }
-    catchError(stageResult: 'FAILURE', buildResult: 'UNSTABLE', message: 'There was a problem cloning the scripts repo.') {
-            dir('Scripts') {
-                git branch: "${commonScriptsBranch}", url: "${commonScriptsUrl}"
+    if (fileExists('Scripts')) {
+        // If Scripts were checked out, delete the directory and get a fresh copy
+        dir ('Scripts') {
+            try {
+                if (isUnix()) {
+                    sh "git branch -u origin/${commonScriptsBranch}"
+                    sh "git pull"
+                } else {
+                    bat "git branch -u origin/${commonScriptsBranch}"
+                    bat "git pull"
+                }
+            } catch (Exception ePull) {
+                echo "Unable to run the git pull in common-Scripts."
+                deleteDir()
+                git branch: "${commonScriptsBranch}", url: "ssh://gerritgit/DevTools/ec/common-Scripts"
             }
         }
+    } else {
+        // Check the repo out
+        try {
+            dir('Scripts') {
+                git branch: "${commonScriptsBranch}", url: "ssh://gerritgit/DevTools/ec/common-Scripts"
+            }
+        } catch (Exception eInit) {
+            echo "Unable to checkout the common-Scripts repository"
+            throw eInit
+        }
+    }
     // Load the script.
     try {
-        loadedTools = load(jenkinsTools)
+        loaded_tools = load(jenkins_tools)
     } catch (Exception err) {
-        echo "Could not load "+ jenkinsTools + " " + err
+        echo "Could not load "+ jenkins_tools + " " + err
         throw err
     }
-    echo "jenkinsTools loaded"
-    return loadedTools
+    return loaded_tools
 }
 
 // Upload all artifacts
@@ -271,7 +291,7 @@ def Build(label) {
 					{
 					    echo "PR not submitted yet"
 						echo "checking out BRANCH_NAME"
-				        sh """
+				        bat """
 							git -C gfx/GFXReconstruct-DX12 checkout ${env.BRANCH_NAME}
 					    """
 						extraWinBuildArgs = "--check-code-style-base ${env.BRANCH_NAME}" 
@@ -279,7 +299,7 @@ def Build(label) {
 					else if(env.CHANGE_BRANCH != null) //once we creating a PR - BRANCH_NAME becomes pr+number and we are checking CHANGE_BRANCH to get the branch name 
 					{
 					    echo "env.CHANGE_BRANCH is not NULL"
-				        sh """
+				        bat """
 							git -C gfx/GFXReconstruct-DX12 checkout ${env.CHANGE_BRANCH}
 					    """
 						extraWinBuildArgs = "--check-code-style-base ${env.CHANGE_BRANCH}" 
@@ -500,7 +520,7 @@ testOnNodesW = [:]
 
 def setupWindowsJobs() {
     // Windows test steps as step per node
-    def winNodes = JTools.nodeNames("GFXRWINTEST")
+    def winNodes = JTools.nodeNames("GFXRWINNIGHTLYTEST")
     for (int i=0; i<winNodes.size(); ++i) {
         def hostNameW = winNodes[i]
         testOnNodesW["node_" + hostNameW] = {
@@ -557,13 +577,13 @@ pipeline {
             steps {
                 script {
                     if (runTests) {
-                        UploadArtifacts('BLD-U1804')
+                        UploadArtifacts('BLD-CENTOS7-VM')
                     }
                 }
             }
         }
         stage('Test GFX Reconstruct - Multiple nodes, if test archive exists') {
-            agent { label 'BLD-U1804' }
+            agent { label 'BLD-CENTOS7-VM' }
             steps {
                 script {
                     if (runTests) {
