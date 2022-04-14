@@ -208,10 +208,49 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
             }
         }
 
-        // Add acceleration structure build infos to their destination resources.
-        for (auto& accel_struct_build : list_info->acceleration_structure_builds)
+        GFXRECON_ASSERT(queue_wrapper != nullptr);
+        GFXRECON_ASSERT(queue_wrapper->GetObjectInfo() != nullptr);
+        auto queue_info = queue_wrapper->GetObjectInfo();
+
+        bool has_acceleration_structure_build = !list_info->acceleration_structure_builds.empty();
+        if (has_acceleration_structure_build)
         {
-            CommitAccelerationStructureBuildInfo(accel_struct_build);
+            // Add acceleration structure build infos to their destination resources.
+            uint64_t highest_build_id = 0;
+            for (auto& accel_struct_build : list_info->acceleration_structure_builds)
+            {
+                auto build_id    = CommitAccelerationStructureBuildInfo(accel_struct_build);
+                highest_build_id = std::max(build_id, highest_build_id);
+                queue_info->pending_acceleration_structure_build_resources[build_id] =
+                    accel_struct_build.input_data_resource;
+            }
+
+            GFXRECON_ASSERT(queue_wrapper->GetWrappedObject() != nullptr);
+            auto queue = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
+
+            // Create the fence that will be signaled by the queue to indicate that builds are complete.
+            if (queue_info->acceleration_structure_build_fence == nullptr)
+            {
+                auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(queue);
+                GFXRECON_ASSERT(device);
+
+                auto hr = device->CreateFence(
+                    0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&queue_info->acceleration_structure_build_fence));
+                GFXRECON_ASSERT(SUCCEEDED(hr));
+            }
+
+            // Add a signal to the queue to indicate that the acceleration structure builds have completed.
+            queue->Signal(queue_info->acceleration_structure_build_fence, highest_build_id);
+        }
+
+        // Clear out any completed pending_acceleration_structure_build_resources.
+        if (!queue_info->pending_acceleration_structure_build_resources.empty())
+        {
+            GFXRECON_ASSERT(queue_info->acceleration_structure_build_fence != nullptr);
+            auto& resources_map = queue_info->pending_acceleration_structure_build_resources;
+            auto  completed_end =
+                resources_map.upper_bound(queue_info->acceleration_structure_build_fence->GetCompletedValue());
+            resources_map.erase(resources_map.begin(), completed_end);
         }
     }
 }

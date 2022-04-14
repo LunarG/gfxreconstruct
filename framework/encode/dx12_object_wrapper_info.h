@@ -268,7 +268,12 @@ struct ID3D12CommandSignatureInfo : public DxWrapperInfo
 {};
 
 struct ID3D12CommandQueueInfo : public DxWrapperInfo
-{};
+{
+    //// Begin state tracking members
+
+    graphics::dx12::ID3D12FenceComPtr                        acceleration_structure_build_fence;
+    std::map<uint64_t, graphics::dx12::ID3D12ResourceComPtr> pending_acceleration_structure_build_resources;
+};
 
 struct ID3D12PipelineLibraryInfo : public DxWrapperInfo
 {};
