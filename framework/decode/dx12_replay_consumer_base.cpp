@@ -198,14 +198,24 @@ void Dx12ReplayConsumerBase::OverrideEnableDebugLayer(DxObjectInfo* replay_objec
 Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
 {
     // Wait for pending work to complete before destroying resources.
-    WaitIdle();
-    DestroyActiveObjects();
-    DestroyActiveWindows();
-    DestroyActiveEvents();
-    DestroyHeapAllocations();
-    if (info_queue_ != nullptr)
+    const DWORD kWaitMilliseconds = 2000;
+    if (WaitIdle(kWaitMilliseconds))
     {
-        info_queue_->Release();
+        DestroyActiveObjects();
+        DestroyActiveWindows();
+        DestroyActiveEvents();
+        DestroyHeapAllocations();
+        if (info_queue_ != nullptr)
+        {
+            info_queue_->Release();
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING(
+            "Failed to wait for all command queues to idle before exiting, so GFXReconstruct cannot manually release "
+            "DX12 resources prior to exit. This could be caused by a command queue waiting for the signal of a fence "
+            "value that was either not captured or not replayed before exit.");
     }
 }
 
@@ -1985,8 +1995,9 @@ void Dx12ReplayConsumerBase::ReleaseSwapchainImages(DxgiSwapchainInfo* info)
     }
 }
 
-void Dx12ReplayConsumerBase::WaitIdle()
+bool Dx12ReplayConsumerBase::WaitIdle(DWORD milliseconds)
 {
+    bool success = true;
     for (auto& entry : object_info_table_)
     {
         auto& info = entry.second;
@@ -2013,7 +2024,10 @@ void Dx12ReplayConsumerBase::WaitIdle()
                             {
                                 queue->Signal(fence, 1);
                                 fence->SetEventOnCompletion(1, sync_event);
-                                WaitForSingleObject(sync_event, INFINITE);
+                                if (WaitForSingleObject(sync_event, milliseconds) != WAIT_OBJECT_0)
+                                {
+                                    success = false;
+                                }
                             }
                         }
                     }
@@ -2023,12 +2037,16 @@ void Dx12ReplayConsumerBase::WaitIdle()
                         auto& sync_fence = queue_info->sync_fence;
                         queue->Signal(sync_fence, ++queue_info->sync_value);
                         sync_fence->SetEventOnCompletion(queue_info->sync_value, sync_event);
-                        WaitForSingleObject(sync_event, INFINITE);
+                        if (WaitForSingleObject(sync_event, milliseconds) != WAIT_OBJECT_0)
+                        {
+                            success = false;
+                        }
                     }
                 }
             }
         }
     }
+    return success;
 }
 
 void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool release_extra_refs)

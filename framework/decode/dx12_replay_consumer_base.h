@@ -604,7 +604,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void ReleaseSwapchainImages(DxgiSwapchainInfo* info);
 
-    void WaitIdle();
+    bool WaitIdle(DWORD milliseconds);
 
     void DestroyObjectExtraInfo(DxObjectInfo* info, bool release_extra_refs);
 
