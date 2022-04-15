@@ -27,7 +27,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-Dx12StateTracker::Dx12StateTracker() {}
+Dx12StateTracker::Dx12StateTracker() : accel_struct_id_(1) {}
 
 Dx12StateTracker::~Dx12StateTracker() {}
 
@@ -209,39 +209,9 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
         }
 
         // Add acceleration structure build infos to their destination resources.
-        for (const auto& accel_struct_build : list_info->acceleration_structure_builds)
+        for (auto& accel_struct_build : list_info->acceleration_structure_builds)
         {
-            auto  dest_resource_info = accel_struct_build.destination_resource->GetObjectInfo();
-            auto& builds_map         = dest_resource_info->acceleration_structure_builds;
-            auto  exact_iter         = builds_map.find(accel_struct_build.dest_gpu_va);
-            if (exact_iter != builds_map.end() && exact_iter->second.dest_size == accel_struct_build.dest_size)
-            {
-                // Replace the existing AS build info if the dest_gpu_va and dest_size match.
-                exact_iter->second = accel_struct_build;
-            }
-            else
-            {
-                // Find overlapping acceleration structures that were previously built to the destination resource.
-                auto lower_iter = builds_map.lower_bound(accel_struct_build.dest_gpu_va);
-                auto upper_iter = builds_map.lower_bound(accel_struct_build.dest_gpu_va + accel_struct_build.dest_size);
-
-                // Fixup lower_iter to point to the first map entry that overlaps with accel_struct_build.dest_gpu_va.
-                if (lower_iter != builds_map.begin())
-                {
-                    --lower_iter;
-                }
-                if ((lower_iter != upper_iter) &&
-                    ((lower_iter->second.dest_gpu_va + lower_iter->second.dest_size) <= accel_struct_build.dest_gpu_va))
-                {
-                    ++lower_iter;
-                }
-
-                // Erase entries for AS builds that overlap with the new build.
-                builds_map.erase(lower_iter, upper_iter);
-
-                // Add the new build info to the resource.
-                builds_map[accel_struct_build.dest_gpu_va] = accel_struct_build;
-            }
+            CommitAccelerationStructureBuildInfo(accel_struct_build);
         }
     }
 }
@@ -663,6 +633,45 @@ ID3D12Resource_Wrapper* Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_V
         result = state_table_.GetID3D12Resource_Wrapper(resource_id);
     }
     return result;
+}
+
+uint64_t Dx12StateTracker::CommitAccelerationStructureBuildInfo(DxAccelerationStructureBuildInfo& accel_struct_build)
+{
+    accel_struct_build.id = accel_struct_id_.fetch_add(1);
+
+    auto  dest_resource_info = accel_struct_build.destination_resource->GetObjectInfo();
+    auto& builds_map         = dest_resource_info->acceleration_structure_builds;
+    auto  exact_iter         = builds_map.find(accel_struct_build.dest_gpu_va);
+    if (exact_iter != builds_map.end() && exact_iter->second.dest_size == accel_struct_build.dest_size)
+    {
+        // Replace the existing AS build info if the dest_gpu_va and dest_size match.
+        builds_map[accel_struct_build.dest_gpu_va] = accel_struct_build;
+    }
+    else
+    {
+        // Find overlapping acceleration structures that were previously built to the destination resource.
+        auto lower_iter = builds_map.lower_bound(accel_struct_build.dest_gpu_va);
+        auto upper_iter = builds_map.lower_bound(accel_struct_build.dest_gpu_va + accel_struct_build.dest_size);
+
+        // Fixup lower_iter to point to the first map entry that overlaps with accel_struct_build.dest_gpu_va.
+        if (lower_iter != builds_map.begin())
+        {
+            --lower_iter;
+        }
+        if ((lower_iter != upper_iter) &&
+            ((lower_iter->second.dest_gpu_va + lower_iter->second.dest_size) <= accel_struct_build.dest_gpu_va))
+        {
+            ++lower_iter;
+        }
+
+        // Erase entries for AS builds that overlap with the new build.
+        builds_map.erase(lower_iter, upper_iter);
+
+        // Add the new build info to the resource.
+        builds_map[accel_struct_build.dest_gpu_va] = accel_struct_build;
+    }
+
+    return accel_struct_build.id;
 }
 
 GFXRECON_END_NAMESPACE(encode)

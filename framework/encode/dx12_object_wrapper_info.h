@@ -162,6 +162,9 @@ struct DxResizeBuffersInfo
 
 struct DxAccelerationStructureBuildInfo
 {
+    // Unique ID for this acceleration structure. Lower IDs were built or copied first.
+    uint64_t id{ 0 };
+
     // The destination address and associated resource for the acceleration structure build.
     D3D12_GPU_VIRTUAL_ADDRESS dest_gpu_va{ 0 };
     UINT64                    dest_size{ 0 };

@@ -221,9 +221,12 @@ class Dx12StateTracker
 
     ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va);
 
+    uint64_t CommitAccelerationStructureBuildInfo(DxAccelerationStructureBuildInfo& accel_struct_build);
+
   private:
-    std::mutex     state_table_mutex_;
-    Dx12StateTable state_table_;
+    std::mutex           state_table_mutex_;
+    Dx12StateTable       state_table_;
+    std::atomic_uint64_t accel_struct_id_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
