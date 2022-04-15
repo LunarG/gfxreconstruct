@@ -160,6 +160,16 @@ struct DxResizeBuffersInfo
     std::unique_ptr<util::MemoryOutputStream> call_parameters;
 };
 
+struct DxAccelerationStructureCopyInfo
+{
+    D3D12_GPU_VIRTUAL_ADDRESS dest_gpu_va{ 0 };
+    ID3D12Resource_Wrapper*   dest_resource_wrapper{ nullptr };
+    D3D12_GPU_VIRTUAL_ADDRESS source_gpu_va{ 0 };
+    ID3D12Resource_Wrapper*   source_resource_wrapper{ nullptr };
+
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE mode{};
+};
+
 struct DxAccelerationStructureBuildInfo
 {
     // Unique ID for this acceleration structure. Lower IDs were built or copied first.
@@ -178,6 +188,14 @@ struct DxAccelerationStructureBuildInfo
 
     uint64_t                             input_data_size{ 0 };
     graphics::dx12::ID3D12ResourceComPtr input_data_resource{ nullptr };
+
+    // Copy state.
+    D3D12_GPU_VIRTUAL_ADDRESS copy_source_gpu_va{
+        0
+    }; ///< GPU VA for the source of the copy used to create this acceleration structure.
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE
+    copy_mode{};                   ///< Copy mode used to create this acceleration structure
+    bool was_copy_source{ false }; ///< Was this acceleration structure copied to another?
 };
 
 struct IDXGIKeyedMutexInfo : public DxgiWrapperInfo
@@ -401,6 +419,7 @@ struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 
     // Track acceleration structure builds that are recorded to this command list.
     std::vector<DxAccelerationStructureBuildInfo> acceleration_structure_builds;
+    std::vector<DxAccelerationStructureCopyInfo>  acceleration_structure_copies;
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo

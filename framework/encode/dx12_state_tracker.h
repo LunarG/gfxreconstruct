@@ -228,6 +228,9 @@ class Dx12StateTracker
 
     uint64_t CommitAccelerationStructureBuildInfo(DxAccelerationStructureBuildInfo& accel_struct_build);
 
+    uint64_t CommitAccelerationStructureCopyInfo(DxAccelerationStructureCopyInfo&      accel_struct_copy,
+                                                 graphics::dx12::ID3D12ResourceComPtr& inputs_data_resource);
+
   private:
     std::mutex           state_table_mutex_;
     Dx12StateTable       state_table_;

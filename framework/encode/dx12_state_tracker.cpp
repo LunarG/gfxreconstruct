@@ -121,8 +121,9 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* 
             list_info->command_objects[i].clear();
         }
 
-        // Clear pending acceleration structure builds.
+        // Clear pending acceleration structure builds & copies.
         list_info->acceleration_structure_builds.clear();
+        list_info->acceleration_structure_copies.clear();
     }
 
     if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
@@ -212,7 +213,8 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
         GFXRECON_ASSERT(queue_wrapper->GetObjectInfo() != nullptr);
         auto queue_info = queue_wrapper->GetObjectInfo();
 
-        bool has_acceleration_structure_build = !list_info->acceleration_structure_builds.empty();
+        bool has_acceleration_structure_build =
+            !list_info->acceleration_structure_builds.empty() || !list_info->acceleration_structure_copies.empty();
         if (has_acceleration_structure_build)
         {
             // Add acceleration structure build infos to their destination resources.
@@ -223,6 +225,15 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
                 highest_build_id = std::max(build_id, highest_build_id);
                 queue_info->pending_acceleration_structure_build_resources[build_id] =
                     accel_struct_build.input_data_resource;
+            }
+
+            // Add acceleration structure copy infos to their resources.
+            for (auto& accel_struct_copy : list_info->acceleration_structure_copies)
+            {
+                graphics::dx12::ID3D12ResourceComPtr inputs_data_resource;
+                auto build_id    = CommitAccelerationStructureCopyInfo(accel_struct_copy, inputs_data_resource);
+                highest_build_id = std::max(build_id, highest_build_id);
+                queue_info->pending_acceleration_structure_build_resources[build_id] = inputs_data_resource;
             }
 
             GFXRECON_ASSERT(queue_wrapper->GetWrappedObject() != nullptr);
@@ -584,17 +595,23 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
         build_info.input_data_size = inputs_buffer_size;
         if (inputs_buffer_size > 0)
         {
-            // Create (or reuse) ID3D12Resource to copy inputs data to.
             graphics::dx12::ID3D12ResourceComPtr inputs_data_resource = nullptr;
-            auto                                 resource_info        = resource_wrapper->GetObjectInfo();
+
+            // If the destination resource already has an acceleration structure at the same address, with the same
+            // inputs size, and has not been copied to or from, then reuse its inputs_data_resource.
+            auto resource_info         = resource_wrapper->GetObjectInfo();
             auto existing_accel_struct = resource_info->acceleration_structure_builds.find(build_info.dest_gpu_va);
             if (existing_accel_struct != resource_info->acceleration_structure_builds.end())
             {
-                if (existing_accel_struct->second.input_data_size == inputs_buffer_size)
+                if ((existing_accel_struct->second.input_data_size == inputs_buffer_size) &&
+                    (!existing_accel_struct->second.was_copy_source) &&
+                    (existing_accel_struct->second.copy_source_gpu_va == 0))
                 {
                     inputs_data_resource = existing_accel_struct->second.input_data_resource;
                 }
             }
+
+            // If a reusable inputs_data_resource was not found, create a new buffer.
             if (inputs_data_resource == nullptr)
             {
                 inputs_data_resource = graphics::dx12::CreateBufferResource(device5,
@@ -654,7 +671,38 @@ void Dx12StateTracker::TrackCopyRaytracingAccelerationStructure(
     D3D12_GPU_VIRTUAL_ADDRESS                         dest_acceleration_structure_data,
     D3D12_GPU_VIRTUAL_ADDRESS                         source_acceleration_structure_data,
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE mode)
-{}
+{
+    // Only track clone and compact copies.
+    if ((mode != D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_CLONE) &&
+        (mode != D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_COMPACT))
+    {
+        return;
+    }
+
+    ID3D12Resource_Wrapper* dest_resource_wrapper   = nullptr;
+    ID3D12Resource_Wrapper* source_resource_wrapper = nullptr;
+    {
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        dest_resource_wrapper   = GetResourceWrapperForGpuVa(dest_acceleration_structure_data);
+        source_resource_wrapper = GetResourceWrapperForGpuVa(source_acceleration_structure_data);
+    }
+
+    if (dest_resource_wrapper && source_resource_wrapper)
+    {
+        DxAccelerationStructureCopyInfo copy_info;
+        copy_info.dest_gpu_va             = dest_acceleration_structure_data;
+        copy_info.dest_resource_wrapper   = dest_resource_wrapper;
+        copy_info.source_gpu_va           = source_acceleration_structure_data;
+        copy_info.source_resource_wrapper = source_resource_wrapper;
+        copy_info.mode                    = mode;
+        list_wrapper->GetObjectInfo()->acceleration_structure_copies.push_back(copy_info);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to find the resource objects that corresponds to the source and dest GPU VAs in "
+                           "CopyRaytracingAccelerationStructure. Acceleration structure trimming may fail.");
+    }
+}
 
 void Dx12StateTracker::TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
                                                 void*                                result,
@@ -718,6 +766,37 @@ uint64_t Dx12StateTracker::CommitAccelerationStructureBuildInfo(DxAccelerationSt
     }
 
     return accel_struct_build.id;
+}
+
+uint64_t
+Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCopyInfo&      accel_struct_copy,
+                                                      graphics::dx12::ID3D12ResourceComPtr& inputs_data_resource)
+{
+    auto& source_builds_map = accel_struct_copy.source_resource_wrapper->GetObjectInfo()->acceleration_structure_builds;
+    GFXRECON_ASSERT(source_builds_map.find(accel_struct_copy.source_gpu_va) != source_builds_map.end());
+    auto& source_build_info = source_builds_map[accel_struct_copy.source_gpu_va];
+
+    // Add a build info for the copy dest.
+    DxAccelerationStructureBuildInfo dest_build_info = source_build_info;
+
+    // Fix up destination info for the dest acceleration structure.
+    dest_build_info.dest_gpu_va          = accel_struct_copy.dest_gpu_va;
+    dest_build_info.destination_resource = accel_struct_copy.dest_resource_wrapper;
+
+    // Fix up copy state for the dest acceleration structure.
+    dest_build_info.was_copy_source    = false;
+    dest_build_info.copy_source_gpu_va = source_build_info.dest_gpu_va;
+    dest_build_info.copy_mode          = accel_struct_copy.mode;
+
+    // Mark that the source acceleration structure was copied.
+    source_build_info.was_copy_source = true;
+
+    // TODO (GH #476): Set dest_size from post build info.
+    dest_build_info.dest_size = 1;
+
+    inputs_data_resource = dest_build_info.input_data_resource;
+
+    return CommitAccelerationStructureBuildInfo(dest_build_info);
 }
 
 GFXRECON_END_NAMESPACE(encode)
