@@ -31,7 +31,6 @@ Vulkan API calls on Desktop systems.
     2. [Capture File Compression](#capture-file-compression)
     3. [Shader Extraction](#shader-extraction)
     4. [Trimmed File Optimizer](#trimmed-file-optimizer)
-    5. [To ASCII](#to-ascii)
     6. [Command Launcher](#command-launcher)
 
 ## Capturing API calls
