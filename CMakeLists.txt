@@ -179,10 +179,16 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
+add_library(macos_specific INTERFACE)
+target_compile_definitions(macos_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
+    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
     $<$<BOOL:${WIN32}>:windows_specific>
-    $<$<NOT:$<BOOL:${WIN32}>>:linux_specific>)
+    $<STREQUAL:${CMAKE_SYSTEM_NAME},Darwin>:macos_specific>
+    $<STREQUAL:${CMAKE_SYSTEM_NAME},Linux>:linux_specific>)
 
 if(BUILD_WERROR)
     if(MSVC)
