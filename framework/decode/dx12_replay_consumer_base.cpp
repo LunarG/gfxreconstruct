@@ -563,10 +563,8 @@ ULONG Dx12ReplayConsumerBase::OverrideRelease(DxObjectInfo* replay_object_info, 
     return object->Release();
 }
 
-void Dx12ReplayConsumerBase::PostPresent(IDXGISwapChain* swapchain)
+void Dx12ReplayConsumerBase::PrePresent(IDXGISwapChain* swapchain)
 {
-    ReadDebugMessages();
-
     if (screenshot_handler_ != nullptr)
     {
         if (screenshot_handler_->IsScreenshotFrame())
@@ -585,15 +583,20 @@ void Dx12ReplayConsumerBase::PostPresent(IDXGISwapChain* swapchain)
     }
 }
 
+void Dx12ReplayConsumerBase::PostPresent()
+{
+    ReadDebugMessages();
+}
+
 HRESULT Dx12ReplayConsumerBase::OverridePresent(DxObjectInfo* replay_object_info,
                                                 HRESULT       original_result,
                                                 UINT          sync_interval,
                                                 UINT          flags)
 {
     auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
-    auto result        = replay_object->Present(sync_interval, flags);
-
-    PostPresent(replay_object);
+    PrePresent(replay_object);
+    auto result = replay_object->Present(sync_interval, flags);
+    PostPresent();
 
     return result;
 }
@@ -606,9 +609,9 @@ Dx12ReplayConsumerBase::OverridePresent1(DxObjectInfo*                          
                                          StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* present_parameters)
 {
     auto replay_object = static_cast<IDXGISwapChain1*>(replay_object_info->object);
-    auto result        = replay_object->Present1(sync_interval, flags, present_parameters->GetPointer());
-
-    PostPresent(replay_object);
+    PrePresent(replay_object);
+    auto result = replay_object->Present1(sync_interval, flags, present_parameters->GetPointer());
+    PostPresent();
 
     return result;
 }

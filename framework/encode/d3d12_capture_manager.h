@@ -208,6 +208,13 @@ class D3D12CaptureManager : public CaptureManager
                                                                  IDXGIOutput*                 restrict_to_output,
                                                                  IDXGISwapChain1**            swap_chain);
 
+    void PreProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper, UINT sync_interval, UINT flags);
+
+    void PreProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
+                                             UINT                           sync_interval,
+                                             UINT                           present_flags,
+                                             const DXGI_PRESENT_PARAMETERS* present_parameters);
+
     void
     PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT sync_interval, UINT flags);
 
@@ -646,9 +653,9 @@ class D3D12CaptureManager : public CaptureManager
     void                          EnableDRED();
 
   private:
-    void TakeScreenshot(IDXGISwapChain_Wrapper* swapchain_wrapper);
-    void PostPresent(IDXGISwapChain_Wrapper* wrapper);
-
+    void                              TakeScreenshot(IDXGISwapChain_Wrapper* swapchain_wrapper);
+    void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
+    void                              PostPresent(IDXGISwapChain_Wrapper* wrapper);
     static D3D12CaptureManager*       instance_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.

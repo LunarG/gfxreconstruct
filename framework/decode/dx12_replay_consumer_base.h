@@ -413,7 +413,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
 
-    void PostPresent(IDXGISwapChain* swapchain);
+    void PrePresent(IDXGISwapChain* swapchain);
+
+    void PostPresent();
 
     void OverrideSetAutoBreadcrumbsEnablement(DxObjectInfo* replay_object_info, D3D12_DRED_ENABLEMENT enablement);
 

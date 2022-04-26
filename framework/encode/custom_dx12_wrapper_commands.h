@@ -83,16 +83,6 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwap
 };
 
 template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_IDXGIFactory2_CreateSwapChainForComposition(args...);
-    }
-};
-
-template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>
 {
     template <typename... Args>
@@ -109,6 +99,36 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_IDXGISwapChain1_Present1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_IDXGIFactory2_CreateSwapChainForComposition(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_IDXGISwapChain_Present(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_IDXGISwapChain1_Present1(args...);
     }
 };
 

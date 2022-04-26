@@ -470,10 +470,8 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain_ResizeBuffers(
     ReleaseSwapChainImages(wrapper);
 }
 
-void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
+void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
 {
-    EndFrame();
-
     if (ShouldTriggerScreenshot())
     {
         ID3D12CommandQueue_Wrapper* queue_wrapper = direct_queues_.back();
@@ -484,9 +482,38 @@ void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
             auto swapchain = swapchain_wrapper->GetWrappedObjectAs<IDXGISwapChain>();
 
             gfxrecon::graphics::dx12::TakeScreenshot(
-                frame_buffer_renderer_, queue, swapchain, global_frame_count_, screenshot_prefix_);
+                frame_buffer_renderer_, queue, swapchain, global_frame_count_ + 1, screenshot_prefix_);
         }
     }
+}
+
+void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
+{
+    EndFrame();
+}
+
+void D3D12CaptureManager::PreProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
+                                                            UINT                    sync_interval,
+                                                            UINT                    flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+
+    PrePresent(wrapper);
+}
+
+void D3D12CaptureManager::PreProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
+                                                              UINT                           sync_interval,
+                                                              UINT                           present_flags,
+                                                              const DXGI_PRESENT_PARAMETERS* present_parameters)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
+    GFXRECON_UNREFERENCED_PARAMETER(present_flags);
+    GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
+
+    PrePresent(wrapper);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
