@@ -144,7 +144,6 @@ void Log::LogMessage(
 {
     bool  opened_file      = false;
     bool  write_indent     = settings_.use_indent && (settings_.indent > 0);
-    bool  message_written  = false;
     bool  output_to_stderr = false;
     FILE* log_file_ptr;
 
