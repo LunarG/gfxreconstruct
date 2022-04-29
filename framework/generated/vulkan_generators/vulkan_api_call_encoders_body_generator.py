@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2018-2019 Valve Corporation
 # Copyright (c) 2018-2019 LunarG, Inc.
+# Copyright (c) 2022 Advanced Micro Devices, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -452,7 +453,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         )
 
                         if not member_array_length:
-                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return reinterpret_cast<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(
+                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return getWrapperPointerFromHandle<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(
                                 handle.base_type,
                                 member_handle_name,
                                 wrapper=member_handle_type[2:]

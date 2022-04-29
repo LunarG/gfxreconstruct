@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -715,7 +716,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
         encode_wrapper.handle_id = wrapper->handle_id;
 
         VkWriteDescriptorSet write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-        write.dstSet               = reinterpret_cast<VkDescriptorSet>(&encode_wrapper);
+        write.dstSet               = UINT64_TO_VK_HANDLE(VkDescriptorSet, encode_wrapper.handle_id);
 
         for (const auto& binding_entry : wrapper->bindings)
         {
@@ -744,7 +745,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                         // End of an active descriptor write range.
                         active                = false;
                         write.descriptorCount = i - write.dstArrayElement;
-                        WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                        WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
                     }
                 }
                 else if (active && (descriptor_type != write.descriptorType))
@@ -752,7 +753,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                     // Mutable descriptor type change within an active write range
                     // End current range
                     write.descriptorCount = i - write.dstArrayElement;
-                    WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                    WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
                     // Start new range
                     write.descriptorType  = descriptor_type;
                     write.dstArrayElement = i;
@@ -763,7 +764,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             if (active)
             {
                 write.descriptorCount = binding->count - write.dstArrayElement;
-                WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
             }
         }
     });
@@ -1559,8 +1560,9 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                 VkBindBufferMemoryInfo info = {};
                 info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
                 info.pNext                  = wrapper->bind_pnext;
-                info.buffer                 = reinterpret_cast<VkBuffer>(const_cast<BufferWrapper*>(wrapper));
-                info.memory       = reinterpret_cast<VkDeviceMemory>(const_cast<DeviceMemoryWrapper*>(memory_wrapper));
+                info.buffer = UINT64_TO_VK_HANDLE(VkBuffer, const_cast<BufferWrapper*>(wrapper)->handle_id);
+                info.memory =
+                    UINT64_TO_VK_HANDLE(VkDeviceMemory, const_cast<DeviceMemoryWrapper*>(memory_wrapper)->handle_id);
                 info.memoryOffset = wrapper->bind_offset;
                 EncodeStructArray(&encoder_, &info, 1);
                 encoder_.EncodeEnumValue(VK_SUCCESS);
@@ -1646,8 +1648,9 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                 VkBindImageMemoryInfo info = {};
                 info.sType                 = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
                 info.pNext                 = wrapper->bind_pnext;
-                info.image                 = reinterpret_cast<VkImage>(const_cast<ImageWrapper*>(wrapper));
-                info.memory       = reinterpret_cast<VkDeviceMemory>(const_cast<DeviceMemoryWrapper*>(memory_wrapper));
+                info.image = UINT64_TO_VK_HANDLE(VkImage, const_cast<ImageWrapper*>(wrapper)->handle_id);
+                info.memory =
+                    UINT64_TO_VK_HANDLE(VkDeviceMemory, const_cast<DeviceMemoryWrapper*>(memory_wrapper)->handle_id);
                 info.memoryOffset = wrapper->bind_offset;
                 EncodeStructArray(&encoder_, &info, 1);
                 encoder_.EncodeEnumValue(VK_SUCCESS);
@@ -1894,8 +1897,9 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
 
         if (wrapper->mapped_data != nullptr)
         {
-            const VkResult result         = VK_SUCCESS;
-            const auto     device_wrapper = reinterpret_cast<DeviceWrapper*>(wrapper->map_device);
+            const VkResult result = VK_SUCCESS;
+            const auto     device_wrapper =
+                reinterpret_cast<DeviceWrapper*>(wrapper->map_device); // map_device is the wrapper of related device
 
             // Map the replay memory.
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
@@ -1949,8 +1953,8 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
             if (wrapper->image_acquired_info[i].last_presented_queue != VK_NULL_HANDLE)
             {
-                auto queue_wrapper =
-                    reinterpret_cast<const QueueWrapper*>(wrapper->image_acquired_info[i].last_presented_queue);
+                auto queue_wrapper = getWrapperPointerFromHandle<const QueueWrapper*>(
+                    wrapper->image_acquired_info[i].last_presented_queue);
                 info.last_presented_queue_id = queue_wrapper->handle_id;
             }
             else
@@ -2078,10 +2082,11 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities(format::Handle
     else
     {
         VkPhysicalDeviceSurfaceInfo2KHR surface_info2;
-        surface_info2.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        surface_info2.pNext   = capabilities.surface_info_pnext;
-        auto surface_wrapper  = state_table.GetSurfaceKHRWrapper(surface_id);
-        surface_info2.surface = reinterpret_cast<VkSurfaceKHR>(const_cast<SurfaceKHRWrapper*>(surface_wrapper));
+        surface_info2.sType  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
+        surface_info2.pNext  = capabilities.surface_info_pnext;
+        auto surface_wrapper = state_table.GetSurfaceKHRWrapper(surface_id);
+        surface_info2.surface =
+            UINT64_TO_VK_HANDLE(VkSurfaceKHR, const_cast<SurfaceKHRWrapper*>(surface_wrapper)->handle_id);
 
         VkSurfaceCapabilities2KHR capabilities2;
         capabilities2.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
@@ -2160,10 +2165,11 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(format::Handle
     else
     {
         VkPhysicalDeviceSurfaceInfo2KHR surface_info2;
-        surface_info2.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        surface_info2.pNext   = present_modes.surface_info_pnext;
-        auto surface_wrapper  = state_table.GetSurfaceKHRWrapper(surface_id);
-        surface_info2.surface = reinterpret_cast<VkSurfaceKHR>(const_cast<SurfaceKHRWrapper*>(surface_wrapper));
+        surface_info2.sType  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
+        surface_info2.pNext  = present_modes.surface_info_pnext;
+        auto surface_wrapper = state_table.GetSurfaceKHRWrapper(surface_id);
+        surface_info2.surface =
+            UINT64_TO_VK_HANDLE(VkSurfaceKHR, const_cast<SurfaceKHRWrapper*>(surface_wrapper)->handle_id);
 
         // First write the call to retrieve the size.
         encoder_.EncodeHandleIdValue(physical_device_id);
@@ -2207,10 +2213,11 @@ void VulkanStateWriter::WriteGetDeviceGroupSurfacePresentModes(format::HandleId 
     else
     {
         VkPhysicalDeviceSurfaceInfo2KHR surface_info2;
-        surface_info2.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        surface_info2.pNext   = present_modes.surface_info_pnext;
-        auto surface_wrapper  = state_table.GetSurfaceKHRWrapper(surface_id);
-        surface_info2.surface = reinterpret_cast<VkSurfaceKHR>(const_cast<SurfaceKHRWrapper*>(surface_wrapper));
+        surface_info2.sType  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
+        surface_info2.pNext  = present_modes.surface_info_pnext;
+        auto surface_wrapper = state_table.GetSurfaceKHRWrapper(surface_id);
+        surface_info2.surface =
+            UINT64_TO_VK_HANDLE(VkSurfaceKHR, const_cast<SurfaceKHRWrapper*>(surface_wrapper)->handle_id);
 
         encoder_.EncodeHandleIdValue(device_id);
         EncodeStructPtr(&encoder_, &surface_info2);
@@ -2259,10 +2266,11 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     // struct members to be wrapped handles.
     CommandPoolWrapper encode_wrapper;
     encode_wrapper.handle_id = command_pool_id;
+    WrapperManager::getInstance()->add(encode_wrapper.handle_id, reinterpret_cast<void*>(&encode_wrapper));
 
     VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
     alloc_info.pNext                       = nullptr;
-    alloc_info.commandPool                 = reinterpret_cast<VkCommandPool>(&encode_wrapper);
+    alloc_info.commandPool                 = UINT64_TO_VK_HANDLE(VkCommandPool, encode_wrapper.handle_id);
     alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     alloc_info.commandBufferCount          = 1;
 
@@ -2272,6 +2280,7 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkAllocateCommandBuffers, &parameter_stream_);
+    WrapperManager::getInstance()->remove(encode_wrapper.handle_id);
     parameter_stream_.Reset();
 }
 

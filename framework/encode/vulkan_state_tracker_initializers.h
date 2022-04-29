@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -108,7 +109,7 @@ inline void InitializeState<VkPhysicalDevice, DeviceWrapper, VkDeviceCreateInfo>
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->physical_device = reinterpret_cast<PhysicalDeviceWrapper*>(parent_handle);
+    wrapper->physical_device = getWrapperPointerFromHandle<PhysicalDeviceWrapper*>(parent_handle);
 }
 
 template <>
@@ -134,7 +135,7 @@ inline void InitializeState<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCre
     {
         assert(create_info->pSetLayouts[i] != VK_NULL_HANDLE);
 
-        auto layout_wrapper = reinterpret_cast<DescriptorSetLayoutWrapper*>(create_info->pSetLayouts[i]);
+        auto layout_wrapper = getWrapperPointerFromHandle<DescriptorSetLayoutWrapper*>(create_info->pSetLayouts[i]);
         CreateDependencyInfo info;
         info.handle_id         = layout_wrapper->handle_id;
         info.create_call_id    = layout_wrapper->create_call_id;
@@ -180,7 +181,7 @@ inline void InitializeState<VkDevice, QueryPoolWrapper, VkQueryPoolCreateInfo>(V
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device      = reinterpret_cast<DeviceWrapper*>(parent_handle);
+    wrapper->device      = getWrapperPointerFromHandle<DeviceWrapper*>(parent_handle);
     wrapper->query_type  = create_info->queryType;
     wrapper->query_count = create_info->queryCount;
     wrapper->pending_queries.resize(create_info->queryCount);
@@ -203,7 +204,7 @@ inline void InitializeState<VkDevice, FenceWrapper, VkFenceCreateInfo>(VkDevice 
     wrapper->create_parameters = std::move(create_parameters);
 
     wrapper->created_signaled = ((create_info->flags & VK_FENCE_CREATE_SIGNALED_BIT) == VK_FENCE_CREATE_SIGNALED_BIT);
-    wrapper->device           = reinterpret_cast<DeviceWrapper*>(parent_handle);
+    wrapper->device           = getWrapperPointerFromHandle<DeviceWrapper*>(parent_handle);
 }
 
 template <>
@@ -222,7 +223,7 @@ inline void InitializeState<VkDevice, EventWrapper, VkEventCreateInfo>(VkDevice 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = reinterpret_cast<DeviceWrapper*>(parent_handle);
+    wrapper->device = getWrapperPointerFromHandle<DeviceWrapper*>(parent_handle);
 }
 
 template <>
@@ -241,7 +242,7 @@ inline void InitializeState<VkDevice, SemaphoreWrapper, VkSemaphoreCreateInfo>(V
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = reinterpret_cast<DeviceWrapper*>(parent_handle);
+    wrapper->device = getWrapperPointerFromHandle<DeviceWrapper*>(parent_handle);
 
     auto next = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
     while (next)
@@ -272,7 +273,7 @@ InitializeState<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(VkDevice 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto render_pass_wrapper = reinterpret_cast<RenderPassWrapper*>(create_info->renderPass);
+    auto render_pass_wrapper = getWrapperPointerFromHandle<RenderPassWrapper*>(create_info->renderPass);
     assert(render_pass_wrapper != nullptr);
     wrapper->render_pass_id                = render_pass_wrapper->handle_id;
     wrapper->render_pass_create_call_id    = render_pass_wrapper->create_call_id;
@@ -282,7 +283,7 @@ InitializeState<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(VkDevice 
     {
         for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
         {
-            auto image_view_wrapper = reinterpret_cast<ImageViewWrapper*>(create_info->pAttachments[i]);
+            auto image_view_wrapper = getWrapperPointerFromHandle<ImageViewWrapper*>(create_info->pAttachments[i]);
             assert(image_view_wrapper != nullptr);
 
             wrapper->image_view_ids.push_back(image_view_wrapper->handle_id);
@@ -366,7 +367,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
-        auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->pStages[i].module);
+        auto shader_wrapper = getWrapperPointerFromHandle<ShaderModuleWrapper*>(create_info->pStages[i].module);
         assert(shader_wrapper != nullptr);
 
         CreateDependencyInfo info;
@@ -377,7 +378,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         wrapper->shader_module_dependencies.emplace_back(std::move(info));
     }
 
-    auto render_pass_wrapper = reinterpret_cast<RenderPassWrapper*>(create_info->renderPass);
+    auto render_pass_wrapper = getWrapperPointerFromHandle<RenderPassWrapper*>(create_info->renderPass);
     if (render_pass_wrapper)
     {
         wrapper->render_pass_dependency.handle_id         = render_pass_wrapper->handle_id;
@@ -385,7 +386,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         wrapper->render_pass_dependency.create_parameters = render_pass_wrapper->create_parameters;
     }
 
-    auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
+    auto layout_wrapper = getWrapperPointerFromHandle<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
     wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -415,7 +416,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->stage.module);
+    auto shader_wrapper = getWrapperPointerFromHandle<ShaderModuleWrapper*>(create_info->stage.module);
     assert(shader_wrapper != nullptr);
 
     CreateDependencyInfo info;
@@ -425,7 +426,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
 
     wrapper->shader_module_dependencies.emplace_back(std::move(info));
 
-    auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
+    auto layout_wrapper = getWrapperPointerFromHandle<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
     wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -457,7 +458,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
-        auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->pStages[i].module);
+        auto shader_wrapper = getWrapperPointerFromHandle<ShaderModuleWrapper*>(create_info->pStages[i].module);
         assert(shader_wrapper != nullptr);
 
         CreateDependencyInfo info;
@@ -468,7 +469,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         wrapper->shader_module_dependencies.emplace_back(std::move(info));
     }
 
-    auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
+    auto layout_wrapper = getWrapperPointerFromHandle<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
     wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -501,7 +502,7 @@ InitializeGroupObjectState<VkDevice, VkDeferredOperationKHR, PipelineWrapper, Vk
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
-        auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->pStages[i].module);
+        auto shader_wrapper = getWrapperPointerFromHandle<ShaderModuleWrapper*>(create_info->pStages[i].module);
         assert(shader_wrapper != nullptr);
 
         CreateDependencyInfo info;
@@ -512,7 +513,7 @@ InitializeGroupObjectState<VkDevice, VkDeferredOperationKHR, PipelineWrapper, Vk
         wrapper->shader_module_dependencies.emplace_back(std::move(info));
     }
 
-    auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
+    auto layout_wrapper = getWrapperPointerFromHandle<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
     wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -615,8 +616,8 @@ InitializeState<VkDevice, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(VkDevic
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device        = reinterpret_cast<DeviceWrapper*>(parent_handle);
-    wrapper->surface       = reinterpret_cast<SurfaceKHRWrapper*>(create_info->surface);
+    wrapper->device        = getWrapperPointerFromHandle<DeviceWrapper*>(parent_handle);
+    wrapper->surface       = getWrapperPointerFromHandle<SurfaceKHRWrapper*>(create_info->surface);
     wrapper->format        = create_info->imageFormat;
     wrapper->extent        = { create_info->imageExtent.width, create_info->imageExtent.height, 0 };
     wrapper->pre_transform = create_info->preTransform;
@@ -646,7 +647,7 @@ inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, ImageWrapper, v
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto swapchain_wrapper = reinterpret_cast<SwapchainKHRWrapper*>(swapchain_handle);
+    auto swapchain_wrapper = getWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchain_handle);
     assert(swapchain_wrapper != nullptr);
 
     wrapper->image_type         = VK_IMAGE_TYPE_2D;
@@ -678,7 +679,7 @@ InitializeState<VkDevice, BufferViewWrapper, VkBufferViewCreateInfo>(VkDevice   
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto buffer        = reinterpret_cast<BufferWrapper*>(create_info->buffer);
+    auto buffer        = getWrapperPointerFromHandle<BufferWrapper*>(create_info->buffer);
     wrapper->buffer_id = buffer->handle_id;
 }
 
@@ -698,7 +699,7 @@ inline void InitializeState<VkDevice, ImageViewWrapper, VkImageViewCreateInfo>(V
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto image        = reinterpret_cast<ImageWrapper*>(create_info->image);
+    auto image        = getWrapperPointerFromHandle<ImageWrapper*>(create_info->image);
     wrapper->image_id = image->handle_id;
     wrapper->image    = image;
 }
@@ -776,9 +777,10 @@ inline void InitializePoolObjectState(VkDevice                           parent_
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = reinterpret_cast<DeviceWrapper*>(parent_handle);
+    wrapper->device = getWrapperPointerFromHandle<DeviceWrapper*>(parent_handle);
 
-    auto layout_wrapper = reinterpret_cast<DescriptorSetLayoutWrapper*>(alloc_info->pSetLayouts[alloc_index]);
+    auto layout_wrapper =
+        getWrapperPointerFromHandle<DescriptorSetLayoutWrapper*>(alloc_info->pSetLayouts[alloc_index]);
     assert(layout_wrapper != nullptr);
 
     // Add a binding entry for each binding described by the descriptor set layout.
