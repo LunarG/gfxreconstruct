@@ -413,6 +413,7 @@ struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
     bool                             is_closed{ false };
     util::MemoryOutputStream         command_data;
     std::vector<DxTransitionBarrier> transition_barriers;
+    D3D12_COMMAND_LIST_TYPE          command_list_type{};
 
     // Track command list dependencies.
     std::unordered_set<format::HandleId>          command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];

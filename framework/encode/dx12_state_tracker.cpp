@@ -293,10 +293,13 @@ void Dx12StateTracker::TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapp
     state_table_.AddResourceGpuVa(resource_wrapper, address);
 }
 
-void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed)
+void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                                bool                               created_closed,
+                                                D3D12_COMMAND_LIST_TYPE            command_list_type)
 {
-    auto list_info       = list_wrapper->GetObjectInfo();
-    list_info->is_closed = created_closed;
+    auto list_info               = list_wrapper->GetObjectInfo();
+    list_info->is_closed         = created_closed;
+    list_info->command_list_type = command_list_type;
 }
 
 void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           create_object_wrapper,
@@ -595,6 +598,13 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
         build_info.input_data_size = inputs_buffer_size;
         if (inputs_buffer_size > 0)
         {
+            // Sort the entries by GPU VA so that entries from the same resource are contiguous.
+            std::sort(inputs_buffer_entries.begin(),
+                      inputs_buffer_entries.end(),
+                      [](const graphics::dx12::InputsBufferEntry& e1, const graphics::dx12::InputsBufferEntry& e2) {
+                          return (*e1.desc_gpu_va) < (*e2.desc_gpu_va);
+                      });
+
             graphics::dx12::ID3D12ResourceComPtr inputs_data_resource = nullptr;
 
             // If the destination resource already has an acceleration structure at the same address, with the same
@@ -623,39 +633,113 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             GFXRECON_ASSERT(inputs_data_resource);
             build_info.input_data_resource = inputs_data_resource;
 
-            // Add CopyBufferRegion(s) to command list to save the build input resource data.
-            // TODO (GH #474): Add transition barriers before and after CopyBufferRegion as needed.
-            {
-                std::unique_lock<std::mutex> lock(state_table_mutex_);
-                for (auto& inputs_buffer_entry : inputs_buffer_entries)
-                {
-                    auto                    src_gpu_va           = *inputs_buffer_entry.desc_gpu_va;
-                    ID3D12Resource_Wrapper* src_resource_wrapper = GetResourceWrapperForGpuVa(src_gpu_va);
-                    auto                    src_offset = src_gpu_va - src_resource_wrapper->GetObjectInfo()->gpu_va;
+            // Save the build info with the command list info.
+            auto list_info = list_wrapper->GetObjectInfo();
+            GFXRECON_ASSERT(list_info);
+            list_info->acceleration_structure_builds.push_back(build_info);
 
-                    if (src_resource_wrapper)
+            bool is_direct_command_list = (list_info->command_list_type == D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+            // Add CopyBufferRegion(s) and ResourceBarrier(s) to command list to save the build input resource data.
+            auto curr_entry_iter = inputs_buffer_entries.begin();
+            auto end_entry_iter  = inputs_buffer_entries.end();
+            while (curr_entry_iter != end_entry_iter)
+            {
+                ID3D12Resource_Wrapper* src_resource_wrapper = nullptr;
+                {
+                    std::unique_lock<std::mutex> lock(state_table_mutex_);
+                    src_resource_wrapper = GetResourceWrapperForGpuVa(*curr_entry_iter->desc_gpu_va);
+                }
+
+                if (src_resource_wrapper == nullptr)
+                {
+                    GFXRECON_LOG_ERROR(
+                        "Failed to find the resource object that contains the GPU VA (value=%" PRIu64
+                        ") of acceleration structure build input data. Acceleration structure trimming may "
+                        "fail.",
+                        *curr_entry_iter->desc_gpu_va);
+                    ++curr_entry_iter;
+                    continue;
+                }
+
+                auto src_resource      = src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+                auto src_resource_info = src_resource_wrapper->GetObjectInfo();
+
+                GFXRECON_ASSERT(src_resource != nullptr);
+                GFXRECON_ASSERT(src_resource_info != nullptr);
+                GFXRECON_ASSERT(src_resource_info->subresource_sizes[0] > 0);
+
+                // Look for a transition for the resource that was recorded to the current command list.
+                auto src_resource_states = src_resource_info->subresource_transitions.at(0).states;
+                for (auto& transition_barrier : list_info->transition_barriers)
+                {
+                    if (transition_barrier.resource_wrapper == src_resource_wrapper)
                     {
-                        list_wrapper->CopyBufferRegion(inputs_data_resource,
-                                                       inputs_buffer_entry.offset,
-                                                       src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
-                                                       src_offset,
-                                                       inputs_buffer_entry.size);
+                        src_resource_states = transition_barrier.state_after;
                     }
-                    else
-                    {
-                        GFXRECON_LOG_ERROR(
-                            "Failed to find the resource object that contains the GPU VA (value=%" PRIu64
-                            ") of acceleration structure build input data. Acceleration structure trimming may fail.",
-                            src_gpu_va);
-                    }
+                }
+
+                // Determine if the resource transitions should be injected to the command list.
+                bool needs_resource_transition =
+                    ((src_resource_states & D3D12_RESOURCE_STATE_COPY_SOURCE) != D3D12_RESOURCE_STATE_COPY_SOURCE);
+                if (!is_direct_command_list && (src_resource_states != D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE))
+                {
+                    // Build input resources should have state D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, but can
+                    // also have other resource states. Compute command lists may not be able to transition to and from
+                    // the other states, so skip the resource state transitions for this resource. This may result in
+                    // debug layer errors due to the resource missing the D3D12_RESOURCE_STATE_COPY_SOURCE state for
+                    // CopyBufferRegions, but it otherwise appears to work.
+                    needs_resource_transition = false;
+                }
+
+                // Add a resource transition before the copy, adding state D3D12_RESOURCE_STATE_COPY_SOURCE.
+                if (needs_resource_transition)
+                {
+                    D3D12_RESOURCE_TRANSITION_BARRIER pre_transition;
+                    pre_transition.pResource   = src_resource;
+                    pre_transition.Subresource = 0;
+                    pre_transition.StateBefore = src_resource_states;
+                    pre_transition.StateAfter  = src_resource_states | D3D12_RESOURCE_STATE_COPY_SOURCE;
+                    D3D12_RESOURCE_BARRIER pre_barrier;
+                    pre_barrier.Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+                    pre_barrier.Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                    pre_barrier.Transition = pre_transition;
+                    list_wrapper->ResourceBarrier(1, &pre_barrier);
+                }
+
+                // Copy all inputs data from the current resource to the inputs_data_resource.
+                auto end_gpu_va = src_resource_info->gpu_va + src_resource_info->subresource_sizes[0];
+                while ((curr_entry_iter != end_entry_iter) && (*curr_entry_iter->desc_gpu_va < end_gpu_va))
+                {
+                    auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;
+                    auto src_offset  = curr_gpu_va - src_resource_info->gpu_va;
+
+                    // Copy the inputs data to the inputs_data_resource.
+                    list_wrapper->CopyBufferRegion(inputs_data_resource,
+                                                   curr_entry_iter->offset,
+                                                   src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
+                                                   src_offset,
+                                                   curr_entry_iter->size);
+
+                    ++curr_entry_iter;
+                }
+
+                // Add a resource transition after the copy, restoring the original state.
+                if (needs_resource_transition)
+                {
+                    D3D12_RESOURCE_TRANSITION_BARRIER post_transition;
+                    post_transition.pResource   = src_resource;
+                    post_transition.Subresource = 0;
+                    post_transition.StateBefore = src_resource_states | D3D12_RESOURCE_STATE_COPY_SOURCE;
+                    post_transition.StateAfter  = src_resource_states;
+                    D3D12_RESOURCE_BARRIER post_barrier;
+                    post_barrier.Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+                    post_barrier.Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                    post_barrier.Transition = post_transition;
+                    list_wrapper->ResourceBarrier(1, &post_barrier);
                 }
             }
         }
-
-        // Save the build info with the command list info.
-        auto list_info = list_wrapper->GetObjectInfo();
-        GFXRECON_ASSERT(list_info);
-        list_info->acceleration_structure_builds.push_back(build_info);
     }
     else
     {

@@ -1742,7 +1742,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Devic
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
-        state_tracker_->TrackCommandListCreation(list_wrapper, false);
+        state_tracker_->TrackCommandListCreation(list_wrapper, false, type);
     }
 }
 
@@ -1757,7 +1757,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Dev
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
-        state_tracker_->TrackCommandListCreation(list_wrapper, true);
+        state_tracker_->TrackCommandListCreation(list_wrapper, true, type);
     }
 }
 

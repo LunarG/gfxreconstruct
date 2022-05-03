@@ -149,7 +149,9 @@ class Dx12StateTracker
 
     void TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapper, D3D12_GPU_VIRTUAL_ADDRESS address);
 
-    void TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed);
+    void TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                  bool                               created_closed,
+                                  D3D12_COMMAND_LIST_TYPE            command_list_type);
 
     void TrackAcquireImage(UINT image_index, IDXGISwapChain_Wrapper* wrapper);
 
