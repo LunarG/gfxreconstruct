@@ -1914,6 +1914,24 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
+    QueueSubmitWriteFillMemoryCmd();
+}
+
+void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
+                                                     uint32_t             submitCount,
+                                                     const VkSubmitInfo2* pSubmits,
+                                                     VkFence              fence)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(queue);
+    GFXRECON_UNREFERENCED_PARAMETER(submitCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
+    GFXRECON_UNREFERENCED_PARAMETER(fence);
+
+    QueueSubmitWriteFillMemoryCmd();
+}
+
+void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
+{
     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();

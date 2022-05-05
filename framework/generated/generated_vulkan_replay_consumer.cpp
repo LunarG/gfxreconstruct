@@ -2777,12 +2777,12 @@ void VulkanReplayConsumer::Process_vkQueueSubmit2(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    VkQueue in_queue = MapHandle<QueueInfo>(queue, &VulkanObjectInfoTable::GetQueueInfo);
-    const VkSubmitInfo2* in_pSubmits = pSubmits->GetPointer();
-    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
-    VkFence in_fence = MapHandle<FenceInfo>(fence, &VulkanObjectInfoTable::GetFenceInfo);
+    auto in_queue = GetObjectInfoTable().GetQueueInfo(queue);
 
-    VkResult replay_result = GetDeviceTable(in_queue)->QueueSubmit2(in_queue, submitCount, in_pSubmits, in_fence);
+    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
+    auto in_fence = GetObjectInfoTable().GetFenceInfo(fence);
+
+    VkResult replay_result = OverrideQueueSubmit2(GetDeviceTable(in_queue->handle)->QueueSubmit2, returnValue, in_queue, submitCount, pSubmits, in_fence);
     CheckResult("vkQueueSubmit2", returnValue, replay_result);
 }
 
@@ -4825,12 +4825,12 @@ void VulkanReplayConsumer::Process_vkQueueSubmit2KHR(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    VkQueue in_queue = MapHandle<QueueInfo>(queue, &VulkanObjectInfoTable::GetQueueInfo);
-    const VkSubmitInfo2* in_pSubmits = pSubmits->GetPointer();
-    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
-    VkFence in_fence = MapHandle<FenceInfo>(fence, &VulkanObjectInfoTable::GetFenceInfo);
+    auto in_queue = GetObjectInfoTable().GetQueueInfo(queue);
 
-    VkResult replay_result = GetDeviceTable(in_queue)->QueueSubmit2KHR(in_queue, submitCount, in_pSubmits, in_fence);
+    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
+    auto in_fence = GetObjectInfoTable().GetFenceInfo(fence);
+
+    VkResult replay_result = OverrideQueueSubmit2(GetDeviceTable(in_queue->handle)->QueueSubmit2KHR, returnValue, in_queue, submitCount, pSubmits, in_fence);
     CheckResult("vkQueueSubmit2KHR", returnValue, replay_result);
 }
 
