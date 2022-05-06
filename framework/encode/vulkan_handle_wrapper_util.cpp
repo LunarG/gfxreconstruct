@@ -26,7 +26,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-WrapperManager* WrapperManager::instance = new WrapperManager();
+WrapperManager* WrapperManager::instance_ = new WrapperManager();
 
 uint64_t GetWrappedHandle(uint64_t object, VkObjectType object_type)
 {

@@ -62,17 +62,17 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class WrapperManager
 {
   public:
-    void add(uint64_t id, void* wrapper)
+    void Add(uint64_t id, void* wrapper)
     {
-        const std::lock_guard<std::mutex> lock(mutex);
-        wrapperMap[id] = wrapper;
+        const std::lock_guard<std::mutex> lock(mutex_);
+        wrapper_map_[id] = wrapper;
     }
 
-    void* get(uint64_t id)
+    void* Get(uint64_t id)
     {
-        const std::lock_guard<std::mutex> lock(mutex);
-        auto                              found = wrapperMap.find(id);
-        if (found == wrapperMap.end())
+        const std::lock_guard<std::mutex> lock(mutex_);
+        auto                              found = wrapper_map_.find(id);
+        if (found == wrapper_map_.end())
         {
             return nullptr;
         }
@@ -82,24 +82,24 @@ class WrapperManager
         }
     }
 
-    void remove(uint64_t id)
+    void Remove(uint64_t id)
     {
-        const std::lock_guard<std::mutex> lock(mutex);
-        wrapperMap.erase(id);
+        const std::lock_guard<std::mutex> lock(mutex_);
+        wrapper_map_.erase(id);
     }
 
-    static WrapperManager* getInstance() { return instance; }
+    static WrapperManager* GetInstance() { return instance_; }
 
   private:
-    std::mutex                          mutex;
-    std::unordered_map<uint64_t, void*> wrapperMap;
-    static WrapperManager*              instance;
+    std::mutex                          mutex_;
+    std::unordered_map<uint64_t, void*> wrapper_map_;
+    static WrapperManager*              instance_;
 };
 
 template <typename T>
 T getWrapperPointerFromHandle(typename std::remove_pointer<T>::type::HandleType handle)
 {
-    T wrapper = reinterpret_cast<T>(WrapperManager::getInstance()->get(VK_HANDLE_TO_UINT64(handle)));
+    T wrapper = reinterpret_cast<T>(WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle)));
     if (wrapper == nullptr)
     {
         GFXRECON_LOG_WARNING("The Vulkan object with the following handle %" PRId64
@@ -178,7 +178,7 @@ T GetWrappedHandle(const T& handle)
     // it's not a pointer to wrapper struct.
     if (handle != VK_NULL_HANDLE)
     {
-        void* wrapperPointer = WrapperManager::getInstance()->get(VK_HANDLE_TO_UINT64(handle));
+        void* wrapperPointer = WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle));
         if (wrapperPointer == nullptr)
         {
             GFXRECON_LOG_WARNING("The Vulkan object with the following handle %" PRId64
@@ -233,7 +233,7 @@ format::HandleId GetWrappedId(const T& handle)
     {
         // The parameter handle is a handle ID for non-dispatch handle,
         // it's not a pointer to wrapper struct.
-        void* wrapperPointer = WrapperManager::getInstance()->get(VK_HANDLE_TO_UINT64(handle));
+        void* wrapperPointer = WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle));
         if (wrapperPointer == nullptr)
         {
             GFXRECON_LOG_WARNING("The Vulkan object with the following handle %" PRId64
@@ -342,7 +342,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
         wrapper->dispatch_key = *reinterpret_cast<void**>(*handle);
         wrapper->handle       = (*handle);
         wrapper->handle_id    = get_id();
-        WrapperManager::getInstance()->add(wrapper->handle_id, reinterpret_cast<void*>(wrapper));
+        WrapperManager::GetInstance()->Add(wrapper->handle_id, reinterpret_cast<void*>(wrapper));
         if (parent != VK_NULL_HANDLE)
         {
             // VkQueue and VkCommandBuffer loader dispatch tables are not assigned until the handles reach the
@@ -367,7 +367,7 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
         wrapper->handle    = (*handle);
         wrapper->handle_id = get_id();
         (*handle)          = UINT64_TO_VK_HANDLE(typename Wrapper::HandleType, wrapper->handle_id);
-        WrapperManager::getInstance()->add(wrapper->handle_id, reinterpret_cast<void*>(wrapper));
+        WrapperManager::GetInstance()->Add(wrapper->handle_id, reinterpret_cast<void*>(wrapper));
     }
 }
 
@@ -661,7 +661,7 @@ void DestroyWrappedHandle(typename Wrapper::HandleType handle)
         Wrapper* wrapper = getWrapperPointerFromHandle<Wrapper*>(handle);
         if (wrapper != nullptr)
         {
-            WrapperManager::getInstance()->remove(VK_HANDLE_TO_UINT64(handle));
+            WrapperManager::GetInstance()->Remove(VK_HANDLE_TO_UINT64(handle));
             delete reinterpret_cast<Wrapper*>(wrapper);
         }
         else
@@ -687,16 +687,16 @@ inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
             {
                 for (auto display_mode_wrapper : display_wrapper->child_display_modes)
                 {
-                    WrapperManager::getInstance()->remove(static_cast<uint64_t>(display_mode_wrapper->handle_id));
+                    WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(display_mode_wrapper->handle_id));
                     delete display_mode_wrapper;
                 }
-                WrapperManager::getInstance()->remove(static_cast<uint64_t>(display_wrapper->handle_id));
+                WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(display_wrapper->handle_id));
                 delete display_wrapper;
             }
-            WrapperManager::getInstance()->remove(static_cast<uint64_t>(physical_device_wrapper->handle_id));
+            WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(physical_device_wrapper->handle_id));
             delete physical_device_wrapper;
         }
-        WrapperManager::getInstance()->remove(static_cast<uint64_t>(wrapper->handle_id));
+        WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(wrapper->handle_id));
         delete wrapper;
     }
 }
@@ -711,10 +711,10 @@ inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
 
         for (auto queue_wrapper : wrapper->child_queues)
         {
-            WrapperManager::getInstance()->remove(static_cast<uint64_t>(queue_wrapper->handle_id));
+            WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(queue_wrapper->handle_id));
             delete queue_wrapper;
         }
-        WrapperManager::getInstance()->remove(static_cast<uint64_t>(wrapper->handle_id));
+        WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(wrapper->handle_id));
         delete wrapper;
     }
 }
@@ -727,7 +727,7 @@ inline void DestroyWrappedHandle<CommandBufferWrapper>(VkCommandBuffer handle)
         // Remove from parent list.
         auto wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(handle);
         wrapper->parent_pool->child_buffers.erase(wrapper->handle_id);
-        WrapperManager::getInstance()->remove(static_cast<uint64_t>(wrapper->handle_id));
+        WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(wrapper->handle_id));
         delete wrapper;
     }
 }
@@ -743,10 +743,10 @@ inline void DestroyWrappedHandle<CommandPoolWrapper>(VkCommandPool handle)
         {
             for (const auto& buffer_wrapper : wrapper->child_buffers)
             {
-                WrapperManager::getInstance()->remove(static_cast<uint64_t>(buffer_wrapper.second->handle_id));
+                WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(buffer_wrapper.second->handle_id));
                 delete buffer_wrapper.second;
             }
-            WrapperManager::getInstance()->remove(static_cast<uint64_t>(wrapper->handle_id));
+            WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(wrapper->handle_id));
             delete wrapper;
         }
         else
@@ -768,7 +768,7 @@ inline void DestroyWrappedHandle<DescriptorSetWrapper>(VkDescriptorSet handle)
         if (wrapper != nullptr)
         {
             wrapper->parent_pool->child_sets.erase(wrapper->handle_id);
-            WrapperManager::getInstance()->remove(wrapper->handle_id);
+            WrapperManager::GetInstance()->Remove(wrapper->handle_id);
             delete wrapper;
         }
         else
@@ -791,10 +791,10 @@ inline void DestroyWrappedHandle<DescriptorPoolWrapper>(VkDescriptorPool handle)
         {
             for (const auto& set_wrapper : wrapper->child_sets)
             {
-                WrapperManager::getInstance()->remove(set_wrapper.second->handle_id);
+                WrapperManager::GetInstance()->Remove(set_wrapper.second->handle_id);
                 delete set_wrapper.second;
             }
-            WrapperManager::getInstance()->remove(wrapper->handle_id);
+            WrapperManager::GetInstance()->Remove(wrapper->handle_id);
             delete wrapper;
         }
         else
@@ -817,10 +817,10 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
         {
             for (auto image_wrapper : wrapper->child_images)
             {
-                WrapperManager::getInstance()->remove(image_wrapper->handle_id);
+                WrapperManager::GetInstance()->Remove(image_wrapper->handle_id);
                 delete image_wrapper;
             }
-            WrapperManager::getInstance()->remove(wrapper->handle_id);
+            WrapperManager::GetInstance()->Remove(wrapper->handle_id);
             delete wrapper;
         }
         else
@@ -852,7 +852,7 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
     auto wrapper = getWrapperPointerFromHandle<DescriptorPoolWrapper*>(handle);
     for (const auto& set_wrapper : wrapper->child_sets)
     {
-        WrapperManager::getInstance()->remove(set_wrapper.second->handle_id);
+        WrapperManager::GetInstance()->Remove(set_wrapper.second->handle_id);
         delete set_wrapper.second;
     }
     wrapper->child_sets.clear();

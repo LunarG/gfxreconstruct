@@ -2266,7 +2266,7 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     // struct members to be wrapped handles.
     CommandPoolWrapper encode_wrapper;
     encode_wrapper.handle_id = command_pool_id;
-    WrapperManager::getInstance()->add(encode_wrapper.handle_id, reinterpret_cast<void*>(&encode_wrapper));
+    WrapperManager::GetInstance()->Add(encode_wrapper.handle_id, reinterpret_cast<void*>(&encode_wrapper));
 
     VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
     alloc_info.pNext                       = nullptr;
@@ -2280,7 +2280,7 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkAllocateCommandBuffers, &parameter_stream_);
-    WrapperManager::getInstance()->remove(encode_wrapper.handle_id);
+    WrapperManager::GetInstance()->Remove(encode_wrapper.handle_id);
     parameter_stream_.Reset();
 }
 
