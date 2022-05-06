@@ -196,6 +196,14 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         window_factory->Destroy(window);
     }
 
+    // Finally destroy vkInstances
+    object_cleanup::FreeAllLiveInstances(
+        &object_info_table_,
+        false,
+        true,
+        [this](const void* handle) { return GetInstanceTable(handle); },
+        [this](const void* handle) { return GetDeviceTable(handle); });
+
     if (loader_handle_ != nullptr)
     {
         graphics::ReleaseLoader(loader_handle_);
