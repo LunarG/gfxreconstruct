@@ -1912,7 +1912,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
                 if (entry.second.properties == nullptr)
                 {
                     entry.second.properties = std::make_unique<VkPhysicalDeviceProperties>();
-                    table->GetPhysicalDeviceProperties(physical_device_info->handle, entry.second.properties.get());
+                    table->GetPhysicalDeviceProperties(entry.first, entry.second.properties.get());
                 }
 
                 replay_properties = entry.second.properties.get();
