@@ -34,7 +34,8 @@ class Dx12StatsConsumer : public Dx12Consumer
   public:
     Dx12StatsConsumer() :
         device_ID_(0), vendor_ID_(0), subsys_id_(0), revision_(0), dedicated_video_memory_(0),
-        dedicated_system_memory_(0), shared_system_memory_(0), data_retrieved_(false)
+        dedicated_system_memory_(0), shared_system_memory_(0), swapchain_width_(0), swapchain_height_(0),
+        swapchain_id_(0)
     {
         memset(&adapter_luid_, sizeof(adapter_luid_), 0);
     }
@@ -50,7 +51,12 @@ class Dx12StatsConsumer : public Dx12Consumer
     DWORD    GetAdapterLUIDLowPart() { return adapter_luid_.LowPart; };
     LONG     GetAdapterLUIDHighPart() { return adapter_luid_.HighPart; };
 
-    bool IsComplete(uint64_t current_block_index) override { return data_retrieved_; }
+    bool IsComplete(uint64_t current_block_index) override { return false; }
+
+    std::string GetSwapchainDimensions()
+    {
+        return std::to_string(swapchain_width_) + 'x' + std::to_string(swapchain_height_);
+    }
 
     virtual void
     Process_IDXGIAdapter1_GetDesc1(const gfxrecon::decode::ApiCallInfo&                                call_info,
@@ -67,7 +73,6 @@ class Dx12StatsConsumer : public Dx12Consumer
         dedicated_system_memory_ = pDesc->GetPointer()->DedicatedSystemMemory;
         shared_system_memory_    = pDesc->GetPointer()->SharedSystemMemory;
         adapter_luid_            = pDesc->GetPointer()->AdapterLuid;
-        data_retrieved_          = true;
     }
 
     virtual void Process_IDXGIAdapter_GetDesc(const gfxrecon::decode::ApiCallInfo& call_info,
@@ -84,20 +89,80 @@ class Dx12StatsConsumer : public Dx12Consumer
         dedicated_system_memory_ = pDesc->GetPointer()->DedicatedSystemMemory;
         shared_system_memory_    = pDesc->GetPointer()->SharedSystemMemory;
         adapter_luid_            = pDesc->GetPointer()->AdapterLuid;
-        data_retrieved_          = true;
+    }
+
+    virtual void Process_IDXGIFactory_CreateSwapChain(const ApiCallInfo&                                  call_info,
+                                                      format::HandleId                                    object_id,
+                                                      HRESULT                                             return_value,
+                                                      format::HandleId                                    pDevice,
+                                                      StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
+                                                      HandlePointerDecoder<IDXGISwapChain*>*              ppSwapChain)
+    {
+        if (!ppSwapChain->IsNull())
+        {
+            swapchain_id_ = *ppSwapChain->GetPointer();
+
+            auto desc_pointer = pDesc->GetPointer();
+            if (desc_pointer != nullptr)
+            {
+                swapchain_width_  = desc_pointer->BufferDesc.Width;
+                swapchain_height_ = desc_pointer->BufferDesc.Height;
+            }
+        }
+    }
+
+    virtual void Process_IDXGIFactory2_CreateSwapChainForHwnd(
+        const ApiCallInfo&                                             call_info,
+        format::HandleId                                               object_id,
+        HRESULT                                                        return_value,
+        format::HandleId                                               pDevice,
+        uint64_t                                                       hWnd,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           pDesc,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
+        format::HandleId                                               pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain)
+    {
+        if (!ppSwapChain->IsNull())
+        {
+            swapchain_id_     = *ppSwapChain->GetPointer();
+            auto desc_pointer = pDesc->GetPointer();
+            if (desc_pointer != nullptr)
+            {
+                swapchain_width_  = desc_pointer->Width;
+                swapchain_height_ = desc_pointer->Height;
+            }
+        }
+    }
+
+    virtual void Process_IDXGISwapChain_ResizeBuffers(const ApiCallInfo& call_info,
+                                                      format::HandleId   object_id,
+                                                      HRESULT            return_value,
+                                                      UINT               BufferCount,
+                                                      UINT               Width,
+                                                      UINT               Height,
+                                                      DXGI_FORMAT        NewFormat,
+                                                      UINT               SwapChainFlags)
+    {
+        if (swapchain_id_ == object_id)
+        {
+            swapchain_width_  = Width;
+            swapchain_height_ = Height;
+        }
     }
 
   private:
-    WCHAR    description_[128] = {};
-    uint32_t vendor_ID_;
-    uint32_t device_ID_;
-    uint32_t subsys_id_;
-    uint32_t revision_;
-    uint64_t dedicated_video_memory_;
-    uint64_t dedicated_system_memory_;
-    uint64_t shared_system_memory_;
-    LUID     adapter_luid_;
-    bool     data_retrieved_;
+    WCHAR            description_[128] = {};
+    uint32_t         vendor_ID_;
+    uint32_t         device_ID_;
+    uint32_t         subsys_id_;
+    uint32_t         revision_;
+    uint64_t         dedicated_video_memory_;
+    uint64_t         dedicated_system_memory_;
+    uint64_t         shared_system_memory_;
+    LUID             adapter_luid_;
+    UINT             swapchain_width_;
+    UINT             swapchain_height_;
+    format::HandleId swapchain_id_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

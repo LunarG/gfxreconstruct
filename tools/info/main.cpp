@@ -361,6 +361,7 @@ void GatherD3D12Stats(const std::string& input_filename)
             GFXRECON_WRITE_CONSOLE("\tShared System Memory: %u", dx12_consumer.GetSharedSystemMemory());
             GFXRECON_WRITE_CONSOLE(
                 "\tAdapter LUID: %u %u", dx12_consumer.GetAdapterLUIDHighPart(), dx12_consumer.GetAdapterLUIDLowPart());
+            GFXRECON_WRITE_CONSOLE("\tSwapchain dimensions: %s", dx12_consumer.GetSwapchainDimensions().c_str());
         }
         else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
         {
