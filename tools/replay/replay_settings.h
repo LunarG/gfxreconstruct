@@ -53,7 +53,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dcp | --discard-cached-psos] [--surface-index <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--omit-null-hardware-buffers]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
