@@ -5969,6 +5969,40 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     return func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesANDROID(
+    PFN_vkGetAndroidHardwareBufferPropertiesANDROID                         func,
+    VkResult                                                                original_result,
+    const DeviceInfo*                                                       device_info,
+    const struct AHardwareBuffer*                                           hardware_buffer,
+    StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
+{
+    assert((device_info != nullptr) && (pProperties != nullptr) && (pProperties->GetOutputPointer() != nullptr));
+
+    if ((hardware_buffer == nullptr) && options_.omit_null_hardware_buffers)
+    {
+
+        GFXRECON_LOG_WARNING_ONCE("A call to vkGetAndroidHardwareBufferPropertiesANDROID with a NULL "
+                                  "AHardwareBuffer* was omitted during replay.");
+        return original_result;
+    }
+    else
+    {
+
+        if (hardware_buffer == nullptr)
+        {
+            GFXRECON_LOG_WARNING_ONCE("The captured application used vkGetAndroidHardwareBufferPropertiesANDROID but "
+                                      "replay has no way of mapping the captured AHardwareBuffer*; replay may fail. "
+                                      "If replay of this call appears to fail, try the replay option "
+                                      "\"--omit-null-hardware-buffers\".");
+        }
+
+        VkDevice device            = device_info->handle;
+        auto*    output_properties = pProperties->GetOutputPointer();
+
+        return func(device, hardware_buffer, output_properties);
+    }
+}
+
 void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
     const DescriptorUpdateTemplateInfo* update_template_info, DescriptorUpdateTemplateDecoder* decoder)
 {
