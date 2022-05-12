@@ -60,6 +60,8 @@ class FileProcessor
   public:
     FileProcessor();
 
+    FileProcessor(uint64_t block_limit);
+
     ~FileProcessor();
 
     void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
@@ -89,8 +91,6 @@ class FileProcessor
     uint64_t GetNumBytesRead() const { return bytes_read_; }
 
     Error GetErrorState() const { return error_state_; }
-
-    bool WasEarlyExit() { return early_exit_; }
 
   private:
     bool ContinueDecoding();
@@ -145,8 +145,8 @@ class FileProcessor
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
     uint64_t                            api_call_index_;
-    uint64_t                            block_index_{ 0 };
-    bool                                early_exit_{ false };
+    uint64_t                            block_index_;
+    uint64_t                            block_limit_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -38,8 +38,13 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
     error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
-    early_exit_(false)
+    block_limit_(0)
 {}
+
+FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
+{
+    block_limit_ = block_limit;
+}
 
 FileProcessor::~FileProcessor()
 {
@@ -119,8 +124,6 @@ bool FileProcessor::ProcessAllFrames()
 
     while (success)
     {
-        success = ContinueDecoding();
-
         if (success)
         {
             success = ProcessNextFrame();
@@ -132,22 +135,34 @@ bool FileProcessor::ProcessAllFrames()
 
 bool FileProcessor::ContinueDecoding()
 {
-    int completed_decoders = 0;
-
-    for (auto decoder : decoders_)
+    bool early_exit = false;
+    // If a block limit was specified, obey it.
+    // If not (block_limit_ = 0),  then the consumer may determine early exit
+    if (block_limit_ > 0)
     {
-        if (decoder->IsComplete(block_index_) == true)
+        if (block_index_ > block_limit_)
         {
-            completed_decoders++;
+            early_exit = true;
+        }
+    }
+    else
+    {
+        int completed_decoders = 0;
+        for (auto decoder : decoders_)
+        {
+            if (decoder->IsComplete(block_index_) == true)
+            {
+                completed_decoders++;
+            }
+        }
+
+        if (completed_decoders == decoders_.size())
+        {
+            early_exit = true;
         }
     }
 
-    if (completed_decoders == decoders_.size())
-    {
-        early_exit_ = true;
-    }
-
-    return !early_exit_;
+    return !early_exit;
 }
 
 bool FileProcessor::ProcessFileHeader()
@@ -215,132 +230,139 @@ bool FileProcessor::ProcessBlocks()
 
     while (success)
     {
-        success = ReadBlockHeader(&block_header);
-
-        block_index_++;
-
+        success = ContinueDecoding();
         if (success)
         {
-            if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
+            success = ReadBlockHeader(&block_header);
+
+            block_index_++;
+
+            if (success)
             {
-                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
 
-                success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                if (success)
+                if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
                 {
-                    success = ProcessFunctionCall(block_header, api_call_id);
+                    format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
 
-                    // Break from loop on frame delimiter.
-                    if (IsFrameDelimiter(api_call_id))
-                    {
-                        // Make sure to increment the frame number on the way out.
-                        ++current_frame_number_;
-                        break;
-                    }
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                }
-            }
-            else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMethodCallBlock)
-            {
-                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                if (success)
-                {
-                    success = ProcessMethodCall(block_header, api_call_id, block_index_ - 1);
-
-                    // Break from loop on frame delimiter.
-                    if (IsFrameDelimiter(api_call_id))
-                    {
-                        // Make sure to increment the frame number on the way out.
-                        ++current_frame_number_;
-                        break;
-                    }
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                }
-            }
-            else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
-            {
-                format::MetaDataId meta_data_id = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_None,
-                                                                         format::MetaDataType::kUnknownMetaDataType);
-
-                success = ReadBytes(&meta_data_id, sizeof(meta_data_id));
-
-                if (success)
-                {
-                    success = ProcessMetaData(block_header, meta_data_id);
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
-                }
-            }
-            else if (block_header.type == format::BlockType::kStateMarkerBlock)
-            {
-                format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                uint64_t           frame_number = 0;
-
-                success = ReadBytes(&marker_type, sizeof(marker_type));
-
-                if (success)
-                {
-                    success = ProcessStateMarker(block_header, marker_type);
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
-                }
-            }
-            else if (block_header.type == format::BlockType::kAnnotation)
-            {
-                if (annotation_handler_ != nullptr)
-                {
-                    format::AnnotationType annotation_type = format::AnnotationType::kUnknown;
-
-                    success = ReadBytes(&annotation_type, sizeof(annotation_type));
+                    success = ReadBytes(&api_call_id, sizeof(api_call_id));
 
                     if (success)
                     {
-                        success = ProcessAnnotation(block_header, annotation_type);
+                        success = ProcessFunctionCall(block_header, api_call_id);
+
+                        // Break from loop on frame delimiter.
+                        if (IsFrameDelimiter(api_call_id))
+                        {
+                            // Make sure to increment the frame number on the way out.
+                            ++current_frame_number_;
+                            break;
+                        }
                     }
                     else
                     {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
+                    }
+                }
+                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMethodCallBlock)
+                {
+                    format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
+
+                    success = ReadBytes(&api_call_id, sizeof(api_call_id));
+
+                    if (success)
+                    {
+                        success = ProcessMethodCall(block_header, api_call_id, block_index_ - 1);
+
+                        // Break from loop on frame delimiter.
+                        if (IsFrameDelimiter(api_call_id))
+                        {
+                            // Make sure to increment the frame number on the way out.
+                            ++current_frame_number_;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
+                    }
+                }
+                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
+                {
+                    format::MetaDataId meta_data_id = format::MakeMetaDataId(
+                        format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kUnknownMetaDataType);
+
+                    success = ReadBytes(&meta_data_id, sizeof(meta_data_id));
+
+                    if (success)
+                    {
+                        success = ProcessMetaData(block_header, meta_data_id);
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
+                    }
+                }
+                else if (block_header.type == format::BlockType::kStateMarkerBlock)
+                {
+                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
+                    uint64_t           frame_number = 0;
+
+                    success = ReadBytes(&marker_type, sizeof(marker_type));
+
+                    if (success)
+                    {
+                        success = ProcessStateMarker(block_header, marker_type);
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
+                    }
+                }
+                else if (block_header.type == format::BlockType::kAnnotation)
+                {
+                    if (annotation_handler_ != nullptr)
+                    {
+                        format::AnnotationType annotation_type = format::AnnotationType::kUnknown;
+
+                        success = ReadBytes(&annotation_type, sizeof(annotation_type));
+
+                        if (success)
+                        {
+                            success = ProcessAnnotation(block_header, annotation_type);
+                        }
+                        else
+                        {
+                            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
+                        }
+                    }
+                    else
+                    {
+                        // If there is no annotation handler to process the annotation, we can skip the annotation
+                        // block.
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                        success = SkipBytes(static_cast<size_t>(block_header.size));
                     }
                 }
                 else
                 {
-                    // If there is no annotation handler to process the annotation, we can skip the annotation block.
+                    // Unrecognized block type.
+                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     success = SkipBytes(static_cast<size_t>(block_header.size));
                 }
             }
             else
             {
-                // Unrecognized block type.
-                GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                success = SkipBytes(static_cast<size_t>(block_header.size));
-            }
-        }
-        else
-        {
-            if (!feof(file_descriptor_))
-            {
-                // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
-                // assumes that the block header has been successfully read and will print an incomplete block at end
-                // of file warning when the file is at EOF without an error. For this case (the normal EOF case) we
-                // print nothing at EOF, or print an error message and set the error code directly when not at EOF.
-                GFXRECON_LOG_ERROR("Failed to read block header");
-                error_state_ = kErrorReadingBlockHeader;
+                if (!feof(file_descriptor_))
+                {
+                    // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
+                    // assumes that the block header has been successfully read and will print an incomplete block at
+                    // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
+                    // we print nothing at EOF, or print an error message and set the error code directly when not at
+                    // EOF.
+                    GFXRECON_LOG_ERROR("Failed to read block header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
             }
         }
     }
