@@ -2248,14 +2248,15 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
     if (fence_info != nullptr)
     {
         // Process objects waiting for the fence's value up through the new value.
+        fence_info->last_signaled_value = value;
         auto range_begin = fence_info->waiting_objects.begin();
         auto range_end   = fence_info->waiting_objects.upper_bound(value);
         if (range_begin != range_end)
         {
-            for (auto iter = range_begin; iter != range_end; ++iter)
+            while(range_begin != range_end)
             {
-                auto& waiting_objects = iter->second;
-
+                auto waiting_objects = std::move(range_begin->second);
+                fence_info->waiting_objects.erase(range_begin);
                 for (auto event_object : waiting_objects.wait_events)
                 {
                     WaitForFenceEvent(info->capture_id, event_object);
@@ -2265,12 +2266,10 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
                 {
                     SignalWaitingQueue(queue_info, info, value);
                 }
+                range_begin = fence_info->waiting_objects.begin();
+                range_end   = fence_info->waiting_objects.upper_bound(value);
             }
-
-            fence_info->waiting_objects.erase(range_begin, range_end);
         }
-
-        fence_info->last_signaled_value = value;
     }
 }
 

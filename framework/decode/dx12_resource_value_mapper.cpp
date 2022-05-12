@@ -792,13 +792,14 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
     GFXRECON_ASSERT(args.fence != nullptr);
 
     // Wait for the command queue before mapping.
-    if (args.fence->GetCompletedValue() == UINT64_MAX)
+    UINT64 completed_value = args.fence->GetCompletedValue();
+    if (completed_value == UINT64_MAX)
     {
         GFXRECON_LOG_FATAL(
             "Invalid fence value (UINT64_MAX). Device may have been removed. GFXR is unable to continue.");
         return;
     }
-    if (args.fence->GetCompletedValue() < args.fence_value)
+    if (completed_value < args.fence_value)
     {
         ResetEvent(args.fence_event);
         args.fence->SetEventOnCompletion(args.fence_value, args.fence_event);
@@ -1099,9 +1100,10 @@ void Dx12ResourceValueMapper::InitializeRequiredObjects(ID3D12CommandQueue*    c
     GFXRECON_ASSERT(SUCCEEDED(result));
 
     // Create the fence for synchronizing resource mapping.
-    auto fence_result = device->CreateFence(
-        0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_extra_info->resource_value_map_fence));
-
+    auto fence_result = device->CreateFence(command_queue_extra_info->resource_value_map_fence_value,
+                                            D3D12_FENCE_FLAG_NONE,
+                                            IID_PPV_ARGS(&command_queue_extra_info->resource_value_map_fence));
+    ++command_queue_extra_info->resource_value_map_fence_value;
     if (SUCCEEDED(fence_result))
     {
         command_queue_extra_info->resource_value_map_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
