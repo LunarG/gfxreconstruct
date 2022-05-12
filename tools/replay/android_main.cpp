@@ -111,10 +111,12 @@ void android_main(struct android_app* app)
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
-                std::pair<uint32_t, uint32_t>          measurement_frame_range = GetMeasurementFrameRange(arg_parser);
+                uint32_t                               start_frame, end_frame;
+                bool has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
 
-                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_frame_range.first),
-                                                     static_cast<uint64_t>(measurement_frame_range.second),
+                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
+                                                     static_cast<uint64_t>(end_frame),
+                                                     has_mfr,
                                                      replay_options.quit_after_measurement_frame_range,
                                                      replay_options.flush_measurement_frame_range);
 
@@ -145,12 +147,12 @@ void android_main(struct android_app* app)
                 if ((final_frame_number > 0) &&
                     (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    if (final_frame_number < measurement_frame_range.first)
+                    if (final_frame_number < start_frame)
                     {
                         GFXRECON_LOG_WARNING(
                             "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
                             "Measurements were never started, cannot calculate measurement range FPS.",
-                            measurement_frame_range.first,
+                            start_frame,
                             final_frame_number);
                     }
                     else

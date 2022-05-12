@@ -56,12 +56,13 @@ WriteFpsToConsole(const char* prefix, uint64_t start_frame, uint64_t end_frame, 
 
 FpsInfo::FpsInfo(uint64_t measurement_start_frame,
                  uint64_t measurement_end_frame,
+                 bool     has_measurement_range,
                  bool     quit_after_range,
                  bool     flush_measurement_range) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
-    quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range), started_measurement_(false),
-    ended_measurement_(false)
+    quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
+    has_measurement_range_(has_measurement_range), started_measurement_(false), ended_measurement_(false)
 {}
 
 void FpsInfo::BeginFile()
@@ -129,9 +130,8 @@ void FpsInfo::ProcessStateEndMarker(uint64_t frame_number)
 
 void FpsInfo::LogToConsole()
 {
-    if (measurement_start_frame_ == 1)
+    if (!has_measurement_range_)
     {
-
         // No measurement range or no end limit to range, include trimmed
         // range load statistics.
 
@@ -143,13 +143,12 @@ void FpsInfo::LogToConsole()
 
         WriteFpsToConsole("Replay FPS:",
                           replay_start_frame_,
-                          measurement_end_frame_ + replay_start_frame_ - 1,
+                          measurement_end_frame_ - 1 + replay_start_frame_ - 1,
                           replay_start_time_,
                           measurement_end_time_);
     }
     else
     {
-
         // There was a measurement range, emit only statistics about the
         // measurement range
         double   diff_time_sec = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
