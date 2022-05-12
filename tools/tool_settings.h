@@ -474,9 +474,11 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
     return ranges;
 }
 
-static std::pair<uint32_t, uint32_t> GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser)
+static bool
+GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
 {
-    std::pair<uint32_t, uint32_t> measurement_frame_range(1, std::numeric_limits<uint32_t>::max());
+    start_frame = 1;
+    end_frame   = std::numeric_limits<uint32_t>::max();
 
     const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
     if (!value.empty())
@@ -488,7 +490,7 @@ static std::pair<uint32_t, uint32_t> GetMeasurementFrameRange(const gfxrecon::ut
             GFXRECON_LOG_WARNING(
                 "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
                 range.c_str());
-            return measurement_frame_range;
+            return false;
         }
 
         // Remove whitespace.
@@ -533,20 +535,21 @@ static std::pair<uint32_t, uint32_t> GetMeasurementFrameRange(const gfxrecon::ut
 
         if (!invalid)
         {
-            uint32_t start_frame = std::stoi(values[0]);
-            uint32_t end_frame   = std::stoi(values[1]);
+            uint32_t start_frame_arg = std::stoi(values[0]);
+            uint32_t end_frame_arg   = std::stoi(values[1]);
 
-            if (start_frame >= end_frame)
+            if (start_frame_arg >= end_frame_arg)
             {
                 GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
                                      "greater than or equal to the last frame",
                                      range.c_str());
 
-                return measurement_frame_range;
+                return false;
             }
 
-            measurement_frame_range.first  = start_frame;
-            measurement_frame_range.second = end_frame;
+            start_frame = start_frame_arg;
+            end_frame   = end_frame_arg;
+            return true;
         }
         else
         {
@@ -554,7 +557,7 @@ static std::pair<uint32_t, uint32_t> GetMeasurementFrameRange(const gfxrecon::ut
         }
     }
 
-    return measurement_frame_range;
+    return false;
 }
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
