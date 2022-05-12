@@ -5981,8 +5981,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesAND
     if ((hardware_buffer == nullptr) && options_.omit_null_hardware_buffers)
     {
 
-        GFXRECON_LOG_WARNING_ONCE("A call to vkGetAndroidHardwareBufferPropertiesANDROID with a NULL "
-                                  "AHardwareBuffer* was omitted during replay.");
+        GFXRECON_LOG_INFO_ONCE("A call to vkGetAndroidHardwareBufferPropertiesANDROID with a NULL "
+                               "AHardwareBuffer* was omitted during replay.");
         return original_result;
     }
     else
