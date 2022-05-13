@@ -70,7 +70,7 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
 {
     assert(command_pool != VK_NULL_HANDLE);
 
-    auto wrapper = getWrapperPointerFromHandle<CommandPoolWrapper*>(command_pool);
+    auto wrapper = GetWrapperPointerFromHandle<CommandPoolWrapper*>(command_pool);
 
     for (const auto& entry : wrapper->child_buffers)
     {
@@ -90,7 +90,7 @@ void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice   
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
-    auto wrapper = getWrapperPointerFromHandle<PhysicalDeviceWrapper*>(physical_device);
+    auto wrapper = GetWrapperPointerFromHandle<PhysicalDeviceWrapper*>(physical_device);
 
     wrapper->memory_properties = *properties;
 }
@@ -101,7 +101,7 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
-    auto wrapper                             = getWrapperPointerFromHandle<PhysicalDeviceWrapper*>(physical_device);
+    auto wrapper                             = GetWrapperPointerFromHandle<PhysicalDeviceWrapper*>(physical_device);
     wrapper->queue_family_properties_call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties;
     wrapper->queue_family_properties_count   = property_count;
     wrapper->queue_family_properties         = std::make_unique<VkQueueFamilyProperties[]>(property_count);
@@ -115,7 +115,7 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCa
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
-    auto wrapper                             = getWrapperPointerFromHandle<PhysicalDeviceWrapper*>(physical_device);
+    auto wrapper                             = GetWrapperPointerFromHandle<PhysicalDeviceWrapper*>(physical_device);
     wrapper->queue_family_properties_call_id = call_id;
     wrapper->queue_family_properties_count   = property_count;
     wrapper->queue_family_properties2        = std::make_unique<VkQueueFamilyProperties2[]>(property_count);
@@ -162,7 +162,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceSupport(VkPhysicalDevice phys
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-    auto  wrapper             = getWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
+    auto  wrapper             = GetWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
     auto& entry               = wrapper->surface_support[GetWrappedId(physical_device)];
     entry[queue_family_index] = supported;
 }
@@ -175,7 +175,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-    auto  wrapper      = getWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
+    auto  wrapper      = GetWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
     auto& entry        = wrapper->surface_capabilities[GetWrappedId(physical_device)];
     entry.capabilities = capabilities;
 
@@ -201,7 +201,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (formats != nullptr));
 
-    auto  wrapper = getWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
+    auto  wrapper = GetWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
     auto& entry   = wrapper->surface_formats[GetWrappedId(physical_device)];
     entry.assign(formats, formats + format_count);
 }
@@ -214,7 +214,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (modes != nullptr));
 
-    auto  wrapper = getWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
+    auto  wrapper = GetWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
     auto& entry   = wrapper->surface_present_modes[GetWrappedId(physical_device)];
     entry.present_modes.assign(modes, modes + mode_count);
 
@@ -233,7 +233,7 @@ void VulkanStateTracker::TrackDeviceGroupSurfacePresentModes(VkDevice           
 {
     assert((device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (pModes != nullptr));
 
-    auto  wrapper       = getWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
+    auto  wrapper       = GetWrapperPointerFromHandle<SurfaceKHRWrapper*>(surface);
     auto& entry         = wrapper->group_surface_present_modes[GetWrappedId(device)];
     entry.present_modes = *pModes;
 
@@ -249,7 +249,7 @@ void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buff
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
-    auto wrapper       = getWrapperPointerFromHandle<BufferWrapper*>(buffer);
+    auto wrapper       = GetWrapperPointerFromHandle<BufferWrapper*>(buffer);
     wrapper->device_id = GetWrappedId(device);
     wrapper->address   = address;
 }
@@ -259,8 +259,8 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    auto wrapper            = getWrapperPointerFromHandle<BufferWrapper*>(buffer);
-    wrapper->bind_device    = getWrapperPointerFromHandle<DeviceWrapper*>(device);
+    auto wrapper            = GetWrapperPointerFromHandle<BufferWrapper*>(buffer);
+    wrapper->bind_device    = GetWrapperPointerFromHandle<DeviceWrapper*>(device);
     wrapper->bind_memory_id = GetWrappedId(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
@@ -278,8 +278,8 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     // If VkBindImageMemorySwapchainInfoKHR is in pnext, memory must be VK_NULL_HANDLE.
     assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
-    auto wrapper            = getWrapperPointerFromHandle<ImageWrapper*>(image);
-    wrapper->bind_device    = getWrapperPointerFromHandle<DeviceWrapper*>(device);
+    auto wrapper            = GetWrapperPointerFromHandle<ImageWrapper*>(image);
+    wrapper->bind_device    = GetWrapperPointerFromHandle<DeviceWrapper*>(device);
     wrapper->bind_memory_id = GetWrappedId(memory);
     wrapper->bind_offset    = memoryOffset;
     wrapper->bind_pnext     = nullptr;
@@ -300,8 +300,8 @@ void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    auto wrapper           = getWrapperPointerFromHandle<DeviceMemoryWrapper*>(memory);
-    wrapper->map_device    = getWrapperPointerFromHandle<DeviceWrapper*>(device);
+    auto wrapper           = GetWrapperPointerFromHandle<DeviceMemoryWrapper*>(memory);
+    wrapper->map_device    = GetWrapperPointerFromHandle<DeviceWrapper*>(device);
     wrapper->mapped_data   = mapped_data;
     wrapper->mapped_offset = mapped_offset;
     wrapper->mapped_size   = mapped_size;
@@ -312,16 +312,16 @@ void VulkanStateTracker::TrackBeginRenderPass(VkCommandBuffer command_buffer, co
 {
     assert((command_buffer != VK_NULL_HANDLE) && (begin_info != nullptr));
 
-    auto wrapper                     = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
-    wrapper->active_render_pass      = getWrapperPointerFromHandle<RenderPassWrapper*>(begin_info->renderPass);
-    wrapper->render_pass_framebuffer = getWrapperPointerFromHandle<FramebufferWrapper*>(begin_info->framebuffer);
+    auto wrapper                     = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
+    wrapper->active_render_pass      = GetWrapperPointerFromHandle<RenderPassWrapper*>(begin_info->renderPass);
+    wrapper->render_pass_framebuffer = GetWrapperPointerFromHandle<FramebufferWrapper*>(begin_info->framebuffer);
 }
 
 void VulkanStateTracker::TrackEndRenderPass(VkCommandBuffer command_buffer)
 {
     assert(command_buffer != VK_NULL_HANDLE);
 
-    auto wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
+    auto wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
     assert((wrapper->active_render_pass != VK_NULL_HANDLE) && (wrapper->render_pass_framebuffer != VK_NULL_HANDLE));
 
     auto render_pass_wrapper = wrapper->active_render_pass;
@@ -348,11 +348,11 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
 {
     assert((command_buffer != VK_NULL_HANDLE) && (command_buffers != nullptr));
 
-    auto primary_wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
+    auto primary_wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
 
     for (uint32_t i = 0; i < command_buffer_count; ++i)
     {
-        auto secondary_wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffers[i]);
+        auto secondary_wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffers[i]);
         assert(secondary_wrapper != nullptr);
 
         for (const auto& layout_entry : secondary_wrapper->pending_layouts)
@@ -388,11 +388,11 @@ void VulkanStateTracker::TrackImageBarriers(VkCommandBuffer             command_
 
     if ((image_barrier_count > 0) && (image_barriers != nullptr))
     {
-        auto wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
+        auto wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
 
         for (uint32_t i = 0; i < image_barrier_count; ++i)
         {
-            auto image_wrapper = getWrapperPointerFromHandle<ImageWrapper*>(image_barriers[i].image);
+            auto image_wrapper = GetWrapperPointerFromHandle<ImageWrapper*>(image_barriers[i].image);
             wrapper->pending_layouts[image_wrapper] = image_barriers[i].newLayout;
         }
     }
@@ -406,11 +406,11 @@ void VulkanStateTracker::TrackImageBarriers2KHR(VkCommandBuffer                 
 
     if ((image_barrier_count > 0) && (image_barriers != nullptr))
     {
-        auto wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
+        auto wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
 
         for (uint32_t i = 0; i < image_barrier_count; ++i)
         {
-            auto image_wrapper = getWrapperPointerFromHandle<ImageWrapper*>(image_barriers[i].image);
+            auto image_wrapper = GetWrapperPointerFromHandle<ImageWrapper*>(image_barriers[i].image);
             wrapper->pending_layouts[image_wrapper] = image_barriers[i].newLayout;
         }
     }
@@ -427,7 +427,7 @@ void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, co
 
             for (uint32_t cmd = 0; cmd < command_buffer_count; ++cmd)
             {
-                auto command_wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffers[cmd]);
+                auto command_wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffers[cmd]);
                 assert(command_wrapper != nullptr);
 
                 // Apply pending image layouts.
@@ -476,7 +476,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
         for (uint32_t i = 0; i < write_count; ++i)
         {
             const VkWriteDescriptorSet* write   = &writes[i];
-            auto                        wrapper = getWrapperPointerFromHandle<DescriptorSetWrapper*>(write->dstSet);
+            auto                        wrapper = GetWrapperPointerFromHandle<DescriptorSetWrapper*>(write->dstSet);
             assert(wrapper != nullptr);
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
@@ -642,8 +642,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
         for (uint32_t i = 0; i < copy_count; ++i)
         {
             auto copy        = &copies[i];
-            auto dst_wrapper = getWrapperPointerFromHandle<DescriptorSetWrapper*>(copy->dstSet);
-            auto src_wrapper = getWrapperPointerFromHandle<DescriptorSetWrapper*>(copy->srcSet);
+            auto dst_wrapper = GetWrapperPointerFromHandle<DescriptorSetWrapper*>(copy->dstSet);
+            auto src_wrapper = GetWrapperPointerFromHandle<DescriptorSetWrapper*>(copy->srcSet);
             assert((dst_wrapper != nullptr) && (src_wrapper != nullptr));
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
@@ -756,7 +756,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
     // exists at state write time by checking for the ID in the active state table.
     if ((template_info != nullptr) && (data != nullptr))
     {
-        auto           wrapper = getWrapperPointerFromHandle<DescriptorSetWrapper*>(set);
+        auto           wrapper = GetWrapperPointerFromHandle<DescriptorSetWrapper*>(set);
         const uint8_t* bytes   = reinterpret_cast<const uint8_t*>(data);
 
         for (const auto& entry : template_info->image_info)
@@ -972,7 +972,7 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
 {
     assert(descriptor_pool != VK_NULL_HANDLE);
 
-    auto wrapper = getWrapperPointerFromHandle<DescriptorPoolWrapper*>(descriptor_pool);
+    auto wrapper = GetWrapperPointerFromHandle<DescriptorPoolWrapper*>(descriptor_pool);
 
     // Pool reset implicitly frees descriptor sets, so remove all wrappers from the state tracker.
     std::unique_lock<std::mutex> lock(state_table_mutex_);
@@ -987,10 +987,10 @@ void VulkanStateTracker::TrackQueryActivation(
 {
     assert((command_buffer != VK_NULL_HANDLE) && (query_pool != VK_NULL_HANDLE));
 
-    auto                      wrapper              = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
+    auto                      wrapper              = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
     const CommandPoolWrapper* command_pool_wrapper = wrapper->parent_pool;
 
-    auto& query_pool_info       = wrapper->recorded_queries[getWrapperPointerFromHandle<QueryPoolWrapper*>(query_pool)];
+    auto& query_pool_info       = wrapper->recorded_queries[GetWrapperPointerFromHandle<QueryPoolWrapper*>(query_pool)];
     auto& query_info            = query_pool_info[query];
     query_info.active           = true;
     query_info.flags            = flags;
@@ -1005,8 +1005,8 @@ void VulkanStateTracker::TrackQueryReset(VkCommandBuffer command_buffer,
 {
     assert((command_buffer != VK_NULL_HANDLE) && (query_pool != VK_NULL_HANDLE));
 
-    auto  wrapper         = getWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
-    auto& query_pool_info = wrapper->recorded_queries[getWrapperPointerFromHandle<QueryPoolWrapper*>(query_pool)];
+    auto  wrapper         = GetWrapperPointerFromHandle<CommandBufferWrapper*>(command_buffer);
+    auto& query_pool_info = wrapper->recorded_queries[GetWrapperPointerFromHandle<QueryPoolWrapper*>(query_pool)];
 
     for (uint32_t i = first_query; i < query_count; ++i)
     {
@@ -1018,7 +1018,7 @@ void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_
 {
     assert(query_pool != VK_NULL_HANDLE);
 
-    auto wrapper = getWrapperPointerFromHandle<QueryPoolWrapper*>(query_pool);
+    auto wrapper = GetWrapperPointerFromHandle<QueryPoolWrapper*>(query_pool);
     assert((first_query + query_count) <= wrapper->pending_queries.size());
 
     for (uint32_t i = first_query; i < query_count; ++i)
@@ -1031,7 +1031,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(VkSemaphore signal)
 {
     if (signal != VK_NULL_HANDLE)
     {
-        auto wrapper = getWrapperPointerFromHandle<SemaphoreWrapper*>(signal);
+        auto wrapper = GetWrapperPointerFromHandle<SemaphoreWrapper*>(signal);
         assert(wrapper != nullptr);
         wrapper->signaled = true;
     }
@@ -1048,7 +1048,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
         {
             for (uint32_t i = 0; i < wait_count; ++i)
             {
-                auto wrapper = getWrapperPointerFromHandle<SemaphoreWrapper*>(waits[i]);
+                auto wrapper = GetWrapperPointerFromHandle<SemaphoreWrapper*>(waits[i]);
                 assert(wrapper != nullptr);
                 wrapper->signaled = false;
             }
@@ -1058,7 +1058,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
         {
             for (uint32_t i = 0; i < signal_count; ++i)
             {
-                auto wrapper = getWrapperPointerFromHandle<SemaphoreWrapper*>(signals[i]);
+                auto wrapper = GetWrapperPointerFromHandle<SemaphoreWrapper*>(signals[i]);
                 assert(wrapper != nullptr);
                 wrapper->signaled = true;
             }
@@ -1069,7 +1069,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
 void VulkanStateTracker::TrackAcquireImage(
     uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t deviceMask)
 {
-    auto wrapper = getWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchain);
+    auto wrapper = GetWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchain);
 
     assert((wrapper != nullptr) && (image_index < wrapper->image_acquired_info.size()));
 
@@ -1088,7 +1088,7 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
 
     for (uint32_t i = 0; i < count; ++i)
     {
-        auto     wrapper     = getWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchains[i]);
+        auto     wrapper     = GetWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchains[i]);
         uint32_t image_index = image_indices[i];
 
         assert((wrapper != nullptr) && (image_index < wrapper->image_acquired_info.size()));
@@ -1105,7 +1105,7 @@ void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice    
 {
     assert((device != VK_NULL_HANDLE) && (accel_struct != VK_NULL_HANDLE));
 
-    auto wrapper       = getWrapperPointerFromHandle<AccelerationStructureKHRWrapper*>(accel_struct);
+    auto wrapper       = GetWrapperPointerFromHandle<AccelerationStructureKHRWrapper*>(accel_struct);
     wrapper->device_id = GetWrappedId(device);
     wrapper->address   = address;
 }
@@ -1114,7 +1114,7 @@ void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDevic
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    auto wrapper       = getWrapperPointerFromHandle<DeviceMemoryWrapper*>(memory);
+    auto wrapper       = GetWrapperPointerFromHandle<DeviceMemoryWrapper*>(memory);
     wrapper->device_id = GetWrappedId(device);
     wrapper->address   = address;
 }
@@ -1126,7 +1126,7 @@ void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
 {
     assert((device != VK_NULL_HANDLE) && (pipeline != VK_NULL_HANDLE));
 
-    auto           wrapper   = getWrapperPointerFromHandle<PipelineWrapper*>(pipeline);
+    auto           wrapper   = GetWrapperPointerFromHandle<PipelineWrapper*>(pipeline);
     const uint8_t* byte_data = reinterpret_cast<const uint8_t*>(data);
     wrapper->device_id       = GetWrappedId(device);
     wrapper->shader_group_handle_data.assign(byte_data, byte_data + data_size);
@@ -1136,7 +1136,7 @@ void VulkanStateTracker::TrackAcquireFullScreenExclusiveMode(VkDevice device, Vk
 {
     assert(swapchain != VK_NULL_HANDLE);
 
-    auto wrapper                                = getWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchain);
+    auto wrapper                                = GetWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchain);
     wrapper->acquire_full_screen_exclusive_mode = true;
 }
 
@@ -1144,7 +1144,7 @@ void VulkanStateTracker::TrackReleaseFullScreenExclusiveMode(VkDevice device, Vk
 {
     assert(swapchain != VK_NULL_HANDLE);
 
-    auto wrapper                                = getWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchain);
+    auto wrapper                                = GetWrapperPointerFromHandle<SwapchainKHRWrapper*>(swapchain);
     wrapper->release_full_screen_exclusive_mode = true;
 }
 

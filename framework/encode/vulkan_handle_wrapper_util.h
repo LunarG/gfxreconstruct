@@ -97,7 +97,7 @@ class WrapperManager
 };
 
 template <typename T>
-T getWrapperPointerFromHandle(typename std::remove_pointer<T>::type::HandleType handle)
+T GetWrapperPointerFromHandle(typename std::remove_pointer<T>::type::HandleType handle)
 {
     T wrapper = reinterpret_cast<T>(WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle)));
     if (wrapper == nullptr)
@@ -110,61 +110,61 @@ T getWrapperPointerFromHandle(typename std::remove_pointer<T>::type::HandleType 
 }
 
 template <>
-inline InstanceWrapper* getWrapperPointerFromHandle<InstanceWrapper*>(VkInstance handle)
+inline InstanceWrapper* GetWrapperPointerFromHandle<InstanceWrapper*>(VkInstance handle)
 {
     return reinterpret_cast<InstanceWrapper*>(handle);
 }
 
 template <>
-inline const InstanceWrapper* getWrapperPointerFromHandle<const InstanceWrapper*>(VkInstance handle)
+inline const InstanceWrapper* GetWrapperPointerFromHandle<const InstanceWrapper*>(VkInstance handle)
 {
     return reinterpret_cast<const InstanceWrapper*>(handle);
 }
 
 template <>
-inline PhysicalDeviceWrapper* getWrapperPointerFromHandle<PhysicalDeviceWrapper*>(VkPhysicalDevice handle)
+inline PhysicalDeviceWrapper* GetWrapperPointerFromHandle<PhysicalDeviceWrapper*>(VkPhysicalDevice handle)
 {
     return reinterpret_cast<PhysicalDeviceWrapper*>(handle);
 }
 
 template <>
-inline const PhysicalDeviceWrapper* getWrapperPointerFromHandle<const PhysicalDeviceWrapper*>(VkPhysicalDevice handle)
+inline const PhysicalDeviceWrapper* GetWrapperPointerFromHandle<const PhysicalDeviceWrapper*>(VkPhysicalDevice handle)
 {
     return reinterpret_cast<const PhysicalDeviceWrapper*>(handle);
 }
 
 template <>
-inline DeviceWrapper* getWrapperPointerFromHandle<DeviceWrapper*>(VkDevice handle)
+inline DeviceWrapper* GetWrapperPointerFromHandle<DeviceWrapper*>(VkDevice handle)
 {
     return reinterpret_cast<DeviceWrapper*>(handle);
 }
 
 template <>
-inline const DeviceWrapper* getWrapperPointerFromHandle<const DeviceWrapper*>(VkDevice handle)
+inline const DeviceWrapper* GetWrapperPointerFromHandle<const DeviceWrapper*>(VkDevice handle)
 {
     return reinterpret_cast<const DeviceWrapper*>(handle);
 }
 
 template <>
-inline QueueWrapper* getWrapperPointerFromHandle<QueueWrapper*>(VkQueue handle)
+inline QueueWrapper* GetWrapperPointerFromHandle<QueueWrapper*>(VkQueue handle)
 {
     return reinterpret_cast<QueueWrapper*>(handle);
 }
 
 template <>
-inline const QueueWrapper* getWrapperPointerFromHandle<const QueueWrapper*>(VkQueue handle)
+inline const QueueWrapper* GetWrapperPointerFromHandle<const QueueWrapper*>(VkQueue handle)
 {
     return reinterpret_cast<const QueueWrapper*>(handle);
 }
 
 template <>
-inline CommandBufferWrapper* getWrapperPointerFromHandle<CommandBufferWrapper*>(VkCommandBuffer handle)
+inline CommandBufferWrapper* GetWrapperPointerFromHandle<CommandBufferWrapper*>(VkCommandBuffer handle)
 {
     return reinterpret_cast<CommandBufferWrapper*>(handle);
 }
 
 template <>
-inline const CommandBufferWrapper* getWrapperPointerFromHandle<const CommandBufferWrapper*>(VkCommandBuffer handle)
+inline const CommandBufferWrapper* GetWrapperPointerFromHandle<const CommandBufferWrapper*>(VkCommandBuffer handle)
 {
     return reinterpret_cast<const CommandBufferWrapper*>(handle);
 }
@@ -289,14 +289,14 @@ uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type);
 inline const InstanceTable* GetInstanceTable(VkInstance handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = getWrapperPointerFromHandle<const InstanceWrapper*>(handle);
+    auto wrapper = GetWrapperPointerFromHandle<const InstanceWrapper*>(handle);
     return &wrapper->layer_table;
 }
 
 inline const InstanceTable* GetInstanceTable(VkPhysicalDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = getWrapperPointerFromHandle<const PhysicalDeviceWrapper*>(handle);
+    auto wrapper = GetWrapperPointerFromHandle<const PhysicalDeviceWrapper*>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -304,14 +304,14 @@ inline const InstanceTable* GetInstanceTable(VkPhysicalDevice handle)
 inline const DeviceTable* GetDeviceTable(VkDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = getWrapperPointerFromHandle<const DeviceWrapper*>(handle);
+    auto wrapper = GetWrapperPointerFromHandle<const DeviceWrapper*>(handle);
     return &wrapper->layer_table;
 }
 
 inline const DeviceTable* GetDeviceTable(VkQueue handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = getWrapperPointerFromHandle<const QueueWrapper*>(handle);
+    auto wrapper = GetWrapperPointerFromHandle<const QueueWrapper*>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -319,7 +319,7 @@ inline const DeviceTable* GetDeviceTable(VkQueue handle)
 inline const DeviceTable* GetDeviceTable(VkCommandBuffer handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = getWrapperPointerFromHandle<const CommandBufferWrapper*>(handle);
+    auto wrapper = GetWrapperPointerFromHandle<const CommandBufferWrapper*>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -400,7 +400,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
     assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = getWrapperPointerFromHandle<InstanceWrapper*>(parent);
+    auto parent_wrapper = GetWrapperPointerFromHandle<InstanceWrapper*>(parent);
 
     // Filter duplicate physical device retrieval.
     PhysicalDeviceWrapper* wrapper = nullptr;
@@ -421,7 +421,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
     {
         CreateWrappedDispatchHandle<InstanceWrapper, PhysicalDeviceWrapper>(parent, handle, get_id);
 
-        wrapper                  = getWrapperPointerFromHandle<PhysicalDeviceWrapper*>(*handle);
+        wrapper                  = GetWrapperPointerFromHandle<PhysicalDeviceWrapper*>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_physical_devices.push_back(wrapper);
     }
@@ -447,7 +447,7 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
     assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = getWrapperPointerFromHandle<DeviceWrapper*>(parent);
+    auto parent_wrapper = GetWrapperPointerFromHandle<DeviceWrapper*>(parent);
 
     // Filter duplicate physical device retrieval.
     QueueWrapper* wrapper = nullptr;
@@ -468,7 +468,7 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
     {
         CreateWrappedDispatchHandle<DeviceWrapper, QueueWrapper>(parent, handle, get_id);
 
-        wrapper                  = getWrapperPointerFromHandle<QueueWrapper*>(*handle);
+        wrapper                  = GetWrapperPointerFromHandle<QueueWrapper*>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_queues.push_back(wrapper);
     }
@@ -487,10 +487,10 @@ inline void CreateWrappedHandle<DeviceWrapper, CommandPoolWrapper, CommandBuffer
 
     // The command pool must keep track of allocated command buffers, whose wrappers will need to be destroyed when the
     // pool is destroyed.
-    auto parent_wrapper    = getWrapperPointerFromHandle<DeviceWrapper*>(parent);
-    auto co_parent_wrapper = getWrapperPointerFromHandle<CommandPoolWrapper*>(co_parent);
+    auto parent_wrapper    = GetWrapperPointerFromHandle<DeviceWrapper*>(parent);
+    auto co_parent_wrapper = GetWrapperPointerFromHandle<CommandPoolWrapper*>(co_parent);
 
-    auto wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(*handle);
+    auto wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(*handle);
 
     wrapper->layer_table_ref = &parent_wrapper->layer_table;
     wrapper->parent_pool     = co_parent_wrapper;
@@ -511,9 +511,9 @@ inline void CreateWrappedHandle<DeviceWrapper, DescriptorPoolWrapper, Descriptor
 
     // The descriptor pool must keep track of allocated command buffers, whose wrappers will need to be destroyed when
     // the pool is destroyed.
-    auto parent_wrapper = getWrapperPointerFromHandle<DescriptorPoolWrapper*>(co_parent);
+    auto parent_wrapper = GetWrapperPointerFromHandle<DescriptorPoolWrapper*>(co_parent);
 
-    auto wrapper = getWrapperPointerFromHandle<DescriptorSetWrapper*>(*handle);
+    auto wrapper = GetWrapperPointerFromHandle<DescriptorSetWrapper*>(*handle);
 
     parent_wrapper->child_sets.insert(std::make_pair(wrapper->handle_id, wrapper));
     wrapper->parent_pool = parent_wrapper;
@@ -535,7 +535,7 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
     if ((*handle) != VK_NULL_HANDLE)
     {
         assert(parent != VK_NULL_HANDLE);
-        auto parent_wrapper = getWrapperPointerFromHandle<PhysicalDeviceWrapper*>(parent);
+        auto parent_wrapper = GetWrapperPointerFromHandle<PhysicalDeviceWrapper*>(parent);
 
         // Filter duplicate display retrieval.
         DisplayKHRWrapper* wrapper = nullptr;
@@ -555,7 +555,7 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
         else
         {
             CreateWrappedNonDispatchHandle<DisplayKHRWrapper>(handle, get_id);
-            parent_wrapper->child_displays.push_back(getWrapperPointerFromHandle<DisplayKHRWrapper*>(*handle));
+            parent_wrapper->child_displays.push_back(GetWrapperPointerFromHandle<DisplayKHRWrapper*>(*handle));
         }
     }
 }
@@ -572,7 +572,7 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = getWrapperPointerFromHandle<SwapchainKHRWrapper*>(co_parent);
+    auto parent_wrapper = GetWrapperPointerFromHandle<SwapchainKHRWrapper*>(co_parent);
 
     // Filter duplicate display retrieval.
     ImageWrapper* wrapper = nullptr;
@@ -592,7 +592,7 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
     else
     {
         CreateWrappedNonDispatchHandle<ImageWrapper>(handle, get_id);
-        auto image_wrapper                = getWrapperPointerFromHandle<ImageWrapper*>(*handle);
+        auto image_wrapper                = GetWrapperPointerFromHandle<ImageWrapper*>(*handle);
         image_wrapper->is_swapchain_image = true;
         parent_wrapper->child_images.push_back(image_wrapper);
     }
@@ -610,7 +610,7 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper, Displa
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = getWrapperPointerFromHandle<DisplayKHRWrapper*>(co_parent);
+    auto parent_wrapper = GetWrapperPointerFromHandle<DisplayKHRWrapper*>(co_parent);
 
     // Display modes can either be retrieved or created; filter duplicate display mode retrieval.
     DisplayModeKHRWrapper* wrapper = nullptr;
@@ -630,7 +630,7 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper, Displa
     else
     {
         CreateWrappedNonDispatchHandle<DisplayModeKHRWrapper>(handle, get_id);
-        parent_wrapper->child_display_modes.push_back(getWrapperPointerFromHandle<DisplayModeKHRWrapper*>(*handle));
+        parent_wrapper->child_display_modes.push_back(GetWrapperPointerFromHandle<DisplayModeKHRWrapper*>(*handle));
     }
 }
 
@@ -658,7 +658,7 @@ void DestroyWrappedHandle(typename Wrapper::HandleType handle)
     // and VkCommandBuffer.
     if (handle != VK_NULL_HANDLE)
     {
-        Wrapper* wrapper = getWrapperPointerFromHandle<Wrapper*>(handle);
+        Wrapper* wrapper = GetWrapperPointerFromHandle<Wrapper*>(handle);
         if (wrapper != nullptr)
         {
             WrapperManager::GetInstance()->Remove(VK_HANDLE_TO_UINT64(handle));
@@ -679,7 +679,7 @@ inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = getWrapperPointerFromHandle<InstanceWrapper*>(handle);
+        auto wrapper = GetWrapperPointerFromHandle<InstanceWrapper*>(handle);
 
         for (auto physical_device_wrapper : wrapper->child_physical_devices)
         {
@@ -707,7 +707,7 @@ inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = getWrapperPointerFromHandle<DeviceWrapper*>(handle);
+        auto wrapper = GetWrapperPointerFromHandle<DeviceWrapper*>(handle);
 
         for (auto queue_wrapper : wrapper->child_queues)
         {
@@ -725,7 +725,7 @@ inline void DestroyWrappedHandle<CommandBufferWrapper>(VkCommandBuffer handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Remove from parent list.
-        auto wrapper = getWrapperPointerFromHandle<CommandBufferWrapper*>(handle);
+        auto wrapper = GetWrapperPointerFromHandle<CommandBufferWrapper*>(handle);
         wrapper->parent_pool->child_buffers.erase(wrapper->handle_id);
         WrapperManager::GetInstance()->Remove(static_cast<uint64_t>(wrapper->handle_id));
         delete wrapper;
@@ -738,7 +738,7 @@ inline void DestroyWrappedHandle<CommandPoolWrapper>(VkCommandPool handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = getWrapperPointerFromHandle<CommandPoolWrapper*>(handle);
+        auto wrapper = GetWrapperPointerFromHandle<CommandPoolWrapper*>(handle);
         if (wrapper != nullptr)
         {
             for (const auto& buffer_wrapper : wrapper->child_buffers)
@@ -764,7 +764,7 @@ inline void DestroyWrappedHandle<DescriptorSetWrapper>(VkDescriptorSet handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Remove from parent list.
-        auto wrapper = getWrapperPointerFromHandle<DescriptorSetWrapper*>(handle);
+        auto wrapper = GetWrapperPointerFromHandle<DescriptorSetWrapper*>(handle);
         if (wrapper != nullptr)
         {
             wrapper->parent_pool->child_sets.erase(wrapper->handle_id);
@@ -786,7 +786,7 @@ inline void DestroyWrappedHandle<DescriptorPoolWrapper>(VkDescriptorPool handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = getWrapperPointerFromHandle<DescriptorPoolWrapper*>(handle);
+        auto wrapper = GetWrapperPointerFromHandle<DescriptorPoolWrapper*>(handle);
         if (wrapper != nullptr)
         {
             for (const auto& set_wrapper : wrapper->child_sets)
@@ -812,7 +812,7 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = getWrapperPointerFromHandle<SwapchainKHRWrapper*>(handle);
+        auto wrapper = GetWrapperPointerFromHandle<SwapchainKHRWrapper*>(handle);
         if (wrapper != nullptr)
         {
             for (auto image_wrapper : wrapper->child_images)
@@ -849,7 +849,7 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
     assert(handle != VK_NULL_HANDLE);
 
     // Destroy child wrappers.
-    auto wrapper = getWrapperPointerFromHandle<DescriptorPoolWrapper*>(handle);
+    auto wrapper = GetWrapperPointerFromHandle<DescriptorPoolWrapper*>(handle);
     for (const auto& set_wrapper : wrapper->child_sets)
     {
         WrapperManager::GetInstance()->Remove(set_wrapper.second->handle_id);

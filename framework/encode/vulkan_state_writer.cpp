@@ -1953,7 +1953,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
             if (wrapper->image_acquired_info[i].last_presented_queue != VK_NULL_HANDLE)
             {
-                auto queue_wrapper = getWrapperPointerFromHandle<const QueueWrapper*>(
+                auto queue_wrapper = GetWrapperPointerFromHandle<const QueueWrapper*>(
                     wrapper->image_acquired_info[i].last_presented_queue);
                 info.last_presented_queue_id = queue_wrapper->handle_id;
             }
