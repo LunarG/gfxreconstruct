@@ -682,7 +682,7 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     {
         options.flush_measurement_frame_range = true;
     }
-  
+
     if (arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption) ||
         arg_parser.IsOptionSet(kOmitNullHardwareBuffersShortOption))
     {
@@ -735,7 +735,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
-  
+
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
     {
         replay_options.quit_after_measurement_frame_range = true;
