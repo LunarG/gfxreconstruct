@@ -506,6 +506,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
                                  const FenceInfo*                                  fence_info);
 
+    VkResult OverrideQueueSubmit2(PFN_vkQueueSubmit2                                 func,
+                                  VkResult                                           original_result,
+                                  const QueueInfo*                                   queue_info,
+                                  uint32_t                                           submitCount,
+                                  const StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                  const FenceInfo*                                   fence_info);
+
     VkResult OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
                                      VkResult                                              original_result,
                                      const QueueInfo*                                      queue_info,
@@ -862,6 +869,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                         uint32_t                                 groupCount,
                                                         size_t                                   dataSize,
                                                         PointerDecoder<uint8_t>*                 pData);
+    VkResult OverrideGetAndroidHardwareBufferPropertiesANDROID(
+        PFN_vkGetAndroidHardwareBufferPropertiesANDROID                         func,
+        VkResult                                                                original_result,
+        const DeviceInfo*                                                       device_info,
+        const struct AHardwareBuffer*                                           hardware_buffer,
+        StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties);
 
   private:
     void RaiseFatalError(const char* message) const;
@@ -924,14 +937,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void GetImportedSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                std::vector<const SemaphoreInfo*>*       imported_semaphores);
 
+    void GetImportedSemaphores(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+                               std::vector<const SemaphoreInfo*>*                         imported_semaphores);
+
     void GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                              std::vector<const SemaphoreInfo*>*       shadow_semaphores);
+
+    void GetShadowSemaphores(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+                             std::vector<const SemaphoreInfo*>*                         shadow_semaphores);
 
     void TrackSemaphoreForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                        std::vector<const SemaphoreInfo*>*       removed_semaphores);
 
+    void TrackSemaphoreForwardProgress(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+                                       std::vector<const SemaphoreInfo*>*                         removed_semaphores);
+
     void GetNonForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                std::vector<const SemaphoreInfo*>*       non_forward_progress_semaphores);
+
+    void GetNonForwardProgress(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+                               std::vector<const SemaphoreInfo*>* non_forward_progress_semaphores);
 
     VkResult CreateSwapchainImage(const DeviceInfo*        device_info,
                                   const VkImageCreateInfo* image_create_info,

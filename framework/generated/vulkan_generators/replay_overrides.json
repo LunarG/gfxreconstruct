@@ -19,6 +19,8 @@
     "vkGetEventStatus": "OverrideGetEventStatus",
     "vkGetQueryPoolResults": "OverrideGetQueryPoolResults",
     "vkQueueSubmit": "OverrideQueueSubmit",
+    "vkQueueSubmit2": "OverrideQueueSubmit2",
+    "vkQueueSubmit2KHR": "OverrideQueueSubmit2",
     "vkQueueBindSparse": "OverrideQueueBindSparse",
     "vkCreateDescriptorPool": "OverrideCreateDescriptorPool",
     "vkDestroyDescriptorPool": "OverrideDestroyDescriptorPool",
@@ -77,6 +79,7 @@
     "vkGetBufferDeviceAddress": "OverrideGetBufferDeviceAddress",
     "vkGetBufferDeviceAddressKHR": "OverrideGetBufferDeviceAddress",
     "vkGetAccelerationStructureDeviceAddressKHR": "OverrideGetAccelerationStructureDeviceAddressKHR",
-    "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR"
+    "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR",
+    "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID"
   }
 }

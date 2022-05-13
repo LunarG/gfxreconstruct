@@ -429,34 +429,59 @@ void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, co
                 auto command_wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffers[cmd]);
                 assert(command_wrapper != nullptr);
 
-                // Apply pending image layouts.
-                for (const auto& layout_entry : command_wrapper->pending_layouts)
-                {
-                    auto image_wrapper = reinterpret_cast<ImageWrapper*>(layout_entry.first);
-                    assert(image_wrapper != nullptr);
+                TrackQuerySubmissions(command_wrapper);
+            }
+        }
+    }
+}
 
-                    image_wrapper->current_layout = layout_entry.second;
-                }
+void VulkanStateTracker::TrackCommandBufferSubmissions2(uint32_t submit_count, const VkSubmitInfo2* submits)
+{
+    if ((submit_count > 0) && (submits != nullptr) && (submits->commandBufferInfoCount > 0))
+    {
+        for (uint32_t submit = 0; submit < submit_count; ++submit)
+        {
+            uint32_t                         command_buffer_count = submits[submit].commandBufferInfoCount;
+            const VkCommandBufferSubmitInfo* command_buffer_infos = submits[submit].pCommandBufferInfos;
 
-                // Apply pending query activations.
-                for (const auto& query_pool_entry : command_wrapper->recorded_queries)
-                {
-                    auto query_pool_wrapper = query_pool_entry.first;
-                    assert(query_pool_wrapper != nullptr);
+            for (uint32_t cmd = 0; cmd < command_buffer_count; ++cmd)
+            {
+                auto command_wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer_infos[cmd].commandBuffer);
+                assert(command_wrapper != nullptr);
 
-                    for (const auto& query_entry : query_pool_entry.second)
-                    {
-                        auto& query_info  = query_pool_wrapper->pending_queries[query_entry.first];
-                        query_info.active = query_entry.second.active;
+                TrackQuerySubmissions(command_wrapper);
+            }
+        }
+    }
+}
 
-                        if (query_info.active)
-                        {
-                            query_info.flags              = query_entry.second.flags;
-                            query_info.query_type_index   = query_entry.second.query_type_index;
-                            query_info.queue_family_index = query_entry.second.queue_family_index;
-                        }
-                    }
-                }
+void VulkanStateTracker::TrackQuerySubmissions(CommandBufferWrapper* command_wrapper)
+{
+    // Apply pending image layouts.
+    for (const auto& layout_entry : command_wrapper->pending_layouts)
+    {
+        auto image_wrapper = reinterpret_cast<ImageWrapper*>(layout_entry.first);
+        assert(image_wrapper != nullptr);
+
+        image_wrapper->current_layout = layout_entry.second;
+    }
+
+    // Apply pending query activations.
+    for (const auto& query_pool_entry : command_wrapper->recorded_queries)
+    {
+        auto query_pool_wrapper = query_pool_entry.first;
+        assert(query_pool_wrapper != nullptr);
+
+        for (const auto& query_entry : query_pool_entry.second)
+        {
+            auto& query_info  = query_pool_wrapper->pending_queries[query_entry.first];
+            query_info.active = query_entry.second.active;
+
+            if (query_info.active)
+            {
+                query_info.flags              = query_entry.second.flags;
+                query_info.query_type_index   = query_entry.second.query_type_index;
+                query_info.queue_family_index = query_entry.second.queue_family_index;
             }
         }
     }
@@ -1058,6 +1083,35 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
             for (uint32_t i = 0; i < signal_count; ++i)
             {
                 auto wrapper = reinterpret_cast<SemaphoreWrapper*>(signals[i]);
+                assert(wrapper != nullptr);
+                wrapper->signaled = true;
+            }
+        }
+    }
+}
+
+void VulkanStateTracker::TrackSemaphoreInfoSignalState(uint32_t                     wait_count,
+                                                       const VkSemaphoreSubmitInfo* wait_infos,
+                                                       uint32_t                     signal_count,
+                                                       const VkSemaphoreSubmitInfo* signal_infos)
+{
+    if (((wait_infos != nullptr) && (wait_count > 0)) || ((signal_infos != nullptr) && (signal_count > 0)))
+    {
+        if (wait_infos != nullptr)
+        {
+            for (uint32_t i = 0; i < wait_count; ++i)
+            {
+                auto wrapper = reinterpret_cast<SemaphoreWrapper*>(wait_infos[i].semaphore);
+                assert(wrapper != nullptr);
+                wrapper->signaled = false;
+            }
+        }
+
+        if (signal_infos != nullptr)
+        {
+            for (uint32_t i = 0; i < signal_count; ++i)
+            {
+                auto wrapper = reinterpret_cast<SemaphoreWrapper*>(signal_infos[i].semaphore);
                 assert(wrapper != nullptr);
                 wrapper->signaled = true;
             }

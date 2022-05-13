@@ -66,6 +66,38 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
     }
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallInfo& call_info,
+                                                                  VkResult           returnValue,
+                                                                  format::HandleId   queue,
+                                                                  uint32_t           submitCount,
+                                                                  StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                                                  format::HandleId                             fence)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(queue);
+    GFXRECON_UNREFERENCED_PARAMETER(submitCount);
+    GFXRECON_UNREFERENCED_PARAMETER(fence);
+
+    assert(pSubmits != nullptr);
+
+    if (!pSubmits->IsNull() && pSubmits->HasData())
+    {
+        size_t     submit_count = pSubmits->GetLength();
+        const auto submits      = pSubmits->GetMetaStructPointer();
+
+        for (size_t i = 0; i < submit_count; ++i)
+        {
+            size_t     command_buffer_count = submits[i].pCommandBufferInfos->GetLength();
+            const auto command_buffers      = submits[i].pCommandBufferInfos->GetMetaStructPointer();
+
+            for (size_t j = 0; j < command_buffer_count; ++j)
+            {
+                table_.ProcessUserSubmission(command_buffers[j].commandBuffer);
+            }
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(
     const ApiCallInfo&                                   call_info,
     VkResult                                             returnValue,

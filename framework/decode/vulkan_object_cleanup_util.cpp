@@ -684,16 +684,6 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                                       table->DestroyDevice(object_info->handle, nullptr);
                                   });
 
-    FreeParentObjects<InstanceInfo>(table,
-                                    remove_entries,
-                                    &VulkanObjectInfoTable::VisitInstanceInfo,
-                                    &VulkanObjectInfoTable::RemoveInstanceInfo,
-                                    [&](const InstanceInfo* object_info) {
-                                        assert(object_info != nullptr);
-                                        auto table = get_instance_table(object_info->handle);
-                                        table->DestroyInstance(object_info->handle, nullptr);
-                                    });
-
     // Remove the objects that are not destroyed from the table.
     if (remove_entries)
     {
@@ -724,6 +714,23 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
         // Clear the remaining swap chain images.
         ClearObjects<ImageInfo>(table, &VulkanObjectInfoTable::VisitImageInfo, &VulkanObjectInfoTable::RemoveImageInfo);
     }
+}
+
+void FreeAllLiveInstances(VulkanObjectInfoTable*                                   table,
+                          bool                                                     remove_entries,
+                          bool                                                     report_leaks,
+                          std::function<const encode::InstanceTable*(const void*)> get_instance_table,
+                          std::function<const encode::DeviceTable*(const void*)>   get_device_table)
+{
+    FreeParentObjects<InstanceInfo>(table,
+                                    remove_entries,
+                                    &VulkanObjectInfoTable::VisitInstanceInfo,
+                                    &VulkanObjectInfoTable::RemoveInstanceInfo,
+                                    [&](const InstanceInfo* object_info) {
+                                        assert(object_info != nullptr);
+                                        auto table = get_instance_table(object_info->handle);
+                                        table->DestroyInstance(object_info->handle, nullptr);
+                                    });
 }
 
 GFXRECON_END_NAMESPACE(object_cleanup)

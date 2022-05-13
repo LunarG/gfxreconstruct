@@ -50,6 +50,7 @@ struct ReplayOptions
     bool create_dummy_allocations{ false };
     bool quit_after_measurement_frame_range{ false };
     bool flush_measurement_frame_range{ false };
+    bool omit_null_hardware_buffers{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

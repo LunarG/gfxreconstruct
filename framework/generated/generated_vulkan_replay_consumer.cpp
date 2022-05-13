@@ -2777,12 +2777,12 @@ void VulkanReplayConsumer::Process_vkQueueSubmit2(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    VkQueue in_queue = MapHandle<QueueInfo>(queue, &VulkanObjectInfoTable::GetQueueInfo);
-    const VkSubmitInfo2* in_pSubmits = pSubmits->GetPointer();
-    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
-    VkFence in_fence = MapHandle<FenceInfo>(fence, &VulkanObjectInfoTable::GetFenceInfo);
+    auto in_queue = GetObjectInfoTable().GetQueueInfo(queue);
 
-    VkResult replay_result = GetDeviceTable(in_queue)->QueueSubmit2(in_queue, submitCount, in_pSubmits, in_fence);
+    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
+    auto in_fence = GetObjectInfoTable().GetFenceInfo(fence);
+
+    VkResult replay_result = OverrideQueueSubmit2(GetDeviceTable(in_queue->handle)->QueueSubmit2, returnValue, in_queue, submitCount, pSubmits, in_fence);
     CheckResult("vkQueueSubmit2", returnValue, replay_result);
 }
 
@@ -4825,12 +4825,12 @@ void VulkanReplayConsumer::Process_vkQueueSubmit2KHR(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    VkQueue in_queue = MapHandle<QueueInfo>(queue, &VulkanObjectInfoTable::GetQueueInfo);
-    const VkSubmitInfo2* in_pSubmits = pSubmits->GetPointer();
-    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
-    VkFence in_fence = MapHandle<FenceInfo>(fence, &VulkanObjectInfoTable::GetFenceInfo);
+    auto in_queue = GetObjectInfoTable().GetQueueInfo(queue);
 
-    VkResult replay_result = GetDeviceTable(in_queue)->QueueSubmit2KHR(in_queue, submitCount, in_pSubmits, in_fence);
+    MapStructArrayHandles(pSubmits->GetMetaStructPointer(), pSubmits->GetLength(), GetObjectInfoTable());
+    auto in_fence = GetObjectInfoTable().GetFenceInfo(fence);
+
+    VkResult replay_result = OverrideQueueSubmit2(GetDeviceTable(in_queue->handle)->QueueSubmit2KHR, returnValue, in_queue, submitCount, pSubmits, in_fence);
     CheckResult("vkQueueSubmit2KHR", returnValue, replay_result);
 }
 
@@ -5760,11 +5760,11 @@ void VulkanReplayConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     uint64_t                                    buffer,
     StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
     const struct AHardwareBuffer* in_buffer = static_cast<const struct AHardwareBuffer*>(PreProcessExternalObject(buffer, format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID, "vkGetAndroidHardwareBufferPropertiesANDROID"));
-    VkAndroidHardwareBufferPropertiesANDROID* out_pProperties = pProperties->IsNull() ? nullptr : pProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID, nullptr });
+    pProperties->IsNull() ? nullptr : pProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID, nullptr });
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetAndroidHardwareBufferPropertiesANDROID(in_device, in_buffer, out_pProperties);
+    VkResult replay_result = OverrideGetAndroidHardwareBufferPropertiesANDROID(GetDeviceTable(in_device->handle)->GetAndroidHardwareBufferPropertiesANDROID, returnValue, in_device, in_buffer, pProperties);
     CheckResult("vkGetAndroidHardwareBufferPropertiesANDROID", returnValue, replay_result);
 }
 
