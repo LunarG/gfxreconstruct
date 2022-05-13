@@ -145,19 +145,18 @@ int main(int argc, const char** argv)
 
             // XXX if the final frame ended with a Present, this would be the *next* frame
             // Add one so that it matches the trim range frame number semantic
-            uint32_t final_frame_number = file_processor.GetCurrentFrameNumber() + 1;
-            fps_info.EndFile(final_frame_number);
+            fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);
 
-            if ((final_frame_number > 0) &&
+            if ((file_processor.GetCurrentFrameNumber() > 0) &&
                 (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
             {
-                if (final_frame_number < start_frame)
+                if (file_processor.GetCurrentFrameNumber() < start_frame)
                 {
                     GFXRECON_LOG_WARNING(
                         "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
                         "Measurements were never started, cannot calculate measurement range FPS.",
                         start_frame,
-                        final_frame_number);
+                        file_processor.GetCurrentFrameNumber());
                 }
                 else
                 {
