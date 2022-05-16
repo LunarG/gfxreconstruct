@@ -57,7 +57,7 @@ class WaylandContext : public WsiContext
 
     struct wl_display* GetDisplay() const { return display_; }
 
-    struct wl_shell* GetShell() const { return shell_; }
+    struct xdg_wm_base* GetShell() const { return shell_; }
 
     struct wl_compositor* GetCompositor() const { return compositor_; }
 
@@ -137,8 +137,9 @@ class WaylandContext : public WsiContext
     static struct wl_seat_listener     seat_listener_;
     static struct wl_registry_listener registry_listener_;
     static struct wl_output_listener   output_listener_;
+    static struct xdg_wm_base_listener shell_listener_;
     struct wl_display*                 display_{};
-    struct wl_shell*                   shell_{};
+    struct xdg_wm_base*                shell_{};
     struct wl_compositor*              compositor_{};
     struct wl_registry*                registry_{};
     struct wl_seat*                    seat_{};

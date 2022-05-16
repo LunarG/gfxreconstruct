@@ -37,6 +37,7 @@ struct wl_keyboard_listener WaylandContext::keyboard_listener_;
 struct wl_seat_listener     WaylandContext::seat_listener_;
 struct wl_registry_listener WaylandContext::registry_listener_;
 struct wl_output_listener   WaylandContext::output_listener_;
+struct xdg_wm_base_listener WaylandContext::shell_listener_;
 
 WaylandContext::WaylandContext(Application* application) : WsiContext(application)
 {
@@ -205,9 +206,11 @@ void WaylandContext::HandleRegistryGlobal(
         wayland_context->compositor_ = reinterpret_cast<wl_compositor*>(
             wl.registry_bind(registry, id, wl.compositor_interface, WL_SURFACE_SET_BUFFER_SCALE_SINCE_VERSION));
     }
-    else if (util::platform::StringCompare(interface, "wl_shell") == 0)
+    else if (util::platform::StringCompare(interface, "xdg_wm_base") == 0)
     {
-        wayland_context->shell_ = reinterpret_cast<wl_shell*>(wl.registry_bind(registry, id, wl.shell_interface, 1));
+        wayland_context->shell_ = reinterpret_cast<xdg_wm_base*>(wl.registry_bind(registry, id, wl.shell_base_interface, 1));
+        //wl.xdg_wm_base_add_listener(wayland_context->shell_, &shell_listener_, wayland_context); // TODO FIXME
+
     }
     else if (util::platform::StringCompare(interface, "wl_seat") == 0)
     {

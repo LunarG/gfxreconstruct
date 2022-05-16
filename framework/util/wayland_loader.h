@@ -28,6 +28,7 @@
 #include "util/platform.h"
 
 #include <wayland-client.h>
+#include "xdg-shell-client-protocol.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -46,7 +47,7 @@ class WaylandLoader
         decltype(wl_display_flush)*            display_flush;
         decltype(wl_display_roundtrip)*        display_roundtrip;
         decltype(wl_compositor_interface)*     compositor_interface;
-        decltype(wl_shell_interface)*          shell_interface;
+        decltype(xdg_wm_base_interface)*       shell_base_interface;
         decltype(wl_seat_interface)*           seat_interface;
 
         // proxy functions
@@ -55,13 +56,16 @@ class WaylandLoader
         decltype(wl_proxy_marshal)*                       proxy_marshal;
         decltype(wl_proxy_marshal_constructor)*           proxy_marshal_constructor;
         decltype(wl_proxy_marshal_constructor_versioned)* proxy_marshal_constructor_versioned;
+        decltype(wl_proxy_marshal_flags)*                 proxy_marshal_flags;
+        decltype(wl_proxy_marshal_array_flags)*           proxy_marshal_array_flags;
+	
 
         // interfaces
         decltype(wl_registry_interface)*      registry_interface;
         decltype(wl_keyboard_interface)*      keyboard_interface;
         decltype(wl_output_interface)*        output_interface;
         decltype(wl_pointer_interface)*       pointer_interface;
-        decltype(wl_shell_surface_interface)* shell_surface_interface;
+        decltype(xdg_toplevel_interface)* shell_surface_interface;
         decltype(wl_surface_interface)*       surface_interface;
 
         // inline functions, adapted from wayland-client-protocol.h
@@ -185,66 +189,66 @@ class WaylandLoader
             return reinterpret_cast<struct wl_pointer*>(id);
         }
 
-        void shell_destroy(struct wl_shell* wl_shell) const
+        void shell_destroy(struct xdg_wm_base* xdg_wm_base) const
         {
-            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_shell));
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(xdg_wm_base));
         }
 
-        struct wl_shell_surface* shell_get_shell_surface(struct wl_shell* wl_shell, struct wl_surface* surface) const
+        struct xdg_toplevel* shell_get_shell_surface(struct xdg_wm_base* xdg_wm_base, struct wl_surface* surface) const
         {
             struct wl_proxy* id;
 
-            id = this->proxy_marshal_constructor(reinterpret_cast<struct wl_proxy*>(wl_shell),
+            id = this->proxy_marshal_constructor(reinterpret_cast<struct wl_proxy*>(xdg_wm_base),
                                                  WL_SHELL_GET_SHELL_SURFACE,
                                                  this->shell_surface_interface,
                                                  NULL,
                                                  surface);
 
-            return reinterpret_cast<struct wl_shell_surface*>(id);
+            return reinterpret_cast<struct xdg_toplevel*>(id);
         }
 
-        int shell_surface_add_listener(struct wl_shell_surface*          wl_shell_surface,
-                                       struct wl_shell_surface_listener* listener,
-                                       void*                             data) const
+        int xdg_toplevel_add_listener(struct xdg_toplevel*          xdg_toplevel,
+                                     struct xdg_toplevel_listener* listener,
+                                     void*                         data) const
         {
-            return this->proxy_add_listener(reinterpret_cast<struct wl_proxy*>(wl_shell_surface),
+            return this->proxy_add_listener(reinterpret_cast<struct wl_proxy*>(xdg_toplevel),
                                             reinterpret_cast<void (**)(void)>(listener),
                                             data);
         }
 
-        void shell_surface_destroy(struct wl_shell_surface* wl_shell_surface) const
+        void shell_surface_destroy(struct xdg_toplevel* xdg_toplevel) const
         {
-            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_shell_surface));
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(xdg_toplevel));
         }
 
-        void shell_surface_move(struct wl_shell_surface* wl_shell_surface, struct wl_seat* seat, uint32_t serial) const
+        void shell_surface_move(struct xdg_toplevel* xdg_toplevel, struct wl_seat* seat, uint32_t serial) const
         {
             this->proxy_marshal(
-                reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_MOVE, seat, serial);
+                reinterpret_cast<struct wl_proxy*>(xdg_toplevel), WL_SHELL_SURFACE_MOVE, seat, serial);
         }
 
-        void shell_surface_pong(struct wl_shell_surface* wl_shell_surface, uint32_t serial) const
+        void xdg_wm_base_pong(struct xdg_wm_base* xdg_wm_base, uint32_t serial) const
         {
-            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_PONG, serial);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_wm_base), WL_SHELL_SURFACE_PONG, serial);
         }
 
-        void shell_surface_set_fullscreen(struct wl_shell_surface* wl_shell_surface,
+        void shell_surface_set_fullscreen(struct xdg_toplevel* xdg_toplevel,
                                           uint32_t                 method,
                                           uint32_t                 framerate,
                                           struct wl_output*        output) const
         {
-            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_SET_FULLSCREEN);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_toplevel), WL_SHELL_SURFACE_SET_FULLSCREEN);
         }
 
-        void shell_surface_set_title(struct wl_shell_surface* wl_shell_surface, const char* title) const
+        void shell_surface_set_title(struct xdg_toplevel* xdg_toplevel, const char* title) const
         {
             this->proxy_marshal(
-                reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_SET_TITLE, title);
+                reinterpret_cast<struct wl_proxy*>(xdg_toplevel), WL_SHELL_SURFACE_SET_TITLE, title);
         }
 
-        void shell_surface_set_toplevel(struct wl_shell_surface* wl_shell_surface) const
+        void shell_surface_set_toplevel(struct xdg_toplevel* xdg_toplevel) const
         {
-            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_SET_TOPLEVEL);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_toplevel), WL_SHELL_SURFACE_SET_TOPLEVEL);
         }
 
         int surface_add_listener(struct wl_surface* wl_surface, struct wl_surface_listener* listener, void* data) const

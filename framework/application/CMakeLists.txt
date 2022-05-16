@@ -75,6 +75,7 @@ target_link_libraries(gfxrecon_application
 
 common_build_directives(gfxrecon_application)
 
+
 if (${RUN_TESTS})
     add_executable(gfxrecon_application_test "")
     target_sources(gfxrecon_application_test PRIVATE
