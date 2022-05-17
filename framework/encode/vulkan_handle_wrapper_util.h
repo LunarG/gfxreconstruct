@@ -39,18 +39,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// TODO:FAKE_HANDLE: VK_HANDLE_TO_UINT64 is not correct for 32bit dispatch handle.
-
 #if VK_USE_64_BIT_PTR_DEFINES == 1
 // Vulkan non-dispatch handle is a pointer in its define for 64bit Vulkan, so
 // we need to use reinterpret_cast for the conversion.
 #define VK_HANDLE_TO_UINT64(handle) reinterpret_cast<uint64_t>(handle)
-#define UINT64_TO_VK_HANDLE(handleType, value) reinterpret_cast<handleType>(value)
+#define UINT64_TO_VK_HANDLE(handle_type, value) reinterpret_cast<handle_type>(value)
 #else
 // non-dispatch handle is not a pointer for 32bit Vulkan, so we need to use
 // static_cast for the conversion.
 #define VK_HANDLE_TO_UINT64(handle) static_cast<uint64_t>(handle)
-#define UINT64_TO_VK_HANDLE(handleType, value) static_cast<handleType>(value)
+#define UINT64_TO_VK_HANDLE(handle_type, value) static_cast<handle_type>(value)
 #endif
 
 // When capturing some title with GFXR, the target title will actually get
@@ -103,7 +101,7 @@ T GetWrapperPointerFromHandle(typename std::remove_pointer<T>::type::HandleType 
     if (wrapper == nullptr)
     {
         GFXRECON_LOG_WARNING("The Vulkan object with the following handle %" PRId64
-                             " was already destroyed but still being used.",
+                             " was already destroyed but is still being used.",
                              handle);
     }
     return wrapper;
@@ -178,20 +176,17 @@ T GetWrappedHandle(const T& handle)
     // it's not a pointer to wrapper struct.
     if (handle != VK_NULL_HANDLE)
     {
-        void* wrapperPointer = WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle));
-        if (wrapperPointer == nullptr)
+        void* wrapper_pointer = WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle));
+        if (wrapper_pointer == nullptr)
         {
             GFXRECON_LOG_WARNING("The Vulkan object with the following handle %" PRId64
-                                 " was already destroyed but still being used.",
+                                 " was already destroyed but is still being used.",
                                  VK_HANDLE_TO_UINT64(handle));
         }
-        return (wrapperPointer != nullptr) ? reinterpret_cast<HandleWrapper<T>*>(wrapperPointer)->handle
-                                           : VK_NULL_HANDLE;
+        return (wrapper_pointer != nullptr) ? reinterpret_cast<HandleWrapper<T>*>(wrapper_pointer)->handle
+                                            : VK_NULL_HANDLE;
     }
-    else
-    {
-        return VK_NULL_HANDLE;
-    }
+    return VK_NULL_HANDLE;
 }
 
 template <>
@@ -233,19 +228,16 @@ format::HandleId GetWrappedId(const T& handle)
     {
         // The parameter handle is a handle ID for non-dispatch handle,
         // it's not a pointer to wrapper struct.
-        void* wrapperPointer = WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle));
-        if (wrapperPointer == nullptr)
+        void* wrapper_pointer = WrapperManager::GetInstance()->Get(VK_HANDLE_TO_UINT64(handle));
+        if (wrapper_pointer == nullptr)
         {
             GFXRECON_LOG_WARNING("The Vulkan object with the following handle %" PRId64
-                                 " was already destroyed but still being used.",
+                                 " was already destroyed but is still being used.",
                                  VK_HANDLE_TO_UINT64(handle));
         }
-        return (wrapperPointer != nullptr) ? reinterpret_cast<HandleWrapper<T>*>(wrapperPointer)->handle_id : 0;
+        return (wrapper_pointer != nullptr) ? reinterpret_cast<HandleWrapper<T>*>(wrapper_pointer)->handle_id : 0;
     }
-    else
-    {
-        return 0;
-    }
+    return 0;
 }
 
 template <>
