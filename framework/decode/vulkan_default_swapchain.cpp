@@ -25,7 +25,9 @@ VkResult VulkanDefaultSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
                                                     const DeviceInfo*               device_info,
                                                     const VkSwapchainCreateInfoKHR* create_info,
                                                     const VkAllocationCallbacks*    allocator,
-                                                    VkSwapchainKHR*                 swapchain)
+                                                    VkSwapchainKHR*                 swapchain,
+                                                    const encode::InstanceTable*    instance_table,
+                                                    const encode::DeviceTable*      device_table)
 {
     VkDevice device = VK_NULL_HANDLE;
 
