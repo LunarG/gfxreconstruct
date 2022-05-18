@@ -28,8 +28,8 @@
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
-    "screenshot-all,--dcp,--discard-cached-psos,--onhb|--omit-null-hardware-buffers|--quit-after-measurement-range,"
-    "--fmr|--flush-measurement-range";
+    "screenshot-all,--dcp,--discard-cached-psos,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
+    "range,--fmr|--flush-measurement-range";
 const char kArguments[] = "--log-level,--log-file,--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--"
                           "replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
                           "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range";
