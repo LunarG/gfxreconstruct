@@ -388,12 +388,12 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
     std::vector<ImageInfo>    image_infos;
-    VkSwapchainCreateFlagsKHR image_flags;
-    VkFormat                  image_format;
-    VkExtent2D                image_extent;
-    uint32_t                  image_array_layers;
-    VkImageUsageFlags         image_usage;
-    VkSharingMode             image_sharing_mode;
+    VkSwapchainCreateFlagsKHR image_flags{ 0 };
+    VkFormat                  image_format{ VK_FORMAT_UNDEFINED };
+    VkExtent2D                image_extent{ 0, 0 };
+    uint32_t                  image_array_layers{ 0 };
+    VkImageUsageFlags         image_usage{ 0 };
+    VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
 
     // TODO: These values are used by the virtual swapchain.  They should be replaced with an opaque handle, similar to
     // DeviceMemoryInfo::allocator_data, which is really a pointer to a struct that contains the virtual swapchain's

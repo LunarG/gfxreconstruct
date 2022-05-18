@@ -25,7 +25,9 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
                                                     const DeviceInfo*               device_info,
                                                     const VkSwapchainCreateInfoKHR* create_info,
                                                     const VkAllocationCallbacks*    allocator,
-                                                    VkSwapchainKHR*                 swapchain)
+                                                    VkSwapchainKHR*                 swapchain,
+                                                    const encode::InstanceTable*    instance_table,
+                                                    const encode::DeviceTable*      device_table)
 {
     VkDevice device = VK_NULL_HANDLE;
 
@@ -33,7 +35,8 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
     {
         device = device_info->handle;
     }
-
+    instance_table_ = instance_table;
+    device_table_   = device_table;
     return func(device, create_info, allocator, swapchain);
 }
 
@@ -89,7 +92,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
     auto result = func(device, swapchain, replay_image_count, images);
 
-    if ((result > 0) && (image_count != nullptr))
+    if ((result == VK_SUCCESS) && (image_count != nullptr))
     {
         // Return the capture count.  The virtual swapchain will create a number of virtual images equal to the capture
         // count.  The virtual images will be returned to the caller in place of the real swapchain images.
@@ -102,7 +105,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             // the VK_INCOMPLETE case that the virtual image creation must handle.
             if (swapchain_info->swapchain_images.empty())
             {
-                swapchain_info->swapchain_images = std::vector<VkImage>(images, std::next(images, *image_count));
+                swapchain_info->swapchain_images = std::vector<VkImage>(images, std::next(images, *replay_image_count));
             }
 
             // If the call was made more than once because the first call returned VK_INCOMPLETE, only the new images
@@ -134,6 +137,11 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 image_create_info.sharingMode           = swapchain_info->image_sharing_mode;
                 image_create_info.queueFamilyIndexCount = 0;
                 image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+                if (swapchain_info->queue_family_index != 0)
+                {
+                    image_create_info.queueFamilyIndexCount = 1;
+                    image_create_info.pQueueFamilyIndices   = &swapchain_info->queue_family_index;
+                }
 
                 if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
                     VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
@@ -155,8 +163,11 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                     }
 
                     swapchain_info->virtual_images.emplace_back(std::move(image));
-                    images[i] = image.image;
                 }
+            }
+            for (uint32_t i = 0; i < capture_image_count; ++i)
+            {
+                images[i] = swapchain_info->virtual_images[i].image;
             }
         }
     }
@@ -439,22 +450,19 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(const DeviceInfo*         
     {
         // TODO: This requires instance and device tables, which could either be added to the GetSwapchainImagesKHR and
         // CreateSwapchainImage methods as parameters or added to an info struct.
-        encode::InstanceTable* instance_table = nullptr;
-        encode::DeviceTable*   device_table   = nullptr;
-
-        if ((instance_table == nullptr) || (device_table == nullptr))
+        if ((instance_table_ == nullptr) || (device_table_ == nullptr))
         {
             return VK_ERROR_FEATURE_NOT_PRESENT;
         }
 
         VkMemoryRequirements memory_reqs;
-        device_table->GetImageMemoryRequirements(device_info->handle, image.image, &memory_reqs);
+        device_table_->GetImageMemoryRequirements(device_info->handle, image.image, &memory_reqs);
 
         VkMemoryPropertyFlags property_flags    = VK_QUEUE_FLAG_BITS_MAX_ENUM;
         uint32_t              memory_type_index = std::numeric_limits<uint32_t>::max();
         {
             VkPhysicalDeviceMemoryProperties properties;
-            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &properties);
+            instance_table_->GetPhysicalDeviceMemoryProperties(device_info->parent, &properties);
 
             for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
             {

@@ -26,6 +26,7 @@
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/resource_util.h"
 #include "decode/vulkan_default_swapchain.h"
+#include "decode/vulkan_virtual_swapchain.h"
 #include "decode/vulkan_enum_util.h"
 #include "decode/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
@@ -4861,8 +4862,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
     VkResult result             = VK_SUCCESS;
     auto     replay_create_info = pCreateInfo->GetPointer();
-    auto     replay_swapchain   = pSwapchain->GetHandlePointer();
-    auto     swapchain_info     = reinterpret_cast<SwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
+    GFXRECON_ASSERT(replay_create_info != nullptr);
+    auto replay_swapchain = pSwapchain->GetHandlePointer();
+    auto swapchain_info   = reinterpret_cast<SwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
     assert(swapchain_info != nullptr);
 
     // Ignore swapchain creation if surface creation was skipped when rendering is restricted to a specific surface.
@@ -4879,18 +4881,33 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
+        VkPhysicalDevice             physical_device = device_info->parent;
+        const encode::InstanceTable* instance_table  = GetInstanceTable(physical_device);
+        VkDevice                     device          = device_info->handle;
+        const encode::DeviceTable*   device_table    = GetDeviceTable(device);
+
         if (screenshot_handler_ == nullptr)
         {
-            result = swapchain_->CreateSwapchainKHR(
-                func, device_info, replay_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+            result = swapchain_->CreateSwapchainKHR(func,
+                                                    device_info,
+                                                    replay_create_info,
+                                                    GetAllocationCallbacks(pAllocator),
+                                                    replay_swapchain,
+                                                    instance_table,
+                                                    device_table);
         }
         else
         {
             // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
             VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            result = swapchain_->CreateSwapchainKHR(
-                func, device_info, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+            result = swapchain_->CreateSwapchainKHR(func,
+                                                    device_info,
+                                                    &modified_create_info,
+                                                    GetAllocationCallbacks(pAllocator),
+                                                    replay_swapchain,
+                                                    instance_table,
+                                                    device_table);
         }
     }
     else
@@ -4904,15 +4921,20 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         (*replay_swapchain)                  = format::FromHandleId<VkSwapchainKHR>(dummy_handle);
         --dummy_handle;
 
-        swapchain_info->surface            = VK_NULL_HANDLE;
-        swapchain_info->surface_id         = format::kNullHandleId;
-        swapchain_info->image_flags        = replay_create_info->flags;
-        swapchain_info->image_array_layers = replay_create_info->imageArrayLayers;
-        swapchain_info->image_usage        = replay_create_info->imageUsage;
-        swapchain_info->image_sharing_mode = replay_create_info->imageSharingMode;
+        swapchain_info->surface    = VK_NULL_HANDLE;
+        swapchain_info->surface_id = format::kNullHandleId;
     }
 
-    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_swapchain) != VK_NULL_HANDLE))
+    swapchain_info->image_flags        = replay_create_info->flags;
+    swapchain_info->image_array_layers = replay_create_info->imageArrayLayers;
+    swapchain_info->image_usage        = replay_create_info->imageUsage;
+    swapchain_info->image_sharing_mode = replay_create_info->imageSharingMode;
+    swapchain_info->device_info        = device_info;
+    swapchain_info->width              = replay_create_info->imageExtent.width;
+    swapchain_info->height             = replay_create_info->imageExtent.height;
+    swapchain_info->format             = replay_create_info->imageFormat;
+
+    if ((result == VK_SUCCESS) && ((*replay_swapchain) != VK_NULL_HANDLE))
     {
         if ((replay_create_info->imageSharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
@@ -4924,12 +4946,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             swapchain_info->queue_family_index = 0;
         }
 
-        swapchain_info->surface     = replay_create_info->surface;
-        swapchain_info->surface_id  = pCreateInfo->GetMetaStructPointer()->surface;
-        swapchain_info->device_info = device_info;
-        swapchain_info->width       = replay_create_info->imageExtent.width;
-        swapchain_info->height      = replay_create_info->imageExtent.height;
-        swapchain_info->format      = replay_create_info->imageFormat;
+        swapchain_info->surface    = replay_create_info->surface;
+        swapchain_info->surface_id = pCreateInfo->GetMetaStructPointer()->surface;
     }
 
     return result;

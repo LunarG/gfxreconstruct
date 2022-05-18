@@ -31,7 +31,9 @@ class VulkanDefaultSwapchain : public VulkanSwapchain
                                         const DeviceInfo*               device_info,
                                         const VkSwapchainCreateInfoKHR* create_info,
                                         const VkAllocationCallbacks*    allocator,
-                                        VkSwapchainKHR*                 swapchain) override;
+                                        VkSwapchainKHR*                 swapchain,
+                                        const encode::InstanceTable*    instance_table,
+                                        const encode::DeviceTable*      device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
