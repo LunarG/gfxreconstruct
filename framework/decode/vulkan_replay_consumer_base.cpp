@@ -158,7 +158,14 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     // TODO: Process option to select swapchain handler.  The options could be something like '-s default' and '-s
     // virtual'.  Note that the VulkanDefaultSwapchain class will log a message suggesting use of '-s virtual' on a
     // swapchain index mismatch.
-    swapchain_ = std::make_unique<VulkanDefaultSwapchain>();
+    if (options.enable_virtual_swapchain)
+    {
+        swapchain_ = std::make_unique<VulkanVirtualSwapchain>();
+    }
+    else
+    {
+        swapchain_ = std::make_unique<VulkanDefaultSwapchain>();
+    }
 }
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()

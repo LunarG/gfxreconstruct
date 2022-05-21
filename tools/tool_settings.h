@@ -90,6 +90,7 @@ const char kOutput[]                             = "--output";
 const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
+const char kEnableVirtualSwapchain[]             = "--virtual-swapchain";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 #endif
@@ -724,6 +725,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         arg_parser.IsOptionSet(kOmitPipelineCacheDataShortOption))
     {
         replay_options.omit_pipeline_cache_data = true;
+    }
+
+    if (arg_parser.IsOptionSet(kEnableVirtualSwapchain))
+    {
+        replay_options.enable_virtual_swapchain = true;
     }
 
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
