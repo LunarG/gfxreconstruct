@@ -29,7 +29,7 @@ const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--dcp,--discard-cached-psos,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
-    "range,--fmr|--flush-measurement-range";
+    "range,--fmr|--flush-measurement-range,--virtual-swapchain";
 const char kArguments[] = "--log-level,--log-file,--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--"
                           "replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
                           "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range";
@@ -56,6 +56,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--virtual-swapchain]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
 #if defined(_DEBUG)
@@ -164,6 +165,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tto different allocations with different");
     GFXRECON_WRITE_CONSOLE("          \t\t         \toffsets.  Uses VMA to manage allocations");
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand suballocations.");
+    GFXRECON_WRITE_CONSOLE("  --virtual-swapchain\t\tEnable virtual swapchain.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay (Windows only).");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
