@@ -4461,10 +4461,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    return func(device_info->handle,
-                pCreateInfo->GetPointer(),
-                GetAllocationCallbacks(pAllocator),
-                pRenderPass->GetHandlePointer());
+    return swapchain_->CreateRenderPass2(func,
+                                         device_info,
+                                         pCreateInfo->GetPointer(),
+                                         GetAllocationCallbacks(pAllocator),
+                                         pRenderPass->GetHandlePointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
@@ -4882,6 +4883,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                     replay_create_info,
                                                     GetAllocationCallbacks(pAllocator),
                                                     replay_swapchain,
+                                                    physical_device,
                                                     instance_table,
                                                     device_table);
         }
@@ -4895,6 +4897,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                     &modified_create_info,
                                                     GetAllocationCallbacks(pAllocator),
                                                     replay_swapchain,
+                                                    physical_device,
                                                     instance_table,
                                                     device_table);
         }
@@ -5307,6 +5310,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     std::vector<VkPresentTimeGOOGLE>  modified_times;
     std::vector<const SemaphoreInfo*> removed_semaphores;
     std::unordered_set<uint32_t>      removed_swapchain_indices;
+    std::vector<uint32_t>             capture_image_indices;
+    std::vector<SwapchainKHRInfo*>    swapchain_infos;
 
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
     {
@@ -5327,8 +5332,13 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
             if ((swapchain_info != nullptr) && (swapchain_info->surface != VK_NULL_HANDLE))
             {
-                valid_swapchains.push_back(swapchain_info->handle);
-                modified_image_indices.push_back(swapchain_info->acquired_indices[present_info->pImageIndices[i]]);
+                valid_swapchains.emplace_back(swapchain_info->handle);
+                swapchain_infos.emplace_back(swapchain_info);
+
+                uint32_t capture_image_index = present_info->pImageIndices[i];
+                capture_image_indices.emplace_back(capture_image_index);
+                uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index];
+                modified_image_indices.emplace_back(replay_image_index);
             }
             else
             {
@@ -5436,6 +5446,12 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                       present_info->pImageIndices,
                                       std::next(present_info->pImageIndices, present_info->swapchainCount));
 
+        capture_image_indices.insert(capture_image_indices.end(),
+                                     present_info->pImageIndices,
+                                     std::next(present_info->pImageIndices, present_info->swapchainCount));
+
+        swapchain_infos.insert(swapchain_infos.end(), present_info->swapchainCount, nullptr);
+
         const auto swapchain_ids = present_info_data->pSwapchains.GetPointer();
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
         {
@@ -5444,7 +5460,12 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
             if (swapchain_info != nullptr)
             {
-                modified_image_indices[i] = swapchain_info->acquired_indices[present_info->pImageIndices[i]];
+                swapchain_infos[i] = swapchain_info;
+
+                uint32_t capture_image_index = present_info->pImageIndices[i];
+                capture_image_indices[i]     = capture_image_index;
+                uint32_t replay_image_index  = swapchain_info->acquired_indices[capture_image_index];
+                modified_image_indices[i]    = replay_image_index;
             }
         }
 
@@ -5454,7 +5475,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     // Only attempt to find imported or shadow semaphores if we know at least one around.
     if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
     {
-        result = swapchain_->QueuePresentKHR(func, queue_info, &modified_present_info);
+        result = swapchain_->QueuePresentKHR(
+            func, capture_image_indices, swapchain_infos, queue_info, &modified_present_info);
     }
     else if (modified_present_info.swapchainCount == 0)
     {
@@ -5476,7 +5498,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
         if (removed_semaphores.empty())
         {
-            result = swapchain_->QueuePresentKHR(func, queue_info, &modified_present_info);
+            result = swapchain_->QueuePresentKHR(
+                func, capture_image_indices, swapchain_infos, queue_info, &modified_present_info);
         }
         else
         {
@@ -5501,7 +5524,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(semaphore_memory.size());
             modified_present_info.pWaitSemaphores    = semaphore_memory.data();
 
-            result = swapchain_->QueuePresentKHR(func, queue_info, &modified_present_info);
+            result = swapchain_->QueuePresentKHR(
+                func, capture_image_indices, swapchain_infos, queue_info, &modified_present_info);
         }
     }
 

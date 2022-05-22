@@ -369,13 +369,13 @@ struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 
 struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
-    VkSurfaceKHR                         surface{ VK_NULL_HANDLE };
-    format::HandleId                     surface_id{ format::kNullHandleId };
-    DeviceInfo*                          device_info{ nullptr };
-    uint32_t                             width{ 0 };
-    uint32_t                             height{ 0 };
-    VkFormat                             format{ VK_FORMAT_UNDEFINED };
-    std::vector<VkImage>                 images;
+    VkSurfaceKHR         surface{ VK_NULL_HANDLE };
+    format::HandleId     surface_id{ format::kNullHandleId };
+    DeviceInfo*          device_info{ nullptr };
+    uint32_t             width{ 0 };
+    uint32_t             height{ 0 };
+    VkFormat             format{ VK_FORMAT_UNDEFINED };
+    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirutalSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // TODO: The acquired_indices value and the remapping performed with it can be removed in favor of the new virtual
@@ -390,7 +390,6 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     std::vector<ImageInfo>    image_infos;
     VkSwapchainCreateFlagsKHR image_flags{ 0 };
     VkFormat                  image_format{ VK_FORMAT_UNDEFINED };
-    VkExtent2D                image_extent{ 0, 0 };
     uint32_t                  image_array_layers{ 0 };
     VkImageUsageFlags         image_usage{ 0 };
     VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
@@ -406,10 +405,12 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
         VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
         VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
     };
-    uint32_t                  replay_image_count{ 0 };
-    std::vector<VirtualImage> virtual_images;   // Images created by replay, returned in place of the swapchain images.
-    std::vector<VkImage>      swapchain_images; // The real swapchain images.
-    std::vector<uint32_t>     acquired_index_map; // Maps the capture index to the replay index.
+    uint32_t                     replay_image_count{ 0 };
+    std::vector<VirtualImage>    virtual_images; // Images created by replay, returned in place of the swapchain images.
+    std::vector<VkImage>         swapchain_images; // The real swapchain images.
+    VkCommandPool                blit_command_pool{ VK_NULL_HANDLE };
+    std::vector<VkCommandBuffer> blit_command_buffers;
+    std::vector<VkSemaphore>     blit_semaphores;
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
