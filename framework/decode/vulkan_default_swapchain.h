@@ -32,6 +32,7 @@ class VulkanDefaultSwapchain : public VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR* create_info,
                                         const VkAllocationCallbacks*    allocator,
                                         VkSwapchainKHR*                 swapchain,
+                                        const VkPhysicalDevice          physical_device,
                                         const encode::InstanceTable*    instance_table,
                                         const encode::DeviceTable*      device_table) override;
 
@@ -63,9 +64,11 @@ class VulkanDefaultSwapchain : public VulkanSwapchain
                                           uint32_t                         capture_image_index,
                                           uint32_t*                        image_index) override;
 
-    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR   func,
-                                     const QueueInfo*        queue_info,
-                                     const VkPresentInfoKHR* present_info) override;
+    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                 func,
+                                     const std::vector<uint32_t>&          capture_image_indices,
+                                     const std::vector<SwapchainKHRInfo*>& swapchain_infos,
+                                     const QueueInfo*                      queue_info,
+                                     const VkPresentInfoKHR*               present_info) override;
 
     virtual VkResult CreateRenderPass(PFN_vkCreateRenderPass        func,
                                       const DeviceInfo*             device_info,

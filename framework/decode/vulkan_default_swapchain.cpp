@@ -26,6 +26,7 @@ VkResult VulkanDefaultSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
                                                     const VkSwapchainCreateInfoKHR* create_info,
                                                     const VkAllocationCallbacks*    allocator,
                                                     VkSwapchainKHR*                 swapchain,
+                                                    const VkPhysicalDevice          physical_device,
                                                     const encode::InstanceTable*    instance_table,
                                                     const encode::DeviceTable*      device_table)
 {
@@ -166,9 +167,11 @@ VkResult VulkanDefaultSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR
     return result;
 }
 
-VkResult VulkanDefaultSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR   func,
-                                                 const QueueInfo*        queue_info,
-                                                 const VkPresentInfoKHR* present_info)
+VkResult VulkanDefaultSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                 func,
+                                                 const std::vector<uint32_t>&          capture_image_indices,
+                                                 const std::vector<SwapchainKHRInfo*>& swapchain_infos,
+                                                 const QueueInfo*                      queue_info,
+                                                 const VkPresentInfoKHR*               present_info)
 {
     VkQueue queue = VK_NULL_HANDLE;
 
