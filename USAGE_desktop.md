@@ -597,3 +597,7 @@ gfxrecon.py capture -o vkcube.gfxr vkcube
 
 On Windows, after installing Python3, be sure to associate the `.py` file extension with
 the Python3 interpreter before you run the script.
+
+### Don't forget to put your dishes away when you're done.
+
+Everyone likes it when the kitchen is clean.
