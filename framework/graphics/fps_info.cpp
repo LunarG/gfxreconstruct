@@ -54,33 +54,114 @@ WriteFpsToConsole(const char* prefix, uint64_t start_frame, uint64_t end_frame, 
                            end_frame);
 }
 
-void FpsInfo::Begin(uint64_t start_frame)
+FpsInfo::FpsInfo(uint64_t measurement_start_frame,
+                 uint64_t measurement_end_frame,
+                 bool     has_measurement_range,
+                 bool     quit_after_range,
+                 bool     flush_measurement_range) :
+    measurement_start_frame_(measurement_start_frame),
+    measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
+    quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
+    has_measurement_range_(has_measurement_range), started_measurement_(false), ended_measurement_(false)
+{}
+
+void FpsInfo::BeginFile()
 {
-    // Save the start frame/time information for the FPS result.
-    replay_start_frame_ = start_frame;
-    start_time_         = util::datetime::GetTimestamp();
-    replay_start_time_  = start_time_;
+    replay_start_frame_ = 1;
+    replay_start_time_ = start_time_ = util::datetime::GetTimestamp();
 }
 
-void FpsInfo::EndAndLog(uint64_t end_frame)
+bool FpsInfo::ShouldWaitIdleBeforeFrame(uint64_t frame)
 {
-    // Get the end frame/time information and calculate FPS.
-    int64_t end_time = util::datetime::GetTimestamp();
+    bool range_beginning = frame == measurement_start_frame_;
+    return flush_measurement_range_ && range_beginning;
+}
 
-    if (replay_start_time_ != start_time_)
+bool FpsInfo::ShouldQuit(uint64_t frame)
+{
+    return quit_after_range_ && (frame > measurement_end_frame_);
+}
+
+void FpsInfo::BeginFrame(uint64_t frame)
+{
+    if (!started_measurement_)
     {
-        GFXRECON_WRITE_CONSOLE("Load time:  %f seconds", GetElapsedSeconds(start_time_, replay_start_time_));
+        if (frame >= measurement_start_frame_)
+        {
+            measurement_start_time_ = util::datetime::GetTimestamp();
+            started_measurement_    = true;
+        }
     }
-    GFXRECON_WRITE_CONSOLE("Total time: %f seconds", GetElapsedSeconds(start_time_, end_time));
-
-    WriteFpsToConsole(
-        "Replay FPS:", replay_start_frame_, end_frame + replay_start_frame_ - 1, replay_start_time_, end_time);
 }
 
-void FpsInfo::ProcessStateEndMarker(uint64_t frame)
+void FpsInfo::EndFrame(uint64_t frame)
 {
-    replay_start_frame_ = frame;
+    if (started_measurement_ && !ended_measurement_)
+    {
+        // Measurement frame range end is non-inclusive, as opposed to trim frame range
+        if (frame >= measurement_end_frame_ - 1)
+        {
+            measurement_end_time_ = util::datetime::GetTimestamp();
+            ended_measurement_    = true;
+        }
+    }
+}
+
+bool FpsInfo::ShouldWaitIdleAfterFrame(uint64_t frame)
+{
+    bool range_ended = frame == measurement_end_frame_;
+    return flush_measurement_range_ && range_ended;
+}
+
+void FpsInfo::EndFile(uint64_t frame)
+{
+    if (!ended_measurement_)
+    {
+        measurement_end_time_  = gfxrecon::util::datetime::GetTimestamp();
+        measurement_end_frame_ = frame;
+    }
+}
+
+void FpsInfo::ProcessStateEndMarker(uint64_t frame_number)
+{
+    replay_start_frame_ = frame_number;
     replay_start_time_  = util::datetime::GetTimestamp();
+}
+
+void FpsInfo::LogToConsole()
+{
+    if (!has_measurement_range_)
+    {
+        // No measurement range or no end limit to range, include trimmed
+        // range load statistics.
+
+        if (replay_start_time_ != start_time_)
+        {
+            GFXRECON_WRITE_CONSOLE("Load time:  %f seconds", GetElapsedSeconds(start_time_, replay_start_time_));
+        }
+        GFXRECON_WRITE_CONSOLE("Total time: %f seconds", GetElapsedSeconds(start_time_, measurement_end_time_));
+
+        WriteFpsToConsole("Replay FPS:",
+                          replay_start_frame_,
+                          measurement_end_frame_ - 1 + replay_start_frame_ - 1,
+                          replay_start_time_,
+                          measurement_end_time_);
+    }
+    else
+    {
+        // There was a measurement range, emit only statistics about the
+        // measurement range
+        double   diff_time_sec = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
+        uint64_t total_frames  = measurement_end_frame_ - measurement_start_frame_;
+        double   fps           = static_cast<double>(total_frames) / diff_time_sec;
+        GFXRECON_WRITE_CONSOLE("Measurement range FPS: %f fps, %f seconds, %lu frame%s, 1 loop, framerange [%lu-%lu)",
+                               fps,
+                               diff_time_sec,
+                               total_frames,
+                               total_frames > 1 ? "s" : "",
+                               measurement_start_frame_,
+                               measurement_end_frame_);
+    }
 }
 
 GFXRECON_END_NAMESPACE(graphics)

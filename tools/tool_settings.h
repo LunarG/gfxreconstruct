@@ -87,6 +87,9 @@ const char kScreenshotFormatArgument[]           = "--screenshot-format";
 const char kScreenshotDirArgument[]              = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]       = "--screenshot-prefix";
 const char kOutput[]                             = "--output";
+const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
+const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
+const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 #endif
@@ -471,6 +474,91 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
     return ranges;
 }
 
+static bool
+GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
+{
+    start_frame = 1;
+    end_frame   = std::numeric_limits<uint32_t>::max();
+
+    const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
+    if (!value.empty())
+    {
+        std::string range = value;
+
+        if (std::count(range.begin(), range.end(), '-') != 1)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
+                range.c_str());
+            return false;
+        }
+
+        // Remove whitespace.
+        range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
+
+        // Split string on '-' delimiter.
+        bool                     invalid = false;
+        std::vector<std::string> values;
+        std::istringstream       range_input;
+        range_input.str(range);
+
+        for (std::string token; std::getline(range_input, token, '-');)
+        {
+            if (token.empty())
+            {
+                break;
+            }
+
+            // Check that the range string only contains numbers.
+            size_t count = std::count_if(token.begin(), token.end(), ::isdigit);
+            if (count == token.length())
+            {
+                values.push_back(token);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Ignoring invalid measurement frame range \"%s\", which contains non-numeric values",
+                    range.c_str());
+                invalid = true;
+                break;
+            }
+        }
+
+        if (values.size() < 2)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", does not have two values.",
+                                 range.c_str());
+
+            invalid = true;
+        }
+
+        if (!invalid)
+        {
+            uint32_t start_frame_arg = std::stoi(values[0]);
+            uint32_t end_frame_arg   = std::stoi(values[1]);
+
+            if (start_frame_arg >= end_frame_arg)
+            {
+                GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
+                                     "greater than or equal to the last frame",
+                                     range.c_str());
+
+                return false;
+            }
+
+            start_frame = start_frame_arg;
+            end_frame   = end_frame_arg;
+            return true;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\".", range.c_str());
+        }
+    }
+
+    return false;
+}
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
                                const std::string&                              filename,
@@ -589,6 +677,16 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     {
         options.omit_null_hardware_buffers = true;
     }
+
+    if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
+    {
+        options.quit_after_measurement_frame_range = true;
+    }
+
+    if (arg_parser.IsOptionSet(kFlushMeasurementRangeOption))
+    {
+        options.flush_measurement_frame_range = true;
+    }
 }
 
 static gfxrecon::decode::VulkanReplayOptions
@@ -636,6 +734,15 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
+    if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
+    {
+        replay_options.quit_after_measurement_frame_range = true;
+    }
+
+    if (arg_parser.IsOptionSet(kFlushMeasurementRangeOption))
+    {
+        replay_options.flush_measurement_frame_range = true;
+    }
 
     std::string surface_index = arg_parser.GetArgumentValue(kSurfaceIndexArgument);
     if (!surface_index.empty())

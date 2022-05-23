@@ -30,6 +30,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+void VulkanDecoderBase::WaitIdle()
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->WaitDevicesIdle();
+    }
+}
+
 void VulkanDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)

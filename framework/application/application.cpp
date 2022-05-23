@@ -110,6 +110,17 @@ WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool au
     return const_cast<WsiContext*>(wsi_context);
 }
 
+void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
+{
+    if (file_processor_ == nullptr)
+    {
+        GFXRECON_LOG_WARNING("Application file processor not set, cannot set FpsInfo object.");
+        return;
+    }
+
+    fps_info_ = fps_info;
+}
+
 void Application::Run()
 {
     running_ = true;
@@ -121,7 +132,37 @@ void Application::Run()
         // Only process the next frame if a quit event was not processed or not paused.
         if (running_ && !paused_)
         {
+            // Add one to match "trim frame range semantic"
+            uint32_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
+
+            if (fps_info_ != nullptr)
+            {
+                if (fps_info_->ShouldQuit(frame_number))
+                {
+                    running_ = false;
+                    break;
+                }
+
+                if (fps_info_->ShouldWaitIdleBeforeFrame(frame_number))
+                {
+                    file_processor_->WaitDecodersIdle();
+                }
+
+                fps_info_->BeginFrame(frame_number);
+            }
+
+            // PlaySingleFrame() increments this->current_frame_number_ *if* there's an end-of-frame
             PlaySingleFrame();
+
+            if (fps_info_ != nullptr)
+            {
+                fps_info_->EndFrame(frame_number);
+
+                if (fps_info_->ShouldWaitIdleAfterFrame(frame_number))
+                {
+                    file_processor_->WaitDecodersIdle();
+                }
+            }
         }
     }
 }
