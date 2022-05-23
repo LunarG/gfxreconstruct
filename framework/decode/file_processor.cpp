@@ -231,6 +231,7 @@ bool FileProcessor::ProcessBlocks()
     while (success)
     {
         success = ContinueDecoding();
+
         if (success)
         {
             success = ReadBlockHeader(&block_header);
@@ -239,7 +240,6 @@ bool FileProcessor::ProcessBlocks()
 
             if (success)
             {
-
                 if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
                 {
                     format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;

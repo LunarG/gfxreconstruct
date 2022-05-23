@@ -70,6 +70,13 @@ class CompressionConverter : public decode::FileTransformer
 
     bool WriteInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
+    bool WriteInitSubresourceMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
+
+    void PrepMetadataBlock(format::MetaDataHeader& meta_data_header,
+                           format::MetaDataId      meta_data_id,
+                           const uint8_t*&         data_address,
+                           size_t&                 data_size);
+
   private:
     bool                              decompressing_;
     format::CompressionType           target_compression_type_;

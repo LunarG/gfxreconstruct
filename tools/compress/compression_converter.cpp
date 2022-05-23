@@ -225,6 +225,10 @@ bool CompressionConverter::ProcessMetaData(const format::BlockHeader& block_head
     {
         return WriteInitImageMetaData(block_header, meta_data_id);
     }
+    else if (meta_data_type == format::MetaDataType::kInitSubresourceCommand)
+    {
+        return WriteInitSubresourceMetaData(block_header, meta_data_id);
+    }
     else
     {
         // The current block should not be compressed.  If it is compressed, it is most likely a new block type that is
@@ -449,26 +453,7 @@ bool CompressionConverter::WriteFillMemoryMetaData(const format::BlockHeader& bl
         const auto&    buffer       = GetParameterBuffer();
         const uint8_t* data_address = buffer.data();
 
-        fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        fill_cmd.meta_header.meta_data_id      = meta_data_id;
-
-        if (!decompressing_)
-        {
-            assert(target_compressor_ != nullptr);
-
-            auto&  compressed_buffer = GetCompressedParameterBuffer();
-            size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer, 0);
-
-            if ((compressed_size > 0) && (compressed_size < data_size))
-            {
-                // We don't have a special header for compressed fill commands because the header always includes
-                // the uncompressed size, so we just change the type to indicate the data is compressed.
-                fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
-
-                data_address = compressed_buffer.data();
-                data_size    = compressed_size;
-            }
-        }
+        PrepMetadataBlock(fill_cmd.meta_header, meta_data_id, data_address, data_size);
 
         // Calculate size of packet with compressed or uncompressed data size.
         fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + data_size;
@@ -538,24 +523,7 @@ bool CompressionConverter::WriteInitBufferMetaData(const format::BlockHeader& bl
         const auto&    buffer       = GetParameterBuffer();
         const uint8_t* data_address = buffer.data();
 
-        init_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-        init_cmd.meta_header.meta_data_id      = meta_data_id;
-
-        if (!decompressing_)
-        {
-            assert(target_compressor_ != nullptr);
-
-            auto&  compressed_buffer = GetCompressedParameterBuffer();
-            size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer, 0);
-
-            if ((compressed_size > 0) && (compressed_size < data_size))
-            {
-                init_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
-
-                data_address = compressed_buffer.data();
-                data_size    = compressed_size;
-            }
-        }
+        PrepMetadataBlock(init_cmd.meta_header, meta_data_id, data_address, data_size);
 
         // Calculate size of packet with compressed or uncompressed data size.
         init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd) + data_size;
@@ -645,24 +613,7 @@ bool CompressionConverter::WriteInitImageMetaData(const format::BlockHeader& blo
             const auto&    buffer       = GetParameterBuffer();
             const uint8_t* data_address = buffer.data();
 
-            init_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-            init_cmd.meta_header.meta_data_id      = meta_data_id;
-
-            if (!decompressing_)
-            {
-                assert(target_compressor_ != nullptr);
-
-                auto&  compressed_buffer = GetCompressedParameterBuffer();
-                size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer, 0);
-
-                if ((compressed_size > 0) && (compressed_size < data_size))
-                {
-                    init_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
-
-                    data_address = compressed_buffer.data();
-                    data_size    = compressed_size;
-                }
-            }
+            PrepMetadataBlock(init_cmd.meta_header, meta_data_id, data_address, data_size);
 
             // Calculate size of packet with compressed or uncompressed data size.
             init_cmd.meta_header.block_header.size =
@@ -707,6 +658,106 @@ bool CompressionConverter::WriteInitImageMetaData(const format::BlockHeader& blo
     }
 
     return true;
+}
+
+bool CompressionConverter::WriteInitSubresourceMetaData(const format::BlockHeader& block_header,
+                                                        format::MetaDataId         meta_data_id)
+{
+    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitSubresourceCommand);
+
+    format::InitSubresourceCommandHeader init_cmd;
+
+    bool success = ReadBytes(&init_cmd.thread_id, sizeof(init_cmd.thread_id));
+    success      = success && ReadBytes(&init_cmd.device_id, sizeof(init_cmd.device_id));
+    success      = success && ReadBytes(&init_cmd.resource_id, sizeof(init_cmd.resource_id));
+    success      = success && ReadBytes(&init_cmd.subresource, sizeof(init_cmd.subresource));
+    success      = success && ReadBytes(&init_cmd.initial_state, sizeof(init_cmd.initial_state));
+    success      = success && ReadBytes(&init_cmd.resource_state, sizeof(init_cmd.resource_state));
+    success      = success && ReadBytes(&init_cmd.barrier_flags, sizeof(init_cmd.barrier_flags));
+    success      = success && ReadBytes(&init_cmd.data_size, sizeof(init_cmd.data_size));
+
+    if (success)
+    {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.data_size);
+
+        size_t data_size = static_cast<size_t>(init_cmd.data_size);
+
+        if (format::IsBlockCompressed(block_header.type))
+        {
+            size_t uncompressed_size = 0;
+            size_t compressed_size =
+                static_cast<size_t>(block_header.size - format::GetMetaDataBlockBaseSize(init_cmd));
+
+            if (!ReadCompressedParameterBuffer(compressed_size, data_size, &uncompressed_size))
+            {
+                HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                     "Failed to read init subresource meta-data block");
+                return false;
+            }
+
+            assert(uncompressed_size == data_size);
+        }
+        else
+        {
+            if (!ReadParameterBuffer(data_size))
+            {
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read init subresource meta-data block");
+                return false;
+            }
+        }
+
+        const auto&    buffer       = GetParameterBuffer();
+        const uint8_t* data_address = buffer.data();
+
+        PrepMetadataBlock(init_cmd.meta_header, meta_data_id, data_address, data_size);
+
+        // Calculate size of packet with compressed or uncompressed data size.
+        init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd) + data_size;
+
+        if (!WriteBytes(&init_cmd, sizeof(init_cmd)))
+        {
+            HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write init subresource meta-data block header");
+            return false;
+        }
+
+        if (!WriteBytes(data_address, data_size))
+        {
+            HandleBlockWriteError(kErrorWritingBlockData, "Failed to write init subresource meta-data block");
+            return false;
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init subresource meta-data block header");
+        return false;
+    }
+
+    return true;
+}
+
+void CompressionConverter::PrepMetadataBlock(format::MetaDataHeader& meta_data_header,
+                                             format::MetaDataId      meta_data_id,
+                                             const uint8_t*&         data_address,
+                                             size_t&                 data_size)
+{
+    meta_data_header.block_header.type = format::kMetaDataBlock;
+    meta_data_header.meta_data_id      = meta_data_id;
+
+    if (!decompressing_)
+    {
+        assert(target_compressor_ != nullptr);
+
+        auto&  compressed_buffer = GetCompressedParameterBuffer();
+        size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer, 0);
+
+        if ((compressed_size > 0) && (compressed_size < data_size))
+        {
+            meta_data_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+            data_address = compressed_buffer.data();
+            data_size    = compressed_size;
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
