@@ -57,6 +57,15 @@ class VulkanDefaultSwapchain : public VulkanSwapchain
                                          uint32_t                  capture_image_index,
                                          uint32_t*                 image_index) override;
 
+    virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+                                         const DeviceInfo*         device_info,
+                                         SwapchainKHRInfo*         swapchain_info,
+                                         uint64_t                  timeout,
+                                         VkSemaphore               semaphore,
+                                         VkFence                   fence,
+                                         uint32_t                  capture_image_index,
+                                         uint32_t*                 image_index) override;
+
     virtual VkResult AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
                                           const DeviceInfo*                device_info,
                                           SwapchainKHRInfo*                swapchain_info,

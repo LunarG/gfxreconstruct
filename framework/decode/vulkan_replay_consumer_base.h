@@ -992,7 +992,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
-    void ProcessSetSwapchainImageStatePreAcquire(VkDevice                                            device,
+    void ProcessSetSwapchainImageStatePreAcquire(const DeviceInfo*                                   device_info,
                                                  SwapchainKHRInfo*                                   swapchain_info,
                                                  const std::vector<format::SwapchainImageStateInfo>& image_info);
 

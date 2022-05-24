@@ -347,10 +347,34 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
                                                      uint32_t                  capture_image_index,
                                                      uint32_t*                 image_index)
 {
+    VkSemaphore semaphore = VK_NULL_HANDLE;
+    VkFence     fence     = VK_NULL_HANDLE;
+
+    if (semaphore_info != nullptr)
+    {
+        semaphore = semaphore_info->handle;
+    }
+
+    if (fence_info != nullptr)
+    {
+        fence = fence_info->handle;
+    }
+
+    return AcquireNextImageKHR(
+        func, device_info, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
+}
+
+VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+                                                     const DeviceInfo*         device_info,
+                                                     SwapchainKHRInfo*         swapchain_info,
+                                                     uint64_t                  timeout,
+                                                     VkSemaphore               semaphore,
+                                                     VkFence                   fence,
+                                                     uint32_t                  capture_image_index,
+                                                     uint32_t*                 image_index)
+{
     VkDevice       device    = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-    VkSemaphore    semaphore = VK_NULL_HANDLE;
-    VkFence        fence     = VK_NULL_HANDLE;
 
     if (device_info != nullptr)
     {
@@ -362,15 +386,6 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
         swapchain = swapchain_info->handle;
     }
 
-    if (semaphore_info != nullptr)
-    {
-        semaphore = semaphore_info->handle;
-    }
-
-    if (fence_info != nullptr)
-    {
-        fence = fence_info->handle;
-    }
     return func(device, swapchain, timeout, semaphore, fence, image_index);
 }
 
