@@ -676,12 +676,17 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
         VkSwapchainKHR swapchain = swapchain_info->handle;
 
         VkPhysicalDevice physical_device = device_info->parent;
-        VkSurfaceKHR     surface         = swapchain_info->surface;
-        assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
+        assert(physical_device != VK_NULL_HANDLE);
 
-        SurfaceKHRInfo* surface_info   = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface_id);
-        auto            instance_table = GetInstanceTable(physical_device);
-        auto            device_table   = GetDeviceTable(device);
+        SurfaceKHRInfo* surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface_id);
+        if (surface_info->surface_creation_skipped)
+        {
+            return;
+        }
+
+        VkSurfaceKHR surface        = swapchain_info->surface;
+        auto         instance_table = GetInstanceTable(physical_device);
+        auto         device_table   = GetDeviceTable(device);
         assert((surface_info != nullptr) && (instance_table != nullptr) && (device_table != nullptr));
 
         VkSurfaceCapabilitiesKHR surface_caps;
@@ -2162,6 +2167,7 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
             auto surface_id   = surface->GetPointer();
             auto surface_info = reinterpret_cast<SurfaceKHRInfo*>(surface->GetConsumerData(0));
             assert((surface_id != nullptr) && (surface_info != nullptr));
+            assert(!surface_info->surface_creation_skipped);
 
             surface_info->window = window;
             active_windows_.insert(window);
@@ -2173,6 +2179,12 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
     }
     else
     {
+        if (surface != nullptr)
+        {
+            auto surface_info                      = reinterpret_cast<SurfaceKHRInfo*>(surface->GetConsumerData(0));
+            surface_info->surface_creation_skipped = true;
+        }
+
         GFXRECON_LOG_INFO("Skipping surface creation for surface index %d", create_surface_count_);
     }
 

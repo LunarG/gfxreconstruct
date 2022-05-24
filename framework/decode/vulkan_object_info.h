@@ -360,6 +360,7 @@ struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 {
     Window*                              window{ nullptr };
     std::unordered_map<uint32_t, size_t> array_counts;
+    bool                                 surface_creation_skipped{ false };
 
     std::unordered_map<VkPhysicalDevice, VkSurfaceCapabilitiesKHR> surface_capabilities;
 };
