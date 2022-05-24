@@ -993,6 +993,7 @@ class VulkanCaptureManager : public CaptureManager
     const VkImportAndroidHardwareBufferInfoANDROID*
     FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info);
 
+    bool ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer);
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
 
