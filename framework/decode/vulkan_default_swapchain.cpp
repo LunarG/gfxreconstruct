@@ -87,7 +87,8 @@ VkResult VulkanDefaultSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
     {
         GFXRECON_LOG_FATAL("The number of images returned by vkGetSwapchainImageKHR is different than the number "
                            "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_FATAL("Try replay with the virtual swapchain mode enabled via the \"-s virtual\" option.");
+        GFXRECON_LOG_FATAL(
+            "Try replay with the virtual swapchain mode enabled via the \"--virtual-swapchain\" option.");
     }
 
     return result;
@@ -102,20 +103,8 @@ VkResult VulkanDefaultSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
                                                      uint32_t                  capture_image_index,
                                                      uint32_t*                 image_index)
 {
-    VkDevice       device    = VK_NULL_HANDLE;
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-    VkSemaphore    semaphore = VK_NULL_HANDLE;
-    VkFence        fence     = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
-
-    if (swapchain_info != nullptr)
-    {
-        swapchain = swapchain_info->handle;
-    }
+    VkSemaphore semaphore = VK_NULL_HANDLE;
+    VkFence     fence     = VK_NULL_HANDLE;
 
     if (semaphore_info != nullptr)
     {
@@ -127,13 +116,40 @@ VkResult VulkanDefaultSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
         fence = fence_info->handle;
     }
 
+    return AcquireNextImageKHR(
+        func, device_info, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
+}
+
+VkResult VulkanDefaultSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+                                                     const DeviceInfo*         device_info,
+                                                     SwapchainKHRInfo*         swapchain_info,
+                                                     uint64_t                  timeout,
+                                                     VkSemaphore               semaphore,
+                                                     VkFence                   fence,
+                                                     uint32_t                  capture_image_index,
+                                                     uint32_t*                 image_index)
+{
+    VkDevice       device    = VK_NULL_HANDLE;
+    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+
+    if (device_info != nullptr)
+    {
+        device = device_info->handle;
+    }
+
+    if (swapchain_info != nullptr)
+    {
+        swapchain = swapchain_info->handle;
+    }
+
     auto result = func(device, swapchain, timeout, semaphore, fence, image_index);
 
     if ((image_index != nullptr) && (capture_image_index != *image_index))
     {
         GFXRECON_LOG_FATAL("The image index returned by vkAcquireNextImageKHR is different than the index "
                            "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_FATAL("Try replay with the virtual swapchain mode enabled via the \"-s virtual\" option.");
+        GFXRECON_LOG_FATAL(
+            "Try replay with the virtual swapchain mode enabled via the \"--virtual-swapchain\" option.");
     }
 
     return result;
@@ -161,7 +177,8 @@ VkResult VulkanDefaultSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR
     {
         GFXRECON_LOG_FATAL("The image index returned by vkAcquireNextImageKHR is different than the index "
                            "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_FATAL("Try replay with the virtual swapchain mode enabled via the \"-s virtual\" option.");
+        GFXRECON_LOG_FATAL(
+            "Try replay with the virtual swapchain mode enabled via the \"--virtual-swapchain\" option.");
     }
 
     return result;

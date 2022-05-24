@@ -155,9 +155,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
         InitializeScreenshotHandler();
     }
 
-    // TODO: Process option to select swapchain handler.  The options could be something like '-s default' and '-s
-    // virtual'.  Note that the VulkanDefaultSwapchain class will log a message suggesting use of '-s virtual' on a
-    // swapchain index mismatch.
+    // Process option to select swapchain handler. The options is '--virtual-swapchain'.
     if (options.enable_virtual_swapchain)
     {
         swapchain_ = std::make_unique<VulkanVirtualSwapchain>();
@@ -725,27 +723,29 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
 
         if (result == VK_SUCCESS)
         {
-            result = device_table->GetSwapchainImagesKHR(device, swapchain, &image_count, nullptr);
+            uint32_t capture_image_count = static_cast<uint32_t>(image_info.size());
+            result                       = swapchain_->GetSwapchainImagesKHR(device_table->GetSwapchainImagesKHR,
+                                                       device_info,
+                                                       swapchain_info,
+                                                       capture_image_count,
+                                                       &image_count,
+                                                       nullptr);
         }
 
         if (result == VK_SUCCESS)
         {
-            // TODO: Handle swapchain image count mismatch on replay.  If this code is moved to the
-            // VulkanDefaultSwapchain, it can print the message recommending use of '-s virtual' for this case.
-            assert(image_info.size() == image_count);
-
             // Determine if it is possible to acquire all images at the same time.
             assert(image_count >= surface_caps.minImageCount);
             uint32_t max_acquired_images = (image_count - surface_caps.minImageCount) + 1;
 
-            if (image_count > max_acquired_images)
+            if ((image_count > max_acquired_images) || (image_info.size() > image_count))
             {
                 // Cannot acquire all images at the same time.
                 ProcessSetSwapchainImageStateQueueSubmit(device_info, swapchain_info, last_presented_image, image_info);
             }
             else
             {
-                ProcessSetSwapchainImageStatePreAcquire(device, swapchain_info, image_info);
+                ProcessSetSwapchainImageStatePreAcquire(device_info, swapchain_info, image_info);
             }
         }
         else
@@ -779,9 +779,12 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
 }
 
 void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
-    VkDevice device, SwapchainKHRInfo* swapchain_info, const std::vector<format::SwapchainImageStateInfo>& image_info)
+    const DeviceInfo*                                   device_info,
+    SwapchainKHRInfo*                                   swapchain_info,
+    const std::vector<format::SwapchainImageStateInfo>& image_info)
 {
-    auto table = GetDeviceTable(device);
+    VkDevice device = device_info->handle;
+    auto     table  = GetDeviceTable(device);
     assert(table != nullptr);
 
     VkResult        result             = VK_SUCCESS;
@@ -869,19 +872,17 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
 
                 if (result == VK_SUCCESS)
                 {
-                    result = table->AcquireNextImageKHR(device,
-                                                        swapchain,
-                                                        std::numeric_limits<uint64_t>::max(),
-                                                        acquire_semaphore,
-                                                        acquire_fence,
-                                                        &image_index);
+                    result = swapchain_->AcquireNextImageKHR(table->AcquireNextImageKHR,
+                                                             device_info,
+                                                             swapchain_info,
+                                                             std::numeric_limits<uint64_t>::max(),
+                                                             acquire_semaphore,
+                                                             acquire_fence,
+                                                             static_cast<uint32_t>(i),
+                                                             &image_index);
 
                     if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                     {
-                        // TODO: Handle case where image acquired at replay does not match image acquired at
-                        // capture.
-                        assert(image_index == i);
-
                         result =
                             table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
 
@@ -1082,19 +1083,18 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if (result == VK_SUCCESS)
                 {
-                    result = table->AcquireNextImageKHR(device,
-                                                        swapchain,
-                                                        std::numeric_limits<uint64_t>::max(),
-                                                        VK_NULL_HANDLE,
-                                                        wait_fence,
-                                                        &image_index);
+                    result = swapchain_->AcquireNextImageKHR(table->AcquireNextImageKHR,
+                                                             device_info,
+                                                             swapchain_info,
+                                                             std::numeric_limits<uint64_t>::max(),
+                                                             VK_NULL_HANDLE,
+                                                             wait_fence,
+                                                             static_cast<uint32_t>(i),
+                                                             &image_index);
                 }
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
-                    // TODO: Handle case where image acquired at replay does not match image acquired at capture.
-                    assert(image_index == i);
-
                     result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
 
                     if (result == VK_SUCCESS)
@@ -1176,19 +1176,18 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if (result == VK_SUCCESS)
                 {
-                    result = table->AcquireNextImageKHR(device,
-                                                        swapchain,
-                                                        std::numeric_limits<uint64_t>::max(),
-                                                        VK_NULL_HANDLE,
-                                                        wait_fence,
-                                                        &image_index);
+                    result = swapchain_->AcquireNextImageKHR(table->AcquireNextImageKHR,
+                                                             device_info,
+                                                             swapchain_info,
+                                                             std::numeric_limits<uint64_t>::max(),
+                                                             VK_NULL_HANDLE,
+                                                             wait_fence,
+                                                             static_cast<uint32_t>(i),
+                                                             &image_index);
                 }
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
-                    // TODO: Handle case where image acquired at replay does not match image acquired at capture.
-                    assert(image_index == i);
-
                     result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
 
                     if (result == VK_SUCCESS)
@@ -1651,7 +1650,7 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
         else
         {
             GFXRECON_LOG_WARNING_ONCE("Failed to find a valid AHardwareBuffer handle for a call to "
-                                 "vkGetAndroidHardwareBufferPropertiesANDROID")
+                                      "vkGetAndroidHardwareBufferPropertiesANDROID")
         }
     }
 #endif
