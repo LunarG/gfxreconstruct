@@ -934,6 +934,10 @@ class VulkanCaptureManager : public CaptureManager
     void PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
         VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData);
 
+    void PreProcess_vkGetAndroidHardwareBufferPropertiesANDROID(VkDevice                                  device,
+                                                                const struct AHardwareBuffer*             buffer,
+                                                                VkAndroidHardwareBufferPropertiesANDROID* pProperties);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif

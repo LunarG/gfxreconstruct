@@ -1360,7 +1360,6 @@ void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         d
     bool processing_succeeded = ProcessReferenceToAndroidHardwareBuffer(device, hardware_buffer);
     if (processing_succeeded)
     {
-
         auto entry = hardware_buffers_.find(hardware_buffer);
         GFXRECON_ASSERT(entry != hardware_buffers_.end());
 
@@ -2099,6 +2098,24 @@ void VulkanCaptureManager::PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
             "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capture "
             "device does not support this feature, so replay of the captured file may fail.");
     }
+}
+
+void VulkanCaptureManager::PreProcess_vkGetAndroidHardwareBufferPropertiesANDROID(
+    VkDevice                                  device,
+    const struct AHardwareBuffer*             hardware_buffer,
+    VkAndroidHardwareBufferPropertiesANDROID* pProperties)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pProperties);
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (hardware_buffer != nullptr)
+    {
+        ProcessReferenceToAndroidHardwareBuffer(device, const_cast<AHardwareBuffer*>(hardware_buffer));
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+#endif
 }
 
 #if defined(__ANDROID__)
