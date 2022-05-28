@@ -34,8 +34,9 @@ def cleanup(replayer_tool_path, replayer_tool_path_renamed):
         replayer_tool_file_size = os.path.getsize(replayer_tool_path)
         replayer_tool_renamed_file_size = os.path.getsize(replayer_tool_path_renamed)
         if replayer_tool_file_size == replayer_tool_renamed_file_size:
-            print('Deleting: ' + replayer_tool_path_renamed)
-            os.remove(replayer_tool_path_renamed)
+            if "gfxrecon-replay.exe" not in replayer_tool_path_renamed:
+                print("Deleting: " + replayer_tool_path_renamed)
+                os.remove(replayer_tool_path_renamed)
 
 
 # Rename the replayer
