@@ -693,6 +693,14 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
             // to ensure it is available.
             wrapper->physical_device = physical_device_wrapper;
         }
+
+        for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
+        {
+            const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
+            assert(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
+                   wrapper->queue_family_creation_flags.end());
+            wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
+        }
     }
 
     // Restore modified property/feature create info values to the original application values

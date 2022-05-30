@@ -138,7 +138,8 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     std::vector<QueueWrapper*> child_queues;
 
     // Physical device property & feature state at device creation
-    graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
+    graphics::VulkanDevicePropertyFeatureInfo              property_feature_info;
+    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
