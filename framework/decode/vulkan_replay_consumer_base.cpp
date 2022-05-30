@@ -715,7 +715,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
             if (image_count > max_acquired_images)
             {
                 // Cannot acquire all images at the same time.
-                ProcessSetSwapchainImageStateQueueSubmit(device, swapchain_info, last_presented_image, image_info);
+                ProcessSetSwapchainImageStateQueueSubmit(device_info, swapchain_info, last_presented_image, image_info);
             }
             else
             {
@@ -948,12 +948,13 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
 }
 
 void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
-    VkDevice                                            device,
+    const DeviceInfo*                                   device_info,
     SwapchainKHRInfo*                                   swapchain_info,
     uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_info)
 {
-    auto table = GetDeviceTable(device);
+    auto device = device_info->handle;
+    auto table  = GetDeviceTable(device);
     assert(table != nullptr);
 
     VkResult        result             = VK_SUCCESS;
@@ -969,8 +970,19 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
     pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     pool_create_info.queueFamilyIndex        = queue_family_index;
 
-    // TODO: Improved queue selection?
-    table->GetDeviceQueue(device, queue_family_index, 0, &queue);
+    const auto queue_family_flags = device_info->queue_family_creation_flags.find(queue_family_index);
+    assert(queue_family_flags != device_info->queue_family_creation_flags.end());
+    if (queue_family_flags->second != 0)
+    {
+        const VkDeviceQueueInfo2 queue_info = {
+            VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2, nullptr, queue_family_flags->second, queue_family_index, 0
+        };
+        table->GetDeviceQueue2(device, &queue_info, &queue);
+    }
+    else
+    {
+        table->GetDeviceQueue(device, queue_family_index, 0, &queue);
+    }
 
     result = table->CreateCommandPool(device, &pool_create_info, nullptr, &pool);
 
@@ -1289,7 +1301,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
         }
 
         device_info->resource_initializer = std::make_unique<VulkanResourceInitializer>(
-            device, max_copy_size, properties, have_shader_stencil_write, allocator, table);
+            device_info, max_copy_size, properties, have_shader_stencil_write, allocator, table);
     }
 }
 
@@ -2639,6 +2651,15 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
             // Track state of physical device properties and features at device creation
             device_info->property_feature_info = property_feature_info;
+
+            for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
+            {
+                const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
+                assert(device_info->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
+                       device_info->queue_family_creation_flags.end());
+                device_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] =
+                    queue_create_info->flags;
+            }
         }
 
         // Restore modified property/feature create info values to the original application values

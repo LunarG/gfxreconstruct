@@ -3053,7 +3053,20 @@ VulkanStateWriter::GetQueue(const DeviceWrapper* device_wrapper, uint32_t queue_
 
     VkQueue queue = VK_NULL_HANDLE;
 
-    device_wrapper->layer_table.GetDeviceQueue(device_wrapper->handle, queue_family_index, queue_index, &queue);
+    const auto queue_family_flags = device_wrapper->queue_family_creation_flags.find(queue_family_index);
+    assert(queue_family_flags != device_wrapper->queue_family_creation_flags.end());
+    if (queue_family_flags->second != 0)
+    {
+        const VkDeviceQueueInfo2 queue_info = {
+            VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2, nullptr, queue_family_flags->second, queue_family_index, queue_index
+        };
+
+        device_wrapper->layer_table.GetDeviceQueue2(device_wrapper->handle, &queue_info, &queue);
+    }
+    else
+    {
+        device_wrapper->layer_table.GetDeviceQueue(device_wrapper->handle, queue_family_index, queue_index, &queue);
+    }
 
     if (queue != VK_NULL_HANDLE)
     {
