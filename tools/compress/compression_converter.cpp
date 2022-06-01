@@ -229,6 +229,10 @@ bool CompressionConverter::ProcessMetaData(const format::BlockHeader& block_head
     {
         return WriteInitSubresourceMetaData(block_header, meta_data_id);
     }
+    else if (meta_data_type == format::MetaDataType::kInitDx12AccelerationStructureCommand)
+    {
+        return WriteInitDx12AccelerationStructureMetaData(block_header, meta_data_id);
+    }
     else
     {
         // The current block should not be compressed.  If it is compressed, it is most likely a new block type that is
@@ -730,6 +734,120 @@ bool CompressionConverter::WriteInitSubresourceMetaData(const format::BlockHeade
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init subresource meta-data block header");
         return false;
+    }
+
+    return true;
+}
+
+bool CompressionConverter::WriteInitDx12AccelerationStructureMetaData(const format::BlockHeader& block_header,
+                                                                      format::MetaDataId         meta_data_id)
+{
+    assert(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kInitDx12AccelerationStructureCommand);
+
+    format::InitDx12AccelerationStructureCommandHeader init_cmd;
+    bool success = ReadBytes(&init_cmd.thread_id, sizeof(init_cmd.thread_id));
+    success      = success &&
+              ReadBytes(&init_cmd.dest_acceleration_structure_data, sizeof(init_cmd.dest_acceleration_structure_data));
+    success = success && ReadBytes(&init_cmd.copy_source_gpu_va, sizeof(init_cmd.copy_source_gpu_va));
+    success = success && ReadBytes(&init_cmd.copy_mode, sizeof(init_cmd.copy_mode));
+    success = success && ReadBytes(&init_cmd.inputs_type, sizeof(init_cmd.inputs_type));
+    success = success && ReadBytes(&init_cmd.inputs_flags, sizeof(init_cmd.inputs_flags));
+    success = success && ReadBytes(&init_cmd.inputs_num_instance_descs, sizeof(init_cmd.inputs_num_instance_descs));
+    success = success && ReadBytes(&init_cmd.inputs_num_geometry_descs, sizeof(init_cmd.inputs_num_geometry_descs));
+    success = success && ReadBytes(&init_cmd.inputs_data_size, sizeof(init_cmd.inputs_data_size));
+
+    // Parse geometry descs.
+
+    std::vector<format::InitDx12AccelerationStructureGeometryDesc> geom_descs;
+    if (success)
+    {
+        for (uint32_t i = 0; i < init_cmd.inputs_num_geometry_descs; ++i)
+        {
+            format::InitDx12AccelerationStructureGeometryDesc geom_desc;
+            success = success && ReadBytes(&geom_desc.geometry_type, sizeof(geom_desc.geometry_type));
+            success = success && ReadBytes(&geom_desc.geometry_flags, sizeof(geom_desc.geometry_flags));
+            success = success && ReadBytes(&geom_desc.aabbs_count, sizeof(geom_desc.aabbs_count));
+            success = success && ReadBytes(&geom_desc.aabbs_stride, sizeof(geom_desc.aabbs_stride));
+            success =
+                success && ReadBytes(&geom_desc.triangles_has_transform, sizeof(geom_desc.triangles_has_transform));
+            success = success && ReadBytes(&geom_desc.triangles_index_format, sizeof(geom_desc.triangles_index_format));
+            success =
+                success && ReadBytes(&geom_desc.triangles_vertex_format, sizeof(geom_desc.triangles_vertex_format));
+            success = success && ReadBytes(&geom_desc.triangles_index_count, sizeof(geom_desc.triangles_index_count));
+            success = success && ReadBytes(&geom_desc.triangles_vertex_count, sizeof(geom_desc.triangles_vertex_count));
+            success =
+                success && ReadBytes(&geom_desc.triangles_vertex_stride, sizeof(geom_desc.triangles_vertex_stride));
+            geom_descs.push_back(geom_desc);
+        }
+    }
+
+    if (success)
+    {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.inputs_data_size);
+
+        size_t data_size = static_cast<size_t>(init_cmd.inputs_data_size);
+
+        if (format::IsBlockCompressed(block_header.type))
+        {
+            size_t uncompressed_size = 0;
+            size_t compressed_size =
+                static_cast<size_t>(block_header.size) -
+                (sizeof(init_cmd) - sizeof(init_cmd.meta_header.block_header)) -
+                (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * init_cmd.inputs_num_geometry_descs);
+
+            if (!ReadCompressedParameterBuffer(compressed_size, data_size, &uncompressed_size))
+            {
+                HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                     "Failed to read init DX12 acceleration structure meta-data block");
+                return false;
+            }
+
+            assert(uncompressed_size == data_size);
+        }
+        else
+        {
+            if (!ReadParameterBuffer(data_size))
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read init DX12 acceleration structure meta-data block");
+                return false;
+            }
+        }
+
+        const auto&    buffer       = GetParameterBuffer();
+        const uint8_t* data_address = buffer.data();
+
+        PrepMetadataBlock(init_cmd.meta_header, meta_data_id, data_address, data_size);
+
+        // Calculate size of packet with compressed or uncompressed data size.
+        init_cmd.meta_header.block_header.size =
+            format::GetMetaDataBlockBaseSize(init_cmd) + data_size +
+            (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * init_cmd.inputs_num_geometry_descs);
+
+        if (!WriteBytes(&init_cmd, sizeof(init_cmd)))
+        {
+            HandleBlockWriteError(kErrorWritingBlockHeader,
+                                  "Failed to write init DX12 acceleration structure meta-data block header");
+            return false;
+        }
+        if (!WriteBytes(geom_descs.data(),
+                        sizeof(format::InitDx12AccelerationStructureGeometryDesc) * geom_descs.size()))
+        {
+            HandleBlockWriteError(kErrorWritingBlockHeader,
+                                  "Failed to write init DX12 acceleration structure geometry block");
+            return false;
+        }
+        if (!WriteBytes(data_address, data_size))
+        {
+            HandleBlockWriteError(kErrorWritingBlockData,
+                                  "Failed to write init DX12 acceleration structure meta-data block");
+            return false;
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader,
+                             "Failed to read init DX12 acceleration structure meta-data block header");
     }
 
     return true;
