@@ -1601,6 +1601,22 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
         // The window system related handles are ignored by replay.
         // The checkpoint marker is ignored by replay.
     }
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    else if (call_id == format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID)
+    {
+        // Get the hardware buffer from the decoded buffer id.
+        auto entry = hardware_buffers_.find(object_id);
+        if (entry != hardware_buffers_.end())
+        {
+            object = entry->second.hardware_buffer;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to find a valid AHardwareBuffer handle for a call to "
+                                 "vkGetAndroidHardwareBufferPropertiesANDROID")
+        }
+    }
+#endif
     else
     {
         GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",

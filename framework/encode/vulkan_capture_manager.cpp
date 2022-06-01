@@ -1233,21 +1233,16 @@ VulkanCaptureManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* a
     return import_ahb_info;
 }
 
-void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
-                                                              VkDeviceMemory   memory,
-                                                              AHardwareBuffer* hardware_buffer)
+bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
-    assert((memory_wrapper != nullptr) && (hardware_buffer != nullptr));
+    assert(hardware_buffer != nullptr);
+    auto     device_wrapper   = reinterpret_cast<DeviceWrapper*>(device);
+    VkDevice device_unwrapped = device_wrapper->handle;
+    auto     device_table     = GetDeviceTable(device);
 
     auto entry = hardware_buffers_.find(hardware_buffer);
-    if (entry != hardware_buffers_.end())
-    {
-        ++entry->second.reference_count;
-        memory_wrapper->hardware_buffer = hardware_buffer;
-    }
-    else
+    if (entry == hardware_buffers_.end())
     {
         // If this is the first device memory object to reference the hardware buffer, write a buffer creation
         // command to the capture file and setup memory tracking.
@@ -1292,23 +1287,33 @@ void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         d
         {
             assert(data != nullptr);
 
+            VkAndroidHardwareBufferPropertiesANDROID properties = {
+                VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
+            };
+            properties.pNext = nullptr;
+            result =
+                device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("GetAndroidHardwareBufferPropertiesANDROID failed: hardware buffer creation will be "
+                                   "omitted from the capture file");
+                return false;
+            }
+
             // Only store buffer IDs and reference count if a creation command is written to the capture file.
             format::HandleId memory_id = GetUniqueId();
 
             HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
             ahb_info.memory_id           = memory_id;
-            ahb_info.reference_count     = 1;
-
-            memory_wrapper->hardware_buffer           = hardware_buffer;
-            memory_wrapper->hardware_buffer_memory_id = memory_id;
+            ahb_info.reference_count     = 0;
 
             WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-            WriteFillMemoryCmd(memory_id, 0, memory_wrapper->allocation_size, data);
+            WriteFillMemoryCmd(memory_id, 0, properties.allocationSize, data);
 
             if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
                 GetPageGuardTrackAhbMemory())
             {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, memory_wrapper->allocation_size);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, properties.allocationSize);
 
                 util::PageGuardManager* manager = util::PageGuardManager::Get();
                 assert(manager != nullptr);
@@ -1317,7 +1322,7 @@ void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         d
                     memory_id,
                     data,
                     0,
-                    static_cast<size_t>(memory_wrapper->allocation_size),
+                    static_cast<size_t>(properties.allocationSize),
                     util::PageGuardManager::kNullShadowHandle,
                     false,  // No shadow memory for the imported AHB memory; Track directly with mprotect().
                     false); // Write watch is not supported for this case.
@@ -1333,9 +1338,45 @@ void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         d
         {
             GFXRECON_LOG_ERROR(
                 "AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
+            return false;
         }
     }
 #else
+    GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+#endif
+    return true;
+}
+
+void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
+                                                              VkDeviceMemory   memory,
+                                                              AHardwareBuffer* hardware_buffer)
+{
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    assert((memory_wrapper != nullptr) && (hardware_buffer != nullptr));
+
+    bool processing_succeeded = ProcessReferenceToAndroidHardwareBuffer(device, hardware_buffer);
+    if (processing_succeeded)
+    {
+        auto entry = hardware_buffers_.find(hardware_buffer);
+        GFXRECON_ASSERT(entry != hardware_buffers_.end());
+
+        ++entry->second.reference_count;
+
+        memory_wrapper->hardware_buffer           = hardware_buffer;
+        memory_wrapper->hardware_buffer_memory_id = entry->second.memory_id;
+    }
+    else
+    {
+
+        GFXRECON_LOG_ERROR_ONCE(
+            "Importing AHardwareBuffer failed, hardware buffer data will be omitted from the capture file");
+    }
+
+#else
+
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(memory);
     GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
@@ -2057,6 +2098,24 @@ void VulkanCaptureManager::PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
             "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capture "
             "device does not support this feature, so replay of the captured file may fail.");
     }
+}
+
+void VulkanCaptureManager::PreProcess_vkGetAndroidHardwareBufferPropertiesANDROID(
+    VkDevice                                  device,
+    const struct AHardwareBuffer*             hardware_buffer,
+    VkAndroidHardwareBufferPropertiesANDROID* pProperties)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pProperties);
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (hardware_buffer != nullptr)
+    {
+        ProcessReferenceToAndroidHardwareBuffer(device, const_cast<AHardwareBuffer*>(hardware_buffer));
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+#endif
 }
 
 #if defined(__ANDROID__)
