@@ -7140,6 +7140,24 @@ size_t VulkanDecoder::Decode_vkCmdResolveImage2KHR(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdTraceRaysIndirect2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkDeviceAddress indirectDeviceAddress;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkDeviceAddressValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &indirectDeviceAddress);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdTraceRaysIndirect2KHR(call_info, commandBuffer, indirectDeviceAddress);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetDeviceBufferMemoryRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -10170,6 +10188,28 @@ size_t VulkanDecoder::Decode_vkCmdSetFragmentShadingRateEnumNV(const ApiCallInfo
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetImageSubresourceLayout2EXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId image;
+    StructPointerDecoder<Decoded_VkImageSubresource2EXT> pSubresource;
+    StructPointerDecoder<Decoded_VkSubresourceLayout2EXT> pLayout;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &image);
+    bytes_read += pSubresource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pLayout.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetImageSubresourceLayout2EXT(call_info, device, image, &pSubresource, &pLayout);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkAcquireWinrtDisplayNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -12136,6 +12176,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkCmdResolveImage2KHR:
         Decode_vkCmdResolveImage2KHR(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkCmdTraceRaysIndirect2KHR:
+        Decode_vkCmdTraceRaysIndirect2KHR(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirementsKHR:
         Decode_vkGetDeviceBufferMemoryRequirementsKHR(call_info, parameter_buffer, buffer_size);
         break;
@@ -12546,6 +12589,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV:
         Decode_vkCmdSetFragmentShadingRateEnumNV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2EXT:
+        Decode_vkGetImageSubresourceLayout2EXT(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkAcquireWinrtDisplayNV:
         Decode_vkAcquireWinrtDisplayNV(call_info, parameter_buffer, buffer_size);

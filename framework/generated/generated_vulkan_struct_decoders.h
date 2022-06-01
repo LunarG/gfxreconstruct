@@ -3877,6 +3877,24 @@ typedef Decoded_VkCommandBufferSubmitInfo Decoded_VkCommandBufferSubmitInfoKHR;
 
 typedef Decoded_VkPhysicalDeviceSynchronization2Features Decoded_VkPhysicalDeviceSynchronization2FeaturesKHR;
 
+struct Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
+
+    VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR;
+
+    VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR;
@@ -3920,6 +3938,22 @@ typedef Decoded_VkBufferImageCopy2 Decoded_VkBufferImageCopy2KHR;
 typedef Decoded_VkImageResolve2 Decoded_VkImageResolve2KHR;
 
 typedef Decoded_VkFormatProperties3 Decoded_VkFormatProperties3KHR;
+
+struct Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR;
+
+    VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkTraceRaysIndirectCommand2KHR
+{
+    using struct_type = VkTraceRaysIndirectCommand2KHR;
+
+    VkTraceRaysIndirectCommand2KHR* decoded_value{ nullptr };
+};
 
 typedef Decoded_VkPhysicalDeviceMaintenance4Features Decoded_VkPhysicalDeviceMaintenance4FeaturesKHR;
 
@@ -5236,14 +5270,7 @@ struct Decoded_VkDrawMeshTasksIndirectCommandNV
     VkDrawMeshTasksIndirectCommandNV* decoded_value{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV
-{
-    using struct_type = VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
-
-    VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
+typedef Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
 
 struct Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV
 {
@@ -6051,6 +6078,15 @@ struct Decoded_VkGraphicsPipelineLibraryCreateInfoEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD
+{
+    using struct_type = VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD;
+
+    VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV
 {
     using struct_type = VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV;
@@ -6171,6 +6207,54 @@ struct Decoded_VkCopyCommandTransformInfoQCOM
 };
 
 typedef Decoded_VkPhysicalDeviceImageRobustnessFeatures Decoded_VkPhysicalDeviceImageRobustnessFeaturesEXT;
+
+struct Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceImageCompressionControlFeaturesEXT;
+
+    VkPhysicalDeviceImageCompressionControlFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkImageCompressionControlEXT
+{
+    using struct_type = VkImageCompressionControlEXT;
+
+    VkImageCompressionControlEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkImageCompressionFixedRateFlagsEXT> pFixedRateFlags;
+};
+
+struct Decoded_VkSubresourceLayout2EXT
+{
+    using struct_type = VkSubresourceLayout2EXT;
+
+    VkSubresourceLayout2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkSubresourceLayout* subresourceLayout{ nullptr };
+};
+
+struct Decoded_VkImageSubresource2EXT
+{
+    using struct_type = VkImageSubresource2EXT;
+
+    VkImageSubresource2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkImageSubresource* imageSubresource{ nullptr };
+};
+
+struct Decoded_VkImageCompressionPropertiesEXT
+{
+    using struct_type = VkImageCompressionPropertiesEXT;
+
+    VkImageCompressionPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
 
 struct Decoded_VkPhysicalDevice4444FormatsFeaturesEXT
 {
@@ -6580,6 +6664,52 @@ struct Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV
     VkPhysicalDeviceLinearColorAttachmentFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT;
+
+    VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT;
+
+    VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkRenderPassCreationControlEXT
+{
+    using struct_type = VkRenderPassCreationControlEXT;
+
+    VkRenderPassCreationControlEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkRenderPassCreationFeedbackInfoEXT
+{
+    using struct_type = VkRenderPassCreationFeedbackInfoEXT;
+
+    VkRenderPassCreationFeedbackInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkRenderPassSubpassFeedbackInfoEXT
+{
+    using struct_type = VkRenderPassSubpassFeedbackInfoEXT;
+
+    VkRenderPassSubpassFeedbackInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StringDecoder description;
 };
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR
