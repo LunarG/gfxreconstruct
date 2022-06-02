@@ -10072,6 +10072,29 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pResolveImageInfo);
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirect2KHR(
+    VkCommandBuffer                             commandBuffer,
+    VkDeviceAddress                             indirectDeviceAddress)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirect2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, indirectDeviceAddress);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdTraceRaysIndirect2KHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeVkDeviceAddressValue(indirectDeviceAddress);
+        VulkanCaptureManager::Get()->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdTraceRaysIndirect2KHR(commandBuffer_unwrapped, indirectDeviceAddress);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirect2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, indirectDeviceAddress);
+}
+
 VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirementsKHR(
     VkDevice                                    device,
     const VkDeviceBufferMemoryRequirements*     pInfo,
@@ -14334,6 +14357,34 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(
     GetDeviceTable(commandBuffer)->CmdSetFragmentShadingRateEnumNV(commandBuffer_unwrapped, shadingRate, combinerOps);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, shadingRate, combinerOps);
+}
+
+VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2EXT(
+    VkDevice                                    device,
+    VkImage                                     image,
+    const VkImageSubresource2EXT*               pSubresource,
+    VkSubresourceLayout2EXT*                    pLayout)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2EXT>::Dispatch(VulkanCaptureManager::Get(), device, image, pSubresource, pLayout);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkImage image_unwrapped = GetWrappedHandle<VkImage>(image);
+
+    GetDeviceTable(device)->GetImageSubresourceLayout2EXT(device_unwrapped, image_unwrapped, pSubresource, pLayout);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2EXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(image);
+        EncodeStructPtr(encoder, pSubresource);
+        EncodeStructPtr(encoder, pLayout);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2EXT>::Dispatch(VulkanCaptureManager::Get(), device, image, pSubresource, pLayout);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL AcquireWinrtDisplayNV(

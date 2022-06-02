@@ -445,9 +445,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentIdFeat
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointProperties2NV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCheckpointData2NV& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommand2KHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value);
 
@@ -635,8 +641,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderFea
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderPropertiesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectCommandNV& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderImageFootprintFeaturesNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineViewportExclusiveScissorStateCreateInfoNV& value);
@@ -759,6 +763,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipel
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkGraphicsPipelineLibraryCreateInfoEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineFragmentShadingRateEnumStateCreateInfoNV& value);
@@ -776,6 +782,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensi
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyCommandTransformInfoQCOM& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageCompressionControlFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageCompressionControlEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2EXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2EXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageCompressionPropertiesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevice4444FormatsFeaturesEXT& value);
 
@@ -845,6 +857,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensi
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreationControlEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreationFeedbackInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassSubpassFeedbackInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);

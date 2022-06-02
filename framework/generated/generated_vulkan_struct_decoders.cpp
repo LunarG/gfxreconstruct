@@ -7181,6 +7181,36 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCheckpo
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->fragmentShaderBarycentric));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->triStripVertexOrderIndependentOfProvokingVertex));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -7210,6 +7240,47 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->workgroupMemoryExplicitLayoutScalarBlockLayout));
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->workgroupMemoryExplicitLayout8BitAccess));
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->workgroupMemoryExplicitLayout16BitAccess));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->rayTracingMaintenance1));
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->rayTracingPipelineTraceRaysIndirect2));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkTraceRaysIndirectCommand2KHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkTraceRaysIndirectCommand2KHR* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeVkDeviceAddressValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->raygenShaderRecordAddress));
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->raygenShaderRecordSize));
+    bytes_read += ValueDecoder::DecodeVkDeviceAddressValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->missShaderBindingTableAddress));
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->missShaderBindingTableSize));
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->missShaderBindingTableStride));
+    bytes_read += ValueDecoder::DecodeVkDeviceAddressValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->hitShaderBindingTableAddress));
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->hitShaderBindingTableSize));
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->hitShaderBindingTableStride));
+    bytes_read += ValueDecoder::DecodeVkDeviceAddressValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->callableShaderBindingTableAddress));
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->callableShaderBindingTableSize));
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->callableShaderBindingTableStride));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->width));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->height));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->depth));
 
     return bytes_read;
 }
@@ -9587,21 +9658,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDrawMes
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
-    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->fragmentShaderBarycentric));
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -11016,6 +11072,21 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkGraphic
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->shaderEarlyAndLateFragmentTests));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -11261,6 +11332,89 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyCom
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->transform));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceImageCompressionControlFeaturesEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageCompressionControl));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageCompressionControlEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkImageCompressionControlEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->compressionControlPlaneCount));
+    bytes_read += wrapper->pFixedRateFlags.DecodeFlags((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pFixedRateFlags = wrapper->pFixedRateFlags.GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubresourceLayout2EXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkSubresourceLayout2EXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    wrapper->subresourceLayout = DecodeAllocator::Allocate<Decoded_VkSubresourceLayout>();
+    wrapper->subresourceLayout->decoded_value = &(value->subresourceLayout);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->subresourceLayout);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageSubresource2EXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkImageSubresource2EXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    wrapper->imageSubresource = DecodeAllocator::Allocate<Decoded_VkImageSubresource>();
+    wrapper->imageSubresource->decoded_value = &(value->imageSubresource);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->imageSubresource);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageCompressionPropertiesEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkImageCompressionPropertiesEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageCompressionFlags));
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageCompressionFixedRateFlags));
 
     return bytes_read;
 }
@@ -11973,6 +12127,84 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->linearColorAttachment));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageCompressionControlSwapchain));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subpassMergeFeedback));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderPassCreationControlEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkRenderPassCreationControlEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->disallowMerging));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderPassCreationFeedbackInfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkRenderPassCreationFeedbackInfoEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->postMergeSubpassCount));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderPassSubpassFeedbackInfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkRenderPassSubpassFeedbackInfoEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->subpassMergeStatus));
+    wrapper->description.SetExternalMemory(value->description, VK_MAX_DESCRIPTION_SIZE);
+    bytes_read += wrapper->description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->postMergeIndex));
 
     return bytes_read;
 }

@@ -511,11 +511,20 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkQueueFamilyCheckpointProperties2NV*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDebugReportCallbackCreateInfoEXT*>(base));
@@ -748,9 +757,6 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesNV*>(base));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV*>(base));
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderImageFootprintFeaturesNV*>(base));
             break;
@@ -934,6 +940,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkGraphicsPipelineLibraryCreateInfoEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV*>(base));
             break;
@@ -963,6 +972,15 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkCopyCommandTransformInfoQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkImageCompressionControlEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkImageCompressionPropertiesEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(base));
@@ -1053,6 +1071,21 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkRenderPassCreationControlEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkRenderPassCreationFeedbackInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkRenderPassSubpassFeedbackInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base));

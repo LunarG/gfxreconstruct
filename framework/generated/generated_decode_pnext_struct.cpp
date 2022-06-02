@@ -662,12 +662,24 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkQueueFamilyCheckpointProperties2NV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
@@ -978,10 +990,6 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceMeshShaderPropertiesNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -1226,6 +1234,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkGraphicsPipelineLibraryCreateInfoEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -1264,6 +1276,18 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 break;
             case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkCopyCommandTransformInfoQCOM>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkImageCompressionControlEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkImageCompressionPropertiesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
@@ -1384,6 +1408,26 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkRenderPassCreationControlEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_INFO_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkRenderPassCreationFeedbackInfoEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_INFO_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkRenderPassSubpassFeedbackInfoEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:

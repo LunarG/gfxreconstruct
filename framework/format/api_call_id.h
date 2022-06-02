@@ -591,6 +591,9 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDeviceImageSparseMemoryRequirements                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1271),
     ApiCall_vkGetDescriptorSetLayoutHostMappingInfoVALVE                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1272),
     ApiCall_vkGetDescriptorSetHostMappingVALVE                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1273),
+    ApiCall_vkCmdTraceRaysIndirect2KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1274),
+    ApiCall_vkGetImageSubresourceLayout2EXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1275),
+    ApiCall_vkGetPipelinePropertiesEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1276),
 
     ApiCall_VulkanLast
     // clang-format on
