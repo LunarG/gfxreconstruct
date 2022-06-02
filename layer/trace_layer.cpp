@@ -115,7 +115,7 @@ static PFN_GetPhysicalDeviceProcAddr get_next_gpdpa(const VkInstance instance)
 {
     assert(instance != VK_NULL_HANDLE);
     std::lock_guard<std::mutex> lock(gpdpa_lock);
-    auto it_gpdpa = next_gpdpa.find(instance);
+    auto                        it_gpdpa = next_gpdpa.find(instance);
     if (it_gpdpa == next_gpdpa.end())
     {
         return nullptr;
