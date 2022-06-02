@@ -102,22 +102,26 @@ static VkInstance get_instance_handle(const void* handle)
 // Retrieved during instance creation and used to forward this layer's
 // GetPhysicalDeviceProcAddr() after unwrapping its VkInstance parameter.
 static std::mutex                    gpdpa_lock;
-static PFN_GetPhysicalDeviceProcAddr next_gpdpa = nullptr;
+static std::unordered_map<VkInstance, PFN_GetPhysicalDeviceProcAddr> next_gpdpa;
 
-void set_next_gpdpa(PFN_GetPhysicalDeviceProcAddr p_next_gpdpa)
+static void set_next_gpdpa(const VkInstance instance, PFN_GetPhysicalDeviceProcAddr p_next_gpdpa)
 {
+    assert(instance != VK_NULL_HANDLE);
+    assert(p_next_gpdpa != nullptr);
     std::lock_guard<std::mutex> lock(gpdpa_lock);
-    assert(next_gpdpa == nullptr || next_gpdpa == p_next_gpdpa && "The next layer should always be the same, no matter how many VkInstances are created.");
-    fprintf(stderr, "[gfxreconstruct] - set_next_gpdpa(%p)\n", p_next_gpdpa);
-    next_gpdpa = p_next_gpdpa;
+    fprintf(stderr, "[gfxreconstruct] - set_next_gpdpa(%p, %p)\n", instance,  p_next_gpdpa);
+    next_gpdpa[instance] = p_next_gpdpa;
 }
 
-PFN_GetPhysicalDeviceProcAddr get_next_gpdpa()
+static PFN_GetPhysicalDeviceProcAddr get_next_gpdpa(const VkInstance instance)
 {
     std::lock_guard<std::mutex> lock(gpdpa_lock);
-    assert(next_gpdpa != nullptr);
-    fprintf(stderr, "[gfxreconstruct] - get_next_gpdpa() -> %p\n", next_gpdpa);
-    return next_gpdpa;
+    auto it_gpdpa = next_gpdpa.find(instance);
+    assert(it_gpdpa != next_gpdpa.end());
+    auto gpdpa = it_gpdpa->second;
+    assert(gpdpa != VK_NULL_HANDLE);
+    fprintf(stderr, "[gfxreconstruct] - get_next_gpdpa(%p) -> %p\n", instance, gpdpa);
+    return gpdpa;
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
@@ -151,11 +155,13 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                 if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
                 {
                     add_instance_handle(*pInstance);
-                    set_next_gpdpa(pLayerInfo->pfnNextGetPhysicalDeviceProcAddr);
 
                     encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
                     manager->InitVkInstance(pInstance, fpGetInstanceProcAddr);
+                    // Register the next layer's GetPhysicalDeviceProcAddr func only after *pInstance
+                    // has been updated to our wrapper in manager->InitVkInstance() above:
+                    set_next_gpdpa(*pInstance, pLayerInfo->pfnNextGetPhysicalDeviceProcAddr);
                 }
             }
         }
@@ -286,17 +292,11 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance up
     {
         const VkInstance instance = encode::GetWrappedHandle<VkInstance>(upstreamInstance);
         fprintf(stderr, "[gfxreconstruct] GetPhysicalDeviceProcAddr(%p, %s), unwrapped instance: %p \n", upstreamInstance, pName, instance);
-        PFN_GetPhysicalDeviceProcAddr next_gpdpa = get_next_gpdpa();
+        PFN_GetPhysicalDeviceProcAddr next_gpdpa = get_next_gpdpa(upstreamInstance);
         if(next_gpdpa)
         {
             result = next_gpdpa(instance, pName);
         }
-        /*const auto info = get_instance_info(instance);
-        if (info && info->get_physical_device_proc_addr)
-        {
-            result = info->get_physical_device_proc_addr(instance, pName);
-        }*/
-        
     }
 
     return result;
