@@ -40,7 +40,6 @@ Dx12StateWriter::Dx12StateWriter(util::FileOutputStream* output_stream,
     compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
 {
     assert(output_stream != nullptr);
-    assert(compressor != nullptr);
 }
 
 Dx12StateWriter::~Dx12StateWriter() {}
@@ -893,24 +892,29 @@ void Dx12StateWriter::WriteResidencyPriority(const Dx12StateTable& state_table)
         GFXRECON_ASSERT(device_wrapper->GetObjectInfo() != nullptr);
 
         auto     device_info = device_wrapper->GetObjectInfo();
-        auto     handle_id   = device_wrapper->GetCaptureId();
         uint32_t num_objects = static_cast<uint32_t>(device_info->residency_priorities.size());
 
-        std::vector<format::HandleId>         handles;
-        std::vector<D3D12_RESIDENCY_PRIORITY> priorities;
-
-        for (auto& entry : device_info->residency_priorities)
+        if (num_objects > 0)
         {
-            handles.emplace_back(entry.first);
-            priorities.emplace_back(entry.second);
-        }
+            auto handle_id = device_wrapper->GetCaptureId();
 
-        encoder_.EncodeUInt32Value(num_objects);
-        encoder_.EncodeHandleIdArray(handles.data(), num_objects);
-        encoder_.EncodeEnumArray(priorities.data(), num_objects);
-        encoder_.EncodeInt32Value(S_OK);
-        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority, handle_id, &parameter_stream_);
-        parameter_stream_.Reset();
+            std::vector<format::HandleId>         handles;
+            std::vector<D3D12_RESIDENCY_PRIORITY> priorities;
+
+            for (auto& entry : device_info->residency_priorities)
+            {
+                handles.emplace_back(entry.first);
+                priorities.emplace_back(entry.second);
+            }
+
+            encoder_.EncodeUInt32Value(num_objects);
+            encoder_.EncodeHandleIdArray(handles.data(), num_objects);
+            encoder_.EncodeEnumArray(priorities.data(), num_objects);
+            encoder_.EncodeInt32Value(S_OK);
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority, handle_id, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
     });
 }
 

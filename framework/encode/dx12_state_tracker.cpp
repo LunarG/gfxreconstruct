@@ -510,18 +510,21 @@ void Dx12StateTracker::TrackResidencyPriority(ID3D12Device1_Wrapper*          de
                                               ID3D12Pageable* const*          objects,
                                               const D3D12_RESIDENCY_PRIORITY* priorities)
 {
-    GFXRECON_ASSERT(device_wrapper != nullptr);
-    GFXRECON_ASSERT(device_wrapper->GetObjectInfo() != nullptr);
-    GFXRECON_ASSERT(objects != nullptr);
-    GFXRECON_ASSERT(priorities != nullptr);
-
-    auto                         device_info = device_wrapper->GetObjectInfo();
-    std::unique_lock<std::mutex> lock(state_table_mutex_);
-    for (UINT i = 0; i < num_objects; ++i)
+    if (num_objects > 0)
     {
-        GFXRECON_ASSERT(objects[i] != nullptr);
-        auto handle_id                               = GetDx12WrappedId<ID3D12Pageable>(objects[i]);
-        device_info->residency_priorities[handle_id] = priorities[i];
+        GFXRECON_ASSERT(device_wrapper != nullptr);
+        GFXRECON_ASSERT(device_wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(objects != nullptr);
+        GFXRECON_ASSERT(priorities != nullptr);
+
+        auto                         device_info = device_wrapper->GetObjectInfo();
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        for (UINT i = 0; i < num_objects; ++i)
+        {
+            GFXRECON_ASSERT(objects[i] != nullptr);
+            auto handle_id                               = GetDx12WrappedId<ID3D12Pageable>(objects[i]);
+            device_info->residency_priorities[handle_id] = priorities[i];
+        }
     }
 }
 
