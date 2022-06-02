@@ -101,7 +101,7 @@ static VkInstance get_instance_handle(const void* handle)
 // The vk_layerGetPhysicalDeviceProcAddr of the next layer in the chain.
 // Retrieved during instance creation and forwarded to by this layer's
 // GetPhysicalDeviceProcAddr() after unwrapping its VkInstance parameter.
-static std::mutex                    gpdpa_lock;
+static std::mutex                                                    gpdpa_lock;
 static std::unordered_map<VkInstance, PFN_GetPhysicalDeviceProcAddr> next_gpdpa;
 
 static void set_next_gpdpa(const VkInstance instance, PFN_GetPhysicalDeviceProcAddr p_next_gpdpa)
@@ -145,7 +145,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
             if (fpCreateInstance)
             {
                 // Advance the link info for the next element on the chain
-                auto pLayerInfo = chain_info->u.pLayerInfo;
+                auto pLayerInfo          = chain_info->u.pLayerInfo;
                 chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
                 result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
@@ -284,7 +284,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ou
     {
         const VkInstance              nextLayersInstance = encode::GetWrappedHandle<VkInstance>(ourInstanceWrapper);
         PFN_GetPhysicalDeviceProcAddr next_gpdpa         = get_next_gpdpa(ourInstanceWrapper);
-        if(next_gpdpa)
+        if (next_gpdpa)
         {
             result = next_gpdpa(nextLayersInstance, pName);
         }
@@ -441,7 +441,7 @@ extern "C"
     }
 
     VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance  instance,
-                                                                                           const char* pName)
+                                                                                               const char* pName)
     {
         return gfxrecon::GetPhysicalDeviceProcAddr(instance, pName);
     }
