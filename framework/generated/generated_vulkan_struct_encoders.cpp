@@ -6201,18 +6201,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreationControlEX
 
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreationFeedbackInfoEXT& value)
 {
+    encoder->EncodeUInt32Value(value.postMergeSubpassCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreationFeedbackCreateInfoEXT& value)
+{
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.postMergeSubpassCount);
+    EncodeStructPtr(encoder, value.pRenderPassFeedback);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassSubpassFeedbackInfoEXT& value)
 {
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.subpassMergeStatus);
     encoder->EncodeString(value.description);
     encoder->EncodeUInt32Value(value.postMergeIndex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassSubpassFeedbackCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStructPtr(encoder, value.pSubpassFeedback);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

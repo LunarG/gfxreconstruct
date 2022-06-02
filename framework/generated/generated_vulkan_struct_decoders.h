@@ -6698,8 +6698,16 @@ struct Decoded_VkRenderPassCreationFeedbackInfoEXT
     using struct_type = VkRenderPassCreationFeedbackInfoEXT;
 
     VkRenderPassCreationFeedbackInfoEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkRenderPassCreationFeedbackCreateInfoEXT
+{
+    using struct_type = VkRenderPassCreationFeedbackCreateInfoEXT;
+
+    VkRenderPassCreationFeedbackCreateInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkRenderPassCreationFeedbackInfoEXT>* pRenderPassFeedback{ nullptr };
 };
 
 struct Decoded_VkRenderPassSubpassFeedbackInfoEXT
@@ -6708,8 +6716,17 @@ struct Decoded_VkRenderPassSubpassFeedbackInfoEXT
 
     VkRenderPassSubpassFeedbackInfoEXT* decoded_value{ nullptr };
 
-    PNextNode* pNext{ nullptr };
     StringDecoder description;
+};
+
+struct Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT
+{
+    using struct_type = VkRenderPassSubpassFeedbackCreateInfoEXT;
+
+    VkRenderPassSubpassFeedbackCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkRenderPassSubpassFeedbackInfoEXT>* pSubpassFeedback{ nullptr };
 };
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR

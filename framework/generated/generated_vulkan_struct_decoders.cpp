@@ -12183,10 +12183,24 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     size_t bytes_read = 0;
     VkRenderPassCreationFeedbackInfoEXT* value = wrapper->decoded_value;
 
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->postMergeSubpassCount));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderPassCreationFeedbackCreateInfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkRenderPassCreationFeedbackCreateInfoEXT* value = wrapper->decoded_value;
+
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->postMergeSubpassCount));
+    wrapper->pRenderPassFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderPassCreationFeedbackInfoEXT>>();
+    bytes_read += wrapper->pRenderPassFeedback->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pRenderPassFeedback = wrapper->pRenderPassFeedback->GetPointer();
 
     return bytes_read;
 }
@@ -12198,13 +12212,27 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     size_t bytes_read = 0;
     VkRenderPassSubpassFeedbackInfoEXT* value = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
-    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->subpassMergeStatus));
     wrapper->description.SetExternalMemory(value->description, VK_MAX_DESCRIPTION_SIZE);
     bytes_read += wrapper->description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->postMergeIndex));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    VkRenderPassSubpassFeedbackCreateInfoEXT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    wrapper->pSubpassFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderPassSubpassFeedbackInfoEXT>>();
+    bytes_read += wrapper->pSubpassFeedback->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSubpassFeedback = wrapper->pSubpassFeedback->GetPointer();
 
     return bytes_read;
 }
