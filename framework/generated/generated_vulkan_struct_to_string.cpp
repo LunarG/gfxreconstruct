@@ -9403,9 +9403,19 @@ template <> std::string ToString<VkRenderPassCreationFeedbackInfoEXT>(const VkRe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
+            FieldToString(strStrm, true, "postMergeSubpassCount", toStringFlags, tabCount, tabSize, ToString(obj.postMergeSubpassCount, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkRenderPassCreationFeedbackCreateInfoEXT>(const VkRenderPassCreationFeedbackCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "postMergeSubpassCount", toStringFlags, tabCount, tabSize, ToString(obj.postMergeSubpassCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pRenderPassFeedback", toStringFlags, tabCount, tabSize, (obj.pRenderPassFeedback ? ToString(*obj.pRenderPassFeedback, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
@@ -9415,11 +9425,21 @@ template <> std::string ToString<VkRenderPassSubpassFeedbackInfoEXT>(const VkRen
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "subpassMergeStatus", toStringFlags, tabCount, tabSize, '"' + ToString(obj.subpassMergeStatus, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "subpassMergeStatus", toStringFlags, tabCount, tabSize, '"' + ToString(obj.subpassMergeStatus, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
             FieldToString(strStrm, false, "postMergeIndex", toStringFlags, tabCount, tabSize, ToString(obj.postMergeIndex, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkRenderPassSubpassFeedbackCreateInfoEXT>(const VkRenderPassSubpassFeedbackCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pSubpassFeedback", toStringFlags, tabCount, tabSize, (obj.pSubpassFeedback ? ToString(*obj.pSubpassFeedback, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }

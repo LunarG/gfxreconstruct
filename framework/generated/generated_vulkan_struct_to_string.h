@@ -690,7 +690,9 @@ template <> std::string ToString<VkPhysicalDeviceImageCompressionControlSwapchai
 template <> std::string ToString<VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>(const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkRenderPassCreationControlEXT>(const VkRenderPassCreationControlEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkRenderPassCreationFeedbackInfoEXT>(const VkRenderPassCreationFeedbackInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkRenderPassCreationFeedbackCreateInfoEXT>(const VkRenderPassCreationFeedbackCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkRenderPassSubpassFeedbackInfoEXT>(const VkRenderPassSubpassFeedbackInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkRenderPassSubpassFeedbackCreateInfoEXT>(const VkRenderPassSubpassFeedbackCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureBuildRangeInfoKHR>(const VkAccelerationStructureBuildRangeInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureGeometryTrianglesDataKHR>(const VkAccelerationStructureGeometryTrianglesDataKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureGeometryAabbsDataKHR>(const VkAccelerationStructureGeometryAabbsDataKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
