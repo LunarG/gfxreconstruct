@@ -106,14 +106,14 @@ static std::unordered_map<VkInstance, PFN_GetPhysicalDeviceProcAddr> next_gpdpa;
 
 static void set_instance_next_gpdpa(const VkInstance instance, PFN_GetPhysicalDeviceProcAddr p_next_gpdpa)
 {
-    assert(instance != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
     std::lock_guard<std::mutex> lock(gpdpa_lock);
     next_gpdpa[instance] = p_next_gpdpa;
 }
 
 static PFN_GetPhysicalDeviceProcAddr get_instance_next_gpdpa(const VkInstance instance)
 {
-    assert(instance != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
     std::lock_guard<std::mutex> lock(gpdpa_lock);
     auto                        it_gpdpa = next_gpdpa.find(instance);
     if (it_gpdpa == next_gpdpa.end())
