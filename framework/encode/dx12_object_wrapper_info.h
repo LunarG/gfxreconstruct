@@ -229,6 +229,8 @@ struct IDXGISwapChainInfo : public DxgiWrapperInfo
     // Members for general wrapper support.
     std::vector<ID3D12Resource_Wrapper*> child_images;
 
+    graphics::dx12::ID3D12CommandQueueComPtr command_queue{ nullptr };
+
     // Members for trimming state tracking.
     uint32_t                         current_back_buffer_index{ std::numeric_limits<uint32_t>::max() };
     uint32_t                         last_presented_image{ std::numeric_limits<uint32_t>::max() };

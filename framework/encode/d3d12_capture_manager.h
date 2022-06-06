@@ -269,12 +269,6 @@ class D3D12CaptureManager : public CaptureManager
     void PostProcess_ID3D12Device_CreateHeap(
         ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_HEAP_DESC* desc, REFIID riid, void** heap);
 
-    void PostProcess_ID3D12Device_CreateCommandQueue(ID3D12Device_Wrapper*           wrapper,
-                                                     HRESULT                         result,
-                                                     const D3D12_COMMAND_QUEUE_DESC* pDesc,
-                                                     REFIID                          riid,
-                                                     void**                          ppCommandQueue);
-
     void PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
                                                           HRESULT                      result,
                                                           const D3D12_HEAP_PROPERTIES* heap_properties,
@@ -672,7 +666,6 @@ class D3D12CaptureManager : public CaptureManager
 
     std::unique_ptr<Dx12StateTracker> state_tracker_;
 
-    std::vector<ID3D12CommandQueue_Wrapper*>     direct_queues_;
     std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
 };
 

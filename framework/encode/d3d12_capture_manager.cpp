@@ -133,6 +133,14 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
         if (command_queue != nullptr)
         {
             info->command_queue_id = GetDx12WrappedId<IUnknown>(command_queue);
+
+            // Get the ID3D12CommandQueue from the IUnknown queue object.
+            HRESULT hr = command_queue->QueryInterface(IID_PPV_ARGS(&info->command_queue));
+            if (FAILED(hr))
+            {
+                GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
+                                     "argument to CreateSwapChain.");
+            }
         }
 
         if (info->child_images.empty())
@@ -474,15 +482,22 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
 {
     if (ShouldTriggerScreenshot())
     {
-        ID3D12CommandQueue_Wrapper* queue_wrapper = direct_queues_.back();
-
-        if (queue_wrapper != nullptr)
+        auto swapchain_info = swapchain_wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(swapchain_info != nullptr);
+        if (swapchain_info->command_queue)
         {
-            auto queue     = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
             auto swapchain = swapchain_wrapper->GetWrappedObjectAs<IDXGISwapChain>();
 
-            gfxrecon::graphics::dx12::TakeScreenshot(
-                frame_buffer_renderer_, queue, swapchain, global_frame_count_ + 1, screenshot_prefix_);
+            gfxrecon::graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
+                                                     swapchain_info->command_queue,
+                                                     swapchain,
+                                                     global_frame_count_ + 1,
+                                                     screenshot_prefix_);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue associated with the presented swap chain. "
+                               "GFXReconstruct is unable to take a screenshot.");
         }
     }
 }
@@ -1966,20 +1981,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1
     {
         // Track object id since ID3D12Debug1 could be released very soon.
         track_enable_debug_layer_object_id_ = debug1_wrapper->GetCaptureId();
-    }
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandQueue(ID3D12Device_Wrapper*           wrapper,
-                                                                      HRESULT                         result,
-                                                                      const D3D12_COMMAND_QUEUE_DESC* pDesc,
-                                                                      REFIID                          riid,
-                                                                      void**                          ppCommandQueue)
-{
-    if (pDesc->Type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-    {
-        auto queue_wrapper = reinterpret_cast<ID3D12CommandQueue_Wrapper*>(*ppCommandQueue);
-
-        direct_queues_.push_back(queue_wrapper);
     }
 }
 
