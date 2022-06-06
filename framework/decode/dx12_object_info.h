@@ -153,6 +153,9 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
     uint32_t image_count{ 0 };  ///< The number of swapchain images.
     std::unique_ptr<DxObjectInfo*[]> images; ///< Pointers to swapchain image info entries to be kept in the info table
                                              ///< while the swapchain is active.
+    graphics::dx12::ID3D12CommandQueueComPtr command_queue{
+        nullptr
+    }; ///< The command queue that was used to create the swapchain.
 };
 
 struct D3D12CommandQueueInfo : DxObjectExtraInfo

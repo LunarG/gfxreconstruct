@@ -563,22 +563,29 @@ ULONG Dx12ReplayConsumerBase::OverrideRelease(DxObjectInfo* replay_object_info, 
     return object->Release();
 }
 
-void Dx12ReplayConsumerBase::PrePresent(IDXGISwapChain* swapchain)
+void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info)
 {
     if (screenshot_handler_ != nullptr)
     {
         if (screenshot_handler_->IsScreenshotFrame())
         {
-            if (!direct_queues_.empty())
+            auto swapchain            = static_cast<IDXGISwapChain*>(swapchain_object_info->object);
+            auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_object_info);
+
+            if (swapchain_extra_info && swapchain_extra_info->command_queue)
             {
                 graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
-                                               direct_queues_.back(),
+                                               swapchain_extra_info->command_queue,
                                                swapchain,
                                                screenshot_handler_->GetCurrentFrame(),
                                                screenshot_file_prefix_);
             }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue associated with the presented swap chain. "
+                                   "GFXReconstruct is unable to take a screenshot.");
+            }
         }
-
         screenshot_handler_->EndFrame();
     }
 }
@@ -594,7 +601,7 @@ HRESULT Dx12ReplayConsumerBase::OverridePresent(DxObjectInfo* replay_object_info
                                                 UINT          flags)
 {
     auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
-    PrePresent(replay_object);
+    PrePresent(replay_object_info);
     auto result = replay_object->Present(sync_interval, flags);
     PostPresent();
 
@@ -609,7 +616,7 @@ Dx12ReplayConsumerBase::OverridePresent1(DxObjectInfo*                          
                                          StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* present_parameters)
 {
     auto replay_object = static_cast<IDXGISwapChain1*>(replay_object_info->object);
-    PrePresent(replay_object);
+    PrePresent(replay_object_info);
     auto result = replay_object->Present1(sync_interval, flags, present_parameters->GetPointer());
     PostPresent();
 
@@ -691,7 +698,7 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
                     hwnd_id = meta_info->OutputWindow;
                 }
 
-                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount);
+                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount, device);
             }
             else
             {
@@ -801,14 +808,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
 
     if (SUCCEEDED(replay_result))
     {
-        if (desc->GetPointer()->Type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-        {
-            graphics::dx12::ID3D12CommandQueueComPtr direct_queue =
-                static_cast<ID3D12CommandQueue*>(*command_queue->GetHandlePointer());
-
-            direct_queues_.push_back(direct_queue);
-        }
-
         auto command_queue_info = std::make_unique<D3D12CommandQueueInfo>();
 
         // Create the fence for the replay --sync option.
@@ -1931,7 +1930,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
             if (SUCCEEDED(result))
             {
                 auto object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
-                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount);
+                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount, device);
             }
             else
             {
@@ -1953,7 +1952,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
 }
 
 void Dx12ReplayConsumerBase::SetSwapchainInfo(
-    DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd, uint32_t image_count)
+    DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd, uint32_t image_count, IUnknown* queue_iunknown)
 {
     if (window != nullptr)
     {
@@ -1966,6 +1965,14 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(
             swapchain_info->hwnd_id     = hwnd_id;
             swapchain_info->image_count = image_count;
             swapchain_info->images      = std::make_unique<DxObjectInfo*[]>(image_count);
+
+            // Get the ID3D12CommandQueue from the IUnknown queue object.
+            HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
+            if (FAILED(hr))
+            {
+                GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
+                                     "argument to CreateSwapChain.");
+            }
 
             info->extra_info = std::move(swapchain_info);
 

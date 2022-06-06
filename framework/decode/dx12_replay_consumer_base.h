@@ -413,7 +413,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
 
-    void PrePresent(IDXGISwapChain* swapchain);
+    void PrePresent(DxObjectInfo* swapchain_object_info);
 
     void PostPresent();
 
@@ -606,7 +606,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                            DxObjectInfo*                                                  restrict_to_output_info,
                            HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
 
-    void SetSwapchainInfo(DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd, uint32_t image_count);
+    void SetSwapchainInfo(DxObjectInfo* info,
+                          Window*       window,
+                          uint64_t      hwnd_id,
+                          HWND          hwnd,
+                          uint32_t      image_count,
+                          IUnknown*     queue_iunknown);
 
     void ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count, uint32_t width, uint32_t height);
 
@@ -701,11 +706,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
             after_states.clear();
         }
     };
-    ResourceInitInfo                                      resource_init_info_;
-    std::unique_ptr<graphics::Dx12ResourceDataUtil>       resource_data_util_;
-    std::string                                           screenshot_file_prefix_;
-    std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
-    std::vector<graphics::dx12::ID3D12CommandQueueComPtr> direct_queues_;
+    ResourceInitInfo                                resource_init_info_;
+    std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
+    std::string                                     screenshot_file_prefix_;
+    std::unique_ptr<ScreenshotHandlerBase>          screenshot_handler_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
