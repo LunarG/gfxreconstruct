@@ -156,9 +156,12 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                     encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
                     manager->InitVkInstance(pInstance, fpGetInstanceProcAddr);
+
                     // Register the next layer's GetPhysicalDeviceProcAddr func only after *pInstance
                     // has been updated to our wrapper in manager->InitVkInstance() above:
-                    set_instance_next_gpdpa(*pInstance, pLayerInfo->pfnNextGetPhysicalDeviceProcAddr);
+                    auto fpNextGetPhysicalDeviceProcAddr = reinterpret_cast<PFN_GetPhysicalDeviceProcAddr>(
+                        fpGetInstanceProcAddr(*pInstance, "vk_layerGetPhysicalDeviceProcAddr"));
+                    set_instance_next_gpdpa(*pInstance, fpNextGetPhysicalDeviceProcAddr);
                 }
             }
         }
@@ -281,8 +284,9 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ou
 
     if (ourInstanceWrapper != VK_NULL_HANDLE)
     {
-        const VkInstance              nextLayersInstance = encode::GetWrappedHandle<VkInstance>(ourInstanceWrapper);
-        PFN_GetPhysicalDeviceProcAddr next_gpdpa         = get_instance_next_gpdpa(ourInstanceWrapper);
+        const VkInstance nextLayersInstance = encode::GetWrappedHandle<VkInstance>(ourInstanceWrapper);
+
+        PFN_GetPhysicalDeviceProcAddr next_gpdpa = get_instance_next_gpdpa(ourInstanceWrapper);
         if (next_gpdpa != nullptr)
         {
             result = next_gpdpa(nextLayersInstance, pName);
