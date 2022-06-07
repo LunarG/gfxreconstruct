@@ -111,7 +111,6 @@ class LayerFuncTableGenerator(BaseGenerator):
         )
 
     def endFile(self):
-        """Method override."""
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

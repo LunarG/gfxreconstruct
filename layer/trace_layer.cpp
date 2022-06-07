@@ -98,6 +98,31 @@ static VkInstance get_instance_handle(const void* handle)
     return (entry != instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 
+// The GetPhysicalDeviceProcAddr of the next layer in the chain.
+// Retrieved during instance creation and forwarded to by this layer's
+// GetPhysicalDeviceProcAddr() after unwrapping its VkInstance parameter.
+static std::mutex                                                    gpdpa_lock;
+static std::unordered_map<VkInstance, PFN_GetPhysicalDeviceProcAddr> next_gpdpa;
+
+static void set_instance_next_gpdpa(const VkInstance instance, PFN_GetPhysicalDeviceProcAddr p_next_gpdpa)
+{
+    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
+    std::lock_guard<std::mutex> lock(gpdpa_lock);
+    next_gpdpa[instance] = p_next_gpdpa;
+}
+
+static PFN_GetPhysicalDeviceProcAddr get_instance_next_gpdpa(const VkInstance instance)
+{
+    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
+    std::lock_guard<std::mutex> lock(gpdpa_lock);
+    auto                        it_gpdpa = next_gpdpa.find(instance);
+    if (it_gpdpa == next_gpdpa.end())
+    {
+        return nullptr;
+    }
+    return it_gpdpa->second;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                                        const VkAllocationCallbacks* pAllocator,
                                                        VkInstance*                  pInstance)
@@ -119,6 +144,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
             if (fpCreateInstance)
             {
                 // Advance the link info for the next element on the chain
+                auto pLayerInfo          = chain_info->u.pLayerInfo;
                 chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
                 result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
@@ -130,6 +156,12 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                     encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
                     manager->InitVkInstance(pInstance, fpGetInstanceProcAddr);
+
+                    // Register the next layer's GetPhysicalDeviceProcAddr func only after *pInstance
+                    // has been updated to our wrapper in manager->InitVkInstance() above:
+                    auto fpNextGetPhysicalDeviceProcAddr = reinterpret_cast<PFN_GetPhysicalDeviceProcAddr>(
+                        fpGetInstanceProcAddr(*pInstance, "vk_layerGetPhysicalDeviceProcAddr"));
+                    set_instance_next_gpdpa(*pInstance, fpNextGetPhysicalDeviceProcAddr);
                 }
             }
         }
@@ -235,6 +267,29 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
                     result = entry->second;
                 }
             }
+        }
+    }
+
+    return result;
+}
+
+/**
+ * We don't actually need to do anything for this function,
+ * but we do need to unwrap the instance before the downstream layer
+ * sees it.
+ */
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName)
+{
+    PFN_vkVoidFunction result = nullptr;
+
+    if (ourInstanceWrapper != VK_NULL_HANDLE)
+    {
+        const VkInstance nextLayersInstance = encode::GetWrappedHandle<VkInstance>(ourInstanceWrapper);
+
+        PFN_GetPhysicalDeviceProcAddr next_gpdpa = get_instance_next_gpdpa(ourInstanceWrapper);
+        if (next_gpdpa != nullptr)
+        {
+            result = next_gpdpa(nextLayersInstance, pName);
         }
     }
 
@@ -364,7 +419,7 @@ extern "C"
         {
             pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::GetInstanceProcAddr;
             pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::GetDeviceProcAddr;
-            pVersionStruct->pfnGetPhysicalDeviceProcAddr = nullptr;
+            pVersionStruct->pfnGetPhysicalDeviceProcAddr = gfxrecon::GetPhysicalDeviceProcAddr;
         }
 
         if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
@@ -375,7 +430,7 @@ extern "C"
         return VK_SUCCESS;
     }
 
-    // The following three functions are not directly invoked by the desktop loader, which instead uses the function
+    // The following two functions are not directly invoked by the desktop loader, which instead uses the function
     // pointers returned by the negotiate function.
     VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance  instance,
                                                                                    const char* pName)
