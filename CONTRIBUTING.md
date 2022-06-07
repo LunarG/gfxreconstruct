@@ -59,7 +59,7 @@ git submodule update
 To do that, `cd` to `framework/generated` and run:
 
 ```bash
-    python3 generate_vulkan.py 
+python3 generate_vulkan.py 
 ```
 
 ## **Submitting Changes**
