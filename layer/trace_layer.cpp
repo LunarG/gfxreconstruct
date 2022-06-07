@@ -98,7 +98,7 @@ static VkInstance get_instance_handle(const void* handle)
     return (entry != instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 
-// The vk_layerGetPhysicalDeviceProcAddr of the next layer in the chain.
+// The GetPhysicalDeviceProcAddr of the next layer in the chain.
 // Retrieved during instance creation and forwarded to by this layer's
 // GetPhysicalDeviceProcAddr() after unwrapping its VkInstance parameter.
 static std::mutex                                                    gpdpa_lock;
@@ -426,7 +426,7 @@ extern "C"
         return VK_SUCCESS;
     }
 
-    // The following three functions are not directly invoked by the desktop loader, which instead uses the function
+    // The following two functions are not directly invoked by the desktop loader, which instead uses the function
     // pointers returned by the negotiate function.
     VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance  instance,
                                                                                    const char* pName)
@@ -437,12 +437,6 @@ extern "C"
     VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
     {
         return gfxrecon::GetDeviceProcAddr(device, pName);
-    }
-
-    VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance  instance,
-                                                                                               const char* pName)
-    {
-        return gfxrecon::GetPhysicalDeviceProcAddr(instance, pName);
     }
 
     // The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties
