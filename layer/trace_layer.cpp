@@ -152,6 +152,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                 if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
                 {
                     add_instance_handle(*pInstance);
+                    VkInstance unwrapped_instance = *pInstance;
 
                     encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
@@ -160,7 +161,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                     // Register the next layer's GetPhysicalDeviceProcAddr func only after *pInstance
                     // has been updated to our wrapper in manager->InitVkInstance() above:
                     auto fpNextGetPhysicalDeviceProcAddr = reinterpret_cast<PFN_GetPhysicalDeviceProcAddr>(
-                        fpGetInstanceProcAddr(*pInstance, "vk_layerGetPhysicalDeviceProcAddr"));
+                        fpGetInstanceProcAddr(unwrapped_instance, "vk_layerGetPhysicalDeviceProcAddr"));
                     set_instance_next_gpdpa(*pInstance, fpNextGetPhysicalDeviceProcAddr);
                 }
             }
