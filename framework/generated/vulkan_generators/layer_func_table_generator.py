@@ -111,6 +111,12 @@ class LayerFuncTableGenerator(BaseGenerator):
         )
 
     def endFile(self):
+        """Method override."""
+        # Manually output the physical device proc address function as its name doesn't
+        # match the scheme used by self.LAYER_FUNCTIONS:
+        align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
+        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
