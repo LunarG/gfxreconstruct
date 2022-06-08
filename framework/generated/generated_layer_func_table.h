@@ -561,6 +561,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdTraceRaysIndirectKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::CmdTraceRaysIndirectKHR) },
     { "vkGetRayTracingShaderGroupStackSizeKHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::GetRayTracingShaderGroupStackSizeKHR) },
     { "vkCmdSetRayTracingPipelineStackSizeKHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetRayTracingPipelineStackSizeKHR) },
+    { "vk_layerGetPhysicalDeviceProcAddr",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
