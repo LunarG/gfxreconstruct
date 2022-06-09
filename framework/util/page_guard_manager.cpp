@@ -293,8 +293,6 @@ void* PageGuardManager::AllocateMemory(size_t aligned_size, bool use_write_watch
 {
     assert(aligned_size > 0);
 
-    void* memory = nullptr;
-
     if (aligned_size > 0)
     {
 #if defined(WIN32)
@@ -305,7 +303,15 @@ void* PageGuardManager::AllocateMemory(size_t aligned_size, bool use_write_watch
             flags |= MEM_WRITE_WATCH;
         }
 
-        memory = VirtualAlloc(nullptr, aligned_size, flags, PAGE_READWRITE);
+        void* memory = VirtualAlloc(nullptr, aligned_size, flags, PAGE_READWRITE);
+
+        if (memory == nullptr)
+        {
+            GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with \"VirtualAlloc()\" and size = %" PRIuPTR
+                               " with error code: %u",
+                               aligned_size,
+                               GetLastError());
+        }
 #else
         if (use_write_watch)
         {
@@ -313,16 +319,27 @@ void* PageGuardManager::AllocateMemory(size_t aligned_size, bool use_write_watch
                                "from the current platform.");
         }
 
-        memory = mmap(nullptr, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        void* memory = mmap(nullptr, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+        if (memory == MAP_FAILED)
+        {
+            GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with \"mmap()\" and size = %" PRIuPTR
+                               " (errno: %d)",
+                               aligned_size,
+                               errno);
+
+            return nullptr;
+        }
 #endif
-    }
 
-    if (memory == nullptr)
+        return memory;
+    }
+    else
     {
-        GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with size = %" PRIuPTR, aligned_size);
-    }
+        GFXRECON_LOG_ERROR("PageGuardManager::AllocateMemory(): aligned_size must be greater than 0.");
 
-    return memory;
+        return nullptr;
+    }
 }
 
 void PageGuardManager::FreeMemory(void* memory, size_t aligned_size)
