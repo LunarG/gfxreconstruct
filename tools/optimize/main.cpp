@@ -42,7 +42,7 @@
 const char kHelpShortOption[] = "-h";
 const char kHelpLongOption[]  = "--help";
 const char kVersionOption[]   = "--version";
-const char kNoDebugPopup[]    = "--no-debug-popup";
+GFXRECON_MAYBE_UNUSED const char kNoDebugPopup[]    = "--no-debug-popup";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
 
@@ -107,7 +107,7 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
     return false;
 }
 
-static std::string GetVersionString(uint32_t api_version)
+GFXRECON_MAYBE_UNUSED static std::string GetVersionString(uint32_t api_version)
 {
     uint32_t major = api_version >> 22;
     uint32_t minor = (api_version >> 12) & 0x3ff;
