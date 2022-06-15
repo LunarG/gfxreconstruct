@@ -140,17 +140,21 @@ endif()
 find_package(LZ4)
 find_package(ZSTD)
 if(UNIX)
-    option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
-    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+        option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
+        option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+
+        if(BUILD_WSI_XCB_SUPPORT)
+            find_package(XCB)
+        endif()
+
+        if(BUILD_WSI_WAYLAND_SUPPORT)
+            find_package(WAYLAND)
+        endif()
+    endif()
+
     option(BUILD_WSI_DISPLAY_SUPPORT "Build direct-to-display swapchain support" ON)
-
-    if(BUILD_WSI_XCB_SUPPORT)
-        find_package(XCB)
-    endif()
-
-    if(BUILD_WSI_WAYLAND_SUPPORT)
-        find_package(WAYLAND)
-    endif()
 endif(UNIX)
 
 # CMake provided find modules
@@ -160,9 +164,11 @@ else()
     find_package(ZLIB)
 endif()
 if(UNIX)
-    option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-    if(BUILD_WSI_XLIB_SUPPORT)
-        find_package(X11)
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
+        if(BUILD_WSI_XLIB_SUPPORT)
+            find_package(X11)
+        endif()
     endif()
 endif(UNIX)
 
@@ -185,10 +191,18 @@ target_compile_definitions(macos_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(platform_specific INTERFACE)
-target_link_libraries(platform_specific INTERFACE
-    $<$<BOOL:${WIN32}>:windows_specific>
-    $<STREQUAL:${CMAKE_SYSTEM_NAME},Darwin>:macos_specific>
-    $<STREQUAL:${CMAKE_SYSTEM_NAME},Linux>:linux_specific>)
+
+if(WIN32)
+    target_link_libraries(platform_specific INTERFACE windows_specific)
+endif(WIN32)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_link_libraries(platform_specific INTERFACE macos_specific)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(platform_specific INTERFACE linuxs_specific)
+endif()
 
 if(BUILD_WERROR)
     if(MSVC)
