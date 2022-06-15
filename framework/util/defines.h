@@ -39,6 +39,17 @@
 
 #define GFXRECON_UNREFERENCED_PARAMETER(x) ((void)x)
 
+// C++17 introduced "[[maybe_unused]]".  While we still use a prior
+// C++ version, define some helpful macros.
+
+#if defined(__clang__)
+#define GFXRECON_MAYBE_UNUSED [[maybe_unused]]
+#elif defined(__GNUC__)
+#define GFXRECON_MAYBE_UNUSED [[gnu::maybe_unused]]
+#elif
+#define GFXRECON_MAYBE_UNUSED 
+#endif
+
 // Use two macros for the x is a macro case, to ensure macro expansion is applied to x prior to string conversion.
 #define GFXRECON_STR_EXPAND(x) #x
 #define GFXRECON_STR(x) GFXRECON_STR_EXPAND(x)
