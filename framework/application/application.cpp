@@ -61,8 +61,8 @@ Application::Application(const std::string&     name,
                          const std::string&     cli_wsi_extension,
                          decode::FileProcessor* file_processor) :
     name_(name),
-    file_processor_(file_processor), cli_wsi_extension_(cli_wsi_extension), running_(false), paused_(false),
-    pause_frame_(0)
+    file_processor_(file_processor), running_(false), paused_(false),
+    pause_frame_(0), cli_wsi_extension_(cli_wsi_extension)
 {
     if (!cli_wsi_extension_.empty())
     {

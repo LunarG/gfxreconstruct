@@ -264,7 +264,6 @@ VkResult VulkanRealignAllocator::WriteMappedMemoryRange(MemoryData     allocator
                                                         const uint8_t* data)
 {
     VkResult     result         = VK_ERROR_MEMORY_MAP_FAILED;
-    VkDeviceSize realign_offset = offset;
     auto         memory_info    = GetMemoryAllocInfo(allocator_data);
 
     if (memory_info != nullptr)
