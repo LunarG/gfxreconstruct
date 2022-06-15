@@ -57,7 +57,7 @@ util::SharedMutex                                        CaptureManager::state_m
 std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
 
 CaptureManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown)
+    thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown), object_id_(format::kNullHandleId)
 {
     parameter_buffer_  = std::make_unique<encode::ParameterBuffer>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
@@ -85,7 +85,8 @@ format::ThreadId CaptureManager::ThreadData::GetThreadId()
 }
 
 CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
-    api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
+    screenshot_prefix_(""), global_frame_count_(0),
+    api_family_(api_family), timestamp_filename_(true), force_file_flush_(false),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),

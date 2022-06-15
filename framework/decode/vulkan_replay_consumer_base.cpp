@@ -708,10 +708,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
     {
         assert(device_info->handle != VK_NULL_HANDLE);
 
-        VkResult       result = VK_SUCCESS;
         VkDevice       device = device_info->handle;
-        VkBuffer       buffer = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
 
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
@@ -1264,9 +1261,6 @@ void VulkanReplayConsumerBase::SelectPhysicalDevice(PhysicalDeviceInfo* physical
 
     if (instance_info != nullptr)
     {
-        const auto&      replay_devices = instance_info->replay_devices;
-        VkPhysicalDevice current_device = physical_device_info->handle;
-
         bool have_override = false;
 
         if (options_.override_gpu_index >= 0)
@@ -4101,8 +4095,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
     // Replace shader in 'override_info'
     std::unique_ptr<char[]> file_code;
-    const uint32_t*         orig_code = original_info->pCode;
-    size_t                  orig_size = original_info->codeSize;
     uint64_t                handle_id = *pShaderModule->GetPointer();
     std::string             file_name = "sh" + std::to_string(handle_id);
     std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);

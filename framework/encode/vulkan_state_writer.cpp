@@ -2031,7 +2031,6 @@ void VulkanStateWriter::WritePhysicalDevicePropertiesMetaData(const PhysicalDevi
 
     format::HandleId           physical_device_id     = physical_device_wrapper->handle_id;
     VkPhysicalDevice           physical_device_handle = physical_device_wrapper->handle;
-    uint32_t                   count                  = 0;
     VkPhysicalDeviceProperties properties;
 
     instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);

@@ -36,7 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
-    file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
+    file_descriptor_(nullptr), file_header_{}, current_frame_number_(0), bytes_read_(0),
     error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), api_call_index_(0)
 {}
 
@@ -241,7 +241,6 @@ bool FileProcessor::ProcessBlocks()
             else if (block_header.type == format::BlockType::kStateMarkerBlock)
             {
                 format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                uint64_t           frame_number = 0;
 
                 success = ReadBytes(&marker_type, sizeof(marker_type));
 
