@@ -634,7 +634,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     for (size_t i = 0; i < extension_count; ++i)
     {
-        auto entry = pCreateInfo_unwrapped->ppEnabledExtensionNames[i];
+        auto entry = extensions[i];
 
         modified_extensions.push_back(entry);
 
@@ -1175,7 +1175,6 @@ void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          res
                 auto             physical_device_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
                 format::HandleId physical_device_id      = physical_device_wrapper->handle_id;
                 VkPhysicalDevice physical_device_handle  = physical_device_wrapper->handle;
-                uint32_t         count                   = 0;
 
                 VkPhysicalDeviceProperties       properties;
                 VkPhysicalDeviceMemoryProperties memory_properties;
