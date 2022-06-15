@@ -163,6 +163,8 @@ int main(int argc, const char** argv)
         {
             _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
         }
+#else
+        GFXRECON_UNREFERENCED_PARAMETER(kNoDebugPopup);
 #endif
     }
 

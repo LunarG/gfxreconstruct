@@ -132,7 +132,7 @@ const char kDefaultScreenshotDir[] = "/sdcard";
 const char kDefaultScreenshotDir[] = "";
 #endif
 
-static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
+GFXRECON_MAYBE_UNUSED static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
 {
 #if defined(WIN32) && defined(_DEBUG)
     if (arg_parser.IsOptionSet(kNoDebugPopup))
@@ -142,7 +142,7 @@ static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_p
 #endif
 }
 
-static void CheckActiveLayers(const std::string& list)
+GFXRECON_MAYBE_UNUSED static void CheckActiveLayers(const std::string& list)
 {
     if (!list.empty())
     {
@@ -232,7 +232,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
     };
 }
 
-static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
+GFXRECON_MAYBE_UNUSED static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     uint32_t    pause_frame = 0;
     const auto& value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
@@ -249,7 +249,7 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
     return pause_frame;
 }
 
-static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
+GFXRECON_MAYBE_UNUSED static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     WsiPlatform wsi_platform = WsiPlatform::kAuto;
     const auto& value        = arg_parser.GetArgumentValue(kWsiArgument);
@@ -317,7 +317,7 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
     return wsi_platform;
 }
 
-static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
+GFXRECON_MAYBE_UNUSED static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
 {
     switch (wsi_platform)
     {
@@ -358,7 +358,7 @@ static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
     }
 }
 
-static std::string GetWsiArgString()
+GFXRECON_MAYBE_UNUSED static std::string GetWsiArgString()
 {
     std::string wsi_args = kWsiPlatformAuto;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -389,7 +389,7 @@ static std::string GetWsiArgString()
 }
 
 // Modifies settings parameter with values set via command line
-static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
+GFXRECON_MAYBE_UNUSED static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
                            gfxrecon::util::Log::Settings&        log_settings)
 {
     // Parse log level
@@ -475,7 +475,7 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
     return ranges;
 }
 
-static bool
+GFXRECON_MAYBE_UNUSED static bool
 GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
 {
     start_frame = 1;
@@ -622,7 +622,7 @@ static bool IsApiFamilyIdEnabled(const gfxrecon::util::ArgumentParser& arg_parse
 }
 #endif
 
-static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
+GFXRECON_MAYBE_UNUSED static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
                                             const char*                           filter_messages)
 {
     const auto&          value = arg_parser.GetArgumentValue(filter_messages);
@@ -690,7 +690,7 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     }
 }
 
-static gfxrecon::decode::VulkanReplayOptions
+GFXRECON_MAYBE_UNUSED static gfxrecon::decode::VulkanReplayOptions
 GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
                        const std::string&                              filename,
                        gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
