@@ -45,7 +45,7 @@
 #if defined(__clang__)
 #define GFXRECON_MAYBE_UNUSED [[maybe_unused]]
 #elif defined(__GNUC__)
-#define GFXRECON_MAYBE_UNUSED [[gnu::maybe_unused]]
+#define GFXRECON_MAYBE_UNUSED __attribute__((unused))
 #else
 #define GFXRECON_MAYBE_UNUSED
 #endif
