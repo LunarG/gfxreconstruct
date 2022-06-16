@@ -61,7 +61,7 @@ class CaptureManager
 
     std::unique_lock<util::SharedMutex> AcquireUniqueStateLock()
     {
-        return std::move(std::unique_lock<util::SharedMutex>(state_mutex_));
+        return std::unique_lock<util::SharedMutex>(state_mutex_);
     }
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
