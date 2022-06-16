@@ -36,11 +36,11 @@
 #include <cstdlib>
 #include <string>
 
-const char kHelpShortOption[]   = "-h";
-const char kHelpLongOption[]    = "--help";
-const char kVersionOption[]     = "--version";
-const char kDirectoryArgument[] = "--dir";
-GFXRECON_MAYBE_UNUSED const char kNoDebugPopup[]    = "--no-debug-popup";
+const char                       kHelpShortOption[]   = "-h";
+const char                       kHelpLongOption[]    = "--help";
+const char                       kVersionOption[]     = "--version";
+const char                       kDirectoryArgument[] = "--dir";
+GFXRECON_MAYBE_UNUSED const char kNoDebugPopup[]      = "--no-debug-popup";
 
 const char kOptions[]   = "-h|--help,--version,--no-debug-popup";
 const char kArguments[] = "--dir";

@@ -47,7 +47,7 @@
 #elif defined(__GNUC__)
 #define GFXRECON_MAYBE_UNUSED [[gnu::maybe_unused]]
 #elif
-#define GFXRECON_MAYBE_UNUSED 
+#define GFXRECON_MAYBE_UNUSED
 #endif
 
 // Use two macros for the x is a macro case, to ensure macro expansion is applied to x prior to string conversion.

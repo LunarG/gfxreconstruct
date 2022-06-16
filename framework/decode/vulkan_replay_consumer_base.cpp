@@ -1275,7 +1275,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
     {
         assert(device_info->handle != VK_NULL_HANDLE);
 
-        VkDevice       device = device_info->handle;
+        VkDevice device = device_info->handle;
 
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
@@ -1627,7 +1627,7 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
         else
         {
             GFXRECON_LOG_WARNING_ONCE("Failed to find a valid AHardwareBuffer handle for a call to "
-                                 "vkGetAndroidHardwareBufferPropertiesANDROID")
+                                      "vkGetAndroidHardwareBufferPropertiesANDROID")
         }
     }
 #endif

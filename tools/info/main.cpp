@@ -39,9 +39,9 @@
 #include <string>
 #include <unordered_map>
 
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
-const char kVersionOption[]   = "--version";
+const char                       kHelpShortOption[] = "-h";
+const char                       kHelpLongOption[]  = "--help";
+const char                       kVersionOption[]   = "--version";
 GFXRECON_MAYBE_UNUSED const char kNoDebugPopup[]    = "--no-debug-popup";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
