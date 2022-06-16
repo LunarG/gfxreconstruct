@@ -390,7 +390,7 @@ GFXRECON_MAYBE_UNUSED static std::string GetWsiArgString()
 
 // Modifies settings parameter with values set via command line
 GFXRECON_MAYBE_UNUSED static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
-                           gfxrecon::util::Log::Settings&        log_settings)
+                                                 gfxrecon::util::Log::Settings&        log_settings)
 {
     // Parse log level
     gfxrecon::util::Log::Severity log_level;
@@ -623,7 +623,7 @@ static bool IsApiFamilyIdEnabled(const gfxrecon::util::ArgumentParser& arg_parse
 #endif
 
 GFXRECON_MAYBE_UNUSED static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
-                                            const char*                           filter_messages)
+                                                                  const char*                           filter_messages)
 {
     const auto&          value = arg_parser.GetArgumentValue(filter_messages);
     std::vector<int32_t> msgs;

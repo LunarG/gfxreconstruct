@@ -708,7 +708,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
     {
         assert(device_info->handle != VK_NULL_HANDLE);
 
-        VkDevice       device = device_info->handle;
+        VkDevice device = device_info->handle;
 
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
