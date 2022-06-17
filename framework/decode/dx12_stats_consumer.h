@@ -32,30 +32,60 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12StatsConsumer : public Dx12Consumer
 {
   public:
-    Dx12StatsConsumer() :
-        device_ID_(0), vendor_ID_(0), subsys_id_(0), revision_(0), dedicated_video_memory_(0),
-        dedicated_system_memory_(0), shared_system_memory_(0), swapchain_width_(0), swapchain_height_(0),
-        swapchain_id_(0)
-    {
-        memset(&adapter_luid_, sizeof(adapter_luid_), 0);
-    }
-
-    WCHAR*   GetAdapterDescription() { return description_; }
-    uint32_t GetVendorID() { return vendor_ID_; }
-    uint32_t GetDeviceID() { return device_ID_; }
-    uint32_t GetSubsysID() { return subsys_id_; }
-    uint32_t GetRevision() { return revision_; }
-    uint64_t GetDedicatedVideoMemory() { return dedicated_video_memory_; }
-    uint64_t GetDedicatedSystemMemory() { return dedicated_system_memory_; }
-    uint64_t GetSharedSystemMemory() { return shared_system_memory_; }
-    DWORD    GetAdapterLUIDLowPart() { return adapter_luid_.LowPart; };
-    LONG     GetAdapterLUIDHighPart() { return adapter_luid_.HighPart; };
+    Dx12StatsConsumer() : swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false) {}
 
     bool IsComplete(uint64_t current_block_index) override { return false; }
 
-    std::string GetSwapchainDimensions()
+    const std::vector<format::DxgiAdapterDesc> GetAdapters() { return hardware_adapters_; }
+
+    bool FoundSwapchainInfo() { return swapchain_info_found_; }
+
+    template <typename DescT>
+    void CopyAdapterDesc(format::DxgiAdapterDesc& dest, DescT& src)
     {
-        return std::to_string(swapchain_width_) + 'x' + std::to_string(swapchain_height_);
+        util::platform::MemoryCopy(&dest.Description,
+                                   format::kAdapterDescriptionSize,
+                                   src->GetPointer()->Description,
+                                   format::kAdapterDescriptionSize);
+
+        dest.VendorId              = src->GetPointer()->VendorId;
+        dest.DeviceId              = src->GetPointer()->DeviceId;
+        dest.SubSysId              = src->GetPointer()->SubSysId;
+        dest.DedicatedVideoMemory  = src->GetPointer()->DedicatedVideoMemory;
+        dest.DedicatedSystemMemory = src->GetPointer()->DedicatedSystemMemory;
+        dest.SharedSystemMemory    = src->GetPointer()->SharedSystemMemory;
+        dest.LuidLowPart           = src->GetPointer()->AdapterLuid.LowPart;
+        dest.LuidHighPart          = src->GetPointer()->AdapterLuid.HighPart;
+    }
+
+    void InsertAdapter(const format::DxgiAdapterDesc& new_adapter)
+    {
+        bool insert = true;
+
+        for (const auto& adapter : hardware_adapters_)
+        {
+            if ((adapter.LuidHighPart == new_adapter.LuidHighPart) && (adapter.LuidLowPart == new_adapter.LuidLowPart))
+            {
+                insert = false;
+                break;
+            }
+        }
+
+        if (insert)
+        {
+            hardware_adapters_.push_back(new_adapter);
+        }
+    }
+
+    virtual void
+    Process_IDXGIAdapter2_GetDesc2(const gfxrecon::decode::ApiCallInfo&                                call_info,
+                                   gfxrecon::format::HandleId                                          object_id,
+                                   HRESULT                                                             return_value,
+                                   gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
+    {
+        format::DxgiAdapterDesc new_adapter = {};
+        CopyAdapterDesc(new_adapter, pDesc);
+        InsertAdapter(new_adapter);
     }
 
     virtual void
@@ -64,15 +94,9 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    HRESULT                                                             return_value,
                                    gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
     {
-        wcscpy_s(description_, pDesc->GetPointer()->Description);
-        vendor_ID_               = pDesc->GetPointer()->VendorId;
-        device_ID_               = pDesc->GetPointer()->DeviceId;
-        subsys_id_               = pDesc->GetPointer()->SubSysId;
-        revision_                = pDesc->GetPointer()->Revision;
-        dedicated_video_memory_  = pDesc->GetPointer()->DedicatedVideoMemory;
-        dedicated_system_memory_ = pDesc->GetPointer()->DedicatedSystemMemory;
-        shared_system_memory_    = pDesc->GetPointer()->SharedSystemMemory;
-        adapter_luid_            = pDesc->GetPointer()->AdapterLuid;
+        format::DxgiAdapterDesc new_adapter = {};
+        CopyAdapterDesc(new_adapter, pDesc);
+        InsertAdapter(new_adapter);
     }
 
     virtual void Process_IDXGIAdapter_GetDesc(const gfxrecon::decode::ApiCallInfo& call_info,
@@ -80,15 +104,14 @@ class Dx12StatsConsumer : public Dx12Consumer
                                               HRESULT                              return_value,
                                               gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
     {
-        wcscpy_s(description_, pDesc->GetPointer()->Description);
-        vendor_ID_               = pDesc->GetPointer()->VendorId;
-        device_ID_               = pDesc->GetPointer()->DeviceId;
-        subsys_id_               = pDesc->GetPointer()->SubSysId;
-        revision_                = pDesc->GetPointer()->Revision;
-        dedicated_video_memory_  = pDesc->GetPointer()->DedicatedVideoMemory;
-        dedicated_system_memory_ = pDesc->GetPointer()->DedicatedSystemMemory;
-        shared_system_memory_    = pDesc->GetPointer()->SharedSystemMemory;
-        adapter_luid_            = pDesc->GetPointer()->AdapterLuid;
+        format::DxgiAdapterDesc new_adapter = {};
+        CopyAdapterDesc(new_adapter, pDesc);
+        InsertAdapter(new_adapter);
+    }
+
+    std::string GetSwapchainDimensions()
+    {
+        return std::to_string(swapchain_width_) + 'x' + std::to_string(swapchain_height_);
     }
 
     virtual void Process_IDXGIFactory_CreateSwapChain(const ApiCallInfo&                                  call_info,
@@ -107,6 +130,8 @@ class Dx12StatsConsumer : public Dx12Consumer
             {
                 swapchain_width_  = desc_pointer->BufferDesc.Width;
                 swapchain_height_ = desc_pointer->BufferDesc.Height;
+
+                swapchain_info_found_ = true;
             }
         }
     }
@@ -130,6 +155,8 @@ class Dx12StatsConsumer : public Dx12Consumer
             {
                 swapchain_width_  = desc_pointer->Width;
                 swapchain_height_ = desc_pointer->Height;
+
+                swapchain_info_found_ = true;
             }
         }
     }
@@ -147,22 +174,18 @@ class Dx12StatsConsumer : public Dx12Consumer
         {
             swapchain_width_  = Width;
             swapchain_height_ = Height;
+
+            swapchain_info_found_ = true;
         }
     }
 
   private:
-    WCHAR            description_[128] = {};
-    uint32_t         vendor_ID_;
-    uint32_t         device_ID_;
-    uint32_t         subsys_id_;
-    uint32_t         revision_;
-    uint64_t         dedicated_video_memory_;
-    uint64_t         dedicated_system_memory_;
-    uint64_t         shared_system_memory_;
-    LUID             adapter_luid_;
+    std::vector<format::DxgiAdapterDesc> hardware_adapters_;
+
     UINT             swapchain_width_;
     UINT             swapchain_height_;
     format::HandleId swapchain_id_;
+    bool             swapchain_info_found_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

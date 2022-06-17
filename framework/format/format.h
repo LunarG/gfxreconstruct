@@ -58,6 +58,7 @@ const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
 const HandleId kNullHandleId              = 0;
+const size_t   kAdapterDescriptionSize    = 128;
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {
@@ -508,6 +509,20 @@ struct InitDx12AccelerationStructureGeometryDesc
     uint32_t triangles_index_count{ 0 }; // 0 if no index buffer
     uint32_t triangles_vertex_count{ 0 };
     uint64_t triangles_vertex_stride{ 0 };
+};
+
+struct DxgiAdapterDesc
+{
+    wchar_t  Description[kAdapterDescriptionSize];
+    uint32_t VendorId;
+    uint32_t DeviceId;
+    uint32_t SubSysId;
+    uint32_t Revision;
+    uint64_t DedicatedVideoMemory;
+    uint64_t DedicatedSystemMemory;
+    uint64_t SharedSystemMemory;
+    uint32_t LuidLowPart;
+    int32_t  LuidHighPart;
 };
 
 #pragma pack(pop)
