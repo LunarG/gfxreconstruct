@@ -714,6 +714,12 @@ void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_in
             CopyResourceValuesFromDstToSrc(src_values, dst_values, dst_values.begin(), dst_values.end(), copy_info);
             dst_values.clear();
         }
+
+        // If all values were removed from dst, remove it from the map.
+        if (dst_values.empty())
+        {
+            resource_value_info_map.erase(dst_iter);
+        }
     }
 }
 
@@ -1013,10 +1019,8 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
     for (const auto& resource_value_infos : resource_value_info_map)
     {
         const auto& value_infos = resource_value_infos.second;
-        if (value_infos.empty())
-        {
-            continue;
-        }
+
+        GFXRECON_ASSERT(!value_infos.empty());
 
         auto resource_object_info = resource_value_infos.first;
         auto resource             = static_cast<ID3D12Resource*>(resource_object_info->object);
