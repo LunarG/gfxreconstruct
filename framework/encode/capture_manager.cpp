@@ -683,6 +683,12 @@ void CaptureManager::BuildOptionList(const format::EnabledOptions&        enable
     assert(option_list != nullptr);
 
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
+
+#ifdef GFXRECON_ARCH64
+    option_list->push_back({ format::FileOption::kCaptureArch, format::CaptureArchType::k64bit });
+#else
+    option_list->push_back({ format::FileOption::kCaptureArch, format::CaptureArchType::k32bit });
+#endif
 }
 
 void CaptureManager::WriteDisplayMessageCmd(const char* message)

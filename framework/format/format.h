@@ -142,11 +142,19 @@ enum CompressionType : uint32_t
     kZstd = 3
 };
 
+enum CaptureArchType : uint32_t
+{
+    kUnknownArch  = 0,
+    k32bit        = 1,
+    k64bit        = 2
+};
+
 enum FileOption : uint32_t
 {
     kUnknownFileOption = 0,
     kCompressionType   = 1, // One of the CompressionType values defining the compression algorithm used with parameter
                             // encoding. Default = CompressionType::kNone.
+    kCaptureArch       = 2
 };
 
 enum PointerAttributes : uint32_t

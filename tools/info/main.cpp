@@ -543,6 +543,7 @@ int main(int argc, const char** argv)
 
             // File options.
             gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
+            gfxrecon::format::CaptureArchType arch_type        = gfxrecon::format::CaptureArchType::kUnknownArch;
 
             auto file_options = file_processor.GetFileOptions();
             for (const auto& option : file_options)
@@ -550,6 +551,10 @@ int main(int argc, const char** argv)
                 if (option.key == gfxrecon::format::FileOption::kCompressionType)
                 {
                     compression_type = static_cast<gfxrecon::format::CompressionType>(option.value);
+                }
+                else if (option.key == gfxrecon::format::FileOption::kCaptureArch)
+                {
+                    arch_type = static_cast<gfxrecon::format::CaptureArchType>(option.value);
                 }
             }
 
@@ -562,6 +567,12 @@ int main(int argc, const char** argv)
             else
             {
                 GFXRECON_WRITE_CONSOLE("\tCompression format: %s", kUnrecognizedFormatString);
+            }
+
+            if (arch_type != gfxrecon::format::CaptureArchType::kUnknownArch)
+            {
+                GFXRECON_WRITE_CONSOLE("\tArchitecture: %s",
+                                       arch_type == gfxrecon::format::CaptureArchType::k32bit ? "32bit" : "64bit");
             }
 
             // Frame counts.
