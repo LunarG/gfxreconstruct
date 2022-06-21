@@ -456,7 +456,7 @@ struct SetRayTracingShaderGroupHandlesCommandHeader
     format::ThreadId thread_id;
     format::HandleId device_id;
     format::HandleId pipeline_id;
-    size_t           data_size;
+    uint64_t         data_size;
 };
 
 struct CreateHeapAllocationCommand
