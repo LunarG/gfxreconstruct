@@ -103,6 +103,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) override;
 
+    virtual VkImageLayout GetImageLayout() override { return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL; }
+
   private:
     VkResult CreateSwapchainImage(const DeviceInfo*               device_info,
                                   const VkImageCreateInfo&        image_create_info,

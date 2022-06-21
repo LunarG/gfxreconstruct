@@ -105,6 +105,8 @@ class VulkanSwapchain
                                     const VkBufferMemoryBarrier* buffer_memory_barriers,
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) = 0;
+
+    virtual VkImageLayout GetImageLayout() = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

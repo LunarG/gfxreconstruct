@@ -2437,19 +2437,13 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 filename_prefix += "_frame_";
                 filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
 
-                // TODO: This currently assumes that the image to be read from is in the PRESENT_SRC layout.  With
-                // images from the the VulkanVirtualSwapchain implementation, this will not be the case.  The images
-                // will be in the TRANSFER_SRC layout, which the ScreenshotHandler requires when copying to a buffer.
-                // This function could be updated to add a parameter that specifies the current layout, and could be
-                // adjusted internally to skip the layout transition if the layout is already TRANSFER_SRC.  This would
-                // also require that the different VulkanSwapchain implementations have a method to report the expected
-                // image layout at vkQueuePresentKHR.
                 screenshot_handler_->WriteImage(filename_prefix,
                                                 device_info->handle,
                                                 GetDeviceTable(device_info->handle),
                                                 memory_properties,
                                                 device_info->allocator.get(),
                                                 swapchain_info->images[image_index],
+                                                swapchain_->GetImageLayout(),
                                                 swapchain_info->format,
                                                 swapchain_info->width,
                                                 swapchain_info->height);
