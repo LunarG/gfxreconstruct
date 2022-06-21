@@ -885,7 +885,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
 
         // Read variable size shader group handle data into parameter_buffer_.
-        success = success && ReadParameterBuffer(header.data_size);
+        success = success && ReadParameterBuffer(static_cast<size_t>(header.data_size));
 
         if (success)
         {
@@ -896,7 +896,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                     decoder->DispatchSetRayTracingShaderGroupHandlesCommand(header.thread_id,
                                                                             header.device_id,
                                                                             header.pipeline_id,
-                                                                            header.data_size,
+                                                                            static_cast<size_t>(header.data_size),
                                                                             parameter_buffer_.data());
                 }
             }
