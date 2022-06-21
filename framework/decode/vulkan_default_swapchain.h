@@ -102,6 +102,8 @@ class VulkanDefaultSwapchain : public VulkanSwapchain
                                     const VkBufferMemoryBarrier* buffer_memory_barriers,
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) override;
+
+    virtual VkImageLayout GetImageLayout() override { return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; }
 };
 
 GFXRECON_END_NAMESPACE(decode)
