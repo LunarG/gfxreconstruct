@@ -37,6 +37,7 @@
 #include <unistd.h>
 #endif
 #include <unordered_map>
+#include <fstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -50,6 +51,16 @@ bool Exists(const std::string& path)
     struct stat info;
     return (stat(path.c_str(), &info) == 0);
 #endif
+}
+
+bool FilesEqual(const std::string& first, const std::string& second)
+{
+    std::ifstream first_stream(first, std::ifstream::binary);
+    std::ifstream second_stream(second, std::ifstream::binary);
+
+    return std::equal(std::istreambuf_iterator<char>(first_stream.rdbuf()),
+                      std::istreambuf_iterator<char>(),
+                      std::istreambuf_iterator<char>(second_stream.rdbuf()));
 }
 
 bool IsFile(const std::string& path)

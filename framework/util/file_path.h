@@ -74,6 +74,8 @@ bool Exists(const std::string& path);
 
 bool IsFile(const std::string& path);
 
+bool FilesEqual(const std::string& first, const std::string& second);
+
 bool IsDirectory(const std::string& path);
 
 std::string Join(const std::string& lhs, const std::string& rhs);

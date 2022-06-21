@@ -32,7 +32,8 @@
 #include <string>
 #include <windows.h>
 
-const char kSystemDllName[]             = "d3d12_ms.dll";
+const char kSystemDllName[]             = "d3d12.dll";
+const char kSystemDllNameRenamed[]      = "d3d12_ms.dll";
 const char kCaptureDllName[]            = "d3d12_capture.dll";
 const char kCaptureDllInitProcName[]    = "InitializeD3D12Capture";
 const char kCaptureDllDestroyProcName[] = "ReleaseD3D12Capture";
@@ -74,7 +75,10 @@ static void LoadD3D12CaptureProcs(HMODULE system_dll, encode::D3D12DispatchTable
 
 static bool Initialize()
 {
-    return dll_initializer.Initialize(kSystemDllName, kCaptureDllName, kCaptureDllInitProcName, LoadD3D12CaptureProcs);
+    std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
+
+    return dll_initializer.Initialize(
+        module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadD3D12CaptureProcs);
 }
 
 static void Destroy()

@@ -25,12 +25,183 @@
 
 #include "util/defines.h"
 #include "util/platform.h"
+#include "util/file_path.h"
 
 #include <string>
 #include <windows.h>
+#include <Shlobj.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+const char kDx12RedistRuntime[] = "D3D12Core.dll";
+
+bool FoundRenamedCaptureModule(const std::string& renamed_module)
+{
+    char        module_name[MAX_PATH] = {};
+    int         path_size             = GetModuleFileNameA(nullptr, module_name, MAX_PATH);
+    size_t      separator_pos         = std::string(module_name).find_last_of(util::filepath::kPathSep);
+    std::string exe_root              = std::string(module_name).substr(0, separator_pos);
+    std::string legacy_path           = exe_root + util::filepath::kPathSep + renamed_module;
+
+    return util::filepath::Exists(legacy_path);
+}
+
+std::string GetWindowsModuleRoot()
+{
+    std::string windows_module_root = "";
+
+    // Get actual Windows folder
+    char     win_dir[MAX_PATH]  = {};
+    uint32_t windows_dir_result = GetWindowsDirectory(win_dir, MAX_PATH);
+
+    if (windows_dir_result != 0)
+    {
+        windows_module_root = std::string(win_dir) + util::filepath::kPathSep + std::string("System32");
+
+        // Check if app is 32-bit
+        BOOL process_32_bit = FALSE;
+        BOOL found_bitness  = IsWow64Process(GetCurrentProcess(), &process_32_bit);
+
+        if (found_bitness != 0)
+        {
+            if (process_32_bit == TRUE)
+            {
+                windows_module_root = std::string(win_dir) + util::filepath::kPathSep + std::string("SysWOW64");
+            }
+        }
+    }
+
+    return windows_module_root;
+}
+
+bool CopyModule(const std::string& src, const std::string& dst)
+{
+    // Copy the runtime to "\AppData\Roaming\GFXReconstruct\dx-runtimes"
+    BOOL copy_result = CopyFile(src.c_str(), dst.c_str(), FALSE);
+
+    // Only update module path if we're good until now
+    if (copy_result == 0)
+    {
+        std::string debug_str = std::string("GFXRECON: Failed to copy ") + src;
+        OutputDebugStringA(debug_str.c_str());
+    }
+
+    return copy_result != 0;
+}
+
+bool UpdateModule(const std::string& src, const std::string& dst)
+{
+    bool module_up_to_date = false;
+
+    if (util::filepath::Exists(dst) == true)
+    {
+        if (util::filepath::FilesEqual(src, dst) == true)
+        {
+            module_up_to_date = true;
+        }
+        else
+        {
+            module_up_to_date = CopyModule(src, dst);
+        }
+    }
+    else
+    {
+        module_up_to_date = CopyModule(src, dst);
+    }
+
+    return module_up_to_date;
+}
+
+std::string PrepGfxrRuntimesFolder(const std::string& windows_module_root)
+{
+    std::string gfxr_runtimes_root = "";
+
+    // Get folder location for "\AppData\Roaming"
+    char roaming_path[MAX_PATH] = {};
+    if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, roaming_path)))
+    {
+        std::string gfxr_user_target = std::string(roaming_path) + util::filepath::kPathSep + std::string("GFXReconstruct");
+        std::string gfxr_runtimes_target = gfxr_user_target + util::filepath::kPathSep + std::string("dx-runtimes");
+
+        // If "\AppData\Roaming\GFXReconstruct\dx-runtimes" does not exist, create it
+        if (util::filepath::Exists(gfxr_runtimes_target) == false)
+        {
+            int32_t mkdir_result = 0;
+
+            // If "\AppData\Roaming\GFXReconstruct" does not exist, create it
+            if (util::filepath::Exists(gfxr_user_target) == false)
+            {
+                mkdir_result = gfxrecon::util::platform::MakeDirectory(gfxr_user_target.c_str());
+            }
+
+            // Create "\AppData\Roaming\GFXReconstruct\dx-runtimes"
+            if (mkdir_result == 0)
+            {
+                mkdir_result = gfxrecon::util::platform::MakeDirectory(gfxr_runtimes_target.c_str());
+            }
+
+            if (mkdir_result == 0)
+            {
+                gfxr_runtimes_root = gfxr_runtimes_target;
+            }
+            else
+            {
+                std::string debug_str = std::string("GFXRECON: Failed to setup GFXR user folder");
+                OutputDebugStringA(debug_str.c_str());
+            }
+        }
+        else
+        {
+            gfxr_runtimes_root = gfxr_runtimes_target;
+        }
+
+        // Once created "\AppData\Roaming\GFXReconstruct\dx-runtimes" copy in the current in-box D3D12 runtime
+        if (gfxr_runtimes_root.empty() == false)
+        {
+            std::string redist_runtime_path_src =
+                windows_module_root + util::filepath::kPathSep + std::string(kDx12RedistRuntime);
+            std::string redist_runtime_path_dst =
+                gfxr_runtimes_root + util::filepath::kPathSep + std::string(kDx12RedistRuntime);
+
+            UpdateModule(redist_runtime_path_src, redist_runtime_path_dst);
+        }
+    }
+
+    return gfxr_runtimes_root;
+}
+
+std::string SetupCaptureModule(const std::string& dll_name, const std::string& dll_name_renamed)
+{
+    // First assume we are starting with the "legacy" method with renamed capture binaries
+    std::string module_path = dll_name_renamed;
+
+    // If the renamed DLLs are not found beside the app executable, then setup for reading from "\AppData\Roaming"
+    if (FoundRenamedCaptureModule(dll_name_renamed) == false)
+    {
+        std::string windows_module_root = GetWindowsModuleRoot();
+
+        // If obtained path to Windows (for correct app bitness)
+        if (windows_module_root.empty() == false)
+        {
+            // Make sure the roaming folder is present and ready
+            std::string gfxr_user_roaming_root = PrepGfxrRuntimesFolder(windows_module_root);
+
+            if (gfxr_user_roaming_root.empty() == false)
+            {
+                std::string module_path_src = windows_module_root + util::filepath::kPathSep + dll_name;
+                std::string module_path_dst = gfxr_user_roaming_root + util::filepath::kPathSep + dll_name_renamed;
+
+                if (UpdateModule(module_path_src, module_path_dst) == true)
+                {
+                    module_path = module_path_dst;
+                }
+            }
+        }
+    }
+
+    return module_path;
+}
 
 template <typename DispatchTableT>
 class DxDllInitializer

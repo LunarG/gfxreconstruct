@@ -32,7 +32,8 @@
 #include <string>
 #include <windows.h>
 
-const char kSystemDllName[]             = "dxgi_ms.dll";
+const char kSystemDllName[]             = "dxgi.dll";
+const char kSystemDllNameRenamed[]      = "dxgi_ms.dll";
 const char kCaptureDllName[]            = "d3d12_capture.dll";
 const char kCaptureDllInitProcName[]    = "InitializeDxgiCapture";
 const char kCaptureDllDestroyProcName[] = "ReleaseDxgiCapture";
@@ -66,7 +67,10 @@ static void LoadDxgiCaptureProcs(HMODULE system_dll, encode::DxgiDispatchTable* 
 
 static bool Initialize()
 {
-    return dll_initializer.Initialize(kSystemDllName, kCaptureDllName, kCaptureDllInitProcName, LoadDxgiCaptureProcs);
+    std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
+
+    return dll_initializer.Initialize(
+        module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadDxgiCaptureProcs);
 }
 
 static void Destroy()
