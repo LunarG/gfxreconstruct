@@ -71,7 +71,7 @@ HRESULT MapSubresourceAndWriteData(ID3D12Resource* resource, UINT subresource, s
 
 Dx12AccelerationStructureBuilder::Dx12AccelerationStructureBuilder(graphics::dx12::ID3D12Device5ComPtr device5) :
     device5_(device5), inputs_buffer_(nullptr), inputs_buffer_size_(0), scratch_buffer_(nullptr),
-    scratch_buffer_size_(0), temp_dest_buffer_(nullptr), temp_dest_buffer_size_(0)
+    scratch_buffer_size_(0), temp_dest_buffer_(nullptr), temp_dest_buffer_size_(0), fence_value_(0)
 {
     HRESULT result = E_FAIL;
 
@@ -95,6 +95,10 @@ Dx12AccelerationStructureBuilder::Dx12AccelerationStructureBuilder(graphics::dx1
                 if (SUCCEEDED(result))
                 {
                     result = command_list->QueryInterface(IID_PPV_ARGS(&command_list4_));
+                    if (SUCCEEDED(result))
+                    {
+                        result = device5_->CreateFence(fence_value_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
+                    }
                 }
             }
         }
@@ -323,7 +327,7 @@ void Dx12AccelerationStructureBuilder::ExecuteBuild(const graphics::Dx12GpuVaMap
     // Execute the command list and wait for completion.
     ID3D12CommandList* cmd_lists[] = { command_list4_ };
     command_queue_->ExecuteCommandLists(1, cmd_lists);
-    hr = graphics::dx12::WaitForQueue(command_queue_);
+    hr = graphics::dx12::WaitForQueue(command_queue_, fence_, ++fence_value_);
     GFXRECON_ASSERT(SUCCEEDED(hr));
 }
 
@@ -345,7 +349,7 @@ void Dx12AccelerationStructureBuilder::ExecuteCopy(D3D12_GPU_VIRTUAL_ADDRESS    
     // Execute the command list and wait for completion.
     ID3D12CommandList* cmd_lists[] = { command_list4_ };
     command_queue_->ExecuteCommandLists(1, cmd_lists);
-    hr = graphics::dx12::WaitForQueue(command_queue_);
+    hr = graphics::dx12::WaitForQueue(command_queue_, fence_, ++fence_value_);
     GFXRECON_ASSERT(SUCCEEDED(hr));
 }
 

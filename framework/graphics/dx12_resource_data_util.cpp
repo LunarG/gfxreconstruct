@@ -83,7 +83,8 @@ bool AddTransitionBarrier(ID3D12GraphicsCommandList*     cmd_list,
         }
     }
 
-    D3D12_RESOURCE_BARRIER_FLAGS flags = desired_barrier_begins_split ? D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY : D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    D3D12_RESOURCE_BARRIER_FLAGS flags =
+        desired_barrier_begins_split ? D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY : D3D12_RESOURCE_BARRIER_FLAG_NONE;
 
     // Handle the cases where the resource is currently in the middle of a split transition barrier.
     if (current_barrier_begins_split)
@@ -217,7 +218,7 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
 
 Dx12ResourceDataUtil::Dx12ResourceDataUtil(ID3D12Device* device, uint64_t min_buffer_size) :
     device_(device), staging_buffers_{ nullptr, nullptr }, staging_buffer_sizes_{ 0, 0 },
-    min_buffer_size_(min_buffer_size)
+    min_buffer_size_(min_buffer_size), fence_value_(0)
 {
     HRESULT result = E_FAIL;
 
@@ -237,6 +238,10 @@ Dx12ResourceDataUtil::Dx12ResourceDataUtil(ID3D12Device* device, uint64_t min_bu
             if (SUCCEEDED(result))
             {
                 result = command_list_->Close();
+                if (SUCCEEDED(result))
+                {
+                    result = device_->CreateFence(fence_value_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_fence_));
+                }
             }
         }
     }
@@ -517,7 +522,7 @@ HRESULT Dx12ResourceDataUtil::ExecuteAndWaitForCommandList()
     // Execute the command list and wait for completion.
     ID3D12CommandList* cmd_lists[] = { command_list_ };
     command_queue_->ExecuteCommandLists(1, cmd_lists);
-    return dx12::WaitForQueue(command_queue_);
+    return dx12::WaitForQueue(command_queue_, command_fence_, ++fence_value_);
 }
 
 HRESULT

@@ -139,24 +139,28 @@ HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_R
     return result;
 }
 
-HRESULT WaitForQueue(ID3D12CommandQueue* queue)
+HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence* fence, uint64_t fence_value)
 {
     HRESULT            result = E_FAIL;
     ID3D12DeviceComPtr device;
+    ID3D12Fence*       temp_fence = nullptr;
     result = queue->GetDevice(IID_PPV_ARGS(&device));
     if (SUCCEEDED(result))
     {
-        ID3D12FenceComPtr fence;
-        result = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+        if (nullptr == fence)
+        {
+            result = device->CreateFence(fence_value++, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+            temp_fence = fence;
+        }
         if (SUCCEEDED(result))
         {
             HANDLE idle_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
             if (idle_event != nullptr)
             {
-                result = fence->SetEventOnCompletion(1, idle_event);
+                result = fence->SetEventOnCompletion(fence_value, idle_event);
                 if (SUCCEEDED(result))
                 {
-                    result = queue->Signal(fence, 1);
+                    result = queue->Signal(fence, fence_value);
                     if (SUCCEEDED(result))
                     {
                         WaitForSingleObject(idle_event, INFINITE);
@@ -166,6 +170,10 @@ HRESULT WaitForQueue(ID3D12CommandQueue* queue)
                 CloseHandle(idle_event);
             }
         }
+    }
+    if (temp_fence != nullptr)
+    {
+        temp_fence->Release();
     }
     return result;
 }

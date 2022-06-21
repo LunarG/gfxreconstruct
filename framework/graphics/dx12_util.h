@@ -83,7 +83,7 @@ void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& imag
 HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_RANGE* read_range, uint8_t*& data_ptr);
 
 // Waits for the given queue to complete all pending tasks.
-HRESULT WaitForQueue(ID3D12CommandQueue* queue);
+HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence *fence  = nullptr, uint64_t fence_value = 0);
 
 // Utility function to analyze DRED output.
 // This function is meant to be called when device gets removed, to get extended debug information.

@@ -108,8 +108,10 @@ class Dx12ResourceDataUtil
     dx12::ID3D12CommandAllocatorComPtr    command_allocator_;
     dx12::ID3D12GraphicsCommandListComPtr command_list_;
     dx12::ID3D12ResourceComPtr            staging_buffers_[2];
+    dx12::ID3D12FenceComPtr               command_fence_;
     uint64_t                              staging_buffer_sizes_[2];
     const uint64_t                        min_buffer_size_;
+    uint64_t                              fence_value_;
 
     // Temporary buffers.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts_;

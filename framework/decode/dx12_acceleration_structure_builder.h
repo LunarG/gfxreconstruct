@@ -67,11 +67,13 @@ class Dx12AccelerationStructureBuilder
     graphics::dx12::ID3D12CommandAllocatorComPtr     command_allocator_;
     graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4_;
     graphics::dx12::ID3D12ResourceComPtr             inputs_buffer_;
+    graphics::dx12::ID3D12FenceComPtr                fence_;
     uint64_t                                         inputs_buffer_size_;
     graphics::dx12::ID3D12ResourceComPtr             scratch_buffer_;
     uint64_t                                         scratch_buffer_size_;
     graphics::dx12::ID3D12ResourceComPtr             temp_dest_buffer_;
     uint64_t                                         temp_dest_buffer_size_;
+    uint64_t                                         fence_value_;
 
     std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> temp_geometry_descs_;
     std::vector<uint8_t>                        temp_instance_desc_input_data_;
