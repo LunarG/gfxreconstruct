@@ -329,6 +329,27 @@
                                     }
                                 ]
                             }
+                        },
+                        {
+                            "key": "page_guard_unblock_sigsegv",
+                            "env": "GFXRECON_PAGE_GUARD_UNBLOCK_SIGSEGV",
+                            "label": "Page Guard unblock SIGSEGV from thread's signal mask",
+                            "description": "When the page_guard memory tracking mode is enabled, this option overrides enables SIGSEGV in thread's signal mask in the case that it has been disabled.",
+                            "type": "BOOL",
+                            "default": false,
+                            "dependence": {
+                                "mode": "ALL",
+                                "settings": [
+                                    {
+                                        "key": "memory_tracking_mode",
+                                        "value": "page_guard"
+                                    },
+                                    {
+                                        "key": "page_guard_external_memory",
+                                        "value": false
+                                    }
+                                ]
+                            }
                         }
                     ]
                 },

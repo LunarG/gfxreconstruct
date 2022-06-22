@@ -79,6 +79,7 @@ class CaptureSettings
         bool                          page_guard_persistent_memory{ false };
         bool                          page_guard_align_buffer_sizes{ false };
         bool                          page_guard_track_ahb_memory{ false };
+        bool                          page_guard_unblock_sigsegv{ false };
         bool                          debug_layer{ false };
         bool                          debug_device_lost{ false };
 
