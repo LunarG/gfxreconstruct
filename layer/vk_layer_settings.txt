@@ -121,6 +121,15 @@ lunarg_gfxreconstruct.page_guard_persistent_memory = false
 # to the same page. This option is only available for the Vulkan API.
 lunarg_gfxreconstruct.page_guard_align_buffer_sizes = false
 
+# Page Guard Unblock SIGSEGV
+# =====================
+# <LayerIdentifier>.page_guard_unblock_sigsegv
+# When the page_guard memory tracking mode is enabled and in the case that
+# SIGSEGV has been marked as blocked in thread's signal mask, setting this
+# enviroment variable to true will forcibly re-enable the signal in the
+# thread's signal mask.
+lunarg_gfxreconstruct.page_guard_unblock_sigsegv = false
+
 # Level
 # =====================
 # <LayerIdentifier>.log_level

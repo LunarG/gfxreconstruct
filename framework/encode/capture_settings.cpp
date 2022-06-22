@@ -95,6 +95,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define PAGE_GUARD_TRACK_AHB_MEMORY_UPPER   "PAGE_GUARD_TRACK_AHB_MEMORY"
 #define PAGE_GUARD_EXTERNAL_MEMORY_LOWER    "page_guard_external_memory"
 #define PAGE_GUARD_EXTERNAL_MEMORY_UPPER    "PAGE_GUARD_EXTERNAL_MEMORY"
+#define PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER    "page_guard_unblock_sigsegv"
+#define PAGE_GUARD_UNBLOCK_SIGSEGV_UPPER    "PAGE_GUARD_UNBLOCK_SIGSEGV"
 #define DEBUG_LAYER_LOWER                   "debug_layer"
 #define DEBUG_LAYER_UPPER                   "DEBUG_LAYER"
 #define DEBUG_DEVICE_LOST_LOWER             "debug_device_lost"
@@ -134,6 +136,7 @@ const char kPageGuardPersistentMemoryEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER;
 const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_LOWER;
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
+const char kPageGuardUnblockSIGSEGVEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER;
 const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]           = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
 
@@ -168,6 +171,7 @@ const char kPageGuardPersistentMemoryEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_UPPER;
 const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_UPPER;
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
+const char kPageGuardUnblockSIGSEGVEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_UNBLOCK_SIGSEGV_UPPER;
 const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
 const char kCaptureTriggerFramesEnvVar[]      = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_UPPER;
 const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
@@ -205,6 +209,7 @@ const std::string kOptionKeyPageGuardPersistentMemory = std::string(kSettingsFil
 const std::string kOptionKeyPageGuardAlignBufferSizes = std::string(kSettingsFilter) + std::string(PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER);
 const std::string kOptionKeyPageGuardTrackAhbMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_TRACK_AHB_MEMORY_LOWER);
 const std::string kOptionKeyPageGuardExternalMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
+const std::string kOptionKeyPageGuardUnblockSigSegV   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER);
 const std::string kDebugLayer                         = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                    = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
 
@@ -311,6 +316,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kPageGuardAlignBufferSizesEnvVar, kOptionKeyPageGuardAlignBufferSizes);
     LoadSingleOptionEnvVar(options, kPageGuardTrackAhbMemoryEnvVar, kOptionKeyPageGuardTrackAhbMemory);
     LoadSingleOptionEnvVar(options, kPageGuardExternalMemoryEnvVar, kOptionKeyPageGuardExternalMemory);
+    LoadSingleOptionEnvVar(options, kPageGuardUnblockSIGSEGVEnvVar, kOptionKeyPageGuardUnblockSigSegV);
 
     // Debug environment variables
     LoadSingleOptionEnvVar(options, kDebugLayerEnvVar, kDebugLayer);
@@ -400,6 +406,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         FindOption(options, kOptionKeyPageGuardTrackAhbMemory), settings->trace_settings_.page_guard_track_ahb_memory);
     settings->trace_settings_.page_guard_external_memory = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardExternalMemory), settings->trace_settings_.page_guard_external_memory);
+    settings->trace_settings_.page_guard_unblock_sigsegv = ParseBoolString(
+        FindOption(options, kOptionKeyPageGuardUnblockSigSegV), settings->trace_settings_.page_guard_unblock_sigsegv);
 
     // Debug options
     settings->trace_settings_.debug_layer =
