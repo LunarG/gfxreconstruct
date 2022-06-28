@@ -132,6 +132,20 @@ void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, T>&                
 
 } // namespace
 
+Dx12ResourceValueMapper::Dx12ResourceValueMapper(
+    std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
+    std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
+    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
+    bool                                              track_values) :
+    get_object_info_func_(get_object_info_func),
+    map_gpu_va_func_(map_gpu_va_func), map_gpu_desc_handle_func_(map_gpu_desc_handle_func)
+{
+    if (track_values)
+    {
+        resource_value_tracker_ = std::make_unique<Dx12ResourceValueTracker>(get_object_info_func);
+    }
+}
+
 void Dx12ResourceValueMapper::PostProcessCommandListReset(DxObjectInfo* command_list_object_info)
 {
     // Clear tracked info.
@@ -215,6 +229,12 @@ void Dx12ResourceValueMapper::PostProcessExecuteCommandLists(
     HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
     bool                                      needs_mapping)
 {
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->PostProcessExecuteCommandLists(
+            command_queue_object_info, num_command_lists, command_lists_decoder);
+    }
+
     if (needs_mapping)
     {
         auto command_queue            = static_cast<ID3D12CommandQueue*>(command_queue_object_info->object);
@@ -663,6 +683,17 @@ void Dx12ResourceValueMapper::PostProcessSetPipelineState1(DxObjectInfo* command
     command_list_extra_info->active_state_object = state_object_object_info;
 }
 
+void Dx12ResourceValueMapper::PostProcessFillMemoryCommand(uint64_t resource_id,
+                                                           uint64_t offset,
+                                                           uint64_t size,
+                                                           uint64_t block_index)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->PostProcessFillMemoryCommand(resource_id, offset, size, block_index);
+    }
+}
+
 void Dx12ResourceValueMapper::AddReplayGpuVa(format::HandleId          resource_id,
                                              D3D12_GPU_VIRTUAL_ADDRESS replay_address,
                                              UINT64                    width,
@@ -878,6 +909,7 @@ bool Dx12ResourceValueMapper::IsNonEmptyShaderRecord(const std::vector<uint8_t>&
 
 void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                                        std::vector<uint8_t>&    result_data,
+                                       format::HandleId         resource_id,
                                        D3D12ResourceInfo*       resource_info,
                                        uint64_t                 base_offset)
 {
@@ -895,9 +927,26 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
             return;
         }
 
+        auto mapped_value_iter = resource_info->mapped_gpu_addresses.find(final_offset);
+
+        if (resource_value_tracker_ != nullptr)
+        {
+            uint64_t orig_value = *reinterpret_cast<uint64_t*>(result_data.data() + final_offset);
+
+            if (mapped_value_iter != resource_info->mapped_gpu_addresses.end())
+            {
+                if (current_address == mapped_value_iter->second)
+                {
+                    orig_value = 0;
+                }
+            }
+
+            resource_value_tracker_->AddTrackedResourceValue(
+                resource_id, value_info.type, final_offset, value_info.size, orig_value);
+        }
+
         // If the current value at the given offset matches the result of a previous mapping, don't attempt to map
         // again.
-        auto mapped_value_iter = resource_info->mapped_gpu_addresses.find(final_offset);
         if (mapped_value_iter != resource_info->mapped_gpu_addresses.end())
         {
             if (current_address == mapped_value_iter->second)
@@ -953,8 +1002,26 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
             return;
         }
 
-        // Map the shader ID if it wasn't previously mapped.
         auto mapped_shader_id_iter = resource_info->mapped_shader_ids.find(final_offset);
+
+        if (resource_value_tracker_ != nullptr)
+        {
+            uint64_t orig_value = 0;
+
+            if ((mapped_shader_id_iter == resource_info->mapped_shader_ids.end()) ||
+                (current_id != mapped_shader_id_iter->second))
+            {
+                orig_value = *reinterpret_cast<uint64_t*>(result_data.data() + final_offset);
+            }
+
+            resource_value_tracker_->AddTrackedResourceValue(resource_id,
+                                                             ResourceValueType::kShaderRecord,
+                                                             final_offset,
+                                                             D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES,
+                                                             orig_value);
+        }
+
+        // Map the shader ID if it wasn't previously mapped.
         if ((mapped_shader_id_iter == resource_info->mapped_shader_ids.end()) ||
             (current_id != mapped_shader_id_iter->second))
         {
@@ -976,6 +1043,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                 {
                     MapValue(shader_record_value_info,
                              result_data,
+                             resource_id,
                              resource_info,
                              final_offset + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
                 }
@@ -1058,7 +1126,7 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
 
             for (const auto& value_info : value_infos)
             {
-                MapValue(value_info, temp_resource_data, resource_extra_info);
+                MapValue(value_info, temp_resource_data, resource_object_info->capture_id, resource_extra_info);
             }
 
             hr = resource_data_util_->WriteToResource(resource,

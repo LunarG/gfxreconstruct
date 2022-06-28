@@ -104,7 +104,7 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         std::bind(&Dx12ReplayConsumerBase::MapGpuDescriptorHandle, this, std::placeholders::_1);
 
     resource_value_mapper_ =
-        std::make_unique<Dx12ResourceValueMapper>(get_object_func, map_gpu_va_func, map_gpu_desc_handle_func);
+        std::make_unique<Dx12ResourceValueMapper>(get_object_func, map_gpu_va_func, map_gpu_desc_handle_func, false);
 }
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
@@ -237,9 +237,15 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
         auto copy_size      = static_cast<size_t>(size);
-        auto mapped_pointer = static_cast<uint8_t*>(entry->second) + offset;
+        auto mapped_pointer = static_cast<uint8_t*>(entry->second.data_pointer) + offset;
 
         util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+
+        if (resource_value_mapper_ != nullptr)
+        {
+            resource_value_mapper_->PostProcessFillMemoryCommand(
+                entry->second.resource_id, offset, size, GetCurrentBlockIndex());
+        }
     }
     else
     {
@@ -1359,7 +1365,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*               
         memory_info.memory_id = *id_pointer;
         ++(memory_info.count);
 
-        mapped_memory_[*id_pointer] = *data_pointer;
+        mapped_memory_[*id_pointer] = { *data_pointer, replay_object_info->capture_id };
     }
 
     return result;

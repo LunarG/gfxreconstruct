@@ -660,13 +660,19 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     QueueSyncEventInfo CreateSignalQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value);
 
   private:
+    struct MappedMemoryEntry
+    {
+        void*            data_pointer{ 0 };
+        format::HandleId resource_id{ format::kNullHandleId };
+    };
+
     std::unique_ptr<graphics::DX12ImageRenderer>      frame_buffer_renderer_;
     Dx12ObjectInfoTable                               object_info_table_;
     std::shared_ptr<application::Application>         application_;
     DxReplayOptions                                   options_;
     std::unordered_set<Window*>                       active_windows_;
     std::unordered_map<uint64_t, HWND>                window_handles_;
-    std::unordered_map<uint64_t, void*>               mapped_memory_;
+    std::unordered_map<uint64_t, MappedMemoryEntry>   mapped_memory_;
     std::unordered_map<uint64_t, void*>               heap_allocations_;
     std::unordered_map<uint64_t, HANDLE>              event_objects_;
     std::function<void(const char*)>                  fatal_error_handler_;

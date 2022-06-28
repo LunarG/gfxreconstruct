@@ -27,6 +27,7 @@
 #include "decode/dx12_object_info.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "decode/dx12_descriptor_map.h"
+#include "decode/dx12_resource_value_tracker.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "graphics/dx12_gpu_va_map.h"
@@ -42,10 +43,8 @@ class Dx12ResourceValueMapper
   public:
     Dx12ResourceValueMapper(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
                             std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
-                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func) :
-        get_object_info_func_(get_object_info_func),
-        map_gpu_va_func_(map_gpu_va_func), map_gpu_desc_handle_func_(map_gpu_desc_handle_func)
-    {}
+                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
+                            bool                                              track_values);
 
     // Sets needs_mapping = true if the command lists contain resources that need to be mapped.
     void PreProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,
@@ -53,7 +52,6 @@ class Dx12ResourceValueMapper
                                        HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
                                        bool&                                     needs_mapping);
 
-    // No-op if needs_mapping is false.
     void PostProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,
                                         UINT                                      num_command_lists,
                                         HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
@@ -102,6 +100,8 @@ class Dx12ResourceValueMapper
 
     void PostProcessSetPipelineState1(DxObjectInfo* command_list4_object_info, DxObjectInfo* state_object_object_info);
 
+    void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, uint64_t block_index);
+
     void AddReplayGpuVa(format::HandleId          resource_id,
                         D3D12_GPU_VIRTUAL_ADDRESS replay_address,
                         UINT64                    width,
@@ -135,6 +135,7 @@ class Dx12ResourceValueMapper
 
     void MapValue(const ResourceValueInfo& value_info,
                   std::vector<uint8_t>&    result_data,
+                  format::HandleId         resource_id,
                   D3D12ResourceInfo*       resource_info,
                   uint64_t                 base_offset = 0);
 
@@ -172,6 +173,7 @@ class Dx12ResourceValueMapper
     graphics::Dx12ShaderIdMap shader_id_map_;
 
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
+    std::unique_ptr<Dx12ResourceValueTracker>       resource_value_tracker_;
 
     // Temporary vectors to reduce allocations.
     std::vector<uint8_t>                           temp_resource_data;
