@@ -153,6 +153,9 @@ class Dx12ConsumerBase
     void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; };
 
   protected:
+    auto GetCurrentBlockIndex() { return current_block_index_; }
+
+  private:
     uint64_t current_block_index_{ 0 };
 };
 

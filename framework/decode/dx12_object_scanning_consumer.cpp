@@ -70,7 +70,7 @@ void Dx12ObjectScanningConsumer::Process_ID3D12PipelineLibrary_StorePipeline(con
                                                                              WStringDecoder*    pName,
                                                                              format::HandleId   pPipeline)
 {
-    AddObjectStoreBlock(pPipeline, current_block_index_);
+    AddObjectStoreBlock(pPipeline, GetCurrentBlockIndex());
 }
 
 void Dx12ObjectScanningConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(const ApiCallInfo& call_info,
@@ -123,7 +123,7 @@ void Dx12ObjectScanningConsumer::Process_ID3D12Device_CreateGraphicsPipelineStat
 {
     format::HandleId* handle_ptr = const_cast<gfxrecon::format::HandleId*>(ppPipelineState->GetPointer());
     AddObjectWithCreator(
-        *handle_ptr, current_block_index_, format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState);
+        *handle_ptr, GetCurrentBlockIndex(), format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState);
 }
 
 void Dx12ObjectScanningConsumer::Process_ID3D12Device_CreateComputePipelineState(
@@ -136,7 +136,7 @@ void Dx12ObjectScanningConsumer::Process_ID3D12Device_CreateComputePipelineState
 {
     format::HandleId* handle_ptr = const_cast<gfxrecon::format::HandleId*>(ppPipelineState->GetPointer());
     AddObjectWithCreator(
-        *handle_ptr, current_block_index_, format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState);
+        *handle_ptr, GetCurrentBlockIndex(), format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState);
 }
 
 GFXRECON_END_NAMESPACE(decode)

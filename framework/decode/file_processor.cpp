@@ -237,6 +237,10 @@ bool FileProcessor::ProcessBlocks()
             success = ReadBlockHeader(&block_header);
 
             block_index_++;
+            for (auto decoder : decoders_)
+            {
+                decoder->SetCurrentBlockIndex(block_index_);
+            }
 
             if (success)
             {
@@ -596,7 +600,6 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
                 if (decoder->SupportsApiCall(call_id))
                 {
                     DecodeAllocator::Begin();
-                    decoder->SetCurrentBlockIndex(block_index);
                     decoder->DecodeMethodCall(
                         call_id, object_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
                     DecodeAllocator::End();
