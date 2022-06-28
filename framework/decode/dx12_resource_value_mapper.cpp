@@ -32,19 +32,6 @@ namespace /* anonymous */
 {
 
 template <typename T>
-T* GetExtraInfo(const DxObjectInfo* info)
-{
-    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
-    {
-        return static_cast<T*>(info->extra_info.get());
-    }
-
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
-
-    return nullptr;
-}
-
-template <typename T>
 T* GetExtraInfo(HandlePointerDecoder<void*>* handle_ptr_decoder)
 {
     GFXRECON_ASSERT(handle_ptr_decoder != nullptr);

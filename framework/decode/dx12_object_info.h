@@ -28,6 +28,7 @@
 #include "graphics/dx12_shader_id_map.h"
 #include "graphics/dx12_util.h"
 #include "util/defines.h"
+#include "util/logging.h"
 #include "decode/dx12_descriptor_map.h"
 
 #include <d3d12.h>
@@ -72,6 +73,20 @@ enum class DxObjectInfoType : uint32_t
 
 struct DxObjectInfo;
 struct D3D12StateObjectInfo;
+
+// Util function for getting the extra info object from a DxObjectInfo.
+template <typename T>
+T* GetExtraInfo(DxObjectInfo* info)
+{
+    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
+    {
+        return static_cast<T*>(info->extra_info.get());
+    }
+
+    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+
+    return nullptr;
+}
 
 struct MappedMemoryInfo
 {

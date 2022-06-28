@@ -44,19 +44,6 @@ constexpr uint32_t kDefaultWaitTimeout     = INFINITE;
 
 constexpr uint64_t kInternalEventId = static_cast<uint64_t>(~0);
 
-template <typename T>
-T* GetExtraInfo(DxObjectInfo* info)
-{
-    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
-    {
-        return static_cast<T*>(info->extra_info.get());
-    }
-
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
-
-    return nullptr;
-}
-
 template <typename T, typename U>
 void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_info)
 {
