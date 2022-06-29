@@ -524,6 +524,10 @@ int main(int argc, const char** argv)
             }
         }
     }
+    else
+    {
+        PrintExeInfo(exe_info_consumer);
+    }
 
     gfxrecon::util::Log::Release();
     return 0;
