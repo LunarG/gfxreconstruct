@@ -165,6 +165,11 @@ Page Guard Align Buffer Sizes | debug.gfxrecon.page_guard_align_buffer_sizes | B
 Omit calls with NULL AHardwareBuffer* | debug.gfxrecon.omit_null_hardware_buffers | BOOL | Some GFXReconstruct capture files may replay with a NULL AHardwareBuffer* parameter, for example, vkGetAndroidHardwareBufferPropertiesANDROID.  Although this is invalid Vulkan usage, some drivers may ignore these calls and some may not. This option causes replay to omit Vulkan calls for which the AHardwareBuffer* would be NULL. Default is `false`
 Page guard unblock SIGSEGV | debug.gfxrecon.page_guard_unblock_sigsegv | BOOL | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask.
 
+#### Memory Tracking Known Issues
+
+There is a known issue with the page guard memory tracking method. The logic behind that method is to apply a memory protection to the guarded/shadowed regions so that accesses made by the user to trigger a segmentation fault which is handled by GFXReconstruct.
+If the access is made by a system call (like `fread()`) then there won't be a segmentation fault generated and the function will fail. As a result the mapped region will not be updated.
+
 #### Settings File
 
 Capture options may also be specified through a layer settings file.  The layer
