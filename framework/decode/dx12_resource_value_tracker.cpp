@@ -55,16 +55,61 @@ void Dx12ResourceValueTracker::AddTrackedResourceValue(
     // Using the offset, determine which fill command wrote this value.
     bool     found_fill_command_block_index = false;
     uint64_t fill_command_block_index       = 0;
+    uint64_t fill_command_offset            = 0;
     auto&    resource_fill_commands         = tracked_fill_commands_[resource_id];
-    auto     iter                           = resource_fill_commands.upper_bound(offset);
-    if (iter != resource_fill_commands.begin())
+
     {
-        --iter;
-        GFXRECON_ASSERT(iter->second.offset <= offset);
-        if ((offset + size) <= (iter->second.offset + iter->second.size))
+        // `resource_fill_commands.upper_bound(offset + size)` finds the first iter past the end of the added tracked
+        // value. Check whether the previous iter's fill command contained the added value.
+        auto iter = resource_fill_commands.lower_bound(offset + size);
+        if (iter != resource_fill_commands.begin())
         {
-            found_fill_command_block_index = true;
-            fill_command_block_index       = iter->second.fill_command_block_index;
+            --iter;
+        }
+        if ((iter != resource_fill_commands.end()) && ((offset + size) <= (iter->second.offset + iter->second.size)))
+        {
+            if (offset >= iter->second.offset)
+            {
+                // The value was written by a single fill command.
+                found_fill_command_block_index = true;
+                fill_command_block_index       = iter->second.fill_command_block_index;
+                fill_command_offset            = iter->second.original_offset + offset - iter->second.offset;
+            }
+            else
+            {
+                // It is possible that a value was written by multiple fill commands. In this case, use the most recent
+                // fill command to do the mapping.
+                while (offset < (iter->second.offset + iter->second.size))
+                {
+                    if (iter->second.fill_command_block_index >= fill_command_block_index)
+                    {
+                        found_fill_command_block_index = true;
+                        fill_command_block_index       = iter->second.fill_command_block_index;
+                        fill_command_offset            = iter->second.original_offset + offset - iter->second.offset;
+                    }
+
+                    // Get next iter.
+                    if (iter != resource_fill_commands.begin())
+                    {
+                        // Break if the fill commands don't cover the full value.
+                        auto next_iter = iter;
+                        --next_iter;
+                        if ((next_iter->second.offset + next_iter->second.size) == iter->second.offset)
+                        {
+                            iter = next_iter;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Break once we've reached the beginning.
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -74,30 +119,28 @@ void Dx12ResourceValueTracker::AddTrackedResourceValue(
     {
         auto& block_resource_values = tracked_resource_values_[fill_command_block_index];
 
-        auto original_offset = iter->second.original_offset + offset - iter->second.offset;
-
         // Erase any existing values that overlap with the new value.
-        auto begin_iter = block_resource_values.lower_bound(original_offset);
+        auto begin_iter = block_resource_values.lower_bound(fill_command_offset);
         if (begin_iter != block_resource_values.begin())
         {
             // Erase the value at the previous offset if its size overlaps with the current offset.
             --begin_iter;
             auto begin_iter_offset = begin_iter->first;
             auto begin_iter_size   = GetResourceValueSize(begin_iter->second.type);
-            if (original_offset >= (begin_iter_offset + begin_iter_size))
+            if (fill_command_offset >= (begin_iter_offset + begin_iter_size))
             {
                 ++begin_iter;
             }
         }
-        auto end_iter = block_resource_values.lower_bound(original_offset + size);
+        auto end_iter = block_resource_values.lower_bound(fill_command_offset + size);
         if (begin_iter != end_iter)
         {
             block_resource_values.erase(begin_iter, end_iter);
         }
 
         // Insert the new value.
-        block_resource_values[original_offset].type  = type;
-        block_resource_values[original_offset].value = orig_value;
+        block_resource_values[fill_command_offset].type  = type;
+        block_resource_values[fill_command_offset].value = orig_value;
     }
     else
     {
