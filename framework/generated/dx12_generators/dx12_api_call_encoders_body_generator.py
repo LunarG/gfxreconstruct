@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2022 Advanced Micro Devices, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -96,7 +97,17 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             omit_output_data = ', omit_output_data'
 
         if value.array_length and type(value.array_length) == str:
-            return 'EncodeStructArray(encoder, {}{}, {}{}{});'.format(
+            # This case handle that given an API parameter is pointer to a value,
+            # and this pointer is nullptr, ie: *pNumSubresourceTilings,
+            # protection is added here to treat the nullptr as 0 and
+            # pass 0 to EncodeStructArray().
+            if (value.array_length.find('*') != -1 and value.array_length.find('/') == -1):
+                array_length_list = value.array_length.strip().split('*')
+                if(array_length_list[0]=='' and len(array_length_list) == 2):
+                    # Skip non-pointer parameter, ie: NumSamplesPerPixel*NumPixels in
+                    # id3d12graphicscommandlist1::setsamplepositions
+                    value.array_length = '((' + array_length_list[1].strip() +' == nullptr) ? 0 : *' + array_length_list[1].strip() + ')'
+            return 'EncodeStructArray(encoder, {}{}, {}{}{});'.format(#target
                 write_parameter_value, value.name, write_parameter_value,
                 value.array_length, omit_output_data
             )

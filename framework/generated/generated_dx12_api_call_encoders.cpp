@@ -574,7 +574,7 @@ void Encode_IDXGIOutput_GetDisplayModeList(
         encoder->EncodeEnumValue(EnumFormat);
         encoder->EncodeUInt32Value(Flags);
         encoder->EncodeUInt32Ptr(pNumModes);
-        EncodeStructArray(encoder, pDesc, * pNumModes, omit_output_data);
+        EncodeStructArray(encoder, pDesc, ((pNumModes == nullptr) ? 0 : *pNumModes), omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
@@ -2188,7 +2188,7 @@ void Encode_IDXGIOutput1_GetDisplayModeList1(
         encoder->EncodeEnumValue(EnumFormat);
         encoder->EncodeUInt32Value(Flags);
         encoder->EncodeUInt32Ptr(pNumModes);
-        EncodeStructArray(encoder, pDesc, * pNumModes, omit_output_data);
+        EncodeStructArray(encoder, pDesc, ((pNumModes == nullptr) ? 0 : *pNumModes), omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
@@ -7027,7 +7027,7 @@ void Encode_ID3D12Device_GetResourceTiling(
         EncodeStructPtr(encoder, pStandardTileShapeForNonPackedMips);
         encoder->EncodeUInt32Ptr(pNumSubresourceTilings);
         encoder->EncodeUInt32Value(FirstSubresourceTilingToGet);
-        EncodeStructArray(encoder, pSubresourceTilingsForNonPackedMips, * pNumSubresourceTilings);
+        EncodeStructArray(encoder, pSubresourceTilingsForNonPackedMips, ((pNumSubresourceTilings == nullptr) ? 0 : *pNumSubresourceTilings));
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -7973,7 +7973,7 @@ void Encode_ID3D12Device5_EnumerateMetaCommands(
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pNumMetaCommands);
-        EncodeStructArray(encoder, pDescs, * pNumMetaCommands, omit_output_data);
+        EncodeStructArray(encoder, pDescs, ((pNumMetaCommands == nullptr) ? 0 : *pNumMetaCommands), omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
@@ -8000,7 +8000,7 @@ void Encode_ID3D12Device5_EnumerateMetaCommandParameters(
         encoder->EncodeEnumValue(Stage);
         encoder->EncodeUInt32Ptr(pTotalStructureSizeInBytes, omit_output_data);
         encoder->EncodeUInt32Ptr(pParameterCount);
-        EncodeStructArray(encoder, pParameterDescs, * pParameterCount, omit_output_data);
+        EncodeStructArray(encoder, pParameterDescs, ((pParameterCount == nullptr) ? 0 : *pParameterCount), omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
@@ -9790,7 +9790,7 @@ void Encode_ID3D12InfoQueue_GetMessage(
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(MessageIndex);
-        EncodeStructArray(encoder, pMessage, * pMessageByteLength, omit_output_data);
+        EncodeStructArray(encoder, pMessage, ((pMessageByteLength == nullptr) ? 0 : *pMessageByteLength), omit_output_data);
         encoder->EncodeSizeTPtr(pMessageByteLength);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -9902,7 +9902,7 @@ void Encode_ID3D12InfoQueue_GetStorageFilter(
         {
             omit_output_data = true;
         }
-        EncodeStructArray(encoder, pFilter, * pFilterByteLength, omit_output_data);
+        EncodeStructArray(encoder, pFilter, ((pFilterByteLength == nullptr) ? 0 : *pFilterByteLength), omit_output_data);
         encoder->EncodeSizeTPtr(pFilterByteLength);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -10027,7 +10027,7 @@ void Encode_ID3D12InfoQueue_GetRetrievalFilter(
         {
             omit_output_data = true;
         }
-        EncodeStructArray(encoder, pFilter, * pFilterByteLength, omit_output_data);
+        EncodeStructArray(encoder, pFilter, ((pFilterByteLength == nullptr) ? 0 : *pFilterByteLength), omit_output_data);
         encoder->EncodeSizeTPtr(pFilterByteLength);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
