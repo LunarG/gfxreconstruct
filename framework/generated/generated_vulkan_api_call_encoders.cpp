@@ -50,7 +50,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
     const VkAllocationCallbacks*                pAllocator,
     VkInstance*                                 pInstance)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto state_lock = VulkanCaptureManager::Get()->AcquireUniqueStateLock();
 
     bool omit_output_data = false;
 
@@ -6607,7 +6607,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
     VkQueue                                     queue,
     const VkPresentInfoKHR*                     pPresentInfo)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto state_lock = VulkanCaptureManager::Get()->AcquireUniqueStateLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(VulkanCaptureManager::Get(), queue, pPresentInfo);
 
