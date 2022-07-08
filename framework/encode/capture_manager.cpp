@@ -617,8 +617,6 @@ std::string CaptureManager::CreateTrimFilename(const std::string&               
 
 bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 {
-    auto state_lock = AcquireUniqueStateLock();
-
     bool        success          = true;
     std::string capture_filename = base_filename;
 
@@ -645,8 +643,6 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 
 void CaptureManager::ActivateTrimming()
 {
-    auto state_lock = AcquireUniqueStateLock();
-
     capture_mode_ |= kModeWrite;
 
     auto thread_data = GetThreadData();
@@ -657,8 +653,6 @@ void CaptureManager::ActivateTrimming()
 
 void CaptureManager::DeactivateTrimming()
 {
-    auto state_lock = AcquireUniqueStateLock();
-
     capture_mode_ &= ~kModeWrite;
     file_stream_ = nullptr;
 }

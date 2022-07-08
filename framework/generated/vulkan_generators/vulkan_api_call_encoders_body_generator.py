@@ -217,7 +217,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body = ''
 
-        body += indent + 'auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();\n'
+        if name == "vkCreateInstance" or name == "vkQueuePresentKHR":
+            body += indent + 'auto state_lock = VulkanCaptureManager::Get()->AcquireUniqueStateLock();\n'
+        else:
+            body += indent + 'auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();\n'
+
         body += '\n'
 
         if has_outputs or (return_type and return_type != 'void'):
