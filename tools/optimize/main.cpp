@@ -26,8 +26,7 @@
 #include "../tool_settings.h"
 
 #if defined(WIN32)
-#include "decode/dx12_object_scanning_consumer.h"
-#include "generated/generated_dx12_decoder.h"
+#include "dx12_optimize_util.h"
 #endif
 
 #include "decode/file_processor.h"
@@ -70,11 +69,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(WIN32)
+#if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
-#if defined(WIN32)
     GFXRECON_WRITE_CONSOLE(
         "  --d3d12-pso-removal\tRemove unused d3d12 pso's. Without it, the trace will be treated as Vulkan.");
 #endif
@@ -139,130 +138,6 @@ void FilterUnreferencedResources(const std::string&                             
     }
 }
 
-#if defined(WIN32)
-bool GetUnreferencedObjectCreationBlocks(const std::string&                              input_filename,
-                                         std::unordered_set<uint64_t>*                   unreferenced_blocks,
-                                         gfxrecon::decode::UnreferencedPsoCreationCalls* calls_info)
-{
-    GFXRECON_ASSERT(unreferenced_blocks != nullptr);
-
-    bool result = false;
-
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::Dx12Decoder                decoder;
-        gfxrecon::decode::Dx12ObjectScanningConsumer resref_consumer;
-
-        decoder.AddConsumer(&resref_consumer);
-
-        file_processor.AddDecoder(&decoder);
-        file_processor.ProcessAllFrames();
-
-        if ((file_processor.GetCurrentFrameNumber() > 0) &&
-            (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
-        {
-            resref_consumer.GetUnreferencedObjectCreationBlocks(unreferenced_blocks, calls_info);
-            result = true;
-        }
-        else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-        {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing");
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("Capture did not contain any frames");
-        }
-    }
-
-    return result;
-}
-
-bool FilterUnreferencedObjectCreationBlocks(const std::string&             input_filename,
-                                            const std::string&             output_filename,
-                                            std::unordered_set<uint64_t>&& unreferenced_blocks)
-{
-    bool result = false;
-
-    gfxrecon::FileOptimizer file_optimizer;
-    if (file_optimizer.Initialize(input_filename, output_filename))
-    {
-        file_optimizer.SetUnreferencedBlocks(unreferenced_blocks);
-
-        file_optimizer.Process();
-
-        // In a way, "resultant_objects = 0" will prove the two scan passes match.
-        uint64_t resultant_objects = file_optimizer.GetUnreferencedBlocksSize();
-
-        if ((file_optimizer.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone) || resultant_objects > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing");
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("Object removal complete.");
-            GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
-            GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
-            result = true;
-        }
-    }
-
-    return result;
-}
-#endif
-
-bool D3D12RemoveRedundantPSOs(std::string input_filename, std::string output_filename)
-{
-#if defined(WIN32)
-    GFXRECON_WRITE_CONSOLE("Scanning D3D12 file %s for unreferenced objects.", input_filename.c_str());
-    std::unordered_set<uint64_t>                   unreferenced_blocks;
-    gfxrecon::decode::UnreferencedPsoCreationCalls calls_info;
-
-    bool scan_result = GetUnreferencedObjectCreationBlocks(input_filename, &unreferenced_blocks, &calls_info);
-
-    if (scan_result == false)
-    {
-        GFXRECON_WRITE_CONSOLE("File processing has encountered a fatal error and cannot continue.");
-        return false;
-    }
-
-    if (!unreferenced_blocks.empty())
-    {
-        GFXRECON_WRITE_CONSOLE("Writing optimized file, removing %" PRIu64 " unused pso related calls.",
-                               unreferenced_blocks.size());
-        if (calls_info.graphics_pso_creation_calls > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " graphics pso creation calls.",
-                                   calls_info.graphics_pso_creation_calls);
-        }
-        if (calls_info.compute_pso_creation_calls > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " compute pso creation calls.",
-                                   calls_info.compute_pso_creation_calls);
-        }
-        if (calls_info.storepipeline_calls > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " storepipeline calls.", calls_info.storepipeline_calls);
-        }
-
-        // Filter unreferenced ids.
-        bool filter_result =
-            FilterUnreferencedObjectCreationBlocks(input_filename, output_filename, std::move(unreferenced_blocks));
-        if (filter_result == false)
-        {
-            GFXRECON_WRITE_CONSOLE("Falure creating the optimized file.");
-            return false;
-        }
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("No redundant PSOs detected. Optimized trace will not be created.",
-                               input_filename.c_str());
-    }
-#endif
-    return true;
-}
-
 void VkRemoveRedundantResources(std::string input_filename, std::string output_filename)
 {
     GFXRECON_WRITE_CONSOLE("Scanning Vulkan file %s for unreferenced resources.", input_filename.c_str());
@@ -320,6 +195,7 @@ int main(int argc, const char** argv)
         input_filename                                       = positional_arguments[0];
         output_filename                                      = positional_arguments[1];
 
+#if defined(WIN32)
         // We can check other d3d12 options in the future here. For now we check only --d3d12-pso-removal.
         bool d3d12_remove_psos = arg_parser.IsOptionSet(kD3d12PsoRemoval);
         if (d3d12_remove_psos)
@@ -332,6 +208,7 @@ int main(int argc, const char** argv)
             }
         }
         else
+#endif
         {
             VkRemoveRedundantResources(input_filename, output_filename);
         }
