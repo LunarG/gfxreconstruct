@@ -43,8 +43,13 @@ class Dx12ResourceValueMapper
   public:
     Dx12ResourceValueMapper(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
                             std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
-                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
-                            bool                                              track_values);
+                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func);
+
+    // Enable the Dx12ResoruceValueTracker. This should be done after construction, before any processing.
+    void EnableResourceValueTracker();
+
+    // Get the result of the resource value tracker.
+    Dx12FillCommandResourceValueMap GetTrackedResourceValues();
 
     // Sets needs_mapping = true if the command lists contain resources that need to be mapped.
     void PreProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,

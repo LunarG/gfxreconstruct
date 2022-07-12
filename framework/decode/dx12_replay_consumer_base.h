@@ -593,6 +593,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
+    Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
+
   private:
     void RaiseFatalError(const char* message) const;
 

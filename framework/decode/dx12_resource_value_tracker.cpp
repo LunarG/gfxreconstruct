@@ -49,14 +49,16 @@ static uint64_t GetResourceValueSize(ResourceValueType type)
 
 } // namespace
 
-void Dx12ResourceValueTracker::AddTrackedResourceValue(
-    format::HandleId resource_id, ResourceValueType type, uint64_t offset, uint64_t size, uint64_t orig_value)
+void Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId  resource_id,
+                                                       ResourceValueType type,
+                                                       uint64_t          offset)
 {
     // Using the offset, determine which fill command wrote this value.
     bool     found_fill_command_block_index = false;
     uint64_t fill_command_block_index       = 0;
     uint64_t fill_command_offset            = 0;
     auto&    resource_fill_commands         = tracked_fill_commands_[resource_id];
+    uint64_t size                           = GetResourceValueSize(type);
 
     {
         // `resource_fill_commands.upper_bound(offset + size)` finds the first iter past the end of the added tracked
@@ -126,7 +128,7 @@ void Dx12ResourceValueTracker::AddTrackedResourceValue(
             // Erase the value at the previous offset if its size overlaps with the current offset.
             --begin_iter;
             auto begin_iter_offset = begin_iter->first;
-            auto begin_iter_size   = GetResourceValueSize(begin_iter->second.type);
+            auto begin_iter_size   = GetResourceValueSize(begin_iter->second);
             if (fill_command_offset >= (begin_iter_offset + begin_iter_size))
             {
                 ++begin_iter;
@@ -139,8 +141,7 @@ void Dx12ResourceValueTracker::AddTrackedResourceValue(
         }
 
         // Insert the new value.
-        block_resource_values[fill_command_offset].type  = type;
-        block_resource_values[fill_command_offset].value = orig_value;
+        block_resource_values[fill_command_offset] = type;
     }
     else
     {

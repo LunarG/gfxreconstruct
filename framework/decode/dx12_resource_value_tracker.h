@@ -33,6 +33,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+typedef uint64_t Dx12FillCommandBlockIndex;
+typedef uint64_t Dx12FillCommandByteOffset;
+typedef std::map<Dx12FillCommandBlockIndex, std::map<Dx12FillCommandByteOffset, ResourceValueType>>
+    Dx12FillCommandResourceValueMap;
+
 class Dx12ResourceValueTracker
 {
   public:
@@ -43,8 +48,7 @@ class Dx12ResourceValueTracker
     // When Dx12ResourceValueMapper encounters a resource value that needs to be mapped, it will call
     // AddTrackedResourceValue which tries to determine which FillMemoryCommand originally wrote the data based on the
     // FillMemoryCommands and resource copies previously processed by the Dx12ResourceValueTracker.
-    void AddTrackedResourceValue(
-        format::HandleId resource_id, ResourceValueType type, uint64_t offset, uint64_t size, uint64_t orig_value);
+    void AddTrackedResourceValue(format::HandleId resource_id, ResourceValueType type, uint64_t offset);
 
     void PostProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,
                                         UINT                                      num_command_lists,
@@ -52,13 +56,9 @@ class Dx12ResourceValueTracker
 
     void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, uint64_t block_index);
 
-  private:
-    struct TrackedValue
-    {
-        ResourceValueType type;
-        uint64_t          value;
-    };
+    const auto& GetTrackedResourceValues() const { return tracked_resource_values_; }
 
+  private:
     struct TrackedFillCommandInfo
     {
         uint64_t fill_command_block_index{ 0 };
@@ -86,8 +86,7 @@ class Dx12ResourceValueTracker
 
     std::map<format::HandleId, std::map<uint64_t, TrackedFillCommandInfo>> tracked_fill_commands_;
 
-    // Map keys are fill command block index and resource value offset.
-    std::map<uint64_t, std::map<uint64_t, TrackedValue>> tracked_resource_values_;
+    Dx12FillCommandResourceValueMap tracked_resource_values_;
 
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func_;
 };

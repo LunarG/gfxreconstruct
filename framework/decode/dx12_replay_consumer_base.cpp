@@ -104,7 +104,7 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         std::bind(&Dx12ReplayConsumerBase::MapGpuDescriptorHandle, this, std::placeholders::_1);
 
     resource_value_mapper_ =
-        std::make_unique<Dx12ResourceValueMapper>(get_object_func, map_gpu_va_func, map_gpu_desc_handle_func, false);
+        std::make_unique<Dx12ResourceValueMapper>(get_object_func, map_gpu_va_func, map_gpu_desc_handle_func);
 }
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)

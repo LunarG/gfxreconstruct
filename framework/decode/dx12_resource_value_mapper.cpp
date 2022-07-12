@@ -135,14 +135,25 @@ void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, T>&                
 Dx12ResourceValueMapper::Dx12ResourceValueMapper(
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
     std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
-    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
-    bool                                              track_values) :
+    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func) :
     get_object_info_func_(get_object_info_func),
     map_gpu_va_func_(map_gpu_va_func), map_gpu_desc_handle_func_(map_gpu_desc_handle_func)
+{}
+
+void Dx12ResourceValueMapper::EnableResourceValueTracker()
 {
-    if (track_values)
+    resource_value_tracker_ = std::make_unique<Dx12ResourceValueTracker>(get_object_info_func_);
+}
+
+Dx12FillCommandResourceValueMap Dx12ResourceValueMapper::GetTrackedResourceValues()
+{
+    if (resource_value_tracker_ != nullptr)
     {
-        resource_value_tracker_ = std::make_unique<Dx12ResourceValueTracker>(get_object_info_func);
+        return resource_value_tracker_->GetTrackedResourceValues();
+    }
+    else
+    {
+        return {};
     }
 }
 
@@ -931,18 +942,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 
         if (resource_value_tracker_ != nullptr)
         {
-            uint64_t orig_value = *reinterpret_cast<uint64_t*>(result_data.data() + final_offset);
-
-            if (mapped_value_iter != resource_info->mapped_gpu_addresses.end())
-            {
-                if (current_address == mapped_value_iter->second)
-                {
-                    orig_value = 0;
-                }
-            }
-
-            resource_value_tracker_->AddTrackedResourceValue(
-                resource_id, value_info.type, final_offset, value_info.size, orig_value);
+            resource_value_tracker_->AddTrackedResourceValue(resource_id, value_info.type, final_offset);
         }
 
         // If the current value at the given offset matches the result of a previous mapping, don't attempt to map
@@ -1006,19 +1006,8 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 
         if (resource_value_tracker_ != nullptr)
         {
-            uint64_t orig_value = 0;
-
-            if ((mapped_shader_id_iter == resource_info->mapped_shader_ids.end()) ||
-                (current_id != mapped_shader_id_iter->second))
-            {
-                orig_value = *reinterpret_cast<uint64_t*>(result_data.data() + final_offset);
-            }
-
-            resource_value_tracker_->AddTrackedResourceValue(resource_id,
-                                                             ResourceValueType::kShaderRecord,
-                                                             final_offset,
-                                                             D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES,
-                                                             orig_value);
+            resource_value_tracker_->AddTrackedResourceValue(
+                resource_id, ResourceValueType::kShaderRecord, final_offset);
         }
 
         // Map the shader ID if it wasn't previously mapped.
