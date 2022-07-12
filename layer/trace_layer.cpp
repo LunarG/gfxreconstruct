@@ -53,6 +53,29 @@ const VkLayerProperties kLayerProps = {
 
 const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
 
+/// An alphabetical list of device extensions which we do not report upstream if
+/// other layers or ICDs expose them to us.
+const char* const kUnsupportedDeviceExtensions[] = {
+    // Supporting the CPU moving around descriptor set data directly has too many
+    // perf/robustness tradeoffs to be worth it.
+    VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
+};
+
+static void remove_extensions(std::vector<VkExtensionProperties>& extensionProps,
+                              const char* const                   screenedExtensions[],
+                              const size_t                        screenedCount)
+{
+    auto new_end = std::remove_if(
+        extensionProps.begin(),
+        extensionProps.end(),
+        [&screenedExtensions, screenedCount](const VkExtensionProperties& extension) {
+            return std::find_if(screenedExtensions, &screenedExtensions[screenedCount], [&extension](auto screened) {
+                       return strncmp(extension.extensionName, screened, VK_MAX_EXTENSION_NAME_SIZE) == 0;
+                   }) != &screenedExtensions[screenedCount];
+        });
+    extensionProps.resize(new_end - extensionProps.begin());
+}
+
 static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo,
                                                                 VkLayerFunction             func)
 {
@@ -337,9 +360,45 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     {
         // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
         // provided extensions.
-        result = encode::GetInstanceTable(physicalDevice)
-                     ->EnumerateDeviceExtensionProperties(
-                         encode::GetWrappedHandle(physicalDevice), pLayerName, pPropertyCount, pProperties);
+        // In order to screen out unsupported extensions, we always query the chain
+        // twice, and remove those that are present from the count.
+        auto     instance_table            = encode::GetInstanceTable(physicalDevice);
+        auto     wrapped_device            = encode::GetWrappedHandle(physicalDevice);
+        uint32_t downstream_property_count = 0;
+
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            wrapped_device, pLayerName, &downstream_property_count, nullptr);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        std::vector<VkExtensionProperties> downstream_properties(downstream_property_count);
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            wrapped_device, pLayerName, &downstream_property_count, &downstream_properties[0]);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        remove_extensions(downstream_properties,
+                          kUnsupportedDeviceExtensions,
+                          std::end(kUnsupportedDeviceExtensions) - std::begin(kUnsupportedDeviceExtensions));
+
+        // Output the reduced count or the reduced extension list:
+        if (pProperties == nullptr)
+        {
+            *pPropertyCount = static_cast<uint32_t>(downstream_properties.size());
+        }
+        else
+        {
+            if (*pPropertyCount < static_cast<uint32_t>(downstream_properties.size()))
+            {
+                result = VK_INCOMPLETE;
+            }
+            *pPropertyCount = std::min(*pPropertyCount, static_cast<uint32_t>(downstream_properties.size()));
+            std::copy(downstream_properties.begin(), downstream_properties.begin() + *pPropertyCount, pProperties);
+        }
     }
 
     return result;
