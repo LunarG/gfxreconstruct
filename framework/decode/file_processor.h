@@ -92,6 +92,8 @@ class FileProcessor
 
     Error GetErrorState() const { return error_state_; }
 
+    bool EntireFileWasProcessed() const { return (feof(file_descriptor_) != 0); }
+
   private:
     bool ContinueDecoding();
 

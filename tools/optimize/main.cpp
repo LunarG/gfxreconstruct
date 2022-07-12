@@ -46,9 +46,10 @@
 #include <unordered_set>
 #include <vector>
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr";
 
 const char kD3d12PsoRemoval[] = "--d3d12-pso-removal";
+const char kDx12OptimizeDxr[] = "--dxr";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -76,6 +77,7 @@ static void PrintUsage(const char* exe_name)
 #endif
     GFXRECON_WRITE_CONSOLE(
         "  --d3d12-pso-removal\tRemove unused d3d12 pso's. Without it, the trace will be treated as Vulkan.");
+    GFXRECON_WRITE_CONSOLE("  --dxr\t\t\tOptimize for DXR replay.");
 #endif
 }
 
@@ -196,11 +198,13 @@ int main(int argc, const char** argv)
         output_filename                                      = positional_arguments[1];
 
 #if defined(WIN32)
-        // We can check other d3d12 options in the future here. For now we check only --d3d12-pso-removal.
-        bool d3d12_remove_psos = arg_parser.IsOptionSet(kD3d12PsoRemoval);
-        if (d3d12_remove_psos)
+        gfxrecon::Dx12OptimizationOptions dx12_options;
+        dx12_options.remove_redundant_psos = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+        dx12_options.optimize_dxr          = arg_parser.IsOptionSet(kDx12OptimizeDxr);
+        bool dx12_optimize_any             = dx12_options.remove_redundant_psos || dx12_options.optimize_dxr;
+        if (dx12_optimize_any)
         {
-            bool result = D3D12RemoveRedundantPSOs(input_filename, output_filename);
+            bool result = gfxrecon::Dx12OptimizeFile(input_filename, output_filename, dx12_options);
             if (!result)
             {
                 gfxrecon::util::Log::Release();

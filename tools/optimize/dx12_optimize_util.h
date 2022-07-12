@@ -27,6 +27,16 @@
 #include "generated/generated_dx12_decoder.h"
 #include "util/defines.h"
 
-bool D3D12RemoveRedundantPSOs(std::string input_filename, std::string output_filename);
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+
+struct Dx12OptimizationOptions
+{
+    bool remove_redundant_psos{ false };
+    bool optimize_dxr{ false };
+};
+
+bool Dx12OptimizeFile(std::string input_filename, std::string output_filename, const Dx12OptimizationOptions& options);
+
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_DX12_OPTIMIZE_UTIL_H

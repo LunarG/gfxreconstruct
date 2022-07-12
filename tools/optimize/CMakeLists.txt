@@ -38,7 +38,15 @@ target_sources(gfxrecon-optimize
 
 target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR})
 
-target_link_libraries(gfxrecon-optimize gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
+target_link_libraries(gfxrecon-optimize
+                          gfxrecon_application
+                          gfxrecon_decode
+                          gfxrecon_graphics
+                          gfxrecon_format
+                          gfxrecon_util
+                          platform_specific
+                          $<$<BOOL:${BUILD_D3D12}>:d3d12.lib>
+                          $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
 
 common_build_directives(gfxrecon-optimize)
 

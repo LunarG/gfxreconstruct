@@ -35,9 +35,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct UnreferencedPsoCreationCalls
 {
-    uint64_t graphics_pso_creation_calls;
-    uint64_t compute_pso_creation_calls;
-    uint64_t storepipeline_calls;
+    uint64_t graphics_pso_creation_calls{ 0 };
+    uint64_t compute_pso_creation_calls{ 0 };
+    uint64_t storepipeline_calls{ 0 };
 };
 
 // This class is for collecting objects, such as pso's, with their creation/reference info
