@@ -128,6 +128,20 @@ class CaptureManager
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
+    void stop_recording()
+    {
+        old_capture_mode_ = capture_mode_;
+        capture_mode_ &= ~kModeWrite;
+    }
+
+    void resume_recording()
+    {
+        if (old_capture_mode_ & kModeWrite)
+        {
+            capture_mode_ |= kModeWrite;
+        }
+    }
+
   protected:
     enum CaptureModeFlags : uint32_t
     {
@@ -287,6 +301,7 @@ class CaptureManager
     size_t                                  trim_current_range_;
     uint32_t                                current_frame_;
     CaptureMode                             capture_mode_;
+    CaptureMode                             old_capture_mode_;
     bool                                    previous_hotkey_state_;
     bool                                    debug_layer_;
     bool                                    debug_device_lost_;

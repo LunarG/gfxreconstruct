@@ -38,7 +38,8 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extraVulkanHeaders=[],
+        gfxr_apicalls=''
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -49,7 +50,8 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extraVulkanHeaders=extraVulkanHeaders,
+            gfxr_apicalls=gfxr_apicalls
         )
 
 
@@ -116,6 +118,15 @@ class LayerFuncTableGenerator(BaseGenerator):
         # match the scheme used by self.LAYER_FUNCTIONS:
         align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
         write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+
+        self.newline()
+        write('// GFXR exposed API calls', file=self.outFile)
+        for cmd in self.GFXR_APICALLS:
+            align = 100 - len(cmd['name'])
+            body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
+                cmd['name'], (' ' * align), cmd['name']
+            )
+            write(body, file=self.outFile)
 
         write('};', file=self.outFile)
         self.newline()

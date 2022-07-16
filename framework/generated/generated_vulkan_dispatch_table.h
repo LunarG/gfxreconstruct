@@ -278,6 +278,8 @@ static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(VkCommandBuffer, const VkRe
 static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(VkCommandBuffer, VkSubpassContents) { GFXRECON_LOG_WARNING("Unsupported function vkCmdNextSubpass was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(VkCommandBuffer) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndRenderPass was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(VkCommandBuffer, uint32_t, const VkCommandBuffer*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdExecuteCommands was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GFXRStopRecording() { GFXRECON_LOG_WARNING("Unsupported function GFXRStopRecording was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GFXRResumeRecording() { GFXRECON_LOG_WARNING("Unsupported function GFXRResumeRecording was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(VkDevice, uint32_t, const VkBindBufferMemoryInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkBindBufferMemory2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(VkDevice, uint32_t, const VkBindImageMemoryInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkBindImageMemory2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(VkDevice, uint32_t, uint32_t, uint32_t, VkPeerMemoryFeatureFlags*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupPeerMemoryFeatures was called, resulting in no-op behavior."); }
@@ -809,6 +811,8 @@ struct DeviceTable
     PFN_vkCmdNextSubpass CmdNextSubpass{ noop::CmdNextSubpass };
     PFN_vkCmdEndRenderPass CmdEndRenderPass{ noop::CmdEndRenderPass };
     PFN_vkCmdExecuteCommands CmdExecuteCommands{ noop::CmdExecuteCommands };
+    PFN_vkVoidFunction GFXRStopRecording{ noop::GFXRStopRecording };
+    PFN_vkVoidFunction GFXRResumeRecording{ noop::GFXRResumeRecording };
     PFN_vkBindBufferMemory2 BindBufferMemory2{ noop::BindBufferMemory2 };
     PFN_vkBindImageMemory2 BindImageMemory2{ noop::BindImageMemory2 };
     PFN_vkGetDeviceGroupPeerMemoryFeatures GetDeviceGroupPeerMemoryFeatures{ noop::GetDeviceGroupPeerMemoryFeatures };
@@ -1347,6 +1351,8 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdNextSubpass", &table->CmdNextSubpass);
     LoadFunction(gpa, device, "vkCmdEndRenderPass", &table->CmdEndRenderPass);
     LoadFunction(gpa, device, "vkCmdExecuteCommands", &table->CmdExecuteCommands);
+    LoadFunction(gpa, device, "GFXRStopRecording", &table->GFXRStopRecording);
+    LoadFunction(gpa, device, "GFXRResumeRecording", &table->GFXRResumeRecording);
     LoadFunction(gpa, device, "vkBindBufferMemory2", &table->BindBufferMemory2);
     LoadFunction(gpa, device, "vkBindImageMemory2", &table->BindImageMemory2);
     LoadFunction(gpa, device, "vkGetDeviceGroupPeerMemoryFeatures", &table->GetDeviceGroupPeerMemoryFeatures);

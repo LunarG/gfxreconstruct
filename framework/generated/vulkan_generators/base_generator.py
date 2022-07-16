@@ -191,7 +191,8 @@ class BaseGeneratorOptions(GeneratorOptions):
         add_extensions=_add_extensions_pat,
         remove_extensions=_remove_extensions_pat,
         emit_extensions=_emit_extensions_pat,
-        extraVulkanHeaders=[]
+        extraVulkanHeaders=[],
+        gfxr_apicalls=None
     ):
         GeneratorOptions.__init__(
             self,
@@ -221,6 +222,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.align_func_param = align_func_param
         self.code_generator = True
         self.extraVulkanHeaders = extraVulkanHeaders
+        self.gfxr_apicalls = gfxr_apicalls
 
 
 class BaseGenerator(OutputGenerator):
@@ -232,6 +234,8 @@ class BaseGenerator(OutputGenerator):
 
     # These API calls should not be processed by the code generator.  They require special implementations.
     APICALL_BLACKLIST = []
+
+    GFXR_APICALLS = []
 
     # These method calls should not be processed by the code generator.  They require special implementations.
     METHODCALL_BLACKLIST = []
@@ -358,6 +362,8 @@ class BaseGenerator(OutputGenerator):
 
         if gen_opts.blacklists:
             self.__load_blacklists(gen_opts.blacklists)
+        if gen_opts.gfxr_apicalls:
+            self.__load_gfxr_apicalls(gen_opts.gfxr_apicalls)
         if gen_opts.platform_types:
             self.__load_platform_types(gen_opts.platform_types)
 
@@ -1341,6 +1347,10 @@ class BaseGenerator(OutputGenerator):
                     self.METHODCALL_BLACKLIST.append(
                         class_name + '_' + method_name
                     )
+
+    def __load_gfxr_apicalls(self, filename):
+        lists = json.loads(open(filename, 'r').read())
+        self.GFXR_APICALLS += lists['functions']
 
     def __load_platform_types(self, filename):
         platforms = json.loads(open(filename, 'r').read())

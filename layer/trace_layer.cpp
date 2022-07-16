@@ -291,6 +291,18 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
                     result = entry->second;
                 }
             }
+            else
+            {
+                static const char* preample = "GFXR";
+                if (!strncmp(pName, preample, 4))
+                {
+                    const auto entry = func_table.find(pName);
+                    if (entry != func_table.end())
+                    {
+                        result = entry->second;
+                    }
+                }
+            }
         }
     }
 

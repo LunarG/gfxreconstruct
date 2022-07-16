@@ -1,0 +1,12 @@
+{
+  "functions": [
+    {
+      "name": "GFXRStopRecording",
+      "type": "void"
+    },
+    {
+      "name": "GFXRResumeRecording",
+      "type": "void"
+    }
+  ]
+}

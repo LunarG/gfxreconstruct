@@ -58,6 +58,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice            
                                                             VkDeferredOperationKHR                    deferredOperation,
                                                             const VkCopyAccelerationStructureInfoKHR* pInfo);
 
+VKAPI_ATTR void VKAPI_CALL GFXRStopRecording();
+VKAPI_ATTR void VKAPI_CALL GFXRResumeRecording();
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

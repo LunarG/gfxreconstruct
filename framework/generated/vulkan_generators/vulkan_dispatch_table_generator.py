@@ -37,7 +37,8 @@ class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraVulkanHeaders=[]
+        extraVulkanHeaders=[],
+        gfxr_apicalls=''
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -48,7 +49,8 @@ class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extraVulkanHeaders=extraVulkanHeaders
+            extraVulkanHeaders=extraVulkanHeaders,
+            gfxr_apicalls=gfxr_apicalls
         )
 
 
@@ -216,6 +218,13 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                                 return_type, proto, values, name
                             )
 
+        for cmd in self.GFXR_APICALLS:
+            name = cmd['name']
+            return_type = cmd['type']
+            values=[]
+            proto = '{}{} {}{}'.format(self.genOpts.apicall, return_type, self.genOpts.apientry, name)
+            self.device_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
+
     def generate_instance_cmd_table(self):
         """Generate instance dispatch table structure."""
         write('struct InstanceTable', file=self.outFile)
@@ -234,10 +243,19 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('struct DeviceTable', file=self.outFile)
         write('{', file=self.outFile)
 
+        gfxr_apicalls_names=[]
+        for call in self.GFXR_APICALLS:
+            gfxr_apicalls_names.append(call['name'])
+
         for name in self.device_cmd_names:
-            decl = '    PFN_{} {}{{ noop::{} }};'.format(
-                name, name[2:], name[2:]
-            )
+            if name in gfxr_apicalls_names:
+                decl = '    PFN_vkVoidFunction {}{{ noop::{} }};'.format(
+                    name, name
+                )
+            else:
+                decl = '    PFN_{} {}{{ noop::{} }};'.format(
+                    name, name[2:], name[2:]
+                )
             write(decl, file=self.outFile)
 
         write('};', file=self.outFile)
@@ -289,13 +307,22 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('    assert(table != nullptr);', file=self.outFile)
         self.newline()
 
+        gfxr_apicalls_names=[]
+        for call in self.GFXR_APICALLS:
+            gfxr_apicalls_names.append(call['name'])
+
         for name in self.device_cmd_names:
             if name == 'vkGetDeviceProcAddr':
                 write('    table->GetDeviceProcAddr = gpa;', file=self.outFile)
             else:
-                expr = '    LoadFunction(gpa, device, "{}", &table->{});'.format(
-                    name, name[2:]
-                )
+                if name not in gfxr_apicalls_names:
+                    expr = '    LoadFunction(gpa, device, "{}", &table->{});'.format(
+                        name, name[2:]
+                    )
+                else:
+                    expr = '    LoadFunction(gpa, device, "{}", &table->{});'.format(
+                        name, name
+                    )
                 write(expr, file=self.outFile)
 
         write('}', file=self.outFile)

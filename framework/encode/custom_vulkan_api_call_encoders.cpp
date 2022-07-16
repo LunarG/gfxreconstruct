@@ -348,5 +348,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice            
     return GetDeviceTable(device)->CopyAccelerationStructureKHR(device, deferredOperation, pInfo);
 }
 
+VKAPI_ATTR void VKAPI_CALL GFXRStopRecording()
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    VulkanCaptureManager::Get()->stop_recording();
+}
+
+VKAPI_ATTR void VKAPI_CALL GFXRResumeRecording()
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    VulkanCaptureManager::Get()->resume_recording();
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

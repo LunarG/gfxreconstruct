@@ -111,6 +111,7 @@ def end_timer(timeit, msg):
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
+default_gfxr_apicalls = 'gfxr_apicalls.json'
 default_platform_types = 'platform_types.json'
 default_replay_overrides = 'replay_overrides.json'
 default_capture_overrides = 'capture_overrides.json'
@@ -157,6 +158,7 @@ def make_gen_opts(args):
 
     # JSON configuration files
     blacklists = os.path.join(args.configs, default_blacklists)
+    gfxr_apicalls = os.path.join(args.configs, default_gfxr_apicalls)
     platform_types = os.path.join(args.configs, default_platform_types)
     replay_overrides = os.path.join(args.configs, default_replay_overrides)
     capture_overrides = os.path.join(args.configs, default_capture_overrides)
@@ -498,7 +500,8 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extraVulkanHeaders=extraVulkanHeaders,
+            gfxr_apicalls=gfxr_apicalls
         )
     ]
 
@@ -510,7 +513,8 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
             protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
+            extraVulkanHeaders=extraVulkanHeaders,
+            gfxr_apicalls=gfxr_apicalls
         )
     ]
 

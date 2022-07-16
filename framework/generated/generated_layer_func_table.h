@@ -562,6 +562,10 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetRayTracingShaderGroupStackSizeKHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::GetRayTracingShaderGroupStackSizeKHR) },
     { "vkCmdSetRayTracingPipelineStackSizeKHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetRayTracingPipelineStackSizeKHR) },
     { "vk_layerGetPhysicalDeviceProcAddr",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },
+
+// GFXR exposed API calls
+    { "GFXRStopRecording",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::GFXRStopRecording) },
+    { "GFXRResumeRecording",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::GFXRResumeRecording) },
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
