@@ -236,7 +236,6 @@ bool FileProcessor::ProcessBlocks()
         {
             success = ReadBlockHeader(&block_header);
 
-            block_index_++;
             for (auto decoder : decoders_)
             {
                 decoder->SetCurrentBlockIndex(block_index_);
@@ -259,6 +258,7 @@ bool FileProcessor::ProcessBlocks()
                         {
                             // Make sure to increment the frame number on the way out.
                             ++current_frame_number_;
+                            ++block_index_;
                             break;
                         }
                     }
@@ -275,13 +275,14 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessMethodCall(block_header, api_call_id, block_index_ - 1);
+                        success = ProcessMethodCall(block_header, api_call_id);
 
                         // Break from loop on frame delimiter.
                         if (IsFrameDelimiter(api_call_id))
                         {
                             // Make sure to increment the frame number on the way out.
                             ++current_frame_number_;
+                            ++block_index_;
                             break;
                         }
                     }
@@ -368,6 +369,8 @@ bool FileProcessor::ProcessBlocks()
                     error_state_ = kErrorReadingBlockHeader;
                 }
             }
+
+            ++block_index_;
         }
     }
 
@@ -537,9 +540,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     return success;
 }
 
-bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
-                                      format::ApiCallId          call_id,
-                                      uint64_t                   block_index)
+bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
 {
     size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t         uncompressed_size     = 0;

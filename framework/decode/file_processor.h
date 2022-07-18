@@ -115,8 +115,7 @@ class FileProcessor
 
     bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
 
-    bool
-    ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, uint64_t block_index = 0);
+    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
