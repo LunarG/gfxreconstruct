@@ -695,6 +695,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     graphics::FpsInfo*                                fps_info_;
     std::unique_ptr<Dx12ResourceValueMapper>          resource_value_mapper_;
     std::unique_ptr<Dx12AccelerationStructureBuilder> accel_struct_builder_;
+    graphics::Dx12ShaderIdMap                         shader_id_map_;
 
     struct ResourceInitInfo
     {

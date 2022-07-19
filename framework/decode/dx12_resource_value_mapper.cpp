@@ -135,9 +135,11 @@ void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, T>&                
 Dx12ResourceValueMapper::Dx12ResourceValueMapper(
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
     std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
-    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func) :
+    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
+    const graphics::Dx12ShaderIdMap&                  shader_id_map) :
     get_object_info_func_(get_object_info_func),
-    map_gpu_va_func_(map_gpu_va_func), map_gpu_desc_handle_func_(map_gpu_desc_handle_func)
+    map_gpu_va_func_(map_gpu_va_func), map_gpu_desc_handle_func_(map_gpu_desc_handle_func),
+    shader_id_map_(shader_id_map)
 {}
 
 void Dx12ResourceValueMapper::EnableResourceValueTracker()
@@ -295,14 +297,6 @@ void Dx12ResourceValueMapper::PostProcessExecuteCommandLists(
 
         command_queue_extra_info->resource_value_map_fence_value += 4;
     }
-}
-
-void Dx12ResourceValueMapper::PostProcessGetShaderIdentifier(const uint8_t* old_shader_id, const uint8_t* new_shader_id)
-{
-    GFXRECON_ASSERT(old_shader_id != nullptr);
-    GFXRECON_ASSERT(new_shader_id != nullptr);
-
-    shader_id_map_.Add(old_shader_id, new_shader_id);
 }
 
 void Dx12ResourceValueMapper::PostProcessCreateCommandSignature(HandlePointerDecoder<void*>* command_signature_decoder,

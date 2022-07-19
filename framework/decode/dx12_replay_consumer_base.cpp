@@ -103,8 +103,8 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
     auto map_gpu_desc_handle_func =
         std::bind(&Dx12ReplayConsumerBase::MapGpuDescriptorHandle, this, std::placeholders::_1);
 
-    resource_value_mapper_ =
-        std::make_unique<Dx12ResourceValueMapper>(get_object_func, map_gpu_va_func, map_gpu_desc_handle_func);
+    resource_value_mapper_ = std::make_unique<Dx12ResourceValueMapper>(
+        get_object_func, map_gpu_va_func, map_gpu_desc_handle_func, shader_id_map_);
 }
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
@@ -1863,9 +1863,9 @@ void* Dx12ReplayConsumerBase::OverrideGetShaderIdentifier(DxObjectInfo*         
 
     if ((original_result != nullptr) && !original_result->IsNull() && (new_shader_identifier_ptr != nullptr))
     {
-        resource_value_mapper_->PostProcessGetShaderIdentifier(original_result->GetPointer(),
-                                                               new_shader_identifier_ptr);
+        shader_id_map_.Add(original_result->GetPointer(), new_shader_identifier_ptr);
     }
+
     return new_shader_identifier_ptr;
 }
 
@@ -2253,11 +2253,11 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
     {
         // Process objects waiting for the fence's value up through the new value.
         fence_info->last_signaled_value = value;
-        auto range_begin = fence_info->waiting_objects.begin();
-        auto range_end   = fence_info->waiting_objects.upper_bound(value);
+        auto range_begin                = fence_info->waiting_objects.begin();
+        auto range_end                  = fence_info->waiting_objects.upper_bound(value);
         if (range_begin != range_end)
         {
-            while(range_begin != range_end)
+            while (range_begin != range_end)
             {
                 auto waiting_objects = std::move(range_begin->second);
                 fence_info->waiting_objects.erase(range_begin);

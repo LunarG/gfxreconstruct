@@ -43,7 +43,8 @@ class Dx12ResourceValueMapper
   public:
     Dx12ResourceValueMapper(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
                             std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
-                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func);
+                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
+                            const graphics::Dx12ShaderIdMap&                  shader_id_map);
 
     // Enable the Dx12ResoruceValueTracker. This should be done after construction, before any processing.
     void EnableResourceValueTracker();
@@ -61,8 +62,6 @@ class Dx12ResourceValueMapper
                                         UINT                                      num_command_lists,
                                         HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
                                         bool                                      needs_mapping);
-
-    void PostProcessGetShaderIdentifier(const uint8_t* old_shader_id, const uint8_t* new_shader_id);
 
     void PostProcessCommandListReset(DxObjectInfo* command_list_object_info);
 
@@ -174,8 +173,8 @@ class Dx12ResourceValueMapper
     std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func_;
     std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func_;
 
-    graphics::Dx12GpuVaMap    reverse_gpu_va_map_; ///< Used to lookup a resource ID from a replay GPU VA.
-    graphics::Dx12ShaderIdMap shader_id_map_;
+    graphics::Dx12GpuVaMap           reverse_gpu_va_map_; ///< Used to lookup a resource ID from a replay GPU VA.
+    const graphics::Dx12ShaderIdMap& shader_id_map_;
 
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
     std::unique_ptr<Dx12ResourceValueTracker>       resource_value_tracker_;
