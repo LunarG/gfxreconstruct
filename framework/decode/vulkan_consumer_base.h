@@ -59,6 +59,11 @@ class VulkanConsumerBase
 
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
 
+    virtual void
+    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                          const uint8_t*                                      data)
+    {}
+
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
 
     virtual void

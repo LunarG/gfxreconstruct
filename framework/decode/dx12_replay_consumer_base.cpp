@@ -254,6 +254,10 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
     }
 }
 
+void Dx12ReplayConsumerBase::ProcessFillMemoryResourceValueCommand(
+    const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
+{}
+
 void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size)
 {
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, allocation_size);

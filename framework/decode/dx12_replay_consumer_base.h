@@ -74,6 +74,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual void
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
+    virtual void
+    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                          const uint8_t*                                      data) override;
+
     virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) override;
 
     virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,

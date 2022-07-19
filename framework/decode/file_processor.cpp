@@ -683,6 +683,46 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read fill memory meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kFillMemoryResourceValueCommand)
+    {
+        format::FillMemoryResourceValueCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = ReadBytes(&header.resource_value_count, sizeof(header.resource_value_count));
+
+        if (success)
+        {
+            uint64_t data_size = header.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
+
+            // TODO (GH #547): Add compression support for FillMemoryResourceValueCommand blocks.
+            // This command does not support compression.
+            GFXRECON_ASSERT(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+            success = ReadParameterBuffer(static_cast<size_t>(data_size));
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchFillMemoryResourceValueCommand(header, parameter_buffer_.data());
+                    }
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read fill memory resource value meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read fill memory resource value meta-data block header");
+        }
+    }
     else if (meta_data_type == format::MetaDataType::kResizeWindowCommand)
     {
         // This command does not support compression.

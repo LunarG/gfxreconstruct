@@ -67,6 +67,15 @@ void VulkanDecoderBase::DispatchFillMemoryCommand(
     }
 }
 
+void VulkanDecoderBase::DispatchFillMemoryResourceValueCommand(
+    const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessFillMemoryResourceValueCommand(command_header, data);
+    }
+}
+
 void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
                                                     format::HandleId surface_id,
                                                     uint32_t         width,

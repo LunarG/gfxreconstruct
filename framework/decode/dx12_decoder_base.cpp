@@ -65,6 +65,15 @@ void Dx12DecoderBase::DispatchFillMemoryCommand(
     }
 }
 
+void Dx12DecoderBase::DispatchFillMemoryResourceValueCommand(
+    const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessFillMemoryResourceValueCommand(command_header, data);
+    }
+}
+
 void Dx12DecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
                                                   format::HandleId surface_id,
                                                   uint32_t         width,
