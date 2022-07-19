@@ -239,6 +239,19 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
         auto copy_size      = static_cast<size_t>(size);
         auto mapped_pointer = static_cast<uint8_t*>(entry->second.data_pointer) + offset;
 
+        if (fill_memory_resource_value_info_.expected_block_index != 0)
+        {
+            if (fill_memory_resource_value_info_.expected_block_index == GetCurrentBlockIndex())
+            {
+                fill_memory_resource_value_info_.Clear();
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR(
+                    "Unexpected FillMemoryCommand after FillMemoryResourceValueCommand. Replay may fail.");
+            }
+        }
+
         util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
 
         if (resource_value_mapper_ != nullptr)
@@ -256,7 +269,32 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
 void Dx12ReplayConsumerBase::ProcessFillMemoryResourceValueCommand(
     const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
-{}
+{
+    // FillMemoryResourceValueCommands should always be followed by a FillMemoryCommand, and the FillMemoryCommand
+    // should use and clear fill_memory_resource_value_info_.
+    GFXRECON_ASSERT(fill_memory_resource_value_info_.expected_block_index == 0);
+
+    // The next block should be the FillMemoryCommand the resource data is associated with.
+    fill_memory_resource_value_info_.expected_block_index = GetCurrentBlockIndex() + 1;
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, command_header.resource_value_count);
+    size_t resource_value_count = static_cast<size_t>(command_header.resource_value_count);
+
+    auto types_bytes   = resource_value_count * sizeof(format::ResourceValueType);
+    auto offsets_bytes = resource_value_count * sizeof(uint64_t);
+
+    fill_memory_resource_value_info_.types.resize(resource_value_count);
+    util::platform::MemoryCopy(fill_memory_resource_value_info_.types.data(),
+                               fill_memory_resource_value_info_.types.size() * sizeof(format::ResourceValueType),
+                               data,
+                               types_bytes);
+
+    fill_memory_resource_value_info_.offsets.resize(resource_value_count);
+    util::platform::MemoryCopy(fill_memory_resource_value_info_.offsets.data(),
+                               fill_memory_resource_value_info_.offsets.size() * sizeof(uint64_t),
+                               data + types_bytes,
+                               offsets_bytes);
+}
 
 void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size)
 {

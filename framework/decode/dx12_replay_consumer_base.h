@@ -723,6 +723,22 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
     std::string                                     screenshot_file_prefix_;
     std::unique_ptr<ScreenshotHandlerBase>          screenshot_handler_;
+
+    struct FillMemoryResourceValueInfo
+    {
+        uint64_t                               expected_block_index{ 0 };
+        std::vector<format::ResourceValueType> types;
+        std::vector<uint64_t>                  offsets;
+
+        void Clear()
+        {
+            expected_block_index = 0;
+            types.clear();
+            offsets.clear();
+        }
+    };
+
+    FillMemoryResourceValueInfo fill_memory_resource_value_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
