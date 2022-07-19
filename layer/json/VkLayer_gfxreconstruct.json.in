@@ -291,7 +291,7 @@
                         {
                             "key": "page_guard_persistent_memory",
                             "env": "GFXRECON_PAGE_GUARD_PERSISTENT_MEMORY",
-                            "label": "Page Guard Persisent Memory",
+                            "label": "Page Guard Persistent Memory",
                             "description": "When the page_guard memory tracking mode is enabled, this option changes the way that the shadow memory used to detect modifications to mapped memory is allocated. The default behavior is to allocate and copy the mapped memory range on map and free the allocation on unmap. When this option is enabled, an allocation with a size equal to that of the object being mapped is made once on the first map and is not freed until the object is destroyed. This option is intended to be used with applications that frequently map and unmap large memory ranges, to avoid frequent allocation and copy operations that can have a negative impact on performance. This option is ignored when GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY is enabled.",
                             "type": "BOOL",
                             "default": false,

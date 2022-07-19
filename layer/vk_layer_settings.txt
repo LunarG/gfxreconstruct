@@ -89,7 +89,7 @@ lunarg_gfxreconstruct.page_guard_separate_read = true
 # external memory. Only available on Windows.
 lunarg_gfxreconstruct.page_guard_external_memory = false
 
-# Page Guard Persisent Memory
+# Page Guard Persistent Memory
 # =====================
 # <LayerIdentifier>.page_guard_persistent_memory
 # When the page_guard memory tracking mode is enabled, this option changes the
