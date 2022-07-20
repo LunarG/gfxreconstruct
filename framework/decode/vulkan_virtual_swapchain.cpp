@@ -136,11 +136,12 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
     {
         if (swapchain_info->blit_command_pool == VK_NULL_HANDLE)
         {
+            device_table_->GetDeviceQueue(device, swapchain_info->queue_family_index, 0, &swapchain_info->blit_queue);
+
             VkCommandPoolCreateInfo command_pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-            command_pool_create_info.pNext                   = nullptr;
             command_pool_create_info.flags =
                 VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-            command_pool_create_info.queueFamilyIndex = 0;
+            command_pool_create_info.queueFamilyIndex = swapchain_info->queue_family_index;
             VkResult result                           = device_table_->CreateCommandPool(
                 device, &command_pool_create_info, nullptr, &swapchain_info->blit_command_pool);
             if (result != VK_SUCCESS)
@@ -215,11 +216,6 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 image_create_info.sharingMode           = swapchain_info->image_sharing_mode;
                 image_create_info.queueFamilyIndexCount = 0;
                 image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
-                if (swapchain_info->queue_family_index != 0)
-                {
-                    image_create_info.queueFamilyIndexCount = 1;
-                    image_create_info.pQueueFamilyIndices   = &swapchain_info->queue_family_index;
-                }
 
                 if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
                     VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
@@ -315,14 +311,12 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 submit_info.commandBufferCount = 1;
                 submit_info.pCommandBuffers    = &command_buffer;
 
-                VkQueue queue = VK_NULL_HANDLE;
-                device_table_->GetDeviceQueue(device, 0, 0, &queue);
-                result = device_table_->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+                result = device_table_->QueueSubmit(swapchain_info->blit_queue, 1, &submit_info, VK_NULL_HANDLE);
                 if (result != VK_SUCCESS)
                 {
                     return result;
                 }
-                result = device_table_->QueueWaitIdle(queue);
+                result = device_table_->QueueWaitIdle(swapchain_info->blit_queue);
                 if (result != VK_SUCCESS)
                 {
                     return result;
@@ -474,9 +468,9 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         },
     };
 
-    auto            length         = present_info->swapchainCount;
-    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-    VkSemaphore     semaphore      = VK_NULL_HANDLE;
+    auto                     length = present_info->swapchainCount;
+    std::vector<VkSemaphore> semaphores;
+
     for (uint32_t i = 0; i < length; ++i)
     {
         uint32_t    capture_image_index = capture_image_indices[i];
@@ -485,26 +479,21 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         const auto& virtual_image       = swapchain_info->virtual_images[capture_image_index];
         const auto& swapchain_image     = swapchain_info->swapchain_images[replay_image_index];
 
-        if (command_buffer == VK_NULL_HANDLE)
+        auto     command_buffer = swapchain_info->blit_command_buffers[capture_image_index];
+        VkResult result         = device_table_->ResetCommandBuffer(command_buffer, 0);
+        if (result != VK_SUCCESS)
         {
-            command_buffer  = swapchain_info->blit_command_buffers[capture_image_index];
-            VkResult result = device_table_->ResetCommandBuffer(command_buffer, 0);
-            if (result != VK_SUCCESS)
-            {
-                return result;
-            }
-
-            result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);
-            if (result != VK_SUCCESS)
-            {
-                return result;
-            }
+            return result;
         }
 
-        if (semaphore == VK_NULL_HANDLE)
+        result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);
+        if (result != VK_SUCCESS)
         {
-            semaphore = swapchain_info->blit_semaphores[capture_image_index];
+            return result;
         }
+
+        auto semaphore = swapchain_info->blit_semaphores[capture_image_index];
+        semaphores.emplace_back(semaphore);
 
         initial_barrier.image                       = swapchain_image;
         initial_barrier.subresourceRange.layerCount = swapchain_info->image_array_layers;
@@ -553,38 +542,39 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                           nullptr,
                                           1,
                                           &final_barrier);
-    }
-    VkResult result = device_table_->EndCommandBuffer(command_buffer);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
 
-    VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        result = device_table_->EndCommandBuffer(command_buffer);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
 
-    VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-    submit_info.waitSemaphoreCount   = present_info->waitSemaphoreCount;
-    submit_info.pWaitSemaphores      = present_info->pWaitSemaphores;
-    submit_info.pWaitDstStageMask    = &wait_stage;
-    submit_info.commandBufferCount   = 1;
-    submit_info.pCommandBuffers      = &command_buffer;
-    submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores    = &semaphore;
+        VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
-    result = device_table_->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
-    result = device_table_->QueueWaitIdle(queue);
-    if (result != VK_SUCCESS)
-    {
-        return result;
+        VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.waitSemaphoreCount   = present_info->waitSemaphoreCount;
+        submit_info.pWaitSemaphores      = present_info->pWaitSemaphores;
+        submit_info.pWaitDstStageMask    = &wait_stage;
+        submit_info.commandBufferCount   = 1;
+        submit_info.pCommandBuffers      = &command_buffer;
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores    = &semaphore;
+
+        result = device_table_->QueueSubmit(swapchain_info->blit_queue, 1, &submit_info, VK_NULL_HANDLE);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+        result = device_table_->QueueWaitIdle(swapchain_info->blit_queue);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
     }
 
     VkPresentInfoKHR modified_present_info   = *present_info;
-    modified_present_info.waitSemaphoreCount = 1;
-    modified_present_info.pWaitSemaphores    = &semaphore;
+    modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(semaphores.size());
+    modified_present_info.pWaitSemaphores    = semaphores.data();
     return func(queue, &modified_present_info);
 }
 
