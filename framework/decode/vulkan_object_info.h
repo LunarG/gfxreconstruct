@@ -408,6 +408,7 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t                     replay_image_count{ 0 };
     std::vector<VirtualImage>    virtual_images; // Images created by replay, returned in place of the swapchain images.
     std::vector<VkImage>         swapchain_images; // The real swapchain images.
+    VkQueue                      blit_queue{ VK_NULL_HANDLE };
     VkCommandPool                blit_command_pool{ VK_NULL_HANDLE };
     std::vector<VkCommandBuffer> blit_command_buffers;
     std::vector<VkSemaphore>     blit_semaphores;
