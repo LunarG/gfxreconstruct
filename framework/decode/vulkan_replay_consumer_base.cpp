@@ -2425,7 +2425,6 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                                 memory_properties,
                                                 device_info->allocator.get(),
                                                 swapchain_info->images[image_index],
-                                                swapchain_->GetImageLayout(),
                                                 swapchain_info->format,
                                                 swapchain_info->width,
                                                 swapchain_info->height);

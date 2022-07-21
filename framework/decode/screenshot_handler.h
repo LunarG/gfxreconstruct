@@ -56,7 +56,6 @@ class ScreenshotHandler
                     const VkPhysicalDeviceMemoryProperties& memory_properties,
                     VulkanResourceAllocator*                allocator,
                     VkImage                                 image,
-                    VkImageLayout                           image_layout,
                     VkFormat                                format,
                     uint32_t                                width,
                     uint32_t                                height);

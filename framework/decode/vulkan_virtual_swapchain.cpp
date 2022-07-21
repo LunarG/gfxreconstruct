@@ -241,25 +241,6 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                     return result;
                 }
 
-                VkImageMemoryBarrier barrier = {
-                    VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                    nullptr,
-                    VK_ACCESS_NONE,
-                    VK_ACCESS_NONE,
-                    image_create_info.initialLayout,
-                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    VK_QUEUE_FAMILY_IGNORED,
-                    VK_QUEUE_FAMILY_IGNORED,
-                    VK_NULL_HANDLE,
-                    VkImageSubresourceRange{
-                        VK_IMAGE_ASPECT_COLOR_BIT,
-                        0,
-                        image_create_info.mipLevels,
-                        0,
-                        image_create_info.arrayLayers,
-                    },
-                };
-
                 for (uint32_t i = start_index; i < capture_image_count; ++i)
                 {
                     SwapchainKHRInfo::VirtualImage image;
@@ -272,25 +253,31 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                                            swapchain_info->capture_id);
                         break;
                     }
-                    barrier.image = image.image;
-                    device_table_->CmdPipelineBarrier(command_buffer,
-                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                      0,
-                                                      0,
-                                                      nullptr,
-                                                      0,
-                                                      nullptr,
-                                                      1,
-                                                      &barrier);
                     swapchain_info->virtual_images.emplace_back(std::move(image));
                 }
 
+                VkImageMemoryBarrier barrier = {
+                    VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                    nullptr,
+                    VK_ACCESS_NONE,
+                    VK_ACCESS_NONE,
+                    VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                    VK_QUEUE_FAMILY_IGNORED,
+                    VK_QUEUE_FAMILY_IGNORED,
+                    VK_NULL_HANDLE,
+                    VkImageSubresourceRange{
+                        VK_IMAGE_ASPECT_COLOR_BIT,
+                        0,
+                        image_create_info.mipLevels,
+                        0,
+                        image_create_info.arrayLayers,
+                    },
+                };
+
                 for (uint32_t i = 0; i < *replay_image_count; ++i)
                 {
-                    barrier.image     = replay_swapchain_images[i];
-                    barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                    barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                    barrier.image = replay_swapchain_images[i];
                     device_table_->CmdPipelineBarrier(command_buffer,
                                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -423,13 +410,13 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
     begin_info.flags                    = 0;
     begin_info.pInheritanceInfo         = nullptr;
 
-    VkImageMemoryBarrier initial_barrier = {
+    VkImageMemoryBarrier initial_barrier_virtual = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
         nullptr,
         VK_ACCESS_NONE,
         VK_ACCESS_TRANSFER_WRITE_BIT,
         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
         VK_QUEUE_FAMILY_IGNORED,
         VK_QUEUE_FAMILY_IGNORED,
         VK_NULL_HANDLE,
@@ -442,11 +429,17 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         },
     };
 
-    VkImageMemoryBarrier final_barrier = initial_barrier;
-    final_barrier.srcAccessMask        = VK_ACCESS_TRANSFER_WRITE_BIT;
-    final_barrier.dstAccessMask        = VK_ACCESS_MEMORY_READ_BIT;
-    final_barrier.oldLayout            = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    final_barrier.newLayout            = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    VkImageMemoryBarrier final_barrier_virtual = initial_barrier_virtual;
+    final_barrier_virtual.srcAccessMask        = VK_ACCESS_TRANSFER_WRITE_BIT;
+    final_barrier_virtual.dstAccessMask        = VK_ACCESS_MEMORY_READ_BIT;
+    final_barrier_virtual.oldLayout            = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    final_barrier_virtual.newLayout            = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkImageMemoryBarrier initial_barrier_swap = initial_barrier_virtual;
+    initial_barrier_swap.newLayout            = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+    VkImageMemoryBarrier final_barrier_swap = final_barrier_virtual;
+    final_barrier_swap.oldLayout            = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
     VkImageSubresourceLayers subresource = {
         VK_IMAGE_ASPECT_COLOR_BIT,
@@ -495,8 +488,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         auto semaphore = swapchain_info->blit_semaphores[capture_image_index];
         semaphores.emplace_back(semaphore);
 
-        initial_barrier.image                       = swapchain_image;
-        initial_barrier.subresourceRange.layerCount = swapchain_info->image_array_layers;
+        initial_barrier_virtual.image                       = virtual_image.image;
+        initial_barrier_virtual.subresourceRange.layerCount = swapchain_info->image_array_layers;
 
         device_table_->CmdPipelineBarrier(command_buffer,
                                           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -507,7 +500,21 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                           0,
                                           nullptr,
                                           1,
-                                          &initial_barrier);
+                                          &initial_barrier_virtual);
+
+        initial_barrier_swap.image                       = swapchain_image;
+        initial_barrier_swap.subresourceRange.layerCount = swapchain_info->image_array_layers;
+
+        device_table_->CmdPipelineBarrier(command_buffer,
+                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                          0,
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr,
+                                          1,
+                                          &initial_barrier_swap);
 
         subresource.layerCount = swapchain_info->image_array_layers;
 
@@ -529,8 +536,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                     &blit,
                                     VK_FILTER_NEAREST);
 
-        final_barrier.image                       = swapchain_image;
-        final_barrier.subresourceRange.layerCount = swapchain_info->image_array_layers;
+        final_barrier_virtual.image                       = virtual_image.image;
+        final_barrier_virtual.subresourceRange.layerCount = swapchain_info->image_array_layers;
 
         device_table_->CmdPipelineBarrier(command_buffer,
                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -541,7 +548,21 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                           0,
                                           nullptr,
                                           1,
-                                          &final_barrier);
+                                          &final_barrier_virtual);
+
+        final_barrier_swap.image                       = swapchain_image;
+        final_barrier_swap.subresourceRange.layerCount = swapchain_info->image_array_layers;
+
+        device_table_->CmdPipelineBarrier(command_buffer,
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                          0,
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr,
+                                          1,
+                                          &final_barrier_swap);
 
         result = device_table_->EndCommandBuffer(command_buffer);
         if (result != VK_SUCCESS)
@@ -591,32 +612,6 @@ VkResult VulkanVirtualSwapchain::CreateRenderPass(PFN_vkCreateRenderPass        
         device = device_info->handle;
     }
 
-    // Change create_info->pAttachments[*]->finalLayout from PRESENT_SRC to TRANSFER_SRC to prepare the VkImage
-    // objects returned by vkGetSwapchainImagesKHR to be copied to the real swapchain images.  We use
-    // FindFirstPresentSrcLayout to determine if the render pass uses the PRESENT_SRC layout, and if so we make a copy
-    // of the create info to modify.
-    int32_t first = FindFirstPresentSrcLayout(create_info);
-
-    if (first >= 0)
-    {
-        std::vector<VkAttachmentDescription> descriptions(
-            create_info->pAttachments, std::next(create_info->pAttachments, create_info->attachmentCount));
-
-        for (uint32_t i = first; i < create_info->attachmentCount; ++i)
-        {
-            // TODO: This should also change the initialLayout values.
-            if (descriptions[i].finalLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-            {
-                descriptions[i].finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            }
-        }
-
-        VkRenderPassCreateInfo modified_create_info = (*create_info);
-        modified_create_info.pAttachments           = descriptions.data();
-
-        return func(device, &modified_create_info, allocator, render_pass);
-    }
-
     return func(device, create_info, allocator, render_pass);
 }
 
@@ -631,32 +626,6 @@ VkResult VulkanVirtualSwapchain::CreateRenderPass2(PFN_vkCreateRenderPass2      
     if (device_info != nullptr)
     {
         device = device_info->handle;
-    }
-
-    // Change create_info->pAttachments[*]->finalLayout from PRESENT_SRC to TRANSFER_SRC to prepare the VkImage
-    // objects returned by vkGetSwapchainImagesKHR to be copied to the real swapchain images.  We use
-    // FindFirstPresentSrcLayout to determine if the render pass uses the PRESENT_SRC layout, and if so we make a copy
-    // of the create info to modify.
-    int32_t first = FindFirstPresentSrcLayout(create_info);
-
-    if (first >= 0)
-    {
-        std::vector<VkAttachmentDescription2> descriptions(
-            create_info->pAttachments, std::next(create_info->pAttachments, create_info->attachmentCount));
-
-        for (uint32_t i = first; i < create_info->attachmentCount; ++i)
-        {
-            // TODO: This should also change the initialLayout values.
-            if (descriptions[i].finalLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-            {
-                descriptions[i].finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            }
-        }
-
-        VkRenderPassCreateInfo2 modified_create_info = (*create_info);
-        modified_create_info.pAttachments            = descriptions.data();
-
-        return func(device, &modified_create_info, allocator, render_pass);
     }
 
     return func(device, create_info, allocator, render_pass);
@@ -681,51 +650,16 @@ void VulkanVirtualSwapchain::CmdPipelineBarrier(PFN_vkCmdPipelineBarrier     fun
         command_buffer = command_buffer_info->handle;
     }
 
-    // Change image_memory_barriers[*]->oldLayout and image_memory_barriers[*]->newLayout values from PRESENT_SRC
-    // to TRANSFER_SRC to prepare the VkImage objects returned by vkGetSwapchainImagesKHR to be copied to the real
-    // swapchain images.  We use FindFirstPresentSrcLayout to determine if the pipeline barrier uses the PRESENT_SRC
-    // layout, and if so we make a copy of the create info to modify.
-    int32_t first = FindFirstPresentSrcLayout(image_memory_barrier_count, image_memory_barriers);
-
-    if (first < 0)
-    {
-        func(command_buffer,
-             src_stage_mask,
-             dst_stage_mask,
-             dependency_flags,
-             memory_barrier_count,
-             memory_barriers,
-             buffer_memory_barrier_count,
-             buffer_memory_barriers,
-             image_memory_barrier_count,
-             image_memory_barriers);
-    }
-    else
-    {
-        std::vector<VkImageMemoryBarrier> barriers(image_memory_barriers,
-                                                   std::next(image_memory_barriers, image_memory_barrier_count));
-
-        for (uint32_t i = first; i < image_memory_barrier_count; ++i)
-        {
-            // TODO: This should also change the oldLayout values.
-            if (barriers[i].newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-            {
-                barriers[i].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                barriers[i].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            }
-        }
-
-        func(command_buffer,
-             src_stage_mask,
-             VK_PIPELINE_STAGE_TRANSFER_BIT,
-             dependency_flags,
-             memory_barrier_count,
-             memory_barriers,
-             buffer_memory_barrier_count,
-             buffer_memory_barriers,
-             image_memory_barrier_count,
-             barriers.data());
-    }
+    func(command_buffer,
+         src_stage_mask,
+         dst_stage_mask,
+         dependency_flags,
+         memory_barrier_count,
+         memory_barriers,
+         buffer_memory_barrier_count,
+         buffer_memory_barriers,
+         image_memory_barrier_count,
+         image_memory_barriers);
 }
 
 VkResult VulkanVirtualSwapchain::CreateSwapchainImage(const DeviceInfo*               device_info,
