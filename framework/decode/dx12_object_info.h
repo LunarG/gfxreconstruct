@@ -121,6 +121,22 @@ struct ResourceCopyInfo
 
 typedef format::ResourceValueType ResourceValueType;
 
+static uint64_t GetResourceValueSize(ResourceValueType type)
+{
+    switch (type)
+    {
+        case ResourceValueType::kGpuVirtualAddress:
+            return sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+        case ResourceValueType::kGpuDescriptorHandle:
+            return sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr);
+        case ResourceValueType::kShaderIdentifier:
+            return D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+        default:
+            GFXRECON_ASSERT(false && "Unrecognized resource value type.");
+            return 0;
+    }
+}
+
 struct ResourceValueInfo
 {
     uint64_t              offset{ 0 };
@@ -263,10 +279,12 @@ struct D3D12CommandListInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D12CommandListInfo";
     D3D12CommandListInfo() : DxObjectExtraInfo(kType) {}
 
-    std::vector<ResourceCopyInfo> resource_copies;
+    bool requires_sync_after_execute{ false };
 
-    ResourceValueInfoMap resource_value_info_map;
-    DxObjectInfo*        active_state_object{ nullptr };
+    // Tracked state used by Dx12ResourceValueMapper.
+    std::vector<ResourceCopyInfo> resource_copies;
+    ResourceValueInfoMap          resource_value_info_map;
+    DxObjectInfo*                 active_state_object{ nullptr };
 };
 
 struct D3D12RootSignatureInfo : DxObjectExtraInfo

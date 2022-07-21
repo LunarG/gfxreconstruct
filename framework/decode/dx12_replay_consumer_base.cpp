@@ -99,9 +99,15 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
     }
 
     auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
-    auto map_gpu_va_func = std::bind(&Dx12ReplayConsumerBase::MapGpuVirtualAddress, this, std::placeholders::_1);
+    auto map_gpu_va_func = std::bind(static_cast<void (Dx12ReplayConsumerBase::*)(D3D12_GPU_VIRTUAL_ADDRESS&)>(
+                                         &Dx12ReplayConsumerBase::MapGpuVirtualAddress),
+                                     this,
+                                     std::placeholders::_1);
     auto map_gpu_desc_handle_func =
-        std::bind(&Dx12ReplayConsumerBase::MapGpuDescriptorHandle, this, std::placeholders::_1);
+        std::bind(static_cast<void (Dx12ReplayConsumerBase::*)(D3D12_GPU_DESCRIPTOR_HANDLE&)>(
+                      &Dx12ReplayConsumerBase::MapGpuDescriptorHandle),
+                  this,
+                  std::placeholders::_1);
 
     resource_value_mapper_ = std::make_unique<Dx12ResourceValueMapper>(
         get_object_func, map_gpu_va_func, map_gpu_desc_handle_func, shader_id_map_);
@@ -239,20 +245,64 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
         auto copy_size      = static_cast<size_t>(size);
         auto mapped_pointer = static_cast<uint8_t*>(entry->second.data_pointer) + offset;
 
+        util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+
         if (fill_memory_resource_value_info_.expected_block_index != 0)
         {
             if (fill_memory_resource_value_info_.expected_block_index == GetCurrentBlockIndex())
             {
+                GFXRECON_ASSERT(fill_memory_resource_value_info_.types.size() ==
+                                fill_memory_resource_value_info_.offsets.size())
+
+                for (size_t i = 0; i < fill_memory_resource_value_info_.types.size(); ++i)
+                {
+                    auto value_type   = fill_memory_resource_value_info_.types[i];
+                    auto value_offset = fill_memory_resource_value_info_.offsets[i];
+
+                    uint8_t*       dst_value_ptr = static_cast<uint8_t*>(entry->second.data_pointer) + value_offset;
+                    const uint8_t* src_value_ptr = nullptr;
+                    if ((value_offset >= offset) &&
+                        (value_offset + GetResourceValueSize(value_type) <= (offset + size)))
+                    {
+                        // Use the incoming data as the source for mapping the value. This avoids possibly reading data
+                        // from an upload buffer.
+                        src_value_ptr = data + (value_offset - offset);
+                    }
+                    else
+                    {
+                        // If the value was written by multiple fill memory commands (this fill memory command and
+                        // any previous commands), then it needs to be read from the resource data.
+                        src_value_ptr = dst_value_ptr;
+                    }
+
+                    switch (static_cast<uint8_t>(value_type))
+                    {
+                        case 1:
+                        {
+                            MapGpuVirtualAddress(dst_value_ptr, src_value_ptr);
+                            break;
+                        }
+                        case 2:
+                        {
+                            MapGpuDescriptorHandle(dst_value_ptr, src_value_ptr);
+                            break;
+                        }
+                        case 3:
+                        {
+                            shader_id_map_.Map(dst_value_ptr, src_value_ptr);
+                            break;
+                        }
+                    }
+                }
+
                 fill_memory_resource_value_info_.Clear();
             }
             else
             {
-                GFXRECON_LOG_ERROR(
-                    "Unexpected FillMemoryCommand after FillMemoryResourceValueCommand. Replay may fail.");
+                GFXRECON_LOG_ERROR("Unexpected state found for the data required for optimized replay of DXR and/or "
+                                   "ExecuteIndirect commands. Replay may fail.");
             }
         }
-
-        util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
 
         if (resource_value_mapper_ != nullptr)
         {
@@ -294,6 +344,14 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryResourceValueCommand(
                                fill_memory_resource_value_info_.offsets.size() * sizeof(uint64_t),
                                data + types_bytes,
                                offsets_bytes);
+
+    // If a FillMemoryResourceValueCommand is encountered, the file has been optimized for DXR and the
+    // resource_value_mapper_ is not needed.
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_ = nullptr;
+        GFXRECON_LOG_INFO("Found data to enable optimized playback of DXR and/or ExecuteIndirect commands.");
+    }
 }
 
 void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size)
@@ -476,6 +534,20 @@ void Dx12ReplayConsumerBase::MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE&
     object_mapping::MapGpuDescriptorHandle(handle, descriptor_map_);
 }
 
+void Dx12ReplayConsumerBase::MapGpuDescriptorHandle(uint8_t* dst_handle_ptr, const uint8_t* src_handle_ptr)
+{
+    D3D12_GPU_DESCRIPTOR_HANDLE handle;
+    util::platform::MemoryCopy(&handle.ptr,
+                               sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr),
+                               src_handle_ptr,
+                               sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr));
+    MapGpuDescriptorHandle(handle);
+    util::platform::MemoryCopy(dst_handle_ptr,
+                               sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr),
+                               &handle.ptr,
+                               sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr));
+}
+
 void Dx12ReplayConsumerBase::MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
 {
     object_mapping::MapGpuDescriptorHandles(handles, handles_len, descriptor_map_);
@@ -484,6 +556,16 @@ void Dx12ReplayConsumerBase::MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE
 void Dx12ReplayConsumerBase::MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address)
 {
     object_mapping::MapGpuVirtualAddress(address, gpu_va_map_);
+}
+
+void Dx12ReplayConsumerBase::MapGpuVirtualAddress(uint8_t* dst_address_ptr, const uint8_t* src_address_ptr)
+{
+    D3D12_GPU_VIRTUAL_ADDRESS address;
+    util::platform::MemoryCopy(
+        &address, sizeof(D3D12_GPU_VIRTUAL_ADDRESS), src_address_ptr, sizeof(D3D12_GPU_VIRTUAL_ADDRESS));
+    MapGpuVirtualAddress(address);
+    util::platform::MemoryCopy(
+        dst_address_ptr, sizeof(D3D12_GPU_VIRTUAL_ADDRESS), &address, sizeof(D3D12_GPU_VIRTUAL_ADDRESS));
 }
 
 void Dx12ReplayConsumerBase::MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len)
@@ -845,25 +927,22 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
     {
         auto command_queue_info = std::make_unique<D3D12CommandQueueInfo>();
 
-        // Create the fence for the replay --sync option.
-        if (options_.sync_queue_submissions)
+        // Create the fence for the replay --sync option or for when command queues require sync after execution.
+        auto fence_result =
+            replay_object->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_info->sync_fence));
+
+        if (SUCCEEDED(fence_result))
         {
-            auto fence_result =
-                replay_object->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_info->sync_fence));
+            command_queue_info->sync_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
 
-            if (SUCCEEDED(fence_result))
-            {
-                command_queue_info->sync_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-
-                // Initialize the fence info object that will be added to D3D12CommandQueueInfo::pending_events when the
-                // queue has outstanding wait operations.
-                command_queue_info->sync_fence_info.object     = command_queue_info->sync_fence;
-                command_queue_info->sync_fence_info.extra_info = std::make_unique<D3D12FenceInfo>();
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object for the replay --sync option");
-            }
+            // Initialize the fence info object that will be added to D3D12CommandQueueInfo::pending_events when the
+            // queue has outstanding wait operations.
+            command_queue_info->sync_fence_info.object     = command_queue_info->sync_fence;
+            command_queue_info->sync_fence_info.extra_info = std::make_unique<D3D12FenceInfo>();
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object for the replay --sync option");
         }
 
         SetExtraInfo(command_queue, std::move(command_queue_info));
@@ -1269,8 +1348,11 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
 
             gpu_va_map_.Add(replay_object_info->capture_id, original_result, desc.Width, replay_result);
 
-            resource_value_mapper_->AddReplayGpuVa(
-                replay_object_info->capture_id, replay_result, desc.Width, original_result);
+            if (resource_value_mapper_ != nullptr)
+            {
+                resource_value_mapper_->AddReplayGpuVa(
+                    replay_object_info->capture_id, replay_result, desc.Width, original_result);
+            }
         }
     }
 
@@ -1494,15 +1576,39 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
     auto replay_object = static_cast<ID3D12CommandQueue*>(replay_object_info->object);
 
     bool needs_mapping = false;
-    resource_value_mapper_->PreProcessExecuteCommandLists(
-        replay_object_info, num_command_lists, command_lists, needs_mapping);
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PreProcessExecuteCommandLists(
+            replay_object_info, num_command_lists, command_lists, needs_mapping);
+    }
+
+    // Add a command queue signal and CPU wait after command list execution.
+    bool do_sync_after_execute = options_.sync_queue_submissions && !command_lists->IsNull() && !needs_mapping;
+
+    // TODO (GH #550): Determine why a sync is required after executing commands lists that contain DispatchRays or
+    // BuildRayTracingAccelerationStructures.
+    // Check if the command list requires sync after mapping.
+    // If resource value mapping is needed, it will sync after command lists execution, so we don't need to add an
+    // extra sync here.
+    if (!needs_mapping)
+    {
+        for (UINT i = 0; (i < num_command_lists) && !do_sync_after_execute; ++i)
+        {
+            auto command_list_extra_info =
+                GetExtraInfo<D3D12CommandListInfo>(GetObjectInfo(command_lists->GetPointer()[i]));
+            do_sync_after_execute = do_sync_after_execute || command_list_extra_info->requires_sync_after_execute;
+        }
+    }
 
     replay_object->ExecuteCommandLists(num_command_lists, command_lists->GetHandlePointer());
 
-    resource_value_mapper_->PostProcessExecuteCommandLists(
-        replay_object_info, num_command_lists, command_lists, needs_mapping);
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessExecuteCommandLists(
+            replay_object_info, num_command_lists, command_lists, needs_mapping);
+    }
 
-    if (options_.sync_queue_submissions && !command_lists->IsNull())
+    if (do_sync_after_execute)
     {
         auto command_queue_info = GetExtraInfo<D3D12CommandQueueInfo>(replay_object_info);
         if (command_queue_info != nullptr)
@@ -2133,7 +2239,10 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
                 gpu_va_map_.Remove(info->capture_id, resource_info->capture_address_);
 
-                resource_value_mapper_->RemoveReplayGpuVa(info->capture_id, resource_info->replay_address_);
+                if (resource_value_mapper_ != nullptr)
+                {
+                    resource_value_mapper_->RemoveReplayGpuVa(info->capture_id, resource_info->replay_address_);
+                }
             }
 
             for (const auto& entry : resource_info->mapped_memory_info)
@@ -2771,7 +2880,13 @@ HRESULT Dx12ReplayConsumerBase::OverrideCommandListReset(DxObjectInfo* command_l
 
     HRESULT replay_result = command_list->Reset(allocator, initial_state);
 
-    resource_value_mapper_->PostProcessCommandListReset(command_list_object_info);
+    auto command_list_extra_info                         = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+    command_list_extra_info->requires_sync_after_execute = false;
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessCommandListReset(command_list_object_info);
+    }
 
     return replay_result;
 }
@@ -2785,8 +2900,11 @@ void Dx12ReplayConsumerBase::OverrideCopyResource(DxObjectInfo* command_list_obj
     auto src_resource = static_cast<ID3D12Resource*>(src_resource_object_info->object);
     command_list->CopyResource(dst_resource, src_resource);
 
-    resource_value_mapper_->PostProcessCopyResource(
-        command_list_object_info, dst_resource_object_info, src_resource_object_info);
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessCopyResource(
+            command_list_object_info, dst_resource_object_info, src_resource_object_info);
+    }
 }
 
 void Dx12ReplayConsumerBase::OverrideCopyBufferRegion(DxObjectInfo* command_list_object_info,
@@ -2801,8 +2919,15 @@ void Dx12ReplayConsumerBase::OverrideCopyBufferRegion(DxObjectInfo* command_list
     auto src_buffer   = static_cast<ID3D12Resource*>(src_buffer_object_info->object);
     command_list->CopyBufferRegion(dst_buffer, dst_offset, src_buffer, src_offset, num_bytes);
 
-    resource_value_mapper_->PostProcessCopyBufferRegion(
-        command_list_object_info, dst_buffer_object_info, dst_offset, src_buffer_object_info, src_offset, num_bytes);
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessCopyBufferRegion(command_list_object_info,
+                                                            dst_buffer_object_info,
+                                                            dst_offset,
+                                                            src_buffer_object_info,
+                                                            src_offset,
+                                                            num_bytes);
+    }
 }
 
 HRESULT
@@ -2832,7 +2957,10 @@ Dx12ReplayConsumerBase::OverrideCreateCommandSignature(
     {
         SetExtraInfo(command_signature_decoder, std::make_unique<D3D12CommandSignatureInfo>());
 
-        resource_value_mapper_->PostProcessCreateCommandSignature(command_signature_decoder, desc);
+        if (resource_value_mapper_ != nullptr)
+        {
+            resource_value_mapper_->PostProcessCreateCommandSignature(command_signature_decoder, desc);
+        }
     }
 
     return replay_result;
@@ -2863,13 +2991,19 @@ void Dx12ReplayConsumerBase::OverrideExecuteIndirect(DxObjectInfo* command_list_
                                   count_buffer,
                                   count_buffer_offset);
 
-    resource_value_mapper_->PostProcessExecuteIndirect(command_list_object_info,
-                                                       command_signature_object_info,
-                                                       max_command_count,
-                                                       argument_buffer_object_info,
-                                                       argument_buffer_offset,
-                                                       count_buffer_object_info,
-                                                       count_buffer_offset);
+    auto command_list_extra_info                         = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+    command_list_extra_info->requires_sync_after_execute = true;
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessExecuteIndirect(command_list_object_info,
+                                                           command_signature_object_info,
+                                                           max_command_count,
+                                                           argument_buffer_object_info,
+                                                           argument_buffer_offset,
+                                                           count_buffer_object_info,
+                                                           count_buffer_offset);
+    }
 }
 
 void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
@@ -2886,7 +3020,13 @@ void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
     command_list4->BuildRaytracingAccelerationStructure(
         desc->GetPointer(), num_post_build_info_descs, post_build_info_descs->GetPointer());
 
-    resource_value_mapper_->PostProcessBuildRaytracingAccelerationStructure(command_list4_object_info, desc);
+    auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
+    command_list_extra_info->requires_sync_after_execute = true;
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessBuildRaytracingAccelerationStructure(command_list4_object_info, desc);
+    }
 }
 
 void Dx12ReplayConsumerBase::OverrideGetRaytracingAccelerationStructurePrebuildInfo(
@@ -2955,8 +3095,11 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
     {
         SetExtraInfo(root_signature_decoder, std::make_unique<D3D12RootSignatureInfo>());
 
-        resource_value_mapper_->PostProcessCreateRootSignature(
-            blob_with_root_signature_decoder, blob_length_in_bytes, root_signature_decoder);
+        if (resource_value_mapper_ != nullptr)
+        {
+            resource_value_mapper_->PostProcessCreateRootSignature(
+                blob_with_root_signature_decoder, blob_length_in_bytes, root_signature_decoder);
+        }
     }
 
     return replay_result;
@@ -2978,7 +3121,10 @@ Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_i
     {
         SetExtraInfo(state_object_decoder, std::make_unique<D3D12StateObjectInfo>());
 
-        resource_value_mapper_->PostProcessCreateStateObject(state_object_decoder, desc_decoder, {});
+        if (resource_value_mapper_ != nullptr)
+        {
+            resource_value_mapper_->PostProcessCreateStateObject(state_object_decoder, desc_decoder, {});
+        }
     }
 
     return replay_result;
@@ -3005,10 +3151,13 @@ Dx12ReplayConsumerBase::OverrideAddToStateObject(
     {
         SetExtraInfo(new_state_object_decoder, std::make_unique<D3D12StateObjectInfo>());
 
-        auto state_object_to_grow_from_extra_info =
-            GetExtraInfo<D3D12StateObjectInfo>(state_object_to_grow_from_object_info);
-        resource_value_mapper_->PostProcessCreateStateObject(
-            new_state_object_decoder, addition_decoder, state_object_to_grow_from_extra_info->export_name_lrs_map);
+        if (resource_value_mapper_ != nullptr)
+        {
+            auto state_object_to_grow_from_extra_info =
+                GetExtraInfo<D3D12StateObjectInfo>(state_object_to_grow_from_object_info);
+            resource_value_mapper_->PostProcessCreateStateObject(
+                new_state_object_decoder, addition_decoder, state_object_to_grow_from_extra_info->export_name_lrs_map);
+        }
     }
 
     return replay_result;
@@ -3020,7 +3169,13 @@ void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_ob
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
     command_list4->DispatchRays(desc_decoder->GetPointer());
 
-    resource_value_mapper_->PostProcessDispatchRays(command_list4_object_info, desc_decoder);
+    auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
+    command_list_extra_info->requires_sync_after_execute = true;
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessDispatchRays(command_list4_object_info, desc_decoder);
+    }
 }
 
 void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_list4_object_info,
@@ -3030,7 +3185,10 @@ void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_lis
     auto state_object  = static_cast<ID3D12StateObject*>(state_object_object_info->object);
     command_list4->SetPipelineState1(state_object);
 
-    resource_value_mapper_->PostProcessSetPipelineState1(command_list4_object_info, state_object_object_info);
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessSetPipelineState1(command_list4_object_info, state_object_object_info);
+    }
 }
 
 QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)

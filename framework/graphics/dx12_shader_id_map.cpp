@@ -61,12 +61,17 @@ void Dx12ShaderIdMap::Remove(const uint8_t* old_shader_id)
 
 void Dx12ShaderIdMap::Map(uint8_t* translated_shader_id) const
 {
-    Dx12ShaderIdentifier old_shader_id = PackDx12ShaderIdentifier(translated_shader_id);
+    Dx12ShaderIdMap::Map(translated_shader_id, translated_shader_id);
+}
+
+void Dx12ShaderIdMap::Map(uint8_t* dst_translated_shader_id, const uint8_t* src_translated_shader_id) const
+{
+    Dx12ShaderIdentifier old_shader_id = PackDx12ShaderIdentifier(src_translated_shader_id);
 
     auto entry = shader_id_map_.find(old_shader_id);
     if (entry != shader_id_map_.end())
     {
-        UnpackDx12ShaderIdentifier(translated_shader_id, entry->second);
+        UnpackDx12ShaderIdentifier(dst_translated_shader_id, entry->second);
         return;
     }
     GFXRECON_LOG_WARNING("No matching replay ShaderIdentifier found for capture ShaderIdentifier");

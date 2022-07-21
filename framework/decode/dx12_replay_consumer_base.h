@@ -117,9 +117,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
   protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
+    void MapGpuDescriptorHandle(uint8_t* dst_handle_ptr, const uint8_t* src_handle_ptr);
+
     void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
 
     void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address);
+
+    void MapGpuVirtualAddress(uint8_t* dst_address_ptr, const uint8_t* src_address_ptr);
 
     void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len);
 

@@ -29,27 +29,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-namespace /* anonymous */
-{
-
-static uint64_t GetResourceValueSize(ResourceValueType type)
-{
-    switch (type)
-    {
-        case ResourceValueType::kGpuVirtualAddress:
-            return sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
-        case ResourceValueType::kGpuDescriptorHandle:
-            return sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr);
-        case ResourceValueType::kShaderIdentifier:
-            return D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
-        default:
-            GFXRECON_ASSERT(false && "Unrecognized resource value type.");
-            return 0;
-    }
-}
-
-} // namespace
-
 void Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId  resource_id,
                                                        ResourceValueType type,
                                                        uint64_t          offset)

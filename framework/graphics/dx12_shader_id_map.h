@@ -48,6 +48,8 @@ class Dx12ShaderIdMap
 
     void Map(uint8_t* translated_shader_id) const;
 
+    void Map(uint8_t* dst_translated_shader_id, const uint8_t* src_translated_shader_id) const;
+
   private:
     // Key is old shader id. Value is new.
     typedef std::map<Dx12ShaderIdentifier, Dx12ShaderIdentifier> ShaderIdMap;
