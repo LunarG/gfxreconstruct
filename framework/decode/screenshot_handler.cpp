@@ -88,7 +88,6 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                    const VkPhysicalDeviceMemoryProperties& memory_properties,
                                    VulkanResourceAllocator*                allocator,
                                    VkImage                                 image,
-                                   VkImageLayout                           image_layout,
                                    VkFormat                                format,
                                    uint32_t                                width,
                                    uint32_t                                height)
@@ -192,35 +191,33 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
 
             if (result == VK_SUCCESS)
             {
-                VkImageMemoryBarrier image_barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-                if (image_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-                {
-                    // Transition source image to target to the TRANSFER_DST layout.
-                    image_barrier.pNext                           = nullptr;
-                    image_barrier.srcAccessMask                   = 0;
-                    image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-                    image_barrier.oldLayout                       = image_layout;
-                    image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    image_barrier.image                           = image;
-                    image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                    image_barrier.subresourceRange.baseArrayLayer = 0;
-                    image_barrier.subresourceRange.layerCount     = 1;
-                    image_barrier.subresourceRange.baseMipLevel   = 0;
-                    image_barrier.subresourceRange.levelCount     = 1;
+                // Transition source image to target to the TRANSFER_DST layout.
+                VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+                image_barrier.pNext                           = nullptr;
+                image_barrier.srcAccessMask                   = 0;
+                image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+                image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                image_barrier.image                           = image;
+                image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barrier.subresourceRange.baseArrayLayer = 0;
+                image_barrier.subresourceRange.layerCount     = 1;
+                image_barrier.subresourceRange.baseMipLevel   = 0;
+                image_barrier.subresourceRange.levelCount     = 1;
 
-                    device_table->CmdPipelineBarrier(command_buffer,
-                                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                     0,
-                                                     0,
-                                                     nullptr,
-                                                     0,
-                                                     nullptr,
-                                                     1,
-                                                     &image_barrier);
-                }
+                device_table->CmdPipelineBarrier(command_buffer,
+                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &image_barrier);
+
                 // The 'copy_image' is the image to be used with the image to buffer copy.
                 VkImage copy_image = image;
                 if (copy_resource.convert_image != VK_NULL_HANDLE)
@@ -323,27 +320,25 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                                    1,
                                                    &copy_region);
 
-                if (image_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-                {
-                    // Transition source image to PRESENT_SOURCE layout for vkQueuePresentKHR.
-                    image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-                    image_barrier.dstAccessMask       = 0;
-                    image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    image_barrier.newLayout           = image_layout;
-                    image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                    image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                // Transition source image to PRESENT_SOURCE layout for vkQueuePresentKHR.
+                image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+                image_barrier.dstAccessMask       = 0;
+                image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                image_barrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-                    device_table->CmdPipelineBarrier(command_buffer,
-                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                     0,
-                                                     0,
-                                                     nullptr,
-                                                     0,
-                                                     nullptr,
-                                                     1,
-                                                     &image_barrier);
-                }
+                device_table->CmdPipelineBarrier(command_buffer,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &image_barrier);
+
                 device_table->EndCommandBuffer(command_buffer);
 
                 // Make sure any pending work is finished, as we are not waiting on any semaphores from previous
