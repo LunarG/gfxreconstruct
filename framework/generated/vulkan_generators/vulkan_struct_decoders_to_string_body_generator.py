@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021-2022 LunarG, Inc.
+# Copyright (c) 2021 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,8 +24,8 @@ import os, re, sys, inspect
 from base_generator import *
 
 
-class VulkanStructToStringBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ functions for Vulkan ToString() functions"""
+class VulkanStructDecodersToStringBodyGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ functions for Decoded versions of Vulkan struct ToString() functions"""
 
     def __init__(
         self,
@@ -51,9 +51,9 @@ class VulkanStructToStringBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanStructToStringBodyGenerator - subclass of BaseGenerator.
+# VulkanStructDecodersToStringBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API structures.
-class VulkanStructToStringBodyGenerator(BaseGenerator):
+class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -85,7 +85,9 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
         body = inspect.cleandoc('''
-            #include "util/custom_vulkan_to_string.h"
+            #include "generated_vulkan_struct_decoders_to_string.h"
+            #include "decode/custom_vulkan_struct_decoders_to_string.h"
+            #include "decode/custom_vulkan_ascii_consumer.h"
             #include "generated_vulkan_struct_to_string.h"
             #include "generated_vulkan_enum_to_string.h"
 
@@ -123,8 +125,14 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
         for struct in self.get_filtered_struct_names():
             if not struct in self.customImplementationRequired:
                 body = inspect.cleandoc('''
-                    template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+                    template <> std::string ToString<decode::Decoded_{0}>(const decode::Decoded_{0}& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
                     {{
+                        assert(decoded_obj.decoded_value != nullptr);
+                        if(decoded_obj.decoded_value == nullptr)
+                        {{
+                            return "";
+                        }}
+                        const {0}& obj = *decoded_obj.decoded_value;
                         return ObjectToString(toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
                             {{
@@ -145,21 +153,24 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     # yapf: disable
     def makeStructBody(self, name, values):
         body = ''
-        hasHandle = False
-        hasSingleHandle = False
-        hasArrayPtrHandle = False
+
         for value in values:
 
             # Start with a static_assert() so that if any values make it through the logic
             #   below without being handled the generated code will fail to compile
-            toString = 'static_assert(false, "Unhandled value in `vulkan_struct_to_string_body_generator.py`")'
+            toString = 'static_assert(false, "Unhandled value in `vulkan_struct_decoders_to_string_body_generator.py`")'
 
             # pNext requires custom handling
             if 'pNext' in value.name:
-                toString = 'PNextToString(obj.pNext, toStringFlags, tabCount, tabSize)'
+                # Original: toString = 'PNextToString(obj.pNext, toStringFlags, tabCount, tabSize)'
+                toString = 'PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize)'
 
             # Function pointers and void data pointers simply write the address
-            elif 'pfn' in value.name or 'void' in value.full_type:
+            elif 'pfn' in value.name:
+                # toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
+                # In decoded types these are uint64_ts:
+                toString = '"\\"" + ToString(decoded_obj.{0}) + "\\""'
+            elif 'void' in value.full_type:
                 toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
 
             # C strings require custom handling
@@ -170,52 +181,68 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                     toString = '(obj.{0} ? ("\\"" + std::string(obj.{0}) + "\\"") : "null")'
 
             # There's some repeated code in this if/else block...for instance, arrays of
-            #   structs, enums, and primitives all route through ArrayToString()...It's
-            #   easier (imo) to reason about each case when they're all listed explictly
+            # structs, enums, and primitives all route through ArrayToString()...It's
+            # easier (imo) to reason about each case when they're all listed explictly
             elif value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
-                        toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                        hasHandle = True
-                        hasArrayPtrHandle = True
+                        # Pointer to array of handles case:
+                        # Original: toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        # Works but outputs hex: toString = 'VkHandleArrayToString(decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
+                        # Decimals output:
+                        toString = 'ArrayToString(decoded_obj.{0}.GetLength(), decoded_obj.{0}.GetPointer(), toStringFlags, tabCount, tabSize)'
+
                     elif self.is_struct(value.base_type):
-                        toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        # Pointer to array of structs case:
+                        # Original: toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
+                        # Pointer to array of enums case. For enums, it is fine to reach through to the
+                        # raw struct since no deeper recursion will happen:
                         toString = 'VkEnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     else:
+                        # Pointer to array of anything else case can access the raw vulkan struct:
                         toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     if self.is_handle(value.base_type):
-                        toString = 'static_assert(false, "Unhandled pointer to VkHandle in `vulkan_struct_to_string_body_generator.py`")'
-                        hasHandle = True
+                        toString = 'static_assert(false, "Unhandled pointer to VkHandle in `vulkan_struct_decoders_to_string_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        toString = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
+                        # Pointer to single struct case:
+                        toString = '((decoded_obj.{0} && decoded_obj.{0}->GetMetaStructPointer()) ? ToString(*decoded_obj.{0}->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null")'
                     elif self.is_enum(value.base_type):
-                        toString = 'static_assert(false, "Unhandled pointer to VkEnum in `vulkan_struct_to_string_body_generator.py`")'
+                        toString = 'static_assert(false, "Unhandled pointer to VkEnum in `vulkan_struct_decoders_to_string_body_generator.py`")'
                     else:
+                        # Pointer to single anything else case.
                         toString = '(obj.{0} ? ToString(*obj.{0}, toStringFlags, tabCount, tabSize) : "null")'
             else:
                 if value.is_array:
                     if self.is_handle(value.base_type):
-                        toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                        hasHandle = True
+                        # Embedded array of handles as a direct fixed-length member of the struct:
+                        # Original: toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        # Plumbs through to HandlePointerDecoder::GetPointer() which returns a pointer
+                        # to a format::HandleId, which is a typedef of uint64_t.
+                        toString = 'ArrayToString(decoded_obj.{0}.GetLength(), decoded_obj.{0}.GetPointer(), toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
-                        toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        # Embedded array of structs:
+                        # Original: toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
+                        # For embedded arrays of enums, grab them out of the raw vulkan struct:
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif 'char' in value.base_type:
                         toString = '\'"\' + std::string(obj.{0}) + \'"\''
                     elif 'UUID' in value.array_length or 'LUID' in value.array_length:
                         toString = '\'"\' + UIDToString({1}, obj.{0}) + \'"\''
                     else:
+                        # Embedded array of misc other stuff (ints, masks, floats, etc.):
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     if self.is_handle(value.base_type):
-                        toString = '\'"\' + VkHandleToString(obj.{0}) + \'"\''
-                        hasHandle = True
-                        hasSingleHandle = True
+                        # Outputs decimal value of the handle:
+                        toString = 'ToString(decoded_obj.{0})'
                     elif self.is_struct(value.base_type):
-                        toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
+                        # Original: toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'ToString(*(decoded_obj.{0}), toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
                     else:
@@ -224,12 +251,5 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             firstField = 'true' if not body else 'false'
             toString = toString.format(value.name, value.array_length)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
-        if(hasHandle == True):
-                body += '            /* Struct has at least one handle - Andy */\n'
-        if(hasSingleHandle == True):
-                body += '            /* Struct has at least one single handle - Andy */\n'
-        if(hasArrayPtrHandle == True):
-                body += '            /* Struct has at least one pointer to an array of handles - Andy */\n'
-
         return body
     # yapf: enable

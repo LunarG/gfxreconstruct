@@ -92,6 +92,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             #include "util/custom_vulkan_to_string.h"
             #include "generated/generated_vulkan_enum_to_string.h"
             #include "generated/generated_vulkan_struct_to_string.h"
+            #include "generated/generated_vulkan_struct_decoders_to_string.h"
             #include "util/defines.h"
             '''
         )
@@ -188,13 +189,13 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 toString = 'StringDecoderToString({0})'
 
             # There's some repeated code in this if/else block...It's easier (imo) to reason
-            #   about each case when they're all listed explictly
+            # about each case when they're all listed explictly
             elif value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
                         toString = 'HandlePointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
-                        toString = 'PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'PointerDecoderArrayToString(*{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = 'EnumPointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                     else:
@@ -203,6 +204,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                     if self.is_handle(value.base_type):
                         toString = 'HandlePointerDecoderToString({0})'
                     elif self.is_struct(value.base_type):
+
                         toString = 'PointerDecoderToString({0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = 'EnumPointerDecoderToString({0})'
@@ -222,6 +224,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                     if self.is_handle(value.base_type):
                         toString = 'HandleIdToString({0})'
                     elif self.is_struct(value.base_type):
+                        # @note This never happens, as we don't pass structs into Vulkan by value.
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = '\'"\' + ToString({0}, toStringFlags, tabCount, tabSize) + \'"\''

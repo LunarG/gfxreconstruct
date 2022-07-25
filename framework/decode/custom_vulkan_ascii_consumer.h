@@ -19,7 +19,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-
+/// @file Custom code used when outputing a textual representation of a capture.
 #ifndef GFXRECON_CUSTOM_VULKAN_ASCII_CONSUMER_H
 #define GFXRECON_CUSTOM_VULKAN_ASCII_CONSUMER_H
 
@@ -32,18 +32,27 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_to_string.h"
+#include "generated/generated_vulkan_struct_decoders_to_string.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/defines.h"
 #include "util/to_string.h"
 #include "util/custom_vulkan_to_string.h"
+#include "custom_vulkan_struct_decoders_to_string.h"
+
 
 #include "vulkan/vulkan.h"
 
 #include <sstream>
 #include <string>
 
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+/// String representation of empty array.
+constexpr auto GFXRECON_TOJSON_EMPTY_ARRAY = "[]";
+/// String representation of a null pointer.
+constexpr auto GFXRECON_TOJSON_NULL = "null";
 
 inline std::string HandleIdToString(format::HandleId handleId)
 {
@@ -85,14 +94,60 @@ inline std::string DataPointerDecoderToString(const T& pObj)
     return "\"" + util::PtrToString(pObj) + "\"";
 }
 
+/// Template which unwraps the decoder type for a Vulkan Struct to the
+/// underlying Vulkan version before dispatching to a generated to-string
+/// function for that type.
+/// @note This is broken: any handle in a struct will be VK_NULL_HANDLE in the
+/// string generated.
+/// @fixme: either:
+/// 1. dispatch to a new set of to-string functions which handle the
+/// wrapper type directly, or
+/// 2. generate specialisations of this dispatcher which
+/// stuff our handle IDs into the handles as shown in the manually-written example,
+/// below, or
+/// 3. generate to-strings for the decoded types which do the stuffing and then call the existing
+///    ToString()s.
+
+/// Pointers to primitive types like integers and to arrays will come through here:
 template <typename PointerDecoderType>
 inline std::string PointerDecoderToString(PointerDecoderType* pObj,
                                           util::ToStringFlags toStringFlags = util::kToString_Default,
                                           uint32_t            tabCount      = 0,
                                           uint32_t            tabSize       = 4)
 {
+    // Get a pointer to the raw vulkan type:
     auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
+    // Call a function for the raw Vulkan type:
     return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
+}
+
+/// Overloaded function specialising dispatch for structs.
+template <typename StructType>
+inline std::string PointerDecoderToString(StructPointerDecoder<StructType>* pObj,
+                                          util::ToStringFlags toStringFlags,
+                                          uint32_t            tabCount,
+                                          uint32_t            tabSize)
+{
+    std::string str = "null";
+    if(nullptr != pObj)
+    {
+        auto pMetaObj = pObj->GetMetaStructPointer();
+        // If there was no struct pointer provided by the app, e.g. for allocation
+        // callbacks, we'll have a null pointer here too.
+        if(nullptr != pMetaObj)
+        {
+            str = util::ToString(*pMetaObj, toStringFlags, tabCount, tabSize);
+        }
+        else
+        {
+            auto vkStructPtr = pObj->GetPointer();
+            if(nullptr != vkStructPtr)
+            {
+                str = util::ToString(*vkStructPtr, toStringFlags, tabCount, tabSize);
+            }
+        }
+    }
+    return str;
 }
 
 inline std::string DescriptorUpdateTemplateDecoderToString(const DescriptorUpdateTemplateDecoder* pObj,
@@ -188,7 +243,50 @@ inline std::string PointerDecoderArrayToString(const CountType&    countObj,
         tabCount,
         tabSize,
         [&]() { return pObjs && !pObjs->IsNull(); },
-        [&](uint32_t i) { return ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize); });
+        [&](uint32_t i)
+        {
+            //Original iterating over raw Vulkan Structs:
+            return ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize);
+        }
+    );
+}
+
+template <typename Decoded_VkStructType>
+inline std::string PointerDecoderArrayToString(const StructPointerDecoder<Decoded_VkStructType>& pObjsPointerDecoder,
+                                               util::ToStringFlags toStringFlags = util::kToString_Default,
+                                               uint32_t            tabCount      = 0,
+                                               uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    const size_t countObj = pObjsPointerDecoder.GetLength();
+    const Decoded_VkStructType* pObjs = pObjsPointerDecoder.GetMetaStructPointer();
+
+    return ArrayToString(
+        GetCount(countObj),
+        pObjs,
+        toStringFlags,
+        tabCount,
+        tabSize,
+        [&]() { return pObjs && (pObjs != nullptr); },
+        [&](uint32_t i)
+        {
+            return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize);
+        }
+    );
+}
+
+template <typename Decoded_VkStructType>
+inline std::string PointerDecoderArrayToString(const StructPointerDecoder<Decoded_VkStructType>* pObjsPointerDecoder,
+                                               util::ToStringFlags toStringFlags = util::kToString_Default,
+                                               uint32_t            tabCount      = 0,
+                                               uint32_t            tabSize       = 4)
+{
+    if(nullptr != pObjsPointerDecoder)
+    {
+        return PointerDecoderArrayToString(*pObjsPointerDecoder, toStringFlags, tabCount, tabSize);
+    }
+    // We represent a null pointer as an empty array on a single line.
+    return GFXRECON_TOJSON_EMPTY_ARRAY;
 }
 
 template <typename CountType, typename PointerDecoderType>

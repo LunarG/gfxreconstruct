@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021-2022 LunarG, Inc.
+# Copyright (c) 2022 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,8 +24,8 @@ import os, re, sys, inspect
 from base_generator import *
 
 
-class VulkanPNextToStringBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ functions for Vulkan ToString() functions"""
+class VulkanStructDecodersToStringHeaderGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ functions for Vulkan structure wrapper ToString() functions"""
 
     def __init__(
         self,
@@ -51,9 +51,9 @@ class VulkanPNextToStringBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanPNextToStringBodyGenerator - subclass of BaseGenerator.
-# Generates C++ functions for stringifying Vulkan API structures.
-class VulkanPNextToStringBodyGenerator(BaseGenerator):
+# VulkanStructDecodersToStringHeaderGenerator - subclass of BaseGenerator.
+# Generates C++ functions for stringifying Vulkan API structure wrappers.
+class VulkanStructDecodersToStringHeaderGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -69,61 +69,58 @@ class VulkanPNextToStringBodyGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map to store VkStructureType enum values
-        self.sTypeValues = dict()
+    # Method override
+    # yapf: disable
+    def beginFile(self, genOpts):
+        BaseGenerator.beginFile(self, genOpts)
+        includes = inspect.cleandoc(
+            '''
+            #include "format/platform_types.h"
+            #include "util/to_string.h"
+            #include "generated/generated_vulkan_struct_decoders.h"
+            '''
+        )
+        write(includes, file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
+        namespace = inspect.cleandoc(
+            '''
+            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+            GFXRECON_BEGIN_NAMESPACE(util)
+            '''
+        )
+        write(namespace, file=self.outFile)
+    # yapf: enable
 
     # Method override
     # yapf: disable
     def endFile(self):
-        body = inspect.cleandoc('''
-        #include "util/custom_vulkan_to_string.h"
-        #include "generated_vulkan_struct_to_string.h"
-        #include "generated_vulkan_struct_decoders_to_string.h"
-
-        GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-        GFXRECON_BEGIN_NAMESPACE(util)
-
-        std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-        {
-            if (pNext)
-            {
-                switch (reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)
-                {
-        ''')
-        body += '\n'
-        for struct in self.sTypeValues:
-            body += '        case {0}:\n'.format(self.sTypeValues[struct])
-            body += '            return ToString(*reinterpret_cast<const {0}*>(pNext), toStringFlags, tabCount, tabSize);\n'.format(struct)
-        body += inspect.cleandoc('''
-                default:
-                    return std::string("\\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)) + "\\"";
-                }
-            }
-            return "null";
-        }
-
-        GFXRECON_END_NAMESPACE(util)
-        GFXRECON_END_NAMESPACE(gfxrecon)
-        ''')
+        body = inspect.cleandoc(
+            '''
+            GFXRECON_END_NAMESPACE(util)
+            GFXRECON_END_NAMESPACE(gfxrecon)
+            '''
+        )
         write(body, file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
     # yapf: enable
 
-    # Method override
-    def genStruct(self, typeinfo, typename, alias):
-        if not alias:
-            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
-            if typeinfo.elem.get('structextends'):
-                sType = self.make_structure_type_enum(typeinfo, typename)
-                if sType:
-                    self.sTypeValues[typename] = sType
-
     #
     # Indicates that the current feature has C++ code to generate.
-    def needFeatureGeneration(self):
-        self.featureBreak = False
-        if self.featureStructMembers:
+    def need_feature_generation(self):
+        self.feature_break = False
+        if self.feature_struct_members:
             return True
         return False
+
+    #
+    # Performs C++ code generation for the feature.
+    # yapf: disable
+    def generate_feature(self):
+        for struct in self.get_filtered_struct_names():
+            body = 'template <> std::string ToString<decode::Decoded_{0}>(const decode::Decoded_{0}& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);'.format(
+                struct
+            )
+            write(body, file=self.outFile)
+    # yapf: enable
