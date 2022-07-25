@@ -6459,17 +6459,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pSwapchain);
 
-    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkSwapchainCreateInfoKHR* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->CreateSwapchainKHR(device_unwrapped, pCreateInfo_unwrapped, pAllocator, pSwapchain);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchain, VulkanCaptureManager::GetUniqueId);
-    }
-    else
+    VkResult result = VulkanCaptureManager::Get()->OverrideCreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain);
+    if (result < 0)
     {
         omit_output_data = true;
     }

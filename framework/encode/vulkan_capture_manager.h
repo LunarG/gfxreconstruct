@@ -284,6 +284,11 @@ class VulkanCaptureManager : public CaptureManager
                                                   const VkAllocationCallbacks*             pAllocator,
                                                   VkPipeline*                              pPipelines);
 
+    VkResult OverrideCreateSwapchainKHR(VkDevice                        device,
+                                        const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                        const VkAllocationCallbacks*    pAllocator,
+                                        VkSwapchainKHR*                 pSwapchain);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,

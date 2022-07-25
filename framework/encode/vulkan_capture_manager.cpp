@@ -36,6 +36,8 @@
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
 
+#include "generated/generated_vulkan_enum_to_string.h"
+
 #include <cassert>
 #include <unordered_set>
 
@@ -1140,6 +1142,35 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
         }
     }
 
+    return result;
+}
+
+VkResult VulkanCaptureManager::OverrideCreateSwapchainKHR(VkDevice                        device,
+                                                          const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                                          const VkAllocationCallbacks*    pAllocator,
+                                                          VkSwapchainKHR*                 pSwapchain)
+{
+    auto                            handle_unwrap_memory  = GetHandleUnwrapMemory();
+    VkDevice                        device_unwrapped      = GetWrappedHandle<VkDevice>(device);
+    const VkSwapchainCreateInfoKHR* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkResult result =
+        GetDeviceTable(device)->CreateSwapchainKHR(device_unwrapped, pCreateInfo_unwrapped, pAllocator, pSwapchain);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(
+            device, NoParentWrapper::kHandleValue, pSwapchain, VulkanCaptureManager::GetUniqueId);
+    }
+
+    if (pCreateInfo->presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR ||
+        pCreateInfo->presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+    {
+        auto present_mode = util::ToString<VkPresentModeKHR>(pCreateInfo->presentMode);
+        GFXRECON_LOG_WARNING("The presentMode in vkCreateSwapchainKHR is %s. It could cause out-of-order swapchain "
+                             "images when replaying. \"--virtual-swapchain\" option could fix it.",
+                             present_mode.c_str());
+    }
     return result;
 }
 
