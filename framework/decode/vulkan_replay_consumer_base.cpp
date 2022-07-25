@@ -421,9 +421,6 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
     desc.usage                = usage;
     desc.width                = width;
 
-    // Make sure we can write to the buffer.
-    desc.usage |= AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN;
-
     AHardwareBuffer* buffer = nullptr;
     int              result = AHardwareBuffer_allocate(&desc, &buffer);
     if ((result == 0) && (buffer != nullptr))
@@ -432,8 +429,7 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
         ahb_info.memory_id           = memory_id;
         ahb_info.hardware_buffer     = buffer;
 
-        void* data = nullptr;
-        result     = -1;
+        result = -1;
 
         std::vector<format::HardwareBufferPlaneInfo> replay_plane_info;
 
@@ -441,98 +437,84 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
         // could be turned into a run-time check dependent on dlsym returning a valid pointer for
         // AHardwareBuffer_lockPlanes.
 #if __ANDROID_API__ >= 29
-        AHardwareBuffer_Planes ahb_planes;
-        result = AHardwareBuffer_lockPlanes(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &ahb_planes);
-        if (result == 0)
+        if (desc.usage & AHARDWAREBUFFER_USAGE_CPU_WRITE_MASK)
         {
-            data = ahb_planes.planes[0].data;
-
-            for (uint32_t i = 0; i < ahb_planes.planeCount; ++i)
+            AHardwareBuffer_Planes ahb_planes;
+            result =
+                AHardwareBuffer_lockPlanes(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &ahb_planes);
+            if (result == 0)
             {
-                format::HardwareBufferPlaneInfo ahb_plane_info;
-                ahb_plane_info.offset =
-                    reinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - reinterpret_cast<uint8_t*>(data);
-                ahb_plane_info.pixel_stride = ahb_planes.planes[i].pixelStride;
-                ahb_plane_info.row_pitch    = ahb_planes.planes[i].rowStride;
-                replay_plane_info.emplace_back(std::move(ahb_plane_info));
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("AHardwareBuffer_lockPlanes failed: AHardwareBuffer_lock will be used instead");
-        }
-#endif
+                void* data = ahb_planes.planes[0].data;
 
-        if (result != 0)
-        {
-            result = AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &data);
-        }
-
-        if (result == 0)
-        {
-            assert(data != nullptr);
-
-            HardwareBufferMemoryInfo& memory_info = hardware_buffer_memory_info_[memory_id];
-            memory_info.hardware_buffer           = buffer;
-            memory_info.compatible_strides        = true;
-
-            // Check for matching strides.
-            if (plane_info.empty() || replay_plane_info.empty())
-            {
-                uint32_t bpp = GetHardwareBufferFormatBpp(format);
-
-                AHardwareBuffer_describe(buffer, &desc);
-                if (stride != desc.stride)
+                for (uint32_t i = 0; i < ahb_planes.planeCount; ++i)
                 {
-                    memory_info.compatible_strides = false;
+                    format::HardwareBufferPlaneInfo ahb_plane_info;
+                    ahb_plane_info.offset =
+                        reinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - reinterpret_cast<uint8_t*>(data);
+                    ahb_plane_info.pixel_stride = ahb_planes.planes[i].pixelStride;
+                    ahb_plane_info.row_pitch    = ahb_planes.planes[i].rowStride;
+                    replay_plane_info.emplace_back(std::move(ahb_plane_info));
                 }
 
-                memory_info.plane_info.resize(1);
-                memory_info.plane_info[0].capture_offset    = 0;
-                memory_info.plane_info[0].replay_offset     = 0;
-                memory_info.plane_info[0].capture_row_pitch = bpp * stride;
-                memory_info.plane_info[0].replay_row_pitch  = bpp * desc.stride;
-                memory_info.plane_info[0].height            = height;
+                if (AHardwareBuffer_unlock(buffer, nullptr) != 0)
+                {
+                    GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed for AHardwareBuffer object (Buffer ID = %" PRIu64
+                                       ", Memory ID = %" PRIu64 ")",
+                                       buffer_id,
+                                       memory_id);
+                }
             }
             else
             {
-                assert(plane_info.size() == replay_plane_info.size());
-
-                size_t layer_count = plane_info.size();
-
-                memory_info.plane_info.resize(layer_count);
-
-                for (size_t i = 0; i < layer_count; ++i)
-                {
-                    memory_info.plane_info[i].capture_offset    = plane_info[i].offset;
-                    memory_info.plane_info[i].replay_offset     = replay_plane_info[i].offset;
-                    memory_info.plane_info[i].capture_row_pitch = plane_info[i].row_pitch;
-                    memory_info.plane_info[i].replay_row_pitch  = replay_plane_info[i].row_pitch;
-                    memory_info.plane_info[i].height            = height;
-
-                    if ((plane_info[i].offset != replay_plane_info[i].offset) ||
-                        (plane_info[i].row_pitch != replay_plane_info[i].row_pitch))
-                    {
-                        memory_info.compatible_strides = false;
-                    }
-                }
+                GFXRECON_LOG_WARNING("AHardwareBuffer_lockPlanes failed.");
             }
+        }
+#endif
 
-            result = AHardwareBuffer_unlock(buffer, nullptr);
-            if (result != 0)
+        HardwareBufferMemoryInfo& memory_info = hardware_buffer_memory_info_[memory_id];
+        memory_info.hardware_buffer           = buffer;
+        memory_info.compatible_strides        = true;
+
+        // Check for matching strides.
+        if (plane_info.empty() || replay_plane_info.empty())
+        {
+            uint32_t bpp = GetHardwareBufferFormatBpp(format);
+
+            AHardwareBuffer_describe(buffer, &desc);
+            if (stride != desc.stride)
             {
-                GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed for AHardwareBuffer object (Buffer ID = %" PRIu64
-                                   ", Memory ID = %" PRIu64 ")",
-                                   buffer_id,
-                                   memory_id);
+                memory_info.compatible_strides = false;
             }
+
+            memory_info.plane_info.resize(1);
+            memory_info.plane_info[0].capture_offset    = 0;
+            memory_info.plane_info[0].replay_offset     = 0;
+            memory_info.plane_info[0].capture_row_pitch = bpp * stride;
+            memory_info.plane_info[0].replay_row_pitch  = bpp * desc.stride;
+            memory_info.plane_info[0].height            = height;
         }
         else
         {
-            GFXRECON_LOG_ERROR("AHardwareBuffer_lock failed for AHardwareBuffer object (Buffer ID = %" PRIu64
-                               ", Memory ID = %" PRIu64 ")",
-                               buffer_id,
-                               memory_id);
+            assert(plane_info.size() == replay_plane_info.size());
+
+            size_t layer_count = plane_info.size();
+
+            memory_info.plane_info.resize(layer_count);
+
+            for (size_t i = 0; i < layer_count; ++i)
+            {
+                memory_info.plane_info[i].capture_offset    = plane_info[i].offset;
+                memory_info.plane_info[i].replay_offset     = replay_plane_info[i].offset;
+                memory_info.plane_info[i].capture_row_pitch = plane_info[i].row_pitch;
+                memory_info.plane_info[i].replay_row_pitch  = replay_plane_info[i].row_pitch;
+                memory_info.plane_info[i].height            = height;
+
+                if ((plane_info[i].offset != replay_plane_info[i].offset) ||
+                    (plane_info[i].row_pitch != replay_plane_info[i].row_pitch))
+                {
+                    memory_info.compatible_strides = false;
+                }
+            }
         }
     }
     else
@@ -1630,7 +1612,7 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
         else
         {
             GFXRECON_LOG_WARNING_ONCE("Failed to find a valid AHardwareBuffer handle for a call to "
-                                 "vkGetAndroidHardwareBufferPropertiesANDROID")
+                                      "vkGetAndroidHardwareBufferPropertiesANDROID")
         }
     }
 #endif
