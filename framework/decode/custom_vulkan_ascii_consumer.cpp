@@ -23,6 +23,32 @@
 #include "decode/custom_vulkan_ascii_consumer.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
 
+/// @note A manual template for the code to be generated:
+/*template <> std::string gfxrecon::util::ToString<gfxrecon::decode::Decoded_VkFramebufferCreateInfo>(const gfxrecon::decode::Decoded_VkFramebufferCreateInfo& metaObj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+// <---------------------------------------------------------------------------------------------------------------------------------------------------[BOOKMARK]
+{
+    //return "gfxrecon::decode::Decoded_VkFramebufferCreateInfo";
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            assert(metaObj.decoded_value);
+            VkFramebufferCreateInfo& obj = *metaObj.decoded_value;
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            // NULL: FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.renderPass) + '"');
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, '"' + ToString(metaObj.renderPass) + '"');
+            FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
+            // EMPTY ARRAY: FieldToString(strStrm, false, "pAttachments", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.attachmentCount, obj.pAttachments, toStringFlags, tabCount, tabSize));
+            assert(metaObj.pAttachments.GetLength() == obj.attachmentCount);
+            FieldToString(strStrm, false, "pAttachments", toStringFlags, tabCount, tabSize, VkHandleArrayToString(metaObj.pAttachments.GetLength(), metaObj.pAttachments.GetPointer(), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "width", toStringFlags, tabCount, tabSize, ToString(obj.width, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "height", toStringFlags, tabCount, tabSize, ToString(obj.height, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "layers", toStringFlags, tabCount, tabSize, ToString(obj.layers, toStringFlags, tabCount, tabSize));
+        }
+    );
+}*/
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 

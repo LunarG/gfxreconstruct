@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021-2022 LunarG, Inc.
+# Copyright (c) 2021 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,7 +24,7 @@ import os, re, sys, inspect
 from base_generator import *
 
 
-class VulkanPNextToStringBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanPNextDecodersToStringBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -51,9 +51,9 @@ class VulkanPNextToStringBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanPNextToStringBodyGenerator - subclass of BaseGenerator.
+# VulkanPNextDecodersToStringBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API structures.
-class VulkanPNextToStringBodyGenerator(BaseGenerator):
+class VulkanPNextDecodersToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -76,27 +76,45 @@ class VulkanPNextToStringBodyGenerator(BaseGenerator):
     # yapf: disable
     def endFile(self):
         body = inspect.cleandoc('''
-        #include "util/custom_vulkan_to_string.h"
+        #include "decode/custom_vulkan_to_string.h"
         #include "generated_vulkan_struct_to_string.h"
         #include "generated_vulkan_struct_decoders_to_string.h"
 
         GFXRECON_BEGIN_NAMESPACE(gfxrecon)
         GFXRECON_BEGIN_NAMESPACE(util)
 
-        std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+        std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
         {
             if (pNext)
             {
-                switch (reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)
+                // Original for raw structs: switch (reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)
+                // Assumes decoded_value is always first member of Decoded_[VulkanStructX].
+                const void* meta = pNext->GetMetaStructPointer();
+                assert(nullptr != meta);
+                if(nullptr == meta)
+                {
+                    GFXRECON_LOG_ERROR("Attempt to follow pNext chain without a metastructure pointer via PNextNode at address %p.", pNext);
+                    return "null";
+                }
+                const VkBaseInStructure*const decoded_value = (*(reinterpret_cast<const VkBaseInStructure*const*>(meta)));
+                assert(decoded_value);
+                if(nullptr == decoded_value)
+                {
+                    GFXRECON_LOG_ERROR("Attempt to follow pNext chain to a struct which has not been decoded at address %p.", meta);
+                    return "null";
+                }
+                const VkStructureType sType = decoded_value->sType;
+                switch (sType)
                 {
         ''')
         body += '\n'
         for struct in self.sTypeValues:
             body += '        case {0}:\n'.format(self.sTypeValues[struct])
-            body += '            return ToString(*reinterpret_cast<const {0}*>(pNext), toStringFlags, tabCount, tabSize);\n'.format(struct)
+            # Original: body += '            return ToString(*reinterpret_cast<const {0}*>(pNext), toStringFlags, tabCount, tabSize);\n'.format(struct)
+            body += '            return ToString(*reinterpret_cast<const decode::Decoded_{0}*>(meta), toStringFlags, tabCount, tabSize);\n'.format(struct)
         body += inspect.cleandoc('''
                 default:
-                    return std::string("\\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)) + "\\"";
+                    return std::string("\\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(sType)) + "\\"";
                 }
             }
             return "null";

@@ -27,6 +27,9 @@ from base_generator import write
 class BaseStructDecodersHeaderGenerator():
     """Base class for generating struct decoder header code."""
 
+    # @note decoded_value must always be the first member of a decode struct so that
+    # generated code following pNext chains can use it to get to the sType in the raw
+    # vulkan struct despite the type erasure.
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
         first = True
