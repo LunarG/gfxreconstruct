@@ -35,7 +35,7 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/defines.h"
 #include "util/to_string.h"
-#include "custom_vulkan_to_string.h"
+#include "util/custom_vulkan_to_string.h"
 
 #include "vulkan/vulkan.h"
 
