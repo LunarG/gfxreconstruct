@@ -26,7 +26,7 @@
 **
 */
 
-#include "decode/custom_vulkan_to_string.h"
+#include "util/custom_vulkan_to_string.h"
 #include "generated_vulkan_struct_to_string.h"
 #include "generated_vulkan_enum_to_string.h"
 
