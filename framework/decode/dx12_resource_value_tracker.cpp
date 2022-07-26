@@ -23,6 +23,7 @@
 
 #include "decode/dx12_resource_value_tracker.h"
 
+#include <algorithm>
 #include <map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -121,27 +122,47 @@ void Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId  resourc
     {
         auto& block_resource_values = tracked_resource_values_[fill_command_block_index];
 
-        // Erase any existing values that overlap with the new value.
-        auto begin_iter = block_resource_values.lower_bound(fill_command_offset);
-        if (begin_iter != block_resource_values.begin())
+        // Find the insert position sorted by fill_command_offset, erasing any existing values that overlap with the new
+        // value.
+        auto iter = std::upper_bound(
+            block_resource_values.begin(),
+            block_resource_values.end(),
+            fill_command_offset,
+            [](uint64_t offset, const auto& val) { return offset < (val.offset + GetResourceValueSize(val.type)); });
+        auto insert_iter = block_resource_values.end();
+        if (iter != block_resource_values.end())
         {
-            // Erase the value at the previous offset if its size overlaps with the current offset.
-            --begin_iter;
-            auto begin_iter_offset = begin_iter->first;
-            auto begin_iter_size   = GetResourceValueSize(begin_iter->second);
-            if (fill_command_offset >= (begin_iter_offset + begin_iter_size))
+            bool erase_prev = false;
+            bool erase_next = false;
+
+            if ((fill_command_offset >= iter->offset) &&
+                (fill_command_offset < (iter->offset + GetResourceValueSize(iter->type))))
             {
-                ++begin_iter;
+                erase_prev = true;
+            }
+
+            auto next_iter = iter + 1;
+            while ((next_iter != block_resource_values.end()) &&
+                   (next_iter->offset < (fill_command_offset + GetResourceValueSize(type))))
+            {
+                erase_next = true;
+                ++next_iter;
+            }
+
+            if (erase_prev || erase_next)
+            {
+                auto erase_begin = erase_prev ? iter : iter + 1;
+                auto erase_end   = next_iter;
+                insert_iter      = block_resource_values.erase(erase_begin, erase_end);
+            }
+            else
+            {
+                insert_iter = iter;
             }
         }
-        auto end_iter = block_resource_values.lower_bound(fill_command_offset + size);
-        if (begin_iter != end_iter)
-        {
-            block_resource_values.erase(begin_iter, end_iter);
-        }
 
-        // Insert the new value.
-        block_resource_values[fill_command_offset] = type;
+        // Insert the new value at the sorted position.
+        block_resource_values.insert(insert_iter, { fill_command_offset, type });
     }
     else
     {

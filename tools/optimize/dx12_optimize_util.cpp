@@ -52,7 +52,10 @@ class Dx12ResourceValueTrackingConsumer : public decode::Dx12ReplayConsumer
         GetResourceValueMapper()->EnableResourceValueTracker();
     }
 
-    auto GetTrackedResourceValues() { return GetResourceValueMapper()->GetTrackedResourceValues(); }
+    void GetTrackedResourceValues(decode::Dx12FillCommandResourceValueMap& values)
+    {
+        GetResourceValueMapper()->GetTrackedResourceValues(values);
+    }
 };
 
 void CreateResourceValueTrackingConsumer(decode::FileProcessor*                              file_processor,
@@ -122,7 +125,7 @@ bool GetDx12OptimizationInfo(const std::string&             input_filename,
 
             if (options.optimize_dxr)
             {
-                info.fill_command_resource_values = resource_value_tracking_consumer->GetTrackedResourceValues();
+                resource_value_tracking_consumer->GetTrackedResourceValues(info.fill_command_resource_values);
             }
 
             GFXRECON_WRITE_CONSOLE("Finished scanning capture file.");
@@ -217,27 +220,45 @@ bool ApplyDx12OptimizationInfo(const std::string&             input_filename,
         if (file_optimizer.Initialize(input_filename, output_filename))
         {
             file_optimizer.SetUnreferencedBlocks(info.unreferenced_blocks);
-            file_optimizer.SetFillCommandResourceValues(info.fill_command_resource_values);
+            file_optimizer.SetFillCommandResourceValues(&info.fill_command_resource_values);
 
             file_optimizer.Process();
 
-            // In a way, "resultant_objects = 0" will prove the two scan passes match.
-            uint64_t resultant_objects = file_optimizer.GetUnreferencedBlocksSize();
-
-            uint64_t remaining_fill_commands = file_optimizer.GetFillCommandResourceValuesSize();
-
-            if ((file_optimizer.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone) || (resultant_objects > 0) ||
-                (remaining_fill_commands > 0))
+            if (file_optimizer.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone)
             {
-                GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing");
+                GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing (error=%d). If it was "
+                                       "created, the output file may be invalid.",
+                                       file_optimizer.GetErrorState());
             }
             else
             {
-                GFXRECON_WRITE_CONSOLE("Object removal complete.");
-                GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
-                GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
+                // In a way, "resultant_objects = 0" will prove the two scan passes match.
+                uint64_t resultant_objects = file_optimizer.GetUnreferencedBlocksSize();
+
+                // Check that all fill commands were optimized.
+                uint64_t optimized_fill_commands = file_optimizer.GetNumOptimizedFillCommands();
+                uint64_t expected_fill_commands  = info.fill_command_resource_values.size();
+
+                if (resultant_objects > 0)
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to remove all blocks for PSO removal optimization (%" PRIu64
+                                           " unoptimized blocks). The output file may be invalid.",
+                                           resultant_objects);
+                }
+
+                if (optimized_fill_commands != expected_fill_commands)
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to optimize all blocks for DXR optimization (%" PRIu64
+                                           " unoptimized blocks). The output file may be invalid.",
+                                           (expected_fill_commands - optimized_fill_commands));
+                }
+
                 result = true;
             }
+
+            GFXRECON_WRITE_CONSOLE("Optimization complete.");
+            GFXRECON_WRITE_CONSOLE("\tOriginal file size:  %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
+            GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
         }
     }
 

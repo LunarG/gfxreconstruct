@@ -49,7 +49,7 @@ class Dx12ResourceValueMapper
     void EnableResourceValueTracker();
 
     // Get the result of the resource value tracker.
-    Dx12FillCommandResourceValueMap GetTrackedResourceValues();
+    void GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values);
 
     // Sets needs_mapping = true if the command lists contain resources that need to be mapped.
     void PreProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,

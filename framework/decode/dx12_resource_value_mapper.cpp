@@ -145,15 +145,11 @@ void Dx12ResourceValueMapper::EnableResourceValueTracker()
     resource_value_tracker_ = std::make_unique<Dx12ResourceValueTracker>(get_object_info_func_);
 }
 
-Dx12FillCommandResourceValueMap Dx12ResourceValueMapper::GetTrackedResourceValues()
+void Dx12ResourceValueMapper::GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values)
 {
     if (resource_value_tracker_ != nullptr)
     {
-        return resource_value_tracker_->GetTrackedResourceValues();
-    }
-    else
-    {
-        return {};
+        resource_value_tracker_->GetTrackedResourceValues(values);
     }
 }
 

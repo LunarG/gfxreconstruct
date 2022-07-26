@@ -32,16 +32,21 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 class Dx12FileOptimizer : public FileOptimizer
 {
   public:
-    void SetFillCommandResourceValues(const decode::Dx12FillCommandResourceValueMap& fill_command_resource_values);
+    Dx12FileOptimizer() : fill_command_resource_values_(nullptr), num_optimized_fill_commands_(0) {}
 
-    uint64_t GetFillCommandResourceValuesSize() { return fill_command_resource_values_.size(); }
+    void SetFillCommandResourceValues(const decode::Dx12FillCommandResourceValueMap* fill_command_resource_values);
+
+    uint64_t GetNumOptimizedFillCommands() { return num_optimized_fill_commands_; }
 
   private:
     bool AddFillMemoryResourceValueCommand(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
     virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id) override;
 
-    decode::Dx12FillCommandResourceValueMap fill_command_resource_values_;
+    const decode::Dx12FillCommandResourceValueMap*          fill_command_resource_values_;
+    decode::Dx12FillCommandResourceValueMap::const_iterator resource_values_iter_;
+
+    size_t num_optimized_fill_commands_;
 
     std::vector<uint8_t> write_buffer_;
 };

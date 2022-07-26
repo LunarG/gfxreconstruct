@@ -27,9 +27,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 void Dx12FileOptimizer::SetFillCommandResourceValues(
-    const decode::Dx12FillCommandResourceValueMap& fill_command_resource_values)
+    const decode::Dx12FillCommandResourceValueMap* fill_command_resource_values)
 {
     fill_command_resource_values_ = fill_command_resource_values;
+    if (fill_command_resource_values_ != nullptr)
+    {
+        resource_values_iter_ = fill_command_resource_values_->begin();
+    }
 }
 
 bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHeader& block_header,
@@ -39,20 +43,19 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
 
     bool success = true;
 
-    auto resource_values_iter = fill_command_resource_values_.begin();
-    GFXRECON_ASSERT(resource_values_iter->first == GetCurrentBlockIndex());
-    GFXRECON_ASSERT(!resource_values_iter->second.empty());
+    GFXRECON_ASSERT(resource_values_iter_->first == GetCurrentBlockIndex());
+    GFXRECON_ASSERT(!resource_values_iter_->second.empty());
 
     format::FillMemoryResourceValueCommandHeader rv_header;
     rv_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     rv_header.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
                                                                 format::MetaDataType::kFillMemoryResourceValueCommand);
     rv_header.thread_id                     = 0;
-    rv_header.resource_value_count          = resource_values_iter->second.size();
+    rv_header.resource_value_count          = resource_values_iter_->second.size();
 
     size_t       header_size = sizeof(format::FillMemoryResourceValueCommandHeader);
     const size_t uncompressed_size =
-        rv_header.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
+        resource_values_iter_->second.size() * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
 
     write_buffer_.clear();
     write_buffer_.resize(uncompressed_size);
@@ -60,16 +63,16 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
     // Write resource value data to uncompressed buffer.
     auto type_data_pos   = write_buffer_.data();
     auto offset_data_pos = write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType));
-    for (auto& resource_value_pair : resource_values_iter->second)
+    for (const auto& resource_value_pair : resource_values_iter_->second)
     {
-        auto type   = resource_value_pair.second;
-        auto offset = resource_value_pair.first;
+        auto type   = resource_value_pair.type;
+        auto offset = resource_value_pair.offset;
 
         util::platform::MemoryCopy(type_data_pos, sizeof(type), &type, sizeof(type));
         util::platform::MemoryCopy(offset_data_pos, sizeof(offset), &offset, sizeof(offset));
 
-        type_data_pos += sizeof(resource_value_pair.second);
-        offset_data_pos += sizeof(resource_value_pair.first);
+        type_data_pos += sizeof(resource_value_pair.type);
+        offset_data_pos += sizeof(resource_value_pair.offset);
     }
     GFXRECON_ASSERT(type_data_pos ==
                     (write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType))));
@@ -110,7 +113,8 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
         success = success && WriteBytes(write_buffer_.data(), uncompressed_size);
     }
 
-    fill_command_resource_values_.erase(resource_values_iter);
+    ++resource_values_iter_;
+    ++num_optimized_fill_commands_;
 
     return success;
 }
@@ -120,8 +124,8 @@ bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header,
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
 
     // If needed, add a FillMemoryResourceValueCommand before the fill memory command.
-    if ((meta_data_type == format::MetaDataType::kFillMemoryCommand) && (!fill_command_resource_values_.empty()) &&
-        (fill_command_resource_values_.begin()->first == GetCurrentBlockIndex()))
+    if ((meta_data_type == format::MetaDataType::kFillMemoryCommand) && (fill_command_resource_values_ != nullptr) &&
+        (!fill_command_resource_values_->empty()) && (resource_values_iter_->first == GetCurrentBlockIndex()))
     {
         if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
         {

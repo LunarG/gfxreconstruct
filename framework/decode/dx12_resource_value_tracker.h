@@ -35,8 +35,16 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 typedef uint64_t Dx12FillCommandBlockIndex;
 typedef uint64_t Dx12FillCommandByteOffset;
-typedef std::map<Dx12FillCommandBlockIndex, std::map<Dx12FillCommandByteOffset, ResourceValueType>>
-    Dx12FillCommandResourceValueMap;
+#pragma pack(push)
+#pragma pack(1)
+// There will be many Dx12FillCommandResourceValues. Set struct packing to 1 to minimize memory used.
+struct Dx12FillCommandResourceValue
+{
+    Dx12FillCommandByteOffset offset;
+    ResourceValueType         type;
+};
+#pragma pack(pop)
+typedef std::map<Dx12FillCommandBlockIndex, std::vector<Dx12FillCommandResourceValue>> Dx12FillCommandResourceValueMap;
 
 class Dx12ResourceValueTracker
 {
@@ -56,7 +64,11 @@ class Dx12ResourceValueTracker
 
     void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, uint64_t block_index);
 
-    const auto& GetTrackedResourceValues() const { return tracked_resource_values_; }
+    void GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values)
+    {
+        values = std::move(tracked_resource_values_);
+        tracked_resource_values_.clear();
+    }
 
   private:
     struct TrackedFillCommandInfo
