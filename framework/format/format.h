@@ -116,7 +116,8 @@ enum class MetaDataType : uint16_t
     kCreateHeapAllocationCommand            = 16,
     kInitSubresourceCommand                 = 17,
     kExeFileInfo                            = 18,
-    kInitDx12AccelerationStructureCommand   = 19
+    kInitDx12AccelerationStructureCommand   = 19,
+    kFillMemoryResourceValueCommand         = 20,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -184,6 +185,15 @@ enum ResizeWindowPreTransform : uint32_t
 struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
+};
+
+// Resource values are values contained in resource data that may require special handling (e.g., mapping for replay).
+enum class ResourceValueType : uint8_t
+{
+    kUnknown,
+    kGpuVirtualAddress,
+    kGpuDescriptorHandle,
+    kShaderIdentifier
 };
 
 #pragma pack(push)
@@ -272,6 +282,17 @@ struct FillMemoryCommandHeader
     HandleId memory_id;
     uint64_t memory_offset; // Offset from the start of the mapped pointer, not the start of the memory object.
     uint64_t memory_size;   // Uncompressed size of the data encoded after the header.
+};
+
+struct FillMemoryResourceValueCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id; // thread_id is here as a placeholder. Currently always set to 0.
+    uint64_t         resource_value_count;
+
+    // The data for MapAndFillMemoryCommand will be organized as:
+    // map_value_count * ResourceValueType // type of value to map
+    // map_value_count * uint64_t          // offset of value to map
 };
 
 struct DisplayMessageCommandHeader

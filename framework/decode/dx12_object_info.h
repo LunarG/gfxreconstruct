@@ -119,13 +119,7 @@ struct ResourceCopyInfo
     uint64_t      num_bytes{ 0 }; ///< 0 indicates copying the entire resource.
 };
 
-enum class ResourceValueType : uint8_t
-{
-    kUnknown,
-    kGpuVirtualAddress,
-    kGpuDescriptorHandle,
-    kShaderRecord
-};
+typedef format::ResourceValueType ResourceValueType;
 
 struct ResourceValueInfo
 {

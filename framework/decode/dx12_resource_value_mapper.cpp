@@ -987,8 +987,11 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
             }
         }
     }
-    else if (value_info.type == ResourceValueType::kShaderRecord)
+    else if (value_info.type == ResourceValueType::kShaderIdentifier)
     {
+        // Map a shader record. Shader records contain a shader identifier followed by the local root signature
+        // parameters needed by the shader.
+
         GFXRECON_ASSERT(value_info.state_object != nullptr);
 
         constexpr graphics::Dx12ShaderIdentifier zero_id = { 0 };
@@ -1007,7 +1010,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         if (resource_value_tracker_ != nullptr)
         {
             resource_value_tracker_->AddTrackedResourceValue(
-                resource_id, ResourceValueType::kShaderRecord, final_offset);
+                resource_id, ResourceValueType::kShaderIdentifier, final_offset);
         }
 
         // Map the shader ID if it wasn't previously mapped.
@@ -1211,7 +1214,7 @@ void Dx12ResourceValueMapper::GetShaderTableResourceValues(D3D12CommandListInfo*
     {
         resource_value_infos.insert(
             { byte_offset,
-              ResourceValueType::kShaderRecord,
+              ResourceValueType::kShaderIdentifier,
               shader_record_size,
               GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object) });
         byte_offset += shader_record_size;

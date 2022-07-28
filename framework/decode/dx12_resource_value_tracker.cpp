@@ -39,7 +39,7 @@ static uint64_t GetResourceValueSize(ResourceValueType type)
             return sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
         case ResourceValueType::kGpuDescriptorHandle:
             return sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr);
-        case ResourceValueType::kShaderRecord:
+        case ResourceValueType::kShaderIdentifier:
             return D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
         default:
             GFXRECON_ASSERT(false && "Unrecognized resource value type.");
