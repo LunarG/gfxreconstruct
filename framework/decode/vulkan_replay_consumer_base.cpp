@@ -5062,6 +5062,14 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
 
             result = func(device, swapchain, timeout, semaphore, fence, replay_index);
 
+            if (*replay_index != captured_index)
+            {
+                GFXRECON_LOG_WARNING("AcquireNextImageKHR: acquired index during replay, %" PRIu32
+                                     ", did not match captured index %" PRIu32,
+                                     *replay_index,
+                                     captured_index);
+            }
+
             // Track the index that was acquired on replay, which may be different than the captured index.
             swapchain_info->acquired_indices[captured_index] = (*replay_index);
         }
@@ -5157,6 +5165,14 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             assert(replay_index != nullptr);
 
             result = func(device, replay_acquire_info, replay_index);
+
+            if (*replay_index != captured_index)
+            {
+                GFXRECON_LOG_WARNING("AcquireNextImage2KHR: acquired index during replay, %" PRIu32
+                                     ", did not match captured index %" PRIu32,
+                                     *replay_index,
+                                     captured_index);
+            }
 
             // Track the index that was acquired on replay, which may be different than the captured index.
             swapchain_info->acquired_indices[captured_index] = (*replay_index);
