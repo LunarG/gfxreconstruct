@@ -22,7 +22,7 @@
 
 #include "dx12_optimize_util.h"
 
-#include "file_optimizer.h"
+#include "dx12_file_optimizer.h"
 #include "decode/dx12_object_info.h"
 #include "generated/generated_dx12_replay_consumer.h"
 #include "decode/dx12_resource_value_tracker.h"
@@ -79,7 +79,7 @@ bool GetDx12OptimizationInfo(const std::string&             input_filename,
     bool result = false;
 
     std::shared_ptr<application::Application> application;
-    decode::FileProcessor file_processor;
+    decode::FileProcessor                     file_processor;
     if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::Dx12Decoder                      decoder;
@@ -151,28 +151,93 @@ bool ApplyDx12OptimizationInfo(const std::string&             input_filename,
                                const Dx12OptimizationOptions& options,
                                const Dx12OptimizationInfo&    info)
 {
-    bool result = false;
+    bool result                  = false;
+    bool found_optimization_data = false;
 
-    gfxrecon::FileOptimizer file_optimizer;
-    if (file_optimizer.Initialize(input_filename, output_filename))
+    // Log info about PSO removal.
+    if (options.remove_redundant_psos)
     {
-        file_optimizer.SetUnreferencedBlocks(info.unreferenced_blocks);
-
-        file_optimizer.Process();
-
-        // In a way, "resultant_objects = 0" will prove the two scan passes match.
-        uint64_t resultant_objects = file_optimizer.GetUnreferencedBlocksSize();
-
-        if ((file_optimizer.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone) || resultant_objects > 0)
+        if (!info.unreferenced_blocks.empty())
         {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing");
+            found_optimization_data = true;
+
+            const auto& calls_info = info.calls_info;
+
+            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " unused pso related calls.", info.unreferenced_blocks.size());
+            if (calls_info.graphics_pso_creation_calls > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " graphics pso creation calls.",
+                                       calls_info.graphics_pso_creation_calls);
+            }
+            if (calls_info.compute_pso_creation_calls > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " compute pso creation calls.",
+                                       calls_info.compute_pso_creation_calls);
+            }
+            if (calls_info.storepipeline_calls > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " storepipeline calls.", calls_info.storepipeline_calls);
+            }
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("Object removal complete.");
-            GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
-            GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
-            result = true;
+            GFXRECON_WRITE_CONSOLE("No redundant PSOs detected. Skipping PSO removal optimization.",
+                                   input_filename.c_str());
+        }
+    }
+
+    // Log info about DXR optimization
+    if (options.optimize_dxr)
+    {
+        found_optimization_data = true;
+
+        if (!info.fill_command_resource_values.empty())
+        {
+            GFXRECON_WRITE_CONSOLE("Optimizing %zu FillMemoryCommand blocks for DXR replay.",
+                                   info.fill_command_resource_values.size());
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("Found no DXR optimization info. Skipping DXR optimization.");
+        }
+    }
+
+    // Verify that some optimization info was found.
+    if (!found_optimization_data)
+    {
+        GFXRECON_WRITE_CONSOLE("No optimizable data was found. A new capture file will not be created.");
+        result = false;
+    }
+    else
+    {
+        // Write optimized capture file.
+        GFXRECON_WRITE_CONSOLE("Writing optimized file.");
+
+        gfxrecon::Dx12FileOptimizer file_optimizer;
+        if (file_optimizer.Initialize(input_filename, output_filename))
+        {
+            file_optimizer.SetUnreferencedBlocks(info.unreferenced_blocks);
+            file_optimizer.SetFillCommandResourceValues(info.fill_command_resource_values);
+
+            file_optimizer.Process();
+
+            // In a way, "resultant_objects = 0" will prove the two scan passes match.
+            uint64_t resultant_objects = file_optimizer.GetUnreferencedBlocksSize();
+
+            uint64_t remaining_fill_commands = file_optimizer.GetFillCommandResourceValuesSize();
+
+            if ((file_optimizer.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone) || (resultant_objects > 0) ||
+                (remaining_fill_commands > 0))
+            {
+                GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("Object removal complete.");
+                GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
+                GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
+                result = true;
+            }
         }
     }
 
@@ -197,40 +262,13 @@ bool Dx12OptimizeFile(std::string input_filename, std::string output_filename, c
     }
 
     // Use the result of the scanning pass to write an optimized file.
-    if (!info.unreferenced_blocks.empty())
+    bool filter_result = ApplyDx12OptimizationInfo(input_filename, output_filename, options, info);
+    if (filter_result == false)
     {
-        auto& calls_info = info.calls_info;
-
-        GFXRECON_WRITE_CONSOLE("Writing optimized file, removing %" PRIu64 " unused pso related calls.",
-                               info.unreferenced_blocks.size());
-        if (calls_info.graphics_pso_creation_calls > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " graphics pso creation calls.",
-                                   calls_info.graphics_pso_creation_calls);
-        }
-        if (calls_info.compute_pso_creation_calls > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " compute pso creation calls.",
-                                   calls_info.compute_pso_creation_calls);
-        }
-        if (calls_info.storepipeline_calls > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " storepipeline calls.", calls_info.storepipeline_calls);
-        }
-
-        // Filter unreferenced ids.
-        bool filter_result = ApplyDx12OptimizationInfo(input_filename, output_filename, options, info);
-        if (filter_result == false)
-        {
-            GFXRECON_WRITE_CONSOLE("Falure creating the optimized file.");
-            return false;
-        }
+        GFXRECON_WRITE_CONSOLE("Falure creating the optimized file.");
+        return false;
     }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("No redundant PSOs detected. Optimized trace will not be created.",
-                               input_filename.c_str());
-    }
+
     return true;
 }
 

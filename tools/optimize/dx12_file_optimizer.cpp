@@ -1,0 +1,136 @@
+/*
+** Copyright (c) 2022 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+#include "dx12_file_optimizer.h"
+
+#include "format/format_util.h"
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+
+void Dx12FileOptimizer::SetFillCommandResourceValues(
+    const decode::Dx12FillCommandResourceValueMap& fill_command_resource_values)
+{
+    fill_command_resource_values_ = fill_command_resource_values;
+}
+
+bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHeader& block_header,
+                                                          format::MetaDataId         meta_data_id)
+{
+    GFXRECON_ASSERT(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kFillMemoryCommand);
+
+    bool success = true;
+
+    auto resource_values_iter = fill_command_resource_values_.begin();
+    GFXRECON_ASSERT(resource_values_iter->first == GetCurrentBlockIndex());
+    GFXRECON_ASSERT(!resource_values_iter->second.empty());
+
+    format::FillMemoryResourceValueCommandHeader rv_header;
+    rv_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    rv_header.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
+                                                                format::MetaDataType::kFillMemoryResourceValueCommand);
+    rv_header.thread_id                     = 0;
+    rv_header.resource_value_count          = resource_values_iter->second.size();
+
+    size_t       header_size = sizeof(format::FillMemoryResourceValueCommandHeader);
+    const size_t uncompressed_size =
+        rv_header.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
+
+    write_buffer_.clear();
+    write_buffer_.resize(uncompressed_size);
+
+    // Write resource value data to uncompressed buffer.
+    auto type_data_pos   = write_buffer_.data();
+    auto offset_data_pos = write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType));
+    for (auto& resource_value_pair : resource_values_iter->second)
+    {
+        auto type   = resource_value_pair.second;
+        auto offset = resource_value_pair.first;
+
+        util::platform::MemoryCopy(type_data_pos, sizeof(type), &type, sizeof(type));
+        util::platform::MemoryCopy(offset_data_pos, sizeof(offset), &offset, sizeof(offset));
+
+        type_data_pos += sizeof(resource_value_pair.second);
+        offset_data_pos += sizeof(resource_value_pair.first);
+    }
+    GFXRECON_ASSERT(type_data_pos ==
+                    (write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType))));
+    GFXRECON_ASSERT(offset_data_pos == (write_buffer_.data() + uncompressed_size));
+
+    bool not_compressed = true;
+
+    // If compression is enabled, compress and write the data.
+    // TODO (GH #547): Add compression support for FillMemoryResourceValueCommand blocks.
+    /*
+    compressed_write_buffer_.clear();
+    if (GetCompressor() != nullptr)
+    {
+        size_t compressed_size =
+            GetCompressor()->Compress(write_buffer_.size(), write_buffer_.data(), &compressed_write_buffer_, 0);
+
+        if ((compressed_size > 0) && (compressed_size < uncompressed_size))
+        {
+            not_compressed = false;
+
+            // Calculate size of packet with compressed data size.
+            rv_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(rv_header) + compressed_size;
+            rv_header.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+            success = success && WriteBytes(&rv_header, header_size);
+            success = success && WriteBytes(compressed_write_buffer_.data(), compressed_size);
+        }
+    }
+    */
+
+    // If the data was not compressed, write the uncompressed data here.
+    if (not_compressed)
+    {
+        // Calculate size of packet with uncompressed data size.
+        rv_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(rv_header) + uncompressed_size;
+
+        success = success && WriteBytes(&rv_header, header_size);
+        success = success && WriteBytes(write_buffer_.data(), uncompressed_size);
+    }
+
+    fill_command_resource_values_.erase(resource_values_iter);
+
+    return success;
+}
+
+bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
+{
+    format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
+
+    // If needed, add a FillMemoryResourceValueCommand before the fill memory command.
+    if ((meta_data_type == format::MetaDataType::kFillMemoryCommand) && (!fill_command_resource_values_.empty()) &&
+        (fill_command_resource_values_.begin()->first == GetCurrentBlockIndex()))
+    {
+        if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
+        {
+            GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR optimization. "
+                               "Optimized file may be invalid.");
+        }
+    }
+
+    return FileOptimizer::ProcessMetaData(block_header, meta_data_id);
+}
+
+GFXRECON_END_NAMESPACE(gfxrecon)

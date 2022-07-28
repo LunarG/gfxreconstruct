@@ -136,6 +136,8 @@ class FileTransformer
 
     virtual bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 
+    uint64_t GetCurrentBlockIndex() { return block_index_; }
+
   private:
     bool ProcessFileHeader();
 
