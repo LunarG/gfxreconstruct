@@ -179,6 +179,11 @@ int main(int argc, const char** argv)
         GFXRECON_WRITE_CONSOLE("Replay has encountered a fatal error and cannot continue: %s", error.what());
         return_code = -1;
     }
+    catch (const std::exception& error)
+    {
+        GFXRECON_WRITE_CONSOLE("Replay has encountered a fatal error and cannot continue: %s", error.what());
+        return_code = -1;
+    }
     catch (...)
     {
         GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
