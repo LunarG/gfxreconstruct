@@ -173,6 +173,10 @@ void android_main(struct android_app* app)
         {
             GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
         }
+        catch (const std::exception& error)
+        {
+            GFXRECON_WRITE_CONSOLE("Replay has encountered a fatal error and cannot continue: %s", error.what());
+        }
         catch (...)
         {
             GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
