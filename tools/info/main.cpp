@@ -415,6 +415,17 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, const A
         {
             GFXRECON_WRITE_CONSOLE("\tDimensions not available.");
         }
+
+        GFXRECON_WRITE_CONSOLE("");
+
+        if (dx12_consumer.ContainsDxrWorkload())
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
+        }
     }
     else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
     {

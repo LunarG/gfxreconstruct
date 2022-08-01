@@ -32,13 +32,17 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12StatsConsumer : public Dx12Consumer
 {
   public:
-    Dx12StatsConsumer() : swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false) {}
+    Dx12StatsConsumer() :
+        swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false), dxr_workload_(false)
+    {}
 
     bool IsComplete(uint64_t current_block_index) override { return false; }
 
     const std::vector<format::DxgiAdapterDesc> GetAdapters() { return hardware_adapters_; }
 
     bool FoundSwapchainInfo() { return swapchain_info_found_; }
+
+    bool ContainsDxrWorkload() { return dxr_workload_; }
 
     template <typename DescT>
     void CopyAdapterDesc(format::DxgiAdapterDesc& dest, DescT& src)
@@ -179,6 +183,16 @@ class Dx12StatsConsumer : public Dx12Consumer
         }
     }
 
+    virtual void Process_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+        const ApiCallInfo&                                                                call_info,
+        format::HandleId                                                                  object_id,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* pDesc,
+        UINT                                                                              NumPostbuildInfoDescs,
+        StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs)
+    {
+        dxr_workload_ = true;
+    }
+
   private:
     std::vector<format::DxgiAdapterDesc> hardware_adapters_;
 
@@ -186,6 +200,8 @@ class Dx12StatsConsumer : public Dx12Consumer
     UINT             swapchain_height_;
     format::HandleId swapchain_id_;
     bool             swapchain_info_found_;
+
+    bool dxr_workload_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
