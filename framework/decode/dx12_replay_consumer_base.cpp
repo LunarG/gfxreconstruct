@@ -1029,22 +1029,19 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
     {
         auto command_queue_info = std::make_unique<D3D12CommandQueueInfo>();
 
-        // Create the fence for the replay --sync option or for when command queues require sync after execution.
+        // Create the fence used for when command queues require sync after command list execution.
+        // Note that this fence is used only for waiting on command list execution. When needed, it will be signalled by
+        // the command queue in OverrideExecuteCommandLists and wait on in WaitForCommandListExecution.
         auto fence_result =
             replay_object->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_info->sync_fence));
 
         if (SUCCEEDED(fence_result))
         {
             command_queue_info->sync_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-
-            // Initialize the fence info object that will be added to D3D12CommandQueueInfo::pending_events when the
-            // queue has outstanding wait operations.
-            command_queue_info->sync_fence_info.object     = command_queue_info->sync_fence;
-            command_queue_info->sync_fence_info.extra_info = std::make_unique<D3D12FenceInfo>();
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object for the replay --sync option");
+            GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object used to sync after command list execution.");
         }
 
         SetExtraInfo(command_queue, std::move(command_queue_info));
@@ -1722,27 +1719,17 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
 
                 replay_object->Signal(sync_fence, ++command_queue_info->sync_value);
 
-                ResetEvent(sync_event);
-                sync_fence->SetEventOnCompletion(command_queue_info->sync_value, sync_event);
-
                 if (command_queue_info->pending_events.empty())
                 {
                     // There are no outstanding waits on the queue, so the event can be waited on immediately.
-                    WaitForSingleObject(sync_event, INFINITE);
+                    WaitForCommandListExecution(command_queue_info, command_queue_info->sync_value);
                 }
                 else
                 {
                     // There are outstanding waits on the queue.  The sync signal won't be processed until the
                     // outstanding waits are signaled, so the sync signal will be added to the pending operation queue.
-                    auto fence_info = GetExtraInfo<D3D12FenceInfo>(&command_queue_info->sync_fence_info);
-                    if (fence_info != nullptr)
-                    {
-                        auto& waiting_objects = fence_info->waiting_objects[command_queue_info->sync_value];
-                        waiting_objects.wait_events.push_back(sync_event);
-                    }
-
-                    command_queue_info->pending_events.push_back(CreateSignalQueueSyncEvent(
-                        &command_queue_info->sync_fence_info, command_queue_info->sync_value));
+                    command_queue_info->pending_events.push_back(CreateWaitForCommandListExecutionQueueSyncEvent(
+                        command_queue_info, command_queue_info->sync_value));
                 }
             }
             else
@@ -3293,6 +3280,18 @@ void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_lis
     }
 }
 
+void Dx12ReplayConsumerBase::WaitForCommandListExecution(D3D12CommandQueueInfo* queue_info, uint64_t value)
+{
+    GFXRECON_ASSERT(queue_info->sync_fence != nullptr);
+
+    if (queue_info->sync_fence->GetCompletedValue() < value)
+    {
+        ResetEvent(queue_info->sync_event);
+        queue_info->sync_fence->SetEventOnCompletion(value, queue_info->sync_event);
+        WaitForSingleObject(queue_info->sync_event, INFINITE);
+    }
+}
+
 QueueSyncEventInfo Dx12ReplayConsumerBase::CreateWaitQueueSyncEvent(DxObjectInfo* fence_info, uint64_t value)
 {
     return QueueSyncEventInfo{ true, false, fence_info, value, []() {} };
@@ -3302,6 +3301,15 @@ QueueSyncEventInfo Dx12ReplayConsumerBase::CreateSignalQueueSyncEvent(DxObjectIn
 {
     return QueueSyncEventInfo{ false, false, nullptr, 0, [this, fence_info, value]() {
                                   ProcessFenceSignal(fence_info, value);
+                              } };
+}
+
+QueueSyncEventInfo
+Dx12ReplayConsumerBase::CreateWaitForCommandListExecutionQueueSyncEvent(D3D12CommandQueueInfo* queue_info,
+                                                                        uint64_t               value)
+{
+    return QueueSyncEventInfo{ false, false, nullptr, 0, [this, queue_info, value]() {
+                                  WaitForCommandListExecution(queue_info, value);
                               } };
 }
 

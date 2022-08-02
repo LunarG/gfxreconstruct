@@ -193,7 +193,6 @@ struct D3D12CommandQueueInfo : DxObjectExtraInfo
 
     graphics::dx12::ID3D12FenceComPtr sync_fence;
     uint64_t                          sync_value{ 0 };
-    DxObjectInfo                      sync_fence_info;
     HANDLE                            sync_event{ nullptr };
 
     // Synchronization used for mapping values in resource data.
