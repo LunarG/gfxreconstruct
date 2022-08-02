@@ -229,6 +229,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                       Decoded_GUID                 riid,
                                       HandlePointerDecoder<void*>* device);
 
+    void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header);
+
     HRESULT OverrideCreateCommandQueue(DxObjectInfo*                                           replay_object_info,
                                        HRESULT                                                 original_result,
                                        StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* desc,
@@ -604,6 +606,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
 
   private:
+    void DetectAdapters();
+
     void RaiseFatalError(const char* message) const;
 
     HRESULT
@@ -727,6 +731,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
     std::string                                     screenshot_file_prefix_;
     std::unique_ptr<ScreenshotHandlerBase>          screenshot_handler_;
+    graphics::dx12::ActiveAdapterMap                hardware_adapters_;
 
     struct FillMemoryResourceValueInfo
     {

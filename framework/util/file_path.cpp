@@ -383,7 +383,7 @@ void CheckReplayerName(const std::string& exe_info_name)
             }
             else
             {
-                GFXRECON_LOG_INFO("Match: Replayer process name vs captured application name");
+                GFXRECON_LOG_DEBUG("Match: replayer process name vs captured application name");
             }
         }
     }

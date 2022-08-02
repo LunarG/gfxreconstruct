@@ -80,8 +80,14 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
     StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
 
-    // Device & Queue
+    // Device
     StandardCreateWrite<ID3D12Device_Wrapper>(state_table);
+
+    // Write this out before rendering begins
+    // This ensures the replayer gets a chance to process the metadata command
+    D3D12CaptureManager::Get()->WriteDxgiAdapterInfo();
+
+    // Queue
     StandardCreateWrite<ID3D12CommandQueue_Wrapper>(state_table);
 
     // Swap chain

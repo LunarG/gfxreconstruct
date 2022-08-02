@@ -1537,6 +1537,46 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read init DX12 acceleration structure meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kDxgiAdapterInfoCommand)
+    {
+        format::DxgiAdapterInfoCommandHeader adapter_info_header;
+        memset(&adapter_info_header, 0, sizeof(adapter_info_header));
+
+        success = ReadBytes(&adapter_info_header.thread_id, sizeof(adapter_info_header.thread_id));
+
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.Description,
+                                       sizeof(adapter_info_header.adapter_desc.Description));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.VendorId,
+                                       sizeof(adapter_info_header.adapter_desc.VendorId));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.DeviceId,
+                                       sizeof(adapter_info_header.adapter_desc.DeviceId));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.SubSysId,
+                                       sizeof(adapter_info_header.adapter_desc.SubSysId));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.Revision,
+                                       sizeof(adapter_info_header.adapter_desc.Revision));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.DedicatedVideoMemory,
+                                       sizeof(adapter_info_header.adapter_desc.DedicatedVideoMemory));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.DedicatedSystemMemory,
+                                       sizeof(adapter_info_header.adapter_desc.DedicatedSystemMemory));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.SharedSystemMemory,
+                                       sizeof(adapter_info_header.adapter_desc.SharedSystemMemory));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.LuidLowPart,
+                                       sizeof(adapter_info_header.adapter_desc.LuidLowPart));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.LuidHighPart,
+                                       sizeof(adapter_info_header.adapter_desc.LuidHighPart));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchGetDxgiAdapterInfo(adapter_info_header);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read get GPU description meta-data block");
+        }
+    }
     else
     {
         // Unrecognized metadata type.

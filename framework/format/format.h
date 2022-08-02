@@ -118,6 +118,7 @@ enum class MetaDataType : uint16_t
     kExeFileInfo                            = 18,
     kInitDx12AccelerationStructureCommand   = 19,
     kFillMemoryResourceValueCommand         = 20,
+    kDxgiAdapterInfoCommand                 = 21
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -544,6 +545,13 @@ struct DxgiAdapterDesc
     uint64_t SharedSystemMemory;
     uint32_t LuidLowPart;
     int32_t  LuidHighPart;
+};
+
+struct DxgiAdapterInfoCommandHeader
+{
+    MetaDataHeader  meta_header;
+    ThreadId        thread_id;
+    DxgiAdapterDesc adapter_desc;
 };
 
 #pragma pack(pop)

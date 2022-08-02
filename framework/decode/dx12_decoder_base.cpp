@@ -296,6 +296,14 @@ void Dx12DecoderBase::DispatchInitDx12AccelerationStructureCommand(
     }
 }
 
+void Dx12DecoderBase::DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& dx12_adapter_info_header)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessDxgiAdapterInfo(dx12_adapter_info_header);
+    }
+}
+
 void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)

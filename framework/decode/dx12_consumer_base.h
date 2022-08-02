@@ -139,6 +139,8 @@ class Dx12ConsumerBase
         const uint8_t*                                                  build_inputs_data)
     {}
 
+    virtual void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) {}
+
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
                                                           D3D12_FEATURE    feature,

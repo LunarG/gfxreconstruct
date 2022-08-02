@@ -28,11 +28,13 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "graphics/dx12_image_renderer.h"
+#include "format/format.h"
 
 #include <comdef.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <vector>
+#include <map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -63,6 +65,16 @@ typedef _com_ptr_t<_com_IIID<ID3D12StateObjectProperties, &__uuidof(ID3D12StateO
 typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
     ID3D12VersionedRootSignatureDeserializerComPtr;
+
+struct ActiveAdapterInfo
+{
+    format::DxgiAdapterDesc internal_desc;
+    IDXGIAdapter*           adapter;
+    UINT32                  adapter_idx;
+    bool                    active;
+};
+
+typedef std::map<int64_t, ActiveAdapterInfo> ActiveAdapterMap;
 
 struct ResourceStateInfo
 {
@@ -121,6 +133,10 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
                                                  D3D12_RAYTRACING_GEOMETRY_DESC*                       geometry_descs,
                                                  uint64_t&                       inputs_buffer_size,
                                                  std::vector<InputsBufferEntry>& entries);
+
+void TrackHardwareAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& hardware_adapters);
+
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& hardware_adapters);
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

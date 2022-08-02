@@ -172,6 +172,8 @@ class ApiDecoder
         std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
         const uint8_t*                                                  build_inputs_data) = 0;
 
+    virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header){};
+
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
 };
 

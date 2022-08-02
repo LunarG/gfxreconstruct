@@ -604,6 +604,17 @@ class D3D12CaptureManager : public CaptureManager
     void PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
         ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name);
 
+    void PostProcess_CreateDevice(
+        HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice);
+
+    void PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory);
+
+    void PostProcess_CreateDXGIFactory1(HRESULT result, REFIID riid, void** ppFactory);
+
+    void PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory);
+
+    void WriteDxgiAdapterInfo();
+
   protected:
     D3D12CaptureManager();
 
@@ -638,6 +649,7 @@ class D3D12CaptureManager : public CaptureManager
                                                D3D12_RESOURCE_STATES   initial_state);
 
   private:
+    void WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc);
     void CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
     bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
     void EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
@@ -667,6 +679,8 @@ class D3D12CaptureManager : public CaptureManager
     std::unique_ptr<Dx12StateTracker> state_tracker_;
 
     std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
+
+    graphics::dx12::ActiveAdapterMap hardware_adapters_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -343,6 +343,156 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
     }
 }
 
+template <typename DescT>
+void TrackAdapterDesc(IDXGIAdapter* adapter, UINT32 adapter_idx, const DescT& dxgi_desc, graphics::dx12::ActiveAdapterMap& hardware_adapters)
+{
+    int64_t packed_luid = (dxgi_desc.AdapterLuid.HighPart << 31) | dxgi_desc.AdapterLuid.LowPart;
+
+    if (hardware_adapters.count(packed_luid) == 0)
+    {
+        format::DxgiAdapterDesc internal_desc = {};
+
+        util::platform::MemoryCopy(&internal_desc.Description,
+            sizeof(internal_desc.Description),
+            &dxgi_desc.Description,
+            sizeof(dxgi_desc.Description));
+
+        internal_desc.VendorId              = dxgi_desc.VendorId;
+        internal_desc.DeviceId              = dxgi_desc.DeviceId;
+        internal_desc.SubSysId              = dxgi_desc.SubSysId;
+        internal_desc.Revision              = dxgi_desc.Revision;
+        internal_desc.DedicatedVideoMemory  = dxgi_desc.DedicatedVideoMemory;
+        internal_desc.DedicatedSystemMemory = dxgi_desc.DedicatedSystemMemory;
+        internal_desc.SharedSystemMemory    = dxgi_desc.SharedSystemMemory;
+        internal_desc.LuidLowPart           = dxgi_desc.AdapterLuid.LowPart;
+        internal_desc.LuidHighPart          = dxgi_desc.AdapterLuid.HighPart;
+
+        ActiveAdapterInfo adapter_info = {};
+        adapter_info.internal_desc     = internal_desc;
+        adapter_info.adapter           = adapter;
+        adapter_info.adapter_idx       = adapter_idx;
+        adapter_info.active            = false;
+
+        hardware_adapters[packed_luid] = adapter_info;
+    }
+}
+
+bool IsBlacklistedAdapter(const DXGI_ADAPTER_DESC& adapter_desc)
+{
+    bool exclude_adapter = false;
+
+    // This corresponds to "Microsoft Basic Render Driver" which we don't want to track
+    if ((adapter_desc.DeviceId == 0x8c) && (adapter_desc.VendorId == 0x1414))
+    {
+        exclude_adapter = true;
+    }
+
+    return exclude_adapter;
+}
+
+void TrackHardwareAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapterMap& hardware_adapters)
+{
+    if (SUCCEEDED(result))
+    {
+        // First see if the created factory can be queried as a 1.1 factory
+        IDXGIFactory1* factory1 = reinterpret_cast<IDXGIFactory1*>(*ppFactory);
+
+        // DXGI 1.1 tracking (default)
+        if (SUCCEEDED(factory1->QueryInterface(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory1))))
+        {
+            // Enumerate 1.1 adapters and fetch data with GetDesc1()
+            IDXGIAdapter1* adapter1 = nullptr;
+
+            for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1)); ++adapter_idx)
+            {
+                DXGI_ADAPTER_DESC1 dxgi_desc = {};
+                adapter1->GetDesc1(&dxgi_desc);
+
+                // Proper adapter filtering
+                if ((dxgi_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == false)
+                {
+                    TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, hardware_adapters);
+                }
+
+                // Software adapter, so remove it if present (due to DXGI 1.0 tracking)
+                else
+                {
+                    int64_t packed_luid = (dxgi_desc.AdapterLuid.HighPart << 31) | dxgi_desc.AdapterLuid.LowPart;
+
+                    if (hardware_adapters.count(packed_luid) != 0)
+                    {
+                        hardware_adapters.erase(packed_luid);
+                    }
+                }
+            }
+        }
+
+        // DXGI 1.0 tracking (fall-back)
+        else 
+        {
+            // Only enumerate 1.0 factory adapters if nothing has been seen yet
+            if (hardware_adapters.empty())
+            {
+                IDXGIFactory* factory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
+
+                if (SUCCEEDED(factory->QueryInterface(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory))))
+                {
+                    // Enumerate 1.0 adapters and fetch data with GetDesc()
+                    IDXGIAdapter* adapter = nullptr;
+
+                    for (UINT adapter_idx = 0; SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter)); ++adapter_idx)
+                    {
+                        DXGI_ADAPTER_DESC dxgi_desc = {};
+                        adapter->GetDesc(&dxgi_desc);
+
+                        // Poor man's adapter filtering
+                        if (IsBlacklistedAdapter(dxgi_desc) == false)
+                        {
+                            TrackAdapterDesc(adapter, adapter_idx, dxgi_desc, hardware_adapters);
+                        }
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Could not enumerate and track factory's adapters.")
+                }
+            }
+        }
+    }
+}
+
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& hardware_adapters)
+{
+    format::DxgiAdapterDesc* active_adapter_desc = nullptr;
+
+    if (device != nullptr)
+    {
+        // Get the device's parent adapter identifier
+        LUID parent_adapter_luid = device->GetAdapterLuid();
+
+        int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+
+        // Mark an adapter as active
+        for (auto& adapter : hardware_adapters)
+        {
+            if (adapter.first == packed_luid)
+            {
+                // Only return adapter desc pointer if it hasn't already been seen
+                if (adapter.second.active == false)
+                {
+                    active_adapter_desc = &adapter.second.internal_desc;
+                }
+
+                adapter.second.active = true;
+
+                break;
+            }
+        }
+    }
+
+    return active_adapter_desc;
+}
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

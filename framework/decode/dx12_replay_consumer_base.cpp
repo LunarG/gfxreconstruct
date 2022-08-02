@@ -30,6 +30,7 @@
 #include "util/platform.h"
 #include "util/file_path.h"
 #include "util/image_writer.h"
+#include "util/to_string.h"
 
 #include <dxgidebug.h>
 
@@ -97,6 +98,8 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
     {
         InitializeScreenshotHandler();
     }
+
+    DetectAdapters();
 
     auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
     auto map_gpu_va_func = std::bind(static_cast<void (Dx12ReplayConsumerBase::*)(D3D12_GPU_VIRTUAL_ADDRESS&)>(
@@ -903,9 +906,108 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {
         SetExtraInfo(device, std::make_unique<D3D12DeviceInfo>());
+
+        auto device_ptr = reinterpret_cast<ID3D12Device*>(*device->GetHandlePointer());
+
+        graphics::dx12::MarkActiveAdapter(device_ptr, hardware_adapters_);
     }
 
     return replay_result;
+}
+
+void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
+{
+    // Only do this check if replay-time adapters have been tracked
+    if (hardware_adapters_.empty() == false)
+    {
+        bool found_matching_active_adapter = false;
+
+        // Iterate through all available hardware adapters (during replay)
+        for (const auto& adapter : hardware_adapters_)
+        {
+            const format::DxgiAdapterDesc& replay_adapter_desc = adapter.second.internal_desc;
+
+            // If this adapter was marked as active by CreateDevice (during replay)
+            if (adapter.second.active == true)
+            {
+                // Check if this adapter was marked active (during capture)
+                if ((adapter_info_header.adapter_desc.VendorId == replay_adapter_desc.VendorId) &&
+                    (adapter_info_header.adapter_desc.DeviceId == replay_adapter_desc.DeviceId))
+                {
+                    found_matching_active_adapter = true;
+                    break;
+                }
+            }
+        }
+
+        if (found_matching_active_adapter == false)
+        {
+            GFXRECON_LOG_WARNING("Mismatch:");
+
+            std::string capture_adapter_str =
+                gfxrecon::util::WCharArrayToString(adapter_info_header.adapter_desc.Description);
+
+            GFXRECON_LOG_WARNING("Capture-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
+                capture_adapter_str.c_str(),
+                adapter_info_header.adapter_desc.DeviceId,
+                adapter_info_header.adapter_desc.VendorId);
+
+            // Only found one adapter for replay
+            if (hardware_adapters_.size() == 1)
+            {
+                format::DxgiAdapterDesc replay_adapter_desc = hardware_adapters_.begin()->second.internal_desc;
+
+                std::string replay_adapter_str = gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
+
+                GFXRECON_LOG_WARNING("Replay-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
+                    replay_adapter_str.c_str(),
+                    replay_adapter_desc.DeviceId,
+                    replay_adapter_desc.VendorId);
+            }
+
+            // Multiple adapters available during replay
+            else if (hardware_adapters_.size() > 1)
+            {
+                GFXRECON_LOG_WARNING("Available replay-time adapters:");
+                for (const auto& adapter : hardware_adapters_)
+                {
+                    format::DxgiAdapterDesc replay_adapter_desc = adapter.second.internal_desc;
+
+                    std::string replay_adapter_str = gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
+
+                    GFXRECON_LOG_WARNING("[%s] [DeviceID 0x%x] [VendorId 0x%x]",
+                        replay_adapter_str.c_str(),
+                        replay_adapter_desc.DeviceId,
+                        replay_adapter_desc.VendorId);
+                }
+            }
+
+            GFXRECON_LOG_WARNING("Recorded instructions contain data aimed for the capture-time GPU. Replay may fail.")
+
+            if (options_.enable_d3d12_two_pass_replay)
+            {
+                GFXRECON_LOG_INFO("The \"-m realign\" option has been deprecated.");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Match: replay-time GPU vs capture-time GPU");
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::DetectAdapters()
+{
+    IDXGIFactory1* factory1 = nullptr;
+
+    HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+
+    if (SUCCEEDED(result))
+    {
+        graphics::dx12::TrackHardwareAdapters(result, reinterpret_cast<void**>(&factory1), hardware_adapters_);
+
+        factory1->Release();
+    }
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_object_info,

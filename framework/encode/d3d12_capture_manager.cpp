@@ -2078,5 +2078,79 @@ void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdent
     }
 }
 
+void D3D12CaptureManager::PostProcess_CreateDevice(
+    HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice)
+{
+    if (result == S_OK)
+    {
+        auto device = reinterpret_cast<ID3D12Device*>(*ppDevice);
+
+        if (device != nullptr)
+        {
+            format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(device, hardware_adapters_);
+
+            // Write adapter desc to file if it was marked active, and has not already been seen
+            if (active_adapter != nullptr)
+            {
+                WriteDxgiAdapterInfoCommand(*active_adapter);
+            }
+        }
+    }
+}
+
+void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc)
+{
+    if (((GetCaptureMode() & kModeWrite) == kModeWrite))
+    {
+        format::DxgiAdapterInfoCommandHeader adapter_info_header;
+        memset(&adapter_info_header, 0, sizeof(adapter_info_header));
+
+        auto thread_data = GetThreadData();
+        GFXRECON_ASSERT(thread_data != nullptr);
+
+        adapter_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        adapter_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(adapter_info_header);
+        adapter_info_header.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kDxgiAdapterInfoCommand);
+        adapter_info_header.thread_id = thread_data->thread_id_;
+
+        util::platform::MemoryCopy(&adapter_info_header.adapter_desc,
+                                   sizeof(adapter_info_header.adapter_desc),
+                                   &adapter_desc,
+                                   sizeof(adapter_desc));
+
+        WriteToFile(&adapter_info_header, sizeof(adapter_info_header));
+    }
+}
+
+void D3D12CaptureManager::WriteDxgiAdapterInfo()
+{
+    for (const auto& adapter : hardware_adapters_)
+    {
+        const format::DxgiAdapterDesc& replay_adapter_desc = adapter.second.internal_desc;
+
+        // Write adapter desc to file if it was marked active
+        if (adapter.second.active == true)
+        {
+            WriteDxgiAdapterInfoCommand(replay_adapter_desc);
+        }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory)
+{
+    graphics::dx12::TrackHardwareAdapters(result, ppFactory, hardware_adapters_);
+}
+
+void D3D12CaptureManager::PostProcess_CreateDXGIFactory1(HRESULT result, REFIID riid, void** ppFactory)
+{
+    graphics::dx12::TrackHardwareAdapters(result, ppFactory, hardware_adapters_);
+}
+
+void D3D12CaptureManager::PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory)
+{
+    graphics::dx12::TrackHardwareAdapters(result, ppFactory, hardware_adapters_);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
