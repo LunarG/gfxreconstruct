@@ -383,7 +383,7 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     std::vector<uint32_t> acquired_indices;
 
     // The following values are only used when loading the initial state for trimmed files.
-    uint32_t queue_family_index{ 0 };
+    std::vector<uint32_t> queue_family_indices{ 0 };
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.

@@ -792,7 +792,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
     VkCommandPool   transition_pool    = VK_NULL_HANDLE;
     VkCommandBuffer transition_command = VK_NULL_HANDLE;
     VkSwapchainKHR  swapchain          = swapchain_info->handle;
-    uint32_t        queue_family_index = swapchain_info->queue_family_index;
+    uint32_t        queue_family_index = swapchain_info->queue_family_indices[0];
 
     // TODO: Improved queue selection?
     table->GetDeviceQueue(device, queue_family_index, 0, &transition_queue);
@@ -990,7 +990,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
     VkCommandBuffer command            = VK_NULL_HANDLE;
     VkFence         wait_fence         = VK_NULL_HANDLE;
     VkSwapchainKHR  swapchain          = swapchain_info->handle;
-    uint32_t        queue_family_index = swapchain_info->queue_family_index;
+    uint32_t        queue_family_index = swapchain_info->queue_family_indices[0];
 
     VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
     pool_create_info.pNext                   = nullptr;
@@ -4942,11 +4942,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         if ((replay_create_info->imageSharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
         {
-            swapchain_info->queue_family_index = replay_create_info->pQueueFamilyIndices[0];
+            swapchain_info->queue_family_indices.resize(replay_create_info->queueFamilyIndexCount);
+            std::memcpy(swapchain_info->queue_family_indices.data(),
+                        replay_create_info->pQueueFamilyIndices,
+                        sizeof(uint32_t) * replay_create_info->queueFamilyIndexCount);
         }
         else
         {
-            swapchain_info->queue_family_index = 0;
+            swapchain_info->queue_family_indices.clear();
+            swapchain_info->queue_family_indices.emplace_back(0);
         }
 
         swapchain_info->surface    = replay_create_info->surface;
@@ -5008,20 +5012,22 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         else
         {
             // Create an image for the null swapchain.  Based on vkspec.html#swapchain-wsi-image-create-info.
-            VkImageCreateInfo image_create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-            image_create_info.pNext                 = nullptr;
-            image_create_info.flags                 = 0;
-            image_create_info.imageType             = VK_IMAGE_TYPE_2D;
-            image_create_info.format                = swapchain_info->format;
-            image_create_info.extent                = { swapchain_info->width, swapchain_info->height, 1 };
-            image_create_info.mipLevels             = 1;
-            image_create_info.arrayLayers           = swapchain_info->image_array_layers;
-            image_create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-            image_create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
-            image_create_info.usage                 = swapchain_info->image_usage;
-            image_create_info.sharingMode           = swapchain_info->image_sharing_mode;
-            image_create_info.queueFamilyIndexCount = 0;
-            image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+            VkImageCreateInfo image_create_info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+            image_create_info.pNext             = nullptr;
+            image_create_info.flags             = 0;
+            image_create_info.imageType         = VK_IMAGE_TYPE_2D;
+            image_create_info.format            = swapchain_info->format;
+            image_create_info.extent            = { swapchain_info->width, swapchain_info->height, 1 };
+            image_create_info.mipLevels         = 1;
+            image_create_info.arrayLayers       = swapchain_info->image_array_layers;
+            image_create_info.samples           = VK_SAMPLE_COUNT_1_BIT;
+            image_create_info.tiling            = VK_IMAGE_TILING_OPTIMAL;
+            image_create_info.usage             = swapchain_info->image_usage;
+            image_create_info.sharingMode       = swapchain_info->image_sharing_mode;
+            image_create_info.queueFamilyIndexCount =
+                static_cast<uint32_t>(swapchain_info->queue_family_indices.size());
+            image_create_info.pQueueFamilyIndices = swapchain_info->queue_family_indices.data();
+            image_create_info.initialLayout       = VK_IMAGE_LAYOUT_UNDEFINED;
 
             if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
                 VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
