@@ -136,12 +136,13 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
     {
         if (swapchain_info->blit_command_pool == VK_NULL_HANDLE)
         {
-            device_table_->GetDeviceQueue(device, swapchain_info->queue_family_index, 0, &swapchain_info->blit_queue);
+            device_table_->GetDeviceQueue(
+                device, swapchain_info->queue_family_indices[0], 0, &swapchain_info->blit_queue);
 
             VkCommandPoolCreateInfo command_pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
             command_pool_create_info.flags =
                 VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-            command_pool_create_info.queueFamilyIndex = swapchain_info->queue_family_index;
+            command_pool_create_info.queueFamilyIndex = swapchain_info->queue_family_indices[0];
             VkResult result                           = device_table_->CreateCommandPool(
                 device, &command_pool_create_info, nullptr, &swapchain_info->blit_command_pool);
             if (result != VK_SUCCESS)
@@ -202,20 +203,22 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 // should be moved to a shared graphics utility function.
 
                 //  Create an image for the virtual swapchain.  Based on vkspec.html#swapchain-wsi-image-create-info.
-                VkImageCreateInfo image_create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-                image_create_info.pNext                 = nullptr;
-                image_create_info.flags                 = 0;
-                image_create_info.imageType             = VK_IMAGE_TYPE_2D;
-                image_create_info.format                = swapchain_info->format;
-                image_create_info.extent                = { swapchain_info->width, swapchain_info->height, 1 };
-                image_create_info.mipLevels             = 1;
-                image_create_info.arrayLayers           = swapchain_info->image_array_layers;
-                image_create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-                image_create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
-                image_create_info.usage                 = swapchain_info->image_usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-                image_create_info.sharingMode           = swapchain_info->image_sharing_mode;
-                image_create_info.queueFamilyIndexCount = 0;
-                image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+                VkImageCreateInfo image_create_info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+                image_create_info.pNext             = nullptr;
+                image_create_info.flags             = 0;
+                image_create_info.imageType         = VK_IMAGE_TYPE_2D;
+                image_create_info.format            = swapchain_info->format;
+                image_create_info.extent            = { swapchain_info->width, swapchain_info->height, 1 };
+                image_create_info.mipLevels         = 1;
+                image_create_info.arrayLayers       = swapchain_info->image_array_layers;
+                image_create_info.samples           = VK_SAMPLE_COUNT_1_BIT;
+                image_create_info.tiling            = VK_IMAGE_TILING_OPTIMAL;
+                image_create_info.usage             = swapchain_info->image_usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+                image_create_info.sharingMode       = swapchain_info->image_sharing_mode;
+                image_create_info.queueFamilyIndexCount =
+                    static_cast<uint32_t>(swapchain_info->queue_family_indices.size());
+                image_create_info.pQueueFamilyIndices = swapchain_info->queue_family_indices.data();
+                image_create_info.initialLayout       = VK_IMAGE_LAYOUT_UNDEFINED;
 
                 if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
                     VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
