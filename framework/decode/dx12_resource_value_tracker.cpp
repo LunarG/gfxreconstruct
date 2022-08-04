@@ -202,6 +202,21 @@ void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t resource_id
     UpdateFillCommandState(resource_id, tracked_fill_command);
 }
 
+void Dx12ResourceValueTracker::PostProcessInitSubresourceCommand(
+    const format::InitSubresourceCommandHeader& command_header, uint64_t block_index)
+{
+    // Only support buffer resources (which have just subresource 0).
+    if (command_header.subresource == 0)
+    {
+        TrackedFillCommandInfo tracked_fill_command;
+        tracked_fill_command.fill_command_block_index = block_index;
+        tracked_fill_command.original_offset          = 0;
+        tracked_fill_command.offset                   = 0;
+        tracked_fill_command.size                     = command_header.data_size;
+        UpdateFillCommandState(command_header.resource_id, tracked_fill_command);
+    }
+}
+
 void Dx12ResourceValueTracker::UpdateFillCommandState(format::HandleId              resource_id,
                                                       const TrackedFillCommandInfo& new_fill_command)
 {

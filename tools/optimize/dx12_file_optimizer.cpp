@@ -39,8 +39,6 @@ void Dx12FileOptimizer::SetFillCommandResourceValues(
 bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHeader& block_header,
                                                           format::MetaDataId         meta_data_id)
 {
-    GFXRECON_ASSERT(format::GetMetaDataType(meta_data_id) == format::MetaDataType::kFillMemoryCommand);
-
     bool success = true;
 
     GFXRECON_ASSERT(resource_values_iter_->first == GetCurrentBlockIndex());
@@ -124,8 +122,10 @@ bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header,
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
 
     // If needed, add a FillMemoryResourceValueCommand before the fill memory command.
-    if ((meta_data_type == format::MetaDataType::kFillMemoryCommand) && (fill_command_resource_values_ != nullptr) &&
-        (!fill_command_resource_values_->empty()) && (resource_values_iter_->first == GetCurrentBlockIndex()))
+    if (((meta_data_type == format::MetaDataType::kFillMemoryCommand) ||
+         (meta_data_type == format::MetaDataType::kInitSubresourceCommand)) &&
+        (fill_command_resource_values_ != nullptr) && (!fill_command_resource_values_->empty()) &&
+        (resource_values_iter_->first == GetCurrentBlockIndex()))
     {
         if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
         {

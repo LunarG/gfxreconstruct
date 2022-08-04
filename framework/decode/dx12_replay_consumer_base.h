@@ -677,6 +677,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     QueueSyncEventInfo CreateWaitForCommandListExecutionQueueSyncEvent(D3D12CommandQueueInfo* queue_info,
                                                                        uint64_t               value);
 
+    void ApplyFillMemoryResourceValueCommand(uint64_t       offset,
+                                             uint64_t       size,
+                                             const uint8_t* data,
+                                             uint8_t*       dst_resource_data_ptr);
+
   private:
     struct MappedMemoryEntry
     {

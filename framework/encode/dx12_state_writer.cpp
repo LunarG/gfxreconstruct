@@ -112,8 +112,14 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     WriteStateObjectPropertiesState(state_table);
 
     // Resources and descriptors
-    WriteResourceState(state_table);
+    std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>> resource_snapshots;
+    std::unordered_map<format::HandleId, uint64_t>                          max_resource_sizes;
+    WriteResourceCreationState(state_table, resource_snapshots, max_resource_sizes);
     WriteDescriptorState(state_table);
+
+    // The resource snapshots must be written after the descriptors in order to support resource value mapping for
+    // optimized DXR replay.
+    WriteResourceSnapshots(resource_snapshots, max_resource_sizes);
 
     // Other
     StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
@@ -517,11 +523,12 @@ void Dx12StateWriter::WriteReleaseCommand(format::HandleId handle_id, unsigned l
 #endif
 }
 
-void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
+void Dx12StateWriter::WriteResourceCreationState(
+    const Dx12StateTable&                                                    state_table,
+    std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& resource_snapshots,
+    std::unordered_map<format::HandleId, uint64_t>&                          max_resource_sizes)
 {
     HRESULT result = E_FAIL;
-
-    std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>> resource_snapshots;
 
     struct MappedSubresourceInfo
     {
@@ -529,9 +536,10 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
         UINT                    subresource;
         int32_t                 map_count;
     };
+    std::vector<MappedSubresourceInfo> mapped_subresources;
 
-    std::vector<MappedSubresourceInfo>             mapped_subresources;
-    std::unordered_map<format::HandleId, uint64_t> max_resource_sizes;
+    resource_snapshots.clear();
+    max_resource_sizes.clear();
 
     state_table.VisitWrappers([&](ID3D12Resource_Wrapper* resource_wrapper) {
         assert(resource_wrapper != nullptr);
@@ -601,9 +609,6 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
                 std::max(resource_size, max_resource_sizes[resource_info->device_id]);
         }
     });
-
-    // Write resource snapshots to the capture file.
-    WriteResourceSnapshots(resource_snapshots, max_resource_sizes);
 
     // Write calls to map the resource as many times as it is currently mapped by the application.
     for (const auto& map_info : mapped_subresources)

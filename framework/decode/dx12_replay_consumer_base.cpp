@@ -250,62 +250,7 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
         util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
 
-        if (fill_memory_resource_value_info_.expected_block_index != 0)
-        {
-            if (fill_memory_resource_value_info_.expected_block_index == GetCurrentBlockIndex())
-            {
-                GFXRECON_ASSERT(fill_memory_resource_value_info_.types.size() ==
-                                fill_memory_resource_value_info_.offsets.size())
-
-                for (size_t i = 0; i < fill_memory_resource_value_info_.types.size(); ++i)
-                {
-                    auto value_type   = fill_memory_resource_value_info_.types[i];
-                    auto value_offset = fill_memory_resource_value_info_.offsets[i];
-
-                    uint8_t*       dst_value_ptr = static_cast<uint8_t*>(entry->second.data_pointer) + value_offset;
-                    const uint8_t* src_value_ptr = nullptr;
-                    if ((value_offset >= offset) &&
-                        (value_offset + GetResourceValueSize(value_type) <= (offset + size)))
-                    {
-                        // Use the incoming data as the source for mapping the value. This avoids possibly reading data
-                        // from an upload buffer.
-                        src_value_ptr = data + (value_offset - offset);
-                    }
-                    else
-                    {
-                        // If the value was written by multiple fill memory commands (this fill memory command and
-                        // any previous commands), then it needs to be read from the resource data.
-                        src_value_ptr = dst_value_ptr;
-                    }
-
-                    switch (static_cast<uint8_t>(value_type))
-                    {
-                        case 1:
-                        {
-                            MapGpuVirtualAddress(dst_value_ptr, src_value_ptr);
-                            break;
-                        }
-                        case 2:
-                        {
-                            MapGpuDescriptorHandle(dst_value_ptr, src_value_ptr);
-                            break;
-                        }
-                        case 3:
-                        {
-                            shader_id_map_.Map(dst_value_ptr, src_value_ptr);
-                            break;
-                        }
-                    }
-                }
-
-                fill_memory_resource_value_info_.Clear();
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("Unexpected state found for the data required for optimized replay of DXR and/or "
-                                   "ExecuteIndirect commands. Replay may fail.");
-            }
-        }
+        ApplyFillMemoryResourceValueCommand(offset, size, data, static_cast<uint8_t*>(entry->second.data_pointer));
 
         if (resource_value_mapper_ != nullptr)
         {
@@ -446,6 +391,18 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     resource_init_info_.subresource_offsets.push_back(resource_init_info_.data.size());
     resource_init_info_.subresource_sizes.push_back(command_header.data_size);
     resource_init_info_.data.insert(resource_init_info_.data.end(), data, data + command_header.data_size);
+
+    // Only for buffer resources (which contain 1 subresource), map any resource values contained in the data.
+    if (command_header.subresource == 0)
+    {
+        ApplyFillMemoryResourceValueCommand(
+            0, resource_init_info_.subresource_sizes[0], data, resource_init_info_.data.data());
+    }
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessInitSubresourceCommand(command_header, GetCurrentBlockIndex());
+    }
 }
 
 void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
@@ -3311,6 +3268,69 @@ Dx12ReplayConsumerBase::CreateWaitForCommandListExecutionQueueSyncEvent(D3D12Com
     return QueueSyncEventInfo{ false, false, nullptr, 0, [this, queue_info, value]() {
                                   WaitForCommandListExecution(queue_info, value);
                               } };
+}
+
+void Dx12ReplayConsumerBase::ApplyFillMemoryResourceValueCommand(uint64_t       offset,
+                                                                 uint64_t       size,
+                                                                 const uint8_t* data,
+                                                                 uint8_t*       dst_resource_data_ptr)
+{
+    if (fill_memory_resource_value_info_.expected_block_index != 0)
+    {
+        if (fill_memory_resource_value_info_.expected_block_index == GetCurrentBlockIndex())
+        {
+            GFXRECON_ASSERT(fill_memory_resource_value_info_.types.size() ==
+                            fill_memory_resource_value_info_.offsets.size())
+
+            for (size_t i = 0; i < fill_memory_resource_value_info_.types.size(); ++i)
+            {
+                auto value_type   = fill_memory_resource_value_info_.types[i];
+                auto value_offset = fill_memory_resource_value_info_.offsets[i];
+
+                uint8_t*       dst_value_ptr = dst_resource_data_ptr + value_offset;
+                const uint8_t* src_value_ptr = nullptr;
+
+                if ((value_offset >= offset) && (value_offset + GetResourceValueSize(value_type) <= (offset + size)))
+                {
+                    // Use the incoming data as the source for mapping the value. This avoids possibly reading data
+                    // from an upload buffer.
+                    src_value_ptr = data + (value_offset - offset);
+                }
+                else
+                {
+                    // If the value was written by multiple fill memory commands (this fill memory command and
+                    // any previous commands), then it needs to be read from the resource data.
+                    src_value_ptr = dst_value_ptr;
+                }
+
+                switch (static_cast<uint8_t>(value_type))
+                {
+                    case 1:
+                    {
+                        MapGpuVirtualAddress(dst_value_ptr, src_value_ptr);
+                        break;
+                    }
+                    case 2:
+                    {
+                        MapGpuDescriptorHandle(dst_value_ptr, src_value_ptr);
+                        break;
+                    }
+                    case 3:
+                    {
+                        shader_id_map_.Map(dst_value_ptr, src_value_ptr);
+                        break;
+                    }
+                }
+            }
+
+            fill_memory_resource_value_info_.Clear();
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Unexpected state found for the data required for optimized replay of DXR and/or "
+                               "ExecuteIndirect commands. Replay may fail.");
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

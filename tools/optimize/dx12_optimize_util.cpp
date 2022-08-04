@@ -197,8 +197,7 @@ bool ApplyDx12OptimizationInfo(const std::string&             input_filename,
 
         if (!info.fill_command_resource_values.empty())
         {
-            GFXRECON_WRITE_CONSOLE("Optimizing %zu FillMemoryCommand blocks for DXR replay.",
-                                   info.fill_command_resource_values.size());
+            GFXRECON_WRITE_CONSOLE("Optimizing %zu blocks for DXR replay.", info.fill_command_resource_values.size());
         }
         else
         {

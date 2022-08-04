@@ -119,7 +119,10 @@ class Dx12StateWriter
 
     void WriteReleaseCommand(format::HandleId handle_id, unsigned long result_ref_count);
 
-    void WriteResourceState(const Dx12StateTable& state_table);
+    void WriteResourceCreationState(
+        const Dx12StateTable&                                                    state_table,
+        std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& resource_snapshots,
+        std::unordered_map<format::HandleId, uint64_t>&                          max_resource_sizes);
 
     void WriteTileMappings(const Dx12StateTable& state_table, ID3D12ResourceInfo* resource_info);
 

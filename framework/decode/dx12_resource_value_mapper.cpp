@@ -695,6 +695,15 @@ void Dx12ResourceValueMapper::PostProcessFillMemoryCommand(uint64_t resource_id,
     }
 }
 
+void Dx12ResourceValueMapper::PostProcessInitSubresourceCommand(
+    const format::InitSubresourceCommandHeader& command_header, uint64_t block_index)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->PostProcessInitSubresourceCommand(command_header, block_index);
+    }
+}
+
 void Dx12ResourceValueMapper::AddReplayGpuVa(format::HandleId          resource_id,
                                              D3D12_GPU_VIRTUAL_ADDRESS replay_address,
                                              UINT64                    width,

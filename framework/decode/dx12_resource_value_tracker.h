@@ -64,6 +64,9 @@ class Dx12ResourceValueTracker
 
     void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, uint64_t block_index);
 
+    void PostProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                           uint64_t                                    block_index);
+
     void GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values)
     {
         values = std::move(tracked_resource_values_);
