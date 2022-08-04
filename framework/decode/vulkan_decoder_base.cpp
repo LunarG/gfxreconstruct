@@ -207,7 +207,7 @@ void VulkanDecoderBase::DispatchSetSwapchainImageStateCommand(
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessSetSwapchainImageStateCommand(device_id, swapchain_id, last_presented_image, image_state);
+        //consumer->ProcessSetSwapchainImageStateCommand(device_id, swapchain_id, last_presented_image, image_state);
     }
 }
 
