@@ -203,11 +203,16 @@ void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t resource_id
 }
 
 void Dx12ResourceValueTracker::PostProcessInitSubresourceCommand(
-    const format::InitSubresourceCommandHeader& command_header, uint64_t block_index)
+    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header, uint64_t block_index)
 {
-    // Only support buffer resources (which have just subresource 0).
-    if (command_header.subresource == 0)
+    GFXRECON_ASSERT(resource != nullptr);
+
+    // Only support buffer resources.
+    if (resource->GetDesc().Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
+        // Buffer resources only have subresource 0.
+        GFXRECON_ASSERT(command_header.subresource == 0);
+
         TrackedFillCommandInfo tracked_fill_command;
         tracked_fill_command.fill_command_block_index = block_index;
         tracked_fill_command.original_offset          = 0;

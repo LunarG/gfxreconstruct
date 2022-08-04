@@ -399,9 +399,10 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
             0, resource_init_info_.subresource_sizes[0], data, resource_init_info_.data.data());
     }
 
-    if (resource_value_mapper_ != nullptr)
+    if ((resource_value_mapper_ != nullptr) && (resource_init_info_.resource != nullptr))
     {
-        resource_value_mapper_->PostProcessInitSubresourceCommand(command_header, GetCurrentBlockIndex());
+        resource_value_mapper_->PostProcessInitSubresourceCommand(
+            resource_init_info_.resource, command_header, GetCurrentBlockIndex());
     }
 }
 

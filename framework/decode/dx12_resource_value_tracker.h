@@ -64,7 +64,8 @@ class Dx12ResourceValueTracker
 
     void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, uint64_t block_index);
 
-    void PostProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+    void PostProcessInitSubresourceCommand(ID3D12Resource*                             resource,
+                                           const format::InitSubresourceCommandHeader& command_header,
                                            uint64_t                                    block_index);
 
     void GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values)
