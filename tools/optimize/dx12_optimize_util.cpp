@@ -67,8 +67,9 @@ void CreateResourceValueTrackingConsumer(decode::FileProcessor*                 
                                                                        file_processor);
     application->InitializeDx12WsiContext();
 
-    // Use default replay options.
+    // Use default replay options, except dcp.
     decode::DxReplayOptions dx_replay_options;
+    dx_replay_options.discard_cached_psos = true;
 
     // Create the replay consumer.
     dx12_replay_consumer = std::make_unique<Dx12ResourceValueTrackingConsumer>(application, dx_replay_options);
