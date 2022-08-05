@@ -103,6 +103,14 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) override;
 
+    virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
+                                                      SwapchainKHRInfo* swapchain_info,
+                                                      uint32_t          last_presented_image,
+                                                      const std::vector<format::SwapchainImageStateInfo>& image_info,
+                                                      const VulkanObjectInfoTable& object_info_table,
+                                                      SwapchainImageTracker&       swapchain_image_tracker) override
+    {}
+
   private:
     VkResult CreateSwapchainImage(const DeviceInfo*               device_info,
                                   const VkImageCreateInfo&        image_create_info,
@@ -113,9 +121,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo2* create_info) const;
 
     int32_t FindFirstPresentSrcLayout(uint32_t count, const VkImageMemoryBarrier* barriers) const;
-
-    const encode::InstanceTable* instance_table_{ nullptr };
-    const encode::DeviceTable*   device_table_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

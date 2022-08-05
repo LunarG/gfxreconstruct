@@ -990,20 +990,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                   VkImage*                 image,
                                   ImageInfo*               image_info);
 
-    // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
-    // the expected layout and keep them acquired until first use.
-    void ProcessSetSwapchainImageStatePreAcquire(const DeviceInfo*                                   device_info,
-                                                 SwapchainKHRInfo*                                   swapchain_info,
-                                                 const std::vector<format::SwapchainImageStateInfo>& image_info);
-
-    // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
-    // the expected layout, and then call queue present if the image is not expected to be in the acquired state so that
-    // no more than one image is acquired at a time.
-    void ProcessSetSwapchainImageStateQueueSubmit(const DeviceInfo* device_info,
-                                                  SwapchainKHRInfo* swapchain_info,
-                                                  uint32_t          last_presented_image,
-                                                  const std::vector<format::SwapchainImageStateInfo>& image_info);
-
     void ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info);
 
     void ProcessSwapchainFullScreenExclusiveInfo(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
