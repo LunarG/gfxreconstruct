@@ -18,6 +18,9 @@
 #define GFXRECON_DECODE_VULKAN_SWAPCHAIN_H
 
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_object_info_table.h"
+#include "decode/swapchain_image_tracker.h"
+
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -105,6 +108,17 @@ class VulkanSwapchain
                                     const VkBufferMemoryBarrier* buffer_memory_barriers,
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) = 0;
+
+    virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
+                                                      SwapchainKHRInfo* swapchain_info,
+                                                      uint32_t          last_presented_image,
+                                                      const std::vector<format::SwapchainImageStateInfo>& image_info,
+                                                      const VulkanObjectInfoTable& object_info_table,
+                                                      SwapchainImageTracker&       swapchain_image_tracker) = 0;
+
+  protected:
+    const encode::InstanceTable* instance_table_{ nullptr };
+    const encode::DeviceTable*   device_table_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

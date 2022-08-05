@@ -102,6 +102,31 @@ class VulkanDefaultSwapchain : public VulkanSwapchain
                                     const VkBufferMemoryBarrier* buffer_memory_barriers,
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) override;
+
+    virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
+                                                      SwapchainKHRInfo* swapchain_info,
+                                                      uint32_t          last_presented_image,
+                                                      const std::vector<format::SwapchainImageStateInfo>& image_info,
+                                                      const VulkanObjectInfoTable& object_info_table,
+                                                      SwapchainImageTracker&       swapchain_image_tracker) override;
+
+  private:
+    // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
+    // the expected layout and keep them acquired until first use.
+    void ProcessSetSwapchainImageStatePreAcquire(const DeviceInfo*                                   device_info,
+                                                 SwapchainKHRInfo*                                   swapchain_info,
+                                                 const std::vector<format::SwapchainImageStateInfo>& image_info,
+                                                 const VulkanObjectInfoTable&                        object_info_table,
+                                                 SwapchainImageTracker& swapchain_image_tracker);
+
+    // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
+    // the expected layout, and then call queue present if the image is not expected to be in the acquired state so that
+    // no more than one image is acquired at a time.
+    void ProcessSetSwapchainImageStateQueueSubmit(const DeviceInfo* device_info,
+                                                  SwapchainKHRInfo* swapchain_info,
+                                                  uint32_t          last_presented_image,
+                                                  const std::vector<format::SwapchainImageStateInfo>& image_info,
+                                                  const VulkanObjectInfoTable& object_info_table);
 };
 
 GFXRECON_END_NAMESPACE(decode)
