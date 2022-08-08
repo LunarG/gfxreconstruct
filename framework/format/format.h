@@ -191,6 +191,10 @@ struct EnabledOptions
 #pragma pack(push)
 #pragma pack(4)
 
+// Prevent size_t from being used in data structs that will be written to the capture file.
+#define size_t \
+    static_assert(false, "Capture file data types must be constant size across all platforms. size_t is not allowed.");
+
 struct FileOptionPair
 {
     FileOption key;
@@ -472,6 +476,9 @@ struct CreateHeapAllocationCommand
     uint64_t         allocation_id;
     uint64_t         allocation_size;
 };
+
+// Restore size_t to normal behavior.
+#undef size_t
 
 #pragma pack(pop)
 
