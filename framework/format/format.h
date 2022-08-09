@@ -95,6 +95,13 @@ enum AnnotationType : uint32_t
     kXml     = 3
 };
 
+enum AdapterType : uint32_t
+{
+    kUnknownAdapter  = 0,
+    kSoftwareAdapter = 1,
+    kHardwareAdapter = 2
+};
+
 enum class MetaDataType : uint16_t
 {
     kUnknownMetaDataType                    = 0,
@@ -535,16 +542,17 @@ struct InitDx12AccelerationStructureGeometryDesc
 
 struct DxgiAdapterDesc
 {
-    wchar_t  Description[kAdapterDescriptionSize];
-    uint32_t VendorId;
-    uint32_t DeviceId;
-    uint32_t SubSysId;
-    uint32_t Revision;
-    uint64_t DedicatedVideoMemory;
-    uint64_t DedicatedSystemMemory;
-    uint64_t SharedSystemMemory;
-    uint32_t LuidLowPart;
-    int32_t  LuidHighPart;
+    wchar_t     Description[kAdapterDescriptionSize];
+    uint32_t    VendorId;
+    uint32_t    DeviceId;
+    uint32_t    SubSysId;
+    uint32_t    Revision;
+    uint64_t    DedicatedVideoMemory;
+    uint64_t    DedicatedSystemMemory;
+    uint64_t    SharedSystemMemory;
+    uint32_t    LuidLowPart;
+    int32_t     LuidHighPart;
+    AdapterType type;
 };
 
 struct DxgiAdapterInfoCommandHeader

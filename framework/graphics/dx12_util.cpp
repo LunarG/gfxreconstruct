@@ -344,18 +344,22 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
 }
 
 template <typename DescT>
-void TrackAdapterDesc(IDXGIAdapter* adapter, UINT32 adapter_idx, const DescT& dxgi_desc, graphics::dx12::ActiveAdapterMap& hardware_adapters)
+void TrackAdapterDesc(IDXGIAdapter*                     adapter,
+                      UINT32                            adapter_idx,
+                      const DescT&                      dxgi_desc,
+                      graphics::dx12::ActiveAdapterMap& adapters,
+                      format::AdapterType               type)
 {
-    int64_t packed_luid = (dxgi_desc.AdapterLuid.HighPart << 31) | dxgi_desc.AdapterLuid.LowPart;
+    const int64_t packed_luid = (dxgi_desc.AdapterLuid.HighPart << 31) | dxgi_desc.AdapterLuid.LowPart;
 
-    if (hardware_adapters.count(packed_luid) == 0)
+    if (adapters.count(packed_luid) == 0)
     {
         format::DxgiAdapterDesc internal_desc = {};
 
         util::platform::MemoryCopy(&internal_desc.Description,
-            sizeof(internal_desc.Description),
-            &dxgi_desc.Description,
-            sizeof(dxgi_desc.Description));
+                                   sizeof(internal_desc.Description),
+                                   &dxgi_desc.Description,
+                                   sizeof(dxgi_desc.Description));
 
         internal_desc.VendorId              = dxgi_desc.VendorId;
         internal_desc.DeviceId              = dxgi_desc.DeviceId;
@@ -366,6 +370,7 @@ void TrackAdapterDesc(IDXGIAdapter* adapter, UINT32 adapter_idx, const DescT& dx
         internal_desc.SharedSystemMemory    = dxgi_desc.SharedSystemMemory;
         internal_desc.LuidLowPart           = dxgi_desc.AdapterLuid.LowPart;
         internal_desc.LuidHighPart          = dxgi_desc.AdapterLuid.HighPart;
+        internal_desc.type                  = type;
 
         ActiveAdapterInfo adapter_info = {};
         adapter_info.internal_desc     = internal_desc;
@@ -373,24 +378,11 @@ void TrackAdapterDesc(IDXGIAdapter* adapter, UINT32 adapter_idx, const DescT& dx
         adapter_info.adapter_idx       = adapter_idx;
         adapter_info.active            = false;
 
-        hardware_adapters[packed_luid] = adapter_info;
+        adapters[packed_luid] = adapter_info;
     }
 }
 
-bool IsBlacklistedAdapter(const DXGI_ADAPTER_DESC& adapter_desc)
-{
-    bool exclude_adapter = false;
-
-    // This corresponds to "Microsoft Basic Render Driver" which we don't want to track
-    if ((adapter_desc.DeviceId == 0x8c) && (adapter_desc.VendorId == 0x1414))
-    {
-        exclude_adapter = true;
-    }
-
-    return exclude_adapter;
-}
-
-void TrackHardwareAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapterMap& hardware_adapters)
+void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapterMap& adapters)
 {
     if (SUCCEEDED(result))
     {
@@ -400,6 +392,9 @@ void TrackHardwareAdapters(HRESULT result, void** ppFactory, graphics::dx12::Act
         // DXGI 1.1 tracking (default)
         if (SUCCEEDED(factory1->QueryInterface(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory1))))
         {
+            // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
+            adapters.clear();
+
             // Enumerate 1.1 adapters and fetch data with GetDesc1()
             IDXGIAdapter1* adapter1 = nullptr;
 
@@ -408,30 +403,21 @@ void TrackHardwareAdapters(HRESULT result, void** ppFactory, graphics::dx12::Act
                 DXGI_ADAPTER_DESC1 dxgi_desc = {};
                 adapter1->GetDesc1(&dxgi_desc);
 
-                // Proper adapter filtering
-                if ((dxgi_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == false)
+                format::AdapterType adapter_type = format::AdapterType::kHardwareAdapter;
+                if (dxgi_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
                 {
-                    TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, hardware_adapters);
+                    adapter_type = format::AdapterType::kSoftwareAdapter;
                 }
 
-                // Software adapter, so remove it if present (due to DXGI 1.0 tracking)
-                else
-                {
-                    int64_t packed_luid = (dxgi_desc.AdapterLuid.HighPart << 31) | dxgi_desc.AdapterLuid.LowPart;
-
-                    if (hardware_adapters.count(packed_luid) != 0)
-                    {
-                        hardware_adapters.erase(packed_luid);
-                    }
-                }
+                TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, adapters, adapter_type);
             }
         }
 
         // DXGI 1.0 tracking (fall-back)
-        else 
+        else
         {
             // Only enumerate 1.0 factory adapters if nothing has been seen yet
-            if (hardware_adapters.empty())
+            if (adapters.empty())
             {
                 IDXGIFactory* factory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
 
@@ -445,11 +431,8 @@ void TrackHardwareAdapters(HRESULT result, void** ppFactory, graphics::dx12::Act
                         DXGI_ADAPTER_DESC dxgi_desc = {};
                         adapter->GetDesc(&dxgi_desc);
 
-                        // Poor man's adapter filtering
-                        if (IsBlacklistedAdapter(dxgi_desc) == false)
-                        {
-                            TrackAdapterDesc(adapter, adapter_idx, dxgi_desc, hardware_adapters);
-                        }
+                        TrackAdapterDesc(
+                            adapter, adapter_idx, dxgi_desc, adapters, format::AdapterType::kUnknownAdapter);
                     }
                 }
                 else
@@ -461,7 +444,7 @@ void TrackHardwareAdapters(HRESULT result, void** ppFactory, graphics::dx12::Act
     }
 }
 
-format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& hardware_adapters)
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters)
 {
     format::DxgiAdapterDesc* active_adapter_desc = nullptr;
 
@@ -470,10 +453,10 @@ format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12:
         // Get the device's parent adapter identifier
         LUID parent_adapter_luid = device->GetAdapterLuid();
 
-        int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+        const int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
 
         // Mark an adapter as active
-        for (auto& adapter : hardware_adapters)
+        for (auto& adapter : adapters)
         {
             if (adapter.first == packed_luid)
             {
@@ -491,6 +474,19 @@ format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12:
     }
 
     return active_adapter_desc;
+}
+
+bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc)
+{
+    bool software_desc = false;
+
+    if ((adapter_desc.type & format::AdapterType::kSoftwareAdapter) ||
+        (adapter_desc.DeviceId == 0x8c) && (adapter_desc.VendorId == 0x1414))
+    {
+        software_desc = true;
+    }
+
+    return software_desc;
 }
 
 GFXRECON_END_NAMESPACE(dx12)

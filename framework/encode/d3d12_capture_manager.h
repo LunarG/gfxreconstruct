@@ -604,7 +604,7 @@ class D3D12CaptureManager : public CaptureManager
     void PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
         ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name);
 
-    void PostProcess_CreateDevice(
+    void PostProcess_D3D12CreateDevice(
         HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice);
 
     void PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory);
@@ -680,7 +680,7 @@ class D3D12CaptureManager : public CaptureManager
 
     std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
 
-    graphics::dx12::ActiveAdapterMap hardware_adapters_;
+    graphics::dx12::ActiveAdapterMap adapters_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

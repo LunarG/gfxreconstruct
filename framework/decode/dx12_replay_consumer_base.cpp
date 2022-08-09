@@ -867,7 +867,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
         auto device_ptr = reinterpret_cast<ID3D12Device*>(*device->GetHandlePointer());
 
-        graphics::dx12::MarkActiveAdapter(device_ptr, hardware_adapters_);
+        graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
     }
 
     return replay_result;
@@ -875,81 +875,87 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
 void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
-    // Only do this check if replay-time adapters have been tracked
-    if (hardware_adapters_.empty() == false)
+    // Only check this if the block is not of a software adapter
+    if (graphics::dx12::IsSoftwareAdapter(adapter_info_header.adapter_desc) == false)
     {
-        bool found_matching_active_adapter = false;
-
-        // Iterate through all available hardware adapters (during replay)
-        for (const auto& adapter : hardware_adapters_)
+        // Only do this check if replay-time adapters have been tracked
+        if (adapters_.empty() == false)
         {
-            const format::DxgiAdapterDesc& replay_adapter_desc = adapter.second.internal_desc;
+            bool found_matching_active_adapter = false;
 
-            // If this adapter was marked as active by CreateDevice (during replay)
-            if (adapter.second.active == true)
+            // Iterate through all available hardware adapters (during replay)
+            for (const auto& adapter : adapters_)
             {
-                // Check if this adapter was marked active (during capture)
-                if ((adapter_info_header.adapter_desc.VendorId == replay_adapter_desc.VendorId) &&
-                    (adapter_info_header.adapter_desc.DeviceId == replay_adapter_desc.DeviceId))
+                const format::DxgiAdapterDesc& replay_adapter_desc = adapter.second.internal_desc;
+
+                // If this adapter was marked as active by CreateDevice (during replay)
+                if (adapter.second.active == true)
                 {
-                    found_matching_active_adapter = true;
-                    break;
+                    // Check if this adapter was marked active (during capture)
+                    if ((adapter_info_header.adapter_desc.VendorId == replay_adapter_desc.VendorId) &&
+                        (adapter_info_header.adapter_desc.DeviceId == replay_adapter_desc.DeviceId))
+                    {
+                        found_matching_active_adapter = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (found_matching_active_adapter == false)
-        {
-            GFXRECON_LOG_WARNING("Mismatch:");
-
-            std::string capture_adapter_str =
-                gfxrecon::util::WCharArrayToString(adapter_info_header.adapter_desc.Description);
-
-            GFXRECON_LOG_WARNING("Capture-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
-                capture_adapter_str.c_str(),
-                adapter_info_header.adapter_desc.DeviceId,
-                adapter_info_header.adapter_desc.VendorId);
-
-            // Only found one adapter for replay
-            if (hardware_adapters_.size() == 1)
+            if (found_matching_active_adapter == false)
             {
-                format::DxgiAdapterDesc replay_adapter_desc = hardware_adapters_.begin()->second.internal_desc;
+                GFXRECON_LOG_WARNING("Mismatch:");
 
-                std::string replay_adapter_str = gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
+                std::string capture_adapter_str =
+                    gfxrecon::util::WCharArrayToString(adapter_info_header.adapter_desc.Description);
 
-                GFXRECON_LOG_WARNING("Replay-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
-                    replay_adapter_str.c_str(),
-                    replay_adapter_desc.DeviceId,
-                    replay_adapter_desc.VendorId);
-            }
+                GFXRECON_LOG_WARNING("Capture-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
+                                     capture_adapter_str.c_str(),
+                                     adapter_info_header.adapter_desc.DeviceId,
+                                     adapter_info_header.adapter_desc.VendorId);
 
-            // Multiple adapters available during replay
-            else if (hardware_adapters_.size() > 1)
-            {
-                GFXRECON_LOG_WARNING("Available replay-time adapters:");
-                for (const auto& adapter : hardware_adapters_)
+                // Only found one adapter for replay
+                if (adapters_.size() == 1)
                 {
-                    format::DxgiAdapterDesc replay_adapter_desc = adapter.second.internal_desc;
+                    format::DxgiAdapterDesc replay_adapter_desc = adapters_.begin()->second.internal_desc;
 
                     std::string replay_adapter_str = gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
 
-                    GFXRECON_LOG_WARNING("[%s] [DeviceID 0x%x] [VendorId 0x%x]",
-                        replay_adapter_str.c_str(),
-                        replay_adapter_desc.DeviceId,
-                        replay_adapter_desc.VendorId);
+                    GFXRECON_LOG_WARNING("Replay-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
+                                         replay_adapter_str.c_str(),
+                                         replay_adapter_desc.DeviceId,
+                                         replay_adapter_desc.VendorId);
+                }
+
+                // Multiple adapters available during replay
+                else if (adapters_.size() > 1)
+                {
+                    GFXRECON_LOG_WARNING("Available replay-time adapters:");
+                    for (const auto& adapter : adapters_)
+                    {
+                        format::DxgiAdapterDesc replay_adapter_desc = adapter.second.internal_desc;
+
+                        std::string replay_adapter_str =
+                            gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
+
+                        GFXRECON_LOG_WARNING("[%s] [DeviceID 0x%x] [VendorId 0x%x]",
+                                             replay_adapter_str.c_str(),
+                                             replay_adapter_desc.DeviceId,
+                                             replay_adapter_desc.VendorId);
+                    }
+                }
+
+                GFXRECON_LOG_WARNING(
+                    "Recorded instructions contain data aimed for the capture-time GPU. Replay may fail.")
+
+                if (options_.enable_d3d12_two_pass_replay)
+                {
+                    GFXRECON_LOG_INFO("The \"-m realign\" option has been deprecated.");
                 }
             }
-
-            GFXRECON_LOG_WARNING("Recorded instructions contain data aimed for the capture-time GPU. Replay may fail.")
-
-            if (options_.enable_d3d12_two_pass_replay)
+            else
             {
-                GFXRECON_LOG_INFO("The \"-m realign\" option has been deprecated.");
+                GFXRECON_LOG_DEBUG("Match: replay-time GPU vs capture-time GPU");
             }
-        }
-        else
-        {
-            GFXRECON_LOG_DEBUG("Match: replay-time GPU vs capture-time GPU");
         }
     }
 }
@@ -962,7 +968,7 @@ void Dx12ReplayConsumerBase::DetectAdapters()
 
     if (SUCCEEDED(result))
     {
-        graphics::dx12::TrackHardwareAdapters(result, reinterpret_cast<void**>(&factory1), hardware_adapters_);
+        graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters_);
 
         factory1->Release();
     }

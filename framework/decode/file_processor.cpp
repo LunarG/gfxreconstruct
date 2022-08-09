@@ -1564,6 +1564,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                        sizeof(adapter_info_header.adapter_desc.LuidLowPart));
         success = success && ReadBytes(&adapter_info_header.adapter_desc.LuidHighPart,
                                        sizeof(adapter_info_header.adapter_desc.LuidHighPart));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.type, 
+                                       sizeof(adapter_info_header.adapter_desc.type));
 
         if (success)
         {

@@ -2078,21 +2078,24 @@ void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdent
     }
 }
 
-void D3D12CaptureManager::PostProcess_CreateDevice(
+void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
     HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice)
 {
     if (result == S_OK)
     {
-        auto device = reinterpret_cast<ID3D12Device*>(*ppDevice);
-
-        if (device != nullptr)
+        if (ppDevice != nullptr)
         {
-            format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(device, hardware_adapters_);
+            auto device = reinterpret_cast<ID3D12Device*>(*ppDevice);
 
-            // Write adapter desc to file if it was marked active, and has not already been seen
-            if (active_adapter != nullptr)
+            if (device != nullptr)
             {
-                WriteDxgiAdapterInfoCommand(*active_adapter);
+                format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(device, adapters_);
+
+                // Write adapter desc to file if it was marked active, and has not already been seen
+                if (active_adapter != nullptr)
+                {
+                    WriteDxgiAdapterInfoCommand(*active_adapter);
+                }
             }
         }
     }
@@ -2125,7 +2128,7 @@ void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterD
 
 void D3D12CaptureManager::WriteDxgiAdapterInfo()
 {
-    for (const auto& adapter : hardware_adapters_)
+    for (const auto& adapter : adapters_)
     {
         const format::DxgiAdapterDesc& replay_adapter_desc = adapter.second.internal_desc;
 
@@ -2139,17 +2142,17 @@ void D3D12CaptureManager::WriteDxgiAdapterInfo()
 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory)
 {
-    graphics::dx12::TrackHardwareAdapters(result, ppFactory, hardware_adapters_);
+    graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
 }
 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory1(HRESULT result, REFIID riid, void** ppFactory)
 {
-    graphics::dx12::TrackHardwareAdapters(result, ppFactory, hardware_adapters_);
+    graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
 }
 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory)
 {
-    graphics::dx12::TrackHardwareAdapters(result, ppFactory, hardware_adapters_);
+    graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
 }
 
 GFXRECON_END_NAMESPACE(encode)

@@ -134,9 +134,11 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
                                                  uint64_t&                       inputs_buffer_size,
                                                  std::vector<InputsBufferEntry>& entries);
 
-void TrackHardwareAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& hardware_adapters);
+void TrackAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& adapters);
 
-format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& hardware_adapters);
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters);
+
+bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

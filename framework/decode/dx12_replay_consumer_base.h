@@ -740,7 +740,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
     std::string                                     screenshot_file_prefix_;
     std::unique_ptr<ScreenshotHandlerBase>          screenshot_handler_;
-    graphics::dx12::ActiveAdapterMap                hardware_adapters_;
+    graphics::dx12::ActiveAdapterMap                adapters_;
 
     struct FillMemoryResourceValueInfo
     {
