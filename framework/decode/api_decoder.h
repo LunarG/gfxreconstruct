@@ -31,6 +31,7 @@
 #include "vulkan/vulkan.h"
 
 #include <string>
+#include <chrono>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -62,6 +63,9 @@ class ApiDecoder
     virtual void DispatchStateEndMarker(uint64_t frame_number) = 0;
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) = 0;
+
+    virtual void DispatchTimestampCommand(format::ThreadId                                    thread_id,
+                                          decltype(std::chrono::high_resolution_clock::now()) time) = 0;
 
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) = 0;

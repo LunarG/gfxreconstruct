@@ -245,6 +245,23 @@ void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& m
     GFXRECON_LOG_INFO("Trace Message: %s", message.c_str());
 }
 
+void VulkanReplayConsumerBase::ProcessTimestampCommand(decltype(std::chrono::high_resolution_clock::now()) time)
+{
+    if (last_timestamp_capture_ != std::chrono::time_point<std::chrono::high_resolution_clock>{})
+    {
+        auto duration_capture = time - last_timestamp_capture_;
+        auto duration_replay  = std::chrono::high_resolution_clock::now() - last_timestamp_replay_;
+        if (duration_replay < duration_capture)
+        {
+            auto to_sleep = duration_capture - duration_replay;
+            GFXRECON_LOG_DEBUG("Sleeping %f ms to sync", std::chrono::duration<double, std::milli>(to_sleep).count());
+            std::this_thread::sleep_for(to_sleep);
+        }
+    }
+    last_timestamp_capture_ = time;
+    last_timestamp_replay_  = std::chrono::high_resolution_clock::now();
+}
+
 void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
                                                         uint64_t       offset,
                                                         uint64_t       size,

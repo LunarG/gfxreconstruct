@@ -1145,6 +1145,34 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             }
         }
     }
+    else if (meta_data_type == format::MetaDataType::kTimestampCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::TimestampCommand command;
+
+        success = ReadBytes(&command.thread_id, sizeof(command.thread_id));
+        success = success && ReadBytes(&command.time_nanos, sizeof(command.time_nanos));
+
+        std::chrono::nanoseconds                                    duration(command.time_nanos);
+        std::chrono::time_point<std::chrono::high_resolution_clock> time(duration);
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchTimestampCommand(command.thread_id, time);
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read timestamp meta-data block");
+        }
+    }
     else
     {
         // Unrecognized metadata type.

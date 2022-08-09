@@ -76,6 +76,9 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) override;
 
+    virtual void DispatchTimestampCommand(format::ThreadId                                    thread_id,
+                                          decltype(std::chrono::high_resolution_clock::now()) time) override;
+
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
     virtual void DispatchFillMemoryCommand(

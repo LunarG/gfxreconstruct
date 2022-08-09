@@ -681,6 +681,23 @@ void CaptureManager::BuildOptionList(const format::EnabledOptions&        enable
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
 }
 
+void CaptureManager::WriteTimestamp(decltype(std::chrono::high_resolution_clock::now()) time)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::TimestampCommand timestamp_cmd;
+        timestamp_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        timestamp_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(timestamp_cmd);
+        timestamp_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family_, format::MetaDataType::kTimestampCommand);
+        timestamp_cmd.thread_id = GetThreadData()->thread_id_;
+
+        timestamp_cmd.time_nanos = std::chrono::nanoseconds(time.time_since_epoch()).count();
+
+        WriteToFile(&timestamp_cmd, sizeof(timestamp_cmd));
+    }
+}
+
 void CaptureManager::WriteDisplayMessageCmd(const char* message)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)

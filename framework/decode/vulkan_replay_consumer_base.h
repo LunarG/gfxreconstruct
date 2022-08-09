@@ -84,6 +84,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
+    virtual void ProcessTimestampCommand(decltype(std::chrono::high_resolution_clock::now()) time) override;
+
     virtual void
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
@@ -1039,6 +1041,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                      screenshot_file_prefix_;
     int32_t                                                          create_surface_count_;
     graphics::FpsInfo*                                               fps_info_;
+    std::chrono::time_point<std::chrono::high_resolution_clock>      last_timestamp_capture_;
+    std::chrono::time_point<std::chrono::high_resolution_clock>      last_timestamp_replay_;
 
     // Used to track if any shadow sync objects are active to avoid checking if not needed
     std::unordered_set<VkSemaphore> shadow_semaphores_;

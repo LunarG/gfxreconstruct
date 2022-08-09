@@ -900,6 +900,16 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBuffe
     }
 };
 
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkQueuePresentKHR(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

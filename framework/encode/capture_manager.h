@@ -227,6 +227,9 @@ class CaptureManager
 
     ParameterEncoder* InitMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id);
 
+    void WriteTimestamp(
+        decltype(std::chrono::high_resolution_clock::now()) time = std::chrono::high_resolution_clock::now());
+
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
 
     void WriteFillMemoryCmd(format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);

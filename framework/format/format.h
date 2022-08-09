@@ -112,7 +112,8 @@ enum class MetaDataType : uint16_t
     kSetOpaqueAddressCommand                = 14,
     kSetRayTracingShaderGroupHandlesCommand = 15,
     kCreateHeapAllocationCommand            = 16,
-    kInitSubresourceCommand                 = 17
+    kInitSubresourceCommand                 = 17,
+    kTimestampCommand                       = 18
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -268,6 +269,15 @@ struct FillMemoryCommandHeader
     HandleId memory_id;
     uint64_t memory_offset; // Offset from the start of the mapped pointer, not the start of the memory object.
     uint64_t memory_size;   // Uncompressed size of the data encoded after the header.
+};
+
+// Not a header because this command does not include a variable length data payload.
+// All of the command data is present in the struct.
+struct TimestampCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    uint64_t         time_nanos;
 };
 
 struct DisplayMessageCommandHeader

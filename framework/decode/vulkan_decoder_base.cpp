@@ -75,6 +75,17 @@ void VulkanDecoderBase::DispatchFillMemoryCommand(
     }
 }
 
+void VulkanDecoderBase::DispatchTimestampCommand(format::ThreadId                                    thread_id,
+                                                 decltype(std::chrono::high_resolution_clock::now()) time)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessTimestampCommand(time);
+    }
+}
+
 void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
                                                     format::HandleId surface_id,
                                                     uint32_t         width,

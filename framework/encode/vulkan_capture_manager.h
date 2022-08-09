@@ -938,6 +938,8 @@ class VulkanCaptureManager : public CaptureManager
                                                                 const struct AHardwareBuffer*             buffer,
                                                                 VkAndroidHardwareBufferPropertiesANDROID* pProperties);
 
+    void PreProcess_vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
