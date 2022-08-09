@@ -353,7 +353,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
-                        [--surface-index <N>] [--remove-unsupported]
+                        [--surface-index <N>] [--remove-unsupported] [--timestamp-sync]
                         [-m <mode> | --memory-translation <mode>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         <file>
@@ -437,6 +437,7 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
+  --timestamp-sync      Adjust playback speed to match speed of recorded application.
 ```
 
 ### Keyboard Controls

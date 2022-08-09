@@ -305,7 +305,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--pause-frame N]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
-                          [-m MODE]
+                          [--timestamp-sync] [-m MODE]
                           [file]
 
 Launch the replay tool.
@@ -370,6 +370,8 @@ optional arguments:
   --onhb, --omit-null-hardware-buffers
                         Omit Vulkan API calls which would pass a NULL
                         AHardwareBuffer*.  (forwarded to replay tool)
+  --timestamp-sync      Adjust playback speed to match speed of recorded
+                        application (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

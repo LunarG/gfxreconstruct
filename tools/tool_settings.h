@@ -90,6 +90,7 @@ const char kOutput[]                             = "--output";
 const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
+const char kSyncToTimestamps[]                   = "--timestamp-sync";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 #endif
@@ -748,6 +749,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!surface_index.empty())
     {
         replay_options.surface_index = std::stoi(surface_index);
+    }
+
+    if (arg_parser.IsOptionSet(kSyncToTimestamps))
+    {
+        replay_options.sync_to_timestamps = true;
     }
 
     return replay_options;
