@@ -69,7 +69,7 @@ def run_replayer(replay_tool_path, args):
 def retrieve_exe_name(info_tool_path, capture_path):
     print("Retrieving captured application executable name...")
     cmd = info_tool_path + " \"" + capture_path + "\" --exe-info-only"
-    output = subprocess.check_output(cmd).decode().split("\r\n")
+    output = subprocess.check_output(cmd).decode('utf-8',errors='ignore').split("\r\n")
     exe_name = ""
     for line in output:
         if "Application exe name:" in line:
