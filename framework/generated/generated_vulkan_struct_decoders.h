@@ -4237,6 +4237,33 @@ struct Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePipelineRobustnessFeaturesEXT;
+
+    VkPhysicalDevicePipelineRobustnessFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT
+{
+    using struct_type = VkPhysicalDevicePipelineRobustnessPropertiesEXT;
+
+    VkPhysicalDevicePipelineRobustnessPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPipelineRobustnessCreateInfoEXT
+{
+    using struct_type = VkPipelineRobustnessCreateInfoEXT;
+
+    VkPipelineRobustnessCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkConditionalRenderingBeginInfoEXT
 {
     using struct_type = VkConditionalRenderingBeginInfoEXT;
@@ -6256,6 +6283,15 @@ struct Decoded_VkImageCompressionPropertiesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT;
+
+    VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDevice4444FormatsFeaturesEXT
 {
     using struct_type = VkPhysicalDevice4444FormatsFeaturesEXT;
@@ -6461,6 +6497,33 @@ struct Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT;
+
+    VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSubpassResolvePerformanceQueryEXT
+{
+    using struct_type = VkSubpassResolvePerformanceQueryEXT;
+
+    VkSubpassResolvePerformanceQueryEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkMultisampledRenderToSingleSampledInfoEXT
+{
+    using struct_type = VkMultisampledRenderToSingleSampledInfoEXT;
+
+    VkMultisampledRenderToSingleSampledInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT
 {
     using struct_type = VkPhysicalDeviceExtendedDynamicState2FeaturesEXT;
@@ -6628,6 +6691,15 @@ struct Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT;
+
+    VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM
 {
     using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
@@ -6673,6 +6745,38 @@ struct Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT
     VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkImageViewSampleWeightCreateInfoQCOM
+{
+    using struct_type = VkImageViewSampleWeightCreateInfoQCOM;
+
+    VkImageViewSampleWeightCreateInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkOffset2D* filterCenter{ nullptr };
+    Decoded_VkExtent2D* filterSize{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceImageProcessingFeaturesQCOM;
+
+    VkPhysicalDeviceImageProcessingFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM
+{
+    using struct_type = VkPhysicalDeviceImageProcessingPropertiesQCOM;
+
+    VkPhysicalDeviceImageProcessingPropertiesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* maxWeightFilterDimension{ nullptr };
+    Decoded_VkExtent2D* maxBlockMatchRegion{ nullptr };
+    Decoded_VkExtent2D* maxBoxFilterBlockSize{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT
@@ -6727,6 +6831,84 @@ struct Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT
 
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkRenderPassSubpassFeedbackInfoEXT>* pSubpassFeedback{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT;
+
+    VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT;
+
+    VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> shaderModuleIdentifierAlgorithmUUID;
+};
+
+struct Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT
+{
+    using struct_type = VkPipelineShaderStageModuleIdentifierCreateInfoEXT;
+
+    VkPipelineShaderStageModuleIdentifierCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> pIdentifier;
+};
+
+struct Decoded_VkShaderModuleIdentifierEXT
+{
+    using struct_type = VkShaderModuleIdentifierEXT;
+
+    VkShaderModuleIdentifierEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> identifier;
+};
+
+struct Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceTilePropertiesFeaturesQCOM;
+
+    VkPhysicalDeviceTilePropertiesFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkTilePropertiesQCOM
+{
+    using struct_type = VkTilePropertiesQCOM;
+
+    VkTilePropertiesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent3D* tileSize{ nullptr };
+    Decoded_VkExtent2D* apronSize{ nullptr };
+    Decoded_VkOffset2D* origin{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC
+{
+    using struct_type = VkPhysicalDeviceAmigoProfilingFeaturesSEC;
+
+    VkPhysicalDeviceAmigoProfilingFeaturesSEC* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkAmigoProfilingSubmitInfoSEC
+{
+    using struct_type = VkAmigoProfilingSubmitInfoSEC;
+
+    VkAmigoProfilingSubmitInfoSEC* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR

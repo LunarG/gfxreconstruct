@@ -594,6 +594,10 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdTraceRaysIndirect2KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1274),
     ApiCall_vkGetImageSubresourceLayout2EXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1275),
     ApiCall_vkGetPipelinePropertiesEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1276),
+    ApiCall_vkGetShaderModuleIdentifierEXT                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1277),
+    ApiCall_vkGetShaderModuleCreateInfoIdentifierEXT                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1278),
+    ApiCall_vkGetFramebufferTilePropertiesQCOM                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1279),
+    ApiCall_vkGetDynamicRenderingTilePropertiesQCOM                                               = MakeApiCallId(ApiFamily_Vulkan, 0x127a),
 
     ApiCall_VulkanLast
     // clang-format on

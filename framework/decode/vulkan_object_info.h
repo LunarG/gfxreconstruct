@@ -73,6 +73,7 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR   = 14,
     kPhysicalDeviceArrayGetPhysicalDeviceToolProperties                                 = 15,
     kPhysicalDeviceArrayGetPhysicalDeviceFragmentShadingRatesKHR                        = 16,
+    kFramebufferArrayGetFramebufferTilePropertiesQCOM                                   = 17,
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2,
@@ -189,7 +190,6 @@ typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
 typedef VulkanPoolObjectInfo<VkDescriptorSet>             DescriptorSetInfo;
-typedef VulkanObjectInfo<VkFramebuffer>                   FramebufferInfo;
 typedef VulkanPoolInfo<VkCommandPool>                     CommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
@@ -394,6 +394,11 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
+{
+    std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 };

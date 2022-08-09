@@ -3427,6 +3427,33 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) {}
 
+    virtual void Process_vkGetShaderModuleIdentifierEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            shaderModule,
+        StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier) {}
+
+    virtual void Process_vkGetShaderModuleCreateInfoIdentifierEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier) {}
+
+    virtual void Process_vkGetFramebufferTilePropertiesQCOM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            framebuffer,
+        PointerDecoder<uint32_t>*                   pPropertiesCount,
+        StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
+
+    virtual void Process_vkGetDynamicRenderingTilePropertiesQCOM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
+        StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
+
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

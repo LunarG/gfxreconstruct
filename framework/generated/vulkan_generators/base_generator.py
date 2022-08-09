@@ -69,7 +69,7 @@ _remove_extensions = [
     "VK_EXT_video_decode_h264", "VK_EXT_video_decode_h265",
     "VK_EXT_video_encode_h265", "VK_FUCHSIA_buffer_collection",
     "VK_NVX_binary_import", "VK_HUAWEI_subpass_shading",
-    "VK_EXT_pipeline_properties"
+    "VK_EXT_pipeline_properties", "VK_EXT_metal_objects"
 ]
 
 # Turn lists of names/patterns into matching regular expressions.
