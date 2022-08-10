@@ -115,9 +115,21 @@ static size_t   s_alt_stack_size = 0;
 
 static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 {
-    bool              handled = false;
-    PageGuardManager* manager = PageGuardManager::Get();
-    if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
+    bool              handled       = false;
+    PageGuardManager* manager       = PageGuardManager::Get();
+    void*             fault_address = nullptr;
+
+#if defined(__aarch64__)
+    if (id == SIGSEGV && data)
+    {
+        auto ucontext = reinterpret_cast<const ucontext_t*>(data);
+        fault_address = reinterpret_cast<void*>(ucontext->uc_mcontext.fault_address);
+    }
+#else
+    fault_address = info->si_addr;
+#endif
+
+    if ((id == SIGSEGV) && (fault_address != nullptr) && (manager != nullptr))
     {
         bool is_write = true;
 #if defined(PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION)
@@ -164,7 +176,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 #endif
         }
 #endif
-        handled = manager->HandleGuardPageViolation(info->si_addr, is_write, true);
+        handled = manager->HandleGuardPageViolation(fault_address, is_write, true);
     }
 
     if (!handled)
