@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -29,6 +30,8 @@
 #include "dx12_optimize_util.h"
 #endif
 
+#include "decode/decode_api_detection.h"
+#include "decode/dx12_optimize_options.h"
 #include "decode/file_processor.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -160,6 +163,20 @@ void VkRemoveRedundantResources(std::string input_filename, std::string output_f
     }
 }
 
+void RunDx12Optimizations(const std::string&                        input_filename,
+                          const std::string&                        output_filename,
+                          gfxrecon::decode::Dx12OptimizationOptions dx12_options)
+{
+#if defined(WIN32)
+    bool result = gfxrecon::Dx12OptimizeFile(input_filename, output_filename, dx12_options);
+    if (!result)
+    {
+        gfxrecon::util::Log::Release();
+        exit(-1);
+    }
+#endif
+}
+
 int main(int argc, const char** argv)
 {
     int64_t start_time = gfxrecon::util::datetime::GetTimestamp();
@@ -197,24 +214,37 @@ int main(int argc, const char** argv)
         input_filename                                       = positional_arguments[0];
         output_filename                                      = positional_arguments[1];
 
-#if defined(WIN32)
-        gfxrecon::Dx12OptimizationOptions dx12_options;
-        dx12_options.remove_redundant_psos = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+        // Parameter checking and API detection
+        gfxrecon::decode::Dx12OptimizationOptions dx12_options;
         dx12_options.optimize_dxr          = arg_parser.IsOptionSet(kDx12OptimizeDxr);
-        bool dx12_optimize_any             = dx12_options.remove_redundant_psos || dx12_options.optimize_dxr;
-        if (dx12_optimize_any)
+        dx12_options.remove_redundant_psos = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+
+        // Automatic mode. User specified no options.
+        if ((dx12_options.optimize_dxr == false) && (dx12_options.remove_redundant_psos == false))
         {
-            bool result = gfxrecon::Dx12OptimizeFile(input_filename, output_filename, dx12_options);
-            if (!result)
+            bool detected_d3d12  = false;
+            bool detected_vulkan = false;
+            gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
+
+            if (detected_d3d12)
             {
-                gfxrecon::util::Log::Release();
-                return -1;
+                dx12_options.optimize_dxr          = true;
+                dx12_options.remove_redundant_psos = true;
+                RunDx12Optimizations(input_filename, output_filename, dx12_options);
+            }
+            else if (detected_vulkan)
+            {
+                VkRemoveRedundantResources(input_filename, output_filename);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Could not detect graphics API. Aborting optimization.")
             }
         }
+        // Manual mode. Follow user instructions.
         else
-#endif
         {
-            VkRemoveRedundantResources(input_filename, output_filename);
+            RunDx12Optimizations(input_filename, output_filename, dx12_options);
         }
     }
     catch (const std::runtime_error& error)

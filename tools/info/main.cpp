@@ -22,6 +22,7 @@
 
 #include "project_version.h"
 
+#include "decode/decode_api_detection.h"
 #include "decode/stat_consumer.h"
 #include "decode/stat_consumer_base.h"
 #include "decode/stat_decoder_base.h"
@@ -157,39 +158,6 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.compression_type = compression_type;
     api_agnostic_stats.trim_start_frame = stat_consumer.GetTrimmedStartFrame();
     api_agnostic_stats.frame_count      = file_processor.GetCurrentFrameNumber();
-}
-
-bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vulkan_detected)
-{
-    dx12_detected   = false;
-    vulkan_detected = false;
-
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer;
-        gfxrecon::decode::VulkanDecoder           vulkan_decoder;
-        vulkan_decoder.AddConsumer(&vulkan_detection_consumer);
-        file_processor.AddDecoder(&vulkan_decoder);
-#if defined(WIN32)
-        gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer;
-        gfxrecon::decode::Dx12Decoder           dx12_decoder;
-        dx12_decoder.AddConsumer(&dx12_detection_consumer);
-        file_processor.AddDecoder(&dx12_decoder);
-#endif
-        file_processor.ProcessAllFrames();
-#if defined(WIN32)
-        if (dx12_detection_consumer.WasD3D12APIDetected())
-        {
-            dx12_detected = true;
-        }
-#endif
-        if (vulkan_detection_consumer.WasVulkanAPIDetected())
-        {
-            vulkan_detected = true;
-        }
-    }
-    return dx12_detected || vulkan_detected;
 }
 
 void PrintExeInfo(const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
@@ -523,7 +491,7 @@ int main(int argc, const char** argv)
     {
         bool detected_d3d12  = false;
         bool detected_vulkan = false;
-        if (DetectAPIs(input_filename, detected_d3d12, detected_vulkan))
+        if (gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan))
         {
             if (detected_d3d12)
             {

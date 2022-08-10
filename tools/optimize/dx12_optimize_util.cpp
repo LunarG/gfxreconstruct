@@ -67,18 +67,17 @@ void CreateResourceValueTrackingConsumer(decode::FileProcessor*                 
                                                                        file_processor);
     application->InitializeDx12WsiContext();
 
-    // Use default replay options, except dcp.
+    // Use default replay options.
     decode::DxReplayOptions dx_replay_options;
-    dx_replay_options.discard_cached_psos = true;
 
     // Create the replay consumer.
     dx12_replay_consumer = std::make_unique<Dx12ResourceValueTrackingConsumer>(application, dx_replay_options);
     dx12_replay_consumer->SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 }
 
-bool GetDx12OptimizationInfo(const std::string&             input_filename,
-                             const Dx12OptimizationOptions& options,
-                             Dx12OptimizationInfo&          info)
+bool GetDx12OptimizationInfo(const std::string&                     input_filename,
+                             const decode::Dx12OptimizationOptions& options,
+                             Dx12OptimizationInfo&                  info)
 {
     bool result = false;
 
@@ -150,10 +149,10 @@ bool GetDx12OptimizationInfo(const std::string&             input_filename,
     return result;
 }
 
-bool ApplyDx12OptimizationInfo(const std::string&             input_filename,
-                               const std::string&             output_filename,
-                               const Dx12OptimizationOptions& options,
-                               const Dx12OptimizationInfo&    info)
+bool ApplyDx12OptimizationInfo(const std::string&                     input_filename,
+                               const std::string&                     output_filename,
+                               const decode::Dx12OptimizationOptions& options,
+                               const Dx12OptimizationInfo&            info)
 {
     bool result                  = false;
     bool found_optimization_data = false;
@@ -197,7 +196,8 @@ bool ApplyDx12OptimizationInfo(const std::string&             input_filename,
 
         if (!info.fill_command_resource_values.empty())
         {
-            GFXRECON_WRITE_CONSOLE("Optimizing %zu blocks for DXR replay.", info.fill_command_resource_values.size());
+            GFXRECON_WRITE_CONSOLE("Optimizing %zu FillMemoryCommand blocks for DXR replay.",
+                                   info.fill_command_resource_values.size());
         }
         else
         {
@@ -209,7 +209,7 @@ bool ApplyDx12OptimizationInfo(const std::string&             input_filename,
     if (!found_optimization_data)
     {
         GFXRECON_WRITE_CONSOLE("No optimizable data was found. A new capture file will not be created.");
-        result = false;
+        result = true;
     }
     else
     {
@@ -265,7 +265,9 @@ bool ApplyDx12OptimizationInfo(const std::string&             input_filename,
     return result;
 }
 
-bool Dx12OptimizeFile(std::string input_filename, std::string output_filename, const Dx12OptimizationOptions& options)
+bool Dx12OptimizeFile(std::string                            input_filename,
+                      std::string                            output_filename,
+                      const decode::Dx12OptimizationOptions& options)
 {
     // Return early if no DX12 optimizations were enabled.
     if (!options.remove_redundant_psos && !options.optimize_dxr)
@@ -286,7 +288,7 @@ bool Dx12OptimizeFile(std::string input_filename, std::string output_filename, c
     bool filter_result = ApplyDx12OptimizationInfo(input_filename, output_filename, options, info);
     if (filter_result == false)
     {
-        GFXRECON_WRITE_CONSOLE("Falure creating the optimized file.");
+        GFXRECON_WRITE_CONSOLE("Failure creating the optimized file.");
         return false;
     }
 

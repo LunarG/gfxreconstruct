@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,20 +21,25 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DX12_OPTIMIZE_UTIL_H
-#define GFXRECON_DX12_OPTIMIZE_UTIL_H
+#ifndef GFXRECON_DECODE_API_DETECTION_H
+#define GFXRECON_DECODE_API_DETECTION_H
 
-#include "decode/dx12_object_scanning_consumer.h"
-#include "decode/dx12_optimize_options.h"
-#include "generated/generated_dx12_decoder.h"
 #include "util/defines.h"
+#include "decode/file_processor.h"
+#include "decode/vulkan_detection_consumer.h"
+#include "generated/generated_vulkan_decoder.h"
+#if defined(WIN32)
+#include "decode/dx12_detection_consumer.h"
+#endif
+
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool Dx12OptimizeFile(std::string                            input_filename,
-                      std::string                            output_filename,
-                      const decode::Dx12OptimizationOptions& options);
+bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vulkan_detected);
 
+GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DX12_OPTIMIZE_UTIL_H
+#endif // GFXRECON_DECODE_API_DETECTION_H

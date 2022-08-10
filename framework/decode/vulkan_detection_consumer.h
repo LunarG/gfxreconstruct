@@ -25,6 +25,7 @@
 
 #include "decode/vulkan_consumer_base.h"
 #include "util/defines.h"
+#include "generated/generated_vulkan_consumer.h"
 
 #include "vulkan/vulkan.h"
 
@@ -37,7 +38,7 @@ class VulkanDetectionConsumer : public VulkanConsumer
 {
   public:
     VulkanDetectionConsumer() : vulkan_consumer_usage_(false) {}
-    bool WasVulkanAPIDetected() { return vulkan_consumer_usage_; }
+    bool         WasVulkanAPIDetected() { return vulkan_consumer_usage_; }
     virtual void Process_vkCreateDevice(const ApiCallInfo&         call_info,
                                         VkResult                   returnValue,
                                         gfxrecon::format::HandleId physicalDevice,
@@ -54,7 +55,7 @@ class VulkanDetectionConsumer : public VulkanConsumer
 
   private:
     static int const kMaxVulkanBlockLimit = 1000;
-    bool vulkan_consumer_usage_;
+    bool             vulkan_consumer_usage_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
