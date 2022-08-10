@@ -589,11 +589,6 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         {
             return result;
         }
-        result = device_table_->QueueWaitIdle(swapchain_info->blit_queue);
-        if (result != VK_SUCCESS)
-        {
-            return result;
-        }
     }
 
     VkPresentInfoKHR modified_present_info   = *present_info;
