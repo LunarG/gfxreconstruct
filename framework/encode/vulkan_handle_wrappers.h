@@ -78,7 +78,6 @@ struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsM
 struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
 struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
 struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct DeferredOperationKHRWrapper          : public HandleWrapper<VkDeferredOperationKHR> {};
 struct PrivateDataSlotEXTWrapper            : public HandleWrapper<VkPrivateDataSlotEXT> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
@@ -315,6 +314,20 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
+};
+
+struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
+{
+    // Record CreateRayTracingPipelinesKHR parameters for safety.
+    HandleUnwrapMemory                             record_handle_unwrap_memory;
+    VkDevice                                       record_device_unwrapped{ VK_NULL_HANDLE };
+    VkDeferredOperationKHR                         record_deferred_operation_unwrapped{ VK_NULL_HANDLE };
+    VkPipelineCache                                record_pipeline_cache_unwrapped{ VK_NULL_HANDLE };
+    uint32_t                                       record_create_info_count{ 0 };
+    std::vector<VkRayTracingPipelineCreateInfoKHR> record_create_infos;
+    VkAllocationCallbacks                          record_allocator{};
+    VkAllocationCallbacks*                         record_p_allocator{ nullptr };
+    std::vector<VkPipeline>                        record_pipelines;
 };
 
 struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>

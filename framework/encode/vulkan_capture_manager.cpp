@@ -1078,9 +1078,37 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
     VkDevice               device_unwrapped            = device_wrapper->handle;
     const DeviceTable*     device_table                = GetDeviceTable(device);
-    auto                   handle_unwrap_memory        = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
-    VkPipelineCache        pipelineCache_unwrapped     = GetWrappedHandle<VkPipelineCache>(pipelineCache);
+    DeferredOperationKHRWrapper* deferred_operation_wrapper =
+        reinterpret_cast<DeferredOperationKHRWrapper*>(deferredOperation);
+
+    VkPipelineCache     pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
+    HandleUnwrapMemory* handle_unwrap_memory    = nullptr;
+
+    if (deferred_operation_wrapper)
+    {
+        handle_unwrap_memory                                = &deferred_operation_wrapper->record_handle_unwrap_memory;
+        deferred_operation_wrapper->record_device_unwrapped = device_unwrapped;
+        deferred_operation_wrapper->record_deferred_operation_unwrapped = deferredOperation_unwrapped;
+        deferred_operation_wrapper->record_pipeline_cache_unwrapped     = pipelineCache_unwrapped;
+        deferred_operation_wrapper->record_create_info_count            = createInfoCount;
+        if (pAllocator)
+        {
+            deferred_operation_wrapper->record_allocator   = *pAllocator;
+            deferred_operation_wrapper->record_p_allocator = &deferred_operation_wrapper->record_allocator;
+        }
+        else
+        {
+            deferred_operation_wrapper->record_allocator   = {};
+            deferred_operation_wrapper->record_p_allocator = nullptr;
+        }
+        deferred_operation_wrapper->record_create_infos.resize(createInfoCount);
+        deferred_operation_wrapper->record_pipelines.resize(createInfoCount);
+    }
+    else
+    {
+        handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    }
     const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped =
         UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
@@ -1093,26 +1121,72 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
             modified_create_infos[i] = pCreateInfos_unwrapped[i];
             modified_create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
         }
-        result = device_table->CreateRayTracingPipelinesKHR(device_unwrapped,
-                                                            deferredOperation_unwrapped,
-                                                            pipelineCache_unwrapped,
-                                                            createInfoCount,
-                                                            modified_create_infos.get(),
-                                                            pAllocator,
-                                                            pPipelines);
+        if (deferred_operation_wrapper)
+        {
+            std::memcpy(deferred_operation_wrapper->record_create_infos.data(),
+                        modified_create_infos.get(),
+                        sizeof(VkRayTracingPipelineCreateInfoKHR) * createInfoCount);
+            result = device_table->CreateRayTracingPipelinesKHR(
+                deferred_operation_wrapper->record_device_unwrapped,
+                deferred_operation_wrapper->record_deferred_operation_unwrapped,
+                deferred_operation_wrapper->record_pipeline_cache_unwrapped,
+                deferred_operation_wrapper->record_create_info_count,
+                deferred_operation_wrapper->record_create_infos.data(),
+                deferred_operation_wrapper->record_p_allocator,
+                deferred_operation_wrapper->record_pipelines.data());
+
+            std::memcpy(
+                pPipelines, deferred_operation_wrapper->record_pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+        }
+        else
+        {
+            result = device_table->CreateRayTracingPipelinesKHR(device_unwrapped,
+                                                                deferredOperation_unwrapped,
+                                                                pipelineCache_unwrapped,
+                                                                createInfoCount,
+                                                                modified_create_infos.get(),
+                                                                pAllocator,
+                                                                pPipelines);
+        }
     }
     else
     {
-        result = device_table->CreateRayTracingPipelinesKHR(device_unwrapped,
-                                                            deferredOperation_unwrapped,
-                                                            pipelineCache_unwrapped,
-                                                            createInfoCount,
-                                                            pCreateInfos_unwrapped,
-                                                            pAllocator,
-                                                            pPipelines);
-    }
+        GFXRECON_LOG_ERROR_ONCE(
+            "The capturing application used vkCreateRayTracingPipelinesKHR, which may require the "
+            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capturing "
+            "device does not support this feature, so replay may fail.");
 
-    if ((result == VK_SUCCESS) && (pPipelines != nullptr))
+        if (deferred_operation_wrapper)
+        {
+            std::memcpy(deferred_operation_wrapper->record_create_infos.data(),
+                        pCreateInfos_unwrapped,
+                        sizeof(VkRayTracingPipelineCreateInfoKHR) * createInfoCount);
+            result = device_table->CreateRayTracingPipelinesKHR(
+                deferred_operation_wrapper->record_device_unwrapped,
+                deferred_operation_wrapper->record_deferred_operation_unwrapped,
+                deferred_operation_wrapper->record_pipeline_cache_unwrapped,
+                deferred_operation_wrapper->record_create_info_count,
+                deferred_operation_wrapper->record_create_infos.data(),
+                deferred_operation_wrapper->record_p_allocator,
+                deferred_operation_wrapper->record_pipelines.data());
+
+            std::memcpy(
+                pPipelines, deferred_operation_wrapper->record_pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+        }
+        else
+        {
+            result = device_table->CreateRayTracingPipelinesKHR(device_unwrapped,
+                                                                deferredOperation_unwrapped,
+                                                                pipelineCache_unwrapped,
+                                                                createInfoCount,
+                                                                pCreateInfos_unwrapped,
+                                                                pAllocator,
+                                                                pPipelines);
+        }
+    }
+    if (((result == VK_SUCCESS) || (result == VK_OPERATION_DEFERRED_KHR) ||
+         (result == VK_OPERATION_NOT_DEFERRED_KHR)) &&
+        (pPipelines != nullptr))
     {
         CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
             device, deferredOperation, pPipelines, createInfoCount, GetUniqueId);
