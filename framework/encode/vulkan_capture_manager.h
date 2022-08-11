@@ -135,7 +135,9 @@ class VulkanCaptureManager : public CaptureManager
                                       typename Wrapper::HandleType* handles,
                                       const CreateInfo*             create_infos)
     {
-        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) &&
+            ((result == VK_SUCCESS) || (result == VK_OPERATION_DEFERRED_KHR) ||
+             (result == VK_OPERATION_NOT_DEFERRED_KHR) || (result == VK_INCOMPLETE)) &&
             (handles != nullptr))
         {
             assert(state_tracker_ != nullptr);
