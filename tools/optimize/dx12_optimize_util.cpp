@@ -192,10 +192,9 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
     // Log info about DXR optimization
     if (options.optimize_dxr)
     {
-        found_optimization_data = true;
-
         if (!info.fill_command_resource_values.empty())
         {
+            found_optimization_data = true;
             GFXRECON_WRITE_CONSOLE("Optimizing %zu FillMemoryCommand blocks for DXR replay.",
                                    info.fill_command_resource_values.size());
         }
