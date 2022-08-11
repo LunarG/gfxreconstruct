@@ -199,7 +199,6 @@ typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXT
 typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureKHRInfo;
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
-typedef VulkanObjectInfo<VkDeferredOperationKHR>          DeferredOperationKHRInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlotEXT>            PrivateDataSlotEXTInfo;
 
 //
@@ -422,6 +421,56 @@ struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
 struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct SpecializationInfoData
+{
+    std::vector<VkSpecializationMapEntry> map_entries;
+    std::vector<uint32_t>                 data;
+};
+
+struct PipelineShaderStageCreateInfoData
+{
+    std::string            name;
+    VkSpecializationInfo   specialization_info;
+    SpecializationInfoData specialization_info_data;
+};
+
+struct PipelineLibraryCreateInfoKHRData
+{
+    std::vector<VkPipeline> libraries;
+};
+
+struct PipelineDynamicStateCreateInfoData
+{
+    std::vector<VkDynamicState> dynamic_states;
+};
+
+struct RayTracingPipelineCreateInfoData
+{
+    std::vector<VkPipelineShaderStageCreateInfo>      stages;
+    std::vector<PipelineShaderStageCreateInfoData>    stages_data;
+    std::vector<VkRayTracingShaderGroupCreateInfoKHR> groups;
+    VkPipelineLibraryCreateInfoKHR                    library_info;
+    PipelineLibraryCreateInfoKHRData                  library_info_data;
+    VkRayTracingPipelineInterfaceCreateInfoKHR        library_interface;
+    VkPipelineDynamicStateCreateInfo                  dynamic_state;
+    PipelineDynamicStateCreateInfoData                dynamic_state_data;
+};
+
+struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>
+{
+    // Record CreateRayTracingPipelinesKHR parameters for safety.
+    VkResult                                       join_state{ VK_NOT_READY };
+    VkDevice                                       record_device{ VK_NULL_HANDLE };
+    VkDeferredOperationKHR                         record_deferred_operation{ VK_NULL_HANDLE };
+    VkPipelineCache                                record_pipeline_cache{ VK_NULL_HANDLE };
+    uint32_t                                       record_create_info_count{ 0 };
+    std::vector<VkRayTracingPipelineCreateInfoKHR> record_create_infos;
+    std::vector<RayTracingPipelineCreateInfoData>  record_create_infos_data;
+    VkAllocationCallbacks                          record_allocator{};
+    VkAllocationCallbacks*                         record_p_allocator{ nullptr };
+    std::vector<VkPipeline>                        record_pipelines;
 };
 
 //

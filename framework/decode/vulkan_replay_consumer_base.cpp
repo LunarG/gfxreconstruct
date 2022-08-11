@@ -43,6 +43,7 @@
 #include <cstdint>
 #include <limits>
 #include <unordered_set>
+#include <future>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -5379,7 +5380,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     PFN_vkCreateRayTracingPipelinesKHR                                     func,
     VkResult                                                               original_result,
     const DeviceInfo*                                                      device_info,
-    const DeferredOperationKHRInfo*                                        deferred_operation_info,
+    DeferredOperationKHRInfo*                                              deferred_operation_info,
     const PipelineCacheInfo*                                               pipeline_cache_info,
     uint32_t                                                               createInfoCount,
     const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
@@ -5393,13 +5394,32 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
     VkResult                                 result          = VK_SUCCESS;
     VkDevice                                 device          = device_info->handle;
-    auto                                     device_table    = GetDeviceTable(device);
     const VkRayTracingPipelineCreateInfoKHR* in_pCreateInfos = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*             in_pAllocator   = GetAllocationCallbacks(pAllocator);
     VkPipeline*                              out_pPipelines  = pPipelines->GetHandlePointer();
     VkDeferredOperationKHR                   in_deferredOperation =
         (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
     VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    if (deferred_operation_info)
+    {
+        deferred_operation_info->join_state                = VK_NOT_READY;
+        deferred_operation_info->record_device             = device;
+        deferred_operation_info->record_deferred_operation = in_deferredOperation;
+        deferred_operation_info->record_pipeline_cache     = in_pipelineCache;
+        deferred_operation_info->record_create_info_count  = createInfoCount;
+        if (in_pAllocator)
+        {
+            deferred_operation_info->record_allocator   = *in_pAllocator;
+            deferred_operation_info->record_p_allocator = &deferred_operation_info->record_allocator;
+        }
+        else
+        {
+            deferred_operation_info->record_allocator   = {};
+            deferred_operation_info->record_p_allocator = nullptr;
+        }
+        deferred_operation_info->record_pipelines.resize(createInfoCount);
+    }
 
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
@@ -5457,26 +5477,294 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             // Use modified shader group infos.
             modified_create_infos[create_info_i].pGroups = modified_group_infos.data();
         }
-        result = device_table->CreateRayTracingPipelinesKHR(device,
-                                                            in_deferredOperation,
-                                                            in_pipelineCache,
-                                                            createInfoCount,
-                                                            modified_create_infos.data(),
-                                                            in_pAllocator,
-                                                            out_pPipelines);
+
+        if (deferred_operation_info)
+        {
+            CopyCreateRayTracingPipelines(
+                createInfoCount, modified_create_infos.data(), &modified_pgroups, *deferred_operation_info);
+            result = func(deferred_operation_info->record_device,
+                          deferred_operation_info->record_deferred_operation,
+                          deferred_operation_info->record_pipeline_cache,
+                          deferred_operation_info->record_create_info_count,
+                          deferred_operation_info->record_create_infos.data(),
+                          deferred_operation_info->record_p_allocator,
+                          deferred_operation_info->record_pipelines.data());
+
+            std::memcpy(
+                out_pPipelines, deferred_operation_info->record_pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+        }
+        else
+        {
+            result = func(device,
+                          in_deferredOperation,
+                          in_pipelineCache,
+                          createInfoCount,
+                          modified_create_infos.data(),
+                          in_pAllocator,
+                          out_pPipelines);
+        }
     }
     else
     {
-        result = device_table->CreateRayTracingPipelinesKHR(device,
-                                                            in_deferredOperation,
-                                                            in_pipelineCache,
-                                                            createInfoCount,
-                                                            in_pCreateInfos,
-                                                            in_pAllocator,
-                                                            out_pPipelines);
+        GFXRECON_LOG_ERROR_ONCE(
+            "The replayed application used vkCreateRayTracingPipelinesKHR, which may require the "
+            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The replay "
+            "device does not support this feature, so replay may fail.");
+
+        if (deferred_operation_info)
+        {
+            CopyCreateRayTracingPipelines(createInfoCount, in_pCreateInfos, nullptr, *deferred_operation_info);
+            result = func(deferred_operation_info->record_device,
+                          deferred_operation_info->record_deferred_operation,
+                          deferred_operation_info->record_pipeline_cache,
+                          deferred_operation_info->record_create_info_count,
+                          deferred_operation_info->record_create_infos.data(),
+                          deferred_operation_info->record_p_allocator,
+                          deferred_operation_info->record_pipelines.data());
+
+            std::memcpy(
+                out_pPipelines, deferred_operation_info->record_pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+        }
+        else
+        {
+            result = func(device,
+                          in_deferredOperation,
+                          in_pipelineCache,
+                          createInfoCount,
+                          in_pCreateInfos,
+                          in_pAllocator,
+                          out_pPipelines);
+        }
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::CopyCreateRayTracingPipelines(
+    uint32_t                                                              create_info_count,
+    const VkRayTracingPipelineCreateInfoKHR*                              create_infos,
+    const std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>* groups,
+    DeferredOperationKHRInfo&                                             deferred_operation_info)
+{
+    deferred_operation_info.record_create_infos.resize(create_info_count);
+    deferred_operation_info.record_create_infos_data.resize(create_info_count);
+
+    std::memcpy(deferred_operation_info.record_create_infos.data(),
+                create_infos,
+                sizeof(VkRayTracingPipelineCreateInfoKHR) * create_info_count);
+
+    for (uint32_t create_info_i = 0; create_info_i < create_info_count; ++create_info_i)
+    {
+        VkRayTracingPipelineCreateInfoKHR& create_info = deferred_operation_info.record_create_infos[create_info_i];
+
+        if (create_info.pNext)
+        {
+            GFXRECON_LOG_ERROR_ONCE("The replayed application used vkCreateRayTracingPipelinesKHR's pCreateInfos' "
+                                    "pNext. But it does not support it, so replay may fail.");
+        }
+
+        RayTracingPipelineCreateInfoData& create_info_data =
+            deferred_operation_info.record_create_infos_data[create_info_i];
+
+        uint32_t stage_info_count = create_info.stageCount;
+
+        if (stage_info_count)
+        {
+            create_info_data.stages.resize(stage_info_count);
+            create_info_data.stages_data.resize(stage_info_count);
+
+            std::memcpy(create_info_data.stages.data(),
+                        create_info.pStages,
+                        sizeof(VkPipelineShaderStageCreateInfo) * stage_info_count);
+            create_info.pStages = create_info_data.stages.data();
+
+            for (uint32_t stage_info_i = 0; stage_info_i < stage_info_count; ++stage_info_i)
+            {
+                VkPipelineShaderStageCreateInfo&   stage      = create_info_data.stages[stage_info_i];
+                PipelineShaderStageCreateInfoData& stage_data = create_info_data.stages_data[stage_info_i];
+
+                if (stage.pNext)
+                {
+                    GFXRECON_LOG_ERROR_ONCE("The replayed application used vkCreateRayTracingPipelinesKHR's pStages' "
+                                            "pNext. But it does not support pNext, so replay may fail.");
+                }
+
+                if (stage.pName)
+                {
+                    stage_data.name = stage.pName;
+                    stage.pName     = stage_data.name.c_str();
+                }
+
+                if (stage.pSpecializationInfo)
+                {
+                    stage_data.specialization_info = *stage.pSpecializationInfo;
+                    stage.pSpecializationInfo      = &stage_data.specialization_info;
+
+                    VkSpecializationInfo* specialization_info =
+                        const_cast<VkSpecializationInfo*>(stage.pSpecializationInfo);
+
+                    if (stage.pSpecializationInfo->mapEntryCount > 0)
+                    {
+                        auto& map_entries = stage_data.specialization_info_data.map_entries;
+
+                        map_entries.resize(specialization_info->mapEntryCount);
+                        std::memcpy(map_entries.data(),
+                                    specialization_info->pMapEntries,
+                                    sizeof(VkSpecializationMapEntry) * specialization_info->mapEntryCount);
+                        specialization_info->pMapEntries = map_entries.data();
+                    }
+
+                    if (stage.pSpecializationInfo->dataSize > 0)
+                    {
+                        auto& data = stage_data.specialization_info_data.data;
+
+                        data.resize(specialization_info->dataSize);
+                        std::memcpy(
+                            data.data(), specialization_info->pData, sizeof(uint32_t) * specialization_info->dataSize);
+                        specialization_info->pData = data.data();
+                    }
+                }
+            }
+        }
+
+        uint32_t group_info_count = create_info.groupCount;
+
+        if (group_info_count)
+        {
+            create_info_data.groups.resize(group_info_count);
+
+            for (uint32_t group_info_i = 0; group_info_count < group_info_count; ++group_info_count)
+            {
+                if (create_info_data.groups[group_info_i].pNext)
+                {
+                    GFXRECON_LOG_ERROR_ONCE("The replayed application used vkCreateRayTracingPipelinesKHR's pGroups' "
+                                            "pNext. But it does not support pNext, so replay may fail.");
+                }
+            }
+
+            if (groups)
+            {
+                std::memcpy(create_info_data.groups.data(),
+                            (*groups)[create_info_i].data(),
+                            sizeof(VkRayTracingShaderGroupCreateInfoKHR) * group_info_count);
+            }
+            else
+            {
+                std::memcpy(create_info_data.groups.data(),
+                            create_info.pGroups,
+                            sizeof(VkRayTracingShaderGroupCreateInfoKHR) * group_info_count);
+            }
+            create_info.pGroups = create_info_data.groups.data();
+        }
+
+        if (create_info.pLibraryInfo)
+        {
+            VkPipelineLibraryCreateInfoKHR& library_info = create_info_data.library_info;
+
+            if (library_info.pNext)
+            {
+                GFXRECON_LOG_ERROR_ONCE("The replayed application used vkCreateRayTracingPipelinesKHR's pLibraryInfo's "
+                                        "pNext. But it does not support pNext, so replay may fail.");
+            }
+
+            library_info             = *create_info.pLibraryInfo;
+            create_info.pLibraryInfo = &library_info;
+
+            if (library_info.libraryCount > 0)
+            {
+                auto& libraries = create_info_data.library_info_data.libraries;
+
+                libraries.resize(library_info.libraryCount);
+                std::memcpy(libraries.data(), library_info.pLibraries, sizeof(VkPipeline) * library_info.libraryCount);
+                library_info.pLibraries = libraries.data();
+            }
+        }
+
+        if (create_info.pLibraryInterface)
+        {
+            if (create_info.pLibraryInterface->pNext)
+            {
+                GFXRECON_LOG_ERROR_ONCE(
+                    "The replayed application used vkCreateRayTracingPipelinesKHR's pLibraryInterface's pNext. But it "
+                    "does not support pNext, so replay may fail.");
+            }
+
+            create_info_data.library_interface = *create_info.pLibraryInterface;
+            create_info.pLibraryInterface      = &create_info_data.library_interface;
+        }
+
+        if (create_info.pDynamicState)
+        {
+            VkPipelineDynamicStateCreateInfo& dynamic_state = create_info_data.dynamic_state;
+
+            if (dynamic_state.pNext)
+            {
+                GFXRECON_LOG_ERROR_ONCE("The replayed application used vkCreateRayTracingPipelinesKHR's "
+                                        "pDynamicState's pNext. But it does not support pNext, so replay may fail.");
+            }
+
+            dynamic_state             = *create_info.pDynamicState;
+            create_info.pDynamicState = &dynamic_state;
+
+            if (dynamic_state.dynamicStateCount > 0)
+            {
+                auto& dynamic_states = create_info_data.dynamic_state_data.dynamic_states;
+
+                dynamic_states.resize(dynamic_state.dynamicStateCount);
+                std::memcpy(dynamic_states.data(),
+                            dynamic_state.pDynamicStates,
+                            sizeof(VkDynamicState) * dynamic_state.dynamicStateCount);
+                dynamic_state.pDynamicStates = dynamic_states.data();
+            }
+        }
+    }
+}
+
+VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR func,
+                                                                    VkResult                       original_result,
+                                                                    const DeviceInfo*              device_info,
+                                                                    DeferredOperationKHRInfo* deferred_operation_info)
+{
+    if (deferred_operation_info->join_state == VK_SUCCESS)
+    {
+        return VK_SUCCESS;
+    }
+
+    VkDevice               device             = device_info->handle;
+    VkDeferredOperationKHR deferred_operation = deferred_operation_info->handle;
+
+    PFN_vkGetDeferredOperationMaxConcurrencyKHR vkGetDeferredOperationMaxConcurrencyKHR =
+        GetDeviceTable(device)->GetDeferredOperationMaxConcurrencyKHR;
+
+    uint32_t max_threads  = std::thread::hardware_concurrency();
+    uint32_t thread_count = std::min(vkGetDeferredOperationMaxConcurrencyKHR(device, deferred_operation), max_threads);
+    bool     deferred_operation_completed = false;
+    std::vector<std::future<void>> deferred_operation_joins;
+
+    for (uint32_t i = 0; i < thread_count; i++)
+    {
+        // At least one vkDeferredOperationJoinKHR in a thread has to get VK_SUCCESS.
+        deferred_operation_joins.emplace_back(
+            std::async(std::launch::async, [func, device, deferred_operation, &deferred_operation_completed]() {
+                VkResult result = VK_ERROR_UNKNOWN;
+                while (result != VK_SUCCESS && !deferred_operation_completed)
+                {
+                    result = func(device, deferred_operation);
+                    assert(result == VK_SUCCESS || result == VK_THREAD_DONE_KHR || result == VK_THREAD_IDLE_KHR);
+                    if (result == VK_SUCCESS)
+                    {
+                        deferred_operation_completed = true;
+                    }
+                }
+            }));
+    }
+
+    for (auto& j : deferred_operation_joins)
+    {
+        j.get();
+    }
+    deferred_operation_info->join_state = VK_SUCCESS;
+    return VK_SUCCESS;
 }
 
 VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(

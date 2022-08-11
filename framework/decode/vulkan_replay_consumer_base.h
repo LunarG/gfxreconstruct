@@ -871,12 +871,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         PFN_vkCreateRayTracingPipelinesKHR                                     func,
         VkResult                                                               original_result,
         const DeviceInfo*                                                      device_info,
-        const DeferredOperationKHRInfo*                                        deferred_operation_info,
+        DeferredOperationKHRInfo*                                              deferred_operation_info,
         const PipelineCacheInfo*                                               pipeline_cache_info,
         uint32_t                                                               createInfoCount,
         const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                      pPipelines);
+
+    VkResult OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR func,
+                                              VkResult                       original_result,
+                                              const DeviceInfo*              device_info,
+                                              DeferredOperationKHRInfo*      deferred_operation_info);
 
     VkDeviceAddress
     OverrideGetBufferDeviceAddress(PFN_vkGetBufferDeviceAddress                                   func,
@@ -1001,6 +1006,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void InitializeScreenshotHandler();
 
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
+
+    void CopyCreateRayTracingPipelines(uint32_t                                 create_info_count,
+                                       const VkRayTracingPipelineCreateInfoKHR* create_infos,
+                                       const std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>* groups,
+                                       DeferredOperationKHRInfo& deferred_operation_info);
 
   private:
     typedef std::unordered_set<Window*> ActiveWindows;
