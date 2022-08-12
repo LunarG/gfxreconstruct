@@ -54,7 +54,11 @@ class Dx12ResourceValueTrackingConsumer : public decode::Dx12ReplayConsumer
 
     void GetTrackedResourceValues(decode::Dx12FillCommandResourceValueMap& values)
     {
-        GetResourceValueMapper()->GetTrackedResourceValues(values);
+        // For already DXR-optimized file, Dx12ResourceValueMapper is nullptr
+        if (GetResourceValueMapper() != nullptr)
+        {
+            GetResourceValueMapper()->GetTrackedResourceValues(values);
+        }
     }
 };
 
