@@ -521,6 +521,23 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 if (write->pNext != nullptr)
                 {
                     binding.write_pnext = TrackPNextStruct(write->pNext, &binding.write_pnext_memory);
+                    auto* pnext         = reinterpret_cast<const VkBaseInStructure*>(binding.write_pnext);
+                    switch (pnext->sType)
+                    {
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                        {
+                            auto* acc_struct = reinterpret_cast<VkWriteDescriptorSetAccelerationStructureKHR*>(
+                                const_cast<void*>(binding.write_pnext));
+                            binding.record_write_set_accel_structs.resize(acc_struct->accelerationStructureCount);
+                            std::memcpy(binding.record_write_set_accel_structs.data(),
+                                        acc_struct->pAccelerationStructures,
+                                        acc_struct->accelerationStructureCount * sizeof(VkAccelerationStructureKHR));
+                            acc_struct->pAccelerationStructures = binding.record_write_set_accel_structs.data();
+                            break;
+                        }
+                        default:
+                            break;
+                    }
                 }
 
                 // Update current and write counts for binding's descriptor count. If current count is
