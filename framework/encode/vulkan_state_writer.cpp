@@ -505,6 +505,7 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_layouts;
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_deferred_operations;
 
     // First pass over pipeline table to sort pipelines by type and determine which dependencies need to be created
     // temporarily.
@@ -571,6 +572,22 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
             {
                 ray_tracing_pipelines_khr.push_back(wrapper->create_parameters.get());
                 processed_ray_tracing_pipelines_khr.insert(wrapper->create_parameters.get());
+            }
+
+            if (wrapper->deferred_operation.handle_id != format::kNullHandleId)
+            {
+                auto        create_parameters = wrapper->deferred_operation.create_parameters.get();
+                const auto& inserted          = temp_deferred_operations.insert(
+                    std::make_pair(wrapper->deferred_operation.handle_id, create_parameters));
+
+                // Create a temporary object on first encounter.
+                if (inserted.second)
+                {
+                    WriteFunctionCall(wrapper->deferred_operation.create_call_id, create_parameters);
+                }
+                // TODO: It shouldn't destroy VkDeferredOperation after vkCreateRayTracingPipelinesKHR because it will
+                // run vkDeferredOperationJoinKHR and vkGetDeferredOperationResultKHR after
+                // vkCreateRayTracingPipelinesKHR. It needs to find a good way to destroy this VkDeferredOperation.
             }
         }
 

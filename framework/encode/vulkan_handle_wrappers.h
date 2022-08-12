@@ -308,6 +308,7 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // Ray tracing pipeline's shader group handle data
     format::HandleId     device_id{ format::kNullHandleId };
     std::vector<uint8_t> shader_group_handle_data;
+    CreateDependencyInfo deferred_operation;
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
