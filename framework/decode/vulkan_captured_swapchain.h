@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2022 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
 ** limitations under the License.
 */
 
-#ifndef GFXRECON_DECODE_VULKAN_DEFAULT_SWAPCHAIN_H
-#define GFXRECON_DECODE_VULKAN_DEFAULT_SWAPCHAIN_H
+#ifndef GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
+#define GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
 
 #include "decode/vulkan_swapchain.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanDefaultSwapchain : public VulkanSwapchain
+class VulkanCapturedSwapchain : public VulkanSwapchain
 {
   public:
-    virtual ~VulkanDefaultSwapchain() override {}
+    virtual ~VulkanCapturedSwapchain() override {}
 
     virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
                                         const DeviceInfo*               device_info,
@@ -132,4 +132,4 @@ class VulkanDefaultSwapchain : public VulkanSwapchain
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_DEFAULT_SWAPCHAIN_H
+#endif // GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
