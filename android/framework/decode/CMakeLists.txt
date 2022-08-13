@@ -44,8 +44,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_swapchain.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_swapchain.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_enum_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_feature_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_feature_util.cpp

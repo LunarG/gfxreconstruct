@@ -90,7 +90,7 @@ const char kOutput[]                             = "--output";
 const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
-const char kEnableVirtualSwapchain[]             = "--virtual-swapchain";
+const char kEnableUseCapturedSwapchainIndices[]  = "--use-captured-swapchain-indices";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 #endif
@@ -727,9 +727,9 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.omit_pipeline_cache_data = true;
     }
 
-    if (arg_parser.IsOptionSet(kEnableVirtualSwapchain))
+    if (arg_parser.IsOptionSet(kEnableUseCapturedSwapchainIndices))
     {
-        replay_options.enable_virtual_swapchain = true;
+        replay_options.enable_use_captured_swapchain_indices = true;
     }
 
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);

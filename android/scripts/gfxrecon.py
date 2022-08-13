@@ -79,7 +79,7 @@ def CreateReplayParser():
     parser.add_argument('--sync', action='store_true', default=False, help='Synchronize after each queue submission with vkQueueWaitIdle (forwarded to replay tool)')
     parser.add_argument('--remove-unsupported', action='store_true', default=False, help='Remove unsupported extensions and features from instance and device creation parameters (forwarded to replay tool)')
     parser.add_argument('--onhb', '--omit-null-hardware-buffers', action='store_true', default=False, help='Omit Vulkan calls that would pass a NULL AHardwareBuffer* (forwarded to replay tool)')
-    parser.add_argument('--virtual-swapchain', action='store_true', default=False, help='Enable virtual swapchain.')
+    parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Use the captured indices for swapchain images.')
 
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
@@ -136,7 +136,7 @@ def MakeExtrasString(args):
         arg_list.append('--onhb')
 
     if args.virtual_swapchain:
-        arg_list.append('--virtual-swapchain')
+        arg_list.append('--use-captured-swapchain-indices')
 
     if args.memory_translation:
         arg_list.append('-m')
