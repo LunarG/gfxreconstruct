@@ -113,9 +113,9 @@ Run the script with the `-h` option for additional usage information.
 
 - Microsoft [Visual Studio](https://www.visualstudio.com/)
   - Supported Versions
-    - [2019](https://www.visualstudio.com/vs/downloads/)
+    - [2012](https://www.visualstudio.com/vs/downloads/)
+    - [2019](https://www.visualstudio.com/vs/older-downloads/)
     - [2017](https://www.visualstudio.com/vs/older-downloads/)
-    - [2015](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
 - [CMake](http://www.cmake.org/download/) (Version 3.1 or better)
   - The build instructions assume that CMake has been added to the system PATH
@@ -149,14 +149,12 @@ cmake -H. -Bbuild -G "Visual Studio 15 Win64"
 ```
 
 The following commands can be used to generate project files for different
-variations of the Visual Studio 2015 and 2017 WIN32 and x64 build
-configurations:
+variations of the Visual Studio 2017 WIN32 and x64 build configurations:
 
-- 64-bit for VS 2015: cmake -H. -Bbuild -G "Visual Studio 14 Win64"
+- 64-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15 Win64"
 - 32-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15"
-- 32-bit for VS 2015: cmake -H. -Bbuild -G "Visual Studio 14"
 
-Running any of the above commands will create a Windows solution file named
+Running either of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
 
 At this point, you can build the solution from the command line or open the
