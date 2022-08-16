@@ -62,15 +62,20 @@ static void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    GFXRECON_WRITE_CONSOLE(
-        "\n%s - Remove unused resource initialization data from trimmed GFXReconstruct capture files.\n",
-        app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\n%s - Produce new captures with enhanced performance characteristics", 
+                           app_name.c_str());
+
+    GFXRECON_WRITE_CONSOLE("\t\t\tFor Vulkan, the optimizer will removed unused buffer and image initialization data from trimmed captures.");
+    GFXRECON_WRITE_CONSOLE("\t\t\tFor D3D12, the optimizer will improve DXR replay performance and remove unused PSOs from all captures.");
+    GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <input-file> <output-file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] <input-file> <output-file>", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
-    GFXRECON_WRITE_CONSOLE("  <input-file>\t\tThe trimmed GFXReconstruct capture file to be processed.");
-    GFXRECON_WRITE_CONSOLE("  <output-file>\t\tThe name of the new GFXReconstruct capture file to be created.");
-    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  <input-file>\t\tThe path to input GFXReconstruct capture file to be processed.");
+    GFXRECON_WRITE_CONSOLE("  <output-file>\t\tThe path to output GFXReconstruct capture file to be created.");
+    GFXRECON_WRITE_CONSOLE("");
+    GFXRECON_WRITE_CONSOLE("Optional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
 #if defined(WIN32)
@@ -79,8 +84,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
     GFXRECON_WRITE_CONSOLE(
-        "  --d3d12-pso-removal\tRemove unused d3d12 pso's. Without it, the trace will be treated as Vulkan.");
-    GFXRECON_WRITE_CONSOLE("  --dxr\t\t\tOptimize for DXR replay.");
+        "  --d3d12-pso-removal\tD3D12-only: Remove creation of unreferenced PSOs.");
+    GFXRECON_WRITE_CONSOLE("  --dxr\t\t\tD3D12-only: Optimize for DXR replay.");
+    GFXRECON_WRITE_CONSOLE("");
+    GFXRECON_WRITE_CONSOLE("Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.");
 #endif
 }
 
