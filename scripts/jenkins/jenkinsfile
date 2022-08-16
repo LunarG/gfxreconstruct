@@ -323,6 +323,8 @@ def Build(label) {
                             bat """
                                 copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
                                 copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+								copy GFXReconstruct-DX12\\scripts\\gfxrecon-replay-renamed.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+								copy GFXReconstruct-DX12\\scripts\\gfxrecon-optimize-renamed.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
                                 copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
 								mkdir GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
@@ -365,6 +367,8 @@ def Build(label) {
                             bat """
                                 copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
                                 copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+								copy GFXReconstruct-DX12\\scripts\\gfxrecon-replay-renamed.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+								copy GFXReconstruct-DX12\\scripts\\gfxrecon-optimize-renamed.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
                                 copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
 								mkdir GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
@@ -492,9 +496,12 @@ def Test(label) {
                                     reg add HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v  ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /t REG_DWORD /d 0
                                     C:\\Python36\\python.exe .\\test.py
                                     copy D:\\test\\internal_test.py .
+                                    copy D:\\test\\email_report_template.html .
+									copy D:\\test\\send_results_summary.py .
                                     REM set /a STATUS=%ERRORLEVEL%
                                     REM C:\\Python36\\python.exe .\\internal_test.py --api-type vulkan --src-path E:\\data\\TestApp --dst-path E:\\TestDestination --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin
-                                    C:\\Python36\\python.exe .\\internal_test.py --api-type dx12 --src-path E:\\testDX12 --dst-path ${WORKSPACE}\\results --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\${kPackageNameRoot64} --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\${kPackageNameRoot64}
+                                    C:\\Python36\\python.exe .\\internal_test.py --api-type dx12 --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\${kPackageNameRoot64} --branch-name ${BRANCH_NAME}
+                                    C:\\Python36\\python.exe .\\send_results_summary.py --email Igor.Brusentsev@amd.com,Rodrigo.Urra@amd.com --build-url ${BUILD_URL}
                                     set /a STATUS=%STATUS%+%ERRORLEVEL%
                                     reg delete HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /f
                                     exit /b %STATUS%
