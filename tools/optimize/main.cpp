@@ -62,11 +62,11 @@ static void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    GFXRECON_WRITE_CONSOLE("\n%s - Produce new captures with enhanced performance characteristics", 
+    GFXRECON_WRITE_CONSOLE("\n%s - Produce new captures with enhanced performance characteristics",
                            app_name.c_str());
 
-    GFXRECON_WRITE_CONSOLE("\t\t\tFor Vulkan, the optimizer will removed unused buffer and image initialization data from trimmed captures.");
-    GFXRECON_WRITE_CONSOLE("\t\t\tFor D3D12, the optimizer will improve DXR replay performance and remove unused PSOs from all captures.");
+    GFXRECON_WRITE_CONSOLE("\t\t\tFor Vulkan, the optimizer will remove unused buffer and image initialization data (for trimmed captures)");
+    GFXRECON_WRITE_CONSOLE("\t\t\tFor D3D12, the optimizer will improve DXR replay performance and remove unused PSOs (for all captures)");
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] <input-file> <output-file>", app_name.c_str());
