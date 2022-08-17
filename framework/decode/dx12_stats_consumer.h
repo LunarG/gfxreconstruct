@@ -38,7 +38,18 @@ class Dx12StatsConsumer : public Dx12Consumer
 
     bool IsComplete(uint64_t current_block_index) override { return false; }
 
-    const std::vector<format::DxgiAdapterDesc> GetAdapters() { return hardware_adapters_; }
+    const std::vector<format::DxgiAdapterDesc> GetAdapters()
+    {
+        // If a kDxgiAdapterInfoCommand block was detected, then return that info
+        if (gfxr_cmd_adapters_.empty() == false)
+        {
+            return gfxr_cmd_adapters_;
+        }
+        else
+        {
+            return app_get_desc_adapters;
+        }
+    }
 
     bool FoundSwapchainInfo() { return swapchain_info_found_; }
 
@@ -62,11 +73,11 @@ class Dx12StatsConsumer : public Dx12Consumer
         dest.LuidHighPart          = src->GetPointer()->AdapterLuid.HighPart;
     }
 
-    void InsertAdapter(const format::DxgiAdapterDesc& new_adapter)
+    void InsertAdapter(const format::DxgiAdapterDesc& new_adapter, std::vector<format::DxgiAdapterDesc>& adapters)
     {
         bool insert = true;
 
-        for (const auto& adapter : hardware_adapters_)
+        for (const auto& adapter : adapters)
         {
             if ((adapter.LuidHighPart == new_adapter.LuidHighPart) && (adapter.LuidLowPart == new_adapter.LuidLowPart))
             {
@@ -77,8 +88,28 @@ class Dx12StatsConsumer : public Dx12Consumer
 
         if (insert)
         {
-            hardware_adapters_.push_back(new_adapter);
+            adapters.push_back(new_adapter);
         }
+    }
+
+    virtual void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
+    {
+        format::DxgiAdapterDesc new_adapter = {};
+        util::platform::MemoryCopy(&new_adapter.Description,
+                                   format::kAdapterDescriptionSize,
+                                   adapter_info_header.adapter_desc.Description,
+                                   format::kAdapterDescriptionSize);
+
+        new_adapter.VendorId              = adapter_info_header.adapter_desc.VendorId;
+        new_adapter.DeviceId              = adapter_info_header.adapter_desc.DeviceId;
+        new_adapter.SubSysId              = adapter_info_header.adapter_desc.SubSysId;
+        new_adapter.DedicatedVideoMemory  = adapter_info_header.adapter_desc.DedicatedVideoMemory;
+        new_adapter.DedicatedSystemMemory = adapter_info_header.adapter_desc.DedicatedSystemMemory;
+        new_adapter.SharedSystemMemory    = adapter_info_header.adapter_desc.SharedSystemMemory;
+        new_adapter.LuidLowPart           = adapter_info_header.adapter_desc.LuidLowPart;
+        new_adapter.LuidHighPart          = adapter_info_header.adapter_desc.LuidHighPart;
+        new_adapter.type                  = adapter_info_header.adapter_desc.type;
+        InsertAdapter(new_adapter, gfxr_cmd_adapters_);
     }
 
     virtual void
@@ -87,9 +118,10 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    HRESULT                                                             return_value,
                                    gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
     {
+
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
-        InsertAdapter(new_adapter);
+        InsertAdapter(new_adapter, app_get_desc_adapters);
     }
 
     virtual void
@@ -98,9 +130,10 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    HRESULT                                                             return_value,
                                    gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
     {
+
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
-        InsertAdapter(new_adapter);
+        InsertAdapter(new_adapter, app_get_desc_adapters);
     }
 
     virtual void Process_IDXGIAdapter_GetDesc(const gfxrecon::decode::ApiCallInfo& call_info,
@@ -108,9 +141,10 @@ class Dx12StatsConsumer : public Dx12Consumer
                                               HRESULT                              return_value,
                                               gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
     {
+
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
-        InsertAdapter(new_adapter);
+        InsertAdapter(new_adapter, app_get_desc_adapters);
     }
 
     std::string GetSwapchainDimensions()
@@ -194,7 +228,12 @@ class Dx12StatsConsumer : public Dx12Consumer
     }
 
   private:
-    std::vector<format::DxgiAdapterDesc> hardware_adapters_;
+    // Holds adapter descs that were obtained from the app calling GetDesc()
+    // This list is only here to support older captures which do contain kDxgiAdapterInfoCommand
+    std::vector<format::DxgiAdapterDesc> app_get_desc_adapters;
+
+    // Holds adapter descs that were tracked via kDxgiAdapterInfoCommand
+    std::vector<format::DxgiAdapterDesc> gfxr_cmd_adapters_;
 
     UINT             swapchain_width_;
     UINT             swapchain_height_;

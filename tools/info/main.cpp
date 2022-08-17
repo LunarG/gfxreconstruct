@@ -71,6 +71,21 @@ struct ApiAgnosticStats
     gfxrecon::decode::FileProcessor::Error error_state;
 };
 
+std::string AdapterTypeToString(gfxrecon::format::AdapterType type)
+{
+    switch (type)
+    {
+        case gfxrecon::format::AdapterType::kUnknownAdapter:
+            return "Unknown type (DXGI 1.0)";
+        case gfxrecon::format::AdapterType::kSoftwareAdapter:
+            return "Software";
+        case gfxrecon::format::AdapterType::kHardwareAdapter:
+            return "Hardware";
+        default:
+            return "Unknown";
+    }
+}
+
 static void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
@@ -364,6 +379,10 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, const A
                 GFXRECON_WRITE_CONSOLE("\tShared System Memory: %" PRIu64, adapter.SharedSystemMemory);
                 GFXRECON_WRITE_CONSOLE("\tLUID LowPart: 0x%x", adapter.LuidLowPart);
                 GFXRECON_WRITE_CONSOLE("\tLUID HighPart: 0x%x", adapter.LuidHighPart);
+
+                std::string type = AdapterTypeToString(adapter.type);
+                GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", type.c_str());
+
                 GFXRECON_WRITE_CONSOLE("");
             }
         }
