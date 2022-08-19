@@ -963,76 +963,118 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
 void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
     ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data)
 {
+    // This function contains handling for two cases:
+    // 1. data != null
+    // 2. data == null
     GFXRECON_UNREFERENCED_PARAMETER(read_range);
-
-    if (SUCCEEDED(result) && (wrapper != nullptr) && (data != nullptr))
+    if (data != nullptr)
     {
-        auto info = wrapper->GetObjectInfo();
-        assert((info != nullptr) && (subresource < info->num_subresources));
-
-        if (IsUploadResource(info->heap_type, info->page_property))
+        // Handle first case, when data != null (like we've always done):
+        if (SUCCEEDED(result) && (wrapper != nullptr))
         {
-            auto& mapped_subresource = info->mapped_subresources[subresource];
+            auto info = wrapper->GetObjectInfo();
+            assert((info != nullptr) && (subresource < info->num_subresources));
 
-            std::lock_guard<std::mutex> lock(mapped_memory_lock_);
-            if (++mapped_subresource.map_count == 1)
+            if (IsUploadResource(info->heap_type, info->page_property))
             {
-                mapped_subresource.data = (*data);
+                auto& mapped_subresource = info->mapped_subresources[subresource];
 
-                if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                if (++mapped_subresource.map_count == 1)
                 {
-                    util::PageGuardManager* manager = util::PageGuardManager::Get();
-                    assert(manager != nullptr);
+                    mapped_subresource.data = (*data);
 
-                    uint64_t size = info->subresource_sizes[subresource];
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-
-                    bool use_shadow_memory = true;
-                    bool use_write_watch   = false;
-
-                    if (info->has_write_watch)
+                    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                     {
-                        use_shadow_memory = false;
-                        use_write_watch   = true;
-                    }
-                    else if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
-                             (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
-                    {
-                        mapped_subresource.shadow_allocation =
-                            manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
-                    }
+                        util::PageGuardManager* manager = util::PageGuardManager::Get();
+                        assert(manager != nullptr);
 
-                    // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
-                    // not the mapped memory.
-                    (*data) = manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                                        mapped_subresource.data,
-                                                        0,
-                                                        static_cast<size_t>(size),
-                                                        mapped_subresource.shadow_allocation,
-                                                        use_shadow_memory,
-                                                        use_write_watch);
+                        uint64_t size = info->subresource_sizes[subresource];
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+                        bool use_shadow_memory = true;
+                        bool use_write_watch   = false;
+
+                        if (info->has_write_watch)
+                        {
+                            use_shadow_memory = false;
+                            use_write_watch   = true;
+                        }
+                        else if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
+                                 (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                        {
+                            mapped_subresource.shadow_allocation =
+                                manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
+                        }
+
+                        // Return the pointer provided by the pageguard manager, which may be a pointer to shadow
+                        // memory, not the mapped memory.
+                        (*data) = manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                            mapped_subresource.data,
+                                                            0,
+                                                            static_cast<size_t>(size),
+                                                            mapped_subresource.shadow_allocation,
+                                                            use_shadow_memory,
+                                                            use_write_watch);
+                    }
+                    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
+                    {
+                        // Need to keep track of mapped memory objects so memory content can be written at queue submit.
+                        mapped_resources_.insert(wrapper);
+                    }
                 }
-                else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
+                else
                 {
-                    // Need to keep track of mapped memory objects so memory content can be written at queue submit.
-                    mapped_resources_.insert(wrapper);
+                    // The application has mapped the same ID3D12Resource object more than once and the pageguard
+                    // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
+                    // on the first map call.
+                    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                    {
+                        // Return the shadow memory that was allocated for the previous map operation.
+                        util::PageGuardManager* manager = util::PageGuardManager::Get();
+                        assert(manager != nullptr);
+
+                        auto found =
+                            manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data), data);
+                        if (!found)
+                        {
+                            GFXRECON_LOG_ERROR("Failed to find tracked memory object for a previously mapped resource.")
+                        }
+                    }
                 }
             }
-            else
-            {
-                // The application has mapped the same ID3D12Resource object more than once and the pageguard
-                // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
-                // on the first map call.
-                if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
-                {
-                    // Return the shadow memory that was allocated for the previous map operation.
-                    util::PageGuardManager* manager = util::PageGuardManager::Get();
-                    assert(manager != nullptr);
+        }
+    }
+    else
+    {
+        // Handle second case, when data == null
+        //
+        // Quote: "A null pointer is valid and is useful to cache a CPU virtual address range for methods like
+        // WriteToSubresource."
+        //
+        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-map
+        //
+        //    1. Make sure we add a MappedSubresource struct into mapped_subresources array
+        //
+        //    2. Skip tracking memory since no mapped memory or shadow memory need to be tracked. Target application
+        //       cannot write to the mapped memory directly. The only way to update the memory is through API
+        //       ID3D12Resource::WriteToSubresource()
+        if (SUCCEEDED(result) && (wrapper != nullptr))
+        {
+            auto info = wrapper->GetObjectInfo();
+            assert((info != nullptr) && (subresource < info->num_subresources));
 
-                    auto found = manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data), data);
-                    if (!found)
+            if (IsUploadResource(info->heap_type, info->page_property))
+            {
+                auto& mapped_subresource = info->mapped_subresources[subresource];
+
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                if (++mapped_subresource.map_count == 1)
+                {
+                    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
                     {
-                        GFXRECON_LOG_ERROR("Failed to find tracked memory object for a previously mapped resource.")
+                        // Need to keep track of mapped memory objects so memory content can be written at queue submit.
+                        mapped_resources_.insert(wrapper);
                     }
                 }
             }
@@ -1044,6 +1086,9 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
                                                           UINT                    subresource,
                                                           const D3D12_RANGE*      written_range)
 {
+    // This function contains handling for two cases:
+    // 1. mapped_subresource.data != null
+    // 2. mapped_subresource.data == null
     if (wrapper != nullptr)
     {
         auto info = wrapper->GetObjectInfo();
@@ -1052,66 +1097,114 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
         if (IsUploadResource(info->heap_type, info->page_property))
         {
             auto& mapped_subresource = info->mapped_subresources[subresource];
-
-            std::lock_guard<std::mutex> lock(mapped_memory_lock_);
-            if (mapped_subresource.map_count > 0)
+            if (mapped_subresource.data != nullptr)
             {
-                if ((--mapped_subresource.map_count == 0) && (mapped_subresource.data != nullptr))
+                // Handle first case, when mapped_subresource.data != null (like we've always done):
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                if (mapped_subresource.map_count > 0)
                 {
-                    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                    if ((--mapped_subresource.map_count == 0) && (mapped_subresource.data != nullptr))
                     {
-                        util::PageGuardManager* manager = util::PageGuardManager::Get();
-                        assert(manager != nullptr);
-
-                        auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
-
-                        manager->ProcessMemoryEntry(
-                            memory_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                WriteFillMemoryCmd(memory_id, offset, size, start_address);
-                            });
-
-                        manager->RemoveTrackedMemory(memory_id);
-                    }
-                    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
-                    {
-                        uint64_t offset = 0;
-                        uint64_t size   = info->subresource_sizes[subresource];
-
-                        if (written_range != nullptr)
+                        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                         {
-                            offset = written_range->Begin;
-                            size   = (written_range->End - written_range->Begin) + 1;
+                            util::PageGuardManager* manager = util::PageGuardManager::Get();
+                            assert(manager != nullptr);
+
+                            auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
+
+                            manager->ProcessMemoryEntry(
+                                memory_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                    WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                });
+
+                            manager->RemoveTrackedMemory(memory_id);
                         }
-
-                        WriteFillMemoryCmd(
-                            reinterpret_cast<uint64_t>(mapped_subresource.data), offset, size, mapped_subresource.data);
-
-                        bool is_mapped = false;
-
-                        for (size_t i = 0; i < info->num_subresources; ++i)
+                        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
                         {
-                            if (info->mapped_subresources[i].map_count > 0)
+                            uint64_t offset = 0;
+                            uint64_t size   = info->subresource_sizes[subresource];
+
+                            if (written_range != nullptr)
                             {
-                                is_mapped = true;
-                                break;
+                                offset = written_range->Begin;
+                                size   = (written_range->End - written_range->Begin) + 1;
+                            }
+
+                            WriteFillMemoryCmd(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                               offset,
+                                               size,
+                                               mapped_subresource.data);
+
+                            bool is_mapped = false;
+
+                            for (size_t i = 0; i < info->num_subresources; ++i)
+                            {
+                                if (info->mapped_subresources[i].map_count > 0)
+                                {
+                                    is_mapped = true;
+                                    break;
+                                }
+                            }
+
+                            if (!is_mapped)
+                            {
+                                // All subresources have been unmapped.
+                                mapped_resources_.erase(wrapper);
                             }
                         }
 
-                        if (!is_mapped)
-                        {
-                            // All subresources have been unmapped.
-                            mapped_resources_.erase(wrapper);
-                        }
+                        mapped_subresource.data = nullptr;
                     }
-
-                    mapped_subresource.data = nullptr;
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Attempting to unmap ID3D12Resource object with capture ID = %" PRIx64
+                                         " that has not been mapped",
+                                         wrapper->GetCaptureId());
                 }
             }
             else
             {
-                GFXRECON_LOG_WARNING("Attempting to unmap ID3D12Resource object with capture ID = %" PRIx64
-                                     " that has not been mapped",
-                                     wrapper->GetCaptureId());
+                // Handle second case, when mapped_subresource.data == null
+                //
+                // Quote: "A null pointer is valid and is useful to cache a CPU virtual address range for methods like
+                // WriteToSubresource."
+                //
+                // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-map
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                if (mapped_subresource.map_count > 0)
+                {
+                    if (--mapped_subresource.map_count == 0)
+                    {
+                        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
+                        {
+                            bool is_mapped = false;
+
+                            for (size_t i = 0; i < info->num_subresources; ++i)
+                            {
+                                if (info->mapped_subresources[i].map_count > 0)
+                                {
+                                    is_mapped = true;
+                                    break;
+                                }
+                            }
+
+                            if (!is_mapped)
+                            {
+                                // All subresources have been unmapped.
+                                mapped_resources_.erase(wrapper);
+                            }
+                        }
+
+                        mapped_subresource.data = nullptr;
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Attempting to unmap ID3D12Resource object with capture ID = %" PRIx64
+                                         " that has not been mapped",
+                                         wrapper->GetCaptureId());
+                }
             }
         }
     }
@@ -1174,16 +1267,20 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
             for (size_t i = 0; i < info->num_subresources; ++i)
             {
                 auto& mapped_subresource = info->mapped_subresources[i];
-
-                auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
-                if (memory_id != 0)
+                if (mapped_subresource.data != nullptr)
                 {
-                    manager->RemoveTrackedMemory(memory_id);
-                }
+                    // we only need to handle mapped_subresource.data != nullptr case because no mapped memory
+                    // and shadow memory be tracked for mapped_subresource.data == nullptr case.
+                    auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
+                    if (memory_id != 0)
+                    {
+                        manager->RemoveTrackedMemory(memory_id);
+                    }
 
-                if (mapped_subresource.shadow_allocation != util::PageGuardManager::kNullShadowHandle)
-                {
-                    manager->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
+                    if (mapped_subresource.shadow_allocation != util::PageGuardManager::kNullShadowHandle)
+                    {
+                        manager->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
+                    }
                 }
             }
         }
@@ -1262,9 +1359,14 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
                 // If the memory is mapped, write the entire mapped region.
                 auto        size               = info->subresource_sizes[i];
                 const auto& mapped_subresource = info->mapped_subresources[i];
-
-                WriteFillMemoryCmd(
-                    reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
+                if (mapped_subresource.data != nullptr)
+                {
+                    // we only need to handle data != nullptr case because no mapped memory and shadow memory
+                    // be tracked for data == nullptr, also no corresponding memory data for WriteFillMemoryCmd
+                    // writing to trace file.
+                    WriteFillMemoryCmd(
+                        reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
+                }
             }
         }
     }

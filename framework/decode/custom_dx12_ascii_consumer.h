@@ -123,6 +123,16 @@ inline std::string PointerDecoderToString(PointerDecoder<DecodedType>* pObj,
     return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
 }
 
+template <typename T, typename OutputT = T>
+inline std::string PointerDecoderToString(PointerDecoder<T, OutputT>* pObj,
+                                          util::ToStringFlags         toStringFlags = util::kToString_Default,
+                                          uint32_t                    tabCount      = 0,
+                                          uint32_t                    tabSize       = 4)
+{
+    auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
+    return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
+}
+
 template <typename DecodedStructureType>
 inline std::string StructPointerDecoderToString(StructPointerDecoder<DecodedStructureType>* pObj,
                                                 util::ToStringFlags toStringFlags = util::kToString_Default,

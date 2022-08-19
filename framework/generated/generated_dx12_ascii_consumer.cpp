@@ -4333,7 +4333,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
         {
             FieldToString(str_strm, true, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
             FieldToString(str_strm, false, "pReadRange", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pReadRange, to_string_flags_, tab_count, tab_size));
-            FieldToString(str_strm, false, "[out]ppData", to_string_flags_, tab_count, tab_size, HandleIdToString(ppData));
+            FieldToString(str_strm, false, "[out]ppData", to_string_flags_, tab_count, tab_size, PointerDecoderToString<uint64_t, void*>(ppData));
         }
     );
 }

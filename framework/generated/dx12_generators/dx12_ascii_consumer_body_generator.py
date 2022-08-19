@@ -171,7 +171,10 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                         if self.is_com_outptr(method_info['name'], value.name, value.full_type):
                             to_string = 'OutPtrDecoderToString({0})'
                         else:
-                            to_string = 'HandleIdToString({0})'
+                            if(value.full_type.find('void') != -1 and value.pointer_count == 2):
+                                to_string = 'PointerDecoderToString<uint64_t, void*>({0})'
+                            else:
+                                to_string = 'HandleIdToString({0})'
                     else:
                         to_string = 'PointerDecoderToString({0}, to_string_flags_, tab_count, tab_size)'
             else:

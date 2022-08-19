@@ -395,7 +395,10 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
     auto replay_object = MapObject<IDXGIResource>(object_id);
     if (replay_object != nullptr)
     {
-        pSharedHandle->AllocateOutputData(1);
+        if(!pSharedHandle->IsNull())
+        {
+            pSharedHandle->AllocateOutputData(1);
+        }
         auto out_p_pSharedHandle    = pSharedHandle->GetPointer();
         auto out_op_pSharedHandle   = reinterpret_cast<HANDLE*>(pSharedHandle->GetOutputPointer());
         auto replay_result = replay_object->GetSharedHandle(out_op_pSharedHandle);
@@ -529,7 +532,10 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
     auto replay_object = MapObject<IDXGISurface1>(object_id);
     if (replay_object != nullptr)
     {
-        phdc->AllocateOutputData(1);
+        if(!phdc->IsNull())
+        {
+            phdc->AllocateOutputData(1);
+        }
         auto out_p_phdc    = phdc->GetPointer();
         auto out_op_phdc   = reinterpret_cast<HDC*>(phdc->GetOutputPointer());
         auto replay_result = replay_object->GetDC(Discard,
@@ -1023,7 +1029,10 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
     auto replay_object = MapObject<IDXGIFactory>(object_id);
     if (replay_object != nullptr)
     {
-        pWindowHandle->AllocateOutputData(1);
+        if(!pWindowHandle->IsNull())
+        {
+            pWindowHandle->AllocateOutputData(1);
+        }
         auto out_p_pWindowHandle    = pWindowHandle->GetPointer();
         auto out_op_pWindowHandle   = reinterpret_cast<HWND*>(pWindowHandle->GetOutputPointer());
         auto replay_result = replay_object->GetWindowAssociation(out_op_pWindowHandle);
@@ -1475,7 +1484,10 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
     auto replay_object = MapObject<IDXGIResource1>(object_id);
     if (replay_object != nullptr)
     {
-        pHandle->AllocateOutputData(1);
+        if(!pHandle->IsNull())
+        {
+            pHandle->AllocateOutputData(1);
+        }
         auto out_p_pHandle    = pHandle->GetPointer();
         auto out_op_pHandle   = reinterpret_cast<HANDLE*>(pHandle->GetOutputPointer());
         auto replay_result = replay_object->CreateSharedHandle(pAttributes->GetPointer(),
@@ -1577,7 +1589,10 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
-        pHwnd->AllocateOutputData(1);
+        if(!pHwnd->IsNull())
+        {
+            pHwnd->AllocateOutputData(1);
+        }
         auto out_p_pHwnd    = pHwnd->GetPointer();
         auto out_op_pHwnd   = reinterpret_cast<HWND*>(pHwnd->GetOutputPointer());
         auto replay_result = replay_object->GetHwnd(out_op_pHwnd);
@@ -3010,7 +3025,10 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_Map(
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        ppData->AllocateOutputData(1);
+        if(!ppData->IsNull())
+        {
+            ppData->AllocateOutputData(1);
+        }
         auto replay_result = OverrideResourceMap(replay_object,
                                                  return_value,
                                                  Subresource,
@@ -5019,7 +5037,10 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
     if (replay_object != nullptr)
     {
         auto in_pObject = MapObject<ID3D12DeviceChild>(pObject);
-        pHandle->AllocateOutputData(1);
+        if(!pHandle->IsNull())
+        {
+            pHandle->AllocateOutputData(1);
+        }
         auto out_p_pHandle    = pHandle->GetPointer();
         auto out_op_pHandle   = reinterpret_cast<HANDLE*>(pHandle->GetOutputPointer());
         auto replay_result = replay_object->CreateSharedHandle(in_pObject,
@@ -5069,7 +5090,10 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
-        pNTHandle->AllocateOutputData(1);
+        if(!pNTHandle->IsNull())
+        {
+            pNTHandle->AllocateOutputData(1);
+        }
         auto out_p_pNTHandle    = pNTHandle->GetPointer();
         auto out_op_pNTHandle   = reinterpret_cast<HANDLE*>(pNTHandle->GetOutputPointer());
         auto replay_result = replay_object->OpenSharedHandleByName(Name->GetPointer(),

@@ -1530,6 +1530,9 @@ HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*               
                                                     StructPointerDecoder<Decoded_D3D12_RANGE>* read_range,
                                                     PointerDecoder<uint64_t, void*>*           data)
 {
+    // This function contains handling for two cases:
+    // 1. data->GetOutputPointer() != null
+    // 2. data->GetOutputPointer() == null
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (read_range != nullptr) &&
            (data != nullptr));
 
@@ -1538,21 +1541,41 @@ HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*               
     auto replay_object = static_cast<ID3D12Resource*>(replay_object_info->object);
 
     auto result = replay_object->Map(subresource, read_range->GetPointer(), data_pointer);
-
-    if (SUCCEEDED(result) && (id_pointer != nullptr) && (data_pointer != nullptr) && (*data_pointer != nullptr))
+    if (data_pointer != nullptr)
     {
-        if (replay_object_info->extra_info == nullptr)
+        // Handle first case, when data_pointer != null (like we've always done):
+        if (SUCCEEDED(result) && (id_pointer != nullptr) && (*data_pointer != nullptr))
         {
-            // Create resource info record on first use.
-            replay_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
+            if (replay_object_info->extra_info == nullptr)
+            {
+                // Create resource info record on first use.
+                replay_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
+            }
+
+            auto  resource_info   = GetExtraInfo<D3D12ResourceInfo>(replay_object_info);
+            auto& memory_info     = resource_info->mapped_memory_info[subresource];
+            memory_info.memory_id = *id_pointer;
+            ++(memory_info.count);
+
+            mapped_memory_[*id_pointer] = { *data_pointer, replay_object_info->capture_id };
         }
-
-        auto  resource_info   = GetExtraInfo<D3D12ResourceInfo>(replay_object_info);
-        auto& memory_info     = resource_info->mapped_memory_info[subresource];
-        memory_info.memory_id = *id_pointer;
-        ++(memory_info.count);
-
-        mapped_memory_[*id_pointer] = { *data_pointer, replay_object_info->capture_id };
+    }
+    else
+    {
+        // Handle second case, when data_pointer == null
+        //
+        // Quote: "A null pointer is valid and is useful to cache a CPU virtual address range for methods like
+        // WriteToSubresource."
+        //
+        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-map
+        if (SUCCEEDED(result) && (id_pointer == nullptr))
+        {
+            if (replay_object_info->extra_info == nullptr)
+            {
+                // Create resource info record on first use.
+                replay_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
+            }
+        }
     }
 
     return result;
