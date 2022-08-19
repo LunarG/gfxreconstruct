@@ -553,6 +553,7 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
             std::vector<const char*> modified_extensions;
 
             bool has_dev_prop2 = false;
+            bool has_ext_mem_caps = false;
 
             for (size_t i = 0; i < extension_count; ++i)
             {
@@ -564,11 +565,21 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
                 {
                     has_dev_prop2 = true;
                 }
+
+                if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
+                {
+                    has_ext_mem_caps = true;
+                }
             }
 
             if (!has_dev_prop2)
             {
                 modified_extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+            }
+
+            if (!has_ext_mem_caps)
+            {
+                modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
             }
 
             create_info_copy.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
@@ -628,7 +639,6 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
     std::vector<const char*> modified_extensions;
 
-    bool has_ext_mem_caps = false;
     bool has_ext_mem      = false;
     bool has_ext_mem_host = false;
 
@@ -640,11 +650,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
         if (GetPageGuardMemoryMode() == kMemoryModeExternal)
         {
-            if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
-            {
-                has_ext_mem_caps = true;
-            }
-            else if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME) == 0)
+            if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME) == 0)
             {
                 has_ext_mem = true;
             }
@@ -657,11 +663,6 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     if (GetPageGuardMemoryMode() == kMemoryModeExternal)
     {
-        if (!has_ext_mem_caps)
-        {
-            modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
-        }
-
         if (!has_ext_mem)
         {
             modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME);
