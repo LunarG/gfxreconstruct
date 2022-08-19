@@ -68,12 +68,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --output file\t\t'stdout' or a path to a file to write JSON output");
     GFXRECON_WRITE_CONSOLE("        \t\tto. Default is the input filepath with \"gfxr\" replaced by \"txt\".");
 #if defined(WIN32)
-    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay (Windows only).");
+    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tDump ASCII output for the specified API (Windows only).");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Vulkan API enabled.", kApiFamilyVulkan);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Direct3D API enabled.", kApiFamilyD3D12);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and Direct3D 12 APIs", kApiFamilyAll);
-    GFXRECON_WRITE_CONSOLE("          \t\t         \tenabled. This is the default.");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDump only Vulkan API calls.", kApiFamilyVulkan);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDump only D3D12 API calls.", kApiFamilyD3D12);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tDump both Vulkan and D3D12 API calls. This is the default.", kApiFamilyAll);
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
