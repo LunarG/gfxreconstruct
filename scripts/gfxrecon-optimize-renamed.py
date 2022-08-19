@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-# Helper script to rename the optimizer before it processes a capture
+# Helper script to perform automatic renaming of gfxrecon-optimize.exe prior to optimization
 
 
 import sys
@@ -85,15 +85,28 @@ def retrieve_exe_name(info_tool_path, capture_path):
 
 # Print usage instructions
 def usage():
+    print("gfxrecon-optimize-renamed.py - Helper script to perform automatic renaming of gfxrecon-optimize.exe prior to optimization.")
+    print()
     print("Usage:")
-    print("gfxrecon-optimize-renamed.py <optional_optimizer_args> <capture.gfxr> <capture_optimized.gfxr>\n")
-
+    print("  gfxrecon-optimize-renamed.py [--dxr] [--d3d12-pso-removal] <input-file> <output-file>")
+    print()
+    print("Required arguments:")
+    print("  <input-file>          The path to input GFXReconstruct capture file to be processed.")
+    print("  <output-file>         The path to output GFXReconstruct capture file to be created.")    
+    print()
+    print("Optional arguments:")    
+    print("  --d3d12-pso-removal   D3D12-only: Remove creation of unreferenced PSOs.")
+    print("  --dxr                 D3D12-only: Optimize for DXR replay.")
+    print()    
+    print("Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.")
+    print()
     print("Example manual usage (D3D12):")
-    print("gfxrecon-optimize-renamed.py --dxr my_capture.gfxr my_capture_optimized.gfxr")
-    print("gfxrecon-optimize-renamed.py --d3d12-pso-removal my_capture.gfxr my_capture_optimized.gfxr\n")
-
+    print("  gfxrecon-optimize-renamed.py --dxr my_capture.gfxr my_capture_dxr_optimized.gfxr")
+    print("  gfxrecon-optimize-renamed.py --d3d12-pso-removal my_capture.gfxr my_capture_pso_optimized.gfxr")
+    print()
     print("Example automatic usage (D3D12 + Vulkan):")
-    print("gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_optimized.gfxr")
+    print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_optimized.gfxr") 
+    print();
 
 # Main
 if __name__ == '__main__':
@@ -143,13 +156,13 @@ if __name__ == '__main__':
                 else:
                     print("Error: ensure gfxrecon-optimize.exe lives in the same directory as this script")
             else:
-                print("Error: path to capture is invalid")
                 usage()
+                print("Error: path to capture is invalid")
         except Exception as e:
             print("Error: exception occurred")
             print(e)
             cleanup(optimizer_tool_path, optimizer_tool_path_renamed)
 
     else:
-        print("Error: missing path to capture")
         usage()
+        print("Error: missing path to capture")

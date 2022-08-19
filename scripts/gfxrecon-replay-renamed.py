@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-# Helper script to replay GFXR captures using a replayer that mirrors the executable name
+# Helper script to perform automatic renaming of gfxrecon-replay.exe prior to playback
 
 
 import sys
@@ -85,8 +85,17 @@ def retrieve_exe_name(info_tool_path, capture_path):
 
 # Print usage instructions
 def usage():
-    print("Usage: gfxrecon-replay-renamed.py <path_to_capture.gfxr> <optional_replayer_args>")
-
+    print("gfxrecon-replay-renamed.py - Helper script to perform automatic renaming of gfxrecon-replay.exe prior to playback.")    
+    print();
+    print("Usage:")
+    print("  gfxrecon-replay-renamed.py <file> [optional_replayer_args]")
+    print();
+    print("Required arguments:")
+    print("  <file>                     Path to the capture file to replay.")
+    print()
+    print("Optional arguments:")
+    print("  [optional_replayer_args]   All optional arguments exposed by gfxrecon-replay.exe")   
+    print() 
 
 # Main
 if __name__ == '__main__':
@@ -133,13 +142,13 @@ if __name__ == '__main__':
                 else:
                     print("Error: ensure gfxrecon-replay.exe lives in the same directory as this script")
             else:
-                print("Error: path to capture is invalid")
                 usage()
+                print("Error: path to capture is invalid")
         except:
             print()
             print("Error: exception occurred")
             cleanup(replayer_tool_path, replayer_tool_path_renamed)
 
     else:
-        print("Error: missing path to capture")
         usage()
+        print("Error: missing path to capture")
