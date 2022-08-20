@@ -59,6 +59,14 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                                                    void*            replay_feature_data,
                                                    UINT             feature_data_size) override;
 
+    void Process_ID3D12Resource_WriteToSubresource(format::HandleId                         object_id,
+                                                   HRESULT                                  original_result,
+                                                   UINT                                     DstSubresource,
+                                                   StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
+                                                   void*                                    pSrcData,
+                                                   UINT                                     SrcRowPitch,
+                                                   UINT                                     SrcDepthPitch) override;
+
   protected:
     FILE*                         GetFile() const { return file_; }
     uint32_t                      current_frame_number_{ 0 };

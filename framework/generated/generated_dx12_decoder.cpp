@@ -577,9 +577,6 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress:
         Decode_ID3D12Resource_GetGPUVirtualAddress(object_id, call_info, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource:
-        Decode_ID3D12Resource_WriteToSubresource(object_id, call_info, parameter_buffer, buffer_size);
-        break;
     case format::ApiCallId::ApiCall_ID3D12Resource_ReadFromSubresource:
         Decode_ID3D12Resource_ReadFromSubresource(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -4878,32 +4875,6 @@ size_t Dx12Decoder::Decode_ID3D12Resource_GetGPUVirtualAddress(format::HandleId 
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12Resource_GetGPUVirtualAddress(call_info, object_id, return_value);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_ID3D12Resource_WriteToSubresource(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    UINT DstSubresource;
-    StructPointerDecoder<Decoded_D3D12_BOX> pDstBox;
-    uint64_t pSrcData;
-    UINT SrcRowPitch;
-    UINT SrcDepthPitch;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstSubresource);
-    bytes_read += pDstBox.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcData);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcRowPitch);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDepthPitch);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_ID3D12Resource_WriteToSubresource(call_info, object_id, return_value, DstSubresource, &pDstBox, pSrcData, SrcRowPitch, SrcDepthPitch);
     }
 
     return bytes_read;

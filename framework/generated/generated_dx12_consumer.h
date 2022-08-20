@@ -1240,16 +1240,6 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         D3D12_GPU_VIRTUAL_ADDRESS return_value){}
 
-    virtual void Process_ID3D12Resource_WriteToSubresource(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT DstSubresource,
-        StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
-        uint64_t pSrcData,
-        UINT SrcRowPitch,
-        UINT SrcDepthPitch){}
-
     virtual void Process_ID3D12Resource_ReadFromSubresource(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

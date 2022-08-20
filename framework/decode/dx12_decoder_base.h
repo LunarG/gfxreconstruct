@@ -242,6 +242,10 @@ class Dx12DecoderBase : public ApiDecoder
                                                     const uint8_t*   parameter_buffer,
                                                     size_t           buffer_size);
 
+    size_t Decode_ID3D12Resource_WriteToSubresource(format::HandleId object_id,
+                                                    const uint8_t*   parameter_buffer,
+                                                    size_t           buffer_size);
+
   private:
     std::vector<Dx12Consumer*> consumers_;
 };

@@ -3078,30 +3078,6 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
     }
 }
 
-void Dx12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            object_id,
-    HRESULT                                     return_value,
-    UINT                                        DstSubresource,
-    StructPointerDecoder<Decoded_D3D12_BOX>*    pDstBox,
-    uint64_t                                    pSrcData,
-    UINT                                        SrcRowPitch,
-    UINT                                        SrcDepthPitch)
-{
-    auto replay_object = GetObjectInfo(object_id);
-    if ((replay_object != nullptr) && (replay_object->object != nullptr))
-    {
-        auto replay_result = OverrideWriteToSubresource(replay_object,
-                                                        return_value,
-                                                        DstSubresource,
-                                                        pDstBox,
-                                                        pSrcData,
-                                                        SrcRowPitch,
-                                                        SrcDepthPitch);
-        CheckReplayResult("ID3D12Resource_WriteToSubresource", return_value, replay_result);
-    }
-}
-
 void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,

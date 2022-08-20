@@ -343,6 +343,260 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
     }
 }
 
+// Get one pixel byte size for specific DXGI_FORMAT. The function is used by GetOneRowUnpaddedSize
+// function.
+// Note: The function only support the formats for which one pixel has one or multiple bytes.
+//       For those formats which are comppreesed types, or one pixel has bits that
+//       are not one or multiple bytes such as DXGI_FORMAT_R1_UNORM, DXGI_FORMAT_BC1_TYPELESS,
+//       they are not supported and the return value will be zero.
+//       For these unsupported formats, GetOneRowUnpaddedSize function will query the one row
+//       unpadded size through inserting some API calls.
+uint64_t GetSubresourcePixelByteSize(DXGI_FORMAT format)
+{
+    uint64_t                                 size          = 0;
+    std::unordered_map<DXGI_FORMAT, uint8_t> byte_size_map = {
+        { DXGI_FORMAT_R32G32B32A32_TYPELESS, 16 },
+        { DXGI_FORMAT_R32G32B32A32_FLOAT, 16 },
+        { DXGI_FORMAT_R32G32B32A32_UINT, 16 },
+        { DXGI_FORMAT_R32G32B32A32_SINT, 16 },
+        { DXGI_FORMAT_R32G32B32_TYPELESS, 12 },
+        { DXGI_FORMAT_R32G32B32_FLOAT, 12 },
+        { DXGI_FORMAT_R32G32B32_UINT, 12 },
+        { DXGI_FORMAT_R32G32B32_SINT, 12 },
+        { DXGI_FORMAT_R16G16B16A16_TYPELESS, 8 },
+        { DXGI_FORMAT_R16G16B16A16_FLOAT, 8 },
+        { DXGI_FORMAT_R16G16B16A16_UNORM, 8 },
+        { DXGI_FORMAT_R16G16B16A16_UINT, 8 },
+        { DXGI_FORMAT_R16G16B16A16_SNORM, 8 },
+        { DXGI_FORMAT_R16G16B16A16_SINT, 8 },
+        { DXGI_FORMAT_R32G32_TYPELESS, 8 },
+        { DXGI_FORMAT_R32G32_FLOAT, 8 },
+        { DXGI_FORMAT_R32G32_UINT, 8 },
+        { DXGI_FORMAT_R32G32_SINT, 8 },
+        { DXGI_FORMAT_R32G8X24_TYPELESS, 8 },
+        { DXGI_FORMAT_D32_FLOAT_S8X24_UINT, 4 },
+        { DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS, 4 },
+        { DXGI_FORMAT_X32_TYPELESS_G8X24_UINT, 4 },
+        { DXGI_FORMAT_R10G10B10A2_TYPELESS, 4 },
+        { DXGI_FORMAT_R10G10B10A2_UNORM, 4 },
+        { DXGI_FORMAT_R10G10B10A2_UINT, 4 },
+        { DXGI_FORMAT_R11G11B10_FLOAT, 4 },
+        { DXGI_FORMAT_R8G8B8A8_TYPELESS, 4 },
+        { DXGI_FORMAT_R8G8B8A8_UNORM, 4 },
+        { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 4 },
+        { DXGI_FORMAT_R8G8B8A8_UINT, 4 },
+        { DXGI_FORMAT_R8G8B8A8_SNORM, 4 },
+        { DXGI_FORMAT_R8G8B8A8_SINT, 4 },
+        { DXGI_FORMAT_R16G16_TYPELESS, 4 },
+        { DXGI_FORMAT_R16G16_FLOAT, 4 },
+        { DXGI_FORMAT_R16G16_UNORM, 4 },
+        { DXGI_FORMAT_R16G16_UINT, 4 },
+        { DXGI_FORMAT_R16G16_SNORM, 4 },
+        { DXGI_FORMAT_R16G16_SINT, 4 },
+        { DXGI_FORMAT_R32_TYPELESS, 4 },
+        { DXGI_FORMAT_D32_FLOAT, 4 },
+        { DXGI_FORMAT_R32_FLOAT, 4 },
+        { DXGI_FORMAT_R32_UINT, 4 },
+        { DXGI_FORMAT_R32_SINT, 4 },
+        { DXGI_FORMAT_R24G8_TYPELESS, 4 },
+        { DXGI_FORMAT_D24_UNORM_S8_UINT, 4 },
+        { DXGI_FORMAT_R24_UNORM_X8_TYPELESS, 4 },
+        { DXGI_FORMAT_X24_TYPELESS_G8_UINT, 4 },
+        { DXGI_FORMAT_R8G8_TYPELESS, 2 },
+        { DXGI_FORMAT_R8G8_UNORM, 2 },
+        { DXGI_FORMAT_R8G8_UINT, 2 },
+        { DXGI_FORMAT_R8G8_SNORM, 2 },
+        { DXGI_FORMAT_R8G8_SINT, 2 },
+        { DXGI_FORMAT_R16_TYPELESS, 2 },
+        { DXGI_FORMAT_R16_FLOAT, 2 },
+        { DXGI_FORMAT_D16_UNORM, 2 },
+        { DXGI_FORMAT_R16_UNORM, 2 },
+        { DXGI_FORMAT_R16_UINT, 2 },
+        { DXGI_FORMAT_R16_SNORM, 2 },
+        { DXGI_FORMAT_R16_SINT, 2 },
+        { DXGI_FORMAT_R8_TYPELESS, 1 },
+        { DXGI_FORMAT_R8_UNORM, 1 },
+        { DXGI_FORMAT_R8_UINT, 1 },
+        { DXGI_FORMAT_R8_SNORM, 1 },
+        { DXGI_FORMAT_R8_SINT, 1 },
+        { DXGI_FORMAT_A8_UNORM, 1 },
+        { DXGI_FORMAT_R9G9B9E5_SHAREDEXP, 4 },
+        { DXGI_FORMAT_R8G8_B8G8_UNORM,
+          2 }, // Each 32-bit block describes a pair of pixels: (R8, G8, B8) and (R8, G8, B8) where the R8/B8 values are
+               // repeated, and the G8 values are unique to each pixel
+        { DXGI_FORMAT_G8R8_G8B8_UNORM,
+          2 }, //  Each 32-bit block describes a pair of pixels: (R8, G8, B8) and (R8, G8, B8) where the R8/B8 values
+               //  are repeated, and the G8 values are unique to each pixel
+        { DXGI_FORMAT_B5G6R5_UNORM, 2 }, // A three-component, 16-bit unsigned-normalized-integer format that supports 5
+                                         // bits for blue, 6 bits for green, and 5 bits for red
+        { DXGI_FORMAT_B5G5R5A1_UNORM, 4 },
+        { DXGI_FORMAT_B8G8R8A8_UNORM, 4 },
+        { DXGI_FORMAT_B8G8R8X8_UNORM, 4 },
+        { DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM, 4 },
+        { DXGI_FORMAT_B8G8R8A8_TYPELESS, 4 },
+        { DXGI_FORMAT_B8G8R8A8_UNORM_SRGB, 4 },
+        { DXGI_FORMAT_B8G8R8X8_TYPELESS, 4 },
+        { DXGI_FORMAT_B8G8R8X8_UNORM_SRGB, 4 },
+        { DXGI_FORMAT_P8, 1 },
+        { DXGI_FORMAT_A8P8, 2 },
+        { DXGI_FORMAT_B4G4R4A4_UNORM, 2 },
+
+        { DXGI_FORMAT_P208, 1 },
+        { DXGI_FORMAT_V208, 1 },
+        { DXGI_FORMAT_V408, 1 },
+
+        { DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE, 4 },
+        { DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE, 4 }
+    };
+
+    if (byte_size_map.find(format) != byte_size_map.end())
+    {
+        size = byte_size_map[format];
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Unsupported format: %d", format);
+    }
+
+    return size;
+}
+
+uint64_t GetOneRowSizeByDXGIFormat(DXGI_FORMAT format, UINT width)
+{
+    return width * GetSubresourcePixelByteSize(format);
+}
+
+uint64_t GetOneRowSizeByDXGIFormat(ID3D12Resource*      resource,
+                                   D3D12_RESOURCE_DESC* resource_desc,
+                                   UINT                 dst_subresource,
+                                   uint64_t             width)
+{
+    uint64_t data_size = GetOneRowSizeByDXGIFormat(resource_desc->Format, static_cast<UINT>(width));
+
+    if (data_size == 0)
+    {
+        // The returned one row unpadded size is zero that mean the format isnot supported by
+        // GetOneRowUnpaddedSize(DXGI_FORMAT Format, UINT width). We need to insert API calls
+        // to calculate the size.
+        graphics::dx12::ID3D12DeviceComPtr device = nullptr;
+        if (SUCCEEDED(resource->GetDevice(IID_PPV_ARGS(&device))))
+        {
+            UINT64 subresource_row_size_bytes = 0;
+            device->GetCopyableFootprints(
+                resource_desc, dst_subresource, 1, 0, nullptr, nullptr, &subresource_row_size_bytes, nullptr);
+
+            data_size = subresource_row_size_bytes * width / resource_desc->Width;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to retrieve device from resource");
+        }
+    }
+
+    return data_size;
+}
+
+// Get the size of writing data for a subresource for API ID3D12Resource::WriteToSubresource.
+// The parameters DstSubresource, pDstBox, SrcRowPitch and SrcDepthPitch are same with their
+// meaning in this API.
+uint64_t GetSubresourceWriteDataSize(
+    ID3D12Resource* resource, UINT dst_subresource, const D3D12_BOX* dst_box, UINT src_row_pitch, UINT src_depth_pitch)
+{
+    uint64_t            data_size      = 0;
+    D3D12_RESOURCE_DESC resource_desc  = resource->GetDesc();
+    D3D12_BOX           valid_size_box = {};
+    bool                empty_box      = false;
+
+    if (dst_box != nullptr)
+    {
+        if ((dst_box->left >= dst_box->right) || (dst_box->front >= dst_box->back) || (dst_box->top >= dst_box->bottom))
+        {
+            empty_box = true;
+        }
+
+        // When the box is empty, WriteToSubresource call doesn't perform any operation
+        // Quote: An empty box results in a no-op. A box is empty if the top value is greater than or equal to
+        //        the bottom value, or the left value is greater than or equal to the right value, or the front
+        //        value is greater than or equal to the back value. When the box is empty, this method doesn't
+        //        perform any operation.
+        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
+        if (!empty_box)
+        {
+            valid_size_box.right  = dst_box->right - dst_box->left;
+            valid_size_box.back   = dst_box->back - dst_box->front;
+            valid_size_box.bottom = dst_box->bottom - dst_box->top;
+        }
+
+        // The dimensions of the valid_size_box must fit the destination
+        // Quote: The dimensions of the source must fit the destination (see D3D12_BOX).
+        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
+        if (valid_size_box.right > resource_desc.Width)
+        {
+            valid_size_box.right = static_cast<UINT>(resource_desc.Width);
+        }
+
+        if (valid_size_box.bottom > resource_desc.Height)
+        {
+            valid_size_box.bottom = static_cast<UINT>(resource_desc.Height);
+        }
+
+        if (valid_size_box.back > resource_desc.DepthOrArraySize)
+        {
+            valid_size_box.back = static_cast<UINT>(resource_desc.DepthOrArraySize);
+        }
+    }
+    else
+    {
+        // If pDstBox == nullptr, the data is written to the destination subresource with no offset
+        // Quote: A pointer to a box that defines the portion of the destination subresource to copy
+        //        the resource data into. If NULL, the data is written to the destination subresource
+        //        with no offset.
+        // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
+        valid_size_box.right  = static_cast<UINT>(resource_desc.Width);
+        valid_size_box.bottom = static_cast<UINT>(resource_desc.Height);
+        valid_size_box.back   = static_cast<UINT>(resource_desc.DepthOrArraySize);
+    }
+
+    if (!empty_box)
+    {
+        switch (resource_desc.Dimension)
+        {
+            case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+                data_size = GetOneRowSizeByDXGIFormat(
+                    resource, &resource_desc, dst_subresource, (uint64_t)valid_size_box.right);
+                break;
+            case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+                data_size = static_cast<uint64_t>(src_row_pitch) * static_cast<uint64_t>((valid_size_box.bottom - 1)) +
+                            GetOneRowSizeByDXGIFormat(
+                                resource, &resource_desc, dst_subresource, (uint64_t)valid_size_box.right);
+                break;
+            case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+                data_size = static_cast<uint64_t>(src_depth_pitch) * static_cast<uint64_t>((valid_size_box.back - 1)) +
+                            static_cast<uint64_t>(src_row_pitch) * static_cast<uint64_t>((valid_size_box.bottom - 1)) +
+                            GetOneRowSizeByDXGIFormat(
+                                resource, &resource_desc, dst_subresource, (uint64_t)valid_size_box.right);
+                break;
+            case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+                GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimensions");
+                data_size = 0;
+                break;
+            case D3D12_RESOURCE_DIMENSION_BUFFER:
+                // If the resource is a buffer, all coordinates are in bytes
+                // Quote: If the resources are buffers, all coordinates are in bytes;
+                // Source:
+                // https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12graphicscommandlist-copytextureregion
+                data_size = valid_size_box.right;
+                break;
+            default:
+                GFXRECON_LOG_ERROR("Detected invalid resource dimensions");
+                data_size = 0;
+                break;
+        }
+    }
+
+    return data_size;
+}
+
 template <typename DescT>
 void TrackAdapterDesc(IDXGIAdapter*                     adapter,
                       UINT32                            adapter_idx,

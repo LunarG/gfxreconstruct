@@ -6,6 +6,9 @@
     ],
     "IDXGIFactory5": [
       "CheckFeatureSupport"
+    ],
+    "ID3D12Resource": [
+      "WriteToSubresource"
     ]
   },
   "structures": [

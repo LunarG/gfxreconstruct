@@ -61,8 +61,7 @@
       "GetGPUVirtualAddress": "OverrideGetGpuVirtualAddress",
       "Map": "OverrideResourceMap",
       "Unmap": "OverrideResourceUnmap",
-      "ReadFromSubresource": "OverrideReadFromSubresource",
-      "WriteToSubresource": "OverrideWriteToSubresource"
+      "ReadFromSubresource": "OverrideReadFromSubresource"
     },
     "ID3D12CommandQueue": {
       "ExecuteCommandLists": "OverrideExecuteCommandLists",

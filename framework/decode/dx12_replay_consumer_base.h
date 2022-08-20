@@ -114,6 +114,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                            void*            replay_feature_data,
                                                            UINT             feature_data_size) override;
 
+    virtual void Process_ID3D12Resource_WriteToSubresource(format::HandleId                         object_id,
+                                                           HRESULT                                  return_value,
+                                                           UINT                                     dst_subresource,
+                                                           StructPointerDecoder<Decoded_D3D12_BOX>* dst_box,
+                                                           void*                                    src_data,
+                                                           UINT                                     src_row_pitch,
+                                                           UINT src_depth_pitch) override;
+
   protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
@@ -334,7 +342,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                HRESULT                                  original_result,
                                UINT                                     dst_subresource,
                                StructPointerDecoder<Decoded_D3D12_BOX>* dst_box,
-                               uint64_t                                 src_data,
+                               void*                                    src_data,
                                UINT                                     src_row_pitch,
                                UINT                                     src_depth_pitch);
 

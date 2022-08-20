@@ -1438,15 +1438,6 @@ void Encode_ID3D12Resource_GetGPUVirtualAddress(
     ID3D12Resource_Wrapper* wrapper,
     D3D12_GPU_VIRTUAL_ADDRESS return_value);
 
-void Encode_ID3D12Resource_WriteToSubresource(
-    ID3D12Resource_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT DstSubresource,
-    const D3D12_BOX* pDstBox,
-    const void* pSrcData,
-    UINT SrcRowPitch,
-    UINT SrcDepthPitch);
-
 void Encode_ID3D12Resource_ReadFromSubresource(
     ID3D12Resource_Wrapper* wrapper,
     HRESULT return_value,

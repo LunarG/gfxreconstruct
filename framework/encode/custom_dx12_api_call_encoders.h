@@ -46,6 +46,14 @@ void Encode_IDXGIFactory5_CheckFeatureSupport(IDXGIFactory5_Wrapper* wrapper,
                                               void*                  pFeatureSupportData,
                                               UINT                   FeatureSupportDataSize);
 
+void Encode_ID3D12Resource_WriteToSubresource(ID3D12Resource_Wrapper* wrapper,
+                                              HRESULT                 return_value,
+                                              UINT                    DstSubresource,
+                                              const D3D12_BOX*        pDstBox,
+                                              const void*             pSrcData,
+                                              UINT                    SrcRowPitch,
+                                              UINT                    SrcDepthPitch);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

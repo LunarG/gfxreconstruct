@@ -34,6 +34,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <vector>
+#include <unordered_map>
 #include <map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -133,6 +134,38 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
                                                  D3D12_RAYTRACING_GEOMETRY_DESC*                       geometry_descs,
                                                  uint64_t&                       inputs_buffer_size,
                                                  std::vector<InputsBufferEntry>& entries);
+
+// Get one pixel byte size for specific DXGI_FORMAT. The function is used by GetOneRowSizeByDXGIFormat
+// function.
+// Note: The function only support the formats for which one pixel has one or multiple bytes.
+//       For those formats which are comppreesed types, or one pixel has bits that
+//       are not one or multiple bytes such as DXGI_FORMAT_R1_UNORM, DXGI_FORMAT_BC1_TYPELESS,
+//       they are not supported and the return value will be zero.
+uint64_t GetSubresourcePixelByteSize(DXGI_FORMAT format);
+
+// Get one row unpadded byte size by DXGIFormat.
+// Note: The function only support the formats for which one pixel has one or multiple bytes.
+//       For those formats which are not supported, the return value will be zero.
+//       For these unsupported formats, another GetOneRowSizeByDXGIFormat function can be used
+//       to query the one row unpadded size through inserting some API calls.
+uint64_t GetOneRowSizeByDXGIFormat(DXGI_FORMAT format, UINT width);
+
+// Get one row unpadded byte size by DXGIFormat.
+// Note: The function support all formats in DXGI_FORMAT. It first use the function
+//       GetOneRowSizeByDXGIFormat(DXGI_FORMAT Format, UINT width) to calculate the
+//       size, if the format is not supported (like one pixel has 1 bit, 4 bits
+//       or comppreesed types), the function will query the size through inserting
+//       some API calls.
+uint64_t GetOneRowSizeByDXGIFormat(ID3D12Resource*      resource,
+                                   D3D12_RESOURCE_DESC* resource_desc,
+                                   UINT                 dst_subresource,
+                                   uint64_t             width);
+
+// Get the size of writing data for a subresource for API ID3D12Resource::WriteToSubresource.
+// The parameters DstSubresource, pDstBox, SrcRowPitch and SrcDepthPitch are same with their
+// meaning in this API.
+uint64_t GetSubresourceWriteDataSize(
+    ID3D12Resource* resource, UINT dst_subresource, const D3D12_BOX* dst_box, UINT src_row_pitch, UINT src_depth_pitch);
 
 void TrackAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& adapters);
 

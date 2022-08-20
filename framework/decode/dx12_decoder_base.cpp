@@ -481,6 +481,39 @@ size_t Dx12DecoderBase::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleI
     return bytes_read;
 }
 
+size_t Dx12DecoderBase::Decode_ID3D12Resource_WriteToSubresource(format::HandleId object_id,
+                                                                 const uint8_t*   parameter_buffer,
+                                                                 size_t           buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT                                    DstSubresource;
+    StructPointerDecoder<Decoded_D3D12_BOX> pDstBox;
+    PointerDecoder<uint8_t>                 pSrcData;
+    UINT                                    SrcRowPitch;
+    UINT                                    SrcDepthPitch;
+    HRESULT                                 return_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstSubresource);
+    bytes_read += pDstBox.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcRowPitch);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDepthPitch);
+    bytes_read +=
+        ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Resource_WriteToSubresource(
+            object_id, return_value, DstSubresource, &pDstBox, pSrcData.GetPointer(), SrcRowPitch, SrcDepthPitch);
+    }
+    return bytes_read;
+}
+
 void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
                                        format::HandleId   object_id,
                                        const ApiCallInfo& call_options,
@@ -496,6 +529,9 @@ void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport:
             Decode_IDXGIFactory5_CheckFeatureSupport(object_id, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource:
+            Decode_ID3D12Resource_WriteToSubresource(object_id, parameter_buffer, buffer_size);
             break;
         default:
             break;

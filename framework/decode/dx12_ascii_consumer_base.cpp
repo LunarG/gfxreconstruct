@@ -21,6 +21,7 @@
 */
 
 #include "decode/dx12_ascii_consumer_base.h"
+#include "decode/custom_dx12_ascii_consumer.h"
 #include "decode/dx12_enum_util.h"
 #include "util/interception/injection.h"
 
@@ -340,6 +341,56 @@ void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Ha
         }
     );
     // clang-format on
+}
+
+void Dx12AsciiConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::HandleId object_id,
+                                                                      HRESULT          return_value,
+                                                                      UINT             DstSubresource,
+                                                                      StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
+                                                                      void*                                    pSrcData,
+                                                                      UINT SrcRowPitch,
+                                                                      UINT SrcDepthPitch)
+{
+    using namespace gfxrecon::util;
+    uint32_t               tab_count = 0;
+    uint32_t               tab_size  = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource";
+    writeApiCallToFileInfo.handleId        = object_id;
+    writeApiCallToFileInfo.pFunctionName   = "WriteToSubresource";
+    std::string returnValue             = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(writeApiCallToFileInfo, tab_count, tab_size, [&](std::stringstream& str_strm) {
+        FieldToString(str_strm,
+                      true,
+                      "DstSubresource",
+                      to_string_flags_,
+                      tab_count,
+                      tab_size,
+                      ToString(DstSubresource, to_string_flags_, tab_count, tab_size));
+        FieldToString(str_strm,
+                      false,
+                      "pDstBox",
+                      to_string_flags_,
+                      tab_count,
+                      tab_size,
+                      StructPointerDecoderToString(pDstBox, to_string_flags_, tab_count, tab_size));
+        FieldToString(str_strm, false, "pSrcData", to_string_flags_, tab_count, tab_size, HandleIdToString(pSrcData));
+        FieldToString(str_strm,
+                      false,
+                      "SrcRowPitch",
+                      to_string_flags_,
+                      tab_count,
+                      tab_size,
+                      ToString(SrcRowPitch, to_string_flags_, tab_count, tab_size));
+        FieldToString(str_strm,
+                      false,
+                      "SrcDepthPitch",
+                      to_string_flags_,
+                      tab_count,
+                      tab_size,
+                      ToString(SrcDepthPitch, to_string_flags_, tab_count, tab_size));
+    });
 }
 
 GFXRECON_END_NAMESPACE(decode)

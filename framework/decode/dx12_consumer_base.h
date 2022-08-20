@@ -25,6 +25,7 @@
 
 #include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
+#include "decode/struct_pointer_decoder.h"
 
 #include <d3d12.h>
 #include <dxgi1_5.h>
@@ -155,6 +156,15 @@ class Dx12ConsumerBase
                                                            const void*      capture_feature_data,
                                                            void*            replay_feature_data,
                                                            UINT             feature_data_size)
+    {}
+
+    virtual void Process_ID3D12Resource_WriteToSubresource(format::HandleId                         object_id,
+                                                           HRESULT                                  original_result,
+                                                           UINT                                     DstSubresource,
+                                                           StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
+                                                           void*                                    pSrcData,
+                                                           UINT                                     SrcRowPitch,
+                                                           UINT                                     SrcDepthPitch)
     {}
 
     void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; };

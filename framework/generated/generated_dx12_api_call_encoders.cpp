@@ -4898,33 +4898,6 @@ void Encode_ID3D12Resource_GetGPUVirtualAddress(
     }
 }
 
-void Encode_ID3D12Resource_WriteToSubresource(
-    ID3D12Resource_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT DstSubresource,
-    const D3D12_BOX* pDstBox,
-    const void* pSrcData,
-    UINT SrcRowPitch,
-    UINT SrcDepthPitch)
-{
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource, wrapper->GetCaptureId());
-    if(encoder)
-    {
-        bool omit_output_data = false;
-        if (return_value != S_OK)
-        {
-            omit_output_data = true;
-        }
-        encoder->EncodeUInt32Value(DstSubresource);
-        EncodeStructPtr(encoder, pDstBox);
-        encoder->EncodeVoidPtr(pSrcData);
-        encoder->EncodeUInt32Value(SrcRowPitch);
-        encoder->EncodeUInt32Value(SrcDepthPitch);
-        encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
-    }
-}
-
 void Encode_ID3D12Resource_ReadFromSubresource(
     ID3D12Resource_Wrapper* wrapper,
     HRESULT return_value,

@@ -1616,20 +1616,24 @@ Dx12ReplayConsumerBase::OverrideWriteToSubresource(DxObjectInfo*                
                                                    HRESULT                                  original_result,
                                                    UINT                                     dst_subresource,
                                                    StructPointerDecoder<Decoded_D3D12_BOX>* dst_box,
-                                                   uint64_t                                 src_data,
+                                                   void*                                    src_data,
                                                    UINT                                     src_row_pitch,
                                                    UINT                                     src_depth_pitch)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(replay_object_info);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(dst_subresource);
-    GFXRECON_UNREFERENCED_PARAMETER(dst_box);
-    GFXRECON_UNREFERENCED_PARAMETER(src_data);
-    GFXRECON_UNREFERENCED_PARAMETER(src_row_pitch);
-    GFXRECON_UNREFERENCED_PARAMETER(src_depth_pitch);
 
-    // TODO(GH-71): Implement function
-    return E_FAIL;
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<ID3D12Resource*>(replay_object_info->object);
+
+    HRESULT result = E_FAIL;
+    if (dst_box != nullptr)
+    {
+        result = replay_object->WriteToSubresource(
+            dst_subresource, dst_box->GetPointer(), src_data, src_row_pitch, src_depth_pitch);
+    }
+
+    return result;
 }
 
 HRESULT
@@ -2710,6 +2714,23 @@ void Dx12ReplayConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::H
     {
         auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
         CheckReplayResult("IDXGIFactory5::CheckFeatureSupport", original_result, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::HandleId object_id,
+                                                                       HRESULT          return_value,
+                                                                       UINT             dst_subresource,
+                                                                       StructPointerDecoder<Decoded_D3D12_BOX>* dst_box,
+                                                                       void* src_data,
+                                                                       UINT  src_row_pitch,
+                                                                       UINT  src_depth_pitch)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        auto replay_result = OverrideWriteToSubresource(
+            replay_object, return_value, dst_subresource, dst_box, src_data, src_row_pitch, src_depth_pitch);
+        CheckReplayResult("ID3D12Resource_WriteToSubresource", return_value, replay_result);
     }
 }
 
