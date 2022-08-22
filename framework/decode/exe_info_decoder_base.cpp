@@ -37,7 +37,7 @@ void ExeInfoDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format:
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_ExeFileInfo(info.exe_record);
+        consumer->Process_ExeFileInfo(info.info_record);
     }
 }
 

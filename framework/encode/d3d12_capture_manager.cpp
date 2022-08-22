@@ -1771,6 +1771,31 @@ void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapte
     }
 }
 
+void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
+    HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice)
+{
+    if (result == S_OK)
+    {
+        if (ppDevice != nullptr)
+        {
+            auto device = reinterpret_cast<ID3D12Device*>(*ppDevice);
+
+            if (device != nullptr)
+            {
+                format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(device, adapters_);
+
+                // Write adapter desc to file if it was marked active, and has not already been seen
+                if (active_adapter != nullptr)
+                {
+                    WriteDxgiAdapterInfoCommand(*active_adapter);
+                }
+            }
+        }
+
+        WriteDx12DriverInfo();
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Fence_SetEventOnCompletion(ID3D12Fence_Wrapper* wrapper,
                                                                        HRESULT              result,
                                                                        UINT64               value,
@@ -2180,29 +2205,6 @@ void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdent
     }
 }
 
-void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
-    HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice)
-{
-    if (result == S_OK)
-    {
-        if (ppDevice != nullptr)
-        {
-            auto device = reinterpret_cast<ID3D12Device*>(*ppDevice);
-
-            if (device != nullptr)
-            {
-                format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(device, adapters_);
-
-                // Write adapter desc to file if it was marked active, and has not already been seen
-                if (active_adapter != nullptr)
-                {
-                    WriteDxgiAdapterInfoCommand(*active_adapter);
-                }
-            }
-        }
-    }
-}
-
 void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc)
 {
     if (((GetCaptureMode() & kModeWrite) == kModeWrite))
@@ -2255,6 +2257,40 @@ void D3D12CaptureManager::PostProcess_CreateDXGIFactory1(HRESULT result, REFIID 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory)
 {
     graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
+}
+
+void D3D12CaptureManager::WriteDx12DriverInfo()
+{
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    {
+        std::string driverinfo = "";
+        if (gfxrecon::util::driverinfo::GetDriverInfo(driverinfo, format::ApiFamilyId::ApiFamily_D3D12) == true)
+        {
+            WriteDriverInfoCommand(driverinfo);
+        }
+    }
+}
+
+void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
+{
+    if (((GetCaptureMode() & kModeWrite) == kModeWrite))
+    {
+        size_t                  info_length        = sizeof(format::DriverInfoBlock);
+        format::DriverInfoBlock driver_info_header = {};
+
+        strncpy_s(driver_info_header.driver_record,
+                  util::filepath::kMaxDriverInfoSize,
+                  info.c_str(),
+                  util::filepath::kMaxDriverInfoSize);
+
+        driver_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        driver_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(driver_info_header);
+        driver_info_header.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kDriverInfoCommand);
+        driver_info_header.thread_id = GetThreadData()->thread_id_;
+
+        WriteToFile(&driver_info_header, sizeof(driver_info_header));
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

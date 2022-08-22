@@ -33,7 +33,7 @@ class ExeInfoConsumer : public ExeInfoConsumerBase
 {
   public:
     ExeInfoConsumer() {}
-    const std::string GetAppExeName() const { return exe_info.AppExeName; }
+    const std::string GetAppExeName() const { return exe_info.AppName; }
     const uint32_t*   GetAppVersion() const { return exe_info.AppVersion; }
     const char*       GetCompanyName() const { return exe_info.CompanyName; }
     const char*       GetFileDescription() const { return exe_info.FileDescription; }
@@ -42,7 +42,8 @@ class ExeInfoConsumer : public ExeInfoConsumerBase
     const char*       GetOriginalFileName() const { return exe_info.OriginalFilename; }
     const char*       GetProductName() const { return exe_info.ProductName; }
     const char*       GetProductVersion() const { return exe_info.ProductVersion; }
-    virtual void      Process_ExeFileInfo(gfxrecon::util::filepath::ExeFileInfo& info)
+
+    virtual void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info)
     {
         exe_info        = info;
         found_exe_info_ = true;
@@ -50,13 +51,13 @@ class ExeInfoConsumer : public ExeInfoConsumerBase
 
     virtual bool IsComplete(uint64_t current_block_index)
     {
-        return (current_block_index >= MaxBlockIdx) || (found_exe_info_ == true);
+        return (current_block_index >= MaxBlockIdx) || found_exe_info_;
     }
 
   private:
-    static int const                      MaxBlockIdx = 50;
-    gfxrecon::util::filepath::ExeFileInfo exe_info    = {};
-    bool                                  found_exe_info_{ false };
+    static int const                   MaxBlockIdx = 50;
+    gfxrecon::util::filepath::FileInfo exe_info    = {};
+    bool                               found_exe_info_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

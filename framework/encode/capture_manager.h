@@ -129,7 +129,7 @@ class CaptureManager
 
     void WriteDisplayMessageCmd(const char* message);
 
-    void WriteExeFileInfo(const gfxrecon::util::filepath::ExeFileInfo& info);
+    void WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info);
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 

@@ -43,15 +43,16 @@ const char kPathSep      = '/';
 const char kPathSepStr[] = "/";
 #endif
 
+static constexpr uint32_t kMaxDriverInfoSize  = 1024;
 static constexpr uint32_t kMaxExePropertySize = 256;
 static constexpr uint8_t  kAppVersionSize     = 4;
 
-struct ExeFileInfo
+struct FileInfo
 {
     char     ProductVersion[kMaxExePropertySize]   = {};
     char     FileVersion[kMaxExePropertySize]      = {};
     uint32_t AppVersion[kAppVersionSize]           = {};
-    char     AppExeName[kMaxExePropertySize]       = {};
+    char     AppName[kMaxExePropertySize]          = {};
     char     CompanyName[kMaxExePropertySize]      = {};
     char     FileDescription[kMaxExePropertySize]  = {};
     char     InternalName[kMaxExePropertySize]     = {};
@@ -89,11 +90,11 @@ bool GetWindowsSystemLibrariesPath(std::string& base_path);
 bool QueryStringFileInfo(
     const void* ver_data, std::string& ver_ret_val, uint32_t& query_size, uint32_t len, const char* predef_strings);
 
-void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, ExeFileInfo& info);
+void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, FileInfo& info);
 
-void GetApplicationFileExeVersion(ExeFileInfo& exe_info, const std::string& file_path);
+void GetApplicationFileExeVersion(FileInfo& exe_info, const std::string& file_path);
 
-void GetApplicationInfo(ExeFileInfo& file_info);
+void GetApplicationInfo(FileInfo& file_info);
 
 void CheckReplayerName(const std::string& exe_info_name);
 

@@ -40,7 +40,9 @@ class Dx12ConsumerBase
     Dx12ConsumerBase() {}
     virtual ~Dx12ConsumerBase() {}
 
-    virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record) {}
+    virtual void Process_DriverInfo(const char* info_record) {}
+
+    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
 

@@ -85,11 +85,19 @@ class Dx12DecoderBase : public ApiDecoder
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info)
+    {
+        for (auto consumer : consumers_)
+        {
+            consumer->Process_DriverInfo(info.driver_record);
+        }
+    }
+
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
     {
         for (auto consumer : consumers_)
         {
-            consumer->Process_ExeFileInfo(info.exe_record);
+            consumer->Process_ExeFileInfo(info.info_record);
         }
     }
 

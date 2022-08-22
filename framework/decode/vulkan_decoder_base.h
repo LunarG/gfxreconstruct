@@ -183,6 +183,8 @@ class VulkanDecoderBase : public ApiDecoder
         const uint8_t*                                                  build_inputs_data) override
     {}
 
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) {}
+
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) {}
 
   protected:

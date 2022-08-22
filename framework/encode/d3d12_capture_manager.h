@@ -606,6 +606,9 @@ class D3D12CaptureManager : public CaptureManager
 
     void PostProcess_D3D12CreateDevice(
         HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice);
+    void WriteDx12DriverInfo();
+
+    void WriteDriverInfoCommand(const std::string& info);
 
     void PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory);
 

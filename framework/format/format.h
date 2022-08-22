@@ -28,6 +28,7 @@
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_path.h"
+#include "util/driver_info.h"
 
 #include <cinttypes>
 #include <type_traits>
@@ -122,10 +123,11 @@ enum class MetaDataType : uint16_t
     kSetRayTracingShaderGroupHandlesCommand = 15,
     kCreateHeapAllocationCommand            = 16,
     kInitSubresourceCommand                 = 17,
-    kExeFileInfo                            = 18,
+    kExeFileInfoCommand                     = 18,
     kInitDx12AccelerationStructureCommand   = 19,
     kFillMemoryResourceValueCommand         = 20,
-    kDxgiAdapterInfoCommand                 = 21
+    kDxgiAdapterInfoCommand                 = 21,
+    kDriverInfoCommand                      = 22
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -312,11 +314,18 @@ struct DisplayMessageCommandHeader
     // terminator.
 };
 
+struct DriverInfoBlock
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    char             driver_record[util::filepath::kMaxDriverInfoSize];
+};
+
 struct ExeFileInfoBlock
 {
     MetaDataHeader              meta_header;
     format::ThreadId            thread_id;
-    util::filepath::ExeFileInfo exe_record;
+    util::filepath::FileInfo    info_record;
 };
 
 // Not a header because this command does not include a variable length data payload.

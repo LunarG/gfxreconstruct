@@ -150,6 +150,7 @@ else(MSVC)
 endif(MSVC)
 
 # GFXReconstruct provided find modules
+find_package(AGS)
 find_package(Detours)
 find_package(LZ4)
 find_package(ZSTD)

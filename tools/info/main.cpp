@@ -33,6 +33,8 @@
 #include "generated/generated_vulkan_decoder.h"
 #include "decode/exe_info_consumer.h"
 #include "decode/exe_info_decoder_base.h"
+#include "decode/driver_info_consumer.h"
+#include "decode/driver_info_decoder_base.h"
 #include "decode/vulkan_detection_consumer.h"
 #include "decode/vulkan_stats_consumer.h"
 #if defined(WIN32)
@@ -176,6 +178,14 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.frame_count      = file_processor.GetCurrentFrameNumber();
 }
 
+
+void PrintDriverInfo(const gfxrecon::decode::DriverInfoConsumer& driver_info_consumer)
+{
+    GFXRECON_WRITE_CONSOLE("");
+    GFXRECON_WRITE_CONSOLE("Driver info:");
+    GFXRECON_WRITE_CONSOLE("\t%s", driver_info_consumer.GetDriverDesc());
+}
+
 void PrintExeInfo(const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
 {
     GFXRECON_WRITE_CONSOLE("Exe info:");
@@ -197,7 +207,6 @@ void PrintExeInfo(const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
         }
     }
     GFXRECON_WRITE_CONSOLE("\tProduct name: %s", app_data.c_str());
-    GFXRECON_WRITE_CONSOLE("");
 }
 
 void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
@@ -327,11 +336,14 @@ void GatherVulkanStats(const std::string& input_filename, const gfxrecon::decode
 }
 
 #if defined(WIN32)
-void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, const ApiAgnosticStats& api_agnostic_stats)
+void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
+                     const ApiAgnosticStats&               api_agnostic_stats,
+                     gfxrecon::decode::DriverInfoConsumer& driver_info_consumer)
 {
 
     if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
     {
+        GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("File info:");
 
         // Compression type.
@@ -360,7 +372,8 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, const A
                                    api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
         }
 
-        GFXRECON_WRITE_CONSOLE("");
+        PrintDriverInfo(driver_info_consumer);
+
         GFXRECON_WRITE_CONSOLE("D3D12 adapter info:");
 
         const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
@@ -383,8 +396,6 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, const A
 
                 std::string type = AdapterTypeToString(adapter.type);
                 GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", type.c_str());
-
-                GFXRECON_WRITE_CONSOLE("");
             }
         }
         else
@@ -434,6 +445,11 @@ void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode:
 
     if (file_processor.Initialize(input_filename))
     {
+        gfxrecon::decode::DriverInfoConsumer    driver_info_consumer;
+        gfxrecon::decode::DriverInfoDecoderBase driver_info_decoder;
+        driver_info_decoder.AddConsumer(&driver_info_consumer);
+        file_processor.AddDecoder(&driver_info_decoder);
+
         gfxrecon::decode::Dx12StatsConsumer dx12_consumer;
         gfxrecon::decode::StatDecoderBase   stat_decoder;
         gfxrecon::decode::StatConsumer      stat_consumer;
@@ -451,7 +467,7 @@ void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode:
             GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
 
             PrintExeInfo(exe_info_consumer);
-            PrintD3D12Stats(dx12_consumer, api_agnostic_stats);
+            PrintD3D12Stats(dx12_consumer, api_agnostic_stats, driver_info_consumer);
         }
         else
         {

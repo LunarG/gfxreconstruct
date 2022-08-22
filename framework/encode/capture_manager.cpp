@@ -31,6 +31,7 @@
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
+#include "util/driver_info.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -693,7 +694,7 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
     {
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
-        gfxrecon::util::filepath::ExeFileInfo info{};
+        gfxrecon::util::filepath::FileInfo info{};
         gfxrecon::util::filepath::GetApplicationInfo(info);
         WriteExeFileInfo(info);
     }
@@ -767,15 +768,16 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
     }
 }
 
-void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::ExeFileInfo& info)
+void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
 {
     size_t                   info_length      = sizeof(format::ExeFileInfoBlock);
     format::ExeFileInfoBlock exe_info_header  = {};
-    exe_info_header.exe_record                = info;
+    exe_info_header.info_record               = info;
 
     exe_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
-    exe_info_header.meta_header.meta_data_id = format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfo);
+    exe_info_header.meta_header.meta_data_id =
+        format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfoCommand);
     exe_info_header.thread_id                = GetThreadData()->thread_id_;
 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));

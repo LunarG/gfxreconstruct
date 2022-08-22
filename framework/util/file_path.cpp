@@ -206,7 +206,7 @@ bool GetWindowsSystemLibrariesPath(std::string& base_path)
 #endif
 }
 
-void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, ExeFileInfo& info)
+void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, FileInfo& info)
 {
 #if defined(WIN32)
     if (member == kExeInfoCompanyName)
@@ -257,7 +257,7 @@ bool QueryStringFileInfo(
     return found;
 }
 
-void GetApplicationFileExeVersion(ExeFileInfo& exe_info, const std::string& file_path)
+void GetApplicationFileExeVersion(FileInfo& exe_info, const std::string& file_path)
 {
 #if defined(WIN32)
     DWORD ver_size = GetFileVersionInfoSize(file_path.c_str(), nullptr);
@@ -334,7 +334,7 @@ void GetApplicationFileExeVersion(ExeFileInfo& exe_info, const std::string& file
 #endif
 }
 
-void GetApplicationInfo(ExeFileInfo& file_info)
+void GetApplicationInfo(FileInfo& file_info)
 {
 #if defined(WIN32)
     char        module_name[MAX_PATH] = {};
@@ -344,8 +344,8 @@ void GetApplicationInfo(ExeFileInfo& file_info)
     {
         filepath = module_name;
         GetApplicationFileExeVersion(file_info, filepath);
-        strncpy_s(file_info.AppExeName,
-                  sizeof(file_info.AppExeName),
+        strncpy_s(file_info.AppName,
+                  sizeof(file_info.AppName),
                   filepath.substr(filepath.find_last_of("/\\") + 1).c_str(),
                   filepath.substr(filepath.find_last_of("/\\") + 1).length());
     }

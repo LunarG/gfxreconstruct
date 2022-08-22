@@ -43,6 +43,8 @@ class StatDecoderBase : public ApiDecoder
 
     virtual bool IsComplete(uint64_t block_index) override;
 
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) {}
+
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info){};
 
     void AddConsumer(StatConsumerBase* consumer) { consumers_.push_back(consumer); }

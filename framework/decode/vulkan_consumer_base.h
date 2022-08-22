@@ -49,7 +49,7 @@ class VulkanConsumerBase
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
-    virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record) {}
+    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
 

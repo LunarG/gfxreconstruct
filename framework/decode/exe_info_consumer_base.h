@@ -34,7 +34,7 @@ class ExeInfoConsumerBase
   public:
     ExeInfoConsumerBase() {}
     virtual ~ExeInfoConsumerBase() {}
-    virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record) {}
+    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
     virtual bool IsComplete(uint64_t block_index) { return false; }
 };
 

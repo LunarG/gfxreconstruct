@@ -58,9 +58,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual ~Dx12ReplayConsumerBase() override;
 
-    virtual void Process_ExeFileInfo(util::filepath::ExeFileInfo& info_record)
+    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record)
     {
-        gfxrecon::util::filepath::CheckReplayerName(info_record.AppExeName);
+        gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }

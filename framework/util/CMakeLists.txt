@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2018-2021 Advanced Micro Devices, Inc. All rights reserved
+# Copyright (c) 2018-2022 Advanced Micro Devices, Inc. All rights reserved
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,6 +37,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/defines.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/driver_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/driver_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hash.h
@@ -136,6 +138,11 @@ endif()
 
 if (WAYLAND_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "WAYLAND_LIBRARY=\"${WAYLAND_LIBRARY}\"")
+endif()
+
+if (TARGET AGS::AGS)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_AGS)
+    target_link_libraries(gfxrecon_util AGS::AGS)
 endif()
 
 if (TARGET Detours::Detours)

@@ -70,6 +70,8 @@ class ApiDecoder
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) = 0;
 
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) = 0;
+
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) = 0;
 
     virtual void DispatchFillMemoryCommand(
