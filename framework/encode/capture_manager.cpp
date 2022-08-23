@@ -91,7 +91,7 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     debug_layer_(false), debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false),
-    global_frame_count_(0), disable_dxr_(false), accel_struct_padding_(0)
+    global_frame_count_(0), disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -243,6 +243,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     screenshot_prefix_    = PrepScreenshotPrefix(trace_settings.screenshot_dir);
     disable_dxr_          = trace_settings.disable_dxr;
     accel_struct_padding_ = trace_settings.accel_struct_padding;
+    iunknown_wrapping_    = trace_settings.iunknown_wrapping;
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {

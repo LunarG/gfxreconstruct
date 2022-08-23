@@ -74,14 +74,25 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
     {
         auto state_lock = manager->AcquireSharedStateLock();
 
-        result = object_->QueryInterface(riid, object);
+        IID target_interface_id = riid;
+
+        // If GFXRECON_CAPTURE_IUNKNOWN_WRAPPING is enabled:
+        // Detect when applications call QueryInterface(IID_IUnknown)
+        // Switch IID_IUnknown to original IID, so that GFXR returns original interface wrapper
+        if (manager->GetIUnknownWrappingSetting() && IsEqualGUID(riid, IID_IUnknown))
+        {
+            GFXRECON_LOG_WARNING("Detect call QueryInterface(IID_IUnknown)");
+            target_interface_id = riid_;
+        }
+
+        result = object_->QueryInterface(target_interface_id, object);
 
         if (SUCCEEDED(result))
         {
-            WrapObject(riid, object, resources_);
+            WrapObject(target_interface_id, object, resources_);
         }
 
-        Encode_IUnknown_QueryInterface(this, result, riid, object);
+        Encode_IUnknown_QueryInterface(this, result, target_interface_id, object);
     }
     else
     {

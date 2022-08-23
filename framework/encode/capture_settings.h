@@ -89,6 +89,9 @@ class CaptureSettings
         // memory allocation that the capture layer can monitor to determine which regions of memory have been modified
         // by the application.
         bool page_guard_external_memory{ false };
+
+        // IUnknown wrapping option
+        bool iunknown_wrapping{ false };
     };
 
   public:

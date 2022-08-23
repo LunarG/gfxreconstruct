@@ -4347,6 +4347,7 @@ template <> std::string ToString<IID>(const IID& iid, ToStringFlags toStringFlag
     if (iid == IID_ID3D12SharingContract) return "\"IID_ID3D12SharingContract\"";
     if (iid == IID_ID3D12InfoQueue) return "\"IID_ID3D12InfoQueue\"";
     if (iid == IID_ID3D12InfoQueue1) return "\"IID_ID3D12InfoQueue1\"";
+    if (iid == IID_IUnknown) return "\"IID_IUnknown\"";
     return "\"Invalid IID\"";
 }
 

@@ -133,6 +133,8 @@ class CaptureManager
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
+    bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
+
   protected:
     enum CaptureModeFlags : uint32_t
     {
@@ -300,6 +302,7 @@ class CaptureManager
     std::vector<uint32_t>                   screenshot_indices_;
     bool                                    disable_dxr_;
     uint32_t                                accel_struct_padding_;
+    bool                                    iunknown_wrapping_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
