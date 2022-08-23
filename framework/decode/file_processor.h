@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -62,7 +63,7 @@ class FileProcessor
 
     FileProcessor(uint64_t block_limit);
 
-    ~FileProcessor();
+    virtual ~FileProcessor();
 
     void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
 
@@ -94,26 +95,14 @@ class FileProcessor
 
     bool EntireFileWasProcessed() const { return (feof(file_descriptor_) != 0); }
 
-  private:
+  protected:
     bool ContinueDecoding();
 
-    bool ProcessFileHeader();
-
-    bool ProcessBlocks();
-
     bool ReadBlockHeader(format::BlockHeader* block_header);
-
-    bool ReadParameterBuffer(size_t buffer_size);
-
-    bool ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
-                                       size_t  expected_uncompressed_size,
-                                       size_t* uncompressed_buffer_size);
 
     bool ReadBytes(void* buffer, size_t buffer_size);
 
     bool SkipBytes(size_t skip_size);
-
-    void HandleBlockReadError(Error error_code, const char* error_message);
 
     bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
 
@@ -121,32 +110,47 @@ class FileProcessor
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
+    bool IsFrameDelimiter(format::ApiCallId call_id) const;
+
+    void HandleBlockReadError(Error error_code, const char* error_message);
+
     bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 
     bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type);
 
-    bool IsFrameDelimiter(format::ApiCallId call_id) const;
+  protected:
+    FILE*                    file_descriptor_;
+    uint32_t                 current_frame_number_;
+    std::vector<ApiDecoder*> decoders_;
+    uint64_t                 block_index_;
+    AnnotationHandler*       annotation_handler_;
+    Error                    error_state_;
+
+  private:
+    bool ProcessFileHeader();
+
+    virtual bool ProcessBlocks();
+
+    bool ReadParameterBuffer(size_t buffer_size);
+
+    bool ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
+                                       size_t  expected_uncompressed_size,
+                                       size_t* uncompressed_buffer_size);
 
     bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC); }
 
     bool IsFileValid() const { return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)); }
 
   private:
-    FILE*                               file_descriptor_;
     std::string                         filename_;
     format::FileHeader                  file_header_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
-    uint32_t                            current_frame_number_;
     uint64_t                            bytes_read_;
-    Error                               error_state_;
-    AnnotationHandler*                  annotation_handler_;
-    std::vector<ApiDecoder*>            decoders_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
     uint64_t                            api_call_index_;
-    uint64_t                            block_index_;
     uint64_t                            block_limit_;
 };
 

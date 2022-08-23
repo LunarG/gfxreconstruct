@@ -36,6 +36,8 @@ target_sources(gfxrecon-optimize
                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.cpp>
                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_util.h>
                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_util.cpp>
+                   $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/block_skipping_file_processor.h>
+                   $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/block_skipping_file_processor.cpp>
               )
 
 target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR})

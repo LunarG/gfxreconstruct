@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,6 +22,7 @@
 */
 
 #include "dx12_optimize_util.h"
+#include "block_skipping_file_processor.h"
 
 #include "dx12_file_optimizer.h"
 #include "decode/dx12_object_info.h"
@@ -80,78 +82,113 @@ void CreateResourceValueTrackingConsumer(decode::FileProcessor*                 
     dx12_replay_consumer->SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 }
 
+bool FileProcessorSucceeded(const decode::FileProcessor& processor)
+{
+    return (processor.GetCurrentFrameNumber() > 0) &&
+           (processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone) &&
+           processor.EntireFileWasProcessed();
+}
+
 bool GetDx12OptimizationInfo(const std::string&                     input_filename,
                              const decode::Dx12OptimizationOptions& options,
                              Dx12OptimizationInfo&                  info)
 {
-    bool result = false;
+    bool pso_scan_result = true;
+    bool dxr_scan_result = true;
 
-    std::shared_ptr<application::Application> application;
-    decode::FileProcessor                     file_processor;
-    if (file_processor.Initialize(input_filename))
+    if (options.remove_redundant_psos)
     {
-        gfxrecon::decode::Dx12Decoder                      decoder;
-        gfxrecon::decode::Dx12ObjectScanningConsumer       resref_consumer;
-        std::unique_ptr<Dx12ResourceValueTrackingConsumer> resource_value_tracking_consumer = nullptr;
-
-        if (options.remove_redundant_psos)
+        pso_scan_result = false;
+        decode::FileProcessor pso_pass_file_processor;
+        if (pso_pass_file_processor.Initialize(input_filename))
         {
-            GFXRECON_WRITE_CONSOLE("Scanning D3D12 file %s for unreferenced objects.", input_filename.c_str());
-            decoder.AddConsumer(&resref_consumer);
-        }
+            gfxrecon::decode::Dx12Decoder                pso_pass_decoder;
+            gfxrecon::decode::Dx12ObjectScanningConsumer resref_consumer;
 
-        if (options.optimize_dxr)
-        {
-            GFXRECON_WRITE_CONSOLE("Scanning D3D12 file %s for DXR optimization information.", input_filename.c_str());
-            CreateResourceValueTrackingConsumer(&file_processor, resource_value_tracking_consumer, application);
-            decoder.AddConsumer(resource_value_tracking_consumer.get());
-        }
-
-        file_processor.AddDecoder(&decoder);
-
-        // If a windowed application was created, run it. Otherwise process using the file_processor directly.
-        if (application)
-        {
-            application->Run();
-        }
-        else
-        {
-            file_processor.ProcessAllFrames();
-        }
-
-        if ((file_processor.GetCurrentFrameNumber() > 0) &&
-            (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone) &&
-            file_processor.EntireFileWasProcessed())
-        {
-            if (options.remove_redundant_psos)
+            GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for unreferenced PSOs.", input_filename.c_str());
+            pso_pass_decoder.AddConsumer(&resref_consumer);
+            pso_pass_file_processor.AddDecoder(&pso_pass_decoder);
+            pso_pass_file_processor.ProcessAllFrames();
+            if (FileProcessorSucceeded(pso_pass_file_processor))
             {
                 resref_consumer.GetUnreferencedObjectCreationBlocks(&info.unreferenced_blocks, &info.calls_info);
-            }
+                GFXRECON_WRITE_CONSOLE("Finished scanning capture file for unreferenced PSOs.");
 
-            if (options.optimize_dxr)
+                pso_scan_result = true;
+            }
+            else if (pso_pass_file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {
-                resource_value_tracking_consumer->GetTrackedResourceValues(info.fill_command_resource_values);
+                GFXRECON_WRITE_CONSOLE("A failure has occurred during scanning capture file for unreferenced PSOs");
             }
-
-            GFXRECON_WRITE_CONSOLE("Finished scanning capture file.");
-
-            result = true;
-        }
-        else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-        {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing");
-        }
-        else if (!file_processor.EntireFileWasProcessed())
-        {
-            GFXRECON_WRITE_CONSOLE("Failed to process the entire capture file.");
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("Capture did not contain any frames");
+            else if (!pso_pass_file_processor.EntireFileWasProcessed())
+            {
+                GFXRECON_WRITE_CONSOLE("Failed to process the entire capture file for unreferenced PSOs.");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("PSO removal optimization detected invalid capture. Please ensure that traces "
+                                       "input to the optimizer "
+                                       "already replay on their own.");
+            }
         }
     }
 
-    return result;
+    if (options.optimize_dxr)
+    {
+        dxr_scan_result = false;
+        std::shared_ptr<application::Application> application;
+        decode::BlockSkippingFileProcessor        dxr_pass_file_processor;
+        if (dxr_pass_file_processor.Initialize(input_filename))
+        {
+            gfxrecon::decode::Dx12Decoder                      dxr_pass_decoder;
+            std::unique_ptr<Dx12ResourceValueTrackingConsumer> resource_value_tracking_consumer = nullptr;
+            GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for DXR optimization information.",
+                                   input_filename.c_str());
+            CreateResourceValueTrackingConsumer(reinterpret_cast<decode::FileProcessor*>(&dxr_pass_file_processor),
+                                                resource_value_tracking_consumer,
+                                                application);
+            dxr_pass_decoder.AddConsumer(resource_value_tracking_consumer.get());
+
+            dxr_pass_file_processor.AddDecoder(&dxr_pass_decoder);
+            dxr_pass_file_processor.SetBlocksToSkip(info.unreferenced_blocks);
+
+            if (application)
+            {
+                application->Run();
+
+                GFXRECON_ASSERT(dxr_pass_file_processor.IsSkippingFinished());
+
+                if (FileProcessorSucceeded(dxr_pass_file_processor))
+                {
+                    resource_value_tracking_consumer->GetTrackedResourceValues(info.fill_command_resource_values);
+
+                    GFXRECON_WRITE_CONSOLE("Finished scanning capture file for DXR optimization.");
+
+                    dxr_scan_result = true;
+                }
+                else if (dxr_pass_file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                {
+                    GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing for DXR optimization");
+                }
+                else if (!dxr_pass_file_processor.EntireFileWasProcessed())
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to process the entire capture file for DXR optimization.");
+                }
+                else
+                {
+                    GFXRECON_WRITE_CONSOLE(
+                        "DXR optimization detected invalid capture. Please ensure that traces input to the optimizer "
+                        "already replay on their own.");
+                }
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("Failed to create the application for DXR optimization.");
+            }
+        }
+    }
+
+    return pso_scan_result || dxr_scan_result;
 }
 
 bool ApplyDx12OptimizationInfo(const std::string&                     input_filename,
@@ -171,20 +208,20 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
 
             const auto& calls_info = info.calls_info;
 
-            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " unused pso related calls.", info.unreferenced_blocks.size());
+            GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " unused PSO related calls.", info.unreferenced_blocks.size());
             if (calls_info.graphics_pso_creation_calls > 0)
             {
-                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " graphics pso creation calls.",
+                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " CreateGraphicsPipelineState() calls.",
                                        calls_info.graphics_pso_creation_calls);
             }
             if (calls_info.compute_pso_creation_calls > 0)
             {
-                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " compute pso creation calls.",
+                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " CreateComputePipelineState() calls.",
                                        calls_info.compute_pso_creation_calls);
             }
             if (calls_info.storepipeline_calls > 0)
             {
-                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " storepipeline calls.", calls_info.storepipeline_calls);
+                GFXRECON_WRITE_CONSOLE("Removing %" PRIu64 " StorePipeline() calls.", calls_info.storepipeline_calls);
             }
         }
         else
