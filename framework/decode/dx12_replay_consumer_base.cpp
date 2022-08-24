@@ -323,19 +323,45 @@ void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocat
     }
 }
 
-void Dx12ReplayConsumerBase::ApplyResourceInitInfo()
+void Dx12ReplayConsumerBase::SetResourceInitInfoState(ResourceInitInfo&                           resource_info,
+                                                      const format::InitSubresourceCommandHeader& command_header,
+                                                      const uint8_t*                              data)
 {
-    if (resource_init_info_.resource != nullptr)
+    resource_info.before_states.push_back(
+        { static_cast<D3D12_RESOURCE_STATES>(command_header.initial_state), D3D12_RESOURCE_BARRIER_FLAG_NONE });
+    resource_info.after_states.push_back({ static_cast<D3D12_RESOURCE_STATES>(command_header.resource_state),
+                                           static_cast<D3D12_RESOURCE_BARRIER_FLAGS>(command_header.barrier_flags) });
+    resource_info.subresource_offsets.push_back(resource_info.data.size());
+    resource_info.subresource_sizes.push_back(command_header.data_size);
+    resource_info.data.insert(resource_info.data.end(), data, data + command_header.data_size);
+}
+
+void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
+    std::unordered_map<ID3D12Resource*, ResourceInitInfo>& resource_infos)
+{
+    GFXRECON_ASSERT(resource_data_util_);
+    if (resource_infos.size() > 0)
     {
-        resource_data_util_->WriteToResource(resource_init_info_.resource,
-                                             resource_init_info_.try_map_and_copy,
-                                             resource_init_info_.before_states,
-                                             resource_init_info_.after_states,
-                                             resource_init_info_.data,
-                                             resource_init_info_.subresource_offsets,
-                                             resource_init_info_.subresource_sizes);
+        resource_data_util_->ResetCommandList();
+        for (auto resource_info : resource_infos)
+        {
+            if (resource_info.first != nullptr)
+            {
+                resource_data_util_->WriteToResource(resource_info.second.resource,
+                                                     resource_info.second.try_map_and_copy,
+                                                     resource_info.second.before_states,
+                                                     resource_info.second.after_states,
+                                                     resource_info.second.data,
+                                                     resource_info.second.subresource_offsets,
+                                                     resource_info.second.subresource_sizes,
+                                                     resource_info.second.staging_resource,
+                                                     true);
+            }
+        }
+        resource_data_util_->CloseCommandList();
+        resource_data_util_->ExecuteAndWaitForCommandList();
+        resource_infos.clear();
     }
-    resource_init_info_.Reset();
 }
 
 void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId device_id,
@@ -345,16 +371,13 @@ void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId de
     GFXRECON_UNREFERENCED_PARAMETER(max_copy_size);
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
 
-    auto device = MapObject<ID3D12Device>(device_id);
-
-    resource_init_info_ = {};
-    resource_init_info_.data.reserve(static_cast<size_t>(max_resource_size));
+    auto device         = MapObject<ID3D12Device>(device_id);
     resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_resource_size);
 }
 
 void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
 {
-    ApplyResourceInitInfo();
+    ApplyBatchedResourceInitInfo(resource_init_infos_);
     resource_data_util_ = nullptr;
 }
 
@@ -363,46 +386,65 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 {
     HRESULT result = E_FAIL;
 
-    auto device        = MapObject<ID3D12Device>(command_header.device_id);
-    auto resource_info = GetObjectInfo(command_header.resource_id);
-    auto resource      = static_cast<ID3D12Resource*>(resource_info->object);
+    auto device            = MapObject<ID3D12Device>(command_header.device_id);
+    auto device_info       = GetObjectInfo(command_header.device_id);
+    auto extra_device_info = GetExtraInfo<D3D12DeviceInfo>(device_info);
+    auto resource_info     = GetObjectInfo(command_header.resource_id);
+    auto resource          = static_cast<ID3D12Resource*>(resource_info->object);
 
     GFXRECON_ASSERT(MapObject<ID3D12Resource>(command_header.resource_id) == resource);
 
-    // If a new resource is encountered, write the current resource and track the new resource init info.
-    if (resource_init_info_.resource != resource)
-    {
-        ApplyResourceInitInfo();
-        resource_init_info_.resource = resource;
+    uint64_t total_size_in_bytes =
+        graphics::dx12::GetResourceSizeInBytes(device, extra_device_info->adapter_node_index, &resource->GetDesc());
 
-        bool is_reserved_resource = false;
-        if (resource_info->extra_info != nullptr)
+    // System has enough memory to batch the next Copy()
+    ResourceInitInfo resource_init_info = {};
+    resource_init_info.resource         = resource;
+    bool is_reserved_resource           = false;
+    if (resource_info->extra_info != nullptr)
+    {
+        // Reserved resource has to be uploaded via staging buffer
+        is_reserved_resource = GetExtraInfo<D3D12ResourceInfo>(resource_info)->is_reserved_resource;
+    }
+    resource_init_info.try_map_and_copy = !is_reserved_resource;
+
+    auto find_resource_info = resource_init_infos_.find(resource);
+    if (find_resource_info == resource_init_infos_.end())
+    {
+        if (!graphics::dx12::IsMemoryAvailable(total_size_in_bytes, extra_device_info->adapter3))
         {
-            is_reserved_resource = GetExtraInfo<D3D12ResourceInfo>(resource_info)->is_reserved_resource;
+            // If neither system memory or GPU memory are able to accommodate next resource,
+            // execute the Copy() calls and release temp buffer to free memory
+            ApplyBatchedResourceInitInfo(resource_init_infos_);
         }
-        resource_init_info_.try_map_and_copy = !is_reserved_resource;
+        // Prepare Staging buffer for next resource
+        size_t                                          subresource_count;
+        uint64_t                                        required_data_size;
+        std::vector<uint64_t>                           subresource_offsets;
+        std::vector<uint64_t>                           subresource_sizes;
+        std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts;
+        resource_data_util_->GetResourceCopyInfo(resource,
+                                                 subresource_count,
+                                                 subresource_offsets,
+                                                 subresource_sizes,
+                                                 temp_subresource_layouts,
+                                                 required_data_size);
+        resource_init_info.subresource_sizes = subresource_sizes;
+        resource_init_info.staging_resource = resource_data_util_->CreateStagingBuffer(
+            graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeWrite, required_data_size);
+        SetResourceInitInfoState(resource_init_info, command_header, data);
+        resource_init_infos_.insert(std::make_pair(resource, resource_init_info));
     }
-
-    resource_init_info_.before_states.push_back(
-        { static_cast<D3D12_RESOURCE_STATES>(command_header.initial_state), D3D12_RESOURCE_BARRIER_FLAG_NONE });
-    resource_init_info_.after_states.push_back(
-        { static_cast<D3D12_RESOURCE_STATES>(command_header.resource_state),
-          static_cast<D3D12_RESOURCE_BARRIER_FLAGS>(command_header.barrier_flags) });
-    resource_init_info_.subresource_offsets.push_back(resource_init_info_.data.size());
-    resource_init_info_.subresource_sizes.push_back(command_header.data_size);
-    resource_init_info_.data.insert(resource_init_info_.data.end(), data, data + command_header.data_size);
-
-    // Only for buffer resources (which contain 1 subresource), map any resource values contained in the data.
-    if (command_header.subresource == 0)
+    else
     {
-        ApplyFillMemoryResourceValueCommand(
-            0, resource_init_info_.subresource_sizes[0], data, resource_init_info_.data.data());
+        // If the resource has been uploaded, then set its state.
+        SetResourceInitInfoState(find_resource_info->second, command_header, data);
     }
 
-    if ((resource_value_mapper_ != nullptr) && (resource_init_info_.resource != nullptr))
+    if ((resource_value_mapper_ != nullptr) && (resource_init_info.resource != nullptr))
     {
         resource_value_mapper_->PostProcessInitSubresourceCommand(
-            resource_init_info_.resource, command_header, GetCurrentBlockIndex());
+            resource_init_info.resource, command_header, GetCurrentBlockIndex());
     }
 }
 
@@ -850,7 +892,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert(device != nullptr);
+    GFXRECON_ASSERT(device != nullptr);
 
     IUnknown* adapter = nullptr;
     if (adapter_info != nullptr)
@@ -863,9 +905,14 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {
-        SetExtraInfo(device, std::make_unique<D3D12DeviceInfo>());
+        auto device_info = std::make_unique<D3D12DeviceInfo>();
+        auto device_ptr  = reinterpret_cast<ID3D12Device*>(*device->GetHandlePointer());
 
-        auto device_ptr = reinterpret_cast<ID3D12Device*>(*device->GetHandlePointer());
+        graphics::dx12::GetAdapterAndIndexbyDevice(reinterpret_cast<ID3D12Device*>(device_ptr),
+                                                   device_info->adapter3,
+                                                   device_info->adapter_node_index,
+                                                   adapters_);
+        SetExtraInfo(device, std::move(device_info));
 
         graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
     }
@@ -918,7 +965,8 @@ void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInf
                 {
                     format::DxgiAdapterDesc replay_adapter_desc = adapters_.begin()->second.internal_desc;
 
-                    std::string replay_adapter_str = gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
+                    std::string replay_adapter_str =
+                        gfxrecon::util::WCharArrayToString(replay_adapter_desc.Description);
 
                     GFXRECON_LOG_WARNING("Replay-time adapter: [%s] [DeviceID 0x%x] [VendorId 0x%x]",
                                          replay_adapter_str.c_str(),
@@ -1075,8 +1123,7 @@ Dx12ReplayConsumerBase::OverrideCreateDescriptorHeap(DxObjectInfo* replay_object
     return replay_result;
 }
 
-HRESULT
-Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
+HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
     DxObjectInfo*                                        replay_object_info,
     HRESULT                                              original_result,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,

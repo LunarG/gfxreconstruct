@@ -46,7 +46,8 @@ class Dx12ResourceDataUtil
                              const std::vector<dx12::ResourceStateInfo>& after_states,
                              std::vector<uint8_t>&                       data,
                              std::vector<uint64_t>&                      subresource_offsets,
-                             std::vector<uint64_t>&                      subresource_sizes);
+                             std::vector<uint64_t>&                      subresource_sizes,
+                             ID3D12Resource*                             staging_resource = nullptr);
 
     HRESULT WriteToResource(ID3D12Resource*                             target_resource,
                             bool                                        try_map_and_copy,
@@ -54,18 +55,19 @@ class Dx12ResourceDataUtil
                             const std::vector<dx12::ResourceStateInfo>& after_states,
                             const std::vector<uint8_t>&                 data,
                             const std::vector<uint64_t>&                subresource_offsets,
-                            const std::vector<uint64_t>&                subresource_sizes);
+                            const std::vector<uint64_t>&                subresource_sizes,
+                            ID3D12Resource*                             staging_resource = nullptr,
+                            bool                                        batching         = false);
 
-  private:
     enum CopyType : int
     {
         kCopyTypeRead  = 0,
         kCopyTypeWrite = 1
     };
 
-  private:
     // Create a mappable buffer used to copy data to or from another resource via a command list.
     dx12::ID3D12ResourceComPtr GetStagingBuffer(CopyType type, uint64_t required_buffer_size);
+    dx12::ID3D12ResourceComPtr CreateStagingBuffer(CopyType type, uint64_t required_buffer_size);
 
     void GetResourceCopyInfo(ID3D12Resource*                                  resource,
                              size_t&                                          subresource_count,
@@ -87,13 +89,19 @@ class Dx12ResourceDataUtil
     HRESULT ExecuteAndWaitForCommandList();
 
     // Build and execute a command list that copies data to or from the target_resource.
+    HRESULT ResetCommandList();
+
+    HRESULT CloseCommandList();
+
     HRESULT
     ExecuteCopyCommandList(ID3D12Resource*                                        target_resource,
                            CopyType                                               copy_type,
                            uint64_t                                               copy_size,
                            const std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& subresource_layouts,
                            const std::vector<dx12::ResourceStateInfo>&            before_states,
-                           const std::vector<dx12::ResourceStateInfo>&            after_states);
+                           const std::vector<dx12::ResourceStateInfo>&            after_states,
+                           ID3D12Resource*                                        staging_buffer = nullptr,
+                           bool                                                   batching       = false);
 
     // Build and execute a command list to transition the target resource's subresources from before_states to
     // after_states.
@@ -101,6 +109,8 @@ class Dx12ResourceDataUtil
     ExecuteTransitionCommandList(ID3D12Resource*                             target_resource,
                                  const std::vector<dx12::ResourceStateInfo>& before_states,
                                  const std::vector<dx12::ResourceStateInfo>& after_states);
+
+    HRESULT MapSubresourceAndReadData(ID3D12Resource* resource, UINT subresource, size_t size, uint8_t* data);
 
   private:
     ID3D12Device*                         device_;
@@ -117,6 +127,9 @@ class Dx12ResourceDataUtil
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts_;
     std::vector<UINT>                               temp_subresource_row_counts_;
     std::vector<UINT64>                             temp_subresource_row_size_bytes_;
+
+    // Vector to Resident resources
+    std::vector<ID3D12Pageable*> resident_resources;
 };
 
 GFXRECON_END_NAMESPACE(graphics)

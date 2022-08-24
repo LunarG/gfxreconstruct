@@ -604,9 +604,13 @@ void Dx12StateWriter::WriteResourceCreationState(
             // Store resource wrappers and max resource sizes.
             ResourceSnapshotInfo snapshot_info;
             snapshot_info.resource_wrapper = resource_wrapper;
-            resource_snapshots[resource_info->device_id].push_back(snapshot_info);
-            max_resource_sizes[resource_info->device_id] =
-                std::max(resource_size, max_resource_sizes[resource_info->device_id]);
+            format::HandleId device_id     = format::kNullHandleId;
+            if (resource_info->device_wrapper != nullptr)
+            {
+                device_id = resource_info->device_wrapper->GetCaptureId();
+            }
+            resource_snapshots[device_id].push_back(snapshot_info);
+            max_resource_sizes[device_id] = std::max(resource_size, max_resource_sizes[device_id]);
         }
     });
 
@@ -633,6 +637,28 @@ void Dx12StateWriter::WriteResourceCreationState(
 
         parameter_stream_.Reset();
     }
+}
+
+void Dx12StateWriter::FlushStagingBuffersData(graphics::Dx12ResourceDataUtil*       resource_data_util,
+                                              std::vector<ID3D12Resource_Wrapper*>& submitted_resources)
+{
+    GFXRECON_ASSERT(resource_data_util);
+    for (auto res : submitted_resources)
+    {
+        auto resource_info = res->GetObjectInfo();
+        if (resource_info->staging_buffer != nullptr)
+        {
+            resource_data_util->MapSubresourceAndReadData(
+                reinterpret_cast<ID3D12Resource*>(resource_info.get()->staging_buffer.GetInterfacePtr()),
+                0,
+                static_cast<size_t>(resource_info.get()->staging_buffer_info.required_data_size),
+                resource_info.get()->staging_buffer_info.staging_buffer_data.data());
+            WriteBufferData(res);
+            resource_info->staging_buffer_info.staging_buffer_data = std::vector<BYTE>();
+            resource_info->staging_buffer = nullptr;
+        }
+    }
+    submitted_resources.clear();
 }
 
 void Dx12StateWriter::WriteResourceSnapshots(
@@ -675,20 +701,27 @@ void Dx12StateWriter::WriteResourceSnapshots(
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
 
-            // Write each resource snapshot to the capture file.
+            // Download the resource data over to staging buffer
+            // Once memory full, dump staging buffer to trace file
+            UINT64                               total_required_memory = 0;
+            std::vector<ID3D12Resource_Wrapper*> submit_vector;
             for (auto snapshot : kvp.second)
             {
+                // Iterate to be dumped resources
+                auto resource_wrapper = snapshot.resource_wrapper;
+                auto resource_info    = resource_wrapper->GetObjectInfo();
+
+                ID3D12Device_Wrapper* device_wrapper =
+                    reinterpret_cast<ID3D12Device_Wrapper*>(resource_info.get()->device_wrapper);
+                GFXRECON_ASSERT(device_wrapper != nullptr);
+
                 if (resource_data_util == nullptr)
                 {
-                    graphics::dx12::ID3D12DeviceComPtr device;
-                    auto                               resource_wrapper = snapshots[0].resource_wrapper;
-                    auto                               resource_info    = resource_wrapper->GetObjectInfo();
-                    auto    resource = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
-                    HRESULT result   = resource->GetDevice(IID_PPV_ARGS(&device));
-                    if (SUCCEEDED(result))
+                    ID3D12Device* device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+                    if (device != nullptr)
                     {
-                        resource_data_util = std::make_unique<graphics::Dx12ResourceDataUtil>(device.GetInterfacePtr(),
-                                                                                              max_resource_size);
+                        resource_data_util =
+                            std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_resource_size);
                     }
                     else
                     {
@@ -698,10 +731,73 @@ void Dx12StateWriter::WriteResourceSnapshots(
                                            resource_wrapper->GetCaptureId());
                         continue;
                     }
+                    resource_data_util->ResetCommandList();
                 }
 
-                WriteResourceSnapshot(resource_data_util.get(), snapshot);
+                uint64_t size_in_bytes = resource_info.get()->size_in_bytes;
+                auto     device_info   = device_wrapper->GetObjectInfo();
+                if (!graphics::dx12::IsMemoryAvailable(size_in_bytes, device_info.get()->adapter3))
+                {
+                    // If neither system memory or GPU memory are able to accommodate next resource,
+                    // execute the existing Copy() calls and release temp buffer to free memory
+                    resource_data_util->CloseCommandList();
+                    resource_data_util->ExecuteAndWaitForCommandList();
+                    FlushStagingBuffersData(resource_data_util.get(), submit_vector);
+                    resource_data_util->ResetCommandList();
+                }
+
+                auto resource = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+                resource_data_util->GetResourceCopyInfo(resource,
+                                                        resource_info.get()->staging_buffer_info.subresource_count,
+                                                        resource_info.get()->staging_buffer_info.subresource_offsets,
+                                                        resource_info.get()->staging_buffer_info.subresource_sizes,
+                                                        resource_info.get()->staging_buffer_info.layouts,
+                                                        resource_info.get()->staging_buffer_info.required_data_size);
+                resource_info->staging_buffer_info.staging_buffer_data.clear();
+                resource_info->staging_buffer_info.staging_buffer_data.resize(
+                    static_cast<size_t>(resource_info.get()->staging_buffer_info.required_data_size));
+
+                bool is_cpu_accessible =
+                    (resource_info.get()->heap_type == D3D12_HEAP_TYPE_READBACK ||
+                     (resource_info.get()->heap_type == D3D12_HEAP_TYPE_CUSTOM &&
+                      (resource_info.get()->page_property == D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE ||
+                       resource_info.get()->page_property == D3D12_CPU_PAGE_PROPERTY_WRITE_BACK)) &&
+                         ((resource_info.get()->create_call_id !=
+                           format::ApiCall_ID3D12Device_CreateReservedResource) &&
+                          (resource_info.get()->create_call_id !=
+                           format::ApiCall_ID3D12Device4_CreateReservedResource1)));
+
+                if (is_cpu_accessible == false)
+                {
+                    // If the resource is non CPU accessible resource, create staging buffer for it
+                    // And issue Copy() to download the data over to the staging buffer
+                    CreateStagingBuffer(resource_data_util.get(),
+                                        resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
+                                        resource_info.get());
+                    resource_data_util->ExecuteCopyCommandList(
+                        resource_wrapper->GetWrappedObjectAs<ID3D12Resource>(),
+                        graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeRead,
+                        resource_info.get()->staging_buffer_info.required_data_size,
+                        resource_info.get()->staging_buffer_info.layouts,
+                        resource_info->subresource_transitions,
+                        resource_info->subresource_transitions,
+                        reinterpret_cast<ID3D12Resource*>(resource_info.get()->staging_buffer.GetInterfacePtr()),
+                        true);
+                    submit_vector.push_back(resource_wrapper);
+                }
+                else
+                {
+                    // If the resource is mappable resource, direct map out the resource data
+                    // and dump to trace file.
+                    WriteMappableResource(resource_data_util.get(), snapshot);
+                    resource_info->staging_buffer_info.staging_buffer_data.clear();
+                }
             }
+
+            // Execute the existing Copy() calls and flush temp buffer data.
+            resource_data_util->CloseCommandList();
+            resource_data_util->ExecuteAndWaitForCommandList();
+            FlushStagingBuffersData(resource_data_util.get(), submit_vector);
 
             // Write the block indicating resource processing end.
             format::EndResourceInitCommand end_cmd;
@@ -717,77 +813,85 @@ void Dx12StateWriter::WriteResourceSnapshots(
     }
 }
 
-void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* resource_data_util,
+void Dx12StateWriter::CreateStagingBuffer(graphics::Dx12ResourceDataUtil* resource_data_util,
+                                          ID3D12Resource*                 target_resource,
+                                          ID3D12ResourceInfo*             resource_info)
+{
+    resource_info->staging_buffer = resource_data_util->CreateStagingBuffer(
+        graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeRead,
+        std::max(resource_info->size_in_bytes, resource_info->staging_buffer_info.required_data_size));
+}
+
+void Dx12StateWriter::WriteBufferData(ID3D12Resource_Wrapper* resource_wrapper)
+{
+    auto resource_info = resource_wrapper->GetObjectInfo();
+    for (uint32_t i = 0; i < resource_info.get()->staging_buffer_info.subresource_sizes.size(); ++i)
+    {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, resource_info.get()->staging_buffer_info.subresource_sizes[i]);
+
+        uint8_t* subresource_data = resource_info.get()->staging_buffer_info.staging_buffer_data.data() +
+                                    resource_info.get()->staging_buffer_info.subresource_offsets[i];
+        size_t subresource_size = static_cast<size_t>(resource_info.get()->staging_buffer_info.subresource_sizes[i]);
+
+        // Create subresource upload data block.
+        format::InitSubresourceCommandHeader upload_cmd;
+        upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+        upload_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitSubresourceCommand);
+        upload_cmd.thread_id       = thread_id_;
+        format::HandleId device_id = format::kNullHandleId;
+        if (resource_info->device_wrapper != nullptr)
+        {
+            device_id = resource_info->device_wrapper->GetCaptureId();
+        }
+        upload_cmd.device_id      = device_id;
+        upload_cmd.resource_id    = resource_wrapper->GetCaptureId();
+        upload_cmd.subresource    = i;
+        upload_cmd.initial_state  = resource_info->initial_state;
+        upload_cmd.resource_state = resource_info->subresource_transitions[i].states;
+        upload_cmd.barrier_flags  = resource_info->subresource_transitions[i].barrier_flags;
+        upload_cmd.data_size      = subresource_size;
+
+        // Compress block data.
+        if (compressor_ != nullptr)
+        {
+            size_t compressed_size =
+                compressor_->Compress(subresource_size, subresource_data, &compressed_parameter_buffer_, 0);
+
+            if ((compressed_size > 0) && (compressed_size < subresource_size))
+            {
+                upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                subresource_data = compressed_parameter_buffer_.data();
+                subresource_size = compressed_size;
+            }
+        }
+
+        // Calculate size of packet with compressed or uncompressed data size.
+        upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + subresource_size;
+
+        // Write upload block to file.
+        output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+        output_stream_->Write(subresource_data, subresource_size);
+    }
+}
+
+void Dx12StateWriter::WriteMappableResource(graphics::Dx12ResourceDataUtil* resource_data_util,
                                             const ResourceSnapshotInfo&     snapshot)
 {
     auto resource_wrapper = snapshot.resource_wrapper;
     auto resource_info    = resource_wrapper->GetObjectInfo();
     auto resource         = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
-
-    uint64_t subresource_count      = 0;
-    uint64_t total_subresource_size = 0;
-    temp_subresource_data_.clear();
-    temp_subresource_sizes_.clear();
-    temp_subresource_offsets_.clear();
-
-    bool try_map_and_copy = (resource_info->create_call_id != format::ApiCall_ID3D12Device_CreateReservedResource) &&
-                            (resource_info->create_call_id != format::ApiCall_ID3D12Device4_CreateReservedResource1);
-
-    // Read the data from the resource.
-    HRESULT result = resource_data_util->ReadFromResource(resource,
-                                                          try_map_and_copy,
-                                                          resource_info->subresource_transitions,
-                                                          resource_info->subresource_transitions,
-                                                          temp_subresource_data_,
-                                                          temp_subresource_offsets_,
-                                                          temp_subresource_sizes_);
-
-    if (SUCCEEDED(result))
+    if (resource_data_util->CopyMappableResource(resource,
+                                                 resource_info->subresource_transitions,
+                                                 resource_info->subresource_transitions,
+                                                 graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeRead,
+                                                 &resource_info->staging_buffer_info.staging_buffer_data,
+                                                 nullptr,
+                                                 resource_info.get()->staging_buffer_info.subresource_offsets,
+                                                 resource_info.get()->staging_buffer_info.subresource_sizes))
     {
-        // Write the subresource data to the output.
-        for (uint32_t i = 0; i < temp_subresource_sizes_.size(); ++i)
-        {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, temp_subresource_sizes_[i]);
-
-            uint8_t* subresource_data = temp_subresource_data_.data() + temp_subresource_offsets_[i];
-            size_t   subresource_size = static_cast<size_t>(temp_subresource_sizes_[i]);
-
-            // Create subresource upload data block.
-            format::InitSubresourceCommandHeader upload_cmd;
-            upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-            upload_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
-                                                                         format::MetaDataType::kInitSubresourceCommand);
-            upload_cmd.thread_id                     = thread_id_;
-            upload_cmd.device_id                     = resource_info->device_id;
-            upload_cmd.resource_id                   = resource_wrapper->GetCaptureId();
-            upload_cmd.subresource                   = i;
-            upload_cmd.initial_state                 = resource_info->initial_state;
-            upload_cmd.resource_state                = resource_info->subresource_transitions[i].states;
-            upload_cmd.barrier_flags                 = resource_info->subresource_transitions[i].barrier_flags;
-            upload_cmd.data_size                     = subresource_size;
-
-            // Compress block data.
-            if (compressor_ != nullptr)
-            {
-                size_t compressed_size =
-                    compressor_->Compress(subresource_size, subresource_data, &compressed_parameter_buffer_, 0);
-
-                if ((compressed_size > 0) && (compressed_size < subresource_size))
-                {
-                    upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
-
-                    subresource_data = compressed_parameter_buffer_.data();
-                    subresource_size = compressed_size;
-                }
-            }
-
-            // Calculate size of packet with compressed or uncompressed data size.
-            upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + subresource_size;
-
-            // Write upload block to file.
-            output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-            output_stream_->Write(subresource_data, subresource_size);
-        }
+        WriteBufferData(resource_wrapper);
     }
     else
     {

@@ -375,6 +375,16 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12CreateDevice>
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_D3D12CreateDevice>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_D3D12CreateDevice(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion>
 {
     template <typename... Args>
@@ -653,16 +663,6 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectPropert
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(args...);
-    }
-};
-
-template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_D3D12CreateDevice>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_D3D12CreateDevice(args...);
     }
 };
 

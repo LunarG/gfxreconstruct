@@ -243,6 +243,7 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                                                        ID3D12Resource_Wrapper*  resource_wrapper,
                                                        D3D12_RESOURCE_DIMENSION dimension,
                                                        UINT64                   width,
+                                                       UINT64                   size,
                                                        D3D12_HEAP_TYPE          heap_type,
                                                        D3D12_CPU_PAGE_PROPERTY  page_property,
                                                        D3D12_MEMORY_POOL        memory_pool,
@@ -254,11 +255,12 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     auto info = resource_wrapper->GetObjectInfo();
     assert((info != nullptr) && (device_wrapper != nullptr));
 
-    info->device_id       = device_wrapper->GetCaptureId();
+    info->device_wrapper  = device_wrapper;
     info->heap_type       = heap_type;
     info->page_property   = page_property;
     info->memory_pool     = memory_pool;
     info->has_write_watch = has_write_watch;
+    info->size_in_bytes   = size;
 
     if (dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
@@ -309,7 +311,6 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                 layouts[i].Footprint.Depth;
         }
     }
-
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         state_tracker_->TrackResourceCreation(resource_wrapper, initial_state, false);
@@ -325,7 +326,6 @@ void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(ID3D12Resource_W
     auto info = resource_wrapper->GetObjectInfo();
 
     // Not all fields of ID3D12ResourceInfo are used for swap chain buffers.
-    info->device_id            = format::kNullHandleId;
     info->num_subresources     = 1;
     info->mapped_subresources  = std::make_unique<MappedSubresource[]>(info->num_subresources);
     info->subresource_sizes    = std::make_unique<uint64_t[]>(info->num_subresources);
@@ -334,6 +334,23 @@ void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(ID3D12Resource_W
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         state_tracker_->TrackResourceCreation(resource_wrapper, initial_state, true);
+    }
+}
+
+void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** device)
+{
+    GFXRECON_ASSERT(device != nullptr);
+    GFXRECON_ASSERT(*device != nullptr);
+
+    if ((device != nullptr) && (*device != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D12Device_Wrapper*>(*device)->GetObjectInfo();
+
+        if (info != nullptr)
+        {
+            graphics::dx12::GetAdapterAndIndexbyDevice(
+                reinterpret_cast<ID3D12Device*>(*device), info->adapter3, info->adapter_node_index, adapters_);
+        }
     }
 }
 
@@ -384,6 +401,22 @@ bool D3D12CaptureManager::IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_
         return true;
     }
     return false;
+}
+
+uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device_Wrapper*      device_wrapper,
+                                                     const D3D12_RESOURCE_DESC* desc)
+{
+    auto device      = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+    auto device_info = device_wrapper->GetObjectInfo();
+    return graphics::dx12::GetResourceSizeInBytes(device, device_info.get()->adapter_node_index, desc);
+}
+
+uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device8_Wrapper*      device_wrapper,
+                                                     const D3D12_RESOURCE_DESC1* desc)
+{
+    auto device      = device_wrapper->GetWrappedObjectAs<ID3D12Device8>();
+    auto device_info = device_wrapper->GetObjectInfo();
+    return graphics::dx12::GetResourceSizeInBytes(device, device_info.get()->adapter_node_index, desc);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_Wrapper* wrapper,
@@ -708,11 +741,14 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
+        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
+
         InitializeID3D12ResourceInfo(
             wrapper,
             resource_wrapper,
             desc->Dimension,
             desc->Width,
+            total_size_in_bytes,
             heap_properties->Type,
             heap_properties->CPUPageProperty,
             heap_properties->MemoryPoolPreference,
@@ -745,10 +781,13 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
         auto heap_info        = heap_wrapper->GetObjectInfo();
         assert(heap_info != nullptr);
 
+        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
+
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Width,
+                                     total_size_in_bytes,
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
@@ -774,10 +813,13 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateReservedResource(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
+        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
+
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Width,
+                                     total_size_in_bytes,
                                      D3D12_HEAP_TYPE_DEFAULT,
                                      D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
                                      D3D12_MEMORY_POOL_UNKNOWN,
@@ -874,11 +916,14 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
+        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
+
         InitializeID3D12ResourceInfo(
             wrapper,
             resource_wrapper,
             desc->Dimension,
             desc->Width,
+            total_size_in_bytes,
             heap_properties->Type,
             heap_properties->CPUPageProperty,
             heap_properties->MemoryPoolPreference,
@@ -910,11 +955,14 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
+        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
+
         InitializeID3D12ResourceInfo(
             wrapper,
             resource_wrapper,
             desc->Dimension,
             desc->Width,
+            total_size_in_bytes,
             heap_properties->Type,
             heap_properties->CPUPageProperty,
             heap_properties->MemoryPoolPreference,
@@ -948,10 +996,13 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
         auto heap_info        = heap_wrapper->GetObjectInfo();
         assert(heap_info != nullptr);
 
+        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
+
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Width,
+                                     total_size_in_bytes,
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
@@ -1778,6 +1829,8 @@ void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
     {
         if (ppDevice != nullptr)
         {
+            InitializeID3D12DeviceInfo(pAdapter, ppDevice);
+
             auto device = reinterpret_cast<ID3D12Device*>(*ppDevice);
 
             if (device != nullptr)

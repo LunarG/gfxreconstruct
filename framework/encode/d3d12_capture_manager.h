@@ -376,6 +376,9 @@ class D3D12CaptureManager : public CaptureManager
                                       REFIID            riid,
                                       void**            ppDevice);
 
+    void PostProcess_D3D12CreateDevice(
+        HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice);
+
     void PostProcess_ID3D12Fence_SetEventOnCompletion(ID3D12Fence_Wrapper* wrapper,
                                                       HRESULT              result,
                                                       UINT64               value,
@@ -604,8 +607,6 @@ class D3D12CaptureManager : public CaptureManager
     void PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
         ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name);
 
-    void PostProcess_D3D12CreateDevice(
-        HRESULT result, IUnknown* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, void** ppDevice);
     void WriteDx12DriverInfo();
 
     void WriteDriverInfoCommand(const std::string& info);
@@ -642,6 +643,7 @@ class D3D12CaptureManager : public CaptureManager
                                       ID3D12Resource_Wrapper*  resource_wrapper,
                                       D3D12_RESOURCE_DIMENSION dimension,
                                       UINT64                   width,
+                                      UINT64                   size,
                                       D3D12_HEAP_TYPE          heap_type,
                                       D3D12_CPU_PAGE_PROPERTY  page_property,
                                       D3D12_MEMORY_POOL        memory_pool,
@@ -651,17 +653,20 @@ class D3D12CaptureManager : public CaptureManager
     void InitializeSwapChainBufferResourceInfo(ID3D12Resource_Wrapper* resource_wrapper,
                                                D3D12_RESOURCE_STATES   initial_state);
 
+    void InitializeID3D12DeviceInfo(IUnknown* pAdapter, void** device);
+
   private:
-    void WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc);
-    void CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
-    bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
-    void EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
-    bool IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
+    void     WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc);
+    void     CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
+    bool     UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
+    void     EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
+    bool     IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
+    uint64_t GetResourceSizeInBytes(ID3D12Device_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC* desc);
+    uint64_t GetResourceSizeInBytes(ID3D12Device8_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC1* desc);
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();
 
-  private:
     void                              TakeScreenshot(IDXGISwapChain_Wrapper* swapchain_wrapper);
     void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
     void                              PostPresent(IDXGISwapChain_Wrapper* wrapper);

@@ -614,6 +614,38 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
 
   private:
+    struct MappedMemoryEntry
+    {
+        void*            data_pointer{ 0 };
+        format::HandleId resource_id{ format::kNullHandleId };
+    };
+
+    struct ResourceInitInfo
+    {
+        ID3D12Resource*                                resource{ nullptr };
+        graphics::dx12::ID3D12ResourceComPtr           staging_resource{ nullptr };
+        bool                                           try_map_and_copy{ true };
+        std::vector<uint8_t>                           data;
+        std::vector<uint64_t>                          subresource_offsets;
+        std::vector<uint64_t>                          subresource_sizes;
+        std::vector<graphics::dx12::ResourceStateInfo> before_states;
+        std::vector<graphics::dx12::ResourceStateInfo> after_states;
+    };
+
+    struct FillMemoryResourceValueInfo
+    {
+        uint64_t                               expected_block_index{ 0 };
+        std::vector<format::ResourceValueType> types;
+        std::vector<uint64_t>                  offsets;
+
+        void Clear()
+        {
+            expected_block_index = 0;
+            types.clear();
+            offsets.clear();
+        }
+    };
+
     void DetectAdapters();
 
     void RaiseFatalError(const char* message) const;
@@ -690,81 +722,42 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                              const uint8_t* data,
                                              uint8_t*       dst_resource_data_ptr);
 
-  private:
-    struct MappedMemoryEntry
-    {
-        void*            data_pointer{ 0 };
-        format::HandleId resource_id{ format::kNullHandleId };
-    };
+    void ApplyBatchedResourceInitInfo(std::unordered_map<ID3D12Resource*, ResourceInitInfo>& resource_infos);
 
-    std::unique_ptr<graphics::DX12ImageRenderer>      frame_buffer_renderer_;
-    Dx12ObjectInfoTable                               object_info_table_;
-    std::shared_ptr<application::Application>         application_;
-    DxReplayOptions                                   options_;
-    std::unordered_set<Window*>                       active_windows_;
-    std::unordered_map<uint64_t, HWND>                window_handles_;
-    std::unordered_map<uint64_t, MappedMemoryEntry>   mapped_memory_;
-    std::unordered_map<uint64_t, void*>               heap_allocations_;
-    std::unordered_map<uint64_t, HANDLE>              event_objects_;
-    std::function<void(const char*)>                  fatal_error_handler_;
-    Dx12DescriptorMap                                 descriptor_map_;
-    graphics::Dx12GpuVaMap                            gpu_va_map_;
-    std::unique_ptr<uint8_t[]>                        debug_message_;
-    SIZE_T                                            current_message_length_;
-    IDXGIInfoQueue*                                   info_queue_;
-    bool                                              debug_layer_enabled_;
-    bool                                              set_auto_breadcrumbs_enablement_;
-    bool                                              set_breadcrumb_context_enablement_;
-    bool                                              set_page_fault_enablement_;
-    bool                                              loading_trim_state_;
-    graphics::FpsInfo*                                fps_info_;
-    std::unique_ptr<Dx12ResourceValueMapper>          resource_value_mapper_;
-    std::unique_ptr<Dx12AccelerationStructureBuilder> accel_struct_builder_;
-    graphics::Dx12ShaderIdMap                         shader_id_map_;
+    void SetResourceInitInfoState(ResourceInitInfo&                           resource_info,
+                                  const format::InitSubresourceCommandHeader& command_header,
+                                  const uint8_t*                              data);
 
-    struct ResourceInitInfo
-    {
-        ID3D12Resource*                                resource{ nullptr };
-        bool                                           try_map_and_copy{ true };
-        std::vector<uint8_t>                           data;
-        std::vector<uint64_t>                          subresource_offsets;
-        std::vector<uint64_t>                          subresource_sizes;
-        std::vector<graphics::dx12::ResourceStateInfo> before_states;
-        std::vector<graphics::dx12::ResourceStateInfo> after_states;
-
-        // Prefer Reset over creating new ResourceInitInfos in order to reuse the vectors' heap allocations.
-        void Reset()
-        {
-            resource         = nullptr;
-            try_map_and_copy = true;
-            data.clear();
-            subresource_offsets.clear();
-            subresource_sizes.clear();
-            before_states.clear();
-            after_states.clear();
-        }
-    };
-    ResourceInitInfo                                resource_init_info_;
-    std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
-    std::string                                     screenshot_file_prefix_;
-    std::unique_ptr<ScreenshotHandlerBase>          screenshot_handler_;
-    graphics::dx12::ActiveAdapterMap                adapters_;
-
-    struct FillMemoryResourceValueInfo
-    {
-        uint64_t                               expected_block_index{ 0 };
-        std::vector<format::ResourceValueType> types;
-        std::vector<uint64_t>                  offsets;
-
-        void Clear()
-        {
-            expected_block_index = 0;
-            types.clear();
-            offsets.clear();
-        }
-    };
-
-    FillMemoryResourceValueInfo fill_memory_resource_value_info_;
+    std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
+    Dx12ObjectInfoTable                                   object_info_table_;
+    std::shared_ptr<application::Application>             application_;
+    DxReplayOptions                                       options_;
+    std::unordered_set<Window*>                           active_windows_;
+    std::unordered_map<uint64_t, HWND>                    window_handles_;
+    std::unordered_map<uint64_t, MappedMemoryEntry>       mapped_memory_;
+    std::unordered_map<uint64_t, void*>                   heap_allocations_;
+    std::unordered_map<uint64_t, HANDLE>                  event_objects_;
+    std::function<void(const char*)>                      fatal_error_handler_;
+    Dx12DescriptorMap                                     descriptor_map_;
+    graphics::Dx12GpuVaMap                                gpu_va_map_;
+    std::unique_ptr<uint8_t[]>                            debug_message_;
+    SIZE_T                                                current_message_length_;
+    IDXGIInfoQueue*                                       info_queue_;
+    bool                                                  debug_layer_enabled_;
+    bool                                                  set_auto_breadcrumbs_enablement_;
+    bool                                                  set_breadcrumb_context_enablement_;
+    bool                                                  set_page_fault_enablement_;
+    bool                                                  loading_trim_state_;
+    graphics::FpsInfo*                                    fps_info_;
+    std::unique_ptr<Dx12ResourceValueMapper>              resource_value_mapper_;
+    std::unique_ptr<Dx12AccelerationStructureBuilder>     accel_struct_builder_;
+    graphics::Dx12ShaderIdMap                             shader_id_map_;
+    graphics::dx12::ActiveAdapterMap                      adapters_;
+    FillMemoryResourceValueInfo                           fill_memory_resource_value_info_;
+    std::unique_ptr<graphics::Dx12ResourceDataUtil>       resource_data_util_;
+    std::string                                           screenshot_file_prefix_;
+    std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
+    std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

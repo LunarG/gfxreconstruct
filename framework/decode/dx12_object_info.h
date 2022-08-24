@@ -207,6 +207,18 @@ struct D3D12DeviceInfo : DxObjectExtraInfo
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12DeviceInfo;
     static constexpr char             kObjectType[] = "ID3D12Device";
     D3D12DeviceInfo() : DxObjectExtraInfo(kType) {}
+    virtual ~D3D12DeviceInfo()
+    {
+        if (adapter3 != nullptr)
+        {
+            adapter3->Release();
+        }
+    }
+
+    // Track the device's parent adapter as IDXGIAdapter3
+    // This enables checking GPU memory availability via QueryVideoMemoryInfo()
+    IDXGIAdapter3* adapter3{ nullptr };
+    uint32_t       adapter_node_index{ 0 };
 
     std::shared_ptr<DescriptorIncrements> capture_increments{ std::make_shared<DescriptorIncrements>() };
     std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };

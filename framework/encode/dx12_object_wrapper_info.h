@@ -42,6 +42,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 struct IUnknown_Wrapper;
 class ID3D12Resource_Wrapper;
+class ID3D12Device_Wrapper;
 
 struct GUID_Hash
 {
@@ -340,12 +341,17 @@ struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 
 struct ID3D12DeviceInfo : public DxWrapperInfo
 {
+    // Track the device's parent adapter as IDXGIAdapter3
+    // This enables checking GPU memory availability via QueryVideoMemoryInfo()
+    IDXGIAdapter3* adapter3{ nullptr };
+    uint32_t       adapter_node_index{ 0 };
+
     std::unordered_map<format::HandleId, D3D12_RESIDENCY_PRIORITY> residency_priorities; // ID3D12Pageable
 };
 
 struct ID3D12ResourceInfo : public DxWrapperInfo
 {
-    format::HandleId                     device_id{ format::kNullHandleId };
+    ID3D12Device_Wrapper*                device_wrapper{ nullptr };
     size_t                               num_subresources{ 0 };
     std::unique_ptr<uint64_t[]>          subresource_sizes;
     std::unique_ptr<MappedSubresource[]> mapped_subresources;
@@ -353,6 +359,7 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     D3D12_HEAP_TYPE                      heap_type{};
     D3D12_CPU_PAGE_PROPERTY              page_property{};
     D3D12_MEMORY_POOL                    memory_pool{};
+    uint64_t                             size_in_bytes{ 0 };
 
     //// State tracking data:
 
@@ -369,6 +376,17 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
 
     // Track acceleration structures that were built to this resource
     std::map<D3D12_GPU_VIRTUAL_ADDRESS, DxAccelerationStructureBuildInfo> acceleration_structure_builds;
+
+    graphics::dx12::ID3D12ResourceComPtr staging_buffer{ nullptr };
+    struct
+    {
+        size_t                                          subresource_count;
+        std::vector<uint64_t>                           subresource_offsets;
+        std::vector<uint64_t>                           subresource_sizes;
+        std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
+        uint64_t                                        required_data_size;
+        std::vector<BYTE>                               staging_buffer_data;
+    } staging_buffer_info;
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo

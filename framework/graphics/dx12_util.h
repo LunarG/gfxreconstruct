@@ -83,7 +83,8 @@ struct ResourceStateInfo
     D3D12_RESOURCE_BARRIER_FLAGS barrier_flags{};
 };
 
-const D3D12_RANGE kZeroRange = { 0, 0 };
+const D3D12_RANGE kZeroRange       = { 0, 0 };
+const double      kMemoryTolerance = 2.1;
 
 // Take a screenshot
 void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& image_renderer,
@@ -96,7 +97,7 @@ void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& imag
 HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_RANGE* read_range, uint8_t*& data_ptr);
 
 // Waits for the given queue to complete all pending tasks.
-HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence *fence  = nullptr, uint64_t fence_value = 0);
+HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence* fence = nullptr, uint64_t fence_value = 0);
 
 // Utility function to analyze DRED output.
 // This function is meant to be called when device gets removed, to get extended debug information.
@@ -170,6 +171,32 @@ uint64_t GetSubresourceWriteDataSize(
 void TrackAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& adapters);
 
 format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters);
+
+// Query adapter and index by LUID
+bool GetAdapterAndIndexbyLUID(LUID                              luid,
+                              IDXGIAdapter*&                    adapter_ptr,
+                              uint32_t&                         index,
+                              graphics::dx12::ActiveAdapterMap& adapters);
+
+// Qeury the D3D12Device's IDXGIAdatper3 interface and the adapter's index
+bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
+                                IDXGIAdapter3*&                   adapter3_ptr,
+                                uint32_t&                         index,
+                                graphics::dx12::ActiveAdapterMap& adapters);
+
+// This function is used to get available GPU virtual memory.
+// The input is current adapter which created current device.
+uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter);
+
+// This function is used to get available CPU virtual memory.
+uint64_t GetAvailableCpuVirtualMemory();
+
+// Give require memory size to check if there are enough CPU&GPU memory to allocate the resource
+bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter);
+
+// Get GPU memory usage by resource desc
+uint64_t GetResourceSizeInBytes(ID3D12Device* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC* desc);
+uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC1* desc);
 
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 

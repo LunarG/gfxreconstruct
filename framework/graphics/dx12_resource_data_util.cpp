@@ -30,7 +30,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-HRESULT MapSubresourceAndReadData(ID3D12Resource* resource, UINT subresource, size_t size, uint8_t* data)
+HRESULT
+Dx12ResourceDataUtil::MapSubresourceAndReadData(ID3D12Resource* resource, UINT subresource, size_t size, uint8_t* data)
 {
     uint8_t* subresource_data;
     HRESULT  result = dx12::MapSubresource(resource, subresource, nullptr, subresource_data);
@@ -327,13 +328,33 @@ dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::GetStagingBuffer(CopyType type,
     return staging_buffers_[type];
 }
 
+dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::CreateStagingBuffer(CopyType type, uint64_t required_buffer_size)
+{
+    if (required_buffer_size == 0)
+    {
+        return nullptr;
+    }
+
+    // Create the staging resource.
+    D3D12_HEAP_TYPE       staging_resource_type  = D3D12_HEAP_TYPE_READBACK;
+    D3D12_RESOURCE_STATES staging_resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
+    if (type == kCopyTypeWrite)
+    {
+        staging_resource_type  = D3D12_HEAP_TYPE_UPLOAD;
+        staging_resource_state = D3D12_RESOURCE_STATE_GENERIC_READ;
+    }
+    return graphics::dx12::CreateBufferResource(
+        device_, required_buffer_size, staging_resource_type, staging_resource_state, D3D12_RESOURCE_FLAG_NONE);
+}
+
 HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                             target_resource,
                                                bool                                        try_map_and_copy,
                                                const std::vector<dx12::ResourceStateInfo>& before_states,
                                                const std::vector<dx12::ResourceStateInfo>& after_states,
                                                std::vector<uint8_t>&                       data,
                                                std::vector<uint64_t>&                      subresource_offsets,
-                                               std::vector<uint64_t>&                      subresource_sizes)
+                                               std::vector<uint64_t>&                      subresource_sizes,
+                                               ID3D12Resource*                             staging_resource)
 {
     HRESULT result = E_FAIL;
 
@@ -367,16 +388,28 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
     }
 
     // Get or create the staging buffer for copying the resource on device.
-    auto staging_buffer = GetStagingBuffer(kCopyTypeRead, required_data_size);
-
-    // Build and execute commands to copy data to the resource.
-    result = ExecuteCopyCommandList(
-        target_resource, kCopyTypeRead, required_data_size, temp_subresource_layouts_, before_states, after_states);
-
+    if (staging_resource != nullptr)
+    {
+        result = ExecuteCopyCommandList(target_resource,
+                                        kCopyTypeRead,
+                                        required_data_size,
+                                        temp_subresource_layouts_,
+                                        before_states,
+                                        after_states,
+                                        staging_resource);
+    }
+    else
+    {
+        auto staging_resource_temp = GetStagingBuffer(kCopyTypeRead, required_data_size);
+        staging_resource           = staging_resource_temp.GetInterfacePtr();
+        // Build and execute commands to copy data to the resource.
+        result = ExecuteCopyCommandList(
+            target_resource, kCopyTypeRead, required_data_size, temp_subresource_layouts_, before_states, after_states);
+    }
     // After the command list has completed, map the copy resource and read its data.
     if (SUCCEEDED(result))
     {
-        result = MapSubresourceAndReadData(staging_buffer, 0, static_cast<size_t>(required_data_size), data.data());
+        result = MapSubresourceAndReadData(staging_resource, 0, static_cast<size_t>(required_data_size), data.data());
     }
 
     return result;
@@ -388,7 +421,9 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
                                               const std::vector<dx12::ResourceStateInfo>& after_states,
                                               const std::vector<uint8_t>&                 data,
                                               const std::vector<uint64_t>&                subresource_offsets,
-                                              const std::vector<uint64_t>&                subresource_sizes)
+                                              const std::vector<uint64_t>&                subresource_sizes,
+                                              ID3D12Resource*                             staging_resource,
+                                              bool                                        batching)
 {
     HRESULT result = E_FAIL;
 
@@ -420,11 +455,15 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
     }
 
     // Get or create the staging buffer for copying the resource on device.
-    auto staging_buffer = GetStagingBuffer(kCopyTypeWrite, required_data_size);
+    if (staging_resource == nullptr)
+    {
+        auto staging_buffer = GetStagingBuffer(kCopyTypeWrite, required_data_size);
+        staging_resource    = staging_buffer;
+    }
 
     // When writing and before running the command list, map the copy resource and write its data.
     uint8_t* subresource_data;
-    result = dx12::MapSubresource(staging_buffer, 0, &dx12::kZeroRange, subresource_data);
+    result = dx12::MapSubresource(staging_resource, 0, &dx12::kZeroRange, subresource_data);
     if (SUCCEEDED(result))
     {
         for (UINT i = 0; i < subresource_count; ++i)
@@ -447,7 +486,7 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
             util::platform::MemoryCopy(
                 subresource_data + layout_offset, layout_size, data.data() + subresource_offsets[i], subresource_size);
         }
-        staging_buffer->Unmap(0, nullptr);
+        staging_resource->Unmap(0, nullptr);
     }
     else
     {
@@ -455,8 +494,26 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
     }
 
     // Build and execute commands to copy data to the resource.
-    result = ExecuteCopyCommandList(
-        target_resource, kCopyTypeWrite, required_data_size, temp_subresource_layouts_, before_states, after_states);
+    if (batching == false)
+    {
+        result = ExecuteCopyCommandList(target_resource,
+                                        kCopyTypeWrite,
+                                        required_data_size,
+                                        temp_subresource_layouts_,
+                                        before_states,
+                                        after_states);
+    }
+    else
+    {
+        result = ExecuteCopyCommandList(target_resource,
+                                        kCopyTypeWrite,
+                                        required_data_size,
+                                        temp_subresource_layouts_,
+                                        before_states,
+                                        after_states,
+                                        staging_resource,
+                                        batching);
+    }
 
     return result;
 }
@@ -504,12 +561,11 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
                     result = MapSubresourceAndWriteData(
                         target_resource, i, subresource_size, write_data->data() + subresource_offsets[i]);
                 }
-
-                if (SUCCEEDED(result))
+                if (before_states[i].states != after_states[i].states)
                 {
-                    result = ExecuteTransitionCommandList(target_resource, before_states, after_states);
-                    return SUCCEEDED(result);
+                    GFXRECON_LOG_ERROR_ONCE("CPU buffer state not match");
                 }
+                return SUCCEEDED(result);
             }
         }
     }
@@ -523,6 +579,39 @@ HRESULT Dx12ResourceDataUtil::ExecuteAndWaitForCommandList()
     ID3D12CommandList* cmd_lists[] = { command_list_ };
     command_queue_->ExecuteCommandLists(1, cmd_lists);
     return dx12::WaitForQueue(command_queue_, command_fence_, ++fence_value_);
+
+    // MakeResident and Evict are ref-counted. Remove the ref count added by MakeResident.
+    for (auto resource : resident_resources)
+    {
+        if (!SUCCEEDED(device_->Evict(1, &resource)))
+        {
+            GFXRECON_LOG_WARNING("Failed to evict resource after copying resource data.");
+        }
+    }
+}
+
+HRESULT Dx12ResourceDataUtil::CloseCommandList()
+{
+    return command_list_->Close();
+}
+
+HRESULT
+Dx12ResourceDataUtil::ResetCommandList()
+{
+    HRESULT result = command_allocator_->Reset();
+    if (SUCCEEDED(result))
+    {
+        result = command_list_->Reset(command_allocator_, nullptr);
+        if (FAILED(result))
+        {
+            GFXRECON_LOG_ERROR("Could not reset command list to copy resource data. (error = %lx)", result);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Could not reset command allocator to copy resource data.. (error = %lx)", result);
+    }
+    return result;
 }
 
 HRESULT
@@ -531,7 +620,9 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                                              uint64_t                                               copy_size,
                                              const std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& subresource_layouts,
                                              const std::vector<dx12::ResourceStateInfo>&            before_states,
-                                             const std::vector<dx12::ResourceStateInfo>&            after_states)
+                                             const std::vector<dx12::ResourceStateInfo>&            after_states,
+                                             ID3D12Resource*                                        staging_buffer,
+                                             bool                                                   batching)
 {
     const dx12::ResourceStateInfo kReadState  = { D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE };
     const dx12::ResourceStateInfo kWriteState = { D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE };
@@ -555,23 +646,32 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
         GFXRECON_LOG_ERROR("Failed to make resource resident for copying resource data.");
         return E_FAIL;
     }
-
-    auto staging_buffer = GetStagingBuffer(copy_type, copy_size);
-
+    if (staging_buffer == nullptr)
+    {
+        auto staging_resource = GetStagingBuffer(copy_type, copy_size);
+        staging_buffer        = staging_resource;
+    }
+    resident_resources.push_back(pageable);
     // Transition the resource, copy the data, and transition it back.
     auto resource_desc = target_resource->GetDesc();
 
-    // TODO (GH #288): Add support for multi-sampled resources.
     if (resource_desc.SampleDesc.Count > 1)
     {
         GFXRECON_LOG_ERROR("Dx12ResourceDataUtil: Multi-sampled resources are not supported.");
         return E_INVALIDARG;
     }
 
-    HRESULT result = command_allocator_->Reset();
+    HRESULT result = S_OK;
+    if (batching == false)
+    {
+        result = command_allocator_->Reset();
+    }
     if (SUCCEEDED(result))
     {
-        result = command_list_->Reset(command_allocator_, nullptr);
+        if (batching == false)
+        {
+            result = command_list_->Reset(command_allocator_, nullptr);
+        }
         if (SUCCEEDED(result))
         {
             for (UINT i = 0; i < subresource_count; ++i)
@@ -634,10 +734,13 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
             }
 
             // Close and execute the command list.
-            result = command_list_->Close();
-            if (SUCCEEDED(result))
+            if (batching == false)
             {
-                result = ExecuteAndWaitForCommandList();
+                result = command_list_->Close();
+                if (SUCCEEDED(result))
+                {
+                    result = ExecuteAndWaitForCommandList();
+                }
             }
         }
     }
@@ -645,12 +748,6 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
     if (FAILED(result))
     {
         GFXRECON_LOG_ERROR("Error executing command list to copy resource data. (error = %lx)", result);
-    }
-
-    // MakeResident and Evict are ref-counted. Remove the ref count added by MakeResident above.
-    if (!SUCCEEDED(device_->Evict(1, &pageable)))
-    {
-        GFXRECON_LOG_WARNING("Failed to evict resource after copying resource data.");
     }
 
     return result;

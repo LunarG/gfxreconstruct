@@ -144,12 +144,12 @@ HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence* fence, uint64_t fen
     HRESULT            result = E_FAIL;
     ID3D12DeviceComPtr device;
     ID3D12Fence*       temp_fence = nullptr;
-    result = queue->GetDevice(IID_PPV_ARGS(&device));
+    result                        = queue->GetDevice(IID_PPV_ARGS(&device));
     if (SUCCEEDED(result))
     {
         if (nullptr == fence)
         {
-            result = device->CreateFence(fence_value++, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+            result     = device->CreateFence(fence_value++, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
             temp_fence = fence;
         }
         if (SUCCEEDED(result))
@@ -741,6 +741,150 @@ bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc)
     }
 
     return software_desc;
+}
+
+bool GetAdapterAndIndexbyLUID(LUID                              luid,
+                              IDXGIAdapter*&                    adapter_ptr,
+                              uint32_t&                         index,
+                              graphics::dx12::ActiveAdapterMap& adapters)
+{
+    bool success = false;
+
+    const int64_t packed_luid = (luid.HighPart << 31) | luid.LowPart;
+
+    auto search = adapters.find(packed_luid);
+    if (search != adapters.end())
+    {
+        index       = search->second.adapter_idx;
+        adapter_ptr = search->second.adapter;
+        success     = true;
+    }
+    return success;
+}
+
+bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
+                                IDXGIAdapter3*&                   adapter3_ptr,
+                                uint32_t&                         index,
+                                graphics::dx12::ActiveAdapterMap& adapters)
+{
+    bool success = false;
+
+    if (device != nullptr)
+    {
+        IDXGIAdapter* device_adapter      = nullptr;
+        LUID          parent_adapter_luid = device->GetAdapterLuid();
+        success = GetAdapterAndIndexbyLUID(parent_adapter_luid, device_adapter, index, adapters);
+
+        if (success == true)
+        {
+            if (SUCCEEDED(
+                    device_adapter->QueryInterface(__uuidof(IDXGIAdapter3), reinterpret_cast<void**>(&adapter3_ptr))))
+            {
+                success = true;
+            }
+            else
+            {
+                adapter3_ptr = nullptr;
+
+                GFXRECON_LOG_ERROR("Could not Query adapter as IDXGIAdapter3");
+            }
+        }
+        else
+        {
+            adapter3_ptr = nullptr;
+
+            GFXRECON_LOG_ERROR("Could not retrieve tracked adapter %ll", parent_adapter_luid);
+        }
+    }
+
+    return success;
+}
+
+uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter)
+{
+    uint64_t available_mem = 0;
+
+    if (adapter != nullptr)
+    {
+        DXGI_QUERY_VIDEO_MEMORY_INFO video_memory_info = {};
+        if (SUCCEEDED(adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &video_memory_info)))
+        {
+            if (video_memory_info.Budget > video_memory_info.CurrentUsage)
+            {
+                available_mem = video_memory_info.Budget - video_memory_info.CurrentUsage;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Detected adapter memory oversubscription");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Could not query available memory from adapter.");
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Could not identify adapter to fetch available memory.");
+    }
+
+    return available_mem;
+}
+
+uint64_t GetAvailableCpuVirtualMemory()
+{
+    MEMORYSTATUSEX mem_info = {};
+    mem_info.dwLength       = sizeof(MEMORYSTATUSEX);
+    if (GlobalMemoryStatusEx(&mem_info) == FALSE)
+    {
+        GFXRECON_LOG_ERROR("Failed to get available virtual memory");
+    }
+    return mem_info.ullAvailVirtual;
+}
+
+bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter)
+{
+    bool available = false;
+#ifdef _WIN64
+    // For 32bit, only upload one buffer at one time, to save memory usage.
+    if (adapter != nullptr)
+    {
+        uint64_t total_available_gpu_adapter_memory = GetAvailableGpuAdapterMemory(adapter);
+        uint64_t total_available_cpu_virtual_memory = GetAvailableCpuVirtualMemory();
+        uint64_t total_required_memory              = static_cast<uint64_t>(required_memory * kMemoryTolerance);
+        if ((total_required_memory < total_available_gpu_adapter_memory) &&
+            (total_required_memory < total_available_cpu_virtual_memory))
+        {
+            available = true;
+        }
+    }
+#endif
+    return available;
+}
+
+uint64_t GetResourceSizeInBytes(ID3D12Device* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC* desc)
+{
+    uint64_t size = 0;
+
+    if (device != nullptr)
+    {
+        size = device->GetResourceAllocationInfo(adapter_node, 1, desc).SizeInBytes;
+    }
+
+    return size;
+}
+
+uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC1* desc)
+{
+    uint64_t size = 0;
+
+    if (device != nullptr)
+    {
+        D3D12_RESOURCE_ALLOCATION_INFO1 allocationinfo1 = {};
+        size = device->GetResourceAllocationInfo2(adapter_node, 1, desc, &allocationinfo1).SizeInBytes;
+    }
+
+    return size;
 }
 
 GFXRECON_END_NAMESPACE(dx12)
