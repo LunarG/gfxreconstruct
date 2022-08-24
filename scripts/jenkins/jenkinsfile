@@ -213,7 +213,7 @@ def Build(label) {
                         sh """
                             cp LICENSE.txt build/linux/x64/output/bin/
                             cp LICENSE_ThirdParty.txt build/linux/x64/output/bin/
-                            cp USAGE_desktop.md build/linux/x64/output/bin/
+                            cp USAGE_desktop_Vulkan.md build/linux/x64/output/bin/
                             cp layer/vk_layer_settings.txt build/linux/x64/output/bin/
                             rm -rf ../gfxreconstruct-dev						
                             mv build/linux/x64/output/bin ../gfxreconstruct-dev
@@ -252,7 +252,7 @@ def Build(label) {
                         sh """
                             cp LICENSE.txt build/linux/x86/output/bin/
                             cp LICENSE_ThirdParty.txt build/linux/x86/output/bin/
-                            cp USAGE_desktop.md build/linux/x86/output/bin/
+                            cp USAGE_desktop_Vulkan.md build/linux/x86/output/bin/
                             cp layer/vk_layer_settings.txt build/linux/x86/output/bin/
                             rm -rf ../gfxreconstruct-dev
                             mv build/linux/x86/output/bin ../gfxreconstruct-dev
