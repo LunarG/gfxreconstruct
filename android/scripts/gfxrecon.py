@@ -135,7 +135,7 @@ def MakeExtrasString(args):
     if args.onhb:
         arg_list.append('--onhb')
 
-    if args.virtual_swapchain:
+    if args.use_captured_swapchain_indices:
         arg_list.append('--use-captured-swapchain-indices')
 
     if args.memory_translation:
