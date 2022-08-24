@@ -420,6 +420,17 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
         if (dx12_consumer.ContainsDxrWorkload())
         {
             GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
+
+            GFXRECON_WRITE_CONSOLE("");
+
+            if (dx12_consumer.ContainsDXROptFillMem())
+            {
+                GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: yes");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: no");
+            }
         }
         else
         {

@@ -33,7 +33,8 @@ class Dx12StatsConsumer : public Dx12Consumer
 {
   public:
     Dx12StatsConsumer() :
-        swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false), dxr_workload_(false)
+        swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false), dxr_workload_(false),
+        dxr_opt_fillmem_(false)
     {}
 
     bool IsComplete(uint64_t current_block_index) override { return false; }
@@ -54,6 +55,8 @@ class Dx12StatsConsumer : public Dx12Consumer
     bool FoundSwapchainInfo() { return swapchain_info_found_; }
 
     bool ContainsDxrWorkload() { return dxr_workload_; }
+
+    bool ContainsDXROptFillMem() { return dxr_opt_fillmem_; }
 
     template <typename DescT>
     void CopyAdapterDesc(format::DxgiAdapterDesc& dest, DescT& src)
@@ -227,6 +230,13 @@ class Dx12StatsConsumer : public Dx12Consumer
         dxr_workload_ = true;
     }
 
+    virtual void
+    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                          const uint8_t*                                      data)
+    {
+        dxr_opt_fillmem_ = true;
+    }
+
   private:
     // Holds adapter descs that were obtained from the app calling GetDesc()
     // This list is only here to support older captures which do contain kDxgiAdapterInfoCommand
@@ -241,6 +251,7 @@ class Dx12StatsConsumer : public Dx12Consumer
     bool             swapchain_info_found_;
 
     bool dxr_workload_;
+    bool dxr_opt_fillmem_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
