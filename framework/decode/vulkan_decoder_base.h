@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -182,8 +183,20 @@ class VulkanDecoderBase : public ApiDecoder
                                                  const uint8_t*     parameter_buffer,
                                                  size_t             buffer_size);
 
+    size_t Decode_vkDeferredOperationJoinKHR(const ApiCallInfo& call_info,
+                                             const uint8_t*     parameter_buffer,
+                                             size_t             buffer_size);
+
   private:
     std::vector<VulkanConsumer*> consumers_;
+
+    struct DeferredOperationFunctionCallData
+    {
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR> pCreateInfos;
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>             pAllocator;
+        HandlePointerDecoder<VkPipeline>                                pPipelines;
+    };
+    std::unordered_map<format::HandleId, DeferredOperationFunctionCallData> record_deferred_operation_function_call;
 };
 
 GFXRECON_END_NAMESPACE(decode)

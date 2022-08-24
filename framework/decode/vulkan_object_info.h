@@ -199,7 +199,6 @@ typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXT
 typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureKHRInfo;
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
-typedef VulkanObjectInfo<VkDeferredOperationKHR>          DeferredOperationKHRInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.
@@ -421,6 +420,15 @@ struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
 struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>
+{
+    VkResult join_state{ VK_NOT_READY };
+
+    // Record CreateRayTracingPipelinesKHR parameters for safety.
+    std::vector<VkRayTracingPipelineCreateInfoKHR>                 record_modified_create_infos;
+    std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> record_modified_pgroups;
 };
 
 //

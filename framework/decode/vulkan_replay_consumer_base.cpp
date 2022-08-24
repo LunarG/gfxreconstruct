@@ -43,6 +43,7 @@
 #include <cstdint>
 #include <limits>
 #include <unordered_set>
+#include <future>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -5386,7 +5387,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     PFN_vkCreateRayTracingPipelinesKHR                                     func,
     VkResult                                                               original_result,
     const DeviceInfo*                                                      device_info,
-    const DeferredOperationKHRInfo*                                        deferred_operation_info,
+    DeferredOperationKHRInfo*                                              deferred_operation_info,
     const PipelineCacheInfo*                                               pipeline_cache_info,
     uint32_t                                                               createInfoCount,
     const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
@@ -5407,6 +5408,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     VkDeferredOperationKHR                   in_deferredOperation =
         (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
     VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    if (deferred_operation_info)
+    {
+        deferred_operation_info->join_state = VK_NOT_READY;
+        deferred_operation_info->record_modified_create_infos.clear();
+        deferred_operation_info->record_modified_pgroups.clear();
+    }
 
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
@@ -5471,9 +5479,18 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                                                             modified_create_infos.data(),
                                                             in_pAllocator,
                                                             out_pPipelines);
+        if (deferred_operation_info)
+        {
+            deferred_operation_info->record_modified_create_infos = std::move(modified_create_infos);
+            deferred_operation_info->record_modified_pgroups      = std::move(modified_pgroups);
+        }
     }
     else
     {
+        GFXRECON_LOG_ERROR_ONCE("The replay used vkCreateRayTracingPipelinesKHR, which may require the "
+                                "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and "
+                                "replay. The replay device does not support this feature, so replay may fail.");
+
         result = device_table->CreateRayTracingPipelinesKHR(device,
                                                             in_deferredOperation,
                                                             in_pipelineCache,
@@ -5484,6 +5501,56 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     }
 
     return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR func,
+                                                                    VkResult                       original_result,
+                                                                    const DeviceInfo*              device_info,
+                                                                    DeferredOperationKHRInfo* deferred_operation_info)
+{
+    if (deferred_operation_info->join_state == VK_SUCCESS)
+    {
+        return VK_SUCCESS;
+    }
+
+    VkDevice               device             = device_info->handle;
+    VkDeferredOperationKHR deferred_operation = deferred_operation_info->handle;
+
+    PFN_vkGetDeferredOperationMaxConcurrencyKHR vkGetDeferredOperationMaxConcurrencyKHR =
+        GetDeviceTable(device)->GetDeferredOperationMaxConcurrencyKHR;
+
+    uint32_t max_threads  = std::thread::hardware_concurrency();
+    uint32_t thread_count = std::min(vkGetDeferredOperationMaxConcurrencyKHR(device, deferred_operation), max_threads);
+    bool     deferred_operation_completed = false;
+    std::vector<std::future<void>> deferred_operation_joins;
+
+    for (uint32_t i = 0; i < thread_count; i++)
+    {
+        // At least one vkDeferredOperationJoinKHR in a thread has to get VK_SUCCESS.
+        deferred_operation_joins.emplace_back(
+            std::async(std::launch::async, [func, device, deferred_operation, &deferred_operation_completed]() {
+                VkResult result = VK_ERROR_UNKNOWN;
+                while (result != VK_SUCCESS && !deferred_operation_completed)
+                {
+                    result = func(device, deferred_operation);
+                    assert(result == VK_SUCCESS || result == VK_THREAD_DONE_KHR || result == VK_THREAD_IDLE_KHR);
+                    if (result == VK_SUCCESS)
+                    {
+                        deferred_operation_completed = true;
+                    }
+                }
+            }));
+    }
+
+    for (auto& j : deferred_operation_joins)
+    {
+        j.get();
+    }
+
+    deferred_operation_info->join_state = VK_SUCCESS;
+    deferred_operation_info->record_modified_create_infos.clear();
+    deferred_operation_info->record_modified_pgroups.clear();
+    return VK_SUCCESS;
 }
 
 VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(

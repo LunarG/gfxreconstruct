@@ -393,6 +393,46 @@ size_t VulkanDecoderBase::Decode_vkCreateRayTracingPipelinesKHR(const ApiCallInf
                                                          &pPipelines);
     }
 
+    if (deferredOperation)
+    {
+        DecodeAllocator::TurnOffEndCanClear();
+        DeferredOperationFunctionCallData record;
+        record.pCreateInfos                                        = std::move(pCreateInfos);
+        record.pAllocator                                          = std::move(pAllocator);
+        record.pPipelines                                          = std::move(pPipelines);
+        record_deferred_operation_function_call[deferredOperation] = std::move(record);
+    }
+    return bytes_read;
+}
+
+size_t VulkanDecoderBase::Decode_vkDeferredOperationJoinKHR(const ApiCallInfo& call_info,
+                                                            const uint8_t*     parameter_buffer,
+                                                            size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId operation;
+    VkResult         return_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &operation);
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDeferredOperationJoinKHR(call_info, return_value, device, operation);
+    }
+
+    DecodeAllocator::TurnOnEndCanClear();
+    auto it = record_deferred_operation_function_call.find(operation);
+    if (it != record_deferred_operation_function_call.end())
+    {
+        record_deferred_operation_function_call.erase(it);
+    }
     return bytes_read;
 }
 
@@ -416,6 +456,9 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR:
             Decode_vkCreateRayTracingPipelinesKHR(call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR:
+            Decode_vkDeferredOperationJoinKHR(call_info, parameter_buffer, buffer_size);
             break;
         default:
             break;

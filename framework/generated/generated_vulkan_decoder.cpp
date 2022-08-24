@@ -6770,26 +6770,6 @@ size_t VulkanDecoder::Decode_vkGetDeferredOperationResultKHR(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkDeferredOperationJoinKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    format::HandleId operation;
-    VkResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &operation);
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkDeferredOperationJoinKHR(call_info, return_value, device, operation);
-    }
-
-    return bytes_read;
-}
-
 size_t VulkanDecoder::Decode_vkGetPipelineExecutablePropertiesKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -12177,9 +12157,6 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR:
         Decode_vkGetDeferredOperationResultKHR(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR:
-        Decode_vkDeferredOperationJoinKHR(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR:
         Decode_vkGetPipelineExecutablePropertiesKHR(call_info, parameter_buffer, buffer_size);
