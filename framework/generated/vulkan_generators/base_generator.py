@@ -233,6 +233,8 @@ class BaseGenerator(OutputGenerator):
     # These API calls should not be processed by the code generator.  They require special implementations.
     APICALL_BLACKLIST = []
 
+    APICALL_DECODER_BLACKLIST = []
+
     # These method calls should not be processed by the code generator.  They require special implementations.
     METHODCALL_BLACKLIST = []
 
@@ -745,6 +747,8 @@ class BaseGenerator(OutputGenerator):
     def is_cmd_black_listed(self, name):
         """Determines if a function with the specified typename is blacklisted."""
         if name in self.APICALL_BLACKLIST:
+            return True
+        if 'Decoder' in self.__class__.__name__ and name in self.APICALL_DECODER_BLACKLIST:
             return True
         return False
 
@@ -1340,6 +1344,7 @@ class BaseGenerator(OutputGenerator):
     def __load_blacklists(self, filename):
         lists = json.loads(open(filename, 'r').read())
         self.APICALL_BLACKLIST += lists['functions']
+        self.APICALL_DECODER_BLACKLIST += lists['functions-decoder']
         self.STRUCT_BLACKLIST += lists['structures']
         if 'classmethods' in lists:
             for class_name, method_list in lists['classmethods'].items():
