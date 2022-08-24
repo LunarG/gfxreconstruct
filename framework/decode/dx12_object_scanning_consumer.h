@@ -31,8 +31,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ObjectScanningConsumer : public Dx12ObjectScanningConsumerBase
 {
   public:
-    Dx12ObjectScanningConsumer() {}
+    Dx12ObjectScanningConsumer() : dxr_workload_(false), dxr_opt_fillmem_(false) {}
     virtual ~Dx12ObjectScanningConsumer() override {}
+
+    bool ContainsDXRWorkload() { return dxr_workload_; }
+    bool ContainsDXROptFillMem() { return dxr_opt_fillmem_; };
 
     virtual void Process_ID3D12PipelineState_GetCachedBlob(const ApiCallInfo&                 call_info,
                                                            format::HandleId                   object_id,
@@ -100,6 +103,21 @@ class Dx12ObjectScanningConsumer : public Dx12ObjectScanningConsumerBase
                                                    HRESULT                                return_value,
                                                    UINT                                   NumObjects,
                                                    HandlePointerDecoder<ID3D12Pageable*>* ppObjects);
+
+    virtual void Process_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+        const ApiCallInfo&                                                                call_info,
+        format::HandleId                                                                  object_id,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* pDesc,
+        UINT                                                                              NumPostbuildInfoDescs,
+        StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs);
+
+    virtual void
+    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                          const uint8_t*                                      data);
+
+  private:
+    bool dxr_workload_;
+    bool dxr_opt_fillmem_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

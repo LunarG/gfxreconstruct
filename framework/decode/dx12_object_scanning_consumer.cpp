@@ -139,5 +139,21 @@ void Dx12ObjectScanningConsumer::Process_ID3D12Device_CreateComputePipelineState
         *handle_ptr, GetCurrentBlockIndex(), format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState);
 }
 
+void Dx12ObjectScanningConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+    const ApiCallInfo&                                                                         call_info,
+    format::HandleId                                                                           object_id,
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>*          pDesc,
+    UINT                                                                                       NumPostbuildInfoDescs,
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs)
+{
+    dxr_workload_ = true;
+}
+
+void Dx12ObjectScanningConsumer::ProcessFillMemoryResourceValueCommand(
+    const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
+{
+    dxr_opt_fillmem_ = true;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

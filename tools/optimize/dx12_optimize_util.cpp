@@ -89,9 +89,39 @@ bool FileProcessorSucceeded(const decode::FileProcessor& processor)
            processor.EntireFileWasProcessed();
 }
 
-bool GetDx12OptimizationInfo(const std::string&                     input_filename,
-                             const decode::Dx12OptimizationOptions& options,
-                             Dx12OptimizationInfo&                  info)
+bool BypassDxrOptimization(gfxrecon::decode::Dx12ObjectScanningConsumer& resref_consumer,
+                           const decode::Dx12OptimizationOptions&        options)
+{
+    bool bypass_dxr_optimization = false;
+
+    bool contains_dxr_workload = resref_consumer.ContainsDXRWorkload();
+    bool is_dxr_optimized      = resref_consumer.ContainsDXROptFillMem();
+
+    if ((contains_dxr_workload == false) || (is_dxr_optimized == true))
+    {
+        if (options.optimize_dxr == true)
+        {
+            if (contains_dxr_workload == false)
+            {
+                GFXRECON_WRITE_CONSOLE("Bypassing DXR optimization. Capture file does not contain DXR workloads.");
+            }
+
+            if (is_dxr_optimized == true)
+            {
+                GFXRECON_WRITE_CONSOLE(
+                    "Bypassing DXR optimization. Capture file has already been optimized for DXR replay.");
+            }
+        }
+
+        bypass_dxr_optimization = true;
+    }
+
+    return bypass_dxr_optimization;
+}
+
+bool GetDx12OptimizationInfo(const std::string&               input_filename,
+                             decode::Dx12OptimizationOptions& options,
+                             Dx12OptimizationInfo&            info)
 {
     bool pso_scan_result = true;
     bool dxr_scan_result = true;
@@ -115,6 +145,11 @@ bool GetDx12OptimizationInfo(const std::string&                     input_filena
                 GFXRECON_WRITE_CONSOLE("Finished scanning capture file for unreferenced PSOs.");
 
                 pso_scan_result = true;
+
+                if (BypassDxrOptimization(resref_consumer, options) == true)
+                {
+                    options.optimize_dxr = false;
+                }
             }
             else if (pso_pass_file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {
@@ -306,9 +341,7 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
     return result;
 }
 
-bool Dx12OptimizeFile(std::string                            input_filename,
-                      std::string                            output_filename,
-                      const decode::Dx12OptimizationOptions& options)
+bool Dx12OptimizeFile(std::string input_filename, std::string output_filename, decode::Dx12OptimizationOptions& options)
 {
     // Return early if no DX12 optimizations were enabled.
     if (!options.remove_redundant_psos && !options.optimize_dxr)

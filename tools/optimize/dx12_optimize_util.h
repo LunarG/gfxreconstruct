@@ -30,9 +30,9 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-bool Dx12OptimizeFile(std::string                            input_filename,
-                      std::string                            output_filename,
-                      const decode::Dx12OptimizationOptions& options);
+bool Dx12OptimizeFile(std::string                      input_filename,
+                      std::string                      output_filename,
+                      decode::Dx12OptimizationOptions& options);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
