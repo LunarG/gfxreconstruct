@@ -48,6 +48,10 @@ class DecodeAllocator
     // is re-used for future allocations.
     static void End();
 
+    static void TurnOnEndCanClear();
+
+    static void TurnOffEndCanClear();
+
     // Free system memory blocks. Must not be called between Begin and End
     static void FreeSystemMemory();
 
@@ -55,7 +59,7 @@ class DecodeAllocator
     static void DestroyInstance();
 
   private:
-    DecodeAllocator() : allocator_(kAllocatorBlockSize), can_allocate_(false) {}
+    DecodeAllocator() : allocator_(kAllocatorBlockSize), can_allocate_(false), end_can_clear_(true) {}
 
   private:
     static const size_t     kAllocatorBlockSize{ 64 * 1024 };
@@ -63,6 +67,7 @@ class DecodeAllocator
 
     util::MonotonicAllocator allocator_;
     bool                     can_allocate_;
+    bool                     end_can_clear_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

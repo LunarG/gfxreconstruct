@@ -41,8 +41,19 @@ void DecodeAllocator::Begin()
 void DecodeAllocator::End()
 {
     assert((instance_ != nullptr) && instance_->can_allocate_);
-    instance_->allocator_.Clear(false);
+    if (instance_->end_can_clear_)
+        instance_->allocator_.Clear(false);
     instance_->can_allocate_ = false;
+}
+
+void DecodeAllocator::TurnOnEndCanClear()
+{
+    instance_->end_can_clear_ = true;
+}
+
+void DecodeAllocator::TurnOffEndCanClear()
+{
+    instance_->end_can_clear_ = false;
 }
 
 void DecodeAllocator::FreeSystemMemory()
