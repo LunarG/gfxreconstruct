@@ -14,7 +14,8 @@
     "vkCopyAccelerationStructureKHR"
   ],
   "functions-decoder": [
-    "vkCreateRayTracingPipelinesKHR"
+    "vkCreateRayTracingPipelinesKHR",
+    "vkDeferredOperationJoinKHR"
   ],
   "structures": [
     "VkBaseOutStructure",

@@ -4690,10 +4690,10 @@ void VulkanReplayConsumer::Process_vkDeferredOperationJoinKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_operation = MapHandle<DeferredOperationKHRInfo>(operation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_operation = GetObjectInfoTable().GetDeferredOperationKHRInfo(operation);
 
-    VkResult replay_result = GetDeviceTable(in_device)->DeferredOperationJoinKHR(in_device, in_operation);
+    VkResult replay_result = OverrideDeferredOperationJoinKHR(GetDeviceTable(in_device->handle)->DeferredOperationJoinKHR, returnValue, in_device, in_operation);
     CheckResult("vkDeferredOperationJoinKHR", returnValue, replay_result);
 }
 
