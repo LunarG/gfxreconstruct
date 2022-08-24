@@ -178,6 +178,10 @@ class VulkanDecoderBase : public ApiDecoder
                                                        const uint8_t*     parameter_buffer,
                                                        size_t             buffer_size);
 
+    size_t Decode_vkCreateRayTracingPipelinesKHR(const ApiCallInfo& call_info,
+                                                 const uint8_t*     parameter_buffer,
+                                                 size_t             buffer_size);
+
   private:
     std::vector<VulkanConsumer*> consumers_;
 };

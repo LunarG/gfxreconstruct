@@ -13,6 +13,9 @@
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR"
   ],
+  "functions-decoder": [
+    "vkCreateRayTracingPipelinesKHR"
+  ],
   "structures": [
     "VkBaseOutStructure",
     "VkBaseInStructure",

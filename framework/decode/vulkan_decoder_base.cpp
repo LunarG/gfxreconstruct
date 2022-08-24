@@ -351,6 +351,51 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const ApiC
     return bytes_read;
 }
 
+size_t VulkanDecoderBase::Decode_vkCreateRayTracingPipelinesKHR(const ApiCallInfo& call_info,
+                                                                const uint8_t*     parameter_buffer,
+                                                                size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId                                                device;
+    format::HandleId                                                deferredOperation;
+    format::HandleId                                                pipelineCache;
+    uint32_t                                                        createInfoCount;
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR> pCreateInfos;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>             pAllocator;
+    HandlePointerDecoder<VkPipeline>                                pPipelines;
+    VkResult                                                        return_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &deferredOperation);
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineCache);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &createInfoCount);
+    bytes_read += pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPipelines.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateRayTracingPipelinesKHR(call_info,
+                                                         return_value,
+                                                         device,
+                                                         deferredOperation,
+                                                         pipelineCache,
+                                                         createInfoCount,
+                                                         &pCreateInfos,
+                                                         &pAllocator,
+                                                         &pPipelines);
+    }
+
+    return bytes_read;
+}
+
 void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
                                            const ApiCallInfo& call_info,
                                            const uint8_t*     parameter_buffer,
@@ -368,6 +413,9 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR:
             Decode_vkUpdateDescriptorSetWithTemplateKHR(call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR:
+            Decode_vkCreateRayTracingPipelinesKHR(call_info, parameter_buffer, buffer_size);
             break;
         default:
             break;
