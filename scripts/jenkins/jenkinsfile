@@ -322,6 +322,10 @@ def Build(label) {
                         dir ("gfx") {
                             bat """
                                 copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+								copy GFXReconstruct-DX12\\README.md GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+								copy GFXReconstruct-DX12\\USAGE_android.md GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+								copy GFXReconstruct-DX12\\USAGE_desktop_D3D12.md GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+								copy GFXReconstruct-DX12\\USAGE_desktop_Vulkan.md GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
                                 copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
 								copy GFXReconstruct-DX12\\scripts\\gfxrecon-replay-renamed.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
 								copy GFXReconstruct-DX12\\scripts\\gfxrecon-optimize-renamed.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
@@ -366,6 +370,10 @@ def Build(label) {
                         dir ("gfx") {
                             bat """
                                 copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+								copy GFXReconstruct-DX12\\README.md GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+								copy GFXReconstruct-DX12\\USAGE_android.md GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+								copy GFXReconstruct-DX12\\USAGE_desktop_D3D12.md GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+								copy GFXReconstruct-DX12\\USAGE_desktop_Vulkan.md GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
                                 copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
 								copy GFXReconstruct-DX12\\scripts\\gfxrecon-replay-renamed.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
 								copy GFXReconstruct-DX12\\scripts\\gfxrecon-optimize-renamed.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
