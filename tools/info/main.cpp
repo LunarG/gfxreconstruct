@@ -396,14 +396,15 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
 
                 std::string type = AdapterTypeToString(adapter.type);
                 GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", type.c_str());
+                GFXRECON_WRITE_CONSOLE("");
             }
         }
         else
         {
             GFXRECON_WRITE_CONSOLE("\tAdapter info not available.");
+            GFXRECON_WRITE_CONSOLE("");
         }
 
-        GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("D3D12 swapchain info:");
 
         if (dx12_consumer.FoundSwapchainInfo())
