@@ -130,7 +130,7 @@ inline void FieldToString(std::stringstream& strStrm,
 }
 
 template <typename ObjectType, typename ValidateArrayFunctionType, typename ToStringFunctionType>
-inline std::string ArrayToString(uint32_t                  count,
+inline std::string ArrayToString(size_t                    count,
                                  const ObjectType*         pObjs,
                                  ToStringFlags             toStringFlags,
                                  uint32_t                  tabCount,
@@ -158,7 +158,7 @@ inline std::string ArrayToString(uint32_t                  count,
 }
 
 template <typename T>
-inline std::string ArrayToString(uint32_t      count,
+inline std::string ArrayToString(size_t        count,
                                  const T*      pObjs,
                                  ToStringFlags toStringFlags = kToString_Default,
                                  uint32_t      tabCount      = 0,
@@ -174,7 +174,7 @@ inline std::string ArrayToString(uint32_t      count,
         [&](uint32_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
-inline std::string CStrArrayToString(uint32_t           count,
+inline std::string CStrArrayToString(size_t             count,
                                      const char* const* ppStrs,
                                      ToStringFlags      toStringFlags = kToString_Default,
                                      uint32_t           tabCount      = 0,
