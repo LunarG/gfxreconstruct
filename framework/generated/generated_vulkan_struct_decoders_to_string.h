@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -435,6 +435,9 @@ template <> std::string ToString<decode::Decoded_VkValidationFlagsEXT>(const dec
 template <> std::string ToString<decode::Decoded_VkViSurfaceCreateInfoNN>(const decode::Decoded_VkViSurfaceCreateInfoNN& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkImageViewASTCDecodeModeEXT>(const decode::Decoded_VkImageViewASTCDecodeModeEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT>(const decode::Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT>(const decode::Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPipelineRobustnessCreateInfoEXT>(const decode::Decoded_VkPipelineRobustnessCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkConditionalRenderingBeginInfoEXT>(const decode::Decoded_VkConditionalRenderingBeginInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT>(const decode::Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -643,6 +646,7 @@ template <> std::string ToString<decode::Decoded_VkImageCompressionControlEXT>(c
 template <> std::string ToString<decode::Decoded_VkSubresourceLayout2EXT>(const decode::Decoded_VkSubresourceLayout2EXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkImageSubresource2EXT>(const decode::Decoded_VkImageSubresource2EXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkImageCompressionPropertiesEXT>(const decode::Decoded_VkImageCompressionPropertiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDevice4444FormatsFeaturesEXT>(const decode::Decoded_VkPhysicalDevice4444FormatsFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM>(const decode::Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -665,6 +669,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetZirconHandleInfoF
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>(const decode::Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkMemoryGetRemoteAddressInfoNV>(const decode::Decoded_VkMemoryGetRemoteAddressInfoNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>(const decode::Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkSubpassResolvePerformanceQueryEXT>(const decode::Decoded_VkSubpassResolvePerformanceQueryEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkMultisampledRenderToSingleSampledInfoEXT>(const decode::Decoded_VkMultisampledRenderToSingleSampledInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkScreenSurfaceCreateInfoQNX>(const decode::Decoded_VkScreenSurfaceCreateInfoQNX& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -683,17 +690,29 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePageableDeviceL
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(const decode::Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkDescriptorSetBindingReferenceVALVE>(const decode::Decoded_VkDescriptorSetBindingReferenceVALVE& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>(const decode::Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM>(const decode::Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV>(const decode::Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkImageViewSampleWeightCreateInfoQCOM>(const decode::Decoded_VkImageViewSampleWeightCreateInfoQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM>(const decode::Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkRenderPassCreationControlEXT>(const decode::Decoded_VkRenderPassCreationControlEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackInfoEXT>(const decode::Decoded_VkRenderPassCreationFeedbackInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackCreateInfoEXT>(const decode::Decoded_VkRenderPassCreationFeedbackCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackInfoEXT>(const decode::Decoded_VkRenderPassSubpassFeedbackInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT>(const decode::Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT>(const decode::Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkShaderModuleIdentifierEXT>(const decode::Decoded_VkShaderModuleIdentifierEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkTilePropertiesQCOM>(const decode::Decoded_VkTilePropertiesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC>(const decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkAmigoProfilingSubmitInfoSEC>(const decode::Decoded_VkAmigoProfilingSubmitInfoSEC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureBuildRangeInfoKHR>(const decode::Decoded_VkAccelerationStructureBuildRangeInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometryTrianglesDataKHR>(const decode::Decoded_VkAccelerationStructureGeometryTrianglesDataKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometryAabbsDataKHR>(const decode::Decoded_VkAccelerationStructureGeometryAabbsDataKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);

@@ -92,7 +92,6 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             #include "util/custom_vulkan_to_string.h"
             #include "generated/generated_vulkan_enum_to_string.h"
             #include "generated/generated_vulkan_struct_to_string.h"
-            #include "generated/generated_vulkan_struct_decoders_to_string.h"
             #include "util/defines.h"
             '''
         )
@@ -204,7 +203,6 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                     if self.is_handle(value.base_type):
                         toString = 'HandlePointerDecoderToString({0})'
                     elif self.is_struct(value.base_type):
-
                         toString = 'PointerDecoderToString({0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = 'EnumPointerDecoderToString({0})'

@@ -103,8 +103,6 @@ template <> std::string ToString<VkBufferMemoryBarrier>(const VkBufferMemoryBarr
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -177,8 +175,6 @@ template <> std::string ToString<VkImageMemoryBarrier>(const VkImageMemoryBarrie
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(obj.subresourceRange, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -602,8 +598,6 @@ template <> std::string ToString<VkSubmitInfo>(const VkSubmitInfo& obj, ToString
             FieldToString(strStrm, false, "pCommandBuffers", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.commandBufferCount, obj.pCommandBuffers, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "signalSemaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.signalSemaphoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSignalSemaphores", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.signalSemaphoreCount, obj.pSignalSemaphores, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -618,8 +612,6 @@ template <> std::string ToString<VkMappedMemoryRange>(const VkMappedMemoryRange&
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -659,8 +651,6 @@ template <> std::string ToString<VkSparseMemoryBind>(const VkSparseMemoryBind& o
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -673,8 +663,6 @@ template <> std::string ToString<VkSparseBufferMemoryBindInfo>(const VkSparseBuf
             FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, ArrayToString(obj.bindCount, obj.pBinds, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -687,8 +675,6 @@ template <> std::string ToString<VkSparseImageOpaqueMemoryBindInfo>(const VkSpar
             FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, ArrayToString(obj.bindCount, obj.pBinds, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -716,8 +702,6 @@ template <> std::string ToString<VkSparseImageMemoryBind>(const VkSparseImageMem
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -730,8 +714,6 @@ template <> std::string ToString<VkSparseImageMemoryBindInfo>(const VkSparseImag
             FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, ArrayToString(obj.bindCount, obj.pBinds, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -753,8 +735,6 @@ template <> std::string ToString<VkBindSparseInfo>(const VkBindSparseInfo& obj, 
             FieldToString(strStrm, false, "pImageBinds", toStringFlags, tabCount, tabSize, ArrayToString(obj.imageBindCount, obj.pImageBinds, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "signalSemaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.signalSemaphoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSignalSemaphores", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.signalSemaphoreCount, obj.pSignalSemaphores, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -865,8 +845,6 @@ template <> std::string ToString<VkBufferViewCreateInfo>(const VkBufferViewCreat
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "range", toStringFlags, tabCount, tabSize, ToString(obj.range, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -935,8 +913,6 @@ template <> std::string ToString<VkImageViewCreateInfo>(const VkImageViewCreateI
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "components", toStringFlags, tabCount, tabSize, ToString(obj.components, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(obj.subresourceRange, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -992,8 +968,6 @@ template <> std::string ToString<VkPipelineShaderStageCreateInfo>(const VkPipeli
             FieldToString(strStrm, false, "module", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.module) + '"');
             FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, (obj.pName ? ("\"" + std::string(obj.pName) + "\"") : "null"));
             FieldToString(strStrm, false, "pSpecializationInfo", toStringFlags, tabCount, tabSize, (obj.pSpecializationInfo ? ToString(*obj.pSpecializationInfo, toStringFlags, tabCount, tabSize) : "null"));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1010,8 +984,6 @@ template <> std::string ToString<VkComputePipelineCreateInfo>(const VkComputePip
             FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.layout) + '"');
             FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1246,8 +1218,6 @@ template <> std::string ToString<VkGraphicsPipelineCreateInfo>(const VkGraphicsP
             FieldToString(strStrm, false, "subpass", toStringFlags, tabCount, tabSize, ToString(obj.subpass, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1276,8 +1246,6 @@ template <> std::string ToString<VkPipelineLayoutCreateInfo>(const VkPipelineLay
             FieldToString(strStrm, false, "pSetLayouts", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.setLayoutCount, obj.pSetLayouts, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pushConstantRangeCount", toStringFlags, tabCount, tabSize, ToString(obj.pushConstantRangeCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pPushConstantRanges", toStringFlags, tabCount, tabSize, ArrayToString(obj.pushConstantRangeCount, obj.pPushConstantRanges, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -1323,8 +1291,6 @@ template <> std::string ToString<VkCopyDescriptorSet>(const VkCopyDescriptorSet&
             FieldToString(strStrm, false, "dstBinding", toStringFlags, tabCount, tabSize, ToString(obj.dstBinding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstArrayElement", toStringFlags, tabCount, tabSize, ToString(obj.dstArrayElement, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorCount, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1337,8 +1303,6 @@ template <> std::string ToString<VkDescriptorBufferInfo>(const VkDescriptorBuffe
             FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "range", toStringFlags, tabCount, tabSize, ToString(obj.range, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1379,9 +1343,6 @@ template <> std::string ToString<VkDescriptorSetAllocateInfo>(const VkDescriptor
             FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.descriptorPool) + '"');
             FieldToString(strStrm, false, "descriptorSetCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSetCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSetLayouts", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.descriptorSetCount, obj.pSetLayouts, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -1396,8 +1357,6 @@ template <> std::string ToString<VkDescriptorSetLayoutBinding>(const VkDescripto
             FieldToString(strStrm, false, "descriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageFlags", toStringFlags, tabCount, tabSize, ToString(obj.stageFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pImmutableSamplers", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.descriptorCount, obj.pImmutableSamplers, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -1459,9 +1418,6 @@ template <> std::string ToString<VkFramebufferCreateInfo>(const VkFramebufferCre
             FieldToString(strStrm, false, "width", toStringFlags, tabCount, tabSize, ToString(obj.width, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "height", toStringFlags, tabCount, tabSize, ToString(obj.height, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "layers", toStringFlags, tabCount, tabSize, ToString(obj.layers, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -1542,8 +1498,6 @@ template <> std::string ToString<VkCommandBufferAllocateInfo>(const VkCommandBuf
             FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.commandPool) + '"');
             FieldToString(strStrm, false, "level", toStringFlags, tabCount, tabSize, '"' + ToString(obj.level, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "commandBufferCount", toStringFlags, tabCount, tabSize, ToString(obj.commandBufferCount, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1561,8 +1515,6 @@ template <> std::string ToString<VkCommandBufferInheritanceInfo>(const VkCommand
             FieldToString(strStrm, false, "occlusionQueryEnable", toStringFlags, tabCount, tabSize, ToString(obj.occlusionQueryEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queryFlags", toStringFlags, tabCount, tabSize, ToString(obj.queryFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineStatistics", toStringFlags, tabCount, tabSize, ToString(obj.pipelineStatistics, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1708,8 +1660,6 @@ template <> std::string ToString<VkRenderPassBeginInfo>(const VkRenderPassBeginI
             FieldToString(strStrm, false, "renderArea", toStringFlags, tabCount, tabSize, ToString(obj.renderArea, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "clearValueCount", toStringFlags, tabCount, tabSize, ToString(obj.clearValueCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pClearValues", toStringFlags, tabCount, tabSize, ArrayToString(obj.clearValueCount, obj.pClearValues, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1739,8 +1689,6 @@ template <> std::string ToString<VkBindBufferMemoryInfo>(const VkBindBufferMemor
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1755,8 +1703,6 @@ template <> std::string ToString<VkBindImageMemoryInfo>(const VkBindImageMemoryI
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1798,8 +1744,6 @@ template <> std::string ToString<VkMemoryDedicatedAllocateInfo>(const VkMemoryDe
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1911,7 +1855,6 @@ template <> std::string ToString<VkPhysicalDeviceGroupProperties>(const VkPhysic
             FieldToString(strStrm, false, "physicalDeviceCount", toStringFlags, tabCount, tabSize, ToString(obj.physicalDeviceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalDevices", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.physicalDeviceCount, obj.physicalDevices, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subsetAllocation", toStringFlags, tabCount, tabSize, ToString(obj.subsetAllocation, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
         }
     );
 }
@@ -1925,8 +1868,6 @@ template <> std::string ToString<VkDeviceGroupDeviceCreateInfo>(const VkDeviceGr
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalDeviceCount", toStringFlags, tabCount, tabSize, ToString(obj.physicalDeviceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pPhysicalDevices", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.physicalDeviceCount, obj.pPhysicalDevices, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -1939,8 +1880,6 @@ template <> std::string ToString<VkBufferMemoryRequirementsInfo2>(const VkBuffer
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1953,8 +1892,6 @@ template <> std::string ToString<VkImageMemoryRequirementsInfo2>(const VkImageMe
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -1967,8 +1904,6 @@ template <> std::string ToString<VkImageSparseMemoryRequirementsInfo2>(const VkI
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -2308,8 +2243,6 @@ template <> std::string ToString<VkSamplerYcbcrConversionInfo>(const VkSamplerYc
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "conversion", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.conversion) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -2392,8 +2325,6 @@ template <> std::string ToString<VkDescriptorUpdateTemplateCreateInfo>(const VkD
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pipelineLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipelineLayout) + '"');
             FieldToString(strStrm, false, "set", toStringFlags, tabCount, tabSize, ToString(obj.set, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3269,8 +3200,6 @@ template <> std::string ToString<VkRenderPassAttachmentBeginInfo>(const VkRender
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttachments", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.attachmentCount, obj.pAttachments, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -3411,8 +3340,6 @@ template <> std::string ToString<VkSemaphoreWaitInfo>(const VkSemaphoreWaitInfo&
             FieldToString(strStrm, false, "semaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.semaphoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSemaphores", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.semaphoreCount, obj.pSemaphores, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pValues", toStringFlags, tabCount, tabSize, ArrayToString(obj.semaphoreCount, obj.pValues, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -3426,8 +3353,6 @@ template <> std::string ToString<VkSemaphoreSignalInfo>(const VkSemaphoreSignalI
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
             FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize, ToString(obj.value, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3454,8 +3379,6 @@ template <> std::string ToString<VkBufferDeviceAddressInfo>(const VkBufferDevice
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3492,8 +3415,6 @@ template <> std::string ToString<VkDeviceMemoryOpaqueCaptureAddressInfo>(const V
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3724,8 +3645,6 @@ template <> std::string ToString<VkBufferMemoryBarrier2>(const VkBufferMemoryBar
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3747,8 +3666,6 @@ template <> std::string ToString<VkImageMemoryBarrier2>(const VkImageMemoryBarri
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(obj.subresourceRange, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3782,8 +3699,6 @@ template <> std::string ToString<VkSemaphoreSubmitInfo>(const VkSemaphoreSubmitI
             FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize, ToString(obj.value, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, ToString(obj.stageMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceIndex", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3797,8 +3712,6 @@ template <> std::string ToString<VkCommandBufferSubmitInfo>(const VkCommandBuffe
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "commandBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.commandBuffer) + '"');
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3882,8 +3795,6 @@ template <> std::string ToString<VkCopyBufferInfo2>(const VkCopyBufferInfo2& obj
             FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstBuffer) + '"');
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3917,8 +3828,6 @@ template <> std::string ToString<VkCopyImageInfo2>(const VkCopyImageInfo2& obj, 
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3952,8 +3861,6 @@ template <> std::string ToString<VkCopyBufferToImageInfo2>(const VkCopyBufferToI
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -3970,8 +3877,6 @@ template <> std::string ToString<VkCopyImageToBufferInfo2>(const VkCopyImageToBu
             FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstBuffer) + '"');
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4005,8 +3910,6 @@ template <> std::string ToString<VkBlitImageInfo2>(const VkBlitImageInfo2& obj, 
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "filter", toStringFlags, tabCount, tabSize, '"' + ToString(obj.filter, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4040,8 +3943,6 @@ template <> std::string ToString<VkResolveImageInfo2>(const VkResolveImageInfo2&
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4167,8 +4068,6 @@ template <> std::string ToString<VkRenderingAttachmentInfo>(const VkRenderingAtt
             FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.loadOp, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.storeOp, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "clearValue", toStringFlags, tabCount, tabSize, ToString(obj.clearValue, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4422,8 +4321,6 @@ template <> std::string ToString<VkSwapchainCreateInfoKHR>(const VkSwapchainCrea
             FieldToString(strStrm, false, "presentMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.presentMode, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "clipped", toStringFlags, tabCount, tabSize, ToString(obj.clipped, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "oldSwapchain", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.oldSwapchain) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4441,8 +4338,6 @@ template <> std::string ToString<VkPresentInfoKHR>(const VkPresentInfoKHR& obj, 
             FieldToString(strStrm, false, "pSwapchains", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.swapchainCount, obj.pSwapchains, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pImageIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.swapchainCount, obj.pImageIndices, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pResults", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.swapchainCount, obj.pResults, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -4455,8 +4350,6 @@ template <> std::string ToString<VkImageSwapchainCreateInfoKHR>(const VkImageSwa
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.swapchain) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4470,8 +4363,6 @@ template <> std::string ToString<VkBindImageMemorySwapchainInfoKHR>(const VkBind
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.swapchain) + '"');
             FieldToString(strStrm, false, "imageIndex", toStringFlags, tabCount, tabSize, ToString(obj.imageIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4488,8 +4379,6 @@ template <> std::string ToString<VkAcquireNextImageInfoKHR>(const VkAcquireNextI
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
             FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4564,8 +4453,6 @@ template <> std::string ToString<VkDisplayModePropertiesKHR>(const VkDisplayMode
         {
             FieldToString(strStrm, true, "displayMode", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.displayMode) + '"');
             FieldToString(strStrm, false, "parameters", toStringFlags, tabCount, tabSize, ToString(obj.parameters, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4595,8 +4482,6 @@ template <> std::string ToString<VkDisplayPlanePropertiesKHR>(const VkDisplayPla
         {
             FieldToString(strStrm, true, "currentDisplay", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.currentDisplay) + '"');
             FieldToString(strStrm, false, "currentStackIndex", toStringFlags, tabCount, tabSize, ToString(obj.currentStackIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4613,8 +4498,6 @@ template <> std::string ToString<VkDisplayPropertiesKHR>(const VkDisplayProperti
             FieldToString(strStrm, false, "supportedTransforms", toStringFlags, tabCount, tabSize, ToString(obj.supportedTransforms, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "planeReorderPossible", toStringFlags, tabCount, tabSize, ToString(obj.planeReorderPossible, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "persistentContent", toStringFlags, tabCount, tabSize, ToString(obj.persistentContent, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4634,8 +4517,6 @@ template <> std::string ToString<VkDisplaySurfaceCreateInfoKHR>(const VkDisplayS
             FieldToString(strStrm, false, "globalAlpha", toStringFlags, tabCount, tabSize, ToString(obj.globalAlpha, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "alphaMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.alphaMode, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "imageExtent", toStringFlags, tabCount, tabSize, ToString(obj.imageExtent, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4733,8 +4614,6 @@ template <> std::string ToString<VkRenderingFragmentShadingRateAttachmentInfoKHR
             FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.imageView) + '"');
             FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageLayout, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "shadingRateAttachmentTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.shadingRateAttachmentTexelSize, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4748,8 +4627,6 @@ template <> std::string ToString<VkRenderingFragmentDensityMapAttachmentInfoEXT>
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.imageView) + '"');
             FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageLayout, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4830,8 +4707,6 @@ template <> std::string ToString<VkMemoryGetWin32HandleInfoKHR>(const VkMemoryGe
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4870,8 +4745,6 @@ template <> std::string ToString<VkMemoryGetFdInfoKHR>(const VkMemoryGetFdInfoKH
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4890,8 +4763,6 @@ template <> std::string ToString<VkWin32KeyedMutexAcquireReleaseInfoKHR>(const V
             FieldToString(strStrm, false, "releaseCount", toStringFlags, tabCount, tabSize, ToString(obj.releaseCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pReleaseSyncs", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.releaseCount, obj.pReleaseSyncs, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pReleaseKeys", toStringFlags, tabCount, tabSize, ArrayToString(obj.releaseCount, obj.pReleaseKeys, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -4908,8 +4779,6 @@ template <> std::string ToString<VkImportSemaphoreWin32HandleInfoKHR>(const VkIm
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.handle) + "\"");
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, (obj.name ? ToString(*obj.name, toStringFlags, tabCount, tabSize) : "null"));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4952,8 +4821,6 @@ template <> std::string ToString<VkSemaphoreGetWin32HandleInfoKHR>(const VkSemap
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4969,8 +4836,6 @@ template <> std::string ToString<VkImportSemaphoreFdInfoKHR>(const VkImportSemap
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "fd", toStringFlags, tabCount, tabSize, ToString(obj.fd, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -4984,8 +4849,6 @@ template <> std::string ToString<VkSemaphoreGetFdInfoKHR>(const VkSemaphoreGetFd
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5062,8 +4925,6 @@ template <> std::string ToString<VkImportFenceWin32HandleInfoKHR>(const VkImport
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.handle) + "\"");
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, (obj.name ? ToString(*obj.name, toStringFlags, tabCount, tabSize) : "null"));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5091,8 +4952,6 @@ template <> std::string ToString<VkFenceGetWin32HandleInfoKHR>(const VkFenceGetW
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5108,8 +4967,6 @@ template <> std::string ToString<VkImportFenceFdInfoKHR>(const VkImportFenceFdIn
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "fd", toStringFlags, tabCount, tabSize, ToString(obj.fd, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5123,8 +4980,6 @@ template <> std::string ToString<VkFenceGetFdInfoKHR>(const VkFenceGetFdInfoKHR&
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5231,8 +5086,6 @@ template <> std::string ToString<VkPhysicalDeviceSurfaceInfo2KHR>(const VkPhysic
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.surface) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5306,8 +5159,6 @@ template <> std::string ToString<VkDisplayPlaneInfo2KHR>(const VkDisplayPlaneInf
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.mode) + '"');
             FieldToString(strStrm, false, "planeIndex", toStringFlags, tabCount, tabSize, ToString(obj.planeIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5537,8 +5388,6 @@ template <> std::string ToString<VkPipelineInfoKHR>(const VkPipelineInfoKHR& obj
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipeline) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5567,8 +5416,6 @@ template <> std::string ToString<VkPipelineExecutableInfoKHR>(const VkPipelineEx
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipeline) + '"');
             FieldToString(strStrm, false, "executableIndex", toStringFlags, tabCount, tabSize, ToString(obj.executableIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5598,8 +5445,6 @@ template <> std::string ToString<VkPipelineLibraryCreateInfoKHR>(const VkPipelin
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "libraryCount", toStringFlags, tabCount, tabSize, ToString(obj.libraryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pLibraries", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.libraryCount, obj.pLibraries, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -5843,8 +5688,6 @@ template <> std::string ToString<VkDedicatedAllocationMemoryAllocateInfoNV>(cons
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -5906,8 +5749,6 @@ template <> std::string ToString<VkImageViewHandleInfoNVX>(const VkImageViewHand
             FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.imageView) + '"');
             FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.descriptorType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "sampler", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.sampler) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -6069,8 +5910,6 @@ template <> std::string ToString<VkWin32KeyedMutexAcquireReleaseInfoNV>(const Vk
             FieldToString(strStrm, false, "releaseCount", toStringFlags, tabCount, tabSize, ToString(obj.releaseCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pReleaseSyncs", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.releaseCount, obj.pReleaseSyncs, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pReleaseKeys", toStringFlags, tabCount, tabSize, ArrayToString(obj.releaseCount, obj.pReleaseKeys, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -6177,8 +6016,6 @@ template <> std::string ToString<VkConditionalRenderingBeginInfoEXT>(const VkCon
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -6676,8 +6513,6 @@ template <> std::string ToString<VkMemoryGetAndroidHardwareBufferInfoANDROID>(co
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -7041,8 +6876,6 @@ template <> std::string ToString<VkShaderModuleValidationCacheCreateInfoEXT>(con
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "validationCache", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.validationCache) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -7170,8 +7003,6 @@ template <> std::string ToString<VkRayTracingPipelineCreateInfoNV>(const VkRayTr
             FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.layout) + '"');
             FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -7194,8 +7025,6 @@ template <> std::string ToString<VkGeometryTrianglesNV>(const VkGeometryTriangle
             FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.indexType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "transformData", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.transformData) + '"');
             FieldToString(strStrm, false, "transformOffset", toStringFlags, tabCount, tabSize, ToString(obj.transformOffset, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -7211,8 +7040,6 @@ template <> std::string ToString<VkGeometryAABBNV>(const VkGeometryAABBNV& obj, 
             FieldToString(strStrm, false, "numAABBs", toStringFlags, tabCount, tabSize, ToString(obj.numAABBs, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(obj.stride, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -7283,8 +7110,6 @@ template <> std::string ToString<VkBindAccelerationStructureMemoryInfoNV>(const 
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDeviceIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.deviceIndexCount, obj.pDeviceIndices, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -7298,8 +7123,6 @@ template <> std::string ToString<VkWriteDescriptorSetAccelerationStructureNV>(co
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructureCount", toStringFlags, tabCount, tabSize, ToString(obj.accelerationStructureCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAccelerationStructures", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.accelerationStructureCount, obj.pAccelerationStructures, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -7313,8 +7136,6 @@ template <> std::string ToString<VkAccelerationStructureMemoryRequirementsInfoNV
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.accelerationStructure) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -8386,8 +8207,6 @@ template <> std::string ToString<VkGraphicsPipelineShaderGroupsCreateInfoNV>(con
             FieldToString(strStrm, false, "pGroups", toStringFlags, tabCount, tabSize, ArrayToString(obj.groupCount, obj.pGroups, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineCount", toStringFlags, tabCount, tabSize, ToString(obj.pipelineCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pPipelines", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.pipelineCount, obj.pPipelines, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -8443,8 +8262,6 @@ template <> std::string ToString<VkIndirectCommandsStreamNV>(const VkIndirectCom
         {
             FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -8469,8 +8286,6 @@ template <> std::string ToString<VkIndirectCommandsLayoutTokenNV>(const VkIndire
             FieldToString(strStrm, false, "indexTypeCount", toStringFlags, tabCount, tabSize, ToString(obj.indexTypeCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pIndexTypes", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.indexTypeCount, obj.pIndexTypes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pIndexTypeValues", toStringFlags, tabCount, tabSize, ArrayToString(obj.indexTypeCount, obj.pIndexTypeValues, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -8512,8 +8327,6 @@ template <> std::string ToString<VkGeneratedCommandsInfoNV>(const VkGeneratedCom
             FieldToString(strStrm, false, "sequencesCountOffset", toStringFlags, tabCount, tabSize, ToString(obj.sequencesCountOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sequencesIndexBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.sequencesIndexBuffer) + '"');
             FieldToString(strStrm, false, "sequencesIndexOffset", toStringFlags, tabCount, tabSize, ToString(obj.sequencesIndexOffset, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -8529,8 +8342,6 @@ template <> std::string ToString<VkGeneratedCommandsMemoryRequirementsInfoNV>(co
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipeline) + '"');
             FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.indirectCommandsLayout) + '"');
             FieldToString(strStrm, false, "maxSequencesCount", toStringFlags, tabCount, tabSize, ToString(obj.maxSequencesCount, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -9260,8 +9071,6 @@ template <> std::string ToString<VkMemoryGetZirconHandleInfoFUCHSIA>(const VkMem
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -9277,8 +9086,6 @@ template <> std::string ToString<VkImportSemaphoreZirconHandleInfoFUCHSIA>(const
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "zirconHandle", toStringFlags, tabCount, tabSize, ToString(obj.zirconHandle, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -9292,8 +9099,6 @@ template <> std::string ToString<VkSemaphoreGetZirconHandleInfoFUCHSIA>(const Vk
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -9319,8 +9124,6 @@ template <> std::string ToString<VkMemoryGetRemoteAddressInfoNV>(const VkMemoryG
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -9584,8 +9387,6 @@ template <> std::string ToString<VkDescriptorSetBindingReferenceVALVE>(const VkD
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.descriptorSetLayout) + '"');
             FieldToString(strStrm, false, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -9960,8 +9761,6 @@ template <> std::string ToString<VkAccelerationStructureCreateInfoKHR>(const VkA
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "deviceAddress", toStringFlags, tabCount, tabSize, ToString(obj.deviceAddress, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -9975,8 +9774,6 @@ template <> std::string ToString<VkWriteDescriptorSetAccelerationStructureKHR>(c
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructureCount", toStringFlags, tabCount, tabSize, ToString(obj.accelerationStructureCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAccelerationStructures", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.accelerationStructureCount, obj.pAccelerationStructures, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one pointer to an array of handles - Andy */
         }
     );
 }
@@ -10024,8 +9821,6 @@ template <> std::string ToString<VkAccelerationStructureDeviceAddressInfoKHR>(co
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.accelerationStructure) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -10040,8 +9835,6 @@ template <> std::string ToString<VkCopyAccelerationStructureToMemoryInfoKHR>(con
             FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.src) + '"');
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, ToString(obj.dst, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -10056,8 +9849,6 @@ template <> std::string ToString<VkCopyMemoryToAccelerationStructureInfoKHR>(con
             FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, ToString(obj.src, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dst) + '"');
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -10072,8 +9863,6 @@ template <> std::string ToString<VkCopyAccelerationStructureInfoKHR>(const VkCop
             FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.src) + '"');
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dst) + '"');
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }
@@ -10141,8 +9930,6 @@ template <> std::string ToString<VkRayTracingPipelineCreateInfoKHR>(const VkRayT
             FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.layout) + '"');
             FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
-            /* Struct has at least one handle - Andy */
-            /* Struct has at least one single handle - Andy */
         }
     );
 }

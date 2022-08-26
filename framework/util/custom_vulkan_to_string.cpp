@@ -23,7 +23,6 @@
 #include "custom_vulkan_to_string.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_to_string.h"
-#include "generated/generated_vulkan_struct_decoders_to_string.h"
 
 #include <algorithm>
 

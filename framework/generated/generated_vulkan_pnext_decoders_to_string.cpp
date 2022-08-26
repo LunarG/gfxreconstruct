@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -26,9 +26,8 @@
 **
 */
 
-#include "decode/custom_vulkan_to_string.h"
-#include "generated_vulkan_struct_to_string.h"
 #include "generated_vulkan_struct_decoders_to_string.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -37,7 +36,6 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
 {
     if (pNext)
     {
-        // Original for raw structs: switch (reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)
         // Assumes decoded_value is always first member of Decoded_[VulkanStructX].
         const void* meta = pNext->GetMetaStructPointer();
         assert(nullptr != meta);
@@ -396,6 +394,12 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkImageViewASTCDecodeModeEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PIPELINE_ROBUSTNESS_CREATE_INFO_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPipelineRobustnessCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
@@ -664,6 +668,8 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkImageCompressionControlEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkImageCompressionPropertiesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDevice4444FormatsFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM:
@@ -690,6 +696,12 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkSubpassResolvePerformanceQueryEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkMultisampledRenderToSingleSampledInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:
@@ -716,6 +728,8 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM:
@@ -726,6 +740,12 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkImageViewSampleWeightCreateInfoQCOM*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
@@ -734,6 +754,18 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkRenderPassCreationFeedbackCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkAmigoProfilingSubmitInfoSEC*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             return ToString(*reinterpret_cast<const decode::Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
@@ -747,7 +779,10 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceRayQueryFeaturesKHR*>(meta), toStringFlags, tabCount, tabSize);
         default:
-            return std::string("\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(sType)) + "\"";
+            {
+                std::string error_message{std::string("\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(sType)) + "\""};
+                GFXRECON_LOG_ERROR(error_message.c_str());
+            }
         }
     }
     return "null";

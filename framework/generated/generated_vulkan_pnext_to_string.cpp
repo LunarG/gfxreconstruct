@@ -28,7 +28,6 @@
 
 #include "util/custom_vulkan_to_string.h"
 #include "generated_vulkan_struct_to_string.h"
-#include "generated_vulkan_struct_decoders_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -763,8 +762,7 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceRayQueryFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
-        default:
-            return std::string("\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)) + "\"";
+        default: break;
         }
     }
     return "null";

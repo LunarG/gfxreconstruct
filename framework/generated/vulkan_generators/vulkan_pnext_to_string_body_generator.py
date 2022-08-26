@@ -78,7 +78,6 @@ class VulkanPNextToStringBodyGenerator(BaseGenerator):
         body = inspect.cleandoc('''
         #include "util/custom_vulkan_to_string.h"
         #include "generated_vulkan_struct_to_string.h"
-        #include "generated_vulkan_struct_decoders_to_string.h"
 
         GFXRECON_BEGIN_NAMESPACE(gfxrecon)
         GFXRECON_BEGIN_NAMESPACE(util)
@@ -95,8 +94,7 @@ class VulkanPNextToStringBodyGenerator(BaseGenerator):
             body += '        case {0}:\n'.format(self.sTypeValues[struct])
             body += '            return ToString(*reinterpret_cast<const {0}*>(pNext), toStringFlags, tabCount, tabSize);\n'.format(struct)
         body += inspect.cleandoc('''
-                default:
-                    return std::string("\\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)) + "\\"";
+                default: break;
                 }
             }
             return "null";

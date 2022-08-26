@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2022 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -167,8 +167,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
 
             # Function pointers and void data pointers simply write the address
             elif 'pfn' in value.name:
-                # toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
-                # In decoded types these are uint64_ts:
+                # In decoded types these are uint64_ts so use the non-pointer path:
                 toString = '"\\"" + ToString(decoded_obj.{0}) + "\\""'
             elif 'void' in value.full_type:
                 toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
@@ -187,14 +186,10 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                 if value.is_array:
                     if self.is_handle(value.base_type):
                         # Pointer to array of handles case:
-                        # Original: toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
-                        # Works but outputs hex: toString = 'VkHandleArrayToString(decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
-                        # Decimals output:
                         toString = 'ArrayToString(decoded_obj.{0}.GetLength(), decoded_obj.{0}.GetPointer(), toStringFlags, tabCount, tabSize)'
 
                     elif self.is_struct(value.base_type):
                         # Pointer to array of structs case:
-                        # Original: toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         # Pointer to array of enums case. For enums, it is fine to reach through to the
@@ -218,13 +213,11 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                 if value.is_array:
                     if self.is_handle(value.base_type):
                         # Embedded array of handles as a direct fixed-length member of the struct:
-                        # Original: toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         # Plumbs through to HandlePointerDecoder::GetPointer() which returns a pointer
                         # to a format::HandleId, which is a typedef of uint64_t.
                         toString = 'ArrayToString(decoded_obj.{0}.GetLength(), decoded_obj.{0}.GetPointer(), toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
                         # Embedded array of structs:
-                        # Original: toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         # For embedded arrays of enums, grab them out of the raw vulkan struct:
@@ -241,7 +234,6 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                         # Outputs decimal value of the handle:
                         toString = 'ToString(decoded_obj.{0})'
                     elif self.is_struct(value.base_type):
-                        # Original: toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
                         toString = 'ToString(*(decoded_obj.{0}), toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
