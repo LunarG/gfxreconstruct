@@ -31,7 +31,6 @@
 #include "util/custom_vulkan_to_string.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_to_string.h"
-#include "generated/generated_vulkan_struct_decoders_to_string.h"
 #include "util/defines.h"
 #include "vulkan/vulkan.h"
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -10730,7 +10729,7 @@ void VulkanAsciiConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
             FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, HandleIdToString(framebuffer));
             FieldToString(strStrm, false, "[out]pPropertiesCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPropertiesCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "[out]pProperties", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(pPropertiesCount, pProperties, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "[out]pProperties", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*pProperties, toStringFlags, tabCount, tabSize));
         }
     );
 }

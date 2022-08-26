@@ -31,14 +31,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-#define GFXRECON_PREFIX_JSON_STR std::string str {"\"fixme\": \"The decoded version of the following struct needs a proper ToString() function.\""};
 // clang-format off
 
 // NOTE : The following structures' ToString() functions aren't generated due
 //  to various reasons...ie unions, non standard counts for arrays, fields that
 //  need validation to interpret correctly, etc...
 
-// This is fine:
+// Call through to the version for the raw struct.
 template <>
 std::string ToString<decode::Decoded_SECURITY_ATTRIBUTES>(const decode::Decoded_SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -50,7 +49,7 @@ std::string ToString<decode::Decoded_SECURITY_ATTRIBUTES>(const decode::Decoded_
     return "";
 }
 
-// Follow the decoded struct pointers:
+// Follow the decoded struct pointers.
 template<>
 std::string ToString<decode::Decoded_VkAccelerationStructureGeometryKHR>(const decode::Decoded_VkAccelerationStructureGeometryKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -96,7 +95,7 @@ std::string ToString<decode::Decoded_VkAccelerationStructureGeometryKHR>(const d
     );
 }
 
-// Dispatch to the raw vulkan version as there are no pNexts or handles reachable through this:
+// Dispatch to the raw vulkan version as there are no pNexts or handles reachable through this.
 template <>
 std::string ToString<decode::Decoded_VkAccelerationStructureMotionInstanceNV>(const decode::Decoded_VkAccelerationStructureMotionInstanceNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -107,6 +106,33 @@ std::string ToString<decode::Decoded_VkAccelerationStructureMotionInstanceNV>(co
         str += ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
     return str;
+}
+
+// Dispatch to the raw vulkan version as there are no pNexts or handles reachable through this.
+template <>
+std::string ToString<decode::Decoded_VkClearColorValue>(const decode::Decoded_VkClearColorValue& obj,
+                                        ToStringFlags            toStringFlags,
+                                        uint32_t                 tabCount,
+                                        uint32_t                 tabSize)
+{
+    assert(obj.decoded_value);
+    if(obj.decoded_value)
+    {
+        return ToString<VkClearColorValue>(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+    }
+    return "";
+}
+
+// Dispatch to the raw vulkan version as there are no pNexts or handles reachable through this.
+template <>
+std::string ToString<decode::Decoded_VkClearValue>(const decode::Decoded_VkClearValue& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(obj.decoded_value);
+    if(obj.decoded_value)
+    {
+        return ToString<VkClearValue>(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+    }
+    return "";
 }
 
 template <>
@@ -128,7 +154,35 @@ std::string ToString<decode::Decoded_VkDescriptorImageInfo>(const decode::Decode
     );
 }
 
-/// Call through to raw vulkan struct version as there are no handles reachable through this.
+template <>
+std::string ToString<decode::Decoded_VkDeviceOrHostAddressConstKHR>(const decode::Decoded_VkDeviceOrHostAddressConstKHR& obj,
+                                                    ToStringFlags                        toStringFlags,
+                                                    uint32_t                             tabCount,
+                                                    uint32_t                             tabSize)
+{
+    assert(obj.decoded_value);
+    if(obj.decoded_value)
+    {
+        return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+    }
+    return "";
+}
+
+template <>
+std::string ToString<decode::Decoded_VkDeviceOrHostAddressKHR>(const decode::Decoded_VkDeviceOrHostAddressKHR& obj,
+                                               ToStringFlags                   toStringFlags,
+                                               uint32_t                        tabCount,
+                                               uint32_t                        tabSize)
+{
+    assert(obj.decoded_value);
+    if(obj.decoded_value)
+    {
+        return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+    }
+    return "";
+}
+
+// Call through to raw vulkan struct version as there are no handles reachable through this.
 template <>
 std::string ToString<decode::Decoded_VkPerformanceValueINTEL>(const decode::Decoded_VkPerformanceValueINTEL& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -195,7 +249,7 @@ std::string ToString<decode::Decoded_VkPipelineExecutableStatisticKHR>(const dec
     );
 }
 
-/// Use the DecodedStruct to properly traverse pNext and get the dstSet
+// Use the DecodedStruct to properly traverse pNext and get the dstSet
 template <>
 std::string ToString<decode::Decoded_VkWriteDescriptorSet>(const decode::Decoded_VkWriteDescriptorSet& decoded_obj,
                                            ToStringFlags               toStringFlags,
@@ -326,7 +380,7 @@ std::string ToString<decode::Decoded_VkAccelerationStructureVersionInfoKHR>(cons
 }
 
 
-/// Should be fine to call through to raw Vulkan struct as no handles are reachable.
+// Call through to raw Vulkan struct as no handles are reachable.
 template <>
 std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryProperties>(const decode::Decoded_VkPhysicalDeviceMemoryProperties& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -340,7 +394,7 @@ std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryProperties>(const dec
 }
 
 
-/// Mostly POD but we need to traverse the pNext on the Decoded side.
+// Mostly POD but we need to traverse the pNext on the Decoded side.
 template <>
 std::string ToString<decode::Decoded_VkPipelineMultisampleStateCreateInfo>(const decode::Decoded_VkPipelineMultisampleStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -367,7 +421,7 @@ std::string ToString<decode::Decoded_VkPipelineMultisampleStateCreateInfo>(const
     );
 }
 
-/// Mostly POD but we need to traverse the pNext on the Decoded side.
+// Mostly POD but we need to traverse the pNext on the Decoded side.
 template <>
 std::string ToString<decode::Decoded_VkShaderModuleCreateInfo>(const decode::Decoded_VkShaderModuleCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
@@ -390,7 +444,7 @@ std::string ToString<decode::Decoded_VkShaderModuleCreateInfo>(const decode::Dec
     );
 }
 
-/// It is just twelve floats so call through to the raw vulkan struct version.
+// It is just twelve floats so call through to the raw vulkan struct version.
 template <>
 std::string ToString<decode::Decoded_VkTransformMatrixKHR>(const decode::Decoded_VkTransformMatrixKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {

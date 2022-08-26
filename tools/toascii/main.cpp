@@ -127,7 +127,6 @@ int main(int argc, const char** argv)
 
         if (output_file)
         {
-            setvbuf(stdout, nullptr, _IONBF, BUFSIZ); // Disable buffering for stdout
             gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
             ascii_consumer.Initialize(output_file);
             gfxrecon::decode::VulkanDecoder decoder;

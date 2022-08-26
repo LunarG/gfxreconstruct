@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2022 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -76,9 +76,8 @@ class VulkanPNextDecodersToStringBodyGenerator(BaseGenerator):
     # yapf: disable
     def endFile(self):
         body = inspect.cleandoc('''
-        #include "decode/custom_vulkan_to_string.h"
-        #include "generated_vulkan_struct_to_string.h"
         #include "generated_vulkan_struct_decoders_to_string.h"
+        #include "util/logging.h"
 
         GFXRECON_BEGIN_NAMESPACE(gfxrecon)
         GFXRECON_BEGIN_NAMESPACE(util)
@@ -87,7 +86,6 @@ class VulkanPNextDecodersToStringBodyGenerator(BaseGenerator):
         {
             if (pNext)
             {
-                // Original for raw structs: switch (reinterpret_cast<const VkBaseInStructure*>(pNext)->sType)
                 // Assumes decoded_value is always first member of Decoded_[VulkanStructX].
                 const void* meta = pNext->GetMetaStructPointer();
                 assert(nullptr != meta);
@@ -114,7 +112,10 @@ class VulkanPNextDecodersToStringBodyGenerator(BaseGenerator):
             body += '            return ToString(*reinterpret_cast<const decode::Decoded_{0}*>(meta), toStringFlags, tabCount, tabSize);\n'.format(struct)
         body += inspect.cleandoc('''
                 default:
-                    return std::string("\\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(sType)) + "\\"";
+                    {
+                        std::string error_message{std::string("\\"Unknown Struct in pNext chain. sType: ") + std::to_string(uint32_t(sType)) + "\\""};
+                        GFXRECON_LOG_ERROR(error_message.c_str());
+                    }
                 }
             }
             return "null";

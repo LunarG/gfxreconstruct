@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -8342,6 +8342,66 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceASTCDecodeFeatu
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT>(const decode::Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDevicePipelineRobustnessFeaturesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pipelineRobustness", toStringFlags, tabCount, tabSize, ToString(obj.pipelineRobustness, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT>(const decode::Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDevicePipelineRobustnessPropertiesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "defaultRobustnessStorageBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessStorageBuffers, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "defaultRobustnessUniformBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessUniformBuffers, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "defaultRobustnessVertexInputs", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessVertexInputs, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "defaultRobustnessImages", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessImages, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPipelineRobustnessCreateInfoEXT>(const decode::Decoded_VkPipelineRobustnessCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPipelineRobustnessCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "storageBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.storageBuffers, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "uniformBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.uniformBuffers, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "vertexInputs", toStringFlags, tabCount, tabSize, '"' + ToString(obj.vertexInputs, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "images", toStringFlags, tabCount, tabSize, '"' + ToString(obj.images, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkConditionalRenderingBeginInfoEXT>(const decode::Decoded_VkConditionalRenderingBeginInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     assert(decoded_obj.decoded_value != nullptr);
@@ -12418,6 +12478,24 @@ template <> std::string ToString<decode::Decoded_VkImageCompressionPropertiesEXT
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "attachmentFeedbackLoopLayout", toStringFlags, tabCount, tabSize, ToString(obj.attachmentFeedbackLoopLayout, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkPhysicalDevice4444FormatsFeaturesEXT>(const decode::Decoded_VkPhysicalDevice4444FormatsFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     assert(decoded_obj.decoded_value != nullptr);
@@ -12838,6 +12916,61 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryR
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "multisampledRenderToSingleSampled", toStringFlags, tabCount, tabSize, ToString(obj.multisampledRenderToSingleSampled, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkSubpassResolvePerformanceQueryEXT>(const decode::Decoded_VkSubpassResolvePerformanceQueryEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkSubpassResolvePerformanceQueryEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "optimal", toStringFlags, tabCount, tabSize, ToString(obj.optimal, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkMultisampledRenderToSingleSampledInfoEXT>(const decode::Decoded_VkMultisampledRenderToSingleSampledInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkMultisampledRenderToSingleSampledInfoEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "multisampledRenderToSingleSampledEnable", toStringFlags, tabCount, tabSize, ToString(obj.multisampledRenderToSingleSampledEnable, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "rasterizationSamples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.rasterizationSamples, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     assert(decoded_obj.decoded_value != nullptr);
@@ -13173,6 +13306,24 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutHostMappin
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "nonSeamlessCubeMap", toStringFlags, tabCount, tabSize, ToString(obj.nonSeamlessCubeMap, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     assert(decoded_obj.decoded_value != nullptr);
@@ -13260,6 +13411,67 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressio
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageCompressionControlSwapchain", toStringFlags, tabCount, tabSize, ToString(obj.imageCompressionControlSwapchain, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkImageViewSampleWeightCreateInfoQCOM>(const decode::Decoded_VkImageViewSampleWeightCreateInfoQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkImageViewSampleWeightCreateInfoQCOM& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "filterCenter", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.filterCenter), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "filterSize", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.filterSize), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "numPhases", toStringFlags, tabCount, tabSize, ToString(obj.numPhases, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceImageProcessingFeaturesQCOM& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "textureSampleWeighted", toStringFlags, tabCount, tabSize, ToString(obj.textureSampleWeighted, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "textureBoxFilter", toStringFlags, tabCount, tabSize, ToString(obj.textureBoxFilter, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "textureBlockMatch", toStringFlags, tabCount, tabSize, ToString(obj.textureBlockMatch, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM>(const decode::Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceImageProcessingPropertiesQCOM& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxWeightFilterPhases", toStringFlags, tabCount, tabSize, ToString(obj.maxWeightFilterPhases, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxWeightFilterDimension", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.maxWeightFilterDimension), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxBlockMatchRegion", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.maxBlockMatchRegion), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxBoxFilterBlockSize", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.maxBoxFilterBlockSize), toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -13366,6 +13578,155 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackCrea
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSubpassFeedback", toStringFlags, tabCount, tabSize, ((decoded_obj.pSubpassFeedback && decoded_obj.pSubpassFeedback->GetMetaStructPointer()) ? ToString(*decoded_obj.pSubpassFeedback->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderModuleIdentifier", toStringFlags, tabCount, tabSize, ToString(obj.shaderModuleIdentifier, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderModuleIdentifierAlgorithmUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.shaderModuleIdentifierAlgorithmUUID) + '"');
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT>(const decode::Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPipelineShaderStageModuleIdentifierCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "identifierSize", toStringFlags, tabCount, tabSize, ToString(obj.identifierSize, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pIdentifier", toStringFlags, tabCount, tabSize, ArrayToString(obj.identifierSize, obj.pIdentifier, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkShaderModuleIdentifierEXT>(const decode::Decoded_VkShaderModuleIdentifierEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkShaderModuleIdentifierEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "identifierSize", toStringFlags, tabCount, tabSize, ToString(obj.identifierSize, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "identifier", toStringFlags, tabCount, tabSize, ArrayToString(VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, obj.identifier, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceTilePropertiesFeaturesQCOM& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "tileProperties", toStringFlags, tabCount, tabSize, ToString(obj.tileProperties, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkTilePropertiesQCOM>(const decode::Decoded_VkTilePropertiesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkTilePropertiesQCOM& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "tileSize", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.tileSize), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "apronSize", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.apronSize), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "origin", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.origin), toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC>(const decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkPhysicalDeviceAmigoProfilingFeaturesSEC& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "amigoProfiling", toStringFlags, tabCount, tabSize, ToString(obj.amigoProfiling, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkAmigoProfilingSubmitInfoSEC>(const decode::Decoded_VkAmigoProfilingSubmitInfoSEC& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    assert(decoded_obj.decoded_value != nullptr);
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "";
+    }
+    const VkAmigoProfilingSubmitInfoSEC& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "firstDrawTimestamp", toStringFlags, tabCount, tabSize, ToString(obj.firstDrawTimestamp, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "swapBufferTimestamp", toStringFlags, tabCount, tabSize, ToString(obj.swapBufferTimestamp, toStringFlags, tabCount, tabSize));
         }
     );
 }
