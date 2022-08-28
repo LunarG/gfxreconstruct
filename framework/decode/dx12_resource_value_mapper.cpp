@@ -351,8 +351,8 @@ void Dx12ResourceValueMapper::PostProcessCreateCommandSignature(HandlePointerDec
             case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS:
                 // TODO (GH# 416): Implement support for D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS. Also validate that
                 // byte_offset is updated correctly.
-                GFXRECON_LOG_ERROR("Application is using unsupported indirect argument type: "
-                                   "D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS");
+                GFXRECON_LOG_WARNING("Application created command signature with unsupported argument type: "
+                                     "D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS");
                 byte_offset += sizeof(D3D12_DISPATCH_RAYS_DESC);
                 break;
             case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH:
@@ -444,9 +444,8 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
             else
             {
                 // TODO (GH #424): Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
-                GFXRECON_LOG_ERROR("Unsupported instance descs layout (DescsLayout=%d) used in "
-                                   "BuildRaytracingAccelerationStructure. Replay may fail.",
-                                   build_desc->Inputs.DescsLayout);
+                GFXRECON_LOG_WARNING("Application built acceleration structure with unsupported layout: ",
+                                     "D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS");
             }
         }
         else
