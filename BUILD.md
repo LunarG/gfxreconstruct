@@ -96,6 +96,14 @@ be used to update Git submodule dependencies, configure, and build the GFXRecons
 software.  The script works with both Windows and Linux, and requires Python 3.5 or
 above.
 
+The python module `packaging` must be installed before running the build script.
+Here is how to install it on Debian/Ubuntu.
+
+```bash
+sudo apt install python3-pip
+pip install packaging
+```
+
 By default, the script performs some optional build steps that are intended for
 developer builds.  If the target build system has not been configured for
 developer builds as described in [CONTRIBUTING.md](CONTRIBUTING.md), the script
