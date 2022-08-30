@@ -453,7 +453,7 @@ The optimizer is a candidate for renaming since the DXR portion of it runs a rep
 gfxrecon-optimize-renamed.py - Helper script to perform automatic renaming of gfxrecon-optimize.exe prior to optimization.
 
 Usage:
-  gfxrecon-optimize-renamed.py [--dxr] [--d3d12-pso-removal] <input-file> <output-file>
+  gfxrecon-optimize-renamed.py <input-file> <output-file> [--dxr] [--d3d12-pso-removal]
 
 Required arguments:
   <input-file>          The path to input GFXReconstruct capture file to be processed.
