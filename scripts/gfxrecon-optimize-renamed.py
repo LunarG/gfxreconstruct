@@ -88,7 +88,7 @@ def usage():
     print("gfxrecon-optimize-renamed.py - Helper script to perform automatic renaming of gfxrecon-optimize.exe prior to optimization.")
     print()
     print("Usage:")
-    print("  gfxrecon-optimize-renamed.py [--dxr] [--d3d12-pso-removal] <input-file> <output-file>")
+    print("  gfxrecon-optimize-renamed.py <input-file> <output-file> [--dxr] [--d3d12-pso-removal]")
     print()
     print("Required arguments:")
     print("  <input-file>          The path to input GFXReconstruct capture file to be processed.")
@@ -101,8 +101,8 @@ def usage():
     print("Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.")
     print()
     print("Example manual usage (D3D12):")
-    print("  gfxrecon-optimize-renamed.py --dxr my_capture.gfxr my_capture_dxr_optimized.gfxr")
-    print("  gfxrecon-optimize-renamed.py --d3d12-pso-removal my_capture.gfxr my_capture_pso_optimized.gfxr")
+    print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_dxr_optimized.gfxr --dxr")
+    print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_pso_optimized.gfxr --d3d12-pso-removal")
     print()
     print("Example automatic usage (D3D12 + Vulkan):")
     print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_optimized.gfxr") 
@@ -114,11 +114,10 @@ if __name__ == '__main__':
     argc = len(sys.argv)
 
     # If valid number of params
-    if argc > 1:
-        if argc == 3:
+    if argc > 2:
+        # exe gfxr gfxr or exe gfxr gfxr optional
+        if sys.argv[1][-4:] == "gfxr" and sys.argv[2][-4:] == "gfxr":
             capture_path = sys.argv[1]
-        else:
-            capture_path = sys.argv[2]
 
         args = []
         for arg in sys.argv:
