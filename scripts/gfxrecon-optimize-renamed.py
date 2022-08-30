@@ -118,50 +118,54 @@ if __name__ == '__main__':
         # exe gfxr gfxr or exe gfxr gfxr optional
         if sys.argv[1][-4:] == "gfxr" and sys.argv[2][-4:] == "gfxr":
             capture_path = sys.argv[1]
+        
+            args = []
+            for arg in sys.argv:
+                args.append(arg)
+            args.pop(0)
 
-        args = []
-        for arg in sys.argv:
-            args.append(arg)
-        args.pop(0)
+            optimizer_tool_path_renamed = ""
 
-        optimizer_tool_path_renamed = ""
+            try:
+                # Verify capture exists
+                if exists(capture_path):
+                    optimizer_tool_path = os.path.join(os.path.dirname(__file__), "gfxrecon-optimize.exe")
 
-        try:
-            # Verify capture exists
-            if exists(capture_path):
-                optimizer_tool_path = os.path.join(os.path.dirname(__file__), "gfxrecon-optimize.exe")
+                    # Verify optimizer tool exists
+                    if exists(optimizer_tool_path):
+                        info_tool_path = os.path.join(os.path.dirname(__file__), "gfxrecon-info.exe")
 
-                # Verify optimizer tool exists
-                if exists(optimizer_tool_path):
-                    info_tool_path = os.path.join(os.path.dirname(__file__), "gfxrecon-info.exe")
+                        # Verify info tool exists
+                        if exists(info_tool_path):
+                            encoded_app_executable = retrieve_exe_name(info_tool_path, capture_path)
 
-                    # Verify info tool exists
-                    if exists(info_tool_path):
-                        encoded_app_executable = retrieve_exe_name(info_tool_path, capture_path)
-
-                        if encoded_app_executable:
-                            optimizer_tool_path_renamed = rename_optimizer(encoded_app_executable)
-                            if optimizer_tool_path_renamed:
-                                run_optimizer(optimizer_tool_path_renamed, args)
-                                cleanup(optimizer_tool_path, optimizer_tool_path_renamed)
+                            if encoded_app_executable:
+                                optimizer_tool_path_renamed = rename_optimizer(encoded_app_executable)
+                                if optimizer_tool_path_renamed:
+                                    run_optimizer(optimizer_tool_path_renamed, args)
+                                    cleanup(optimizer_tool_path, optimizer_tool_path_renamed)
+                                else:
+                                    print("Warning: Could not rename optimizer")
+                                    run_optimizer(optimizer_tool_path, args)
                             else:
-                                print("Warning: Could not rename optimizer")
+                                print("Warning: Did not detect captured application executable name")
                                 run_optimizer(optimizer_tool_path, args)
                         else:
-                            print("Warning: Did not detect captured application executable name")
-                            run_optimizer(optimizer_tool_path, args)
+                            print("Error: ensure gfxrecon-info.exe lives in the same directory as this script")
                     else:
-                        print("Error: ensure gfxrecon-info.exe lives in the same directory as this script")
+                        print("Error: ensure gfxrecon-optimize.exe lives in the same directory as this script")
                 else:
-                    print("Error: ensure gfxrecon-optimize.exe lives in the same directory as this script")
-            else:
-                usage()
-                print("Error: path to capture is invalid")
-        except Exception as e:
-            print("Error: exception occurred")
-            print(e)
-            cleanup(optimizer_tool_path, optimizer_tool_path_renamed)
+                    usage()
+                    print("Error: path to capture is invalid")
+            except Exception as e:
+                print("Error: exception occurred")
+                print(e)
+                cleanup(optimizer_tool_path, optimizer_tool_path_renamed)
+        else:
+            print("Error: path to capture is invalid")
+            print("Usage: gfxrecon-optimize-renamed.py input_file.gfxr output_file.gfxr [--dxr] [--d3d12-pso-removal]")
 
     else:
-        usage()
         print("Error: missing path to capture")
+        usage()
+        
