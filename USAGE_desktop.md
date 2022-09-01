@@ -25,7 +25,8 @@ Vulkan API calls on Desktop systems.
     4. [Capture Script](#capture-script)
 2. [Replaying API Calls](#replaying-api-calls)
     1. [Command Line Arguments](#command-line-arguments)
-    2. [Keyboard Controls](#keyboard-controls)
+    2. [Key Controls](#key-controls)
+    3. [Virtual Swapchain](#virtual-swapchain)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -355,6 +356,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported]
                         [-m <mode> | --memory-translation <mode>]
+                        [--use-captured-swapchain-indices]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         <file>
 
@@ -437,9 +439,14 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
+  --use-captured-swapchain-indices 
+                        Use the swapchain indices stored in the capture directly on the swapchain 
+                        setup for replay. The default without this option is to use a Virtual Swapchain
+                        of images which match the swapchain in effect at capture time and which are 
+                        copied to the underlying swapchain of the implementation being replayed on.
 ```
 
-### Keyboard Controls
+### Key Controls
 
 The `gfxrecon-replay` tool for Desktop supports the following key controls:
 
@@ -447,6 +454,12 @@ Key(s) | Action
 -------|-------
 Space, p | Toggle pause/play.
 Right arrow, n | Advance to the next frame when paused.
+
+### Virtual Swapchain
+
+During replay, swapchain indices for present can be different from captured indices. Causes for this can include the swapchain image count differing between capture and replay, and `vkAcquireNextImageKHR` returning a different `pImageIndex` at replay to the one that was captured. These issues can cause unexpected rendering or even crashes.
+
+Virtual Swapchain insulates higher layers in the Vulkan stack from these problems by creating a set of images, exactly matching the swapchain configuration at capture time, which it exposes for them to render into.  Before a present, it copies the virtual image to a target swapchain image for display. Since this issue can happen in many situations, virtual swapchain is the default setup. If the user wants to bypass the feature and use the captured indices to present directly on the swapchain of the replay implementation, they should add the `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
 
 ## Other Capture File Processing Tools
 

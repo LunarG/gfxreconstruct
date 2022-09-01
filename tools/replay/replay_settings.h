@@ -165,7 +165,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tto different allocations with different");
     GFXRECON_WRITE_CONSOLE("          \t\t         \toffsets.  Uses VMA to manage allocations");
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand suballocations.");
-    GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices\t\tEnable using captured swapchain indices.");
+    GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
+    GFXRECON_WRITE_CONSOLE("          \t\tUse the swapchain indices stored in the capture directly on the swapchain");
+    GFXRECON_WRITE_CONSOLE(
+        "          \t\tsetup for replay. The default without this option is to use a Virtual Swapchain");
+    GFXRECON_WRITE_CONSOLE("          \t\tof images which match the swapchain in effect at capture time and which are");
+    GFXRECON_WRITE_CONSOLE("          \t\tcopied to the underlying swapchain of the implementation being replayed on.");
+
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay (Windows only).");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
