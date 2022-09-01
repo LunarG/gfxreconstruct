@@ -27,6 +27,9 @@ Vulkan API calls on Android devices.
     1. [Launch Script](#launch-script)
     2. [Install APK Command](#install-apk-command)
     3. [Replay Command](#replay-command)
+    2. [Touch Controls](#touch-controls)
+    2. [Key Controls](#key-controls)
+    3. [Virtual Swapchain](#virtual-swapchain)
 
 ## Capturing API Calls
 
@@ -305,7 +308,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--pause-frame N]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
-                          [-m MODE]
+                          [-m MODE] [--use-captured-swapchain-indices]
                           [file]
 
 Launch the replay tool.
@@ -370,6 +373,11 @@ optional arguments:
   --onhb, --omit-null-hardware-buffers
                         Omit Vulkan API calls which would pass a NULL
                         AHardwareBuffer*.  (forwarded to replay tool)
+  --use-captured-swapchain-indices
+                        Use the swapchain indices stored in the capture directly on the swapchain 
+                        setup for replay. The default without this option is to use a Virtual Swapchain
+                        of images which match the swapchain in effect at capture time and which are 
+                        copied to the underlying swapchain of the implementation being replayed on.
 ```
 
 The command will force-stop an active replay process before starting the replay
@@ -382,7 +390,7 @@ adb shell am start -n "com.lunarg.gfxreconstruct.replay/android.app.NativeActivi
 
 If `gfxrecon-replay` was built with Vulkan Validation Layer support, `VK_LAYER_KHRONOS_validation` can be enabled and disabled in the same manner as `VK_LAYER_LUNARG_gfxreconstruct`
 
-#### Touch Controls
+### Touch Controls
 
 The `gfxrecon-replay` tool for Android supports the following touch controls:
 
@@ -391,7 +399,7 @@ Key(s) | Action
 Tap | Toggle pause/play.
 Swipe left | Advance to the next frame when paused.
 
-#### Key Controls
+### Key Controls
 
 The `gfxrecon-replay` tool for Android supports the following key controls. Key
 events can be simulated through `adb` with the
@@ -401,3 +409,9 @@ Key(s) | Key code(s) | Action
 -------|-------------|-------
 Space, p | Space = 62, p = 44 |Toggle pause/play.
 D-pad right, n | D-pad right = 22, n = 42 | Advance to the next frame when paused.
+
+### Virtual Swapchain
+
+During replay, swapchain indices for present can be different from captured indices. Causes for this can include the swapchain image count differing between capture and replay, and `vkAcquireNextImageKHR` returning a different `pImageIndex` at replay to the one that was captured. These issues can cause unexpected rendering or even crashes.
+
+Virtual Swapchain insulates higher layers in the Vulkan stack from these problems by creating a set of images, exactly matching the swapchain configuration at capture time, which it exposes for them to render into.  Before a present, it copies the virtual image to a target swapchain image for display. Since this issue can happen in many situations, virtual swapchain is the default setup. If the user wants to bypass the feature and use the captured indices to present directly on the swapchain of the replay implementation, they should add the `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
