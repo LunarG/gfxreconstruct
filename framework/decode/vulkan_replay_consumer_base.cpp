@@ -1826,7 +1826,8 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
         {
             auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
-            if ((swapchain_info != nullptr) && (swapchain_info->device_info != nullptr))
+            if ((swapchain_info != nullptr) && (swapchain_info->device_info != nullptr) &&
+                (swapchain_info->images.size() > 0))
             {
                 auto     device_info = swapchain_info->device_info;
                 uint32_t image_index = present_info->pImageIndices[i];
