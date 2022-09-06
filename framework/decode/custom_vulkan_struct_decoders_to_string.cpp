@@ -439,7 +439,7 @@ std::string ToString<decode::Decoded_VkShaderModuleCreateInfo>(const decode::Dec
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "codeSize", toStringFlags, tabCount, tabSize, ToString(obj.codeSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pCode", toStringFlags, tabCount, tabSize, '"' + PtrToString(obj.pCode) + '"');
+            FieldToString(strStrm, false, "pCode", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(&decoded_obj.pCode));
         }
     );
 }

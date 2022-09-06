@@ -170,7 +170,12 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                 # In decoded types these are uint64_ts so use the non-pointer path:
                 toString = '"\\"" + ToString(decoded_obj.{0}) + "\\""'
             elif 'void' in value.full_type:
-                toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
+                # Pointers to windows, surfaces, non-Vulkan handles etc. encoded as a uint64_t:
+                if value.platform_base_type != None:
+                    toString = 'decode::DataPointerDecoderToString(decoded_obj.{0})'
+                # Regular void* and const void*:
+                else:
+                    toString = 'decode::DataPointerDecoderToString(&decoded_obj.{0})'
 
             # C strings require custom handling
             elif 'const char*' in value.full_type:
