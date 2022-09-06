@@ -411,6 +411,9 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     auto find_resource_info = resource_init_infos_.find(resource);
     if (find_resource_info == resource_init_infos_.end())
     {
+        // If no entry exists in resource_init_infos_, this is the first subresource of a new resource.
+        GFXRECON_ASSERT(command_header.subresource == 0);
+
         if (!graphics::dx12::IsMemoryAvailable(total_size_in_bytes, extra_device_info->adapter3))
         {
             // If neither system memory or GPU memory are able to accommodate next resource,
@@ -433,11 +436,20 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
         resource_init_info.staging_resource = resource_data_util_->CreateStagingBuffer(
             graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeWrite, required_data_size);
         SetResourceInitInfoState(resource_init_info, command_header, data);
+
+        // Only for buffer resources (which contain 1 subresource), map any resource values contained in the data.
+        if (command_header.subresource == 0)
+        {
+            ApplyFillMemoryResourceValueCommand(
+                0, resource_init_info.subresource_sizes[0], data, resource_init_info.data.data());
+        }
+
         resource_init_infos_.insert(std::make_pair(resource, resource_init_info));
     }
     else
     {
-        // If the resource has been uploaded, then set its state.
+        // If the resource already has an entry in resource_init_infos_, add the next subresource data.
+        GFXRECON_ASSERT(command_header.subresource != 0);
         SetResourceInitInfoState(find_resource_info->second, command_header, data);
     }
 
