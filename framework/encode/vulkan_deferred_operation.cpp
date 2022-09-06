@@ -43,7 +43,7 @@ VkResult VulkanDeferredOperation::GetStatus()
     return result;
 }
 
-void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess()
+void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess(bool capture_manager_tracking)
 {
     VkResult result = VK_SUCCESS;
     if (pipelines_ != nullptr)
@@ -77,8 +77,7 @@ void VulkanDeferredOperationCreateRayTracingPipelines::PostProcess()
                 capture_manager->WriteSetRayTracingShaderGroupHandlesCommand(
                     device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
 
-                if ((capture_manager->GetCaptureMode() & VulkanCaptureManager::CaptureModeFlags::kModeTrack) ==
-                    VulkanCaptureManager::CaptureModeFlags::kModeTrack)
+                if (capture_manager_tracking == true)
                 {
                     capture_manager->GetStateTracker()->TrackRayTracingShaderGroupHandles(
                         device_, pipelines_[i], data_size, data.data());

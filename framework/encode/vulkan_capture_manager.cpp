@@ -1167,7 +1167,7 @@ VkResult VulkanCaptureManager::OverrideDeferredOperationJoinKHR(VkDevice device,
         // The deferred operation done and return VK_SUCCESS
         auto deferred_manager = VulkanDeferredOperationManager::Get();
         GFXRECON_ASSERT(deferred_manager != nullptr);
-        deferred_manager->PostProcess(operation);
+        deferred_manager->PostProcess(operation, (GetCaptureMode() & kModeTrack) == kModeTrack);
     }
 
     return result;
@@ -1186,7 +1186,7 @@ VkResult VulkanCaptureManager::OverrideGetDeferredOperationResultKHR(VkDevice de
         // The deferred operation done and return VK_SUCCESS
         auto deferred_manager = VulkanDeferredOperationManager::Get();
         GFXRECON_ASSERT(deferred_manager != nullptr);
-        deferred_manager->PostProcess(operation);
+        deferred_manager->PostProcess(operation, (GetCaptureMode() & kModeTrack) == kModeTrack);
     }
 
     return result;

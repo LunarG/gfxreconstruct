@@ -60,14 +60,14 @@ class VulkanDeferredOperationManager
         return FindDeferredOperation(deferred_operation_handle);
     }
 
-    void PostProcess(VkDeferredOperationKHR deferred_operation_handle)
+    void PostProcess(VkDeferredOperationKHR deferred_operation_handle, bool capture_manager_tracking)
     {
         const std::lock_guard<std::mutex>   lock(mutex_);
         std::shared_ptr<VulkanDeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
 
         if (deferred_operation)
         {
-            deferred_operation->PostProcess();
+            deferred_operation->PostProcess(capture_manager_tracking);
             deferred_operations_.erase(deferred_operation_handle);
         }
     }

@@ -81,7 +81,7 @@ class VulkanDeferredOperation
     virtual ~VulkanDeferredOperation() {}
 
     virtual VkResult GetStatus();
-    virtual void     PostProcess() = 0;
+    virtual void     PostProcess(bool capture_manager_tracking) = 0;
 
     format::ApiCallId GetApiCallId() { return api_call_id_; }
   protected:

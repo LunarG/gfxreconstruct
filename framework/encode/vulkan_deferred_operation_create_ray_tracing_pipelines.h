@@ -59,7 +59,7 @@ class VulkanDeferredOperationCreateRayTracingPipelines : public VulkanDeferredOp
 
     virtual ~VulkanDeferredOperationCreateRayTracingPipelines() {}
 
-    void PostProcess();
+    void PostProcess(bool capture_manager_tracking);
 
     std::shared_ptr<VkRayTracingPipelineCreateInfoKHR>& GetModifiedCreateInfos() { return modified_create_infos_; }
     HandleUnwrapMemory&                                   GetHandleUnwrapMemory() { return handle_unwrap_memory_; }
