@@ -2078,6 +2078,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateShaderResourceView(
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
+
+        if (pDesc->ViewDimension == D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE)
+        {
+            state_tracker_->TrackDescriptorGpuVa(DestDescriptor.ptr, pDesc->RaytracingAccelerationStructure.Location);
+        }
     }
 }
 
