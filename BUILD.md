@@ -105,6 +105,17 @@ can be run with the following options to disable the developer build steps:
 python scripts/build.py --skip-check-code-style --skip-tests
 ```
 
+The above invocation will run on a single core.
+To speed up the build with parallel processes,
+the standard CMake environment variable
+[`CMAKE_BUILD_PARALLEL_LEVEL`](https://cmake.org/cmake/help/latest/envvar/CMAKE_BUILD_PARALLEL_LEVEL.html)
+may be used.
+For example, to use eight processes from within Bash:
+
+```bash
+CMAKE_BUILD_PARALLEL_LEVEL=8 python scripts/build.py --skip-check-code-style --skip-tests
+```
+
 Run the script with the `-h` option for additional usage information.
 
 ## Building for Windows
