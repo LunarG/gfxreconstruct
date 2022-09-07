@@ -157,12 +157,32 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfa
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>
 {
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkGetPhysicalDeviceSurfaceFormatsKHR(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceSurfaceFormats2KHR(result, args...);
     }
 };
 
@@ -997,16 +1017,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfaceP
     static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkGetDeviceGroupSurfacePresentModes2EXT(result, args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>
-{
-    template <typename... Args>
-    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
-    {
-        manager->PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(result, args...);
     }
 };
 
