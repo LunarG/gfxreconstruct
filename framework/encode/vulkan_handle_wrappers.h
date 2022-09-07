@@ -367,11 +367,21 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
 struct SurfaceCapabilities
 {
-    VkSurfaceCapabilitiesKHR capabilities{};
-    const void*              surface_info_pnext{ nullptr };
-    HandleUnwrapMemory       surface_info_pnext_memory;
-    const void*              capabilities_pnext{ nullptr };
-    HandleUnwrapMemory       capabilities_pnext_memory;
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info;
+    HandleUnwrapMemory              surface_info_pnext_memory;
+
+    VkSurfaceCapabilities2KHR surface_capabilities;
+    HandleUnwrapMemory        surface_capabilities_pnext_memory;
+};
+
+// For vkGetPhysicalDeviceSurfaceFormatsKHR
+struct SurfaceFormats
+{
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info;
+    HandleUnwrapMemory              surface_info_pnext_memory;
+
+    std::vector<VkSurfaceFormat2KHR> surface_formats;
+    std::vector<HandleUnwrapMemory>  surface_formats_pnext_memory;
 };
 
 // For vkGetPhysicalDeviceSurfacePresentModesKHR
@@ -397,7 +407,7 @@ struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
     // Keys are the VkPhysicalDevice handle ID.
     std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>> surface_support;
     std::unordered_map<format::HandleId, SurfaceCapabilities>                    surface_capabilities;
-    std::unordered_map<format::HandleId, std::vector<VkSurfaceFormatKHR>>        surface_formats;
+    std::unordered_map<format::HandleId, SurfaceFormats>                         surface_formats;
     std::unordered_map<format::HandleId, SurfacePresentModes>                    surface_present_modes;
 
     // Keys are the VkDevice handle ID.

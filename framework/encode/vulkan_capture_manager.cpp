@@ -552,7 +552,7 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
             const char* const*       extensions      = create_info_copy.ppEnabledExtensionNames;
             std::vector<const char*> modified_extensions;
 
-            bool has_dev_prop2 = false;
+            bool has_dev_prop2    = false;
             bool has_ext_mem_caps = false;
 
             for (size_t i = 0; i < extension_count; ++i)
@@ -1957,25 +1957,6 @@ void VulkanCaptureManager::PostProcess_vkGetDeviceGroupSurfacePresentModes2EXT(
             state_tracker_->TrackDeviceGroupSurfacePresentModes(
                 device, pSurfaceInfo->surface, pModes, pSurfaceInfo->pNext);
         }
-    }
-}
-
-void VulkanCaptureManager::PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
-    VkResult                               result,
-    VkPhysicalDevice                       physicalDevice,
-    const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
-    VkSurfaceCapabilities2KHR*             pSurfaceCapabilities)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
-
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pSurfaceCapabilities != nullptr))
-    {
-        assert(state_tracker_ != nullptr);
-        state_tracker_->TrackPhysicalDeviceSurfaceCapabilities(physicalDevice,
-                                                               pSurfaceInfo->surface,
-                                                               pSurfaceCapabilities->surfaceCapabilities,
-                                                               pSurfaceInfo->pNext,
-                                                               pSurfaceCapabilities->pNext);
     }
 }
 

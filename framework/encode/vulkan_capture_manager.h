@@ -343,7 +343,23 @@ class VulkanCaptureManager : public CaptureManager
             (pSurfaceCapabilities != nullptr))
         {
             assert(state_tracker_ != nullptr);
-            state_tracker_->TrackPhysicalDeviceSurfaceCapabilities(physicalDevice, surface, *pSurfaceCapabilities);
+            state_tracker_->TrackPhysicalDeviceSurfaceCapabilities(physicalDevice, surface, pSurfaceCapabilities);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(VkResult                               result,
+                                                                VkPhysicalDevice                       physicalDevice,
+                                                                const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                                VkSurfaceCapabilities2KHR* pSurfaceCapabilities)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
+
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) &&
+            (pSurfaceCapabilities != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceCapabilities2(
+                physicalDevice, *pSurfaceInfo, pSurfaceCapabilities);
         }
     }
 
@@ -359,6 +375,21 @@ class VulkanCaptureManager : public CaptureManager
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackPhysicalDeviceSurfaceFormats(
                 physicalDevice, surface, *pSurfaceFormatCount, pSurfaceFormats);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceFormats2KHR(VkResult                               result,
+                                                           VkPhysicalDevice                       physicalDevice,
+                                                           const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                           uint32_t*                              pSurfaceFormatCount,
+                                                           VkSurfaceFormat2KHR*                   pSurfaceFormats)
+    {
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) &&
+            (pSurfaceFormatCount != nullptr) && (pSurfaceFormats != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceFormats2(
+                physicalDevice, *pSurfaceInfo, *pSurfaceFormatCount, pSurfaceFormats);
         }
     }
 
@@ -1053,11 +1084,6 @@ class VulkanCaptureManager : public CaptureManager
                                                              VkDevice                               device,
                                                              const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
                                                              VkDeviceGroupPresentModeFlagsKHR*      pModes);
-
-    void PostProcess_vkGetPhysicalDeviceSurfaceCapabilities2KHR(VkResult                               result,
-                                                                VkPhysicalDevice                       physicalDevice,
-                                                                const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
-                                                                VkSurfaceCapabilities2KHR* pSurfaceCapabilities);
 
     void PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
                                               uint32_t                   memoryRangeCount,
