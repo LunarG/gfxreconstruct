@@ -514,6 +514,171 @@ class VulkanCaptureManager : public CaptureManager
         }
     }
 
+    void PostProcess_vkGetDeviceBufferMemoryRequirements(VkDevice                                device,
+                                                         const VkDeviceBufferMemoryRequirements* pInfo,
+                                                         VkMemoryRequirements2*                  pMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.alignment);
+
+            pMemoryRequirements->memoryRequirements.size =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.size));
+            pMemoryRequirements->memoryRequirements.alignment =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.alignment));
+        }
+    }
+
+    void
+    PostProcess_vkGetImageMemoryRequirements(VkDevice device, VkImage image, VkMemoryRequirements* pMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(image);
+
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->alignment);
+
+            pMemoryRequirements->size = manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->size));
+            pMemoryRequirements->alignment =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->alignment));
+        }
+    }
+
+    void PostProcess_vkGetImageMemoryRequirements2(VkDevice                              device,
+                                                   const VkImageMemoryRequirementsInfo2* pInfo,
+                                                   VkMemoryRequirements2*                pMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.alignment);
+
+            pMemoryRequirements->memoryRequirements.size =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.size));
+            pMemoryRequirements->memoryRequirements.alignment =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.alignment));
+        }
+    }
+
+    void PostProcess_vkGetDeviceImageMemoryRequirements(VkDevice                               device,
+                                                        const VkDeviceImageMemoryRequirements* pInfo,
+                                                        VkMemoryRequirements2*                 pMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            GetPageGuardAlignBufferSizes() && (pMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.alignment);
+
+            pMemoryRequirements->memoryRequirements.size =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.size));
+            pMemoryRequirements->memoryRequirements.alignment =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.alignment));
+        }
+    }
+
+    void PostProcess_vkGetImageSparseMemoryRequirements(VkDevice                         device,
+                                                        VkImage                          image,
+                                                        uint32_t*                        pSparseMemoryRequirementCount,
+                                                        VkSparseImageMemoryRequirements* pSparseMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(image);
+
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            GetPageGuardAlignBufferSizes() && (pSparseMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pSparseMemoryRequirements->imageMipTailSize);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pSparseMemoryRequirements->imageMipTailOffset);
+
+            pSparseMemoryRequirements->imageMipTailSize =
+                manager->GetAlignedSize(static_cast<size_t>(pSparseMemoryRequirements->imageMipTailSize));
+            pSparseMemoryRequirements->imageMipTailOffset =
+                manager->GetAlignedSize(static_cast<size_t>(pSparseMemoryRequirements->imageMipTailOffset));
+        }
+    }
+
+    void PostProcess_vkGetImageSparseMemoryRequirements2(VkDevice                                    device,
+                                                         const VkImageSparseMemoryRequirementsInfo2* pInfo,
+                                                         uint32_t* pSparseMemoryRequirementCount,
+                                                         VkSparseImageMemoryRequirements2* pSparseMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            GetPageGuardAlignBufferSizes() && (pSparseMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pSparseMemoryRequirements->memoryRequirements.imageMipTailSize);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t,
+                                                pSparseMemoryRequirements->memoryRequirements.imageMipTailOffset);
+
+            pSparseMemoryRequirements->memoryRequirements.imageMipTailSize = manager->GetAlignedSize(
+                static_cast<size_t>(pSparseMemoryRequirements->memoryRequirements.imageMipTailSize));
+            pSparseMemoryRequirements->memoryRequirements.imageMipTailOffset = manager->GetAlignedSize(
+                static_cast<size_t>(pSparseMemoryRequirements->memoryRequirements.imageMipTailOffset));
+        }
+    }
+
+    void
+    PostProcess_vkGetDeviceImageSparseMemoryRequirements(VkDevice                               device,
+                                                         const VkDeviceImageMemoryRequirements* pInfo,
+                                                         uint32_t* pSparseMemoryRequirementCount,
+                                                         VkSparseImageMemoryRequirements2* pSparseMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            GetPageGuardAlignBufferSizes() && (pSparseMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pSparseMemoryRequirements->memoryRequirements.imageMipTailSize);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t,
+                                                pSparseMemoryRequirements->memoryRequirements.imageMipTailOffset);
+
+            pSparseMemoryRequirements->memoryRequirements.imageMipTailSize = manager->GetAlignedSize(
+                static_cast<size_t>(pSparseMemoryRequirements->memoryRequirements.imageMipTailSize));
+            pSparseMemoryRequirements->memoryRequirements.imageMipTailOffset = manager->GetAlignedSize(
+                static_cast<size_t>(pSparseMemoryRequirements->memoryRequirements.imageMipTailOffset));
+        }
+    }
+
     void PostProcess_vkBindBufferMemory(
         VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
     {
