@@ -35,7 +35,13 @@ target_sources(gfxrecon-info
 
 target_include_directories(gfxrecon-info PUBLIC ${CMAKE_BINARY_DIR})
 
-target_link_libraries(gfxrecon-info gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
+target_link_libraries(gfxrecon-info
+                      gfxrecon_decode
+                      gfxrecon_graphics
+                      gfxrecon_format
+                      gfxrecon_util
+                      platform_specific
+                      $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
 
 common_build_directives(gfxrecon-info)
 

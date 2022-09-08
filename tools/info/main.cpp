@@ -41,6 +41,7 @@
 #include "decode/dx12_stats_consumer.h"
 #include "generated/generated_dx12_decoder.h"
 #include "decode/dx12_detection_consumer.h"
+#include "graphics/dx12_util.h"
 #endif
 #include "util/argument_parser.h"
 #include "util/logging.h"
@@ -60,8 +61,9 @@ const char kHelpLongOption[]    = "--help";
 const char kVersionOption[]     = "--version";
 const char kNoDebugPopup[]      = "--no-debug-popup";
 const char kExeInfoOnlyOption[] = "--exe-info-only";
+const char kEnumGpuIndices[]    = "--enum-gpu-indices";
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--enum-gpu-indices";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -108,6 +110,9 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
+#endif
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("  --enum-gpu-indices\tPrint GPU indices and exit");
 #endif
 }
 
@@ -449,7 +454,50 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
         GFXRECON_WRITE_CONSOLE("File did not contain any frames");
     }
 }
+
+static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kEnumGpuIndices))
+    {
+        IDXGIFactory1* factory1 = nullptr;
+
+        HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+
+        if (SUCCEEDED(result))
+        {
+            gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
+            gfxrecon::graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters);
+
+            GFXRECON_WRITE_CONSOLE("GPU index\tGPU name");
+            for (size_t index = 0; index < adapters.size(); ++index)
+            {
+                for (auto adapter : adapters)
+                {
+                    if (index == adapter.second.adapter_idx)
+                    {
+                        std::string replay_adapter_str =
+                            gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
+
+                        GFXRECON_WRITE_CONSOLE("%-9x\t%s", adapter.second.adapter_idx, replay_adapter_str.c_str());
+                        adapter.second.adapter->Release();
+                        break;
+                    }
+                }
+            }
+            factory1->Release();
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to enumerate GPU indices");
+        }
+
+        return true;
+    }
+
+    return false;
+}
 #endif
+
 void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
 {
 #if defined(WIN32)
@@ -512,6 +560,13 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(0);
     }
+#if defined(WIN32)
+    else if (CheckOptionEnumGpuIndices(argv[0], arg_parser))
+    {
+        gfxrecon::util::Log::Release();
+        exit(0);
+    }
+#endif
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
