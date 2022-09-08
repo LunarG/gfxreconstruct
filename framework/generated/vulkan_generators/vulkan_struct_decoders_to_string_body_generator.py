@@ -167,8 +167,10 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
 
             # Function pointers and void data pointers simply write the address
             elif 'pfn' in value.name:
-                # In decoded types these are uint64_ts so use the non-pointer path:
-                toString = '"\\"" + ToString(decoded_obj.{0}) + "\\""'
+                # In decoded types these are uint64_ts so use the data pointer decoder path for
+                # that type which still outputs hex:
+                toString = 'decode::DataPointerDecoderToString(decoded_obj.{0})'
+
             elif 'void' in value.full_type:
                 # Pointers to windows, surfaces, non-Vulkan handles etc. encoded as a uint64_t:
                 if value.platform_base_type != None:

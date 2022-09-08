@@ -298,11 +298,11 @@ template <> std::string ToString<decode::Decoded_VkAllocationCallbacks>(const de
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "pUserData", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(&decoded_obj.pUserData));
-            FieldToString(strStrm, false, "pfnAllocation", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnAllocation) + "\"");
-            FieldToString(strStrm, false, "pfnReallocation", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnReallocation) + "\"");
-            FieldToString(strStrm, false, "pfnFree", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnFree) + "\"");
-            FieldToString(strStrm, false, "pfnInternalAllocation", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnInternalAllocation) + "\"");
-            FieldToString(strStrm, false, "pfnInternalFree", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnInternalFree) + "\"");
+            FieldToString(strStrm, false, "pfnAllocation", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnAllocation));
+            FieldToString(strStrm, false, "pfnReallocation", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnReallocation));
+            FieldToString(strStrm, false, "pfnFree", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnFree));
+            FieldToString(strStrm, false, "pfnInternalAllocation", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnInternalAllocation));
+            FieldToString(strStrm, false, "pfnInternalFree", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnInternalFree));
         }
     );
 }
@@ -7810,7 +7810,7 @@ template <> std::string ToString<decode::Decoded_VkDebugReportCallbackCreateInfo
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pfnCallback", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnCallback) + "\"");
+            FieldToString(strStrm, false, "pfnCallback", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnCallback));
             FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(&decoded_obj.pUserData));
         }
     );
@@ -9009,7 +9009,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCreateInfo
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "messageSeverity", toStringFlags, tabCount, tabSize, ToString(obj.messageSeverity, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "messageType", toStringFlags, tabCount, tabSize, ToString(obj.messageType, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnUserCallback) + "\"");
+            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnUserCallback));
             FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(&decoded_obj.pUserData));
         }
     );
@@ -11911,7 +11911,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceDeviceMemoryReportCreat
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, "\"" + ToString(decoded_obj.pfnUserCallback) + "\"");
+            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnUserCallback));
             FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(&decoded_obj.pUserData));
         }
     );
