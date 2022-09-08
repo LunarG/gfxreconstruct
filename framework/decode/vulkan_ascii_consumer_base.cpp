@@ -41,14 +41,12 @@ void VulkanAsciiConsumerBase::Initialize(FILE* file, gfxrecon::util::ToStringFla
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     assert(file);
     file_ = file;
-    fprintf(file_, "{");
 }
 
 void VulkanAsciiConsumerBase::Destroy()
 {
     if (file_ != nullptr)
     {
-        fprintf(file_, "\n}\n");
         file_ = nullptr;
     }
 }
