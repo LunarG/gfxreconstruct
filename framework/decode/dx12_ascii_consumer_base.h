@@ -86,7 +86,9 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     {
         using namespace util;
         // Add a comma between JSON objects unless we're concatenating JSON objects
-        fprintf(file_, "%s\n", (api_call_count_ && !(to_string_flags_ & kToString_Concatenated) ? "," : ""));
+        if(api_call_count_ > 0) {
+            fprintf(file_, "%s\n", !(to_string_flags_ & kToString_Concatenated) ? "," : "");
+        }
         fprintf(file_, "%s", ObjectToString(to_string_flags_, tabCount, tabSize,
             [&](std::stringstream& strStrm)
             {
