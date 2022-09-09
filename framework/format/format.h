@@ -313,6 +313,8 @@ struct ResizeWindowCommand2
     uint32_t         pre_transform;
 };
 
+// This command header's "usage" member is sized incorrectly.  Existing decoding must remain in place in order to
+// process captures that already exist.  Do not use this command header in any new code.
 struct CreateHardwareBufferCommandHeader
 {
     MetaDataHeader meta_header;
