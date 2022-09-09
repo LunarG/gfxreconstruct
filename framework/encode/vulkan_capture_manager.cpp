@@ -177,7 +177,7 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         assert(buffer != nullptr);
 
-        format::CreateHardwareBufferCommandHeader create_buffer_cmd;
+        format::CreateHardwareBufferCommandHeader2 create_buffer_cmd;
 
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);

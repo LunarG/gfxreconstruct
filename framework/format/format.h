@@ -119,6 +119,7 @@ enum class MetaDataType : uint16_t
     kReserved21                             = 21,
     kReserved22                             = 22,
     kReserved23                             = 23,
+    kCreateHardwareBufferCommand2           = 24,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -323,6 +324,22 @@ struct CreateHardwareBufferCommandHeader
     uint32_t       height;
     uint32_t       stride; // Size of a row in pixels.
     uint32_t       usage;
+    uint32_t       layers;
+    uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
+                           // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.
+};
+
+struct CreateHardwareBufferCommandHeader2
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    HandleId       memory_id; // Globally unique ID assigned to the buffer for tracking memory modifications.
+    uint64_t       buffer_id; // Address of the buffer object.
+    uint32_t       format;
+    uint32_t       width;
+    uint32_t       height;
+    uint32_t       stride; // Size of a row in pixels.
+    uint64_t       usage;
     uint32_t       layers;
     uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
                            // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.

@@ -2811,7 +2811,7 @@ void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     assert(hardware_buffer != nullptr);
 
-    format::CreateHardwareBufferCommandHeader create_buffer_cmd;
+    format::CreateHardwareBufferCommandHeader2 create_buffer_cmd;
 
     create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     create_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(create_buffer_cmd);
