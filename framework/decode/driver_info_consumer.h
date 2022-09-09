@@ -30,16 +30,28 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+static constexpr char kNoDriverInfoStr[] = "Driver info not available.\n";
+
 class DriverInfoConsumer : public DriverInfoConsumerBase
 {
   public:
     DriverInfoConsumer() {}
 
-    const char* GetDriverDesc() const { return driver_info; }
+    const char* GetDriverDesc() const
+    {
+        if (strlen(driver_info_) == 0)
+        {
+            return kNoDriverInfoStr;
+        }
+        else
+        {
+            return driver_info_;
+        }
+    }
 
     virtual void Process_DriverInfo(const char* info_record)
     {
-        util::platform::StringCopy(driver_info,
+        util::platform::StringCopy(driver_info_,
                                    gfxrecon::util::filepath::kMaxDriverInfoSize,
                                    info_record,
                                    gfxrecon::util::filepath::kMaxDriverInfoSize);
@@ -49,7 +61,7 @@ class DriverInfoConsumer : public DriverInfoConsumerBase
     virtual bool IsComplete(uint64_t current_block_index) { return found_driver_info_; }
 
   private:
-    char driver_info[gfxrecon::util::filepath::kMaxDriverInfoSize] = {};
+    char driver_info_[gfxrecon::util::filepath::kMaxDriverInfoSize] = {};
     bool found_driver_info_{ false };
 };
 
