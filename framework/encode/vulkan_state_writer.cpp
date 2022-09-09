@@ -2816,7 +2816,7 @@ void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
     create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     create_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(create_buffer_cmd);
     create_buffer_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
-        format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand);
+        format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand2);
     create_buffer_cmd.thread_id = thread_id_;
     create_buffer_cmd.memory_id = memory_id;
     create_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(hardware_buffer);
