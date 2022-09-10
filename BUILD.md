@@ -233,7 +233,7 @@ command:
 
 ```bash
 sudo dnf install git cmake libxcb-devel libX11-devel xcb-util-keysyms-devel \
-        libXrandr-devel wayland-devel zlib-devel lz4-devel libzstd-devel
+        libXrandr-devel wayland-devel zlib-devel lz4-devel libzstd-devel clang
 ```
 
 For arm64 builds (cross compilation):
