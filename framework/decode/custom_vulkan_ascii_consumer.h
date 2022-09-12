@@ -52,18 +52,14 @@ constexpr auto GFXRECON_TOJSON_EMPTY_ARRAY = "[]";
 /// String representation of a null pointer.
 constexpr auto GFXRECON_TOJSON_NULL = "null";
 
+/// @param handleId An unsigned 64 bit int holding the encoded representation of a handle.
 inline std::string HandleIdToString(format::HandleId handleId)
 {
-    std::stringstream strStrm;
-    if (handleId)
+    if (0 != handleId)
     {
-        strStrm << "\"0x" << std::hex << handleId << "\"";
+        return std::to_string(handleId); /// @todo Replace with to_chars when project moves to C++17.
     }
-    else
-    {
-        strStrm << "\"VK_NULL_HANDLE\"";
-    }
-    return strStrm.str();
+    return "\"VK_NULL_HANDLE\"";
 }
 
 template <typename VkHandleType>
@@ -222,8 +218,8 @@ inline uint32_t GetCount<PointerDecoder<uint32_t>*>(PointerDecoder<uint32_t>* pC
 }
 
 template <typename CountType, typename VkHandleType>
-inline std::string HandlePointerDecoderArrayToString(const CountType&                    countObj,
-                                                     HandlePointerDecoder<VkHandleType>* pObjs,
+inline std::string HandlePointerDecoderArrayToString(const CountType&                          countObj,
+                                                     const HandlePointerDecoder<VkHandleType>* pObjs,
                                                      util::ToStringFlags toStringFlags = util::kToString_Default,
                                                      uint32_t            tabCount      = 0,
                                                      uint32_t            tabSize       = 4)
@@ -241,11 +237,11 @@ inline std::string HandlePointerDecoderArrayToString(const CountType&           
 
 /// Traverse arrays of simple types like uint32_t, not structs or handles.
 template <typename CountType, typename PointerDecoderType>
-inline std::string PointerDecoderArrayToString(const CountType&    countObj,
-                                               PointerDecoderType* pObjs,
-                                               util::ToStringFlags toStringFlags = util::kToString_Default,
-                                               uint32_t            tabCount      = 0,
-                                               uint32_t            tabSize       = 4)
+inline std::string PointerDecoderArrayToString(const CountType&          countObj,
+                                               const PointerDecoderType* pObjs,
+                                               util::ToStringFlags       toStringFlags = util::kToString_Default,
+                                               uint32_t                  tabCount      = 0,
+                                               uint32_t                  tabSize       = 4)
 {
     using namespace util;
     return ArrayToString(
