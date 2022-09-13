@@ -3209,6 +3209,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         bool                uses_address   = false;
         uint64_t            opaque_address = 0;
         VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
+        const VkBaseOutStructure* prev_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info);
+        const VkBaseOutStructure* prev_import_struct = prev_struct;
+        VkBaseOutStructure* import_memory = 0;
         while (current_struct != nullptr)
         {
             if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
@@ -3230,6 +3233,14 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 }
                 break;
             }
+
+            if(current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT)
+            {
+                prev_import_struct = prev_struct;
+                import_memory = current_struct;
+            }
+
+            prev_struct = current_struct;
             current_struct = current_struct->pNext;
         }
 
@@ -3249,6 +3260,23 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                                                capture_id,
                                                replay_memory,
                                                &allocator_data);
+
+            // If VkMemoryAllocateInfo uses VkImportMemoryHostPointerInfo implementation is allowed to return
+            // VK_ERROR_INVALID_EXTERNAL_HANDLE error even if replay doesn't (see 11.2.6. Host External Memory)
+            // Remove import_memory from list as workaround
+            if(result == VK_ERROR_INVALID_EXTERNAL_HANDLE && import_memory)
+            {
+                const_cast<VkBaseOutStructure*>(prev_import_struct)->pNext = import_memory->pNext;
+                modified_allocate_info = (*replay_allocate_info);
+                address_info.pNext = modified_allocate_info.pNext;
+                modified_allocate_info.pNext = &address_info;
+            
+                result = allocator->AllocateMemory(&modified_allocate_info,
+                                                   GetAllocationCallbacks(pAllocator),
+                                                   capture_id,
+                                                   replay_memory,
+                                                   &allocator_data);
+            }
         }
         else
         {
