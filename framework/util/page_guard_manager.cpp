@@ -100,7 +100,6 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
 #else
 #include <errno.h>
 #include <signal.h>
-#include <sys/mman.h>
 #include <unistd.h>
 
 const uint32_t kGuardReadWriteProtect = PROT_NONE;
@@ -381,14 +380,7 @@ size_t PageGuardManager::GetSystemPagePotShift() const
 
 size_t PageGuardManager::GetAlignedSize(size_t size) const
 {
-    size_t extra = size & (system_page_size_ - 1); // size % system_page_size_
-    if (extra != 0)
-    {
-        // Adjust the size to be a multiple of the system page size.
-        size = size - extra + system_page_size_;
-    }
-
-    return size;
+    return util::platform::GetAlignedSize(size, system_page_size_);
 }
 
 void* PageGuardManager::AllocateMemory(size_t aligned_size, bool use_write_watch)
@@ -397,42 +389,22 @@ void* PageGuardManager::AllocateMemory(size_t aligned_size, bool use_write_watch
 
     if (aligned_size > 0)
     {
-#if defined(WIN32)
-        DWORD flags = MEM_RESERVE | MEM_COMMIT;
-
-        if (use_write_watch)
-        {
-            flags |= MEM_WRITE_WATCH;
-        }
-
-        void* memory = VirtualAlloc(nullptr, aligned_size, flags, PAGE_READWRITE);
-
-        if (memory == nullptr)
-        {
-            GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with \"VirtualAlloc()\" and size = %" PRIuPTR
-                               " with error code: %u",
-                               aligned_size,
-                               GetLastError());
-        }
-#else
+#ifndef WIN32
         if (use_write_watch)
         {
             GFXRECON_LOG_ERROR("PageGuardManager::AllocateMemory() ignored use_write_watch=true due to lack of support "
                                "from the current platform.");
         }
-
-        void* memory = mmap(nullptr, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-
-        if (memory == MAP_FAILED)
-        {
-            GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with \"mmap()\" and size = %" PRIuPTR
-                               " (errno: %d)",
-                               aligned_size,
-                               errno);
-
-            return nullptr;
-        }
 #endif
+        void* memory = util::platform::AllocateRawMemory(aligned_size, use_write_watch);
+
+        if (memory == nullptr)
+        {
+            GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with size = %" PRIuPTR
+                               " with error code: %u",
+                               aligned_size,
+                               util::platform::GetSystemLastErrorCode());
+        }
 
         return memory;
     }
@@ -448,12 +420,7 @@ void PageGuardManager::FreeMemory(void* memory, size_t aligned_size)
 {
     assert(memory != nullptr);
 
-#if defined(WIN32)
-    GFXRECON_UNREFERENCED_PARAMETER(aligned_size);
-    VirtualFree(memory, 0, MEM_RELEASE);
-#else
-    munmap(memory, aligned_size);
-#endif
+    util::platform::FreeRawMemory(memory, aligned_size);
 }
 
 void PageGuardManager::AddExceptionHandler()

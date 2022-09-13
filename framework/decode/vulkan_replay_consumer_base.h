@@ -1062,6 +1062,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // Used to track if any shadow sync objects are active to avoid checking if not needed
     std::unordered_set<VkSemaphore> shadow_semaphores_;
     std::unordered_set<VkFence>     shadow_fences_;
+
+    // Used to track allocated external memory if replay uses VkImportMemoryHostPointerInfoEXT
+    std::unordered_map<VkDeviceMemory, std::pair<void*, size_t>> external_memory_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -50,6 +50,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/mman.h>
 #endif // WIN32
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -216,6 +217,38 @@ inline size_t GetSystemPageSize()
     SYSTEM_INFO sSysInfo;
     GetSystemInfo(&sSysInfo);
     return sSysInfo.dwPageSize;
+}
+
+inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false)
+{
+    assert(aligned_size > 0);
+
+    if (aligned_size > 0)
+    {
+        DWORD flags = MEM_RESERVE | MEM_COMMIT;
+
+        if (use_write_watch)
+        {
+            flags |= MEM_WRITE_WATCH;
+        }
+
+        return VirtualAlloc(nullptr, aligned_size, flags, PAGE_READWRITE);
+    }
+
+    return nullptr;
+}
+
+inline void FreeRawMemory(void* memory, size_t aligned_size)
+{
+    assert(memory != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(aligned_size);
+    VirtualFree(memory, 0, MEM_RELEASE);
+}
+
+inline int GetSystemLastErrorCode()
+{
+    return GetLastError();
 }
 
 #else // !defined(WIN32)
@@ -467,7 +500,51 @@ inline size_t GetSystemPageSize()
     return getpagesize();
 }
 
+// Memory allocation without extra space for private info like with new or malloc
+inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false)
+{
+    assert(aligned_size > 0);
+
+    if (aligned_size > 0)
+    {
+        void* memory = mmap(nullptr, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+        if (memory == MAP_FAILED)
+        {
+            return nullptr;
+        }
+
+        return memory;
+    }
+
+    return nullptr;
+}
+
+inline void FreeRawMemory(void* memory, size_t aligned_size)
+{
+    assert(memory != nullptr);
+
+    munmap(memory, aligned_size);
+}
+
+inline int GetSystemLastErrorCode()
+{
+    return errno;
+}
+
 #endif // WIN32
+
+inline size_t GetAlignedSize(size_t size, size_t align_to)
+{
+    size_t extra = size & (align_to - 1); // size % system_page_size_
+    if (extra != 0)
+    {
+        // Adjust the size to be a multiple of the system page size.
+        size = size - extra + align_to;
+    }
+
+    return size;
+}
 
 inline LibraryHandle OpenLibrary(const std::vector<std::string>& name_list)
 {
