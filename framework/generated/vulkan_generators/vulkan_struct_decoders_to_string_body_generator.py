@@ -193,7 +193,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                 if value.is_array:
                     if self.is_handle(value.base_type):
                         # Pointer to array of handles case:
-                        toString = 'ArrayToString(decoded_obj.{0}.GetLength(), decoded_obj.{0}.GetPointer(), toStringFlags, tabCount, tabSize)'
+                        toString = 'decode::HandlePointerDecoderArrayToString(decoded_obj.{0}.GetLength(), &decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
 
                     elif self.is_struct(value.base_type):
                         # Pointer to array of structs case:
@@ -222,7 +222,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                         # Embedded array of handles as a direct fixed-length member of the struct:
                         # Plumbs through to HandlePointerDecoder::GetPointer() which returns a pointer
                         # to a format::HandleId, which is a typedef of uint64_t.
-                        toString = 'ArrayToString(decoded_obj.{0}.GetLength(), decoded_obj.{0}.GetPointer(), toStringFlags, tabCount, tabSize)'
+                        toString = 'decode::HandlePointerDecoderArrayToString(decoded_obj.{0}.GetLength(), &decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
                         # Embedded array of structs:
                         toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
@@ -239,7 +239,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                 else:
                     if self.is_handle(value.base_type):
                         # Outputs decimal value of the handle:
-                        toString = 'ToString(decoded_obj.{0})'
+                        toString = 'decode::HandleIdToString(decoded_obj.{0})'
                     elif self.is_struct(value.base_type):
                         toString = 'ToString(*(decoded_obj.{0}), toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
