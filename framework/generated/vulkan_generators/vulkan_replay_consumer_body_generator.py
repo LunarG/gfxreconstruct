@@ -438,7 +438,8 @@ class VulkanReplayConsumerBodyGenerator(
                                         var_name, value.name
                                     )
                                     preexpr.append(expr)
-                                    expr = 'if (GetObjectInfoTable().GetSurfaceKHRInfo({}->surface)->surface_creation_skipped) {{ return; }}'.format(
+                                    expr = 'if (GetObjectInfoTable().GetSurfaceKHRInfo({}->surface) == nullptr || GetObjectInfoTable().GetSurfaceKHRInfo({}->surface)->surface_creation_skipped) {{ return; }}'.format(
+                                        var_name,
                                         var_name
                                     )
                                     preexpr.append(expr)
@@ -764,7 +765,8 @@ class VulkanReplayConsumerBodyGenerator(
                     # If surface was not created, need to automatically ignore for non-overrides queries
                     # Swapchain also need to check if a dummy swapchain was created instead
                     if value.name == "surface":
-                        expr = 'if ({}->surface_creation_skipped) {{ return; }}'.format(
+                        expr = 'if ({} == nullptr || {}->surface_creation_skipped) {{ return; }}'.format(
+                            arg_name,
                             arg_name
                         )
                         preexpr.append(expr)
@@ -778,12 +780,14 @@ class VulkanReplayConsumerBodyGenerator(
                     # If surface was not created, need to automatically ignore for non-overrides queries
                     # Swapchain also need to check if a dummy swapchain was created instead
                     if value.name == "surface":
-                        expr = 'if (GetObjectInfoTable().GetSurfaceKHRInfo({})->surface_creation_skipped) {{ return; }}'.format(
+                        expr = 'if (GetObjectInfoTable().GetSurfaceKHRInfo({}) == nullptr || GetObjectInfoTable().GetSurfaceKHRInfo({})->surface_creation_skipped) {{ return; }}'.format(
+                            value.name,
                             value.name
                         )
                         preexpr.append(expr)
                     elif value.name == "swapchain":
-                        expr = 'if (GetObjectInfoTable().GetSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id)->surface_creation_skipped) {{ return; }}'.format(
+                        expr = 'if (GetObjectInfoTable().GetSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id) == nullptr || GetObjectInfoTable().GetSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id)->surface_creation_skipped) {{ return; }}'.format(
+                            value.base_type[2:], value.name,
                             value.base_type[2:], value.name
                         )
                         preexpr.append(expr)
