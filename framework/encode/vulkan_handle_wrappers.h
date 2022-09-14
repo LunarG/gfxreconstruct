@@ -79,7 +79,7 @@ struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationC
 struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
 struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
 struct DeferredOperationKHRWrapper          : public HandleWrapper<VkDeferredOperationKHR> {};
-struct PrivateDataSlotEXTWrapper            : public HandleWrapper<VkPrivateDataSlotEXT> {};
+struct PrivateDataSlotWrapper               : public HandleWrapper<VkPrivateDataSlot> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
@@ -298,9 +298,6 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
 };
 
-struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
-{};
-
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
@@ -448,6 +445,7 @@ struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStruc
 // Handle alias types for extension handle types that have been promoted to core types.
 typedef SamplerYcbcrConversionWrapper   SamplerYcbcrConversionKHRWrapper;
 typedef DescriptorUpdateTemplateWrapper DescriptorUpdateTemplateKHRWrapper;
+typedef PrivateDataSlotWrapper          PrivateDataSlotEXTWrapper;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

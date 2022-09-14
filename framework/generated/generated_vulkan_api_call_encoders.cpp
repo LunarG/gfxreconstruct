@@ -5404,16 +5404,17 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateData(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetPrivateData>::Dispatch(VulkanCaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, data);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    uint64_t objectHandle_unwrapped = GetWrappedHandle(objectHandle, objectType);
     VkPrivateDataSlot privateDataSlot_unwrapped = GetWrappedHandle<VkPrivateDataSlot>(privateDataSlot);
 
-    VkResult result = GetDeviceTable(device)->SetPrivateData(device_unwrapped, objectType, objectHandle, privateDataSlot_unwrapped, data);
+    VkResult result = GetDeviceTable(device)->SetPrivateData(device_unwrapped, objectType, objectHandle_unwrapped, privateDataSlot_unwrapped, data);
 
     auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetPrivateData);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeEnumValue(objectType);
-        encoder->EncodeUInt64Value(objectHandle);
+        encoder->EncodeUInt64Value(GetWrappedId(objectHandle, objectType));
         encoder->EncodeHandleValue(privateDataSlot);
         encoder->EncodeUInt64Value(data);
         encoder->EncodeEnumValue(result);
@@ -5437,16 +5438,17 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateData(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPrivateData>::Dispatch(VulkanCaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    uint64_t objectHandle_unwrapped = GetWrappedHandle(objectHandle, objectType);
     VkPrivateDataSlot privateDataSlot_unwrapped = GetWrappedHandle<VkPrivateDataSlot>(privateDataSlot);
 
-    GetDeviceTable(device)->GetPrivateData(device_unwrapped, objectType, objectHandle, privateDataSlot_unwrapped, pData);
+    GetDeviceTable(device)->GetPrivateData(device_unwrapped, objectType, objectHandle_unwrapped, privateDataSlot_unwrapped, pData);
 
     auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPrivateData);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeEnumValue(objectType);
-        encoder->EncodeUInt64Value(objectHandle);
+        encoder->EncodeUInt64Value(GetWrappedId(objectHandle, objectType));
         encoder->EncodeHandleValue(privateDataSlot);
         encoder->EncodeUInt64Ptr(pData);
         VulkanCaptureManager::Get()->EndApiCallCapture();

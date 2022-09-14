@@ -71,7 +71,6 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void AddPipelineCacheInfo(PipelineCacheInfo&& info) { AddObjectInfo(std::move(info), &pipelineCache_map_); }
     void AddPipelineLayoutInfo(PipelineLayoutInfo&& info) { AddObjectInfo(std::move(info), &pipelineLayout_map_); }
     void AddPrivateDataSlotInfo(PrivateDataSlotInfo&& info) { AddObjectInfo(std::move(info), &privateDataSlot_map_); }
-    void AddPrivateDataSlotEXTInfo(PrivateDataSlotEXTInfo&& info) { AddObjectInfo(std::move(info), &privateDataSlotEXT_map_); }
     void AddQueryPoolInfo(QueryPoolInfo&& info) { AddObjectInfo(std::move(info), &queryPool_map_); }
     void AddQueueInfo(QueueInfo&& info) { AddObjectInfo(std::move(info), &queue_map_); }
     void AddRenderPassInfo(RenderPassInfo&& info) { AddObjectInfo(std::move(info), &renderPass_map_); }
@@ -113,7 +112,6 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemovePipelineCacheInfo(format::HandleId id) { pipelineCache_map_.erase(id); }
     void RemovePipelineLayoutInfo(format::HandleId id) { pipelineLayout_map_.erase(id); }
     void RemovePrivateDataSlotInfo(format::HandleId id) { privateDataSlot_map_.erase(id); }
-    void RemovePrivateDataSlotEXTInfo(format::HandleId id) { privateDataSlotEXT_map_.erase(id); }
     void RemoveQueryPoolInfo(format::HandleId id) { queryPool_map_.erase(id); }
     void RemoveQueueInfo(format::HandleId id) { queue_map_.erase(id); }
     void RemoveRenderPassInfo(format::HandleId id) { renderPass_map_.erase(id); }
@@ -155,7 +153,6 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     const PipelineCacheInfo* GetPipelineCacheInfo(format::HandleId id) const { return GetObjectInfo<PipelineCacheInfo>(id, &pipelineCache_map_); }
     const PipelineLayoutInfo* GetPipelineLayoutInfo(format::HandleId id) const { return GetObjectInfo<PipelineLayoutInfo>(id, &pipelineLayout_map_); }
     const PrivateDataSlotInfo* GetPrivateDataSlotInfo(format::HandleId id) const { return GetObjectInfo<PrivateDataSlotInfo>(id, &privateDataSlot_map_); }
-    const PrivateDataSlotEXTInfo* GetPrivateDataSlotEXTInfo(format::HandleId id) const { return GetObjectInfo<PrivateDataSlotEXTInfo>(id, &privateDataSlotEXT_map_); }
     const QueryPoolInfo* GetQueryPoolInfo(format::HandleId id) const { return GetObjectInfo<QueryPoolInfo>(id, &queryPool_map_); }
     const QueueInfo* GetQueueInfo(format::HandleId id) const { return GetObjectInfo<QueueInfo>(id, &queue_map_); }
     const RenderPassInfo* GetRenderPassInfo(format::HandleId id) const { return GetObjectInfo<RenderPassInfo>(id, &renderPass_map_); }
@@ -197,7 +194,6 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     PipelineCacheInfo* GetPipelineCacheInfo(format::HandleId id) { return GetObjectInfo<PipelineCacheInfo>(id, &pipelineCache_map_); }
     PipelineLayoutInfo* GetPipelineLayoutInfo(format::HandleId id) { return GetObjectInfo<PipelineLayoutInfo>(id, &pipelineLayout_map_); }
     PrivateDataSlotInfo* GetPrivateDataSlotInfo(format::HandleId id) { return GetObjectInfo<PrivateDataSlotInfo>(id, &privateDataSlot_map_); }
-    PrivateDataSlotEXTInfo* GetPrivateDataSlotEXTInfo(format::HandleId id) { return GetObjectInfo<PrivateDataSlotEXTInfo>(id, &privateDataSlotEXT_map_); }
     QueryPoolInfo* GetQueryPoolInfo(format::HandleId id) { return GetObjectInfo<QueryPoolInfo>(id, &queryPool_map_); }
     QueueInfo* GetQueueInfo(format::HandleId id) { return GetObjectInfo<QueueInfo>(id, &queue_map_); }
     RenderPassInfo* GetRenderPassInfo(format::HandleId id) { return GetObjectInfo<RenderPassInfo>(id, &renderPass_map_); }
@@ -239,7 +235,6 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void VisitPipelineCacheInfo(std::function<void(const PipelineCacheInfo*)> visitor) const {  for (const auto& entry : pipelineCache_map_) { visitor(&entry.second); }  }
     void VisitPipelineLayoutInfo(std::function<void(const PipelineLayoutInfo*)> visitor) const {  for (const auto& entry : pipelineLayout_map_) { visitor(&entry.second); }  }
     void VisitPrivateDataSlotInfo(std::function<void(const PrivateDataSlotInfo*)> visitor) const {  for (const auto& entry : privateDataSlot_map_) { visitor(&entry.second); }  }
-    void VisitPrivateDataSlotEXTInfo(std::function<void(const PrivateDataSlotEXTInfo*)> visitor) const {  for (const auto& entry : privateDataSlotEXT_map_) { visitor(&entry.second); }  }
     void VisitQueryPoolInfo(std::function<void(const QueryPoolInfo*)> visitor) const {  for (const auto& entry : queryPool_map_) { visitor(&entry.second); }  }
     void VisitQueueInfo(std::function<void(const QueueInfo*)> visitor) const {  for (const auto& entry : queue_map_) { visitor(&entry.second); }  }
     void VisitRenderPassInfo(std::function<void(const RenderPassInfo*)> visitor) const {  for (const auto& entry : renderPass_map_) { visitor(&entry.second); }  }
@@ -282,7 +277,6 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
      std::unordered_map<format::HandleId, PipelineCacheInfo> pipelineCache_map_;
      std::unordered_map<format::HandleId, PipelineLayoutInfo> pipelineLayout_map_;
      std::unordered_map<format::HandleId, PrivateDataSlotInfo> privateDataSlot_map_;
-     std::unordered_map<format::HandleId, PrivateDataSlotEXTInfo> privateDataSlotEXT_map_;
      std::unordered_map<format::HandleId, QueryPoolInfo> queryPool_map_;
      std::unordered_map<format::HandleId, QueueInfo> queue_map_;
      std::unordered_map<format::HandleId, RenderPassInfo> renderPass_map_;

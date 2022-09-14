@@ -2679,9 +2679,10 @@ void VulkanReplayConsumer::Process_vkSetPrivateData(
     uint64_t                                    data)
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    uint64_t in_objectHandle = MapHandle(objectHandle, objectType);
     VkPrivateDataSlot in_privateDataSlot = MapHandle<PrivateDataSlotInfo>(privateDataSlot, &VulkanObjectInfoTable::GetPrivateDataSlotInfo);
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetPrivateData(in_device, objectType, objectHandle, in_privateDataSlot, data);
+    VkResult replay_result = GetDeviceTable(in_device)->SetPrivateData(in_device, objectType, in_objectHandle, in_privateDataSlot, data);
     CheckResult("vkSetPrivateData", returnValue, replay_result);
 }
 
@@ -2694,10 +2695,11 @@ void VulkanReplayConsumer::Process_vkGetPrivateData(
     PointerDecoder<uint64_t>*                   pData)
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    uint64_t in_objectHandle = MapHandle(objectHandle, objectType);
     VkPrivateDataSlot in_privateDataSlot = MapHandle<PrivateDataSlotInfo>(privateDataSlot, &VulkanObjectInfoTable::GetPrivateDataSlotInfo);
     uint64_t* out_pData = pData->IsNull() ? nullptr : pData->AllocateOutputData(1, static_cast<uint64_t>(0));
 
-    GetDeviceTable(in_device)->GetPrivateData(in_device, objectType, objectHandle, in_privateDataSlot, out_pData);
+    GetDeviceTable(in_device)->GetPrivateData(in_device, objectType, in_objectHandle, in_privateDataSlot, out_pData);
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetEvent2(

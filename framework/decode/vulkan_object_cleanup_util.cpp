@@ -548,19 +548,19 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                 ->DestroyDeferredOperationKHR(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, PrivateDataSlotEXTInfo>(
+    FreeChildObjects<DeviceInfo, PrivateDataSlotInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkPrivateDataSlotEXT),
         remove_entries,
         report_leaks,
         &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitPrivateDataSlotEXTInfo,
-        &VulkanObjectInfoTable::RemovePrivateDataSlotEXTInfo,
-        [&](const DeviceInfo* parent_info, const PrivateDataSlotEXTInfo* object_info) {
+        &VulkanObjectInfoTable::VisitPrivateDataSlotInfo,
+        &VulkanObjectInfoTable::RemovePrivateDataSlotInfo,
+        [&](const DeviceInfo* parent_info, const PrivateDataSlotInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
-                ->DestroyPrivateDataSlotEXT(parent_info->handle, object_info->handle, nullptr);
+                ->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<InstanceInfo, DebugReportCallbackEXTInfo>(

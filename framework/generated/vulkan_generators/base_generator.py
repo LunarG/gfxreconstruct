@@ -254,6 +254,12 @@ class BaseGenerator(OutputGenerator):
         },
         'vkGetPrivateDataEXT': {
             'objectHandle': 'objectType'
+        },
+        'vkSetPrivateData': {
+            'objectHandle': 'objectType'
+        },
+        'vkGetPrivateData': {
+            'objectHandle': 'objectType'
         }
     }
 
@@ -298,7 +304,7 @@ class BaseGenerator(OutputGenerator):
     ]
 
     DUPLICATE_HANDLE_TYPES = [
-        'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR'
+        'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR', 'VkPrivateDataSlotEXT'
     ]
 
     # Default C++ code indentation size.
