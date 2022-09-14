@@ -185,7 +185,7 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
         create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         create_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(create_buffer_cmd);
         create_buffer_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
-            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand2);
+            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kCreateHardwareBufferCommand);
         create_buffer_cmd.thread_id = thread_data->thread_id_;
         create_buffer_cmd.memory_id = memory_id;
         create_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(buffer);
@@ -552,7 +552,7 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
             const char* const*       extensions      = create_info_copy.ppEnabledExtensionNames;
             std::vector<const char*> modified_extensions;
 
-            bool has_dev_prop2 = false;
+            bool has_dev_prop2    = false;
             bool has_ext_mem_caps = false;
 
             for (size_t i = 0; i < extension_count; ++i)

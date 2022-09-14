@@ -628,7 +628,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read display message meta-data block header");
         }
     }
-    else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand)
+    else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand_deprecated)
     {
         format::CreateHardwareBufferCommandHeader_deprecated header;
 
@@ -699,7 +699,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read create hardware buffer meta-data block header");
         }
     }
-    else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand2)
+    else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand)
     {
         format::CreateHardwareBufferCommandHeader header;
 

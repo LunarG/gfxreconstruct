@@ -104,7 +104,7 @@ enum class MetaDataType : uint16_t
     kEndResourceInitCommand                 = 6,
     kInitBufferCommand                      = 7,
     kInitImageCommand                       = 8,
-    kCreateHardwareBufferCommand            = 9,
+    kCreateHardwareBufferCommand_deprecated = 9,
     kDestroyHardwareBufferCommand           = 10,
     kSetDevicePropertiesCommand             = 11,
     kSetDeviceMemoryPropertiesCommand       = 12,
@@ -119,7 +119,7 @@ enum class MetaDataType : uint16_t
     kReserved21                             = 21,
     kReserved22                             = 22,
     kReserved23                             = 23,
-    kCreateHardwareBufferCommand2           = 24,
+    kCreateHardwareBufferCommand            = 24,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
