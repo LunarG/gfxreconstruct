@@ -311,7 +311,7 @@ def Build(label) {
                         bat """
                             echo on
                             set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;"C:\\Program Files\\CMake\\bin";%PATH%
-                            C:\\Python36\\python.exe .\\gfx\\GFXReconstruct-DX12\\scripts\\build.py ${extraWinBuildArgs} ${build64}
+                            C:\\Python36\\python.exe .\\gfx\\GFXReconstruct-DX12\\scripts\\build.py --cmake-system-version=10.0.20348.0 ${extraWinBuildArgs} ${build64}
                         """
                     } catch (Exception err) {
                         echo "GFXReconstruct Windows 64 bit build failed: " + err
@@ -359,7 +359,7 @@ def Build(label) {
                         bat """
                             echo on
                             set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;"C:\\Program Files\\CMake\\bin";%PATH%
-                            C:\\Python36\\python.exe .\\gfx\\GFXReconstruct-DX12\\scripts\\build.py ${extraWinBuildArgs} ${build32}
+                            C:\\Python36\\python.exe .\\gfx\\GFXReconstruct-DX12\\scripts\\build.py --cmake-system-version=10.0.20348.0 ${extraWinBuildArgs} ${build32}
                         """
                     } catch (Exception err) {
                         echo "GFXReconstruct Windows 32 bit build, failed: " + err

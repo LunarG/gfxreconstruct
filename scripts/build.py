@@ -112,6 +112,9 @@ def parse_args():
         metavar='BASE', action='store', default='HEAD',
         help='Git branch name or commit ID to use as the base for C++ code style comparison')
     arg_parser.add_argument(
+        '--cmake-system-version', dest='cmake_system_version',
+        type=str, default="10.0.20348.0",help='Select SDK version')
+    arg_parser.add_argument(
         '--lint', dest='lint',
         action='store_true', default=False,
         help='Run static analysis lint tests on code')
@@ -202,6 +205,11 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DCMAKE_CXX_CLANG_TIDY=clang-tidy;--format-style=file' if args.lint
             else '-UCMAKE_CXX_CLANG_TIDY')
+        if args.cmake_system_version:
+            generate_options.append(
+                '-DCMAKE_SYSTEM_VERSION={}'.format(
+                    args.cmake_system_version))
+    
     return generate_options
 
 
