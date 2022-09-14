@@ -632,6 +632,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     {
         format::CreateHardwareBufferCommandHeader_deprecated header;
 
+        GFXRECON_LOG_WARNING_ONCE(
+            "This capture contains a deprecated metacommand to create an AHardwareBuffer.  While still supported, this "
+            "metacommand may not correctly represent some state of the captured AHardwareBuffer.");
+
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
         success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
         success = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
