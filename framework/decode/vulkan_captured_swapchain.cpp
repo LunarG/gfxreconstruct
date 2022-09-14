@@ -93,9 +93,9 @@ VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImages
 
     if ((image_count != nullptr) && (capture_image_count != *image_count))
     {
-        GFXRECON_LOG_FATAL("The number of images returned by vkGetSwapchainImageKHR is different than the number "
-                           "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_FATAL(
+        GFXRECON_LOG_WARNING("The number of images returned by vkGetSwapchainImageKHR is different than the number "
+                             "returned at capture, which may cause replay to fail.");
+        GFXRECON_LOG_WARNING(
             "Try replay with the virtual swapchain mode via removing \"--use-captured-swapchain-indices\" option.");
     }
 
@@ -154,9 +154,9 @@ VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR 
 
     if ((image_index != nullptr) && (capture_image_index != *image_index))
     {
-        GFXRECON_LOG_FATAL("The image index returned by vkAcquireNextImageKHR is different than the index "
-                           "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_FATAL(
+        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the index "
+                             "returned at capture, which may cause replay to fail.");
+        GFXRECON_LOG_WARNING(
             "Try replay with the virtual swapchain mode via removing \"--use-captured-swapchain-indices\" option.");
     }
 
@@ -183,9 +183,9 @@ VkResult VulkanCapturedSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KH
 
     if ((image_index != nullptr) && (capture_image_index != *image_index))
     {
-        GFXRECON_LOG_FATAL("The image index returned by vkAcquireNextImageKHR is different than the index "
-                           "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_FATAL(
+        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the index "
+                             "returned at capture, which may cause replay to fail.");
+        GFXRECON_LOG_WARNING(
             "Try replay with the virtual swapchain mode via removing \"--use-captured-swapchain-indices\" option.");
     }
 
