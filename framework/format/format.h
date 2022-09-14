@@ -104,7 +104,7 @@ enum class MetaDataType : uint16_t
     kEndResourceInitCommand                 = 6,
     kInitBufferCommand                      = 7,
     kInitImageCommand                       = 8,
-    kCreateHardwareBufferCommand            = 9,
+    kCreateHardwareBufferCommand_deprecated = 9,
     kDestroyHardwareBufferCommand           = 10,
     kSetDevicePropertiesCommand             = 11,
     kSetDeviceMemoryPropertiesCommand       = 12,
@@ -119,6 +119,7 @@ enum class MetaDataType : uint16_t
     kReserved21                             = 21,
     kReserved22                             = 22,
     kReserved23                             = 23,
+    kCreateHardwareBufferCommand            = 24,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -312,7 +313,9 @@ struct ResizeWindowCommand2
     uint32_t         pre_transform;
 };
 
-struct CreateHardwareBufferCommandHeader
+// This command header's "usage" member is sized incorrectly.  Existing decoding must remain in place in order to
+// process captures that already exist.  Do not use this command header in any new code.
+struct CreateHardwareBufferCommandHeader_deprecated
 {
     MetaDataHeader meta_header;
     ThreadId       thread_id;
@@ -323,6 +326,22 @@ struct CreateHardwareBufferCommandHeader
     uint32_t       height;
     uint32_t       stride; // Size of a row in pixels.
     uint32_t       usage;
+    uint32_t       layers;
+    uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
+                           // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.
+};
+
+struct CreateHardwareBufferCommandHeader
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    HandleId       memory_id; // Globally unique ID assigned to the buffer for tracking memory modifications.
+    uint64_t       buffer_id; // Address of the buffer object.
+    uint32_t       format;
+    uint32_t       width;
+    uint32_t       height;
+    uint32_t       stride; // Size of a row in pixels.
+    uint64_t       usage;
     uint32_t       layers;
     uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
                            // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.

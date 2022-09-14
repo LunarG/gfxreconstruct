@@ -69,7 +69,7 @@ class VulkanConsumerBase
                                                     uint32_t                                            width,
                                                     uint32_t                                            height,
                                                     uint32_t                                            stride,
-                                                    uint32_t                                            usage,
+                                                    uint64_t                                            usage,
                                                     uint32_t                                            layers,
                                                     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
     {}
