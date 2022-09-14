@@ -315,7 +315,7 @@ struct ResizeWindowCommand2
 
 // This command header's "usage" member is sized incorrectly.  Existing decoding must remain in place in order to
 // process captures that already exist.  Do not use this command header in any new code.
-struct CreateHardwareBufferCommandHeader
+struct CreateHardwareBufferCommandHeader_deprecated
 {
     MetaDataHeader meta_header;
     ThreadId       thread_id;
@@ -331,7 +331,7 @@ struct CreateHardwareBufferCommandHeader
                            // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.
 };
 
-struct CreateHardwareBufferCommandHeader2
+struct CreateHardwareBufferCommandHeader
 {
     MetaDataHeader meta_header;
     ThreadId       thread_id;

@@ -630,7 +630,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     }
     else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand)
     {
-        format::CreateHardwareBufferCommandHeader header;
+        format::CreateHardwareBufferCommandHeader_deprecated header;
 
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
         success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
@@ -701,7 +701,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     }
     else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand2)
     {
-        format::CreateHardwareBufferCommandHeader2 header;
+        format::CreateHardwareBufferCommandHeader header;
 
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
         success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
