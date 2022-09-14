@@ -180,7 +180,8 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
                                              ///< while the swapchain is active.
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{
         nullptr
-    }; ///< The command queue that was used to create the swapchain.
+    };                           ///< The command queue that was used to create the swapchain.
+    bool is_fullscreen{ false }; ///< Swapchain full screen flag.
 };
 
 struct D3D12CommandQueueInfo : DxObjectExtraInfo

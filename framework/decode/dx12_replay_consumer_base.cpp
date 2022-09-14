@@ -433,7 +433,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
                                                  temp_subresource_layouts,
                                                  required_data_size);
         resource_init_info.subresource_sizes = subresource_sizes;
-        resource_init_info.staging_resource = resource_data_util_->CreateStagingBuffer(
+        resource_init_info.staging_resource  = resource_data_util_->CreateStagingBuffer(
             graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeWrite, required_data_size);
         SetResourceInitInfoState(resource_init_info, command_header, data);
 
@@ -830,7 +830,8 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
                     hwnd_id = meta_info->OutputWindow;
                 }
 
-                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount, device);
+                SetSwapchainInfo(
+                    object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount, device, desc_pointer->Windowed);
             }
             else
             {
@@ -2199,18 +2200,24 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
                 restrict_to_output = static_cast<IDXGIOutput*>(restrict_to_output_info->object);
             }
 
-            auto desc = full_screen_desc->GetPointer();
+            auto full_screen_desc_ptr = full_screen_desc->GetPointer();
             if (options_.force_windowed)
             {
-                desc = nullptr;
+                full_screen_desc_ptr = nullptr;
             }
             result = replay_object->CreateSwapChainForHwnd(
-                device, hwnd, desc_pointer, desc, restrict_to_output, swapchain->GetHandlePointer());
+                device, hwnd, desc_pointer, full_screen_desc_ptr, restrict_to_output, swapchain->GetHandlePointer());
 
             if (SUCCEEDED(result))
             {
                 auto object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
-                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount, device);
+                SetSwapchainInfo(object_info,
+                                 window,
+                                 hwnd_id,
+                                 hwnd,
+                                 desc_pointer->BufferCount,
+                                 device,
+                                 (full_screen_desc_ptr == nullptr));
             }
             else
             {
@@ -2231,8 +2238,13 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     return result;
 }
 
-void Dx12ReplayConsumerBase::SetSwapchainInfo(
-    DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd, uint32_t image_count, IUnknown* queue_iunknown)
+void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
+                                              Window*       window,
+                                              uint64_t      hwnd_id,
+                                              HWND          hwnd,
+                                              uint32_t      image_count,
+                                              IUnknown*     queue_iunknown,
+                                              bool          windowed)
 {
     if (window != nullptr)
     {
@@ -2240,11 +2252,12 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(
         {
             assert(info->extra_info == nullptr);
 
-            auto swapchain_info         = std::make_unique<DxgiSwapchainInfo>();
-            swapchain_info->window      = window;
-            swapchain_info->hwnd_id     = hwnd_id;
-            swapchain_info->image_count = image_count;
-            swapchain_info->images      = std::make_unique<DxObjectInfo*[]>(image_count);
+            auto swapchain_info           = std::make_unique<DxgiSwapchainInfo>();
+            swapchain_info->window        = window;
+            swapchain_info->hwnd_id       = hwnd_id;
+            swapchain_info->image_count   = image_count;
+            swapchain_info->images        = std::make_unique<DxObjectInfo*[]>(image_count);
+            swapchain_info->is_fullscreen = (windowed == false);
 
             // Get the ID3D12CommandQueue from the IUnknown queue object.
             HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
@@ -2415,6 +2428,10 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
         else if (extra_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo)
         {
             auto swapchain_info = static_cast<DxgiSwapchainInfo*>(extra_info);
+            if (swapchain_info->is_fullscreen == true)
+            {
+                static_cast<IDXGISwapChain*>(info->object)->SetFullscreenState(false, nullptr);
+            }
 
             if (release_extra_refs)
             {
@@ -2947,11 +2964,14 @@ Dx12ReplayConsumerBase::OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
     GFXRECON_ASSERT(swapchain_info != nullptr);
     GFXRECON_ASSERT(swapchain_info->object != nullptr);
 
-    auto    swapchain     = static_cast<IDXGISwapChain*>(swapchain_info->object);
+    auto swapchain            = static_cast<IDXGISwapChain*>(swapchain_info->object);
+    auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_info);
+
     HRESULT replay_result = S_OK;
     if (options_.force_windowed)
     {
-        replay_result = swapchain->SetFullscreenState(FALSE, nullptr);
+        replay_result                       = swapchain->SetFullscreenState(FALSE, nullptr);
+        swapchain_extra_info->is_fullscreen = false;
     }
     else
     {
@@ -2960,7 +2980,8 @@ Dx12ReplayConsumerBase::OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
         {
             in_pTarget = static_cast<IDXGIOutput*>(pTarget->object);
         }
-        replay_result = swapchain->SetFullscreenState(Fullscreen, in_pTarget);
+        replay_result                       = swapchain->SetFullscreenState(Fullscreen, in_pTarget);
+        swapchain_extra_info->is_fullscreen = Fullscreen;
         CheckReplayResult("IDXGISwapChain::SetFullscreenState", original_result, replay_result);
     }
     return replay_result;
