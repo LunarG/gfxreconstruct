@@ -149,7 +149,7 @@ uint64_t MapHandle(uint64_t object, VkObjectType object_type, const VulkanObject
                 object, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutNVInfo));
         case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT_EXT:
             return format::ToHandleId(MapHandle<PrivateDataSlotEXTInfo>(
-                object, object_info_table, &VulkanObjectInfoTable::GetPrivateDataSlotEXTInfo));
+                object, object_info_table, &VulkanObjectInfoTable::GetPrivateDataSlotInfo));
         case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:
             return format::ToHandleId(MapHandle<AccelerationStructureNVInfo>(
                 object, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo));

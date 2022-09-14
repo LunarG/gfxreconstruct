@@ -200,7 +200,6 @@ typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureK
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkDeferredOperationKHR>          DeferredOperationKHRInfo;
-typedef VulkanObjectInfo<VkPrivateDataSlotEXT>            PrivateDataSlotEXTInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.
@@ -430,6 +429,7 @@ struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 
 typedef SamplerYcbcrConversionInfo   SamplerYcbcrConversionKHRInfo;
 typedef DescriptorUpdateTemplateInfo DescriptorUpdateTemplateKHRInfo;
+typedef PrivateDataSlotInfo          PrivateDataSlotEXTInfo;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
