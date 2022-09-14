@@ -115,7 +115,15 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
             size_t current_size = total_size;
             bytes_read +=
                 ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &struct_count);
-            if (struct_count > 0)
+            if (bytes_read == buffer_size)
+            {
+                // A few captures in the wild were written with an uninitialized
+                // struct_count and no additional bytes. Commit 7d190ac9 fixed the encoding format.
+                GFXRECON_LOG_WARNING_ONCE(
+                    "A deprecated incorrect encoding of DescriptorUpdateTemplate was detected.  This "
+                    "capture is probably invalid.  Replay may subsequently fail or crash.");
+            }
+            else if (struct_count > 0)
             {
                 VkDescriptorType descriptor_type;
                 bytes_read +=
@@ -146,9 +154,9 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                 }
                 else
                 {
-                    // If descriptor_type is not recognized, it is possible the capture file was created with a newer
-                    // version of the capture layer that had support for additional optional descriptor types. Display a
-                    // warning and exit the processing loop.
+                    // If descriptor_type is not recognized, it is possible the capture file was created with a
+                    // newer version of the capture layer that had support for additional optional descriptor types.
+                    // Display a warning and exit the processing loop.
                     GFXRECON_LOG_WARNING("Unrecognized VkDescriptorType %d found when decoding data for descriptor "
                                          "update with template.",
                                          static_cast<int>(descriptor_type));
