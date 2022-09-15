@@ -159,7 +159,8 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                     cmddef += '            FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, \'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\');\n'
 
                 # Start a nested parameter block
-                cmddef += '''            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\\n");\n'''
+                cmddef += '''            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");\n'''
+                cmddef += '''            strStrm << GetNewlineString(toStringFlags);\n'''
 
                 # Fill in all the arguments in the parameter block
                 cmddef += self.make_consumer_func_args(

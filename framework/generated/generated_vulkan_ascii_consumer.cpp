@@ -54,7 +54,8 @@ void VulkanAsciiConsumer::Process_vkCreateInstance(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateInstance\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
@@ -83,7 +84,8 @@ void VulkanAsciiConsumer::Process_vkDestroyInstance(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyInstance\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
@@ -114,7 +116,8 @@ void VulkanAsciiConsumer::Process_vkEnumeratePhysicalDevices(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkEnumeratePhysicalDevices\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "[out]pPhysicalDeviceCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPhysicalDeviceCount, toStringFlags, tabCount, tabSize));
@@ -143,7 +146,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFeatures(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceFeatures\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pFeatures", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFeatures, toStringFlags, tabCount, tabSize));
@@ -172,7 +176,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFormatProperties(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceFormatProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(format, toStringFlags, tabCount, tabSize) + '"');
@@ -208,7 +213,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceImageFormatProperties\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(format, toStringFlags, tabCount, tabSize) + '"');
@@ -241,7 +247,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceProperties(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pProperties", toStringFlags, tabCount, tabSize, PointerDecoderToString(pProperties, toStringFlags, tabCount, tabSize));
@@ -270,7 +277,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceQueueFamilyProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pQueueFamilyPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pQueueFamilyPropertyCount, toStringFlags, tabCount, tabSize));
@@ -299,7 +307,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceMemoryProperties(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceMemoryProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pMemoryProperties", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMemoryProperties, toStringFlags, tabCount, tabSize));
@@ -331,7 +340,8 @@ void VulkanAsciiConsumer::Process_vkCreateDevice(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDevice\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -361,7 +371,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDevice(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDevice\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
@@ -391,7 +402,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceQueue(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceQueue\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -425,7 +437,8 @@ void VulkanAsciiConsumer::Process_vkQueueSubmit(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueSubmit\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "submitCount", toStringFlags, tabCount, tabSize, ToString(submitCount, toStringFlags, tabCount, tabSize));
@@ -456,7 +469,8 @@ void VulkanAsciiConsumer::Process_vkQueueWaitIdle(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueWaitIdle\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             tabCount -= 1;
@@ -484,7 +498,8 @@ void VulkanAsciiConsumer::Process_vkDeviceWaitIdle(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDeviceWaitIdle\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             tabCount -= 1;
@@ -515,7 +530,8 @@ void VulkanAsciiConsumer::Process_vkAllocateMemory(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAllocateMemory\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
@@ -546,7 +562,8 @@ void VulkanAsciiConsumer::Process_vkFreeMemory(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkFreeMemory\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(memory));
@@ -581,7 +598,8 @@ void VulkanAsciiConsumer::Process_vkMapMemory(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkMapMemory\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(memory));
@@ -613,7 +631,8 @@ void VulkanAsciiConsumer::Process_vkUnmapMemory(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkUnmapMemory\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(memory));
@@ -644,7 +663,8 @@ void VulkanAsciiConsumer::Process_vkFlushMappedMemoryRanges(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkFlushMappedMemoryRanges\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memoryRangeCount", toStringFlags, tabCount, tabSize, ToString(memoryRangeCount, toStringFlags, tabCount, tabSize));
@@ -676,7 +696,8 @@ void VulkanAsciiConsumer::Process_vkInvalidateMappedMemoryRanges(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkInvalidateMappedMemoryRanges\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memoryRangeCount", toStringFlags, tabCount, tabSize, ToString(memoryRangeCount, toStringFlags, tabCount, tabSize));
@@ -706,7 +727,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceMemoryCommitment(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceMemoryCommitment\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(memory));
@@ -739,7 +761,8 @@ void VulkanAsciiConsumer::Process_vkBindBufferMemory(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBindBufferMemory\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -773,7 +796,8 @@ void VulkanAsciiConsumer::Process_vkBindImageMemory(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBindImageMemory\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -804,7 +828,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferMemoryRequirements(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferMemoryRequirements\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -834,7 +859,8 @@ void VulkanAsciiConsumer::Process_vkGetImageMemoryRequirements(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageMemoryRequirements\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -865,7 +891,8 @@ void VulkanAsciiConsumer::Process_vkGetImageSparseMemoryRequirements(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageSparseMemoryRequirements\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -901,7 +928,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSparseImageFormatProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(format, toStringFlags, tabCount, tabSize) + '"');
@@ -939,7 +967,8 @@ void VulkanAsciiConsumer::Process_vkQueueBindSparse(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueBindSparse\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "bindInfoCount", toStringFlags, tabCount, tabSize, ToString(bindInfoCount, toStringFlags, tabCount, tabSize));
@@ -973,7 +1002,8 @@ void VulkanAsciiConsumer::Process_vkCreateFence(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateFence\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1004,7 +1034,8 @@ void VulkanAsciiConsumer::Process_vkDestroyFence(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyFence\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, HandleIdToString(fence));
@@ -1036,7 +1067,8 @@ void VulkanAsciiConsumer::Process_vkResetFences(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkResetFences\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "fenceCount", toStringFlags, tabCount, tabSize, ToString(fenceCount, toStringFlags, tabCount, tabSize));
@@ -1067,7 +1099,8 @@ void VulkanAsciiConsumer::Process_vkGetFenceStatus(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetFenceStatus\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, HandleIdToString(fence));
@@ -1100,7 +1133,8 @@ void VulkanAsciiConsumer::Process_vkWaitForFences(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkWaitForFences\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "fenceCount", toStringFlags, tabCount, tabSize, ToString(fenceCount, toStringFlags, tabCount, tabSize));
@@ -1135,7 +1169,8 @@ void VulkanAsciiConsumer::Process_vkCreateSemaphore(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateSemaphore\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1166,7 +1201,8 @@ void VulkanAsciiConsumer::Process_vkDestroySemaphore(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroySemaphore\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(semaphore));
@@ -1199,7 +1235,8 @@ void VulkanAsciiConsumer::Process_vkCreateEvent(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateEvent\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1230,7 +1267,8 @@ void VulkanAsciiConsumer::Process_vkDestroyEvent(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyEvent\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -1261,7 +1299,8 @@ void VulkanAsciiConsumer::Process_vkGetEventStatus(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetEventStatus\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -1291,7 +1330,8 @@ void VulkanAsciiConsumer::Process_vkSetEvent(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetEvent\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -1321,7 +1361,8 @@ void VulkanAsciiConsumer::Process_vkResetEvent(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkResetEvent\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -1353,7 +1394,8 @@ void VulkanAsciiConsumer::Process_vkCreateQueryPool(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateQueryPool\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1384,7 +1426,8 @@ void VulkanAsciiConsumer::Process_vkDestroyQueryPool(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyQueryPool\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -1421,7 +1464,8 @@ void VulkanAsciiConsumer::Process_vkGetQueryPoolResults(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetQueryPoolResults\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -1459,7 +1503,8 @@ void VulkanAsciiConsumer::Process_vkCreateBuffer(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateBuffer\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1490,7 +1535,8 @@ void VulkanAsciiConsumer::Process_vkDestroyBuffer(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyBuffer\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -1523,7 +1569,8 @@ void VulkanAsciiConsumer::Process_vkCreateBufferView(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateBufferView\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1554,7 +1601,8 @@ void VulkanAsciiConsumer::Process_vkDestroyBufferView(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyBufferView\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "bufferView", toStringFlags, tabCount, tabSize, HandleIdToString(bufferView));
@@ -1587,7 +1635,8 @@ void VulkanAsciiConsumer::Process_vkCreateImage(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateImage\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1618,7 +1667,8 @@ void VulkanAsciiConsumer::Process_vkDestroyImage(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyImage\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -1649,7 +1699,8 @@ void VulkanAsciiConsumer::Process_vkGetImageSubresourceLayout(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageSubresourceLayout\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -1683,7 +1734,8 @@ void VulkanAsciiConsumer::Process_vkCreateImageView(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateImageView\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1714,7 +1766,8 @@ void VulkanAsciiConsumer::Process_vkDestroyImageView(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyImageView\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(imageView));
@@ -1747,7 +1800,8 @@ void VulkanAsciiConsumer::Process_vkCreateShaderModule(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateShaderModule\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1778,7 +1832,8 @@ void VulkanAsciiConsumer::Process_vkDestroyShaderModule(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyShaderModule\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "shaderModule", toStringFlags, tabCount, tabSize, HandleIdToString(shaderModule));
@@ -1811,7 +1866,8 @@ void VulkanAsciiConsumer::Process_vkCreatePipelineCache(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreatePipelineCache\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -1842,7 +1898,8 @@ void VulkanAsciiConsumer::Process_vkDestroyPipelineCache(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyPipelineCache\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipelineCache", toStringFlags, tabCount, tabSize, HandleIdToString(pipelineCache));
@@ -1875,7 +1932,8 @@ void VulkanAsciiConsumer::Process_vkGetPipelineCacheData(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPipelineCacheData\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipelineCache", toStringFlags, tabCount, tabSize, HandleIdToString(pipelineCache));
@@ -1909,7 +1967,8 @@ void VulkanAsciiConsumer::Process_vkMergePipelineCaches(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkMergePipelineCaches\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "dstCache", toStringFlags, tabCount, tabSize, HandleIdToString(dstCache));
@@ -1945,7 +2004,8 @@ void VulkanAsciiConsumer::Process_vkCreateGraphicsPipelines(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateGraphicsPipelines\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipelineCache", toStringFlags, tabCount, tabSize, HandleIdToString(pipelineCache));
@@ -1983,7 +2043,8 @@ void VulkanAsciiConsumer::Process_vkCreateComputePipelines(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateComputePipelines\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipelineCache", toStringFlags, tabCount, tabSize, HandleIdToString(pipelineCache));
@@ -2016,7 +2077,8 @@ void VulkanAsciiConsumer::Process_vkDestroyPipeline(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyPipeline\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(pipeline));
@@ -2049,7 +2111,8 @@ void VulkanAsciiConsumer::Process_vkCreatePipelineLayout(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreatePipelineLayout\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -2080,7 +2143,8 @@ void VulkanAsciiConsumer::Process_vkDestroyPipelineLayout(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyPipelineLayout\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipelineLayout", toStringFlags, tabCount, tabSize, HandleIdToString(pipelineLayout));
@@ -2113,7 +2177,8 @@ void VulkanAsciiConsumer::Process_vkCreateSampler(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateSampler\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -2144,7 +2209,8 @@ void VulkanAsciiConsumer::Process_vkDestroySampler(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroySampler\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "sampler", toStringFlags, tabCount, tabSize, HandleIdToString(sampler));
@@ -2177,7 +2243,8 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorSetLayout(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDescriptorSetLayout\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -2208,7 +2275,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDescriptorSetLayout(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDescriptorSetLayout\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorSetLayout));
@@ -2241,7 +2309,8 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorPool(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDescriptorPool\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -2272,7 +2341,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDescriptorPool(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDescriptorPool\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorPool));
@@ -2304,7 +2374,8 @@ void VulkanAsciiConsumer::Process_vkResetDescriptorPool(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkResetDescriptorPool\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorPool));
@@ -2337,7 +2408,8 @@ void VulkanAsciiConsumer::Process_vkFreeDescriptorSets(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkFreeDescriptorSets\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorPool));
@@ -2370,7 +2442,8 @@ void VulkanAsciiConsumer::Process_vkUpdateDescriptorSets(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkUpdateDescriptorSets\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorWriteCount", toStringFlags, tabCount, tabSize, ToString(descriptorWriteCount, toStringFlags, tabCount, tabSize));
@@ -2405,7 +2478,8 @@ void VulkanAsciiConsumer::Process_vkCreateFramebuffer(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateFramebuffer\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -2436,7 +2510,8 @@ void VulkanAsciiConsumer::Process_vkDestroyFramebuffer(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyFramebuffer\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, HandleIdToString(framebuffer));
@@ -2469,7 +2544,8 @@ void VulkanAsciiConsumer::Process_vkCreateRenderPass(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateRenderPass\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -2500,7 +2576,8 @@ void VulkanAsciiConsumer::Process_vkDestroyRenderPass(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyRenderPass\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, HandleIdToString(renderPass));
@@ -2530,7 +2607,8 @@ void VulkanAsciiConsumer::Process_vkGetRenderAreaGranularity(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetRenderAreaGranularity\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, HandleIdToString(renderPass));
@@ -2563,7 +2641,8 @@ void VulkanAsciiConsumer::Process_vkCreateCommandPool(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateCommandPool\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -2594,7 +2673,8 @@ void VulkanAsciiConsumer::Process_vkDestroyCommandPool(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyCommandPool\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, HandleIdToString(commandPool));
@@ -2626,7 +2706,8 @@ void VulkanAsciiConsumer::Process_vkResetCommandPool(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkResetCommandPool\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, HandleIdToString(commandPool));
@@ -2657,7 +2738,8 @@ void VulkanAsciiConsumer::Process_vkFreeCommandBuffers(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkFreeCommandBuffers\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, HandleIdToString(commandPool));
@@ -2689,7 +2771,8 @@ void VulkanAsciiConsumer::Process_vkBeginCommandBuffer(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBeginCommandBuffer\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pBeginInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBeginInfo, toStringFlags, tabCount, tabSize));
@@ -2718,7 +2801,8 @@ void VulkanAsciiConsumer::Process_vkEndCommandBuffer(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkEndCommandBuffer\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             tabCount -= 1;
@@ -2747,7 +2831,8 @@ void VulkanAsciiConsumer::Process_vkResetCommandBuffer(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkResetCommandBuffer\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(flags, toStringFlags, tabCount, tabSize));
@@ -2776,7 +2861,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindPipeline(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindPipeline\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
@@ -2807,7 +2893,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetViewport(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetViewport\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstViewport", toStringFlags, tabCount, tabSize, ToString(firstViewport, toStringFlags, tabCount, tabSize));
@@ -2839,7 +2926,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetScissor(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetScissor\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstScissor", toStringFlags, tabCount, tabSize, ToString(firstScissor, toStringFlags, tabCount, tabSize));
@@ -2869,7 +2957,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetLineWidth(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetLineWidth\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "lineWidth", toStringFlags, tabCount, tabSize, ToString(lineWidth, toStringFlags, tabCount, tabSize));
@@ -2899,7 +2988,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthBias(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthBias\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthBiasConstantFactor", toStringFlags, tabCount, tabSize, ToString(depthBiasConstantFactor, toStringFlags, tabCount, tabSize));
@@ -2929,7 +3019,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetBlendConstants(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetBlendConstants\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "blendConstants", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(4, blendConstants, toStringFlags, tabCount, tabSize));
@@ -2958,7 +3049,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthBounds(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthBounds\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "minDepthBounds", toStringFlags, tabCount, tabSize, ToString(minDepthBounds, toStringFlags, tabCount, tabSize));
@@ -2988,7 +3080,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilCompareMask(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetStencilCompareMask\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "faceMask", toStringFlags, tabCount, tabSize, ToString(faceMask, toStringFlags, tabCount, tabSize));
@@ -3018,7 +3111,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilWriteMask(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetStencilWriteMask\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "faceMask", toStringFlags, tabCount, tabSize, ToString(faceMask, toStringFlags, tabCount, tabSize));
@@ -3048,7 +3142,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilReference(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetStencilReference\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "faceMask", toStringFlags, tabCount, tabSize, ToString(faceMask, toStringFlags, tabCount, tabSize));
@@ -3083,7 +3178,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindDescriptorSets(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindDescriptorSets\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
@@ -3119,7 +3215,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindIndexBuffer(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindIndexBuffer\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -3152,7 +3249,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindVertexBuffers(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindVertexBuffers\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstBinding", toStringFlags, tabCount, tabSize, ToString(firstBinding, toStringFlags, tabCount, tabSize));
@@ -3186,7 +3284,8 @@ void VulkanAsciiConsumer::Process_vkCmdDraw(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDraw\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "vertexCount", toStringFlags, tabCount, tabSize, ToString(vertexCount, toStringFlags, tabCount, tabSize));
@@ -3221,7 +3320,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndexed(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndexed\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "indexCount", toStringFlags, tabCount, tabSize, ToString(indexCount, toStringFlags, tabCount, tabSize));
@@ -3256,7 +3356,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndirect(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndirect\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -3290,7 +3391,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndexedIndirect(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndexedIndirect\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -3323,7 +3425,8 @@ void VulkanAsciiConsumer::Process_vkCmdDispatch(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDispatch\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "groupCountX", toStringFlags, tabCount, tabSize, ToString(groupCountX, toStringFlags, tabCount, tabSize));
@@ -3354,7 +3457,8 @@ void VulkanAsciiConsumer::Process_vkCmdDispatchIndirect(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDispatchIndirect\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -3386,7 +3490,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyBuffer(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyBuffer\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(srcBuffer));
@@ -3422,7 +3527,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyImage(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyImage\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(srcImage));
@@ -3461,7 +3567,8 @@ void VulkanAsciiConsumer::Process_vkCmdBlitImage(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBlitImage\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(srcImage));
@@ -3499,7 +3606,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyBufferToImage(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyBufferToImage\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(srcBuffer));
@@ -3535,7 +3643,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyImageToBuffer(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyImageToBuffer\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(srcImage));
@@ -3570,7 +3679,8 @@ void VulkanAsciiConsumer::Process_vkCmdUpdateBuffer(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdUpdateBuffer\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(dstBuffer));
@@ -3604,7 +3714,8 @@ void VulkanAsciiConsumer::Process_vkCmdFillBuffer(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdFillBuffer\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(dstBuffer));
@@ -3639,7 +3750,8 @@ void VulkanAsciiConsumer::Process_vkCmdClearColorImage(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdClearColorImage\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -3675,7 +3787,8 @@ void VulkanAsciiConsumer::Process_vkCmdClearDepthStencilImage(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdClearDepthStencilImage\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -3710,7 +3823,8 @@ void VulkanAsciiConsumer::Process_vkCmdClearAttachments(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdClearAttachments\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(attachmentCount, toStringFlags, tabCount, tabSize));
@@ -3746,7 +3860,8 @@ void VulkanAsciiConsumer::Process_vkCmdResolveImage(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdResolveImage\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(srcImage));
@@ -3780,7 +3895,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetEvent(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetEvent\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -3810,7 +3926,8 @@ void VulkanAsciiConsumer::Process_vkCmdResetEvent(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdResetEvent\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -3848,7 +3965,8 @@ void VulkanAsciiConsumer::Process_vkCmdWaitEvents(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWaitEvents\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "eventCount", toStringFlags, tabCount, tabSize, ToString(eventCount, toStringFlags, tabCount, tabSize));
@@ -3893,7 +4011,8 @@ void VulkanAsciiConsumer::Process_vkCmdPipelineBarrier(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdPipelineBarrier\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, ToString(srcStageMask, toStringFlags, tabCount, tabSize));
@@ -3931,7 +4050,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginQuery(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginQuery\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -3962,7 +4082,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndQuery(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndQuery\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -3993,7 +4114,8 @@ void VulkanAsciiConsumer::Process_vkCmdResetQueryPool(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdResetQueryPool\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -4025,7 +4147,8 @@ void VulkanAsciiConsumer::Process_vkCmdWriteTimestamp(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWriteTimestamp\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pipelineStage", toStringFlags, tabCount, tabSize, '"' + ToString(pipelineStage, toStringFlags, tabCount, tabSize) + '"');
@@ -4061,7 +4184,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyQueryPoolResults(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyQueryPoolResults\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -4099,7 +4223,8 @@ void VulkanAsciiConsumer::Process_vkCmdPushConstants(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdPushConstants\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, HandleIdToString(layout));
@@ -4132,7 +4257,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginRenderPass(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginRenderPass\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pRenderPassBegin", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRenderPassBegin, toStringFlags, tabCount, tabSize));
@@ -4161,7 +4287,8 @@ void VulkanAsciiConsumer::Process_vkCmdNextSubpass(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdNextSubpass\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "contents", toStringFlags, tabCount, tabSize, '"' + ToString(contents, toStringFlags, tabCount, tabSize) + '"');
@@ -4188,7 +4315,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndRenderPass(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndRenderPass\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             tabCount -= 1;
@@ -4216,7 +4344,8 @@ void VulkanAsciiConsumer::Process_vkCmdExecuteCommands(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdExecuteCommands\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "commandBufferCount", toStringFlags, tabCount, tabSize, ToString(commandBufferCount, toStringFlags, tabCount, tabSize));
@@ -4248,7 +4377,8 @@ void VulkanAsciiConsumer::Process_vkBindBufferMemory2(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBindBufferMemory2\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "bindInfoCount", toStringFlags, tabCount, tabSize, ToString(bindInfoCount, toStringFlags, tabCount, tabSize));
@@ -4280,7 +4410,8 @@ void VulkanAsciiConsumer::Process_vkBindImageMemory2(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBindImageMemory2\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "bindInfoCount", toStringFlags, tabCount, tabSize, ToString(bindInfoCount, toStringFlags, tabCount, tabSize));
@@ -4312,7 +4443,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceGroupPeerMemoryFeatures(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceGroupPeerMemoryFeatures\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "heapIndex", toStringFlags, tabCount, tabSize, ToString(heapIndex, toStringFlags, tabCount, tabSize));
@@ -4343,7 +4475,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDeviceMask(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDeviceMask\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(deviceMask, toStringFlags, tabCount, tabSize));
@@ -4376,7 +4509,8 @@ void VulkanAsciiConsumer::Process_vkCmdDispatchBase(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDispatchBase\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "baseGroupX", toStringFlags, tabCount, tabSize, ToString(baseGroupX, toStringFlags, tabCount, tabSize));
@@ -4412,7 +4546,8 @@ void VulkanAsciiConsumer::Process_vkEnumeratePhysicalDeviceGroups(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkEnumeratePhysicalDeviceGroups\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "[out]pPhysicalDeviceGroupCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPhysicalDeviceGroupCount, toStringFlags, tabCount, tabSize));
@@ -4442,7 +4577,8 @@ void VulkanAsciiConsumer::Process_vkGetImageMemoryRequirements2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageMemoryRequirements2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -4472,7 +4608,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferMemoryRequirements2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferMemoryRequirements2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -4503,7 +4640,8 @@ void VulkanAsciiConsumer::Process_vkGetImageSparseMemoryRequirements2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageSparseMemoryRequirements2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -4533,7 +4671,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFeatures2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceFeatures2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pFeatures", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFeatures, toStringFlags, tabCount, tabSize));
@@ -4561,7 +4700,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceProperties2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceProperties2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pProperties", toStringFlags, tabCount, tabSize, PointerDecoderToString(pProperties, toStringFlags, tabCount, tabSize));
@@ -4590,7 +4730,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceFormatProperties2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(format, toStringFlags, tabCount, tabSize) + '"');
@@ -4622,7 +4763,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceImageFormatProperties2\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pImageFormatInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pImageFormatInfo, toStringFlags, tabCount, tabSize));
@@ -4652,7 +4794,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceQueueFamilyProperties2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pQueueFamilyPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pQueueFamilyPropertyCount, toStringFlags, tabCount, tabSize));
@@ -4681,7 +4824,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceMemoryProperties2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pMemoryProperties", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMemoryProperties, toStringFlags, tabCount, tabSize));
@@ -4711,7 +4855,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSparseImageFormatProperties2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pFormatInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFormatInfo, toStringFlags, tabCount, tabSize));
@@ -4742,7 +4887,8 @@ void VulkanAsciiConsumer::Process_vkTrimCommandPool(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkTrimCommandPool\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, HandleIdToString(commandPool));
@@ -4772,7 +4918,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceQueue2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceQueue2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pQueueInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pQueueInfo, toStringFlags, tabCount, tabSize));
@@ -4805,7 +4952,8 @@ void VulkanAsciiConsumer::Process_vkCreateSamplerYcbcrConversion(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateSamplerYcbcrConversion\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -4836,7 +4984,8 @@ void VulkanAsciiConsumer::Process_vkDestroySamplerYcbcrConversion(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroySamplerYcbcrConversion\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "ycbcrConversion", toStringFlags, tabCount, tabSize, HandleIdToString(ycbcrConversion));
@@ -4869,7 +5018,8 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorUpdateTemplate(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDescriptorUpdateTemplate\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -4900,7 +5050,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDescriptorUpdateTemplate(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDescriptorUpdateTemplate\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
@@ -4930,7 +5081,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceExternalBufferProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pExternalBufferInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExternalBufferInfo, toStringFlags, tabCount, tabSize));
@@ -4960,7 +5112,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalFenceProperties(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceExternalFenceProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pExternalFenceInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExternalFenceInfo, toStringFlags, tabCount, tabSize));
@@ -4990,7 +5143,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceExternalSemaphoreProperties\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pExternalSemaphoreInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExternalSemaphoreInfo, toStringFlags, tabCount, tabSize));
@@ -5020,7 +5174,8 @@ void VulkanAsciiConsumer::Process_vkGetDescriptorSetLayoutSupport(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDescriptorSetLayoutSupport\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -5054,7 +5209,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndirectCount(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndirectCount\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -5092,7 +5248,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndexedIndirectCount(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndexedIndirectCount\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -5129,7 +5286,8 @@ void VulkanAsciiConsumer::Process_vkCreateRenderPass2(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateRenderPass2\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -5160,7 +5318,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginRenderPass2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginRenderPass2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pRenderPassBegin", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRenderPassBegin, toStringFlags, tabCount, tabSize));
@@ -5190,7 +5349,8 @@ void VulkanAsciiConsumer::Process_vkCmdNextSubpass2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdNextSubpass2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pSubpassBeginInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSubpassBeginInfo, toStringFlags, tabCount, tabSize));
@@ -5219,7 +5379,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndRenderPass2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndRenderPass2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pSubpassEndInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSubpassEndInfo, toStringFlags, tabCount, tabSize));
@@ -5249,7 +5410,8 @@ void VulkanAsciiConsumer::Process_vkResetQueryPool(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkResetQueryPool\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -5282,7 +5444,8 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreCounterValue(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSemaphoreCounterValue\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(semaphore));
@@ -5314,7 +5477,8 @@ void VulkanAsciiConsumer::Process_vkWaitSemaphores(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkWaitSemaphores\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pWaitInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pWaitInfo, toStringFlags, tabCount, tabSize));
@@ -5345,7 +5509,8 @@ void VulkanAsciiConsumer::Process_vkSignalSemaphore(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSignalSemaphore\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pSignalInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSignalInfo, toStringFlags, tabCount, tabSize));
@@ -5375,7 +5540,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddress(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferDeviceAddress\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -5405,7 +5571,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferOpaqueCaptureAddress(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferOpaqueCaptureAddress\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -5435,7 +5602,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddress(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceMemoryOpaqueCaptureAddress\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -5466,7 +5634,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceToolProperties(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceToolProperties\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pToolCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pToolCount, toStringFlags, tabCount, tabSize));
@@ -5499,7 +5668,8 @@ void VulkanAsciiConsumer::Process_vkCreatePrivateDataSlot(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreatePrivateDataSlot\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -5530,7 +5700,8 @@ void VulkanAsciiConsumer::Process_vkDestroyPrivateDataSlot(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyPrivateDataSlot\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "privateDataSlot", toStringFlags, tabCount, tabSize, HandleIdToString(privateDataSlot));
@@ -5564,7 +5735,8 @@ void VulkanAsciiConsumer::Process_vkSetPrivateData(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetPrivateData\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(objectType, toStringFlags, tabCount, tabSize) + '"');
@@ -5598,7 +5770,8 @@ void VulkanAsciiConsumer::Process_vkGetPrivateData(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPrivateData\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(objectType, toStringFlags, tabCount, tabSize) + '"');
@@ -5630,7 +5803,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetEvent2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetEvent2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -5660,7 +5834,8 @@ void VulkanAsciiConsumer::Process_vkCmdResetEvent2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdResetEvent2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -5691,7 +5866,8 @@ void VulkanAsciiConsumer::Process_vkCmdWaitEvents2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWaitEvents2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "eventCount", toStringFlags, tabCount, tabSize, ToString(eventCount, toStringFlags, tabCount, tabSize));
@@ -5721,7 +5897,8 @@ void VulkanAsciiConsumer::Process_vkCmdPipelineBarrier2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdPipelineBarrier2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pDependencyInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pDependencyInfo, toStringFlags, tabCount, tabSize));
@@ -5751,7 +5928,8 @@ void VulkanAsciiConsumer::Process_vkCmdWriteTimestamp2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWriteTimestamp2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(stage, toStringFlags, tabCount, tabSize));
@@ -5785,7 +5963,8 @@ void VulkanAsciiConsumer::Process_vkQueueSubmit2(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueSubmit2\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "submitCount", toStringFlags, tabCount, tabSize, ToString(submitCount, toStringFlags, tabCount, tabSize));
@@ -5815,7 +5994,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyBuffer2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyBuffer2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyBufferInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyBufferInfo, toStringFlags, tabCount, tabSize));
@@ -5843,7 +6023,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyImage2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyImage2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyImageInfo, toStringFlags, tabCount, tabSize));
@@ -5871,7 +6052,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyBufferToImage2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyBufferToImage2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyBufferToImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyBufferToImageInfo, toStringFlags, tabCount, tabSize));
@@ -5899,7 +6081,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyImageToBuffer2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyImageToBuffer2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyImageToBufferInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyImageToBufferInfo, toStringFlags, tabCount, tabSize));
@@ -5927,7 +6110,8 @@ void VulkanAsciiConsumer::Process_vkCmdBlitImage2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBlitImage2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pBlitImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBlitImageInfo, toStringFlags, tabCount, tabSize));
@@ -5955,7 +6139,8 @@ void VulkanAsciiConsumer::Process_vkCmdResolveImage2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdResolveImage2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pResolveImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pResolveImageInfo, toStringFlags, tabCount, tabSize));
@@ -5983,7 +6168,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginRendering(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginRendering\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pRenderingInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRenderingInfo, toStringFlags, tabCount, tabSize));
@@ -6010,7 +6196,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndRendering(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndRendering\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             tabCount -= 1;
@@ -6037,7 +6224,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetCullMode(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetCullMode\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "cullMode", toStringFlags, tabCount, tabSize, ToString(cullMode, toStringFlags, tabCount, tabSize));
@@ -6065,7 +6253,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetFrontFace(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetFrontFace\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "frontFace", toStringFlags, tabCount, tabSize, '"' + ToString(frontFace, toStringFlags, tabCount, tabSize) + '"');
@@ -6093,7 +6282,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPrimitiveTopology(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPrimitiveTopology\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "primitiveTopology", toStringFlags, tabCount, tabSize, '"' + ToString(primitiveTopology, toStringFlags, tabCount, tabSize) + '"');
@@ -6122,7 +6312,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetViewportWithCount(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetViewportWithCount\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "viewportCount", toStringFlags, tabCount, tabSize, ToString(viewportCount, toStringFlags, tabCount, tabSize));
@@ -6152,7 +6343,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetScissorWithCount(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetScissorWithCount\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "scissorCount", toStringFlags, tabCount, tabSize, ToString(scissorCount, toStringFlags, tabCount, tabSize));
@@ -6186,7 +6378,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindVertexBuffers2(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindVertexBuffers2\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstBinding", toStringFlags, tabCount, tabSize, ToString(firstBinding, toStringFlags, tabCount, tabSize));
@@ -6219,7 +6412,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthTestEnable(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthTestEnable\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthTestEnable", toStringFlags, tabCount, tabSize, ToString(depthTestEnable, toStringFlags, tabCount, tabSize));
@@ -6247,7 +6441,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthWriteEnable(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthWriteEnable\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthWriteEnable", toStringFlags, tabCount, tabSize, ToString(depthWriteEnable, toStringFlags, tabCount, tabSize));
@@ -6275,7 +6470,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthCompareOp(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthCompareOp\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthCompareOp", toStringFlags, tabCount, tabSize, '"' + ToString(depthCompareOp, toStringFlags, tabCount, tabSize) + '"');
@@ -6303,7 +6499,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthBoundsTestEnable(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthBoundsTestEnable\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthBoundsTestEnable", toStringFlags, tabCount, tabSize, ToString(depthBoundsTestEnable, toStringFlags, tabCount, tabSize));
@@ -6331,7 +6528,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilTestEnable(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetStencilTestEnable\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "stencilTestEnable", toStringFlags, tabCount, tabSize, ToString(stencilTestEnable, toStringFlags, tabCount, tabSize));
@@ -6363,7 +6561,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilOp(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetStencilOp\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "faceMask", toStringFlags, tabCount, tabSize, ToString(faceMask, toStringFlags, tabCount, tabSize));
@@ -6395,7 +6594,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetRasterizerDiscardEnable(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetRasterizerDiscardEnable\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "rasterizerDiscardEnable", toStringFlags, tabCount, tabSize, ToString(rasterizerDiscardEnable, toStringFlags, tabCount, tabSize));
@@ -6423,7 +6623,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthBiasEnable(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthBiasEnable\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthBiasEnable", toStringFlags, tabCount, tabSize, ToString(depthBiasEnable, toStringFlags, tabCount, tabSize));
@@ -6451,7 +6652,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPrimitiveRestartEnable(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPrimitiveRestartEnable\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "primitiveRestartEnable", toStringFlags, tabCount, tabSize, ToString(primitiveRestartEnable, toStringFlags, tabCount, tabSize));
@@ -6480,7 +6682,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceBufferMemoryRequirements(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceBufferMemoryRequirements\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -6510,7 +6713,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceImageMemoryRequirements(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceImageMemoryRequirements\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -6541,7 +6745,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceImageSparseMemoryRequirements(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceImageSparseMemoryRequirements\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -6572,7 +6777,8 @@ void VulkanAsciiConsumer::Process_vkDestroySurfaceKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroySurfaceKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(surface));
@@ -6605,7 +6811,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfaceSupportKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -6638,7 +6845,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfaceCapabilitiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(surface));
@@ -6671,7 +6879,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceFormatsKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfaceFormatsKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(surface));
@@ -6705,7 +6914,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfacePresentModesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfacePresentModesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(surface));
@@ -6739,7 +6949,8 @@ void VulkanAsciiConsumer::Process_vkCreateSwapchainKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateSwapchainKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -6770,7 +6981,8 @@ void VulkanAsciiConsumer::Process_vkDestroySwapchainKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroySwapchainKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -6803,7 +7015,8 @@ void VulkanAsciiConsumer::Process_vkGetSwapchainImagesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSwapchainImagesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -6839,7 +7052,8 @@ void VulkanAsciiConsumer::Process_vkAcquireNextImageKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquireNextImageKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -6873,7 +7087,8 @@ void VulkanAsciiConsumer::Process_vkQueuePresentKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueuePresentKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "pPresentInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPresentInfo, toStringFlags, tabCount, tabSize));
@@ -6903,7 +7118,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceGroupPresentCapabilitiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceGroupPresentCapabilitiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "[out]pDeviceGroupPresentCapabilities", toStringFlags, tabCount, tabSize, PointerDecoderToString(pDeviceGroupPresentCapabilities, toStringFlags, tabCount, tabSize));
@@ -6934,7 +7150,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceGroupSurfacePresentModesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceGroupSurfacePresentModesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(surface));
@@ -6967,7 +7184,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDevicePresentRectanglesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDevicePresentRectanglesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(surface));
@@ -7000,7 +7218,8 @@ void VulkanAsciiConsumer::Process_vkAcquireNextImage2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquireNextImage2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pAcquireInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAcquireInfo, toStringFlags, tabCount, tabSize));
@@ -7032,7 +7251,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceDisplayPropertiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPropertyCount, toStringFlags, tabCount, tabSize));
@@ -7064,7 +7284,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceDisplayPlanePropertiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPropertyCount, toStringFlags, tabCount, tabSize));
@@ -7097,7 +7318,8 @@ void VulkanAsciiConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDisplayPlaneSupportedDisplaysKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "planeIndex", toStringFlags, tabCount, tabSize, ToString(planeIndex, toStringFlags, tabCount, tabSize));
@@ -7131,7 +7353,8 @@ void VulkanAsciiConsumer::Process_vkGetDisplayModePropertiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDisplayModePropertiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, HandleIdToString(display));
@@ -7166,7 +7389,8 @@ void VulkanAsciiConsumer::Process_vkCreateDisplayModeKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDisplayModeKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, HandleIdToString(display));
@@ -7201,7 +7425,8 @@ void VulkanAsciiConsumer::Process_vkGetDisplayPlaneCapabilitiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDisplayPlaneCapabilitiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, HandleIdToString(mode));
@@ -7235,7 +7460,8 @@ void VulkanAsciiConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDisplayPlaneSurfaceKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -7270,7 +7496,8 @@ void VulkanAsciiConsumer::Process_vkCreateSharedSwapchainsKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateSharedSwapchainsKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(swapchainCount, toStringFlags, tabCount, tabSize));
@@ -7305,7 +7532,8 @@ void VulkanAsciiConsumer::Process_vkCreateXlibSurfaceKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateXlibSurfaceKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -7339,7 +7567,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceXlibPresentationSupportKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -7373,7 +7602,8 @@ void VulkanAsciiConsumer::Process_vkCreateXcbSurfaceKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateXcbSurfaceKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -7407,7 +7637,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceXcbPresentationSupportKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -7441,7 +7672,8 @@ void VulkanAsciiConsumer::Process_vkCreateWaylandSurfaceKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateWaylandSurfaceKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -7474,7 +7706,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupportK
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceWaylandPresentationSupportKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -7507,7 +7740,8 @@ void VulkanAsciiConsumer::Process_vkCreateAndroidSurfaceKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateAndroidSurfaceKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -7541,7 +7775,8 @@ void VulkanAsciiConsumer::Process_vkCreateWin32SurfaceKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateWin32SurfaceKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -7573,7 +7808,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKHR
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceWin32PresentationSupportKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -7601,7 +7837,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginRenderingKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginRenderingKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pRenderingInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRenderingInfo, toStringFlags, tabCount, tabSize));
@@ -7628,7 +7865,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndRenderingKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndRenderingKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             tabCount -= 1;
@@ -7655,7 +7893,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceFeatures2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pFeatures", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFeatures, toStringFlags, tabCount, tabSize));
@@ -7683,7 +7922,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceProperties2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pProperties", toStringFlags, tabCount, tabSize, PointerDecoderToString(pProperties, toStringFlags, tabCount, tabSize));
@@ -7712,7 +7952,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceFormatProperties2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(format, toStringFlags, tabCount, tabSize) + '"');
@@ -7744,7 +7985,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceImageFormatProperties2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pImageFormatInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pImageFormatInfo, toStringFlags, tabCount, tabSize));
@@ -7774,7 +8016,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceQueueFamilyProperties2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pQueueFamilyPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pQueueFamilyPropertyCount, toStringFlags, tabCount, tabSize));
@@ -7803,7 +8046,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceMemoryProperties2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pMemoryProperties", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMemoryProperties, toStringFlags, tabCount, tabSize));
@@ -7833,7 +8077,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSparseImageFormatProperties2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pFormatInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFormatInfo, toStringFlags, tabCount, tabSize));
@@ -7866,7 +8111,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceGroupPeerMemoryFeaturesKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "heapIndex", toStringFlags, tabCount, tabSize, ToString(heapIndex, toStringFlags, tabCount, tabSize));
@@ -7897,7 +8143,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDeviceMaskKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDeviceMaskKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(deviceMask, toStringFlags, tabCount, tabSize));
@@ -7930,7 +8177,8 @@ void VulkanAsciiConsumer::Process_vkCmdDispatchBaseKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDispatchBaseKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "baseGroupX", toStringFlags, tabCount, tabSize, ToString(baseGroupX, toStringFlags, tabCount, tabSize));
@@ -7964,7 +8212,8 @@ void VulkanAsciiConsumer::Process_vkTrimCommandPoolKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkTrimCommandPoolKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, HandleIdToString(commandPool));
@@ -7996,7 +8245,8 @@ void VulkanAsciiConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkEnumeratePhysicalDeviceGroupsKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "[out]pPhysicalDeviceGroupCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPhysicalDeviceGroupCount, toStringFlags, tabCount, tabSize));
@@ -8026,7 +8276,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceExternalBufferPropertiesKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pExternalBufferInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExternalBufferInfo, toStringFlags, tabCount, tabSize));
@@ -8058,7 +8309,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandleKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryWin32HandleKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetWin32HandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetWin32HandleInfo, toStringFlags, tabCount, tabSize));
@@ -8091,7 +8343,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryWin32HandlePropertiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(handleType, toStringFlags, tabCount, tabSize) + '"');
@@ -8124,7 +8377,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryFdKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryFdKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetFdInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetFdInfo, toStringFlags, tabCount, tabSize));
@@ -8157,7 +8411,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryFdPropertiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryFdPropertiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(handleType, toStringFlags, tabCount, tabSize) + '"');
@@ -8188,7 +8443,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceExternalSemaphorePropertiesKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pExternalSemaphoreInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExternalSemaphoreInfo, toStringFlags, tabCount, tabSize));
@@ -8219,7 +8475,8 @@ void VulkanAsciiConsumer::Process_vkImportSemaphoreWin32HandleKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkImportSemaphoreWin32HandleKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pImportSemaphoreWin32HandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pImportSemaphoreWin32HandleInfo, toStringFlags, tabCount, tabSize));
@@ -8250,7 +8507,8 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreWin32HandleKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSemaphoreWin32HandleKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetWin32HandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetWin32HandleInfo, toStringFlags, tabCount, tabSize));
@@ -8281,7 +8539,8 @@ void VulkanAsciiConsumer::Process_vkImportSemaphoreFdKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkImportSemaphoreFdKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pImportSemaphoreFdInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pImportSemaphoreFdInfo, toStringFlags, tabCount, tabSize));
@@ -8312,7 +8571,8 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreFdKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSemaphoreFdKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetFdInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetFdInfo, toStringFlags, tabCount, tabSize));
@@ -8345,7 +8605,8 @@ void VulkanAsciiConsumer::Process_vkCmdPushDescriptorSetKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdPushDescriptorSetKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
@@ -8381,7 +8642,8 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDescriptorUpdateTemplateKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -8412,7 +8674,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDescriptorUpdateTemplateKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorUpdateTemplate", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorUpdateTemplate));
@@ -8445,7 +8708,8 @@ void VulkanAsciiConsumer::Process_vkCreateRenderPass2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateRenderPass2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -8476,7 +8740,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginRenderPass2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginRenderPass2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pRenderPassBegin", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRenderPassBegin, toStringFlags, tabCount, tabSize));
@@ -8506,7 +8771,8 @@ void VulkanAsciiConsumer::Process_vkCmdNextSubpass2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdNextSubpass2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pSubpassBeginInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSubpassBeginInfo, toStringFlags, tabCount, tabSize));
@@ -8535,7 +8801,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndRenderPass2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndRenderPass2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pSubpassEndInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSubpassEndInfo, toStringFlags, tabCount, tabSize));
@@ -8565,7 +8832,8 @@ void VulkanAsciiConsumer::Process_vkGetSwapchainStatusKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSwapchainStatusKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -8594,7 +8862,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceExternalFencePropertiesKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pExternalFenceInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExternalFenceInfo, toStringFlags, tabCount, tabSize));
@@ -8625,7 +8894,8 @@ void VulkanAsciiConsumer::Process_vkImportFenceWin32HandleKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkImportFenceWin32HandleKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pImportFenceWin32HandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pImportFenceWin32HandleInfo, toStringFlags, tabCount, tabSize));
@@ -8656,7 +8926,8 @@ void VulkanAsciiConsumer::Process_vkGetFenceWin32HandleKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetFenceWin32HandleKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetWin32HandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetWin32HandleInfo, toStringFlags, tabCount, tabSize));
@@ -8687,7 +8958,8 @@ void VulkanAsciiConsumer::Process_vkImportFenceFdKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkImportFenceFdKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pImportFenceFdInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pImportFenceFdInfo, toStringFlags, tabCount, tabSize));
@@ -8718,7 +8990,8 @@ void VulkanAsciiConsumer::Process_vkGetFenceFdKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetFenceFdKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetFdInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetFdInfo, toStringFlags, tabCount, tabSize));
@@ -8752,7 +9025,8 @@ void VulkanAsciiConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanc
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -8784,7 +9058,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformanceQuery
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pPerformanceQueryCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPerformanceQueryCreateInfo, toStringFlags, tabCount, tabSize));
@@ -8815,7 +9090,8 @@ void VulkanAsciiConsumer::Process_vkAcquireProfilingLockKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquireProfilingLockKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -8842,7 +9118,8 @@ void VulkanAsciiConsumer::Process_vkReleaseProfilingLockKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkReleaseProfilingLockKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             tabCount -= 1;
@@ -8872,7 +9149,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfaceCapabilities2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pSurfaceInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSurfaceInfo, toStringFlags, tabCount, tabSize));
@@ -8905,7 +9183,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfaceFormats2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pSurfaceInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSurfaceInfo, toStringFlags, tabCount, tabSize));
@@ -8938,7 +9217,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceDisplayProperties2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPropertyCount, toStringFlags, tabCount, tabSize));
@@ -8970,7 +9250,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceDisplayPlaneProperties2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPropertyCount, toStringFlags, tabCount, tabSize));
@@ -9003,7 +9284,8 @@ void VulkanAsciiConsumer::Process_vkGetDisplayModeProperties2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDisplayModeProperties2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, HandleIdToString(display));
@@ -9036,7 +9318,8 @@ void VulkanAsciiConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDisplayPlaneCapabilities2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pDisplayPlaneInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pDisplayPlaneInfo, toStringFlags, tabCount, tabSize));
@@ -9066,7 +9349,8 @@ void VulkanAsciiConsumer::Process_vkGetImageMemoryRequirements2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageMemoryRequirements2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -9096,7 +9380,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferMemoryRequirements2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferMemoryRequirements2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -9127,7 +9412,8 @@ void VulkanAsciiConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageSparseMemoryRequirements2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -9161,7 +9447,8 @@ void VulkanAsciiConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateSamplerYcbcrConversionKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -9192,7 +9479,8 @@ void VulkanAsciiConsumer::Process_vkDestroySamplerYcbcrConversionKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroySamplerYcbcrConversionKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "ycbcrConversion", toStringFlags, tabCount, tabSize, HandleIdToString(ycbcrConversion));
@@ -9224,7 +9512,8 @@ void VulkanAsciiConsumer::Process_vkBindBufferMemory2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBindBufferMemory2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "bindInfoCount", toStringFlags, tabCount, tabSize, ToString(bindInfoCount, toStringFlags, tabCount, tabSize));
@@ -9256,7 +9545,8 @@ void VulkanAsciiConsumer::Process_vkBindImageMemory2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBindImageMemory2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "bindInfoCount", toStringFlags, tabCount, tabSize, ToString(bindInfoCount, toStringFlags, tabCount, tabSize));
@@ -9286,7 +9576,8 @@ void VulkanAsciiConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDescriptorSetLayoutSupportKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -9320,7 +9611,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndirectCountKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndirectCountKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -9358,7 +9650,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndexedIndirectCountKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -9394,7 +9687,8 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreCounterValueKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSemaphoreCounterValueKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(semaphore));
@@ -9426,7 +9720,8 @@ void VulkanAsciiConsumer::Process_vkWaitSemaphoresKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkWaitSemaphoresKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pWaitInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pWaitInfo, toStringFlags, tabCount, tabSize));
@@ -9457,7 +9752,8 @@ void VulkanAsciiConsumer::Process_vkSignalSemaphoreKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSignalSemaphoreKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pSignalInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSignalInfo, toStringFlags, tabCount, tabSize));
@@ -9488,7 +9784,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceFragmentShadingRatesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pFragmentShadingRateCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFragmentShadingRateCount, toStringFlags, tabCount, tabSize));
@@ -9518,7 +9815,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetFragmentShadingRateKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetFragmentShadingRateKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pFragmentSize", toStringFlags, tabCount, tabSize, PointerDecoderToString(pFragmentSize, toStringFlags, tabCount, tabSize));
@@ -9551,7 +9849,8 @@ void VulkanAsciiConsumer::Process_vkWaitForPresentKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkWaitForPresentKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -9583,7 +9882,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddressKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferDeviceAddressKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -9613,7 +9913,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferOpaqueCaptureAddressKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferOpaqueCaptureAddressKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -9643,7 +9944,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceMemoryOpaqueCaptureAddressKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -9674,7 +9976,8 @@ void VulkanAsciiConsumer::Process_vkCreateDeferredOperationKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDeferredOperationKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
@@ -9704,7 +10007,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDeferredOperationKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDeferredOperationKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "operation", toStringFlags, tabCount, tabSize, HandleIdToString(operation));
@@ -9735,7 +10039,8 @@ void VulkanAsciiConsumer::Process_vkGetDeferredOperationMaxConcurrencyKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeferredOperationMaxConcurrencyKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "operation", toStringFlags, tabCount, tabSize, HandleIdToString(operation));
@@ -9765,7 +10070,8 @@ void VulkanAsciiConsumer::Process_vkGetDeferredOperationResultKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeferredOperationResultKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "operation", toStringFlags, tabCount, tabSize, HandleIdToString(operation));
@@ -9795,7 +10101,8 @@ void VulkanAsciiConsumer::Process_vkDeferredOperationJoinKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDeferredOperationJoinKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "operation", toStringFlags, tabCount, tabSize, HandleIdToString(operation));
@@ -9827,7 +10134,8 @@ void VulkanAsciiConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPipelineExecutablePropertiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pPipelineInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPipelineInfo, toStringFlags, tabCount, tabSize));
@@ -9861,7 +10169,8 @@ void VulkanAsciiConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPipelineExecutableStatisticsKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pExecutableInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExecutableInfo, toStringFlags, tabCount, tabSize));
@@ -9895,7 +10204,8 @@ void VulkanAsciiConsumer::Process_vkGetPipelineExecutableInternalRepresentations
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPipelineExecutableInternalRepresentationsKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pExecutableInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExecutableInfo, toStringFlags, tabCount, tabSize));
@@ -9926,7 +10236,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetEvent2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetEvent2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -9956,7 +10267,8 @@ void VulkanAsciiConsumer::Process_vkCmdResetEvent2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdResetEvent2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
@@ -9987,7 +10299,8 @@ void VulkanAsciiConsumer::Process_vkCmdWaitEvents2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWaitEvents2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "eventCount", toStringFlags, tabCount, tabSize, ToString(eventCount, toStringFlags, tabCount, tabSize));
@@ -10017,7 +10330,8 @@ void VulkanAsciiConsumer::Process_vkCmdPipelineBarrier2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdPipelineBarrier2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pDependencyInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pDependencyInfo, toStringFlags, tabCount, tabSize));
@@ -10047,7 +10361,8 @@ void VulkanAsciiConsumer::Process_vkCmdWriteTimestamp2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWriteTimestamp2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(stage, toStringFlags, tabCount, tabSize));
@@ -10081,7 +10396,8 @@ void VulkanAsciiConsumer::Process_vkQueueSubmit2KHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueSubmit2KHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "submitCount", toStringFlags, tabCount, tabSize, ToString(submitCount, toStringFlags, tabCount, tabSize));
@@ -10114,7 +10430,8 @@ void VulkanAsciiConsumer::Process_vkCmdWriteBufferMarker2AMD(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWriteBufferMarker2AMD\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(stage, toStringFlags, tabCount, tabSize));
@@ -10146,7 +10463,8 @@ void VulkanAsciiConsumer::Process_vkGetQueueCheckpointData2NV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetQueueCheckpointData2NV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "[out]pCheckpointDataCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCheckpointDataCount, toStringFlags, tabCount, tabSize));
@@ -10175,7 +10493,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyBuffer2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyBuffer2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyBufferInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyBufferInfo, toStringFlags, tabCount, tabSize));
@@ -10203,7 +10522,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyImage2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyImage2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyImageInfo, toStringFlags, tabCount, tabSize));
@@ -10231,7 +10551,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyBufferToImage2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyBufferToImage2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyBufferToImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyBufferToImageInfo, toStringFlags, tabCount, tabSize));
@@ -10259,7 +10580,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyImageToBuffer2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyImageToBuffer2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCopyImageToBufferInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCopyImageToBufferInfo, toStringFlags, tabCount, tabSize));
@@ -10287,7 +10609,8 @@ void VulkanAsciiConsumer::Process_vkCmdBlitImage2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBlitImage2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pBlitImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBlitImageInfo, toStringFlags, tabCount, tabSize));
@@ -10315,7 +10638,8 @@ void VulkanAsciiConsumer::Process_vkCmdResolveImage2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdResolveImage2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pResolveImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pResolveImageInfo, toStringFlags, tabCount, tabSize));
@@ -10343,7 +10667,8 @@ void VulkanAsciiConsumer::Process_vkCmdTraceRaysIndirect2KHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdTraceRaysIndirect2KHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "indirectDeviceAddress", toStringFlags, tabCount, tabSize, ToString(indirectDeviceAddress, toStringFlags, tabCount, tabSize));
@@ -10372,7 +10697,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceBufferMemoryRequirementsKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -10402,7 +10728,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceImageMemoryRequirementsKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -10433,7 +10760,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceImageSparseMemoryRequirementsKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -10467,7 +10795,8 @@ void VulkanAsciiConsumer::Process_vkCreateDebugReportCallbackEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDebugReportCallbackEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -10498,7 +10827,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDebugReportCallbackEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDebugReportCallbackEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "callback", toStringFlags, tabCount, tabSize, HandleIdToString(callback));
@@ -10533,7 +10863,8 @@ void VulkanAsciiConsumer::Process_vkDebugReportMessageEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDebugReportMessageEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(flags, toStringFlags, tabCount, tabSize));
@@ -10569,7 +10900,8 @@ void VulkanAsciiConsumer::Process_vkDebugMarkerSetObjectTagEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDebugMarkerSetObjectTagEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pTagInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pTagInfo, toStringFlags, tabCount, tabSize));
@@ -10599,7 +10931,8 @@ void VulkanAsciiConsumer::Process_vkDebugMarkerSetObjectNameEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDebugMarkerSetObjectNameEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pNameInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pNameInfo, toStringFlags, tabCount, tabSize));
@@ -10627,7 +10960,8 @@ void VulkanAsciiConsumer::Process_vkCmdDebugMarkerBeginEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDebugMarkerBeginEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pMarkerInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMarkerInfo, toStringFlags, tabCount, tabSize));
@@ -10654,7 +10988,8 @@ void VulkanAsciiConsumer::Process_vkCmdDebugMarkerEndEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDebugMarkerEndEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             tabCount -= 1;
@@ -10681,7 +11016,8 @@ void VulkanAsciiConsumer::Process_vkCmdDebugMarkerInsertEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDebugMarkerInsertEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pMarkerInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMarkerInfo, toStringFlags, tabCount, tabSize));
@@ -10713,7 +11049,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindTransformFeedbackBuffersEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstBinding", toStringFlags, tabCount, tabSize, ToString(firstBinding, toStringFlags, tabCount, tabSize));
@@ -10748,7 +11085,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginTransformFeedbackEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginTransformFeedbackEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstCounterBuffer", toStringFlags, tabCount, tabSize, ToString(firstCounterBuffer, toStringFlags, tabCount, tabSize));
@@ -10782,7 +11120,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndTransformFeedbackEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndTransformFeedbackEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstCounterBuffer", toStringFlags, tabCount, tabSize, ToString(firstCounterBuffer, toStringFlags, tabCount, tabSize));
@@ -10816,7 +11155,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginQueryIndexedEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginQueryIndexedEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -10849,7 +11189,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndQueryIndexedEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndQueryIndexedEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -10884,7 +11225,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndirectByteCountEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndirectByteCountEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "instanceCount", toStringFlags, tabCount, tabSize, ToString(instanceCount, toStringFlags, tabCount, tabSize));
@@ -10919,7 +11261,8 @@ void VulkanAsciiConsumer::Process_vkGetImageViewHandleNVX(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageViewHandleNVX\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -10950,7 +11293,8 @@ void VulkanAsciiConsumer::Process_vkGetImageViewAddressNVX(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageViewAddressNVX\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(imageView));
@@ -10984,7 +11328,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndirectCountAMD(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndirectCountAMD\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -11022,7 +11367,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawIndexedIndirectCountAMD\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -11061,7 +11407,8 @@ void VulkanAsciiConsumer::Process_vkGetShaderInfoAMD(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetShaderInfoAMD\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(pipeline));
@@ -11097,7 +11444,8 @@ void VulkanAsciiConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateStreamDescriptorSurfaceGGP\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -11135,7 +11483,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalImageFormatProperti
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceExternalImageFormatPropertiesNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(format, toStringFlags, tabCount, tabSize) + '"');
@@ -11173,7 +11522,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandleNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryWin32HandleNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(memory));
@@ -11207,7 +11557,8 @@ void VulkanAsciiConsumer::Process_vkCreateViSurfaceNN(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateViSurfaceNN\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -11237,7 +11588,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginConditionalRenderingEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginConditionalRenderingEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pConditionalRenderingBegin", toStringFlags, tabCount, tabSize, PointerDecoderToString(pConditionalRenderingBegin, toStringFlags, tabCount, tabSize));
@@ -11264,7 +11616,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndConditionalRenderingEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndConditionalRenderingEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             tabCount -= 1;
@@ -11293,7 +11646,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetViewportWScalingNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetViewportWScalingNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstViewport", toStringFlags, tabCount, tabSize, ToString(firstViewport, toStringFlags, tabCount, tabSize));
@@ -11325,7 +11679,8 @@ void VulkanAsciiConsumer::Process_vkReleaseDisplayEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkReleaseDisplayEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, HandleIdToString(display));
@@ -11356,7 +11711,8 @@ void VulkanAsciiConsumer::Process_vkAcquireXlibDisplayEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquireXlibDisplayEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "dpy", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(dpy));
@@ -11389,7 +11745,8 @@ void VulkanAsciiConsumer::Process_vkGetRandROutputDisplayEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetRandROutputDisplayEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "dpy", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(dpy));
@@ -11422,7 +11779,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfaceCapabilities2EXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(surface));
@@ -11454,7 +11812,8 @@ void VulkanAsciiConsumer::Process_vkDisplayPowerControlEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDisplayPowerControlEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, HandleIdToString(display));
@@ -11487,7 +11846,8 @@ void VulkanAsciiConsumer::Process_vkRegisterDeviceEventEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkRegisterDeviceEventEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pDeviceEventInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pDeviceEventInfo, toStringFlags, tabCount, tabSize));
@@ -11522,7 +11882,8 @@ void VulkanAsciiConsumer::Process_vkRegisterDisplayEventEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkRegisterDisplayEventEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, HandleIdToString(display));
@@ -11557,7 +11918,8 @@ void VulkanAsciiConsumer::Process_vkGetSwapchainCounterEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSwapchainCounterEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -11590,7 +11952,8 @@ void VulkanAsciiConsumer::Process_vkGetRefreshCycleDurationGOOGLE(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetRefreshCycleDurationGOOGLE\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -11623,7 +11986,8 @@ void VulkanAsciiConsumer::Process_vkGetPastPresentationTimingGOOGLE(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPastPresentationTimingGOOGLE\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -11655,7 +12019,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDiscardRectangleEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDiscardRectangleEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstDiscardRectangle", toStringFlags, tabCount, tabSize, ToString(firstDiscardRectangle, toStringFlags, tabCount, tabSize));
@@ -11687,7 +12052,8 @@ void VulkanAsciiConsumer::Process_vkSetHdrMetadataEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetHdrMetadataEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(swapchainCount, toStringFlags, tabCount, tabSize));
@@ -11721,7 +12087,8 @@ void VulkanAsciiConsumer::Process_vkCreateIOSSurfaceMVK(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateIOSSurfaceMVK\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -11755,7 +12122,8 @@ void VulkanAsciiConsumer::Process_vkCreateMacOSSurfaceMVK(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateMacOSSurfaceMVK\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -11787,7 +12155,8 @@ void VulkanAsciiConsumer::Process_vkSetDebugUtilsObjectNameEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetDebugUtilsObjectNameEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pNameInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pNameInfo, toStringFlags, tabCount, tabSize));
@@ -11817,7 +12186,8 @@ void VulkanAsciiConsumer::Process_vkSetDebugUtilsObjectTagEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetDebugUtilsObjectTagEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pTagInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pTagInfo, toStringFlags, tabCount, tabSize));
@@ -11845,7 +12215,8 @@ void VulkanAsciiConsumer::Process_vkQueueBeginDebugUtilsLabelEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueBeginDebugUtilsLabelEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "pLabelInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pLabelInfo, toStringFlags, tabCount, tabSize));
@@ -11872,7 +12243,8 @@ void VulkanAsciiConsumer::Process_vkQueueEndDebugUtilsLabelEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueEndDebugUtilsLabelEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             tabCount -= 1;
@@ -11899,7 +12271,8 @@ void VulkanAsciiConsumer::Process_vkQueueInsertDebugUtilsLabelEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueInsertDebugUtilsLabelEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "pLabelInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pLabelInfo, toStringFlags, tabCount, tabSize));
@@ -11927,7 +12300,8 @@ void VulkanAsciiConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBeginDebugUtilsLabelEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pLabelInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pLabelInfo, toStringFlags, tabCount, tabSize));
@@ -11954,7 +12328,8 @@ void VulkanAsciiConsumer::Process_vkCmdEndDebugUtilsLabelEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdEndDebugUtilsLabelEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             tabCount -= 1;
@@ -11981,7 +12356,8 @@ void VulkanAsciiConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdInsertDebugUtilsLabelEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pLabelInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pLabelInfo, toStringFlags, tabCount, tabSize));
@@ -12013,7 +12389,8 @@ void VulkanAsciiConsumer::Process_vkCreateDebugUtilsMessengerEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDebugUtilsMessengerEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -12044,7 +12421,8 @@ void VulkanAsciiConsumer::Process_vkDestroyDebugUtilsMessengerEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyDebugUtilsMessengerEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "messenger", toStringFlags, tabCount, tabSize, HandleIdToString(messenger));
@@ -12075,7 +12453,8 @@ void VulkanAsciiConsumer::Process_vkSubmitDebugUtilsMessageEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSubmitDebugUtilsMessageEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "messageSeverity", toStringFlags, tabCount, tabSize, '"' + ToString(messageSeverity, toStringFlags, tabCount, tabSize) + '"');
@@ -12108,7 +12487,8 @@ void VulkanAsciiConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetAndroidHardwareBufferPropertiesANDROID\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(buffer));
@@ -12140,7 +12520,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryAndroidHardwareBufferANDROID\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -12169,7 +12550,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetSampleLocationsEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetSampleLocationsEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pSampleLocationsInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSampleLocationsInfo, toStringFlags, tabCount, tabSize));
@@ -12198,7 +12580,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceMultisamplePropertiesEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceMultisamplePropertiesEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, '"' + ToString(samples, toStringFlags, tabCount, tabSize) + '"');
@@ -12230,7 +12613,8 @@ void VulkanAsciiConsumer::Process_vkGetImageDrmFormatModifierPropertiesEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageDrmFormatModifierPropertiesEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -12263,7 +12647,8 @@ void VulkanAsciiConsumer::Process_vkCreateValidationCacheEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateValidationCacheEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -12294,7 +12679,8 @@ void VulkanAsciiConsumer::Process_vkDestroyValidationCacheEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyValidationCacheEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "validationCache", toStringFlags, tabCount, tabSize, HandleIdToString(validationCache));
@@ -12327,7 +12713,8 @@ void VulkanAsciiConsumer::Process_vkMergeValidationCachesEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkMergeValidationCachesEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "dstCache", toStringFlags, tabCount, tabSize, HandleIdToString(dstCache));
@@ -12361,7 +12748,8 @@ void VulkanAsciiConsumer::Process_vkGetValidationCacheDataEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetValidationCacheDataEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "validationCache", toStringFlags, tabCount, tabSize, HandleIdToString(validationCache));
@@ -12392,7 +12780,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindShadingRateImageNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindShadingRateImageNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(imageView));
@@ -12423,7 +12812,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetViewportShadingRatePaletteNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstViewport", toStringFlags, tabCount, tabSize, ToString(firstViewport, toStringFlags, tabCount, tabSize));
@@ -12455,7 +12845,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetCoarseSampleOrderNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetCoarseSampleOrderNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "sampleOrderType", toStringFlags, tabCount, tabSize, '"' + ToString(sampleOrderType, toStringFlags, tabCount, tabSize) + '"');
@@ -12489,7 +12880,8 @@ void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateAccelerationStructureNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -12520,7 +12912,8 @@ void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyAccelerationStructureNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, HandleIdToString(accelerationStructure));
@@ -12550,7 +12943,8 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetAccelerationStructureMemoryRequirementsNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -12582,7 +12976,8 @@ void VulkanAsciiConsumer::Process_vkBindAccelerationStructureMemoryNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkBindAccelerationStructureMemoryNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "bindInfoCount", toStringFlags, tabCount, tabSize, ToString(bindInfoCount, toStringFlags, tabCount, tabSize));
@@ -12618,7 +13013,8 @@ void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructureNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBuildAccelerationStructureNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -12655,7 +13051,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyAccelerationStructureNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyAccelerationStructureNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, HandleIdToString(dst));
@@ -12698,7 +13095,8 @@ void VulkanAsciiConsumer::Process_vkCmdTraceRaysNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdTraceRaysNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "raygenShaderBindingTableBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(raygenShaderBindingTableBuffer));
@@ -12745,7 +13143,8 @@ void VulkanAsciiConsumer::Process_vkCreateRayTracingPipelinesNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateRayTracingPipelinesNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipelineCache", toStringFlags, tabCount, tabSize, HandleIdToString(pipelineCache));
@@ -12783,7 +13182,8 @@ void VulkanAsciiConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetRayTracingShaderGroupHandlesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(pipeline));
@@ -12821,7 +13221,8 @@ void VulkanAsciiConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetRayTracingShaderGroupHandlesNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(pipeline));
@@ -12857,7 +13258,8 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureHandleNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetAccelerationStructureHandleNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, HandleIdToString(accelerationStructure));
@@ -12891,7 +13293,8 @@ void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWriteAccelerationStructuresPropertiesNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "accelerationStructureCount", toStringFlags, tabCount, tabSize, ToString(accelerationStructureCount, toStringFlags, tabCount, tabSize));
@@ -12926,7 +13329,8 @@ void VulkanAsciiConsumer::Process_vkCompileDeferredNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCompileDeferredNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(pipeline));
@@ -12959,7 +13363,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryHostPointerPropertiesEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(handleType, toStringFlags, tabCount, tabSize) + '"');
@@ -12992,7 +13397,8 @@ void VulkanAsciiConsumer::Process_vkCmdWriteBufferMarkerAMD(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWriteBufferMarkerAMD\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pipelineStage", toStringFlags, tabCount, tabSize, '"' + ToString(pipelineStage, toStringFlags, tabCount, tabSize) + '"');
@@ -13026,7 +13432,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pTimeDomainCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pTimeDomainCount, toStringFlags, tabCount, tabSize));
@@ -13060,7 +13467,8 @@ void VulkanAsciiConsumer::Process_vkGetCalibratedTimestampsEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetCalibratedTimestampsEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "timestampCount", toStringFlags, tabCount, tabSize, ToString(timestampCount, toStringFlags, tabCount, tabSize));
@@ -13092,7 +13500,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawMeshTasksNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawMeshTasksNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "taskCount", toStringFlags, tabCount, tabSize, ToString(taskCount, toStringFlags, tabCount, tabSize));
@@ -13124,7 +13533,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawMeshTasksIndirectNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -13160,7 +13570,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawMeshTasksIndirectCountNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(buffer));
@@ -13195,7 +13606,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetExclusiveScissorNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetExclusiveScissorNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstExclusiveScissor", toStringFlags, tabCount, tabSize, ToString(firstExclusiveScissor, toStringFlags, tabCount, tabSize));
@@ -13225,7 +13637,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetCheckpointNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetCheckpointNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pCheckpointMarker", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(pCheckpointMarker));
@@ -13254,7 +13667,8 @@ void VulkanAsciiConsumer::Process_vkGetQueueCheckpointDataNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetQueueCheckpointDataNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "[out]pCheckpointDataCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCheckpointDataCount, toStringFlags, tabCount, tabSize));
@@ -13285,7 +13699,8 @@ void VulkanAsciiConsumer::Process_vkInitializePerformanceApiINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkInitializePerformanceApiINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInitializeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInitializeInfo, toStringFlags, tabCount, tabSize));
@@ -13312,7 +13727,8 @@ void VulkanAsciiConsumer::Process_vkUninitializePerformanceApiINTEL(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkUninitializePerformanceApiINTEL\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             tabCount -= 1;
@@ -13341,7 +13757,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPerformanceMarkerINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pMarkerInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMarkerInfo, toStringFlags, tabCount, tabSize));
@@ -13371,7 +13788,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPerformanceStreamMarkerINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pMarkerInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMarkerInfo, toStringFlags, tabCount, tabSize));
@@ -13401,7 +13819,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPerformanceOverrideINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pOverrideInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pOverrideInfo, toStringFlags, tabCount, tabSize));
@@ -13432,7 +13851,8 @@ void VulkanAsciiConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquirePerformanceConfigurationINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pAcquireInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAcquireInfo, toStringFlags, tabCount, tabSize));
@@ -13463,7 +13883,8 @@ void VulkanAsciiConsumer::Process_vkReleasePerformanceConfigurationINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkReleasePerformanceConfigurationINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "configuration", toStringFlags, tabCount, tabSize, HandleIdToString(configuration));
@@ -13493,7 +13914,8 @@ void VulkanAsciiConsumer::Process_vkQueueSetPerformanceConfigurationINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkQueueSetPerformanceConfigurationINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "queue", toStringFlags, tabCount, tabSize, HandleIdToString(queue));
             FieldToString(strStrm, false, "configuration", toStringFlags, tabCount, tabSize, HandleIdToString(configuration));
@@ -13524,7 +13946,8 @@ void VulkanAsciiConsumer::Process_vkGetPerformanceParameterINTEL(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPerformanceParameterINTEL\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "parameter", toStringFlags, tabCount, tabSize, '"' + ToString(parameter, toStringFlags, tabCount, tabSize) + '"');
@@ -13554,7 +13977,8 @@ void VulkanAsciiConsumer::Process_vkSetLocalDimmingAMD(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetLocalDimmingAMD\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapChain", toStringFlags, tabCount, tabSize, HandleIdToString(swapChain));
@@ -13587,7 +14011,8 @@ void VulkanAsciiConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateImagePipeSurfaceFUCHSIA\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -13621,7 +14046,8 @@ void VulkanAsciiConsumer::Process_vkCreateMetalSurfaceEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateMetalSurfaceEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -13653,7 +14079,8 @@ void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddressEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetBufferDeviceAddressEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -13684,7 +14111,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceToolPropertiesEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pToolCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pToolCount, toStringFlags, tabCount, tabSize));
@@ -13716,7 +14144,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixProperties
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pPropertyCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pPropertyCount, toStringFlags, tabCount, tabSize));
@@ -13748,7 +14177,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSa
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "[out]pCombinationCount", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCombinationCount, toStringFlags, tabCount, tabSize));
@@ -13781,7 +14211,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceSurfacePresentModes2EXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "pSurfaceInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSurfaceInfo, toStringFlags, tabCount, tabSize));
@@ -13813,7 +14244,8 @@ void VulkanAsciiConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquireFullScreenExclusiveModeEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -13843,7 +14275,8 @@ void VulkanAsciiConsumer::Process_vkReleaseFullScreenExclusiveModeEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkReleaseFullScreenExclusiveModeEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(swapchain));
@@ -13874,7 +14307,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceGroupSurfacePresentModes2EXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pSurfaceInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSurfaceInfo, toStringFlags, tabCount, tabSize));
@@ -13907,7 +14341,8 @@ void VulkanAsciiConsumer::Process_vkCreateHeadlessSurfaceEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateHeadlessSurfaceEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -13938,7 +14373,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetLineStippleEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetLineStippleEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "lineStippleFactor", toStringFlags, tabCount, tabSize, ToString(lineStippleFactor, toStringFlags, tabCount, tabSize));
@@ -13969,7 +14405,8 @@ void VulkanAsciiConsumer::Process_vkResetQueryPoolEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkResetQueryPoolEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
@@ -13999,7 +14436,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetCullModeEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetCullModeEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "cullMode", toStringFlags, tabCount, tabSize, ToString(cullMode, toStringFlags, tabCount, tabSize));
@@ -14027,7 +14465,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetFrontFaceEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetFrontFaceEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "frontFace", toStringFlags, tabCount, tabSize, '"' + ToString(frontFace, toStringFlags, tabCount, tabSize) + '"');
@@ -14055,7 +14494,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPrimitiveTopologyEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPrimitiveTopologyEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "primitiveTopology", toStringFlags, tabCount, tabSize, '"' + ToString(primitiveTopology, toStringFlags, tabCount, tabSize) + '"');
@@ -14084,7 +14524,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetViewportWithCountEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetViewportWithCountEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "viewportCount", toStringFlags, tabCount, tabSize, ToString(viewportCount, toStringFlags, tabCount, tabSize));
@@ -14114,7 +14555,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetScissorWithCountEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetScissorWithCountEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "scissorCount", toStringFlags, tabCount, tabSize, ToString(scissorCount, toStringFlags, tabCount, tabSize));
@@ -14148,7 +14590,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindVertexBuffers2EXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindVertexBuffers2EXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "firstBinding", toStringFlags, tabCount, tabSize, ToString(firstBinding, toStringFlags, tabCount, tabSize));
@@ -14181,7 +14624,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthTestEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthTestEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthTestEnable", toStringFlags, tabCount, tabSize, ToString(depthTestEnable, toStringFlags, tabCount, tabSize));
@@ -14209,7 +14653,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthWriteEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthWriteEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthWriteEnable", toStringFlags, tabCount, tabSize, ToString(depthWriteEnable, toStringFlags, tabCount, tabSize));
@@ -14237,7 +14682,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthCompareOpEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthCompareOpEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthCompareOp", toStringFlags, tabCount, tabSize, '"' + ToString(depthCompareOp, toStringFlags, tabCount, tabSize) + '"');
@@ -14265,7 +14711,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthBoundsTestEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthBoundsTestEnable", toStringFlags, tabCount, tabSize, ToString(depthBoundsTestEnable, toStringFlags, tabCount, tabSize));
@@ -14293,7 +14740,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilTestEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetStencilTestEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "stencilTestEnable", toStringFlags, tabCount, tabSize, ToString(stencilTestEnable, toStringFlags, tabCount, tabSize));
@@ -14325,7 +14773,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilOpEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetStencilOpEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "faceMask", toStringFlags, tabCount, tabSize, ToString(faceMask, toStringFlags, tabCount, tabSize));
@@ -14358,7 +14807,8 @@ void VulkanAsciiConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetGeneratedCommandsMemoryRequirementsNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -14387,7 +14837,8 @@ void VulkanAsciiConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdPreprocessGeneratedCommandsNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pGeneratedCommandsInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGeneratedCommandsInfo, toStringFlags, tabCount, tabSize));
@@ -14416,7 +14867,8 @@ void VulkanAsciiConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdExecuteGeneratedCommandsNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "isPreprocessed", toStringFlags, tabCount, tabSize, ToString(isPreprocessed, toStringFlags, tabCount, tabSize));
@@ -14447,7 +14899,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindPipelineShaderGroupNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindPipelineShaderGroupNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
@@ -14481,7 +14934,8 @@ void VulkanAsciiConsumer::Process_vkCreateIndirectCommandsLayoutNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateIndirectCommandsLayoutNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -14512,7 +14966,8 @@ void VulkanAsciiConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyIndirectCommandsLayoutNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, HandleIdToString(indirectCommandsLayout));
@@ -14544,7 +14999,8 @@ void VulkanAsciiConsumer::Process_vkAcquireDrmDisplayEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquireDrmDisplayEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "drmFd", toStringFlags, tabCount, tabSize, ToString(drmFd, toStringFlags, tabCount, tabSize));
@@ -14577,7 +15033,8 @@ void VulkanAsciiConsumer::Process_vkGetDrmDisplayEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDrmDisplayEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "drmFd", toStringFlags, tabCount, tabSize, ToString(drmFd, toStringFlags, tabCount, tabSize));
@@ -14611,7 +15068,8 @@ void VulkanAsciiConsumer::Process_vkCreatePrivateDataSlotEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreatePrivateDataSlotEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -14642,7 +15100,8 @@ void VulkanAsciiConsumer::Process_vkDestroyPrivateDataSlotEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyPrivateDataSlotEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "privateDataSlot", toStringFlags, tabCount, tabSize, HandleIdToString(privateDataSlot));
@@ -14676,7 +15135,8 @@ void VulkanAsciiConsumer::Process_vkSetPrivateDataEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetPrivateDataEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(objectType, toStringFlags, tabCount, tabSize) + '"');
@@ -14710,7 +15170,8 @@ void VulkanAsciiConsumer::Process_vkGetPrivateDataEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPrivateDataEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(objectType, toStringFlags, tabCount, tabSize) + '"');
@@ -14742,7 +15203,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetFragmentShadingRateEnumNV\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "shadingRate", toStringFlags, tabCount, tabSize, '"' + ToString(shadingRate, toStringFlags, tabCount, tabSize) + '"');
@@ -14773,7 +15235,8 @@ void VulkanAsciiConsumer::Process_vkGetImageSubresourceLayout2EXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetImageSubresourceLayout2EXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
@@ -14805,7 +15268,8 @@ void VulkanAsciiConsumer::Process_vkAcquireWinrtDisplayNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkAcquireWinrtDisplayNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, HandleIdToString(display));
@@ -14836,7 +15300,8 @@ void VulkanAsciiConsumer::Process_vkGetWinrtDisplayNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetWinrtDisplayNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "deviceRelativeId", toStringFlags, tabCount, tabSize, ToString(deviceRelativeId, toStringFlags, tabCount, tabSize));
@@ -14869,7 +15334,8 @@ void VulkanAsciiConsumer::Process_vkCreateDirectFBSurfaceEXT(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateDirectFBSurfaceEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -14902,7 +15368,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceDirectFBPresentationSupport
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceDirectFBPresentationSupportEXT\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -14934,7 +15401,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetVertexInputEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetVertexInputEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "vertexBindingDescriptionCount", toStringFlags, tabCount, tabSize, ToString(vertexBindingDescriptionCount, toStringFlags, tabCount, tabSize));
@@ -14968,7 +15436,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryZirconHandleFUCHSIA(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryZirconHandleFUCHSIA\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetZirconHandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetZirconHandleInfo, toStringFlags, tabCount, tabSize));
@@ -15001,7 +15470,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryZirconHandlePropertiesFUCHSIA\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(handleType, toStringFlags, tabCount, tabSize) + '"');
@@ -15033,7 +15503,8 @@ void VulkanAsciiConsumer::Process_vkImportSemaphoreZirconHandleFUCHSIA(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkImportSemaphoreZirconHandleFUCHSIA\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pImportSemaphoreZirconHandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pImportSemaphoreZirconHandleInfo, toStringFlags, tabCount, tabSize));
@@ -15064,7 +15535,8 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetSemaphoreZirconHandleFUCHSIA\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pGetZirconHandleInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pGetZirconHandleInfo, toStringFlags, tabCount, tabSize));
@@ -15094,7 +15566,8 @@ void VulkanAsciiConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdBindInvocationMaskHUAWEI\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(imageView));
@@ -15126,7 +15599,8 @@ void VulkanAsciiConsumer::Process_vkGetMemoryRemoteAddressNV(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetMemoryRemoteAddressNV\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pMemoryGetRemoteAddressInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMemoryGetRemoteAddressInfo, toStringFlags, tabCount, tabSize));
@@ -15155,7 +15629,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPatchControlPointsEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPatchControlPointsEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "patchControlPoints", toStringFlags, tabCount, tabSize, ToString(patchControlPoints, toStringFlags, tabCount, tabSize));
@@ -15183,7 +15658,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetRasterizerDiscardEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetRasterizerDiscardEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "rasterizerDiscardEnable", toStringFlags, tabCount, tabSize, ToString(rasterizerDiscardEnable, toStringFlags, tabCount, tabSize));
@@ -15211,7 +15687,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetDepthBiasEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetDepthBiasEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "depthBiasEnable", toStringFlags, tabCount, tabSize, ToString(depthBiasEnable, toStringFlags, tabCount, tabSize));
@@ -15239,7 +15716,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetLogicOpEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetLogicOpEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "logicOp", toStringFlags, tabCount, tabSize, '"' + ToString(logicOp, toStringFlags, tabCount, tabSize) + '"');
@@ -15267,7 +15745,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetPrimitiveRestartEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetPrimitiveRestartEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "primitiveRestartEnable", toStringFlags, tabCount, tabSize, ToString(primitiveRestartEnable, toStringFlags, tabCount, tabSize));
@@ -15299,7 +15778,8 @@ void VulkanAsciiConsumer::Process_vkCreateScreenSurfaceQNX(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateScreenSurfaceQNX\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "instance", toStringFlags, tabCount, tabSize, HandleIdToString(instance));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -15332,7 +15812,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceScreenPresentationSupportQN
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetPhysicalDeviceScreenPresentationSupportQNX\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "physicalDevice", toStringFlags, tabCount, tabSize, HandleIdToString(physicalDevice));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -15362,7 +15843,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetColorWriteEnableEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetColorWriteEnableEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(attachmentCount, toStringFlags, tabCount, tabSize));
@@ -15395,7 +15877,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawMultiEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawMultiEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "drawCount", toStringFlags, tabCount, tabSize, ToString(drawCount, toStringFlags, tabCount, tabSize));
@@ -15432,7 +15915,8 @@ void VulkanAsciiConsumer::Process_vkCmdDrawMultiIndexedEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdDrawMultiIndexedEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "drawCount", toStringFlags, tabCount, tabSize, ToString(drawCount, toStringFlags, tabCount, tabSize));
@@ -15466,7 +15950,8 @@ void VulkanAsciiConsumer::Process_vkSetDeviceMemoryPriorityEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkSetDeviceMemoryPriorityEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(memory));
@@ -15496,7 +15981,8 @@ void VulkanAsciiConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDescriptorSetLayoutHostMappingInfoVALVE\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pBindingReference", toStringFlags, tabCount, tabSize, PointerDecoderToString(pBindingReference, toStringFlags, tabCount, tabSize));
@@ -15526,7 +16012,8 @@ void VulkanAsciiConsumer::Process_vkGetDescriptorSetHostMappingVALVE(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDescriptorSetHostMappingVALVE\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "descriptorSet", toStringFlags, tabCount, tabSize, HandleIdToString(descriptorSet));
@@ -15556,7 +16043,8 @@ void VulkanAsciiConsumer::Process_vkGetShaderModuleIdentifierEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetShaderModuleIdentifierEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "shaderModule", toStringFlags, tabCount, tabSize, HandleIdToString(shaderModule));
@@ -15586,7 +16074,8 @@ void VulkanAsciiConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetShaderModuleCreateInfoIdentifierEXT\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -15619,7 +16108,8 @@ void VulkanAsciiConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetFramebufferTilePropertiesQCOM\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, HandleIdToString(framebuffer));
@@ -15652,7 +16142,8 @@ void VulkanAsciiConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDynamicRenderingTilePropertiesQCOM\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pRenderingInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRenderingInfo, toStringFlags, tabCount, tabSize));
@@ -15685,7 +16176,8 @@ void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateAccelerationStructureKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pCreateInfo, toStringFlags, tabCount, tabSize));
@@ -15716,7 +16208,8 @@ void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkDestroyAccelerationStructureKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, HandleIdToString(accelerationStructure));
@@ -15748,7 +16241,8 @@ void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCopyAccelerationStructureToMemoryKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "deferredOperation", toStringFlags, tabCount, tabSize, HandleIdToString(deferredOperation));
@@ -15780,7 +16274,8 @@ void VulkanAsciiConsumer::Process_vkCopyMemoryToAccelerationStructureKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCopyMemoryToAccelerationStructureKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "deferredOperation", toStringFlags, tabCount, tabSize, HandleIdToString(deferredOperation));
@@ -15816,7 +16311,8 @@ void VulkanAsciiConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkWriteAccelerationStructuresPropertiesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "accelerationStructureCount", toStringFlags, tabCount, tabSize, ToString(accelerationStructureCount, toStringFlags, tabCount, tabSize));
@@ -15849,7 +16345,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyAccelerationStructureKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyAccelerationStructureKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -15877,7 +16374,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyAccelerationStructureToMemoryKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -15905,7 +16403,8 @@ void VulkanAsciiConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdCopyMemoryToAccelerationStructureKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -15935,7 +16434,8 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetAccelerationStructureDeviceAddressKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pInfo, toStringFlags, tabCount, tabSize));
@@ -15967,7 +16467,8 @@ void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdWriteAccelerationStructuresPropertiesKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "accelerationStructureCount", toStringFlags, tabCount, tabSize, ToString(accelerationStructureCount, toStringFlags, tabCount, tabSize));
@@ -16000,7 +16501,8 @@ void VulkanAsciiConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityK
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetDeviceAccelerationStructureCompatibilityKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pVersionInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pVersionInfo, toStringFlags, tabCount, tabSize));
@@ -16035,7 +16537,8 @@ void VulkanAsciiConsumer::Process_vkCmdTraceRaysKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdTraceRaysKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pRaygenShaderBindingTable", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRaygenShaderBindingTable, toStringFlags, tabCount, tabSize));
@@ -16076,7 +16579,8 @@ void VulkanAsciiConsumer::Process_vkCreateRayTracingPipelinesKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCreateRayTracingPipelinesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "deferredOperation", toStringFlags, tabCount, tabSize, HandleIdToString(deferredOperation));
@@ -16115,7 +16619,8 @@ void VulkanAsciiConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandles
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetRayTracingCaptureReplayShaderGroupHandlesKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(pipeline));
@@ -16151,7 +16656,8 @@ void VulkanAsciiConsumer::Process_vkCmdTraceRaysIndirectKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdTraceRaysIndirectKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pRaygenShaderBindingTable", toStringFlags, tabCount, tabSize, PointerDecoderToString(pRaygenShaderBindingTable, toStringFlags, tabCount, tabSize));
@@ -16187,7 +16693,8 @@ void VulkanAsciiConsumer::Process_vkGetRayTracingShaderGroupStackSizeKHR(
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkGetRayTracingShaderGroupStackSizeKHR\"");
             FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
             FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(pipeline));
@@ -16217,7 +16724,8 @@ void VulkanAsciiConsumer::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
             FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\"vkCall\"");
             FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\"vkCmdSetRayTracingPipelineStackSizeKHR\"");
-            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\n");
+            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{");
+            strStrm << GetNewlineString(toStringFlags);
             tabCount += 1;
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "pipelineStackSize", toStringFlags, tabCount, tabSize, ToString(pipelineStackSize, toStringFlags, tabCount, tabSize));
