@@ -124,7 +124,7 @@ Run the script with the `-h` option for additional usage information.
 
 - Microsoft [Visual Studio](https://www.visualstudio.com/)
   - Supported Versions
-    - [2012](https://www.visualstudio.com/vs/downloads/)
+    - [2022](https://www.visualstudio.com/vs/downloads/)
     - [2019](https://www.visualstudio.com/vs/older-downloads/)
     - [2017](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
