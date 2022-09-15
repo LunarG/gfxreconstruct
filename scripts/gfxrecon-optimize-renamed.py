@@ -56,6 +56,8 @@ def rename_optimizer(encoded_app_executable):
 def run_optimizer(replay_tool_path, args):
     cmd = replay_tool_path
     cmd += " \"" + args.pop(0) + "\""
+    cmd += " \"" + args.pop(0) + "\""
+
     for arg in args:
         cmd += " " + arg
     print("Running: " + cmd)
