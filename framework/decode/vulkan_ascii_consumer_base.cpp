@@ -39,14 +39,13 @@ void VulkanAsciiConsumerBase::Initialize(FILE* file)
 {
     assert(file);
     file_ = file;
-    fprintf(file_, "{");
 }
 
 void VulkanAsciiConsumerBase::Destroy()
 {
     if (file_ != nullptr)
     {
-        fprintf(file_, "\n}\n");
+        fprintf(file_, "\n");
         file_ = nullptr;
     }
 }
@@ -82,7 +81,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
         FieldToString(strStrm, false, "[out]pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
     };
 
-    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
@@ -110,7 +109,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
         FieldToString(strStrm, false, "[out]pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
     };
 
-    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
@@ -152,7 +151,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKH
         FieldToString(strStrm, false, "ppMaxPrimitiveCounts", toStringFlags, tabCount, tabSize, arrayString);
     };
 
-    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
@@ -191,7 +190,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresKHR(
         FieldToString(strStrm, false, "ppBuildRangeInfos", toStringFlags, tabCount, tabSize, arrayString);
     };
 
-    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresKHR", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
@@ -222,7 +221,7 @@ void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
         FieldToString(strStrm, false, "[out]pSizeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSizeInfo, toStringFlags, tabCount, tabSize));
     };
 
-    WriteApiCallToFile(call_info, "vkGetAccelerationStructureBuildSizesKHR", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
@@ -247,7 +246,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
         FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
     };
 
-    WriteApiCallToFile(call_info, "vkCmdPushDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
@@ -271,7 +270,7 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(
         FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
     };
 
-    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplate", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
@@ -295,7 +294,7 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
         FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DescriptorUpdateTemplateDecoderToString(pData));
     };
 
-    WriteApiCallToFile(call_info, "vkUpdateDescriptorSetWithTemplateKHR", toStringFlags, tabCount, tabSize, createString);
+    WriteApiCallToFile(toStringFlags, tabCount, tabSize, createString);
 }
 
 // clang-format on

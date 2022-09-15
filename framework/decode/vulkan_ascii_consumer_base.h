@@ -109,18 +109,13 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
   protected:
     template <typename ToStringFunctionType>
-    inline void WriteApiCallToFile(const ApiCallInfo&   call_info,
-                                   const std::string&   functionName,
-                                   util::ToStringFlags  toStringFlags,
+    inline void WriteApiCallToFile(util::ToStringFlags  toStringFlags,
                                    uint32_t&            tabCount,
                                    uint32_t             tabSize,
                                    ToStringFunctionType toStringFunction)
     {
         using namespace util;
-        fprintf(file_, "%s\n", (call_info.index ? "," : ""));
-        fprintf(file_, "\"[%s]%s\":", std::to_string(call_info.index).c_str(), functionName.c_str());
-        fprintf(file_, "%s", GetWhitespaceString(toStringFlags).c_str());
-        fprintf(file_, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+        fprintf(file_, "%s\n", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
     }
 
   private:

@@ -144,17 +144,35 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         ToStringFlags toStringFlags = kToString_Default;
                         uint32_t tabCount = 0;
                         uint32_t tabSize = 4;
-                        WriteApiCallToFile(call_info, "{0}", toStringFlags, tabCount, tabSize,
+                        WriteApiCallToFile(toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
                             {{
+                                FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, "\\"vkCall\\"");
+                                FieldToString(strStrm, false, "index", toStringFlags, tabCount, tabSize, std::to_string(call_info.index));
+                                FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, "\\"{0}\\"");
                     '''.format(cmd)
                 )
                 cmddef += '\n'
-                cmddef += self.make_consumer_func_body(
-                    return_type, cmd, values
+
+                # Handle function return value
+                if not 'void' in return_type:
+                    cmddef += '            FieldToString(strStrm, false, "return", toStringFlags, tabCount, tabSize, \'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\');\n'
+
+                # Start a nested parameter block
+                cmddef += '''            FieldToString(strStrm, false, "params", toStringFlags, tabCount, tabSize, "{\\n");\n'''
+
+                # Fill in all the arguments in the parameter block
+                cmddef += self.make_consumer_func_args(
+                    values
                 )
+
+                # Close the nested parameter block and end the function body
                 cmddef += inspect.cleandoc(
                     '''
+                                strStrm << GetNewlineString(toStringFlags);
+                                strStrm << GetTabString(toStringFlags, tabCount, tabSize);
+                                strStrm << "}";
+
                             }
                         );
                     }
@@ -164,14 +182,10 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 first = False
 
     # yapf: disable
-    def make_consumer_func_body(self, return_type, name, values):
-        """Return VulkanAsciiConsumer class member function definition."""
-        body = ''
-
-        # Handle function return value
-        if not 'void' in return_type:
-            body = '            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, \'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\');\n'
-
+    def make_consumer_func_args(self, values):
+        """Return VulkanAsciiConsumer class member function argument block."""
+        body = '            tabCount += 1;\n'
+        firstField = 'true'
         # Handle function arguments
         for value in values:
 
@@ -187,8 +201,8 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             elif 'const char*' in value.full_type:
                 toString = 'StringDecoderToString({0})'
 
-            # There's some repeated code in this if/else block...It's easier (imo) to reason
-            # about each case when they're all listed explictly
+            # Handle the majority of parameters: handles, structs, enums, and pointers to
+            # them, arrays of them, and pointers to arrays of them
             elif value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
@@ -229,9 +243,11 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                     else:
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
 
-            firstField = 'true' if not body else 'false'
             valueName = ('[out]' if self.is_output_parameter(value) else '') + value.name
             toString = toString.format(value.name, value.array_length)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, valueName, toString)
+            firstField = 'false'
+        body += '            tabCount -= 1;\n'
         return body
+
     # yapf: enable

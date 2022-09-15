@@ -100,12 +100,13 @@ inline std::string
 ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
 {
     std::stringstream strStrm;
+    const auto        nl = GetNewlineString(toStringFlags);
     strStrm << '{';
-    strStrm << GetNewlineString(toStringFlags);
+    strStrm << nl;
     ++tabCount;
     toStringFunction(strStrm);
     --tabCount;
-    strStrm << GetNewlineString(toStringFlags);
+    strStrm << nl;
     strStrm << GetTabString(toStringFlags, tabCount, tabSize);
     strStrm << '}';
     return strStrm.str();
