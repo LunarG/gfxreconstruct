@@ -198,7 +198,7 @@ def ValidateArgs(args):
         PrintErrorAndExit('Capture file output directory ' + captureFileDir + ' does not exist')
     if (not os.path.isdir(captureFileDir)):
         PrintErrorAndExit('Capture file output directory ' + captureFileDir + ' is not a valid directory')
-    # Verify the captue layer path exists, is a directory, and contains the
+    # Verify the capture layer path exists, is a directory, and contains the
     # layer JSON and library.
     if args.captureLayer is not None:
         if not ValidateCaptureLayer(args.captureLayer):
