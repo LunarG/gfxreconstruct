@@ -167,6 +167,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     StandardCreateWrite<CommandPoolWrapper>(state_table);
     WriteCommandBufferState(state_table);
     StandardCreateWrite<IndirectCommandsLayoutNVWrapper>(state_table);  // TODO: If we intend to support this, we need to reserve command space after creation.
+    WriteTrimCommandPool(state_table);
 
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
@@ -275,6 +276,26 @@ void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_ta
     {
         WriteCommandBufferCommands(wrapper, state_table);
     }
+}
+
+void VulkanStateWriter::WriteTrimCommandPool(const VulkanStateTable& state_table)
+{
+    // vkTrimCommandPool shouldn't affect rendering. It's not necessary to replay. But it could help as debug info.
+    state_table.VisitWrappers([&](const CommandPoolWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (wrapper->trim_command_pool)
+        {
+            const DeviceWrapper* device_wrapper = wrapper->device;
+            assert(device_wrapper != nullptr);
+
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            encoder_.EncodeFlagsValue(0);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkTrimCommandPool, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+    });
 }
 
 void VulkanStateWriter::WriteFenceState(const VulkanStateTable& state_table)

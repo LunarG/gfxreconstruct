@@ -248,6 +248,8 @@ class VulkanStateTracker
         }
     }
 
+    void TrackTrimCommandPool(VkDevice device, VkCommandPool command_pool);
+
     void TrackResetCommandPool(VkCommandPool command_pool);
 
     void TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
