@@ -65,6 +65,17 @@ void VulkanStateTracker::TrackCommandExecution(CommandBufferWrapper*           w
     }
 }
 
+void VulkanStateTracker::TrackTrimCommandPool(VkDevice device, VkCommandPool command_pool)
+{
+    assert(command_pool != VK_NULL_HANDLE);
+
+    auto wrapper               = reinterpret_cast<CommandPoolWrapper*>(command_pool);
+    wrapper->trim_command_pool = true;
+
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    wrapper->device     = device_wrapper;
+}
+
 void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
 {
     assert(command_pool != VK_NULL_HANDLE);

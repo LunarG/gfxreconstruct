@@ -581,6 +581,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPool>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkTrimCommandPool(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkTrimCommandPool(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandPool>
 {
     template <typename... Args>

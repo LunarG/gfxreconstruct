@@ -369,6 +369,9 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 
     // Members for trimming state tracking.
     uint32_t queue_family_index{ 0 };
+
+    DeviceWrapper* device{ nullptr };
+    bool           trim_command_pool{ false };
 };
 
 // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR

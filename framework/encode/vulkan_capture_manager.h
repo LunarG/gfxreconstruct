@@ -848,6 +848,15 @@ class VulkanCaptureManager : public CaptureManager
         }
     }
 
+    void PostProcess_vkTrimCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolTrimFlags)
+    {
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackTrimCommandPool(device, commandPool);
+        }
+    }
+
     void PostProcess_vkResetCommandPool(VkResult result, VkDevice, VkCommandPool commandPool, VkCommandPoolResetFlags)
     {
         if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
