@@ -42,7 +42,9 @@ void DecodeAllocator::End()
 {
     assert((instance_ != nullptr) && instance_->can_allocate_);
     if (instance_->end_can_clear_)
+    {
         instance_->allocator_.Clear(false);
+    }
     instance_->can_allocate_ = false;
 }
 
