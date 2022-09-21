@@ -39,14 +39,13 @@ void VulkanAsciiConsumerBase::Initialize(FILE* file)
 {
     assert(file);
     file_ = file;
-    fprintf(file_, "{");
 }
 
 void VulkanAsciiConsumerBase::Destroy()
 {
     if (file_ != nullptr)
     {
-        fprintf(file_, "\n}\n");
+        fprintf(file_, "\n");
         file_ = nullptr;
     }
 }
