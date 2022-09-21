@@ -58,6 +58,7 @@ const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionPr
 const char* const kUnsupportedDeviceExtensions[] = {
     // Supporting the CPU moving around descriptor set data directly has too many
     // perf/robustness tradeoffs to be worth it.
+    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
     VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
 };
 
