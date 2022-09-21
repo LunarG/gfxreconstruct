@@ -407,16 +407,14 @@ uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device_Wrapper*      
                                                      const D3D12_RESOURCE_DESC* desc)
 {
     auto device      = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
-    auto device_info = device_wrapper->GetObjectInfo();
-    return graphics::dx12::GetResourceSizeInBytes(device, device_info.get()->adapter_node_index, desc);
+    return graphics::dx12::GetResourceSizeInBytes(device, desc);
 }
 
 uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device8_Wrapper*      device_wrapper,
                                                      const D3D12_RESOURCE_DESC1* desc)
 {
     auto device      = device_wrapper->GetWrappedObjectAs<ID3D12Device8>();
-    auto device_info = device_wrapper->GetObjectInfo();
-    return graphics::dx12::GetResourceSizeInBytes(device, device_info.get()->adapter_node_index, desc);
+    return graphics::dx12::GetResourceSizeInBytes(device, desc);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_Wrapper* wrapper,

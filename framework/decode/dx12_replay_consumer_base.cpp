@@ -394,8 +394,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 
     GFXRECON_ASSERT(MapObject<ID3D12Resource>(command_header.resource_id) == resource);
 
-    uint64_t total_size_in_bytes =
-        graphics::dx12::GetResourceSizeInBytes(device, extra_device_info->adapter_node_index, &resource->GetDesc());
+    uint64_t total_size_in_bytes = graphics::dx12::GetResourceSizeInBytes(device, &resource->GetDesc());
 
     // System has enough memory to batch the next Copy()
     ResourceInitInfo resource_init_info = {};
@@ -908,9 +907,16 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
     GFXRECON_ASSERT(device != nullptr);
 
     IUnknown* adapter = nullptr;
-    if (adapter_info != nullptr)
+    if (render_adapter_ == nullptr)
     {
-        adapter = adapter_info->object;
+        if (adapter_info != nullptr)
+        {
+            adapter = adapter_info->object;
+        }
+    }
+    else
+    {
+        adapter = render_adapter_;
     }
 
     auto replay_result =
@@ -1030,6 +1036,7 @@ void Dx12ReplayConsumerBase::DetectAdapters()
     if (SUCCEEDED(result))
     {
         graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters_);
+        render_adapter_ = graphics::dx12::GetAdapterbyIndex(adapters_, options_.override_gpu_index);
 
         factory1->Release();
     }

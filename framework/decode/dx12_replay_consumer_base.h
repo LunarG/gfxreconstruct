@@ -754,6 +754,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<Dx12AccelerationStructureBuilder>     accel_struct_builder_;
     graphics::Dx12ShaderIdMap                             shader_id_map_;
     graphics::dx12::ActiveAdapterMap                      adapters_;
+    IDXGIAdapter*                                         render_adapter_{nullptr};
     FillMemoryResourceValueInfo                           fill_memory_resource_value_info_;
     std::unique_ptr<graphics::Dx12ResourceDataUtil>       resource_data_util_;
     std::string                                           screenshot_file_prefix_;

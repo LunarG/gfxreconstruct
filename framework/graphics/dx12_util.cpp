@@ -762,6 +762,18 @@ bool GetAdapterAndIndexbyLUID(LUID                              luid,
     return success;
 }
 
+IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int32_t index)
+{
+    for (auto adapter : adapters)
+    {
+        if (static_cast<int32_t>(adapter.second.adapter_idx) == index)
+        {
+            return adapter.second.adapter;
+        }
+    }
+    return nullptr;
+}
+
 bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
                                 IDXGIAdapter3*&                   adapter3_ptr,
                                 uint32_t&                         index,
@@ -862,26 +874,26 @@ bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter)
     return available;
 }
 
-uint64_t GetResourceSizeInBytes(ID3D12Device* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC* desc)
+uint64_t GetResourceSizeInBytes(ID3D12Device* device, const D3D12_RESOURCE_DESC* desc)
 {
     uint64_t size = 0;
 
     if (device != nullptr)
     {
-        size = device->GetResourceAllocationInfo(adapter_node, 1, desc).SizeInBytes;
+        size = device->GetResourceAllocationInfo(0, 1, desc).SizeInBytes;
     }
 
     return size;
 }
 
-uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC1* desc)
+uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC1* desc)
 {
     uint64_t size = 0;
 
     if (device != nullptr)
     {
         D3D12_RESOURCE_ALLOCATION_INFO1 allocationinfo1 = {};
-        size = device->GetResourceAllocationInfo2(adapter_node, 1, desc, &allocationinfo1).SizeInBytes;
+        size = device->GetResourceAllocationInfo2(0, 1, desc, &allocationinfo1).SizeInBytes;
     }
 
     return size;

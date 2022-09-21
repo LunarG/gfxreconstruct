@@ -184,6 +184,9 @@ bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
                                 uint32_t&                         index,
                                 graphics::dx12::ActiveAdapterMap& adapters);
 
+// Get the adapter at specified index
+IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int32_t index);
+
 // This function is used to get available GPU virtual memory.
 // The input is current adapter which created current device.
 uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter);
@@ -195,8 +198,8 @@ uint64_t GetAvailableCpuVirtualMemory();
 bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter);
 
 // Get GPU memory usage by resource desc
-uint64_t GetResourceSizeInBytes(ID3D12Device* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC* desc);
-uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const uint32_t adapter_node, const D3D12_RESOURCE_DESC1* desc);
+uint64_t GetResourceSizeInBytes(ID3D12Device* device, const D3D12_RESOURCE_DESC* desc);
+uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC1* desc);
 
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 

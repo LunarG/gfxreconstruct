@@ -627,6 +627,12 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
         options.omit_null_hardware_buffers = true;
     }
 
+    const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+    if (!override_gpu.empty())
+    {
+        options.override_gpu_index = std::stoi(override_gpu);
+    }
+
     IsForceWindowed(options, arg_parser);
 }
 
@@ -643,12 +649,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 #else
     replay_options.enable_vulkan = true;
 #endif
-
-    const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
-    if (!override_gpu.empty())
-    {
-        replay_options.override_gpu_index = std::stoi(override_gpu);
-    }
 
     if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
     {
