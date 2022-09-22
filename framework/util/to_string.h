@@ -36,7 +36,7 @@ enum ToStringFlagBits
 {
     kToString_Unformatted = 0,
     kToString_Formatted   = 1,
-    kToString_Default     = kToString_Formatted,
+    kToString_Default     = kToString_Unformatted,
 };
 
 typedef uint32_t ToStringFlags;
