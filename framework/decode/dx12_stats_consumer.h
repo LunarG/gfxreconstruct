@@ -237,6 +237,14 @@ class Dx12StatsConsumer : public Dx12Consumer
         dxr_opt_fillmem_ = true;
     }
 
+    virtual void ProcessInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data)
+    {
+        dxr_workload_ = true;
+    }
+
   private:
     // Holds adapter descs that were obtained from the app calling GetDesc()
     // This list is only here to support older captures which do contain kDxgiAdapterInfoCommand

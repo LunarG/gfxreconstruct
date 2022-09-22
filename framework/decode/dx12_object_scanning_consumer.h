@@ -115,6 +115,11 @@ class Dx12ObjectScanningConsumer : public Dx12ObjectScanningConsumerBase
     ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
                                           const uint8_t*                                      data);
 
+    virtual void Dx12ObjectScanningConsumer::ProcessInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data);
+
   private:
     bool dxr_workload_;
     bool dxr_opt_fillmem_;
