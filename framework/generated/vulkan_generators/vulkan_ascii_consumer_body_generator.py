@@ -137,6 +137,9 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 cmddef += self.make_consumer_func_decl(
                     return_type, 'VulkanAsciiConsumer::Process_' + cmd, values
                 ) + '\n'
+                return_val = ""
+                if not 'void' in return_type:
+                    return_val = ', (\'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\').c_str()'
                 cmddef += inspect.cleandoc(
                     '''
                     {{
@@ -155,10 +158,10 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 )
                 cmddef += inspect.cleandoc(
                     '''
-                            }
+                            }}{0}
                         );
-                    }
-                    '''
+                    }}
+                    '''.format(return_val)
                 )
                 write(cmddef, file=self.outFile)
                 first = False
@@ -167,10 +170,6 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
     def make_consumer_func_body(self, return_type, name, values):
         """Return VulkanAsciiConsumer class member function definition."""
         body = ''
-
-        # Handle function return value
-        if not 'void' in return_type:
-            body = '            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, \'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\');\n'
 
         # Handle function arguments
         for value in values:

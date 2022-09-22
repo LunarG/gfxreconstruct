@@ -45,9 +45,9 @@ void VulkanAsciiConsumerBase::Destroy()
 {
     if (file_ != nullptr)
     {
-        fprintf(file_, "\n");
         file_ = nullptr;
     }
+    strStrm_.str(std::string{});
 }
 
 // clang-format off
@@ -71,8 +71,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
     uint32_t tabSize            = 4;
 
     auto createString = [&](std::stringstream& strStrm) {
-        FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-        FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
         FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
 
         auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
@@ -80,8 +79,8 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
 
         FieldToString(strStrm, false, "[out]pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
     };
-
-    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString);
+    const auto return_val = '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"';
+    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString, return_val.c_str());
 }
 
 void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
@@ -99,8 +98,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
     uint32_t tabSize            = 4;
 
     auto createString = [&](std::stringstream& strStrm) {
-        FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-        FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
         FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
 
         auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
@@ -108,8 +106,8 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
 
         FieldToString(strStrm, false, "[out]pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
     };
-
-    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString);
+    const auto return_val = '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"';
+    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString, return_val.c_str());
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKHR(

@@ -44,6 +44,8 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     virtual ~VulkanAsciiConsumerBase() override;
 
+    /// @brief  Initialize the consumer for writing to the file passed in.
+    /// @param file A file to output to. The caller retains ownership. Do not close this.
     void Initialize(FILE* file);
 
     void Destroy();
@@ -109,22 +111,52 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
   protected:
     template <typename ToStringFunctionType>
-    inline void WriteApiCallToFile(const ApiCallInfo&   call_info,
-                                   const std::string&   functionName,
-                                   util::ToStringFlags  toStringFlags,
-                                   uint32_t&            tabCount,
-                                   uint32_t             tabSize,
-                                   ToStringFunctionType toStringFunction)
+    inline void WriteApiCallToFile(const ApiCallInfo& call_info,
+                                   const std::string& functionName,
+                                   /// @todo Remove toStringFlags, tabCount, tabSize
+                                   util::ToStringFlags        toStringFlags,
+                                   const uint32_t&            tabCount,
+                                   const uint32_t             tabSize,
+                                   const ToStringFunctionType toStringFunction,
+                                   /// The formatted return string value excluding trailing comma
+                                   const char* const return_val = nullptr)
     {
-        using namespace util;
-        fprintf(file_, "%s\n", (call_info.index ? "," : ""));
-        fprintf(file_, "\"[%s]%s\":", std::to_string(call_info.index).c_str(), functionName.c_str());
-        fprintf(file_, "%s", GetWhitespaceString(toStringFlags).c_str());
-        fprintf(file_, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+        // Output the start of a function call line, up to the arguments:
+        if (nullptr == return_val)
+        {
+            fprintf(file_,
+                    "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"args\":{",
+                    (long long unsigned int)call_info.index,
+                    functionName.c_str());
+        }
+        else
+        {
+            fprintf(file_,
+                    "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":%s,\"args\":{",
+                    (long long unsigned int)call_info.index,
+                    functionName.c_str(),
+                    return_val);
+        }
+
+        // Reset the per-call reusable stringstream and use it to capture the full tree of
+        // the function arguments including pNexts and struct pointers:
+        strStrm_.str(std::string{});
+        toStringFunction(strStrm_);
+
+        // Dump the captured argument string into the file and close the argument,
+        // nested, and top-level braces:
+        fputs(strStrm_.str().c_str(), file_);
+        fputs("}}}\n", file_);
+
+        // Push out the whole line to the next tool in any pipeline we may be chained
+        // into so it can start processing it or to file:
+        fflush(file_);
     }
 
   private:
     FILE* file_{ nullptr };
+    /// Reusable string stream for formatting top-level objects like vkFuncs into.
+    std::stringstream strStrm_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
