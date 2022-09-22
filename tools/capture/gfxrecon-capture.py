@@ -216,7 +216,7 @@ def ValidateArgs(args):
                     path)
             if not valid_capture_layer:
                 PrintErrorAndExit(
-                    'Failed to find valid capture layer in VK_LAYER_PATh environment variable'
+                    'Failed to find valid capture layer in VK_LAYER_PATH environment variable'
                 )
 
 
