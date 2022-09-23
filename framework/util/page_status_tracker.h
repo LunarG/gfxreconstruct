@@ -27,6 +27,7 @@
 
 #include "util/defines.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
@@ -46,6 +47,8 @@ class PageStatusTracker
 
     void SetActiveWriteBlock(size_t index, bool value) { active_writes_[index] = value ? 1 : 0; }
     void SetActiveReadBlock(size_t index, bool value) { active_reads_[index] = value ? 1 : 0; }
+
+    void SetAllBlocksActiveWrite() { std::fill(active_writes_.begin(), active_writes_.end(), 1); }
 
   private:
     typedef std::vector<uint8_t> PageStatus;

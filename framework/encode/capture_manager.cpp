@@ -87,7 +87,7 @@ format::ThreadId CaptureManager::ThreadData::GetThreadId()
 CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
-    page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv(false),
+    page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
     current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0)
@@ -243,9 +243,10 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
-        page_guard_align_buffer_sizes_ = trace_settings.page_guard_align_buffer_sizes;
-        page_guard_track_ahb_memory_   = trace_settings.page_guard_track_ahb_memory;
-        page_guard_unblock_sigsegv     = trace_settings.page_guard_unblock_sigsegv;
+        page_guard_align_buffer_sizes_     = trace_settings.page_guard_align_buffer_sizes;
+        page_guard_track_ahb_memory_       = trace_settings.page_guard_track_ahb_memory;
+        page_guard_unblock_sigsegv_        = trace_settings.page_guard_unblock_sigsegv;
+        page_guard_signal_handler_watcher_ = trace_settings.page_guard_signal_handler_watcher;
 
         bool use_external_memory = trace_settings.page_guard_external_memory;
 
@@ -312,13 +313,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         // Check if trim is enabled by hot-key trigger at the first frame
         else if (!trace_settings.trim_key.empty())
         {
-            trim_key_ = trace_settings.trim_key;
+            trim_key_        = trace_settings.trim_key;
             trim_key_frames_ = trace_settings.trim_key_frames;
 
             // Enable state tracking when hotkey pressed
             if (IsTrimHotkeyPressed())
             {
-                capture_mode_ = kModeWriteAndTrack;
+                capture_mode_         = kModeWriteAndTrack;
                 trim_key_first_frame_ = current_frame_;
 
                 success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
@@ -350,7 +351,8 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
             util::PageGuardManager::Create(trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage,
-                                           trace_settings.page_guard_unblock_sigsegv);
+                                           trace_settings.page_guard_unblock_sigsegv,
+                                           trace_settings.page_guard_signal_handler_watcher);
         }
 
         if ((capture_mode_ & kModeTrack) == kModeTrack)

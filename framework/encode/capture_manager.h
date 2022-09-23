@@ -277,7 +277,8 @@ class CaptureManager
     CaptureSettings::MemoryTrackingMode     memory_tracking_mode_;
     bool                                    page_guard_align_buffer_sizes_;
     bool                                    page_guard_track_ahb_memory_;
-    bool                                    page_guard_unblock_sigsegv;
+    bool                                    page_guard_unblock_sigsegv_;
+    bool                                    page_guard_signal_handler_watcher_;
     PageGuardMemoryMode                     page_guard_memory_mode_;
     bool                                    trim_enabled_;
     std::vector<CaptureSettings::TrimRange> trim_ranges_;
