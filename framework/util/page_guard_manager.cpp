@@ -204,6 +204,7 @@ PageGuardManager::PageGuardManager() :
     exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
     enable_separate_read_(kDefaultEnableSeparateRead), unblock_sigsegv_(kDefaultUnblockSIGSEGV),
+    enable_signal_handler_watcher_(kDefaultEnableSignalHandlerWatcher),
     enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {
     InitializeSystemExceptionContext();
@@ -212,11 +213,13 @@ PageGuardManager::PageGuardManager() :
 PageGuardManager::PageGuardManager(bool enable_copy_on_map,
                                    bool enable_separate_read,
                                    bool expect_read_write_same_page,
-                                   bool unblock_SIGSEGV) :
+                                   bool unblock_SIGSEGV,
+                                   bool enable_signal_handler_watcher) :
     exception_handler_(nullptr),
     exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
+    enable_signal_handler_watcher_(enable_signal_handler_watcher),
     enable_read_write_same_page_(expect_read_write_same_page)
 {
     InitializeSystemExceptionContext();
@@ -230,15 +233,106 @@ PageGuardManager::~PageGuardManager()
     }
 }
 
+#if !defined(WIN32)
+constexpr uint32_t PageGuardManager::signal_handler_watcher_max_restores_;
+uint32_t           PageGuardManager::signal_handler_watcher_restores_ = 0;
+
+void PageGuardManager::MarkAllTrackedMemoryAsDirty()
+{
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    for (auto& entry : memory_info_)
+    {
+        auto memory_info = &entry.second;
+
+        memory_info->is_modified = true;
+        memory_info->status_tracker.SetAllBlocksActiveWrite();
+        SetMemoryProtection(memory_info->shadow_memory, memory_info->shadow_range, kGuardNoProtect);
+    }
+}
+
+bool PageGuardManager::CheckSignalHandler()
+{
+    assert(instance_);
+
+    instance_->signal_handler_lock_.lock();
+
+    if (instance_->exception_handler_)
+    {
+        assert(instance_->exception_handler_count_);
+
+        struct sigaction current_handler;
+        int              result = sigaction(SIGSEGV, nullptr, &current_handler);
+
+        if (result != -1)
+        {
+            if (current_handler.sa_sigaction != PageGuardExceptionHandler)
+            {
+                GFXRECON_LOG_WARNING("PageGuardManager: Signal handler has been removed. Re-installing.")
+
+                instance_->exception_handler_       = nullptr;
+                instance_->exception_handler_count_ = 0;
+                instance_->signal_handler_lock_.unlock();
+
+                instance_->AddExceptionHandler();
+
+                // Potentially we lost information. Assume everything is dirty
+                instance_->MarkAllTrackedMemoryAsDirty();
+
+                return true;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("sigaction failed (%s)", strerror(errno));
+        }
+    }
+
+    instance_->signal_handler_lock_.unlock();
+
+    return false;
+}
+
+void* PageGuardManager::SignalHandlerWatcher(void* args)
+{
+    while (instance_->enable_signal_handler_watcher_ &&
+           signal_handler_watcher_restores_ < signal_handler_watcher_max_restores_)
+    {
+        if (CheckSignalHandler())
+        {
+            ++signal_handler_watcher_restores_;
+        }
+    }
+
+    return NULL;
+}
+#endif // !defined(WIN32)
+
 void PageGuardManager::Create(bool enable_copy_on_map,
                               bool enable_separate_read,
                               bool expect_read_write_same_page,
-                              bool unblock_SIGSEGV)
+                              bool unblock_SIGSEGV,
+                              bool enable_signal_handler_watcher)
 {
     if (instance_ == nullptr)
     {
-        instance_ = new PageGuardManager(
-            enable_copy_on_map, enable_separate_read, expect_read_write_same_page, unblock_SIGSEGV);
+        instance_ = new PageGuardManager(enable_copy_on_map,
+                                         enable_separate_read,
+                                         expect_read_write_same_page,
+                                         unblock_SIGSEGV,
+                                         enable_signal_handler_watcher);
+
+#if !defined(WIN32)
+        if (enable_signal_handler_watcher && signal_handler_watcher_restores_ < signal_handler_watcher_max_restores_)
+        {
+            int ret =
+                pthread_create(&instance_->signal_handler_watcher_thread_, nullptr, SignalHandlerWatcher, nullptr);
+            if (ret)
+            {
+                GFXRECON_LOG_ERROR("Page guard manager failed spawning thread (%s)", strerror(ret));
+            }
+        }
+#endif
     }
     else
     {
@@ -250,6 +344,18 @@ void PageGuardManager::Destroy()
 {
     if (instance_ != nullptr)
     {
+#if !defined(WIN32)
+        if (instance_->enable_signal_handler_watcher_)
+        {
+            instance_->enable_signal_handler_watcher_ = false;
+
+            int ret = pthread_join(instance_->signal_handler_watcher_thread_, nullptr);
+            if (ret)
+            {
+                GFXRECON_LOG_ERROR("Page guard signal watcher thread failed terminating (%s)", strerror(ret));
+            }
+        }
+#endif
         delete instance_;
         instance_ = nullptr;
     }
@@ -363,6 +469,9 @@ void PageGuardManager::FreeMemory(void* memory, size_t aligned_size)
 
 void PageGuardManager::AddExceptionHandler()
 {
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.lock();
+
     if (exception_handler_ == nullptr)
     {
         assert(exception_handler_count_ == 0);
@@ -423,10 +532,16 @@ void PageGuardManager::AddExceptionHandler()
     {
         ++exception_handler_count_;
     }
+
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.unlock();
 }
 
 void PageGuardManager::RemoveExceptionHandler()
 {
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.lock();
+
     if (exception_handler_ != nullptr)
     {
         assert(exception_handler_count_ > 0);
@@ -439,6 +554,9 @@ void PageGuardManager::RemoveExceptionHandler()
             exception_handler_ = nullptr;
         }
     }
+
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.unlock();
 }
 
 void PageGuardManager::ClearExceptionHandler(void* exception_handler)
