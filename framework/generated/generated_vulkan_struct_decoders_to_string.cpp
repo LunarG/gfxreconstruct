@@ -36,10 +36,9 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 template <> std::string ToString<decode::Decoded_VkExtent2D>(const decode::Decoded_VkExtent2D& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExtent2D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -53,10 +52,9 @@ template <> std::string ToString<decode::Decoded_VkExtent2D>(const decode::Decod
 
 template <> std::string ToString<decode::Decoded_VkExtent3D>(const decode::Decoded_VkExtent3D& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExtent3D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -71,10 +69,9 @@ template <> std::string ToString<decode::Decoded_VkExtent3D>(const decode::Decod
 
 template <> std::string ToString<decode::Decoded_VkOffset2D>(const decode::Decoded_VkOffset2D& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkOffset2D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -88,10 +85,9 @@ template <> std::string ToString<decode::Decoded_VkOffset2D>(const decode::Decod
 
 template <> std::string ToString<decode::Decoded_VkOffset3D>(const decode::Decoded_VkOffset3D& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkOffset3D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -106,10 +102,9 @@ template <> std::string ToString<decode::Decoded_VkOffset3D>(const decode::Decod
 
 template <> std::string ToString<decode::Decoded_VkRect2D>(const decode::Decoded_VkRect2D& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRect2D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -123,10 +118,9 @@ template <> std::string ToString<decode::Decoded_VkRect2D>(const decode::Decoded
 
 template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier>(const decode::Decoded_VkBufferMemoryBarrier& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferMemoryBarrier& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -147,10 +141,9 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier>(const de
 
 template <> std::string ToString<decode::Decoded_VkDispatchIndirectCommand>(const decode::Decoded_VkDispatchIndirectCommand& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDispatchIndirectCommand& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -165,10 +158,9 @@ template <> std::string ToString<decode::Decoded_VkDispatchIndirectCommand>(cons
 
 template <> std::string ToString<decode::Decoded_VkDrawIndexedIndirectCommand>(const decode::Decoded_VkDrawIndexedIndirectCommand& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDrawIndexedIndirectCommand& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -185,10 +177,9 @@ template <> std::string ToString<decode::Decoded_VkDrawIndexedIndirectCommand>(c
 
 template <> std::string ToString<decode::Decoded_VkDrawIndirectCommand>(const decode::Decoded_VkDrawIndirectCommand& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDrawIndirectCommand& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -204,10 +195,9 @@ template <> std::string ToString<decode::Decoded_VkDrawIndirectCommand>(const de
 
 template <> std::string ToString<decode::Decoded_VkImageSubresourceRange>(const decode::Decoded_VkImageSubresourceRange& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageSubresourceRange& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -224,10 +214,9 @@ template <> std::string ToString<decode::Decoded_VkImageSubresourceRange>(const 
 
 template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier>(const decode::Decoded_VkImageMemoryBarrier& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageMemoryBarrier& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -249,10 +238,9 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier>(const dec
 
 template <> std::string ToString<decode::Decoded_VkMemoryBarrier>(const decode::Decoded_VkMemoryBarrier& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryBarrier& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -268,10 +256,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryBarrier>(const decode::
 
 template <> std::string ToString<decode::Decoded_VkPipelineCacheHeaderVersionOne>(const decode::Decoded_VkPipelineCacheHeaderVersionOne& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCacheHeaderVersionOne& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -288,10 +275,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCacheHeaderVersionOne
 
 template <> std::string ToString<decode::Decoded_VkAllocationCallbacks>(const decode::Decoded_VkAllocationCallbacks& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAllocationCallbacks& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -309,10 +295,9 @@ template <> std::string ToString<decode::Decoded_VkAllocationCallbacks>(const de
 
 template <> std::string ToString<decode::Decoded_VkApplicationInfo>(const decode::Decoded_VkApplicationInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkApplicationInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -331,10 +316,9 @@ template <> std::string ToString<decode::Decoded_VkApplicationInfo>(const decode
 
 template <> std::string ToString<decode::Decoded_VkFormatProperties>(const decode::Decoded_VkFormatProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -349,10 +333,9 @@ template <> std::string ToString<decode::Decoded_VkFormatProperties>(const decod
 
 template <> std::string ToString<decode::Decoded_VkImageFormatProperties>(const decode::Decoded_VkImageFormatProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -369,10 +352,9 @@ template <> std::string ToString<decode::Decoded_VkImageFormatProperties>(const 
 
 template <> std::string ToString<decode::Decoded_VkInstanceCreateInfo>(const decode::Decoded_VkInstanceCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkInstanceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -392,10 +374,9 @@ template <> std::string ToString<decode::Decoded_VkInstanceCreateInfo>(const dec
 
 template <> std::string ToString<decode::Decoded_VkMemoryHeap>(const decode::Decoded_VkMemoryHeap& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryHeap& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -409,10 +390,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryHeap>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkMemoryType>(const decode::Decoded_VkMemoryType& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryType& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -426,10 +406,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryType>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFeatures>(const decode::Decoded_VkPhysicalDeviceFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -496,10 +475,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFeatures>(const
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLimits>(const decode::Decoded_VkPhysicalDeviceLimits& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceLimits& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -617,10 +595,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLimits>(const d
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSparseProperties>(const decode::Decoded_VkPhysicalDeviceSparseProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSparseProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -637,10 +614,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSparsePropertie
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProperties>(const decode::Decoded_VkPhysicalDeviceProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -661,10 +637,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProperties>(con
 
 template <> std::string ToString<decode::Decoded_VkQueueFamilyProperties>(const decode::Decoded_VkQueueFamilyProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueueFamilyProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -680,10 +655,9 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyProperties>(const 
 
 template <> std::string ToString<decode::Decoded_VkDeviceQueueCreateInfo>(const decode::Decoded_VkDeviceQueueCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceQueueCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -701,10 +675,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceQueueCreateInfo>(const 
 
 template <> std::string ToString<decode::Decoded_VkDeviceCreateInfo>(const decode::Decoded_VkDeviceCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -726,10 +699,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceCreateInfo>(const decod
 
 template <> std::string ToString<decode::Decoded_VkExtensionProperties>(const decode::Decoded_VkExtensionProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExtensionProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -743,10 +715,9 @@ template <> std::string ToString<decode::Decoded_VkExtensionProperties>(const de
 
 template <> std::string ToString<decode::Decoded_VkLayerProperties>(const decode::Decoded_VkLayerProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkLayerProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -762,10 +733,9 @@ template <> std::string ToString<decode::Decoded_VkLayerProperties>(const decode
 
 template <> std::string ToString<decode::Decoded_VkSubmitInfo>(const decode::Decoded_VkSubmitInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -786,10 +756,9 @@ template <> std::string ToString<decode::Decoded_VkSubmitInfo>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkMappedMemoryRange>(const decode::Decoded_VkMappedMemoryRange& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMappedMemoryRange& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -806,10 +775,9 @@ template <> std::string ToString<decode::Decoded_VkMappedMemoryRange>(const deco
 
 template <> std::string ToString<decode::Decoded_VkMemoryAllocateInfo>(const decode::Decoded_VkMemoryAllocateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -825,10 +793,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryAllocateInfo>(const dec
 
 template <> std::string ToString<decode::Decoded_VkMemoryRequirements>(const decode::Decoded_VkMemoryRequirements& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -843,10 +810,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryRequirements>(const dec
 
 template <> std::string ToString<decode::Decoded_VkSparseMemoryBind>(const decode::Decoded_VkSparseMemoryBind& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseMemoryBind& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -863,10 +829,9 @@ template <> std::string ToString<decode::Decoded_VkSparseMemoryBind>(const decod
 
 template <> std::string ToString<decode::Decoded_VkSparseBufferMemoryBindInfo>(const decode::Decoded_VkSparseBufferMemoryBindInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseBufferMemoryBindInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -881,10 +846,9 @@ template <> std::string ToString<decode::Decoded_VkSparseBufferMemoryBindInfo>(c
 
 template <> std::string ToString<decode::Decoded_VkSparseImageOpaqueMemoryBindInfo>(const decode::Decoded_VkSparseImageOpaqueMemoryBindInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseImageOpaqueMemoryBindInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -899,10 +863,9 @@ template <> std::string ToString<decode::Decoded_VkSparseImageOpaqueMemoryBindIn
 
 template <> std::string ToString<decode::Decoded_VkImageSubresource>(const decode::Decoded_VkImageSubresource& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageSubresource& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -917,10 +880,9 @@ template <> std::string ToString<decode::Decoded_VkImageSubresource>(const decod
 
 template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBind>(const decode::Decoded_VkSparseImageMemoryBind& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseImageMemoryBind& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -938,10 +900,9 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBind>(const 
 
 template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBindInfo>(const decode::Decoded_VkSparseImageMemoryBindInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseImageMemoryBindInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -956,10 +917,9 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBindInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkBindSparseInfo>(const decode::Decoded_VkBindSparseInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindSparseInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -983,10 +943,9 @@ template <> std::string ToString<decode::Decoded_VkBindSparseInfo>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkSparseImageFormatProperties>(const decode::Decoded_VkSparseImageFormatProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1001,10 +960,9 @@ template <> std::string ToString<decode::Decoded_VkSparseImageFormatProperties>(
 
 template <> std::string ToString<decode::Decoded_VkSparseImageMemoryRequirements>(const decode::Decoded_VkSparseImageMemoryRequirements& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseImageMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1021,10 +979,9 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryRequirements
 
 template <> std::string ToString<decode::Decoded_VkFenceCreateInfo>(const decode::Decoded_VkFenceCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFenceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1039,10 +996,9 @@ template <> std::string ToString<decode::Decoded_VkFenceCreateInfo>(const decode
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreCreateInfo>(const decode::Decoded_VkSemaphoreCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1057,10 +1013,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreCreateInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkEventCreateInfo>(const decode::Decoded_VkEventCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkEventCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1075,10 +1030,9 @@ template <> std::string ToString<decode::Decoded_VkEventCreateInfo>(const decode
 
 template <> std::string ToString<decode::Decoded_VkQueryPoolCreateInfo>(const decode::Decoded_VkQueryPoolCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueryPoolCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1096,10 +1050,9 @@ template <> std::string ToString<decode::Decoded_VkQueryPoolCreateInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkBufferCreateInfo>(const decode::Decoded_VkBufferCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1119,10 +1072,9 @@ template <> std::string ToString<decode::Decoded_VkBufferCreateInfo>(const decod
 
 template <> std::string ToString<decode::Decoded_VkBufferViewCreateInfo>(const decode::Decoded_VkBufferViewCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferViewCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1141,10 +1093,9 @@ template <> std::string ToString<decode::Decoded_VkBufferViewCreateInfo>(const d
 
 template <> std::string ToString<decode::Decoded_VkImageCreateInfo>(const decode::Decoded_VkImageCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1171,10 +1122,9 @@ template <> std::string ToString<decode::Decoded_VkImageCreateInfo>(const decode
 
 template <> std::string ToString<decode::Decoded_VkSubresourceLayout>(const decode::Decoded_VkSubresourceLayout& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubresourceLayout& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1191,10 +1141,9 @@ template <> std::string ToString<decode::Decoded_VkSubresourceLayout>(const deco
 
 template <> std::string ToString<decode::Decoded_VkComponentMapping>(const decode::Decoded_VkComponentMapping& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkComponentMapping& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1210,10 +1159,9 @@ template <> std::string ToString<decode::Decoded_VkComponentMapping>(const decod
 
 template <> std::string ToString<decode::Decoded_VkImageViewCreateInfo>(const decode::Decoded_VkImageViewCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageViewCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1233,10 +1181,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewCreateInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkPipelineCacheCreateInfo>(const decode::Decoded_VkPipelineCacheCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCacheCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1253,10 +1200,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCacheCreateInfo>(cons
 
 template <> std::string ToString<decode::Decoded_VkSpecializationMapEntry>(const decode::Decoded_VkSpecializationMapEntry& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSpecializationMapEntry& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1271,10 +1217,9 @@ template <> std::string ToString<decode::Decoded_VkSpecializationMapEntry>(const
 
 template <> std::string ToString<decode::Decoded_VkSpecializationInfo>(const decode::Decoded_VkSpecializationInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSpecializationInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1290,10 +1235,9 @@ template <> std::string ToString<decode::Decoded_VkSpecializationInfo>(const dec
 
 template <> std::string ToString<decode::Decoded_VkPipelineShaderStageCreateInfo>(const decode::Decoded_VkPipelineShaderStageCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineShaderStageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1312,10 +1256,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkComputePipelineCreateInfo>(const decode::Decoded_VkComputePipelineCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkComputePipelineCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1334,10 +1277,9 @@ template <> std::string ToString<decode::Decoded_VkComputePipelineCreateInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkVertexInputBindingDescription>(const decode::Decoded_VkVertexInputBindingDescription& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkVertexInputBindingDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1352,10 +1294,9 @@ template <> std::string ToString<decode::Decoded_VkVertexInputBindingDescription
 
 template <> std::string ToString<decode::Decoded_VkVertexInputAttributeDescription>(const decode::Decoded_VkVertexInputAttributeDescription& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkVertexInputAttributeDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1371,10 +1312,9 @@ template <> std::string ToString<decode::Decoded_VkVertexInputAttributeDescripti
 
 template <> std::string ToString<decode::Decoded_VkPipelineVertexInputStateCreateInfo>(const decode::Decoded_VkPipelineVertexInputStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineVertexInputStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1393,10 +1333,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineVertexInputStateCreat
 
 template <> std::string ToString<decode::Decoded_VkPipelineInputAssemblyStateCreateInfo>(const decode::Decoded_VkPipelineInputAssemblyStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineInputAssemblyStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1413,10 +1352,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineInputAssemblyStateCre
 
 template <> std::string ToString<decode::Decoded_VkPipelineTessellationStateCreateInfo>(const decode::Decoded_VkPipelineTessellationStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineTessellationStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1432,10 +1370,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineTessellationStateCrea
 
 template <> std::string ToString<decode::Decoded_VkViewport>(const decode::Decoded_VkViewport& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkViewport& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1453,10 +1390,9 @@ template <> std::string ToString<decode::Decoded_VkViewport>(const decode::Decod
 
 template <> std::string ToString<decode::Decoded_VkPipelineViewportStateCreateInfo>(const decode::Decoded_VkPipelineViewportStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineViewportStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1475,10 +1411,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportStateCreateIn
 
 template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateCreateInfo>(const decode::Decoded_VkPipelineRasterizationStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRasterizationStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1503,10 +1438,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateCre
 
 template <> std::string ToString<decode::Decoded_VkStencilOpState>(const decode::Decoded_VkStencilOpState& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkStencilOpState& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1525,10 +1459,9 @@ template <> std::string ToString<decode::Decoded_VkStencilOpState>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkPipelineDepthStencilStateCreateInfo>(const decode::Decoded_VkPipelineDepthStencilStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineDepthStencilStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1552,10 +1485,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineDepthStencilStateCrea
 
 template <> std::string ToString<decode::Decoded_VkPipelineColorBlendAttachmentState>(const decode::Decoded_VkPipelineColorBlendAttachmentState& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineColorBlendAttachmentState& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1575,10 +1507,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorBlendAttachmentS
 
 template <> std::string ToString<decode::Decoded_VkPipelineColorBlendStateCreateInfo>(const decode::Decoded_VkPipelineColorBlendStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineColorBlendStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1598,10 +1529,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorBlendStateCreate
 
 template <> std::string ToString<decode::Decoded_VkPipelineDynamicStateCreateInfo>(const decode::Decoded_VkPipelineDynamicStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineDynamicStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1618,10 +1548,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineDynamicStateCreateInf
 
 template <> std::string ToString<decode::Decoded_VkGraphicsPipelineCreateInfo>(const decode::Decoded_VkGraphicsPipelineCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGraphicsPipelineCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1652,10 +1581,9 @@ template <> std::string ToString<decode::Decoded_VkGraphicsPipelineCreateInfo>(c
 
 template <> std::string ToString<decode::Decoded_VkPushConstantRange>(const decode::Decoded_VkPushConstantRange& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPushConstantRange& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1670,10 +1598,9 @@ template <> std::string ToString<decode::Decoded_VkPushConstantRange>(const deco
 
 template <> std::string ToString<decode::Decoded_VkPipelineLayoutCreateInfo>(const decode::Decoded_VkPipelineLayoutCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineLayoutCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1692,10 +1619,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineLayoutCreateInfo>(con
 
 template <> std::string ToString<decode::Decoded_VkSamplerCreateInfo>(const decode::Decoded_VkSamplerCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSamplerCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1725,10 +1651,9 @@ template <> std::string ToString<decode::Decoded_VkSamplerCreateInfo>(const deco
 
 template <> std::string ToString<decode::Decoded_VkCopyDescriptorSet>(const decode::Decoded_VkCopyDescriptorSet& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyDescriptorSet& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1749,10 +1674,9 @@ template <> std::string ToString<decode::Decoded_VkCopyDescriptorSet>(const deco
 
 template <> std::string ToString<decode::Decoded_VkDescriptorBufferInfo>(const decode::Decoded_VkDescriptorBufferInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorBufferInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1767,10 +1691,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorBufferInfo>(const d
 
 template <> std::string ToString<decode::Decoded_VkDescriptorPoolSize>(const decode::Decoded_VkDescriptorPoolSize& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorPoolSize& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1784,10 +1707,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorPoolSize>(const dec
 
 template <> std::string ToString<decode::Decoded_VkDescriptorPoolCreateInfo>(const decode::Decoded_VkDescriptorPoolCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorPoolCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1805,10 +1727,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorPoolCreateInfo>(con
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetAllocateInfo>(const decode::Decoded_VkDescriptorSetAllocateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1825,10 +1746,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetAllocateInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutBinding>(const decode::Decoded_VkDescriptorSetLayoutBinding& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetLayoutBinding& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1845,10 +1765,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutBinding>(c
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutCreateInfo>(const decode::Decoded_VkDescriptorSetLayoutCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetLayoutCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1865,10 +1784,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkAttachmentDescription>(const decode::Decoded_VkAttachmentDescription& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1889,10 +1807,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentDescription>(const 
 
 template <> std::string ToString<decode::Decoded_VkAttachmentReference>(const decode::Decoded_VkAttachmentReference& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentReference& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1906,10 +1823,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentReference>(const de
 
 template <> std::string ToString<decode::Decoded_VkFramebufferCreateInfo>(const decode::Decoded_VkFramebufferCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFramebufferCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1930,10 +1846,9 @@ template <> std::string ToString<decode::Decoded_VkFramebufferCreateInfo>(const 
 
 template <> std::string ToString<decode::Decoded_VkSubpassDescription>(const decode::Decoded_VkSubpassDescription& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1955,10 +1870,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassDescription>(const dec
 
 template <> std::string ToString<decode::Decoded_VkSubpassDependency>(const decode::Decoded_VkSubpassDependency& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassDependency& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -1977,10 +1891,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassDependency>(const deco
 
 template <> std::string ToString<decode::Decoded_VkRenderPassCreateInfo>(const decode::Decoded_VkRenderPassCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2001,10 +1914,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreateInfo>(const d
 
 template <> std::string ToString<decode::Decoded_VkCommandPoolCreateInfo>(const decode::Decoded_VkCommandPoolCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandPoolCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2020,10 +1932,9 @@ template <> std::string ToString<decode::Decoded_VkCommandPoolCreateInfo>(const 
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferAllocateInfo>(const decode::Decoded_VkCommandBufferAllocateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2040,10 +1951,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferAllocateInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceInfo>(const decode::Decoded_VkCommandBufferInheritanceInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferInheritanceInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2063,10 +1973,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceInfo>
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferBeginInfo>(const decode::Decoded_VkCommandBufferBeginInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2082,10 +1991,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferBeginInfo>(const
 
 template <> std::string ToString<decode::Decoded_VkBufferCopy>(const decode::Decoded_VkBufferCopy& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferCopy& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2100,10 +2008,9 @@ template <> std::string ToString<decode::Decoded_VkBufferCopy>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkImageSubresourceLayers>(const decode::Decoded_VkImageSubresourceLayers& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageSubresourceLayers& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2119,10 +2026,9 @@ template <> std::string ToString<decode::Decoded_VkImageSubresourceLayers>(const
 
 template <> std::string ToString<decode::Decoded_VkBufferImageCopy>(const decode::Decoded_VkBufferImageCopy& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferImageCopy& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2140,10 +2046,9 @@ template <> std::string ToString<decode::Decoded_VkBufferImageCopy>(const decode
 
 template <> std::string ToString<decode::Decoded_VkClearDepthStencilValue>(const decode::Decoded_VkClearDepthStencilValue& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkClearDepthStencilValue& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2157,10 +2062,9 @@ template <> std::string ToString<decode::Decoded_VkClearDepthStencilValue>(const
 
 template <> std::string ToString<decode::Decoded_VkClearAttachment>(const decode::Decoded_VkClearAttachment& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkClearAttachment& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2175,10 +2079,9 @@ template <> std::string ToString<decode::Decoded_VkClearAttachment>(const decode
 
 template <> std::string ToString<decode::Decoded_VkClearRect>(const decode::Decoded_VkClearRect& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkClearRect& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2193,10 +2096,9 @@ template <> std::string ToString<decode::Decoded_VkClearRect>(const decode::Deco
 
 template <> std::string ToString<decode::Decoded_VkImageBlit>(const decode::Decoded_VkImageBlit& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageBlit& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2212,10 +2114,9 @@ template <> std::string ToString<decode::Decoded_VkImageBlit>(const decode::Deco
 
 template <> std::string ToString<decode::Decoded_VkImageCopy>(const decode::Decoded_VkImageCopy& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageCopy& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2232,10 +2133,9 @@ template <> std::string ToString<decode::Decoded_VkImageCopy>(const decode::Deco
 
 template <> std::string ToString<decode::Decoded_VkImageResolve>(const decode::Decoded_VkImageResolve& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageResolve& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2252,10 +2152,9 @@ template <> std::string ToString<decode::Decoded_VkImageResolve>(const decode::D
 
 template <> std::string ToString<decode::Decoded_VkRenderPassBeginInfo>(const decode::Decoded_VkRenderPassBeginInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2274,10 +2173,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassBeginInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupProperties>(const decode::Decoded_VkPhysicalDeviceSubgroupProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSubgroupProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2295,10 +2193,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupPropert
 
 template <> std::string ToString<decode::Decoded_VkBindBufferMemoryInfo>(const decode::Decoded_VkBindBufferMemoryInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindBufferMemoryInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2315,10 +2212,9 @@ template <> std::string ToString<decode::Decoded_VkBindBufferMemoryInfo>(const d
 
 template <> std::string ToString<decode::Decoded_VkBindImageMemoryInfo>(const decode::Decoded_VkBindImageMemoryInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindImageMemoryInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2335,10 +2231,9 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemoryInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevice16BitStorageFeatures>(const decode::Decoded_VkPhysicalDevice16BitStorageFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevice16BitStorageFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2356,10 +2251,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevice16BitStorageFea
 
 template <> std::string ToString<decode::Decoded_VkMemoryDedicatedRequirements>(const decode::Decoded_VkMemoryDedicatedRequirements& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryDedicatedRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2375,10 +2269,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryDedicatedRequirements>(
 
 template <> std::string ToString<decode::Decoded_VkMemoryDedicatedAllocateInfo>(const decode::Decoded_VkMemoryDedicatedAllocateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryDedicatedAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2394,10 +2287,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryDedicatedAllocateInfo>(
 
 template <> std::string ToString<decode::Decoded_VkMemoryAllocateFlagsInfo>(const decode::Decoded_VkMemoryAllocateFlagsInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryAllocateFlagsInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2413,10 +2305,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryAllocateFlagsInfo>(cons
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupRenderPassBeginInfo>(const decode::Decoded_VkDeviceGroupRenderPassBeginInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupRenderPassBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2433,10 +2324,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupRenderPassBeginInf
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupCommandBufferBeginInfo>(const decode::Decoded_VkDeviceGroupCommandBufferBeginInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupCommandBufferBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2451,10 +2341,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupCommandBufferBegin
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupSubmitInfo>(const decode::Decoded_VkDeviceGroupSubmitInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2474,10 +2363,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupSubmitInfo>(const 
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupBindSparseInfo>(const decode::Decoded_VkDeviceGroupBindSparseInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupBindSparseInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2493,10 +2381,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupBindSparseInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkBindBufferMemoryDeviceGroupInfo>(const decode::Decoded_VkBindBufferMemoryDeviceGroupInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindBufferMemoryDeviceGroupInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2512,10 +2399,9 @@ template <> std::string ToString<decode::Decoded_VkBindBufferMemoryDeviceGroupIn
 
 template <> std::string ToString<decode::Decoded_VkBindImageMemoryDeviceGroupInfo>(const decode::Decoded_VkBindImageMemoryDeviceGroupInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindImageMemoryDeviceGroupInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2533,10 +2419,9 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemoryDeviceGroupInf
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGroupProperties>(const decode::Decoded_VkPhysicalDeviceGroupProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceGroupProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2553,10 +2438,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGroupProperties
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupDeviceCreateInfo>(const decode::Decoded_VkDeviceGroupDeviceCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupDeviceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2572,10 +2456,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupDeviceCreateInfo>(
 
 template <> std::string ToString<decode::Decoded_VkBufferMemoryRequirementsInfo2>(const decode::Decoded_VkBufferMemoryRequirementsInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2590,10 +2473,9 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryRequirementsInfo2
 
 template <> std::string ToString<decode::Decoded_VkImageMemoryRequirementsInfo2>(const decode::Decoded_VkImageMemoryRequirementsInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2608,10 +2490,9 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryRequirementsInfo2>
 
 template <> std::string ToString<decode::Decoded_VkImageSparseMemoryRequirementsInfo2>(const decode::Decoded_VkImageSparseMemoryRequirementsInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageSparseMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2626,10 +2507,9 @@ template <> std::string ToString<decode::Decoded_VkImageSparseMemoryRequirements
 
 template <> std::string ToString<decode::Decoded_VkMemoryRequirements2>(const decode::Decoded_VkMemoryRequirements2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryRequirements2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2644,10 +2524,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryRequirements2>(const de
 
 template <> std::string ToString<decode::Decoded_VkSparseImageMemoryRequirements2>(const decode::Decoded_VkSparseImageMemoryRequirements2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseImageMemoryRequirements2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2662,10 +2541,9 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryRequirements
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFeatures2>(const decode::Decoded_VkPhysicalDeviceFeatures2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFeatures2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2680,10 +2558,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFeatures2>(cons
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProperties2>(const decode::Decoded_VkPhysicalDeviceProperties2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2698,10 +2575,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProperties2>(co
 
 template <> std::string ToString<decode::Decoded_VkFormatProperties2>(const decode::Decoded_VkFormatProperties2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFormatProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2716,10 +2592,9 @@ template <> std::string ToString<decode::Decoded_VkFormatProperties2>(const deco
 
 template <> std::string ToString<decode::Decoded_VkImageFormatProperties2>(const decode::Decoded_VkImageFormatProperties2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageFormatProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2734,10 +2609,9 @@ template <> std::string ToString<decode::Decoded_VkImageFormatProperties2>(const
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageFormatInfo2>(const decode::Decoded_VkPhysicalDeviceImageFormatInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageFormatInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2756,10 +2630,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageFormatInfo
 
 template <> std::string ToString<decode::Decoded_VkQueueFamilyProperties2>(const decode::Decoded_VkQueueFamilyProperties2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueueFamilyProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2774,10 +2647,9 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyProperties2>(const
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryProperties2>(const decode::Decoded_VkPhysicalDeviceMemoryProperties2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMemoryProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2792,10 +2664,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryPropertie
 
 template <> std::string ToString<decode::Decoded_VkSparseImageFormatProperties2>(const decode::Decoded_VkSparseImageFormatProperties2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSparseImageFormatProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2810,10 +2681,9 @@ template <> std::string ToString<decode::Decoded_VkSparseImageFormatProperties2>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSparseImageFormatInfo2>(const decode::Decoded_VkPhysicalDeviceSparseImageFormatInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSparseImageFormatInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2832,10 +2702,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSparseImageForm
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePointClippingProperties>(const decode::Decoded_VkPhysicalDevicePointClippingProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePointClippingProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2850,10 +2719,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePointClippingPr
 
 template <> std::string ToString<decode::Decoded_VkInputAttachmentAspectReference>(const decode::Decoded_VkInputAttachmentAspectReference& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkInputAttachmentAspectReference& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2868,10 +2736,9 @@ template <> std::string ToString<decode::Decoded_VkInputAttachmentAspectReferenc
 
 template <> std::string ToString<decode::Decoded_VkRenderPassInputAttachmentAspectCreateInfo>(const decode::Decoded_VkRenderPassInputAttachmentAspectCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassInputAttachmentAspectCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2887,10 +2754,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassInputAttachmentAspe
 
 template <> std::string ToString<decode::Decoded_VkImageViewUsageCreateInfo>(const decode::Decoded_VkImageViewUsageCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageViewUsageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2905,10 +2771,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewUsageCreateInfo>(con
 
 template <> std::string ToString<decode::Decoded_VkPipelineTessellationDomainOriginStateCreateInfo>(const decode::Decoded_VkPipelineTessellationDomainOriginStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineTessellationDomainOriginStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2923,10 +2788,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineTessellationDomainOri
 
 template <> std::string ToString<decode::Decoded_VkRenderPassMultiviewCreateInfo>(const decode::Decoded_VkRenderPassMultiviewCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassMultiviewCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2946,10 +2810,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassMultiviewCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewFeatures>(const decode::Decoded_VkPhysicalDeviceMultiviewFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMultiviewFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2966,10 +2829,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewFeatur
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewProperties>(const decode::Decoded_VkPhysicalDeviceMultiviewProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMultiviewProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -2985,10 +2847,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewProper
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVariablePointersFeatures>(const decode::Decoded_VkPhysicalDeviceVariablePointersFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVariablePointersFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3004,10 +2865,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVariablePointer
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProtectedMemoryFeatures>(const decode::Decoded_VkPhysicalDeviceProtectedMemoryFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceProtectedMemoryFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3022,10 +2882,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProtectedMemory
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProtectedMemoryProperties>(const decode::Decoded_VkPhysicalDeviceProtectedMemoryProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceProtectedMemoryProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3040,10 +2899,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProtectedMemory
 
 template <> std::string ToString<decode::Decoded_VkDeviceQueueInfo2>(const decode::Decoded_VkDeviceQueueInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceQueueInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3060,10 +2918,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceQueueInfo2>(const decod
 
 template <> std::string ToString<decode::Decoded_VkProtectedSubmitInfo>(const decode::Decoded_VkProtectedSubmitInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkProtectedSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3078,10 +2935,9 @@ template <> std::string ToString<decode::Decoded_VkProtectedSubmitInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionCreateInfo>(const decode::Decoded_VkSamplerYcbcrConversionCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSamplerYcbcrConversionCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3103,10 +2959,9 @@ template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionCreateI
 
 template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionInfo>(const decode::Decoded_VkSamplerYcbcrConversionInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSamplerYcbcrConversionInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3121,10 +2976,9 @@ template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionInfo>(c
 
 template <> std::string ToString<decode::Decoded_VkBindImagePlaneMemoryInfo>(const decode::Decoded_VkBindImagePlaneMemoryInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindImagePlaneMemoryInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3139,10 +2993,9 @@ template <> std::string ToString<decode::Decoded_VkBindImagePlaneMemoryInfo>(con
 
 template <> std::string ToString<decode::Decoded_VkImagePlaneMemoryRequirementsInfo>(const decode::Decoded_VkImagePlaneMemoryRequirementsInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImagePlaneMemoryRequirementsInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3157,10 +3010,9 @@ template <> std::string ToString<decode::Decoded_VkImagePlaneMemoryRequirementsI
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeatures>(const decode::Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSamplerYcbcrConversionFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3175,10 +3027,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSamplerYcbcrCon
 
 template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionImageFormatProperties>(const decode::Decoded_VkSamplerYcbcrConversionImageFormatProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSamplerYcbcrConversionImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3193,10 +3044,9 @@ template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionImageFo
 
 template <> std::string ToString<decode::Decoded_VkDescriptorUpdateTemplateEntry>(const decode::Decoded_VkDescriptorUpdateTemplateEntry& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorUpdateTemplateEntry& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3214,10 +3064,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorUpdateTemplateEntry
 
 template <> std::string ToString<decode::Decoded_VkDescriptorUpdateTemplateCreateInfo>(const decode::Decoded_VkDescriptorUpdateTemplateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorUpdateTemplateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3239,10 +3088,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorUpdateTemplateCreat
 
 template <> std::string ToString<decode::Decoded_VkExternalMemoryProperties>(const decode::Decoded_VkExternalMemoryProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalMemoryProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3257,10 +3105,9 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryProperties>(con
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalImageFormatInfo>(const decode::Decoded_VkPhysicalDeviceExternalImageFormatInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExternalImageFormatInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3275,10 +3122,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalImageFo
 
 template <> std::string ToString<decode::Decoded_VkExternalImageFormatProperties>(const decode::Decoded_VkExternalImageFormatProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3293,10 +3139,9 @@ template <> std::string ToString<decode::Decoded_VkExternalImageFormatProperties
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalBufferInfo>(const decode::Decoded_VkPhysicalDeviceExternalBufferInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExternalBufferInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3313,10 +3158,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalBufferI
 
 template <> std::string ToString<decode::Decoded_VkExternalBufferProperties>(const decode::Decoded_VkExternalBufferProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalBufferProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3331,10 +3175,9 @@ template <> std::string ToString<decode::Decoded_VkExternalBufferProperties>(con
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceIDProperties>(const decode::Decoded_VkPhysicalDeviceIDProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceIDProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3353,10 +3196,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceIDProperties>(c
 
 template <> std::string ToString<decode::Decoded_VkExternalMemoryImageCreateInfo>(const decode::Decoded_VkExternalMemoryImageCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalMemoryImageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3371,10 +3213,9 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryImageCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkExternalMemoryBufferCreateInfo>(const decode::Decoded_VkExternalMemoryBufferCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalMemoryBufferCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3389,10 +3230,9 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryBufferCreateInf
 
 template <> std::string ToString<decode::Decoded_VkExportMemoryAllocateInfo>(const decode::Decoded_VkExportMemoryAllocateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportMemoryAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3407,10 +3247,9 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryAllocateInfo>(con
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalFenceInfo>(const decode::Decoded_VkPhysicalDeviceExternalFenceInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExternalFenceInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3425,10 +3264,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalFenceIn
 
 template <> std::string ToString<decode::Decoded_VkExternalFenceProperties>(const decode::Decoded_VkExternalFenceProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalFenceProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3445,10 +3283,9 @@ template <> std::string ToString<decode::Decoded_VkExternalFenceProperties>(cons
 
 template <> std::string ToString<decode::Decoded_VkExportFenceCreateInfo>(const decode::Decoded_VkExportFenceCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportFenceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3463,10 +3300,9 @@ template <> std::string ToString<decode::Decoded_VkExportFenceCreateInfo>(const 
 
 template <> std::string ToString<decode::Decoded_VkExportSemaphoreCreateInfo>(const decode::Decoded_VkExportSemaphoreCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportSemaphoreCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3481,10 +3317,9 @@ template <> std::string ToString<decode::Decoded_VkExportSemaphoreCreateInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalSemaphoreInfo>(const decode::Decoded_VkPhysicalDeviceExternalSemaphoreInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExternalSemaphoreInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3499,10 +3334,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalSemapho
 
 template <> std::string ToString<decode::Decoded_VkExternalSemaphoreProperties>(const decode::Decoded_VkExternalSemaphoreProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalSemaphoreProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3519,10 +3353,9 @@ template <> std::string ToString<decode::Decoded_VkExternalSemaphoreProperties>(
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance3Properties>(const decode::Decoded_VkPhysicalDeviceMaintenance3Properties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMaintenance3Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3538,10 +3371,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance3Pro
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutSupport>(const decode::Decoded_VkDescriptorSetLayoutSupport& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetLayoutSupport& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3556,10 +3388,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutSupport>(c
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderDrawParametersFeatures>(const decode::Decoded_VkPhysicalDeviceShaderDrawParametersFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderDrawParametersFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3574,10 +3405,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderDrawParam
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan11Features>(const decode::Decoded_VkPhysicalDeviceVulkan11Features& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVulkan11Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3603,10 +3433,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan11Feature
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan11Properties>(const decode::Decoded_VkPhysicalDeviceVulkan11Properties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVulkan11Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3635,10 +3464,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan11Propert
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan12Features>(const decode::Decoded_VkPhysicalDeviceVulkan12Features& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVulkan12Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3699,10 +3527,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan12Feature
 
 template <> std::string ToString<decode::Decoded_VkConformanceVersion>(const decode::Decoded_VkConformanceVersion& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkConformanceVersion& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3718,10 +3545,9 @@ template <> std::string ToString<decode::Decoded_VkConformanceVersion>(const dec
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan12Properties>(const decode::Decoded_VkPhysicalDeviceVulkan12Properties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVulkan12Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3787,10 +3613,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan12Propert
 
 template <> std::string ToString<decode::Decoded_VkImageFormatListCreateInfo>(const decode::Decoded_VkImageFormatListCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageFormatListCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3806,10 +3631,9 @@ template <> std::string ToString<decode::Decoded_VkImageFormatListCreateInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkAttachmentDescription2>(const decode::Decoded_VkAttachmentDescription2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentDescription2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3832,10 +3656,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentDescription2>(const
 
 template <> std::string ToString<decode::Decoded_VkAttachmentReference2>(const decode::Decoded_VkAttachmentReference2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentReference2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3852,10 +3675,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentReference2>(const d
 
 template <> std::string ToString<decode::Decoded_VkSubpassDescription2>(const decode::Decoded_VkSubpassDescription2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassDescription2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3880,10 +3702,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassDescription2>(const de
 
 template <> std::string ToString<decode::Decoded_VkSubpassDependency2>(const decode::Decoded_VkSubpassDependency2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassDependency2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3905,10 +3726,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassDependency2>(const dec
 
 template <> std::string ToString<decode::Decoded_VkRenderPassCreateInfo2>(const decode::Decoded_VkRenderPassCreateInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassCreateInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3931,10 +3751,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreateInfo2>(const 
 
 template <> std::string ToString<decode::Decoded_VkSubpassBeginInfo>(const decode::Decoded_VkSubpassBeginInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3949,10 +3768,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassBeginInfo>(const decod
 
 template <> std::string ToString<decode::Decoded_VkSubpassEndInfo>(const decode::Decoded_VkSubpassEndInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassEndInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3966,10 +3784,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassEndInfo>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevice8BitStorageFeatures>(const decode::Decoded_VkPhysicalDevice8BitStorageFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevice8BitStorageFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -3986,10 +3803,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevice8BitStorageFeat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDriverProperties>(const decode::Decoded_VkPhysicalDeviceDriverProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDriverProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4007,10 +3823,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDriverPropertie
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicInt64Features>(const decode::Decoded_VkPhysicalDeviceShaderAtomicInt64Features& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderAtomicInt64Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4026,10 +3841,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicInt
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderFloat16Int8Features>(const decode::Decoded_VkPhysicalDeviceShaderFloat16Int8Features& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderFloat16Int8Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4045,10 +3859,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderFloat16In
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFloatControlsProperties>(const decode::Decoded_VkPhysicalDeviceFloatControlsProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFloatControlsProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4079,10 +3892,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFloatControlsPr
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo>(const decode::Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetLayoutBindingFlagsCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4098,10 +3910,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutBindingFla
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorIndexingFeatures>(const decode::Decoded_VkPhysicalDeviceDescriptorIndexingFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDescriptorIndexingFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4135,10 +3946,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorIndex
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorIndexingProperties>(const decode::Decoded_VkPhysicalDeviceDescriptorIndexingProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDescriptorIndexingProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4175,10 +3985,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorIndex
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo>(const decode::Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetVariableDescriptorCountAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4194,10 +4003,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetVariableDescript
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport>(const decode::Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetVariableDescriptorCountLayoutSupport& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4212,10 +4020,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetVariableDescript
 
 template <> std::string ToString<decode::Decoded_VkSubpassDescriptionDepthStencilResolve>(const decode::Decoded_VkSubpassDescriptionDepthStencilResolve& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassDescriptionDepthStencilResolve& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4232,10 +4039,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassDescriptionDepthStenci
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthStencilResolveProperties>(const decode::Decoded_VkPhysicalDeviceDepthStencilResolveProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDepthStencilResolveProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4253,10 +4059,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthStencilRes
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures>(const decode::Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceScalarBlockLayoutFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4271,10 +4076,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceScalarBlockLayo
 
 template <> std::string ToString<decode::Decoded_VkImageStencilUsageCreateInfo>(const decode::Decoded_VkImageStencilUsageCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageStencilUsageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4289,10 +4093,9 @@ template <> std::string ToString<decode::Decoded_VkImageStencilUsageCreateInfo>(
 
 template <> std::string ToString<decode::Decoded_VkSamplerReductionModeCreateInfo>(const decode::Decoded_VkSamplerReductionModeCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSamplerReductionModeCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4307,10 +4110,9 @@ template <> std::string ToString<decode::Decoded_VkSamplerReductionModeCreateInf
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties>(const decode::Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSamplerFilterMinmaxProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4326,10 +4128,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSamplerFilterMi
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures>(const decode::Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVulkanMemoryModelFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4346,10 +4147,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkanMemoryMod
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImagelessFramebufferFeatures>(const decode::Decoded_VkPhysicalDeviceImagelessFramebufferFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImagelessFramebufferFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4364,10 +4164,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImagelessFrameb
 
 template <> std::string ToString<decode::Decoded_VkFramebufferAttachmentImageInfo>(const decode::Decoded_VkFramebufferAttachmentImageInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFramebufferAttachmentImageInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4388,10 +4187,9 @@ template <> std::string ToString<decode::Decoded_VkFramebufferAttachmentImageInf
 
 template <> std::string ToString<decode::Decoded_VkFramebufferAttachmentsCreateInfo>(const decode::Decoded_VkFramebufferAttachmentsCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFramebufferAttachmentsCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4407,10 +4205,9 @@ template <> std::string ToString<decode::Decoded_VkFramebufferAttachmentsCreateI
 
 template <> std::string ToString<decode::Decoded_VkRenderPassAttachmentBeginInfo>(const decode::Decoded_VkRenderPassAttachmentBeginInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassAttachmentBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4426,10 +4223,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassAttachmentBeginInfo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures>(const decode::Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceUniformBufferStandardLayoutFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4444,10 +4240,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceUniformBufferSt
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures>(const decode::Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4462,10 +4257,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSubgroupE
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures>(const decode::Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4480,10 +4274,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSeparateDepthSt
 
 template <> std::string ToString<decode::Decoded_VkAttachmentReferenceStencilLayout>(const decode::Decoded_VkAttachmentReferenceStencilLayout& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentReferenceStencilLayout& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4498,10 +4291,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentReferenceStencilLay
 
 template <> std::string ToString<decode::Decoded_VkAttachmentDescriptionStencilLayout>(const decode::Decoded_VkAttachmentDescriptionStencilLayout& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentDescriptionStencilLayout& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4517,10 +4309,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentDescriptionStencilL
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceHostQueryResetFeatures>(const decode::Decoded_VkPhysicalDeviceHostQueryResetFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceHostQueryResetFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4535,10 +4326,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceHostQueryResetF
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures>(const decode::Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTimelineSemaphoreFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4553,10 +4343,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTimelineSemapho
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTimelineSemaphoreProperties>(const decode::Decoded_VkPhysicalDeviceTimelineSemaphoreProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTimelineSemaphoreProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4571,10 +4360,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTimelineSemapho
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreTypeCreateInfo>(const decode::Decoded_VkSemaphoreTypeCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreTypeCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4590,10 +4378,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreTypeCreateInfo>(cons
 
 template <> std::string ToString<decode::Decoded_VkTimelineSemaphoreSubmitInfo>(const decode::Decoded_VkTimelineSemaphoreSubmitInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkTimelineSemaphoreSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4611,10 +4398,9 @@ template <> std::string ToString<decode::Decoded_VkTimelineSemaphoreSubmitInfo>(
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreWaitInfo>(const decode::Decoded_VkSemaphoreWaitInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreWaitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4632,10 +4418,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreWaitInfo>(const deco
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreSignalInfo>(const decode::Decoded_VkSemaphoreSignalInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreSignalInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4651,10 +4436,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreSignalInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures>(const decode::Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceBufferDeviceAddressFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4671,10 +4455,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBufferDeviceAdd
 
 template <> std::string ToString<decode::Decoded_VkBufferDeviceAddressInfo>(const decode::Decoded_VkBufferDeviceAddressInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferDeviceAddressInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4689,10 +4472,9 @@ template <> std::string ToString<decode::Decoded_VkBufferDeviceAddressInfo>(cons
 
 template <> std::string ToString<decode::Decoded_VkBufferOpaqueCaptureAddressCreateInfo>(const decode::Decoded_VkBufferOpaqueCaptureAddressCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferOpaqueCaptureAddressCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4707,10 +4489,9 @@ template <> std::string ToString<decode::Decoded_VkBufferOpaqueCaptureAddressCre
 
 template <> std::string ToString<decode::Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo>(const decode::Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryOpaqueCaptureAddressAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4725,10 +4506,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryOpaqueCaptureAddressAll
 
 template <> std::string ToString<decode::Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>(const decode::Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceMemoryOpaqueCaptureAddressInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4743,10 +4523,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceMemoryOpaqueCaptureAddr
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan13Features>(const decode::Decoded_VkPhysicalDeviceVulkan13Features& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVulkan13Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4775,10 +4554,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan13Feature
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan13Properties>(const decode::Decoded_VkPhysicalDeviceVulkan13Properties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVulkan13Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4837,10 +4615,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan13Propert
 
 template <> std::string ToString<decode::Decoded_VkPipelineCreationFeedback>(const decode::Decoded_VkPipelineCreationFeedback& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCreationFeedback& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4854,10 +4631,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCreationFeedback>(con
 
 template <> std::string ToString<decode::Decoded_VkPipelineCreationFeedbackCreateInfo>(const decode::Decoded_VkPipelineCreationFeedbackCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCreationFeedbackCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4874,10 +4650,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCreationFeedbackCreat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures>(const decode::Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderTerminateInvocationFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4892,10 +4667,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderTerminate
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceToolProperties>(const decode::Decoded_VkPhysicalDeviceToolProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceToolProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4914,10 +4688,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceToolProperties>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures>(const decode::Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4932,10 +4705,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderDemoteToH
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrivateDataFeatures>(const decode::Decoded_VkPhysicalDevicePrivateDataFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePrivateDataFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4950,10 +4722,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrivateDataFeat
 
 template <> std::string ToString<decode::Decoded_VkDevicePrivateDataCreateInfo>(const decode::Decoded_VkDevicePrivateDataCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDevicePrivateDataCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4968,10 +4739,9 @@ template <> std::string ToString<decode::Decoded_VkDevicePrivateDataCreateInfo>(
 
 template <> std::string ToString<decode::Decoded_VkPrivateDataSlotCreateInfo>(const decode::Decoded_VkPrivateDataSlotCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPrivateDataSlotCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -4986,10 +4756,9 @@ template <> std::string ToString<decode::Decoded_VkPrivateDataSlotCreateInfo>(co
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures>(const decode::Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePipelineCreationCacheControlFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5004,10 +4773,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineCreatio
 
 template <> std::string ToString<decode::Decoded_VkMemoryBarrier2>(const decode::Decoded_VkMemoryBarrier2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryBarrier2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5025,10 +4793,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryBarrier2>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier2>(const decode::Decoded_VkBufferMemoryBarrier2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferMemoryBarrier2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5051,10 +4818,9 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier2>(const d
 
 template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier2>(const decode::Decoded_VkImageMemoryBarrier2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageMemoryBarrier2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5078,10 +4844,9 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier2>(const de
 
 template <> std::string ToString<decode::Decoded_VkDependencyInfo>(const decode::Decoded_VkDependencyInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDependencyInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5102,10 +4867,9 @@ template <> std::string ToString<decode::Decoded_VkDependencyInfo>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreSubmitInfo>(const decode::Decoded_VkSemaphoreSubmitInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5123,10 +4887,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreSubmitInfo>(const de
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferSubmitInfo>(const decode::Decoded_VkCommandBufferSubmitInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5142,10 +4905,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferSubmitInfo>(cons
 
 template <> std::string ToString<decode::Decoded_VkSubmitInfo2>(const decode::Decoded_VkSubmitInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubmitInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5166,10 +4928,9 @@ template <> std::string ToString<decode::Decoded_VkSubmitInfo2>(const decode::De
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSynchronization2Features>(const decode::Decoded_VkPhysicalDeviceSynchronization2Features& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSynchronization2Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5184,10 +4945,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSynchronization
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures>(const decode::Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5202,10 +4962,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceZeroInitializeW
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageRobustnessFeatures>(const decode::Decoded_VkPhysicalDeviceImageRobustnessFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageRobustnessFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5220,10 +4979,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageRobustness
 
 template <> std::string ToString<decode::Decoded_VkBufferCopy2>(const decode::Decoded_VkBufferCopy2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferCopy2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5240,10 +4998,9 @@ template <> std::string ToString<decode::Decoded_VkBufferCopy2>(const decode::De
 
 template <> std::string ToString<decode::Decoded_VkCopyBufferInfo2>(const decode::Decoded_VkCopyBufferInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyBufferInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5261,10 +5018,9 @@ template <> std::string ToString<decode::Decoded_VkCopyBufferInfo2>(const decode
 
 template <> std::string ToString<decode::Decoded_VkImageCopy2>(const decode::Decoded_VkImageCopy2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageCopy2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5283,10 +5039,9 @@ template <> std::string ToString<decode::Decoded_VkImageCopy2>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkCopyImageInfo2>(const decode::Decoded_VkCopyImageInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5306,10 +5061,9 @@ template <> std::string ToString<decode::Decoded_VkCopyImageInfo2>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkBufferImageCopy2>(const decode::Decoded_VkBufferImageCopy2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferImageCopy2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5329,10 +5083,9 @@ template <> std::string ToString<decode::Decoded_VkBufferImageCopy2>(const decod
 
 template <> std::string ToString<decode::Decoded_VkCopyBufferToImageInfo2>(const decode::Decoded_VkCopyBufferToImageInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyBufferToImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5351,10 +5104,9 @@ template <> std::string ToString<decode::Decoded_VkCopyBufferToImageInfo2>(const
 
 template <> std::string ToString<decode::Decoded_VkCopyImageToBufferInfo2>(const decode::Decoded_VkCopyImageToBufferInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyImageToBufferInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5373,10 +5125,9 @@ template <> std::string ToString<decode::Decoded_VkCopyImageToBufferInfo2>(const
 
 template <> std::string ToString<decode::Decoded_VkImageBlit2>(const decode::Decoded_VkImageBlit2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageBlit2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5394,10 +5145,9 @@ template <> std::string ToString<decode::Decoded_VkImageBlit2>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkBlitImageInfo2>(const decode::Decoded_VkBlitImageInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBlitImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5418,10 +5168,9 @@ template <> std::string ToString<decode::Decoded_VkBlitImageInfo2>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkImageResolve2>(const decode::Decoded_VkImageResolve2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageResolve2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5440,10 +5189,9 @@ template <> std::string ToString<decode::Decoded_VkImageResolve2>(const decode::
 
 template <> std::string ToString<decode::Decoded_VkResolveImageInfo2>(const decode::Decoded_VkResolveImageInfo2& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkResolveImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5463,10 +5211,9 @@ template <> std::string ToString<decode::Decoded_VkResolveImageInfo2>(const deco
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures>(const decode::Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSubgroupSizeControlFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5482,10 +5229,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupSizeCon
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupSizeControlProperties>(const decode::Decoded_VkPhysicalDeviceSubgroupSizeControlProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSubgroupSizeControlProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5503,10 +5249,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupSizeCon
 
 template <> std::string ToString<decode::Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo>(const decode::Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5521,10 +5266,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageRequiredSu
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInlineUniformBlockFeatures>(const decode::Decoded_VkPhysicalDeviceInlineUniformBlockFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceInlineUniformBlockFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5540,10 +5284,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInlineUniformBl
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInlineUniformBlockProperties>(const decode::Decoded_VkPhysicalDeviceInlineUniformBlockProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceInlineUniformBlockProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5562,10 +5305,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInlineUniformBl
 
 template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetInlineUniformBlock>(const decode::Decoded_VkWriteDescriptorSetInlineUniformBlock& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWriteDescriptorSetInlineUniformBlock& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5581,10 +5323,9 @@ template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetInlineUnifo
 
 template <> std::string ToString<decode::Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo>(const decode::Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorPoolInlineUniformBlockCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5599,10 +5340,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorPoolInlineUniformBl
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures>(const decode::Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTextureCompressionASTCHDRFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5617,10 +5357,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTextureCompress
 
 template <> std::string ToString<decode::Decoded_VkRenderingAttachmentInfo>(const decode::Decoded_VkRenderingAttachmentInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderingAttachmentInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5642,10 +5381,9 @@ template <> std::string ToString<decode::Decoded_VkRenderingAttachmentInfo>(cons
 
 template <> std::string ToString<decode::Decoded_VkRenderingInfo>(const decode::Decoded_VkRenderingInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderingInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5667,10 +5405,9 @@ template <> std::string ToString<decode::Decoded_VkRenderingInfo>(const decode::
 
 template <> std::string ToString<decode::Decoded_VkPipelineRenderingCreateInfo>(const decode::Decoded_VkPipelineRenderingCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRenderingCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5689,10 +5426,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRenderingCreateInfo>(
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDynamicRenderingFeatures>(const decode::Decoded_VkPhysicalDeviceDynamicRenderingFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDynamicRenderingFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5707,10 +5443,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDynamicRenderin
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceRenderingInfo>(const decode::Decoded_VkCommandBufferInheritanceRenderingInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferInheritanceRenderingInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5731,10 +5466,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceRende
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures>(const decode::Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderIntegerDotProductFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5749,10 +5483,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerDo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties>(const decode::Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderIntegerDotProductProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5796,10 +5529,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerDo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties>(const decode::Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTexelBufferAlignmentProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5817,10 +5549,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTexelBufferAlig
 
 template <> std::string ToString<decode::Decoded_VkFormatProperties3>(const decode::Decoded_VkFormatProperties3& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFormatProperties3& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5837,10 +5568,9 @@ template <> std::string ToString<decode::Decoded_VkFormatProperties3>(const deco
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance4Features>(const decode::Decoded_VkPhysicalDeviceMaintenance4Features& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMaintenance4Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5855,10 +5585,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance4Fea
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance4Properties>(const decode::Decoded_VkPhysicalDeviceMaintenance4Properties& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMaintenance4Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5873,10 +5602,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance4Pro
 
 template <> std::string ToString<decode::Decoded_VkDeviceBufferMemoryRequirements>(const decode::Decoded_VkDeviceBufferMemoryRequirements& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceBufferMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5891,10 +5619,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceBufferMemoryRequirement
 
 template <> std::string ToString<decode::Decoded_VkDeviceImageMemoryRequirements>(const decode::Decoded_VkDeviceImageMemoryRequirements& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceImageMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5910,10 +5637,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceImageMemoryRequirements
 
 template <> std::string ToString<decode::Decoded_VkSurfaceCapabilitiesKHR>(const decode::Decoded_VkSurfaceCapabilitiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5935,10 +5661,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilitiesKHR>(const
 
 template <> std::string ToString<decode::Decoded_VkSurfaceFormatKHR>(const decode::Decoded_VkSurfaceFormatKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceFormatKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5952,10 +5677,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFormatKHR>(const decod
 
 template <> std::string ToString<decode::Decoded_VkSwapchainCreateInfoKHR>(const decode::Decoded_VkSwapchainCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -5985,10 +5709,9 @@ template <> std::string ToString<decode::Decoded_VkSwapchainCreateInfoKHR>(const
 
 template <> std::string ToString<decode::Decoded_VkPresentInfoKHR>(const decode::Decoded_VkPresentInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPresentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6008,10 +5731,9 @@ template <> std::string ToString<decode::Decoded_VkPresentInfoKHR>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkImageSwapchainCreateInfoKHR>(const decode::Decoded_VkImageSwapchainCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6026,10 +5748,9 @@ template <> std::string ToString<decode::Decoded_VkImageSwapchainCreateInfoKHR>(
 
 template <> std::string ToString<decode::Decoded_VkBindImageMemorySwapchainInfoKHR>(const decode::Decoded_VkBindImageMemorySwapchainInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindImageMemorySwapchainInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6045,10 +5766,9 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemorySwapchainInfoK
 
 template <> std::string ToString<decode::Decoded_VkAcquireNextImageInfoKHR>(const decode::Decoded_VkAcquireNextImageInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAcquireNextImageInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6067,10 +5787,9 @@ template <> std::string ToString<decode::Decoded_VkAcquireNextImageInfoKHR>(cons
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupPresentCapabilitiesKHR>(const decode::Decoded_VkDeviceGroupPresentCapabilitiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupPresentCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6086,10 +5805,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupPresentCapabilitie
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupPresentInfoKHR>(const decode::Decoded_VkDeviceGroupPresentInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupPresentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6106,10 +5824,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupPresentInfoKHR>(co
 
 template <> std::string ToString<decode::Decoded_VkDeviceGroupSwapchainCreateInfoKHR>(const decode::Decoded_VkDeviceGroupSwapchainCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceGroupSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6124,10 +5841,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupSwapchainCreateInf
 
 template <> std::string ToString<decode::Decoded_VkDisplayModeParametersKHR>(const decode::Decoded_VkDisplayModeParametersKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayModeParametersKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6141,10 +5857,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayModeParametersKHR>(con
 
 template <> std::string ToString<decode::Decoded_VkDisplayModeCreateInfoKHR>(const decode::Decoded_VkDisplayModeCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayModeCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6160,10 +5875,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayModeCreateInfoKHR>(con
 
 template <> std::string ToString<decode::Decoded_VkDisplayModePropertiesKHR>(const decode::Decoded_VkDisplayModePropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayModePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6177,10 +5891,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayModePropertiesKHR>(con
 
 template <> std::string ToString<decode::Decoded_VkDisplayPlaneCapabilitiesKHR>(const decode::Decoded_VkDisplayPlaneCapabilitiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPlaneCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6201,10 +5914,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneCapabilitiesKHR>(
 
 template <> std::string ToString<decode::Decoded_VkDisplayPlanePropertiesKHR>(const decode::Decoded_VkDisplayPlanePropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPlanePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6218,10 +5930,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlanePropertiesKHR>(co
 
 template <> std::string ToString<decode::Decoded_VkDisplayPropertiesKHR>(const decode::Decoded_VkDisplayPropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6240,10 +5951,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPropertiesKHR>(const d
 
 template <> std::string ToString<decode::Decoded_VkDisplaySurfaceCreateInfoKHR>(const decode::Decoded_VkDisplaySurfaceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplaySurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6265,10 +5975,9 @@ template <> std::string ToString<decode::Decoded_VkDisplaySurfaceCreateInfoKHR>(
 
 template <> std::string ToString<decode::Decoded_VkDisplayPresentInfoKHR>(const decode::Decoded_VkDisplayPresentInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPresentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6285,10 +5994,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPresentInfoKHR>(const 
 
 template <> std::string ToString<decode::Decoded_VkXlibSurfaceCreateInfoKHR>(const decode::Decoded_VkXlibSurfaceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkXlibSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6305,10 +6013,9 @@ template <> std::string ToString<decode::Decoded_VkXlibSurfaceCreateInfoKHR>(con
 
 template <> std::string ToString<decode::Decoded_VkXcbSurfaceCreateInfoKHR>(const decode::Decoded_VkXcbSurfaceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkXcbSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6325,10 +6032,9 @@ template <> std::string ToString<decode::Decoded_VkXcbSurfaceCreateInfoKHR>(cons
 
 template <> std::string ToString<decode::Decoded_VkWaylandSurfaceCreateInfoKHR>(const decode::Decoded_VkWaylandSurfaceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWaylandSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6345,10 +6051,9 @@ template <> std::string ToString<decode::Decoded_VkWaylandSurfaceCreateInfoKHR>(
 
 template <> std::string ToString<decode::Decoded_VkAndroidSurfaceCreateInfoKHR>(const decode::Decoded_VkAndroidSurfaceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAndroidSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6364,10 +6069,9 @@ template <> std::string ToString<decode::Decoded_VkAndroidSurfaceCreateInfoKHR>(
 
 template <> std::string ToString<decode::Decoded_VkWin32SurfaceCreateInfoKHR>(const decode::Decoded_VkWin32SurfaceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWin32SurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6384,10 +6088,9 @@ template <> std::string ToString<decode::Decoded_VkWin32SurfaceCreateInfoKHR>(co
 
 template <> std::string ToString<decode::Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR>(const decode::Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderingFragmentShadingRateAttachmentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6404,10 +6107,9 @@ template <> std::string ToString<decode::Decoded_VkRenderingFragmentShadingRateA
 
 template <> std::string ToString<decode::Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT>(const decode::Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderingFragmentDensityMapAttachmentInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6423,10 +6125,9 @@ template <> std::string ToString<decode::Decoded_VkRenderingFragmentDensityMapAt
 
 template <> std::string ToString<decode::Decoded_VkAttachmentSampleCountInfoAMD>(const decode::Decoded_VkAttachmentSampleCountInfoAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentSampleCountInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6443,10 +6144,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentSampleCountInfoAMD>
 
 template <> std::string ToString<decode::Decoded_VkMultiviewPerViewAttributesInfoNVX>(const decode::Decoded_VkMultiviewPerViewAttributesInfoNVX& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMultiviewPerViewAttributesInfoNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6462,10 +6162,9 @@ template <> std::string ToString<decode::Decoded_VkMultiviewPerViewAttributesInf
 
 template <> std::string ToString<decode::Decoded_VkImportMemoryWin32HandleInfoKHR>(const decode::Decoded_VkImportMemoryWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportMemoryWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6482,10 +6181,9 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryWin32HandleInfoKH
 
 template <> std::string ToString<decode::Decoded_VkExportMemoryWin32HandleInfoKHR>(const decode::Decoded_VkExportMemoryWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportMemoryWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6502,10 +6200,9 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryWin32HandleInfoKH
 
 template <> std::string ToString<decode::Decoded_VkMemoryWin32HandlePropertiesKHR>(const decode::Decoded_VkMemoryWin32HandlePropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryWin32HandlePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6520,10 +6217,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryWin32HandlePropertiesKH
 
 template <> std::string ToString<decode::Decoded_VkMemoryGetWin32HandleInfoKHR>(const decode::Decoded_VkMemoryGetWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6539,10 +6235,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetWin32HandleInfoKHR>(
 
 template <> std::string ToString<decode::Decoded_VkImportMemoryFdInfoKHR>(const decode::Decoded_VkImportMemoryFdInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportMemoryFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6558,10 +6253,9 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryFdInfoKHR>(const 
 
 template <> std::string ToString<decode::Decoded_VkMemoryFdPropertiesKHR>(const decode::Decoded_VkMemoryFdPropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryFdPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6576,10 +6270,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryFdPropertiesKHR>(const 
 
 template <> std::string ToString<decode::Decoded_VkMemoryGetFdInfoKHR>(const decode::Decoded_VkMemoryGetFdInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryGetFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6595,10 +6288,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetFdInfoKHR>(const dec
 
 template <> std::string ToString<decode::Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR>(const decode::Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWin32KeyedMutexAcquireReleaseInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6619,10 +6311,9 @@ template <> std::string ToString<decode::Decoded_VkWin32KeyedMutexAcquireRelease
 
 template <> std::string ToString<decode::Decoded_VkImportSemaphoreWin32HandleInfoKHR>(const decode::Decoded_VkImportSemaphoreWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportSemaphoreWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6641,10 +6332,9 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreWin32HandleInf
 
 template <> std::string ToString<decode::Decoded_VkExportSemaphoreWin32HandleInfoKHR>(const decode::Decoded_VkExportSemaphoreWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportSemaphoreWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6661,10 +6351,9 @@ template <> std::string ToString<decode::Decoded_VkExportSemaphoreWin32HandleInf
 
 template <> std::string ToString<decode::Decoded_VkD3D12FenceSubmitInfoKHR>(const decode::Decoded_VkD3D12FenceSubmitInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkD3D12FenceSubmitInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6682,10 +6371,9 @@ template <> std::string ToString<decode::Decoded_VkD3D12FenceSubmitInfoKHR>(cons
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreGetWin32HandleInfoKHR>(const decode::Decoded_VkSemaphoreGetWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6701,10 +6389,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetWin32HandleInfoKH
 
 template <> std::string ToString<decode::Decoded_VkImportSemaphoreFdInfoKHR>(const decode::Decoded_VkImportSemaphoreFdInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportSemaphoreFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6722,10 +6409,9 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreFdInfoKHR>(con
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreGetFdInfoKHR>(const decode::Decoded_VkSemaphoreGetFdInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreGetFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6741,10 +6427,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetFdInfoKHR>(const 
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR>(const decode::Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePushDescriptorPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6759,10 +6444,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePushDescriptorP
 
 template <> std::string ToString<decode::Decoded_VkRectLayerKHR>(const decode::Decoded_VkRectLayerKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRectLayerKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6777,10 +6461,9 @@ template <> std::string ToString<decode::Decoded_VkRectLayerKHR>(const decode::D
 
 template <> std::string ToString<decode::Decoded_VkPresentRegionKHR>(const decode::Decoded_VkPresentRegionKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPresentRegionKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6794,10 +6477,9 @@ template <> std::string ToString<decode::Decoded_VkPresentRegionKHR>(const decod
 
 template <> std::string ToString<decode::Decoded_VkPresentRegionsKHR>(const decode::Decoded_VkPresentRegionsKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPresentRegionsKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6813,10 +6495,9 @@ template <> std::string ToString<decode::Decoded_VkPresentRegionsKHR>(const deco
 
 template <> std::string ToString<decode::Decoded_VkSharedPresentSurfaceCapabilitiesKHR>(const decode::Decoded_VkSharedPresentSurfaceCapabilitiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSharedPresentSurfaceCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6831,10 +6512,9 @@ template <> std::string ToString<decode::Decoded_VkSharedPresentSurfaceCapabilit
 
 template <> std::string ToString<decode::Decoded_VkImportFenceWin32HandleInfoKHR>(const decode::Decoded_VkImportFenceWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportFenceWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6853,10 +6533,9 @@ template <> std::string ToString<decode::Decoded_VkImportFenceWin32HandleInfoKHR
 
 template <> std::string ToString<decode::Decoded_VkExportFenceWin32HandleInfoKHR>(const decode::Decoded_VkExportFenceWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportFenceWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6873,10 +6552,9 @@ template <> std::string ToString<decode::Decoded_VkExportFenceWin32HandleInfoKHR
 
 template <> std::string ToString<decode::Decoded_VkFenceGetWin32HandleInfoKHR>(const decode::Decoded_VkFenceGetWin32HandleInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFenceGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6892,10 +6570,9 @@ template <> std::string ToString<decode::Decoded_VkFenceGetWin32HandleInfoKHR>(c
 
 template <> std::string ToString<decode::Decoded_VkImportFenceFdInfoKHR>(const decode::Decoded_VkImportFenceFdInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportFenceFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6913,10 +6590,9 @@ template <> std::string ToString<decode::Decoded_VkImportFenceFdInfoKHR>(const d
 
 template <> std::string ToString<decode::Decoded_VkFenceGetFdInfoKHR>(const decode::Decoded_VkFenceGetFdInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFenceGetFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6932,10 +6608,9 @@ template <> std::string ToString<decode::Decoded_VkFenceGetFdInfoKHR>(const deco
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR>(const decode::Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePerformanceQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6951,10 +6626,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePerformanceQuer
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR>(const decode::Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePerformanceQueryPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6969,10 +6643,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePerformanceQuer
 
 template <> std::string ToString<decode::Decoded_VkPerformanceCounterKHR>(const decode::Decoded_VkPerformanceCounterKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPerformanceCounterKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -6990,10 +6663,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceCounterKHR>(const 
 
 template <> std::string ToString<decode::Decoded_VkPerformanceCounterDescriptionKHR>(const decode::Decoded_VkPerformanceCounterDescriptionKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPerformanceCounterDescriptionKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7011,10 +6683,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceCounterDescription
 
 template <> std::string ToString<decode::Decoded_VkQueryPoolPerformanceCreateInfoKHR>(const decode::Decoded_VkQueryPoolPerformanceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueryPoolPerformanceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7031,10 +6702,9 @@ template <> std::string ToString<decode::Decoded_VkQueryPoolPerformanceCreateInf
 
 template <> std::string ToString<decode::Decoded_VkAcquireProfilingLockInfoKHR>(const decode::Decoded_VkAcquireProfilingLockInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAcquireProfilingLockInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7050,10 +6720,9 @@ template <> std::string ToString<decode::Decoded_VkAcquireProfilingLockInfoKHR>(
 
 template <> std::string ToString<decode::Decoded_VkPerformanceQuerySubmitInfoKHR>(const decode::Decoded_VkPerformanceQuerySubmitInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPerformanceQuerySubmitInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7068,10 +6737,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceQuerySubmitInfoKHR
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSurfaceInfo2KHR>(const decode::Decoded_VkPhysicalDeviceSurfaceInfo2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSurfaceInfo2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7086,10 +6754,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSurfaceInfo2KHR
 
 template <> std::string ToString<decode::Decoded_VkSurfaceCapabilities2KHR>(const decode::Decoded_VkSurfaceCapabilities2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceCapabilities2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7104,10 +6771,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilities2KHR>(cons
 
 template <> std::string ToString<decode::Decoded_VkSurfaceFormat2KHR>(const decode::Decoded_VkSurfaceFormat2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceFormat2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7122,10 +6788,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFormat2KHR>(const deco
 
 template <> std::string ToString<decode::Decoded_VkDisplayProperties2KHR>(const decode::Decoded_VkDisplayProperties2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayProperties2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7140,10 +6805,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayProperties2KHR>(const 
 
 template <> std::string ToString<decode::Decoded_VkDisplayPlaneProperties2KHR>(const decode::Decoded_VkDisplayPlaneProperties2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPlaneProperties2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7158,10 +6822,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneProperties2KHR>(c
 
 template <> std::string ToString<decode::Decoded_VkDisplayModeProperties2KHR>(const decode::Decoded_VkDisplayModeProperties2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayModeProperties2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7176,10 +6839,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayModeProperties2KHR>(co
 
 template <> std::string ToString<decode::Decoded_VkDisplayPlaneInfo2KHR>(const decode::Decoded_VkDisplayPlaneInfo2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPlaneInfo2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7195,10 +6857,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneInfo2KHR>(const d
 
 template <> std::string ToString<decode::Decoded_VkDisplayPlaneCapabilities2KHR>(const decode::Decoded_VkDisplayPlaneCapabilities2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPlaneCapabilities2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7213,10 +6874,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneCapabilities2KHR>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR>(const decode::Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePortabilitySubsetFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7245,10 +6905,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePortabilitySubs
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR>(const decode::Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePortabilitySubsetPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7263,10 +6922,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePortabilitySubs
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderClockFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceShaderClockFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderClockFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7282,10 +6940,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderClockFeat
 
 template <> std::string ToString<decode::Decoded_VkDeviceQueueGlobalPriorityCreateInfoKHR>(const decode::Decoded_VkDeviceQueueGlobalPriorityCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceQueueGlobalPriorityCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7300,10 +6957,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceQueueGlobalPriorityCrea
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7318,10 +6974,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGlobalPriorityQ
 
 template <> std::string ToString<decode::Decoded_VkQueueFamilyGlobalPriorityPropertiesKHR>(const decode::Decoded_VkQueueFamilyGlobalPriorityPropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueueFamilyGlobalPriorityPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7337,10 +6992,9 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyGlobalPriorityProp
 
 template <> std::string ToString<decode::Decoded_VkFragmentShadingRateAttachmentInfoKHR>(const decode::Decoded_VkFragmentShadingRateAttachmentInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFragmentShadingRateAttachmentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7356,10 +7010,9 @@ template <> std::string ToString<decode::Decoded_VkFragmentShadingRateAttachment
 
 template <> std::string ToString<decode::Decoded_VkPipelineFragmentShadingRateStateCreateInfoKHR>(const decode::Decoded_VkPipelineFragmentShadingRateStateCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineFragmentShadingRateStateCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7375,10 +7028,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineFragmentShadingRateSt
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShadingRateFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceFragmentShadingRateFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShadingRateFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7395,10 +7047,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShadingRatePropertiesKHR>(const decode::Decoded_VkPhysicalDeviceFragmentShadingRatePropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShadingRatePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7429,10 +7080,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShadingRateKHR>(const decode::Decoded_VkPhysicalDeviceFragmentShadingRateKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShadingRateKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7448,10 +7098,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
 
 template <> std::string ToString<decode::Decoded_VkSurfaceProtectedCapabilitiesKHR>(const decode::Decoded_VkSurfaceProtectedCapabilitiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceProtectedCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7466,10 +7115,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceProtectedCapabilitiesK
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePresentWaitFeaturesKHR>(const decode::Decoded_VkPhysicalDevicePresentWaitFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePresentWaitFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7484,10 +7132,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePresentWaitFeat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>(const decode::Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7502,10 +7149,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineExecuta
 
 template <> std::string ToString<decode::Decoded_VkPipelineInfoKHR>(const decode::Decoded_VkPipelineInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7520,10 +7166,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineInfoKHR>(const decode
 
 template <> std::string ToString<decode::Decoded_VkPipelineExecutablePropertiesKHR>(const decode::Decoded_VkPipelineExecutablePropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineExecutablePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7541,10 +7186,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutablePropertiesK
 
 template <> std::string ToString<decode::Decoded_VkPipelineExecutableInfoKHR>(const decode::Decoded_VkPipelineExecutableInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineExecutableInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7560,10 +7204,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutableInfoKHR>(co
 
 template <> std::string ToString<decode::Decoded_VkPipelineExecutableInternalRepresentationKHR>(const decode::Decoded_VkPipelineExecutableInternalRepresentationKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineExecutableInternalRepresentationKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7582,10 +7225,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutableInternalRep
 
 template <> std::string ToString<decode::Decoded_VkPipelineLibraryCreateInfoKHR>(const decode::Decoded_VkPipelineLibraryCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineLibraryCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7601,10 +7243,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineLibraryCreateInfoKHR>
 
 template <> std::string ToString<decode::Decoded_VkPresentIdKHR>(const decode::Decoded_VkPresentIdKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPresentIdKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7620,10 +7261,9 @@ template <> std::string ToString<decode::Decoded_VkPresentIdKHR>(const decode::D
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePresentIdFeaturesKHR>(const decode::Decoded_VkPhysicalDevicePresentIdFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePresentIdFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7638,10 +7278,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePresentIdFeatur
 
 template <> std::string ToString<decode::Decoded_VkQueueFamilyCheckpointProperties2NV>(const decode::Decoded_VkQueueFamilyCheckpointProperties2NV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueueFamilyCheckpointProperties2NV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7656,10 +7295,9 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyCheckpointProperti
 
 template <> std::string ToString<decode::Decoded_VkCheckpointData2NV>(const decode::Decoded_VkCheckpointData2NV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCheckpointData2NV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7675,10 +7313,9 @@ template <> std::string ToString<decode::Decoded_VkCheckpointData2NV>(const deco
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7693,10 +7330,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderB
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR>(const decode::Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7711,10 +7347,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderB
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7729,10 +7364,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSubgroupU
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7750,10 +7384,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceWorkgroupMemory
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>(const decode::Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7769,10 +7402,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingMaint
 
 template <> std::string ToString<decode::Decoded_VkTraceRaysIndirectCommand2KHR>(const decode::Decoded_VkTraceRaysIndirectCommand2KHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkTraceRaysIndirectCommand2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7798,10 +7430,9 @@ template <> std::string ToString<decode::Decoded_VkTraceRaysIndirectCommand2KHR>
 
 template <> std::string ToString<decode::Decoded_VkDebugReportCallbackCreateInfoEXT>(const decode::Decoded_VkDebugReportCallbackCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugReportCallbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7818,10 +7449,9 @@ template <> std::string ToString<decode::Decoded_VkDebugReportCallbackCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateRasterizationOrderAMD>(const decode::Decoded_VkPipelineRasterizationStateRasterizationOrderAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRasterizationStateRasterizationOrderAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7836,10 +7466,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateRas
 
 template <> std::string ToString<decode::Decoded_VkDebugMarkerObjectNameInfoEXT>(const decode::Decoded_VkDebugMarkerObjectNameInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugMarkerObjectNameInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7856,10 +7485,9 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerObjectNameInfoEXT>
 
 template <> std::string ToString<decode::Decoded_VkDebugMarkerObjectTagInfoEXT>(const decode::Decoded_VkDebugMarkerObjectTagInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugMarkerObjectTagInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7878,10 +7506,9 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerObjectTagInfoEXT>(
 
 template <> std::string ToString<decode::Decoded_VkDebugMarkerMarkerInfoEXT>(const decode::Decoded_VkDebugMarkerMarkerInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugMarkerMarkerInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7897,10 +7524,9 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerMarkerInfoEXT>(con
 
 template <> std::string ToString<decode::Decoded_VkDedicatedAllocationImageCreateInfoNV>(const decode::Decoded_VkDedicatedAllocationImageCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDedicatedAllocationImageCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7915,10 +7541,9 @@ template <> std::string ToString<decode::Decoded_VkDedicatedAllocationImageCreat
 
 template <> std::string ToString<decode::Decoded_VkDedicatedAllocationBufferCreateInfoNV>(const decode::Decoded_VkDedicatedAllocationBufferCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDedicatedAllocationBufferCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7933,10 +7558,9 @@ template <> std::string ToString<decode::Decoded_VkDedicatedAllocationBufferCrea
 
 template <> std::string ToString<decode::Decoded_VkDedicatedAllocationMemoryAllocateInfoNV>(const decode::Decoded_VkDedicatedAllocationMemoryAllocateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDedicatedAllocationMemoryAllocateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7952,10 +7576,9 @@ template <> std::string ToString<decode::Decoded_VkDedicatedAllocationMemoryAllo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTransformFeedbackFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceTransformFeedbackFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTransformFeedbackFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7971,10 +7594,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTransformFeedba
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTransformFeedbackPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceTransformFeedbackPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTransformFeedbackPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7998,10 +7620,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTransformFeedba
 
 template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT>(const decode::Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRasterizationStateStreamCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8017,10 +7638,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateStr
 
 template <> std::string ToString<decode::Decoded_VkImageViewHandleInfoNVX>(const decode::Decoded_VkImageViewHandleInfoNVX& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageViewHandleInfoNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8037,10 +7657,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewHandleInfoNVX>(const
 
 template <> std::string ToString<decode::Decoded_VkImageViewAddressPropertiesNVX>(const decode::Decoded_VkImageViewAddressPropertiesNVX& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageViewAddressPropertiesNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8056,10 +7675,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewAddressPropertiesNVX
 
 template <> std::string ToString<decode::Decoded_VkTextureLODGatherFormatPropertiesAMD>(const decode::Decoded_VkTextureLODGatherFormatPropertiesAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkTextureLODGatherFormatPropertiesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8074,10 +7692,9 @@ template <> std::string ToString<decode::Decoded_VkTextureLODGatherFormatPropert
 
 template <> std::string ToString<decode::Decoded_VkShaderResourceUsageAMD>(const decode::Decoded_VkShaderResourceUsageAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkShaderResourceUsageAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8094,10 +7711,9 @@ template <> std::string ToString<decode::Decoded_VkShaderResourceUsageAMD>(const
 
 template <> std::string ToString<decode::Decoded_VkShaderStatisticsInfoAMD>(const decode::Decoded_VkShaderStatisticsInfoAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkShaderStatisticsInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8116,10 +7732,9 @@ template <> std::string ToString<decode::Decoded_VkShaderStatisticsInfoAMD>(cons
 
 template <> std::string ToString<decode::Decoded_VkStreamDescriptorSurfaceCreateInfoGGP>(const decode::Decoded_VkStreamDescriptorSurfaceCreateInfoGGP& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkStreamDescriptorSurfaceCreateInfoGGP& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8135,10 +7750,9 @@ template <> std::string ToString<decode::Decoded_VkStreamDescriptorSurfaceCreate
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV>(const decode::Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceCornerSampledImageFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8153,10 +7767,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCornerSampledIm
 
 template <> std::string ToString<decode::Decoded_VkExternalImageFormatPropertiesNV>(const decode::Decoded_VkExternalImageFormatPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalImageFormatPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8172,10 +7785,9 @@ template <> std::string ToString<decode::Decoded_VkExternalImageFormatProperties
 
 template <> std::string ToString<decode::Decoded_VkExternalMemoryImageCreateInfoNV>(const decode::Decoded_VkExternalMemoryImageCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalMemoryImageCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8190,10 +7802,9 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryImageCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkExportMemoryAllocateInfoNV>(const decode::Decoded_VkExportMemoryAllocateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportMemoryAllocateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8208,10 +7819,9 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryAllocateInfoNV>(c
 
 template <> std::string ToString<decode::Decoded_VkImportMemoryWin32HandleInfoNV>(const decode::Decoded_VkImportMemoryWin32HandleInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportMemoryWin32HandleInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8227,10 +7837,9 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryWin32HandleInfoNV
 
 template <> std::string ToString<decode::Decoded_VkExportMemoryWin32HandleInfoNV>(const decode::Decoded_VkExportMemoryWin32HandleInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExportMemoryWin32HandleInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8246,10 +7855,9 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryWin32HandleInfoNV
 
 template <> std::string ToString<decode::Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV>(const decode::Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWin32KeyedMutexAcquireReleaseInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8270,10 +7878,9 @@ template <> std::string ToString<decode::Decoded_VkWin32KeyedMutexAcquireRelease
 
 template <> std::string ToString<decode::Decoded_VkValidationFlagsEXT>(const decode::Decoded_VkValidationFlagsEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkValidationFlagsEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8289,10 +7896,9 @@ template <> std::string ToString<decode::Decoded_VkValidationFlagsEXT>(const dec
 
 template <> std::string ToString<decode::Decoded_VkViSurfaceCreateInfoNN>(const decode::Decoded_VkViSurfaceCreateInfoNN& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkViSurfaceCreateInfoNN& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8308,10 +7914,9 @@ template <> std::string ToString<decode::Decoded_VkViSurfaceCreateInfoNN>(const 
 
 template <> std::string ToString<decode::Decoded_VkImageViewASTCDecodeModeEXT>(const decode::Decoded_VkImageViewASTCDecodeModeEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageViewASTCDecodeModeEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8326,10 +7931,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewASTCDecodeModeEXT>(c
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceASTCDecodeFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8344,10 +7948,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceASTCDecodeFeatu
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT>(const decode::Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePipelineRobustnessFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8362,10 +7965,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustn
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT>(const decode::Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePipelineRobustnessPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8383,10 +7985,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustn
 
 template <> std::string ToString<decode::Decoded_VkPipelineRobustnessCreateInfoEXT>(const decode::Decoded_VkPipelineRobustnessCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRobustnessCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8404,10 +8005,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRobustnessCreateInfoE
 
 template <> std::string ToString<decode::Decoded_VkConditionalRenderingBeginInfoEXT>(const decode::Decoded_VkConditionalRenderingBeginInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkConditionalRenderingBeginInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8424,10 +8024,9 @@ template <> std::string ToString<decode::Decoded_VkConditionalRenderingBeginInfo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceConditionalRenderingFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8443,10 +8042,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceConditionalRend
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT>(const decode::Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferInheritanceConditionalRenderingInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8461,10 +8059,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceCondi
 
 template <> std::string ToString<decode::Decoded_VkViewportWScalingNV>(const decode::Decoded_VkViewportWScalingNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkViewportWScalingNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8478,10 +8075,9 @@ template <> std::string ToString<decode::Decoded_VkViewportWScalingNV>(const dec
 
 template <> std::string ToString<decode::Decoded_VkPipelineViewportWScalingStateCreateInfoNV>(const decode::Decoded_VkPipelineViewportWScalingStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineViewportWScalingStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8498,10 +8094,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportWScalingState
 
 template <> std::string ToString<decode::Decoded_VkSurfaceCapabilities2EXT>(const decode::Decoded_VkSurfaceCapabilities2EXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceCapabilities2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8526,10 +8121,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilities2EXT>(cons
 
 template <> std::string ToString<decode::Decoded_VkDisplayPowerInfoEXT>(const decode::Decoded_VkDisplayPowerInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayPowerInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8544,10 +8138,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayPowerInfoEXT>(const de
 
 template <> std::string ToString<decode::Decoded_VkDeviceEventInfoEXT>(const decode::Decoded_VkDeviceEventInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceEventInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8562,10 +8155,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceEventInfoEXT>(const dec
 
 template <> std::string ToString<decode::Decoded_VkDisplayEventInfoEXT>(const decode::Decoded_VkDisplayEventInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayEventInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8580,10 +8172,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayEventInfoEXT>(const de
 
 template <> std::string ToString<decode::Decoded_VkSwapchainCounterCreateInfoEXT>(const decode::Decoded_VkSwapchainCounterCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSwapchainCounterCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8598,10 +8189,9 @@ template <> std::string ToString<decode::Decoded_VkSwapchainCounterCreateInfoEXT
 
 template <> std::string ToString<decode::Decoded_VkRefreshCycleDurationGOOGLE>(const decode::Decoded_VkRefreshCycleDurationGOOGLE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRefreshCycleDurationGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8614,10 +8204,9 @@ template <> std::string ToString<decode::Decoded_VkRefreshCycleDurationGOOGLE>(c
 
 template <> std::string ToString<decode::Decoded_VkPastPresentationTimingGOOGLE>(const decode::Decoded_VkPastPresentationTimingGOOGLE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPastPresentationTimingGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8634,10 +8223,9 @@ template <> std::string ToString<decode::Decoded_VkPastPresentationTimingGOOGLE>
 
 template <> std::string ToString<decode::Decoded_VkPresentTimeGOOGLE>(const decode::Decoded_VkPresentTimeGOOGLE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPresentTimeGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8651,10 +8239,9 @@ template <> std::string ToString<decode::Decoded_VkPresentTimeGOOGLE>(const deco
 
 template <> std::string ToString<decode::Decoded_VkPresentTimesInfoGOOGLE>(const decode::Decoded_VkPresentTimesInfoGOOGLE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPresentTimesInfoGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8670,10 +8257,9 @@ template <> std::string ToString<decode::Decoded_VkPresentTimesInfoGOOGLE>(const
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX>(const decode::Decoded_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8688,10 +8274,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewPerVie
 
 template <> std::string ToString<decode::Decoded_VkViewportSwizzleNV>(const decode::Decoded_VkViewportSwizzleNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkViewportSwizzleNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8707,10 +8292,9 @@ template <> std::string ToString<decode::Decoded_VkViewportSwizzleNV>(const deco
 
 template <> std::string ToString<decode::Decoded_VkPipelineViewportSwizzleStateCreateInfoNV>(const decode::Decoded_VkPipelineViewportSwizzleStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineViewportSwizzleStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8727,10 +8311,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportSwizzleStateC
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDiscardRectanglePropertiesEXT>(const decode::Decoded_VkPhysicalDeviceDiscardRectanglePropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDiscardRectanglePropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8745,10 +8328,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDiscardRectangl
 
 template <> std::string ToString<decode::Decoded_VkPipelineDiscardRectangleStateCreateInfoEXT>(const decode::Decoded_VkPipelineDiscardRectangleStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineDiscardRectangleStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8766,10 +8348,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineDiscardRectangleState
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceConservativeRasterizationPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceConservativeRasterizationPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceConservativeRasterizationPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8792,10 +8373,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceConservativeRas
 
 template <> std::string ToString<decode::Decoded_VkPipelineRasterizationConservativeStateCreateInfoEXT>(const decode::Decoded_VkPipelineRasterizationConservativeStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRasterizationConservativeStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8812,10 +8392,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationConserva
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthClipEnableFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceDepthClipEnableFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDepthClipEnableFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8830,10 +8409,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthClipEnable
 
 template <> std::string ToString<decode::Decoded_VkPipelineRasterizationDepthClipStateCreateInfoEXT>(const decode::Decoded_VkPipelineRasterizationDepthClipStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRasterizationDepthClipStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8849,10 +8427,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationDepthCli
 
 template <> std::string ToString<decode::Decoded_VkXYColorEXT>(const decode::Decoded_VkXYColorEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkXYColorEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8866,10 +8443,9 @@ template <> std::string ToString<decode::Decoded_VkXYColorEXT>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkHdrMetadataEXT>(const decode::Decoded_VkHdrMetadataEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkHdrMetadataEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8891,10 +8467,9 @@ template <> std::string ToString<decode::Decoded_VkHdrMetadataEXT>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkIOSSurfaceCreateInfoMVK>(const decode::Decoded_VkIOSSurfaceCreateInfoMVK& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkIOSSurfaceCreateInfoMVK& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8910,10 +8485,9 @@ template <> std::string ToString<decode::Decoded_VkIOSSurfaceCreateInfoMVK>(cons
 
 template <> std::string ToString<decode::Decoded_VkMacOSSurfaceCreateInfoMVK>(const decode::Decoded_VkMacOSSurfaceCreateInfoMVK& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMacOSSurfaceCreateInfoMVK& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8929,10 +8503,9 @@ template <> std::string ToString<decode::Decoded_VkMacOSSurfaceCreateInfoMVK>(co
 
 template <> std::string ToString<decode::Decoded_VkDebugUtilsLabelEXT>(const decode::Decoded_VkDebugUtilsLabelEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugUtilsLabelEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8948,10 +8521,9 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsLabelEXT>(const dec
 
 template <> std::string ToString<decode::Decoded_VkDebugUtilsObjectNameInfoEXT>(const decode::Decoded_VkDebugUtilsObjectNameInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugUtilsObjectNameInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8968,10 +8540,9 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsObjectNameInfoEXT>(
 
 template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCallbackDataEXT>(const decode::Decoded_VkDebugUtilsMessengerCallbackDataEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugUtilsMessengerCallbackDataEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -8995,10 +8566,9 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCallbackDa
 
 template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCreateInfoEXT>(const decode::Decoded_VkDebugUtilsMessengerCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugUtilsMessengerCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9017,10 +8587,9 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkDebugUtilsObjectTagInfoEXT>(const decode::Decoded_VkDebugUtilsObjectTagInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDebugUtilsObjectTagInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9039,10 +8608,9 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsObjectTagInfoEXT>(c
 
 template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferUsageANDROID>(const decode::Decoded_VkAndroidHardwareBufferUsageANDROID& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAndroidHardwareBufferUsageANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9057,10 +8625,9 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferUsageAND
 
 template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferPropertiesANDROID>(const decode::Decoded_VkAndroidHardwareBufferPropertiesANDROID& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAndroidHardwareBufferPropertiesANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9076,10 +8643,9 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferProperti
 
 template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferFormatPropertiesANDROID>(const decode::Decoded_VkAndroidHardwareBufferFormatPropertiesANDROID& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAndroidHardwareBufferFormatPropertiesANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9101,10 +8667,9 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferFormatPr
 
 template <> std::string ToString<decode::Decoded_VkImportAndroidHardwareBufferInfoANDROID>(const decode::Decoded_VkImportAndroidHardwareBufferInfoANDROID& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportAndroidHardwareBufferInfoANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9119,10 +8684,9 @@ template <> std::string ToString<decode::Decoded_VkImportAndroidHardwareBufferIn
 
 template <> std::string ToString<decode::Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>(const decode::Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryGetAndroidHardwareBufferInfoANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9137,10 +8701,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetAndroidHardwareBuffe
 
 template <> std::string ToString<decode::Decoded_VkExternalFormatANDROID>(const decode::Decoded_VkExternalFormatANDROID& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkExternalFormatANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9155,10 +8718,9 @@ template <> std::string ToString<decode::Decoded_VkExternalFormatANDROID>(const 
 
 template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID>(const decode::Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAndroidHardwareBufferFormatProperties2ANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9180,10 +8742,9 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferFormatPr
 
 template <> std::string ToString<decode::Decoded_VkSampleLocationEXT>(const decode::Decoded_VkSampleLocationEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSampleLocationEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9197,10 +8758,9 @@ template <> std::string ToString<decode::Decoded_VkSampleLocationEXT>(const deco
 
 template <> std::string ToString<decode::Decoded_VkSampleLocationsInfoEXT>(const decode::Decoded_VkSampleLocationsInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSampleLocationsInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9218,10 +8778,9 @@ template <> std::string ToString<decode::Decoded_VkSampleLocationsInfoEXT>(const
 
 template <> std::string ToString<decode::Decoded_VkAttachmentSampleLocationsEXT>(const decode::Decoded_VkAttachmentSampleLocationsEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAttachmentSampleLocationsEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9235,10 +8794,9 @@ template <> std::string ToString<decode::Decoded_VkAttachmentSampleLocationsEXT>
 
 template <> std::string ToString<decode::Decoded_VkSubpassSampleLocationsEXT>(const decode::Decoded_VkSubpassSampleLocationsEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassSampleLocationsEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9252,10 +8810,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassSampleLocationsEXT>(co
 
 template <> std::string ToString<decode::Decoded_VkRenderPassSampleLocationsBeginInfoEXT>(const decode::Decoded_VkRenderPassSampleLocationsBeginInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassSampleLocationsBeginInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9273,10 +8830,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSampleLocationsBegi
 
 template <> std::string ToString<decode::Decoded_VkPipelineSampleLocationsStateCreateInfoEXT>(const decode::Decoded_VkPipelineSampleLocationsStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineSampleLocationsStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9292,10 +8848,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineSampleLocationsStateC
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSampleLocationsPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceSampleLocationsPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSampleLocationsPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9314,10 +8869,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSampleLocations
 
 template <> std::string ToString<decode::Decoded_VkMultisamplePropertiesEXT>(const decode::Decoded_VkMultisamplePropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMultisamplePropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9332,10 +8886,9 @@ template <> std::string ToString<decode::Decoded_VkMultisamplePropertiesEXT>(con
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9350,10 +8903,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBlendOperationA
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9373,10 +8925,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBlendOperationA
 
 template <> std::string ToString<decode::Decoded_VkPipelineColorBlendAdvancedStateCreateInfoEXT>(const decode::Decoded_VkPipelineColorBlendAdvancedStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineColorBlendAdvancedStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9393,10 +8944,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorBlendAdvancedSta
 
 template <> std::string ToString<decode::Decoded_VkPipelineCoverageToColorStateCreateInfoNV>(const decode::Decoded_VkPipelineCoverageToColorStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCoverageToColorStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9413,10 +8963,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCoverageToColorStateC
 
 template <> std::string ToString<decode::Decoded_VkPipelineCoverageModulationStateCreateInfoNV>(const decode::Decoded_VkPipelineCoverageModulationStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCoverageModulationStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9435,10 +8984,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCoverageModulationSta
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>(const decode::Decoded_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9454,10 +9002,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSMBuiltin
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>(const decode::Decoded_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9472,10 +9019,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSMBuiltin
 
 template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesEXT>(const decode::Decoded_VkDrmFormatModifierPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDrmFormatModifierPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9490,10 +9036,9 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesEX
 
 template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesListEXT>(const decode::Decoded_VkDrmFormatModifierPropertiesListEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDrmFormatModifierPropertiesListEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9509,10 +9054,9 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesLi
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageDrmFormatModifierInfoEXT>(const decode::Decoded_VkPhysicalDeviceImageDrmFormatModifierInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageDrmFormatModifierInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9530,10 +9074,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageDrmFormatM
 
 template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierListCreateInfoEXT>(const decode::Decoded_VkImageDrmFormatModifierListCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageDrmFormatModifierListCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9549,10 +9092,9 @@ template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierListCre
 
 template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierExplicitCreateInfoEXT>(const decode::Decoded_VkImageDrmFormatModifierExplicitCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageDrmFormatModifierExplicitCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9569,10 +9111,9 @@ template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierExplici
 
 template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierPropertiesEXT>(const decode::Decoded_VkImageDrmFormatModifierPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageDrmFormatModifierPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9587,10 +9128,9 @@ template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierPropert
 
 template <> std::string ToString<decode::Decoded_VkDrmFormatModifierProperties2EXT>(const decode::Decoded_VkDrmFormatModifierProperties2EXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDrmFormatModifierProperties2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9605,10 +9145,9 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierProperties2E
 
 template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesList2EXT>(const decode::Decoded_VkDrmFormatModifierPropertiesList2EXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDrmFormatModifierPropertiesList2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9624,10 +9163,9 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesLi
 
 template <> std::string ToString<decode::Decoded_VkValidationCacheCreateInfoEXT>(const decode::Decoded_VkValidationCacheCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkValidationCacheCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9644,10 +9182,9 @@ template <> std::string ToString<decode::Decoded_VkValidationCacheCreateInfoEXT>
 
 template <> std::string ToString<decode::Decoded_VkShaderModuleValidationCacheCreateInfoEXT>(const decode::Decoded_VkShaderModuleValidationCacheCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkShaderModuleValidationCacheCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9662,10 +9199,9 @@ template <> std::string ToString<decode::Decoded_VkShaderModuleValidationCacheCr
 
 template <> std::string ToString<decode::Decoded_VkShadingRatePaletteNV>(const decode::Decoded_VkShadingRatePaletteNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkShadingRatePaletteNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9679,10 +9215,9 @@ template <> std::string ToString<decode::Decoded_VkShadingRatePaletteNV>(const d
 
 template <> std::string ToString<decode::Decoded_VkPipelineViewportShadingRateImageStateCreateInfoNV>(const decode::Decoded_VkPipelineViewportShadingRateImageStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineViewportShadingRateImageStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9699,10 +9234,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportShadingRateIm
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShadingRateImageFeaturesNV>(const decode::Decoded_VkPhysicalDeviceShadingRateImageFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShadingRateImageFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9718,10 +9252,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShadingRateImag
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShadingRateImagePropertiesNV>(const decode::Decoded_VkPhysicalDeviceShadingRateImagePropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShadingRateImagePropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9738,10 +9271,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShadingRateImag
 
 template <> std::string ToString<decode::Decoded_VkCoarseSampleLocationNV>(const decode::Decoded_VkCoarseSampleLocationNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCoarseSampleLocationNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9756,10 +9288,9 @@ template <> std::string ToString<decode::Decoded_VkCoarseSampleLocationNV>(const
 
 template <> std::string ToString<decode::Decoded_VkCoarseSampleOrderCustomNV>(const decode::Decoded_VkCoarseSampleOrderCustomNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCoarseSampleOrderCustomNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9775,10 +9306,9 @@ template <> std::string ToString<decode::Decoded_VkCoarseSampleOrderCustomNV>(co
 
 template <> std::string ToString<decode::Decoded_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV>(const decode::Decoded_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9795,10 +9325,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportCoarseSampleO
 
 template <> std::string ToString<decode::Decoded_VkRayTracingShaderGroupCreateInfoNV>(const decode::Decoded_VkRayTracingShaderGroupCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRayTracingShaderGroupCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9817,10 +9346,9 @@ template <> std::string ToString<decode::Decoded_VkRayTracingShaderGroupCreateIn
 
 template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoNV>(const decode::Decoded_VkRayTracingPipelineCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRayTracingPipelineCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9843,10 +9371,9 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoN
 
 template <> std::string ToString<decode::Decoded_VkGeometryTrianglesNV>(const decode::Decoded_VkGeometryTrianglesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGeometryTrianglesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9871,10 +9398,9 @@ template <> std::string ToString<decode::Decoded_VkGeometryTrianglesNV>(const de
 
 template <> std::string ToString<decode::Decoded_VkGeometryAABBNV>(const decode::Decoded_VkGeometryAABBNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGeometryAABBNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9892,10 +9418,9 @@ template <> std::string ToString<decode::Decoded_VkGeometryAABBNV>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkGeometryDataNV>(const decode::Decoded_VkGeometryDataNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGeometryDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9909,10 +9434,9 @@ template <> std::string ToString<decode::Decoded_VkGeometryDataNV>(const decode:
 
 template <> std::string ToString<decode::Decoded_VkGeometryNV>(const decode::Decoded_VkGeometryNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGeometryNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9929,10 +9453,9 @@ template <> std::string ToString<decode::Decoded_VkGeometryNV>(const decode::Dec
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureInfoNV>(const decode::Decoded_VkAccelerationStructureInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9951,10 +9474,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureInfoNV>(
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureCreateInfoNV>(const decode::Decoded_VkAccelerationStructureCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9970,10 +9492,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureCreateIn
 
 template <> std::string ToString<decode::Decoded_VkBindAccelerationStructureMemoryInfoNV>(const decode::Decoded_VkBindAccelerationStructureMemoryInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindAccelerationStructureMemoryInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -9992,10 +9513,9 @@ template <> std::string ToString<decode::Decoded_VkBindAccelerationStructureMemo
 
 template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetAccelerationStructureNV>(const decode::Decoded_VkWriteDescriptorSetAccelerationStructureNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWriteDescriptorSetAccelerationStructureNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10011,10 +9531,9 @@ template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetAcceleratio
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>(const decode::Decoded_VkAccelerationStructureMemoryRequirementsInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureMemoryRequirementsInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10030,10 +9549,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureMemoryRe
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPropertiesNV>(const decode::Decoded_VkPhysicalDeviceRayTracingPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRayTracingPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10055,10 +9573,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPrope
 
 template <> std::string ToString<decode::Decoded_VkAabbPositionsKHR>(const decode::Decoded_VkAabbPositionsKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAabbPositionsKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10076,10 +9593,9 @@ template <> std::string ToString<decode::Decoded_VkAabbPositionsKHR>(const decod
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureInstanceKHR>(const decode::Decoded_VkAccelerationStructureInstanceKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureInstanceKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10097,10 +9613,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureInstance
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV>(const decode::Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10115,10 +9630,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRepresentativeF
 
 template <> std::string ToString<decode::Decoded_VkPipelineRepresentativeFragmentTestStateCreateInfoNV>(const decode::Decoded_VkPipelineRepresentativeFragmentTestStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRepresentativeFragmentTestStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10133,10 +9647,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRepresentativeFragmen
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT>(const decode::Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageViewImageFormatInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10151,10 +9664,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageViewImageF
 
 template <> std::string ToString<decode::Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT>(const decode::Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFilterCubicImageViewImageFormatPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10170,10 +9682,9 @@ template <> std::string ToString<decode::Decoded_VkFilterCubicImageViewImageForm
 
 template <> std::string ToString<decode::Decoded_VkImportMemoryHostPointerInfoEXT>(const decode::Decoded_VkImportMemoryHostPointerInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportMemoryHostPointerInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10189,10 +9700,9 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryHostPointerInfoEX
 
 template <> std::string ToString<decode::Decoded_VkMemoryHostPointerPropertiesEXT>(const decode::Decoded_VkMemoryHostPointerPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryHostPointerPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10207,10 +9717,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryHostPointerPropertiesEX
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExternalMemoryHostPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10225,10 +9734,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryH
 
 template <> std::string ToString<decode::Decoded_VkPipelineCompilerControlCreateInfoAMD>(const decode::Decoded_VkPipelineCompilerControlCreateInfoAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCompilerControlCreateInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10243,10 +9751,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCompilerControlCreate
 
 template <> std::string ToString<decode::Decoded_VkCalibratedTimestampInfoEXT>(const decode::Decoded_VkCalibratedTimestampInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCalibratedTimestampInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10261,10 +9768,9 @@ template <> std::string ToString<decode::Decoded_VkCalibratedTimestampInfoEXT>(c
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCorePropertiesAMD>(const decode::Decoded_VkPhysicalDeviceShaderCorePropertiesAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderCorePropertiesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10292,10 +9798,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCorePrope
 
 template <> std::string ToString<decode::Decoded_VkDeviceMemoryOverallocationCreateInfoAMD>(const decode::Decoded_VkDeviceMemoryOverallocationCreateInfoAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceMemoryOverallocationCreateInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10310,10 +9815,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceMemoryOverallocationCre
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10328,10 +9832,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexAttribute
 
 template <> std::string ToString<decode::Decoded_VkVertexInputBindingDivisorDescriptionEXT>(const decode::Decoded_VkVertexInputBindingDivisorDescriptionEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkVertexInputBindingDivisorDescriptionEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10345,10 +9848,9 @@ template <> std::string ToString<decode::Decoded_VkVertexInputBindingDivisorDesc
 
 template <> std::string ToString<decode::Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT>(const decode::Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineVertexInputDivisorStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10364,10 +9866,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineVertexInputDivisorSta
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10383,10 +9884,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexAttribute
 
 template <> std::string ToString<decode::Decoded_VkPresentFrameTokenGGP>(const decode::Decoded_VkPresentFrameTokenGGP& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPresentFrameTokenGGP& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10401,10 +9901,9 @@ template <> std::string ToString<decode::Decoded_VkPresentFrameTokenGGP>(const d
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV>(const decode::Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceComputeShaderDerivativesFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10420,10 +9919,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceComputeShaderDe
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMeshShaderFeaturesNV>(const decode::Decoded_VkPhysicalDeviceMeshShaderFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMeshShaderFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10439,10 +9937,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMeshShaderFeatu
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMeshShaderPropertiesNV>(const decode::Decoded_VkPhysicalDeviceMeshShaderPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMeshShaderPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10469,10 +9966,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMeshShaderPrope
 
 template <> std::string ToString<decode::Decoded_VkDrawMeshTasksIndirectCommandNV>(const decode::Decoded_VkDrawMeshTasksIndirectCommandNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDrawMeshTasksIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10486,10 +9982,9 @@ template <> std::string ToString<decode::Decoded_VkDrawMeshTasksIndirectCommandN
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV>(const decode::Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderImageFootprintFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10504,10 +9999,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderImageFoot
 
 template <> std::string ToString<decode::Decoded_VkPipelineViewportExclusiveScissorStateCreateInfoNV>(const decode::Decoded_VkPipelineViewportExclusiveScissorStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineViewportExclusiveScissorStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10523,10 +10017,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportExclusiveScis
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExclusiveScissorFeaturesNV>(const decode::Decoded_VkPhysicalDeviceExclusiveScissorFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExclusiveScissorFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10541,10 +10034,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExclusiveScisso
 
 template <> std::string ToString<decode::Decoded_VkQueueFamilyCheckpointPropertiesNV>(const decode::Decoded_VkQueueFamilyCheckpointPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueueFamilyCheckpointPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10559,10 +10051,9 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyCheckpointProperti
 
 template <> std::string ToString<decode::Decoded_VkCheckpointDataNV>(const decode::Decoded_VkCheckpointDataNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCheckpointDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10578,10 +10069,9 @@ template <> std::string ToString<decode::Decoded_VkCheckpointDataNV>(const decod
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>(const decode::Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10596,10 +10086,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerFu
 
 template <> std::string ToString<decode::Decoded_VkInitializePerformanceApiInfoINTEL>(const decode::Decoded_VkInitializePerformanceApiInfoINTEL& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkInitializePerformanceApiInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10614,10 +10103,9 @@ template <> std::string ToString<decode::Decoded_VkInitializePerformanceApiInfoI
 
 template <> std::string ToString<decode::Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL>(const decode::Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkQueryPoolPerformanceQueryCreateInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10632,10 +10120,9 @@ template <> std::string ToString<decode::Decoded_VkQueryPoolPerformanceQueryCrea
 
 template <> std::string ToString<decode::Decoded_VkPerformanceMarkerInfoINTEL>(const decode::Decoded_VkPerformanceMarkerInfoINTEL& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPerformanceMarkerInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10650,10 +10137,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceMarkerInfoINTEL>(c
 
 template <> std::string ToString<decode::Decoded_VkPerformanceStreamMarkerInfoINTEL>(const decode::Decoded_VkPerformanceStreamMarkerInfoINTEL& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPerformanceStreamMarkerInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10668,10 +10154,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceStreamMarkerInfoIN
 
 template <> std::string ToString<decode::Decoded_VkPerformanceOverrideInfoINTEL>(const decode::Decoded_VkPerformanceOverrideInfoINTEL& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPerformanceOverrideInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10688,10 +10173,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceOverrideInfoINTEL>
 
 template <> std::string ToString<decode::Decoded_VkPerformanceConfigurationAcquireInfoINTEL>(const decode::Decoded_VkPerformanceConfigurationAcquireInfoINTEL& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPerformanceConfigurationAcquireInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10706,10 +10190,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceConfigurationAcqui
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT>(const decode::Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePCIBusInfoPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10727,10 +10210,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePCIBusInfoPrope
 
 template <> std::string ToString<decode::Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD>(const decode::Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDisplayNativeHdrSurfaceCapabilitiesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10745,10 +10227,9 @@ template <> std::string ToString<decode::Decoded_VkDisplayNativeHdrSurfaceCapabi
 
 template <> std::string ToString<decode::Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD>(const decode::Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSwapchainDisplayNativeHdrCreateInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10763,10 +10244,9 @@ template <> std::string ToString<decode::Decoded_VkSwapchainDisplayNativeHdrCrea
 
 template <> std::string ToString<decode::Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA>(const decode::Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImagePipeSurfaceCreateInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10782,10 +10262,9 @@ template <> std::string ToString<decode::Decoded_VkImagePipeSurfaceCreateInfoFUC
 
 template <> std::string ToString<decode::Decoded_VkMetalSurfaceCreateInfoEXT>(const decode::Decoded_VkMetalSurfaceCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMetalSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10801,10 +10280,9 @@ template <> std::string ToString<decode::Decoded_VkMetalSurfaceCreateInfoEXT>(co
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMapFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMapFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentDensityMapFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10821,10 +10299,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentDensityMapPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10841,10 +10318,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
 
 template <> std::string ToString<decode::Decoded_VkRenderPassFragmentDensityMapCreateInfoEXT>(const decode::Decoded_VkRenderPassFragmentDensityMapCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassFragmentDensityMapCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10859,10 +10335,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassFragmentDensityMapC
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCoreProperties2AMD>(const decode::Decoded_VkPhysicalDeviceShaderCoreProperties2AMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderCoreProperties2AMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10878,10 +10353,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCorePrope
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCoherentMemoryFeaturesAMD>(const decode::Decoded_VkPhysicalDeviceCoherentMemoryFeaturesAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceCoherentMemoryFeaturesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10896,10 +10370,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCoherentMemoryF
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10915,10 +10388,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderImageAtom
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryBudgetPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceMemoryBudgetPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMemoryBudgetPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10934,10 +10406,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryBudgetPro
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryPriorityFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceMemoryPriorityFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMemoryPriorityFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10952,10 +10423,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryPriorityF
 
 template <> std::string ToString<decode::Decoded_VkMemoryPriorityAllocateInfoEXT>(const decode::Decoded_VkMemoryPriorityAllocateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryPriorityAllocateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10970,10 +10440,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryPriorityAllocateInfoEXT
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV>(const decode::Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10988,10 +10457,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDedicatedAlloca
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11008,10 +10476,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBufferDeviceAdd
 
 template <> std::string ToString<decode::Decoded_VkBufferDeviceAddressCreateInfoEXT>(const decode::Decoded_VkBufferDeviceAddressCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBufferDeviceAddressCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11026,10 +10493,9 @@ template <> std::string ToString<decode::Decoded_VkBufferDeviceAddressCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkValidationFeaturesEXT>(const decode::Decoded_VkValidationFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkValidationFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11047,10 +10513,9 @@ template <> std::string ToString<decode::Decoded_VkValidationFeaturesEXT>(const 
 
 template <> std::string ToString<decode::Decoded_VkCooperativeMatrixPropertiesNV>(const decode::Decoded_VkCooperativeMatrixPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCooperativeMatrixPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11072,10 +10537,9 @@ template <> std::string ToString<decode::Decoded_VkCooperativeMatrixPropertiesNV
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesNV>(const decode::Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceCooperativeMatrixFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11091,10 +10555,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCooperativeMatr
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV>(const decode::Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceCooperativeMatrixPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11109,10 +10572,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCooperativeMatr
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV>(const decode::Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceCoverageReductionModeFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11127,10 +10589,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCoverageReducti
 
 template <> std::string ToString<decode::Decoded_VkPipelineCoverageReductionStateCreateInfoNV>(const decode::Decoded_VkPipelineCoverageReductionStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineCoverageReductionStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11146,10 +10607,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineCoverageReductionStat
 
 template <> std::string ToString<decode::Decoded_VkFramebufferMixedSamplesCombinationNV>(const decode::Decoded_VkFramebufferMixedSamplesCombinationNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkFramebufferMixedSamplesCombinationNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11167,10 +10627,9 @@ template <> std::string ToString<decode::Decoded_VkFramebufferMixedSamplesCombin
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11187,10 +10646,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderI
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11205,10 +10663,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceYcbcrImageArray
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProvokingVertexFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceProvokingVertexFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceProvokingVertexFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11224,10 +10681,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProvokingVertex
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProvokingVertexPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceProvokingVertexPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceProvokingVertexPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11243,10 +10699,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProvokingVertex
 
 template <> std::string ToString<decode::Decoded_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT>(const decode::Decoded_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11261,10 +10716,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationProvokin
 
 template <> std::string ToString<decode::Decoded_VkSurfaceFullScreenExclusiveInfoEXT>(const decode::Decoded_VkSurfaceFullScreenExclusiveInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceFullScreenExclusiveInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11279,10 +10733,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFullScreenExclusiveInf
 
 template <> std::string ToString<decode::Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT>(const decode::Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceCapabilitiesFullScreenExclusiveEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11297,10 +10750,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilitiesFullScreen
 
 template <> std::string ToString<decode::Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT>(const decode::Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSurfaceFullScreenExclusiveWin32InfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11315,10 +10767,9 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFullScreenExclusiveWin
 
 template <> std::string ToString<decode::Decoded_VkHeadlessSurfaceCreateInfoEXT>(const decode::Decoded_VkHeadlessSurfaceCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkHeadlessSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11333,10 +10784,9 @@ template <> std::string ToString<decode::Decoded_VkHeadlessSurfaceCreateInfoEXT>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLineRasterizationFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceLineRasterizationFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceLineRasterizationFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11356,10 +10806,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLineRasterizati
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLineRasterizationPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceLineRasterizationPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceLineRasterizationPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11374,10 +10823,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLineRasterizati
 
 template <> std::string ToString<decode::Decoded_VkPipelineRasterizationLineStateCreateInfoEXT>(const decode::Decoded_VkPipelineRasterizationLineStateCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineRasterizationLineStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11395,10 +10843,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationLineStat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11424,10 +10871,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicFlo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11442,10 +10888,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceIndexTypeUint8F
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11460,10 +10905,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamic
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11489,10 +10933,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicFlo
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>(const decode::Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11515,10 +10958,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceGenerated
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>(const decode::Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11533,10 +10975,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceGenerated
 
 template <> std::string ToString<decode::Decoded_VkGraphicsShaderGroupCreateInfoNV>(const decode::Decoded_VkGraphicsShaderGroupCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGraphicsShaderGroupCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11554,10 +10995,9 @@ template <> std::string ToString<decode::Decoded_VkGraphicsShaderGroupCreateInfo
 
 template <> std::string ToString<decode::Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV>(const decode::Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGraphicsPipelineShaderGroupsCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11575,10 +11015,9 @@ template <> std::string ToString<decode::Decoded_VkGraphicsPipelineShaderGroupsC
 
 template <> std::string ToString<decode::Decoded_VkBindShaderGroupIndirectCommandNV>(const decode::Decoded_VkBindShaderGroupIndirectCommandNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindShaderGroupIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11591,10 +11030,9 @@ template <> std::string ToString<decode::Decoded_VkBindShaderGroupIndirectComman
 
 template <> std::string ToString<decode::Decoded_VkBindIndexBufferIndirectCommandNV>(const decode::Decoded_VkBindIndexBufferIndirectCommandNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindIndexBufferIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11609,10 +11047,9 @@ template <> std::string ToString<decode::Decoded_VkBindIndexBufferIndirectComman
 
 template <> std::string ToString<decode::Decoded_VkBindVertexBufferIndirectCommandNV>(const decode::Decoded_VkBindVertexBufferIndirectCommandNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkBindVertexBufferIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11627,10 +11064,9 @@ template <> std::string ToString<decode::Decoded_VkBindVertexBufferIndirectComma
 
 template <> std::string ToString<decode::Decoded_VkSetStateFlagsIndirectCommandNV>(const decode::Decoded_VkSetStateFlagsIndirectCommandNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSetStateFlagsIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11643,10 +11079,9 @@ template <> std::string ToString<decode::Decoded_VkSetStateFlagsIndirectCommandN
 
 template <> std::string ToString<decode::Decoded_VkIndirectCommandsStreamNV>(const decode::Decoded_VkIndirectCommandsStreamNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkIndirectCommandsStreamNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11660,10 +11095,9 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsStreamNV>(con
 
 template <> std::string ToString<decode::Decoded_VkIndirectCommandsLayoutTokenNV>(const decode::Decoded_VkIndirectCommandsLayoutTokenNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkIndirectCommandsLayoutTokenNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11690,10 +11124,9 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsLayoutTokenNV
 
 template <> std::string ToString<decode::Decoded_VkIndirectCommandsLayoutCreateInfoNV>(const decode::Decoded_VkIndirectCommandsLayoutCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkIndirectCommandsLayoutCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11713,10 +11146,9 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsLayoutCreateI
 
 template <> std::string ToString<decode::Decoded_VkGeneratedCommandsInfoNV>(const decode::Decoded_VkGeneratedCommandsInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGeneratedCommandsInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11743,10 +11175,9 @@ template <> std::string ToString<decode::Decoded_VkGeneratedCommandsInfoNV>(cons
 
 template <> std::string ToString<decode::Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV>(const decode::Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGeneratedCommandsMemoryRequirementsInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11764,10 +11195,9 @@ template <> std::string ToString<decode::Decoded_VkGeneratedCommandsMemoryRequir
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV>(const decode::Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceInheritedViewportScissorFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11782,10 +11212,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInheritedViewpo
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceViewportScissorInfoNV>(const decode::Decoded_VkCommandBufferInheritanceViewportScissorInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferInheritanceViewportScissorInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11802,10 +11231,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceViewp
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11820,10 +11248,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTexelBufferAlig
 
 template <> std::string ToString<decode::Decoded_VkRenderPassTransformBeginInfoQCOM>(const decode::Decoded_VkRenderPassTransformBeginInfoQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassTransformBeginInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11838,10 +11265,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassTransformBeginInfoQ
 
 template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM>(const decode::Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCommandBufferInheritanceRenderPassTransformInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11857,10 +11283,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceRende
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11875,10 +11300,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceMemoryRep
 
 template <> std::string ToString<decode::Decoded_VkDeviceMemoryReportCallbackDataEXT>(const decode::Decoded_VkDeviceMemoryReportCallbackDataEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceMemoryReportCallbackDataEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11899,10 +11323,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceMemoryReportCallbackDat
 
 template <> std::string ToString<decode::Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT>(const decode::Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceDeviceMemoryReportCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11919,10 +11342,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceDeviceMemoryReportCreat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRobustness2FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceRobustness2FeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRobustness2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11939,10 +11361,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRobustness2Feat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRobustness2PropertiesEXT>(const decode::Decoded_VkPhysicalDeviceRobustness2PropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRobustness2PropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11958,10 +11379,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRobustness2Prop
 
 template <> std::string ToString<decode::Decoded_VkSamplerCustomBorderColorCreateInfoEXT>(const decode::Decoded_VkSamplerCustomBorderColorCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSamplerCustomBorderColorCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11977,10 +11397,9 @@ template <> std::string ToString<decode::Decoded_VkSamplerCustomBorderColorCreat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceCustomBorderColorPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11995,10 +11414,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCustomBorderCol
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceCustomBorderColorFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12014,10 +11432,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCustomBorderCol
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV>(const decode::Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDiagnosticsConfigFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12032,10 +11449,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDiagnosticsConf
 
 template <> std::string ToString<decode::Decoded_VkDeviceDiagnosticsConfigCreateInfoNV>(const decode::Decoded_VkDeviceDiagnosticsConfigCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDeviceDiagnosticsConfigCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12050,10 +11466,9 @@ template <> std::string ToString<decode::Decoded_VkDeviceDiagnosticsConfigCreate
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12068,10 +11483,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelin
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12087,10 +11501,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelin
 
 template <> std::string ToString<decode::Decoded_VkGraphicsPipelineLibraryCreateInfoEXT>(const decode::Decoded_VkGraphicsPipelineLibraryCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkGraphicsPipelineLibraryCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12105,10 +11518,9 @@ template <> std::string ToString<decode::Decoded_VkGraphicsPipelineLibraryCreate
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD>(const decode::Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12123,10 +11535,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderEarlyAndL
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>(const decode::Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12143,10 +11554,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV>(const decode::Decoded_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12161,10 +11571,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
 
 template <> std::string ToString<decode::Decoded_VkPipelineFragmentShadingRateEnumStateCreateInfoNV>(const decode::Decoded_VkPipelineFragmentShadingRateEnumStateCreateInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineFragmentShadingRateEnumStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12181,10 +11590,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineFragmentShadingRateEn
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometryMotionTrianglesDataNV>(const decode::Decoded_VkAccelerationStructureGeometryMotionTrianglesDataNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureGeometryMotionTrianglesDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12199,10 +11607,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureMotionInfoNV>(const decode::Decoded_VkAccelerationStructureMotionInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureMotionInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12218,10 +11625,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureMotionIn
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureMatrixMotionInstanceNV>(const decode::Decoded_VkAccelerationStructureMatrixMotionInstanceNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureMatrixMotionInstanceNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12240,10 +11646,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureMatrixMo
 
 template <> std::string ToString<decode::Decoded_VkSRTDataNV>(const decode::Decoded_VkSRTDataNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSRTDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12271,10 +11676,9 @@ template <> std::string ToString<decode::Decoded_VkSRTDataNV>(const decode::Deco
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureSRTMotionInstanceNV>(const decode::Decoded_VkAccelerationStructureSRTMotionInstanceNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureSRTMotionInstanceNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12293,10 +11697,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureSRTMotio
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>(const decode::Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12312,10 +11715,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingMotio
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12330,10 +11732,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceYcbcr2Plane444F
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12348,10 +11749,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12369,10 +11769,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
 
 template <> std::string ToString<decode::Decoded_VkCopyCommandTransformInfoQCOM>(const decode::Decoded_VkCopyCommandTransformInfoQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyCommandTransformInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12387,10 +11786,9 @@ template <> std::string ToString<decode::Decoded_VkCopyCommandTransformInfoQCOM>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageCompressionControlFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12405,10 +11803,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressio
 
 template <> std::string ToString<decode::Decoded_VkImageCompressionControlEXT>(const decode::Decoded_VkImageCompressionControlEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageCompressionControlEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12425,10 +11822,9 @@ template <> std::string ToString<decode::Decoded_VkImageCompressionControlEXT>(c
 
 template <> std::string ToString<decode::Decoded_VkSubresourceLayout2EXT>(const decode::Decoded_VkSubresourceLayout2EXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubresourceLayout2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12443,10 +11839,9 @@ template <> std::string ToString<decode::Decoded_VkSubresourceLayout2EXT>(const 
 
 template <> std::string ToString<decode::Decoded_VkImageSubresource2EXT>(const decode::Decoded_VkImageSubresource2EXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageSubresource2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12461,10 +11856,9 @@ template <> std::string ToString<decode::Decoded_VkImageSubresource2EXT>(const d
 
 template <> std::string ToString<decode::Decoded_VkImageCompressionPropertiesEXT>(const decode::Decoded_VkImageCompressionPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageCompressionPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12480,10 +11874,9 @@ template <> std::string ToString<decode::Decoded_VkImageCompressionPropertiesEXT
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12498,10 +11891,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAttachmentFeedb
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevice4444FormatsFeaturesEXT>(const decode::Decoded_VkPhysicalDevice4444FormatsFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevice4444FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12517,10 +11909,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevice4444FormatsFeat
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM>(const decode::Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12537,10 +11928,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRasterizationOr
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12555,10 +11945,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRGBA10X6Formats
 
 template <> std::string ToString<decode::Decoded_VkDirectFBSurfaceCreateInfoEXT>(const decode::Decoded_VkDirectFBSurfaceCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDirectFBSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12575,10 +11964,9 @@ template <> std::string ToString<decode::Decoded_VkDirectFBSurfaceCreateInfoEXT>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE>(const decode::Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12593,10 +11981,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMutableDescript
 
 template <> std::string ToString<decode::Decoded_VkMutableDescriptorTypeListVALVE>(const decode::Decoded_VkMutableDescriptorTypeListVALVE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMutableDescriptorTypeListVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12610,10 +11997,9 @@ template <> std::string ToString<decode::Decoded_VkMutableDescriptorTypeListVALV
 
 template <> std::string ToString<decode::Decoded_VkMutableDescriptorTypeCreateInfoVALVE>(const decode::Decoded_VkMutableDescriptorTypeCreateInfoVALVE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMutableDescriptorTypeCreateInfoVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12629,10 +12015,9 @@ template <> std::string ToString<decode::Decoded_VkMutableDescriptorTypeCreateIn
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12647,10 +12032,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexInputDyna
 
 template <> std::string ToString<decode::Decoded_VkVertexInputBindingDescription2EXT>(const decode::Decoded_VkVertexInputBindingDescription2EXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkVertexInputBindingDescription2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12668,10 +12052,9 @@ template <> std::string ToString<decode::Decoded_VkVertexInputBindingDescription
 
 template <> std::string ToString<decode::Decoded_VkVertexInputAttributeDescription2EXT>(const decode::Decoded_VkVertexInputAttributeDescription2EXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkVertexInputAttributeDescription2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12689,10 +12072,9 @@ template <> std::string ToString<decode::Decoded_VkVertexInputAttributeDescripti
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDrmPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceDrmPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDrmPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12712,10 +12094,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDrmPropertiesEX
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthClipControlFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceDepthClipControlFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDepthClipControlFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12730,10 +12111,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthClipContro
 
 template <> std::string ToString<decode::Decoded_VkPipelineViewportDepthClipControlCreateInfoEXT>(const decode::Decoded_VkPipelineViewportDepthClipControlCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineViewportDepthClipControlCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12748,10 +12128,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportDepthClipCont
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>(const decode::Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12767,10 +12146,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrimitiveTopolo
 
 template <> std::string ToString<decode::Decoded_VkImportMemoryZirconHandleInfoFUCHSIA>(const decode::Decoded_VkImportMemoryZirconHandleInfoFUCHSIA& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportMemoryZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12786,10 +12164,9 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryZirconHandleInfoF
 
 template <> std::string ToString<decode::Decoded_VkMemoryZirconHandlePropertiesFUCHSIA>(const decode::Decoded_VkMemoryZirconHandlePropertiesFUCHSIA& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryZirconHandlePropertiesFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12804,10 +12181,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryZirconHandlePropertiesF
 
 template <> std::string ToString<decode::Decoded_VkMemoryGetZirconHandleInfoFUCHSIA>(const decode::Decoded_VkMemoryGetZirconHandleInfoFUCHSIA& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryGetZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12823,10 +12199,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetZirconHandleInfoFUCH
 
 template <> std::string ToString<decode::Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA>(const decode::Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImportSemaphoreZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12844,10 +12219,9 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreZirconHandleIn
 
 template <> std::string ToString<decode::Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA>(const decode::Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSemaphoreGetZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12863,10 +12237,9 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetZirconHandleInfoF
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>(const decode::Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12881,10 +12254,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInvocationMaskF
 
 template <> std::string ToString<decode::Decoded_VkMemoryGetRemoteAddressInfoNV>(const decode::Decoded_VkMemoryGetRemoteAddressInfoNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMemoryGetRemoteAddressInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12900,10 +12272,9 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetRemoteAddressInfoNV>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>(const decode::Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12918,10 +12289,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryR
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12936,10 +12306,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultisampledRen
 
 template <> std::string ToString<decode::Decoded_VkSubpassResolvePerformanceQueryEXT>(const decode::Decoded_VkSubpassResolvePerformanceQueryEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassResolvePerformanceQueryEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12954,10 +12323,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassResolvePerformanceQuer
 
 template <> std::string ToString<decode::Decoded_VkMultisampledRenderToSingleSampledInfoEXT>(const decode::Decoded_VkMultisampledRenderToSingleSampledInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMultisampledRenderToSingleSampledInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12973,10 +12341,9 @@ template <> std::string ToString<decode::Decoded_VkMultisampledRenderToSingleSam
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>(const decode::Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12993,10 +12360,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamic
 
 template <> std::string ToString<decode::Decoded_VkScreenSurfaceCreateInfoQNX>(const decode::Decoded_VkScreenSurfaceCreateInfoQNX& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkScreenSurfaceCreateInfoQNX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13013,10 +12379,9 @@ template <> std::string ToString<decode::Decoded_VkScreenSurfaceCreateInfoQNX>(c
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceColorWriteEnableFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13031,10 +12396,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceColorWriteEnabl
 
 template <> std::string ToString<decode::Decoded_VkPipelineColorWriteCreateInfoEXT>(const decode::Decoded_VkPipelineColorWriteCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineColorWriteCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13050,10 +12414,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorWriteCreateInfoE
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>(const decode::Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13070,10 +12433,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrimitivesGener
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageViewMinLodFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13088,10 +12450,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageViewMinLod
 
 template <> std::string ToString<decode::Decoded_VkImageViewMinLodCreateInfoEXT>(const decode::Decoded_VkImageViewMinLodCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageViewMinLodCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13106,10 +12467,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewMinLodCreateInfoEXT>
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiDrawFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceMultiDrawFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMultiDrawFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13124,10 +12484,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiDrawFeatur
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiDrawPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceMultiDrawPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceMultiDrawPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13142,10 +12501,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiDrawProper
 
 template <> std::string ToString<decode::Decoded_VkMultiDrawInfoEXT>(const decode::Decoded_VkMultiDrawInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMultiDrawInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13159,10 +12517,9 @@ template <> std::string ToString<decode::Decoded_VkMultiDrawInfoEXT>(const decod
 
 template <> std::string ToString<decode::Decoded_VkMultiDrawIndexedInfoEXT>(const decode::Decoded_VkMultiDrawIndexedInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkMultiDrawIndexedInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13177,10 +12534,9 @@ template <> std::string ToString<decode::Decoded_VkMultiDrawIndexedInfoEXT>(cons
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13196,10 +12552,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImage2DViewOf3D
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13215,10 +12570,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBorderColorSwiz
 
 template <> std::string ToString<decode::Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT>(const decode::Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSamplerBorderColorComponentMappingCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13234,10 +12588,9 @@ template <> std::string ToString<decode::Decoded_VkSamplerBorderColorComponentMa
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(const decode::Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13252,10 +12605,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePageableDeviceL
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(const decode::Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13270,10 +12622,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorSetHo
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetBindingReferenceVALVE>(const decode::Decoded_VkDescriptorSetBindingReferenceVALVE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetBindingReferenceVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13289,10 +12640,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetBindingReference
 
 template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>(const decode::Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorSetLayoutHostMappingInfoVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13308,10 +12658,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutHostMappin
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13326,10 +12675,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceNonSeamlessCube
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13344,10 +12692,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM>(const decode::Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13362,10 +12709,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
 
 template <> std::string ToString<decode::Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM>(const decode::Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13381,10 +12727,9 @@ template <> std::string ToString<decode::Decoded_VkSubpassFragmentDensityMapOffs
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV>(const decode::Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13399,10 +12744,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLinearColorAtta
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13417,10 +12761,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressio
 
 template <> std::string ToString<decode::Decoded_VkImageViewSampleWeightCreateInfoQCOM>(const decode::Decoded_VkImageViewSampleWeightCreateInfoQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkImageViewSampleWeightCreateInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13437,10 +12780,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewSampleWeightCreateIn
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageProcessingFeaturesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13457,10 +12799,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessing
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM>(const decode::Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceImageProcessingPropertiesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13478,10 +12819,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessing
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13496,10 +12836,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubpassMergeFee
 
 template <> std::string ToString<decode::Decoded_VkRenderPassCreationControlEXT>(const decode::Decoded_VkRenderPassCreationControlEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassCreationControlEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13514,10 +12853,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreationControlEXT>
 
 template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackInfoEXT>(const decode::Decoded_VkRenderPassCreationFeedbackInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassCreationFeedbackInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13530,10 +12868,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackInf
 
 template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackCreateInfoEXT>(const decode::Decoded_VkRenderPassCreationFeedbackCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassCreationFeedbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13548,10 +12885,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackCre
 
 template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackInfoEXT>(const decode::Decoded_VkRenderPassSubpassFeedbackInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassSubpassFeedbackInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13566,10 +12902,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackInfo
 
 template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT>(const decode::Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRenderPassSubpassFeedbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13584,10 +12919,9 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackCrea
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13602,10 +12936,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIde
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13620,10 +12953,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIde
 
 template <> std::string ToString<decode::Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT>(const decode::Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineShaderStageModuleIdentifierCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13639,10 +12971,9 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageModuleIden
 
 template <> std::string ToString<decode::Decoded_VkShaderModuleIdentifierEXT>(const decode::Decoded_VkShaderModuleIdentifierEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkShaderModuleIdentifierEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13658,10 +12989,9 @@ template <> std::string ToString<decode::Decoded_VkShaderModuleIdentifierEXT>(co
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceTilePropertiesFeaturesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13676,10 +13006,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTilePropertiesF
 
 template <> std::string ToString<decode::Decoded_VkTilePropertiesQCOM>(const decode::Decoded_VkTilePropertiesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkTilePropertiesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13696,10 +13025,9 @@ template <> std::string ToString<decode::Decoded_VkTilePropertiesQCOM>(const dec
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC>(const decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceAmigoProfilingFeaturesSEC& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13714,10 +13042,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAmigoProfilingF
 
 template <> std::string ToString<decode::Decoded_VkAmigoProfilingSubmitInfoSEC>(const decode::Decoded_VkAmigoProfilingSubmitInfoSEC& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAmigoProfilingSubmitInfoSEC& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13733,10 +13060,9 @@ template <> std::string ToString<decode::Decoded_VkAmigoProfilingSubmitInfoSEC>(
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureBuildRangeInfoKHR>(const decode::Decoded_VkAccelerationStructureBuildRangeInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureBuildRangeInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13752,10 +13078,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureBuildRan
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometryTrianglesDataKHR>(const decode::Decoded_VkAccelerationStructureGeometryTrianglesDataKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureGeometryTrianglesDataKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13776,10 +13101,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometryAabbsDataKHR>(const decode::Decoded_VkAccelerationStructureGeometryAabbsDataKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureGeometryAabbsDataKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13795,10 +13119,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometryInstancesDataKHR>(const decode::Decoded_VkAccelerationStructureGeometryInstancesDataKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureGeometryInstancesDataKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13814,10 +13137,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureCreateInfoKHR>(const decode::Decoded_VkAccelerationStructureCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13837,10 +13159,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureCreateIn
 
 template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(const decode::Decoded_VkWriteDescriptorSetAccelerationStructureKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWriteDescriptorSetAccelerationStructureKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13856,10 +13177,9 @@ template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetAcceleratio
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAccelerationStructureFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceAccelerationStructureFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceAccelerationStructureFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13878,10 +13198,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAccelerationStr
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAccelerationStructurePropertiesKHR>(const decode::Decoded_VkPhysicalDeviceAccelerationStructurePropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceAccelerationStructurePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13903,10 +13222,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAccelerationStr
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureDeviceAddressInfoKHR>(const decode::Decoded_VkAccelerationStructureDeviceAddressInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureDeviceAddressInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13921,10 +13239,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureDeviceAd
 
 template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>(const decode::Decoded_VkCopyAccelerationStructureToMemoryInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyAccelerationStructureToMemoryInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13941,10 +13258,9 @@ template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureToMe
 
 template <> std::string ToString<decode::Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>(const decode::Decoded_VkCopyMemoryToAccelerationStructureInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyMemoryToAccelerationStructureInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13961,10 +13277,9 @@ template <> std::string ToString<decode::Decoded_VkCopyMemoryToAccelerationStruc
 
 template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureInfoKHR>(const decode::Decoded_VkCopyAccelerationStructureInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkCopyAccelerationStructureInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -13981,10 +13296,9 @@ template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureInfo
 
 template <> std::string ToString<decode::Decoded_VkAccelerationStructureBuildSizesInfoKHR>(const decode::Decoded_VkAccelerationStructureBuildSizesInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureBuildSizesInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14001,10 +13315,9 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureBuildSiz
 
 template <> std::string ToString<decode::Decoded_VkRayTracingShaderGroupCreateInfoKHR>(const decode::Decoded_VkRayTracingShaderGroupCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRayTracingShaderGroupCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14024,10 +13337,9 @@ template <> std::string ToString<decode::Decoded_VkRayTracingShaderGroupCreateIn
 
 template <> std::string ToString<decode::Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR>(const decode::Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRayTracingPipelineInterfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14043,10 +13355,9 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineInterfaceCr
 
 template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoKHR>(const decode::Decoded_VkRayTracingPipelineCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkRayTracingPipelineCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14072,10 +13383,9 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoK
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPipelineFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceRayTracingPipelineFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRayTracingPipelineFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14094,10 +13404,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPipel
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(const decode::Decoded_VkPhysicalDeviceRayTracingPipelinePropertiesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14119,10 +13428,9 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPipel
 
 template <> std::string ToString<decode::Decoded_VkStridedDeviceAddressRegionKHR>(const decode::Decoded_VkStridedDeviceAddressRegionKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkStridedDeviceAddressRegionKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14137,10 +13445,9 @@ template <> std::string ToString<decode::Decoded_VkStridedDeviceAddressRegionKHR
 
 template <> std::string ToString<decode::Decoded_VkTraceRaysIndirectCommandKHR>(const decode::Decoded_VkTraceRaysIndirectCommandKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkTraceRaysIndirectCommandKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -14155,10 +13462,9 @@ template <> std::string ToString<decode::Decoded_VkTraceRaysIndirectCommandKHR>(
 
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayQueryFeaturesKHR>(const decode::Decoded_VkPhysicalDeviceRayQueryFeaturesKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPhysicalDeviceRayQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,

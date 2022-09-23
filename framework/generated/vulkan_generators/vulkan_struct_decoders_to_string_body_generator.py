@@ -127,10 +127,9 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                 body = inspect.cleandoc('''
                     template <> std::string ToString<decode::Decoded_{0}>(const decode::Decoded_{0}& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
                     {{
-                        assert(decoded_obj.decoded_value != nullptr);
                         if(decoded_obj.decoded_value == nullptr)
                         {{
-                            return "";
+                            return "null";
                         }}
                         const {0}& obj = *decoded_obj.decoded_value;
                         return ObjectToString(toStringFlags, tabCount, tabSize,
