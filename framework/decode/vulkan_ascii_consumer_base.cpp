@@ -43,10 +43,7 @@ void VulkanAsciiConsumerBase::Initialize(FILE* file)
 
 void VulkanAsciiConsumerBase::Destroy()
 {
-    if (file_ != nullptr)
-    {
-        file_ = nullptr;
-    }
+    file_ = nullptr;
     strStrm_.str(std::string{});
 }
 
