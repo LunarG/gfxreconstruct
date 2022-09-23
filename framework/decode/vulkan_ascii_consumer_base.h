@@ -119,10 +119,10 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
                                    const uint32_t             tabSize,
                                    const ToStringFunctionType toStringFunction,
                                    /// The formatted return string value excluding trailing comma
-                                   const char* const return_val = nullptr)
+                                   const std::string& return_val = std::string())
     {
         // Output the start of a function call line, up to the arguments:
-        if (nullptr == return_val)
+        if (return_val.empty())
         {
             fprintf(file_,
                     "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"args\":{",
@@ -135,7 +135,7 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
                     "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":%s,\"args\":{",
                     (long long unsigned int)call_info.index,
                     functionName.c_str(),
-                    return_val);
+                    return_val.c_str());
         }
 
         // Reset the per-call reusable stringstream and use it to capture the full tree of

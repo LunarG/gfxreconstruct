@@ -80,7 +80,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
         FieldToString(strStrm, false, "[out]pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
     };
     const auto return_val = '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"';
-    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString, return_val.c_str());
+    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString, return_val);
 }
 
 void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
@@ -107,7 +107,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
         FieldToString(strStrm, false, "[out]pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
     };
     const auto return_val = '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"';
-    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString, return_val.c_str());
+    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString, return_val);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKHR(

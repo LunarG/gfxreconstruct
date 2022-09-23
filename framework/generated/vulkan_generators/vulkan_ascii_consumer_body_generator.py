@@ -139,7 +139,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 ) + '\n'
                 return_val = ""
                 if not 'void' in return_type:
-                    return_val = ', (\'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\').c_str()'
+                    return_val = ', (\'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\')'
                 cmddef += inspect.cleandoc(
                     '''
                     {{
