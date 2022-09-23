@@ -132,7 +132,7 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
         else
         {
             fprintf(file_,
-                    "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":%s,\"args\":{",
+                    "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":\"%s\",\"args\":{",
                     (long long unsigned int)call_info.index,
                     functionName.c_str(),
                     return_val.c_str());
