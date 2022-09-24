@@ -268,6 +268,8 @@ std::string ToString<decode::Decoded_VkWriteDescriptorSet>(const decode::Decoded
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            case VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM:
+            case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
             {
                 FieldToString(strStrm, false, "pImageInfo", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(decoded_obj.pImageInfo, toStringFlags, tabCount, tabSize));
             } break;
@@ -283,9 +285,24 @@ std::string ToString<decode::Decoded_VkWriteDescriptorSet>(const decode::Decoded
             {
                 FieldToString(strStrm, false, "pTexelBufferView", toStringFlags, tabCount, tabSize, ArrayToString(decoded_obj.pTexelBufferView.GetLength(), decoded_obj.pTexelBufferView.GetPointer(), toStringFlags, tabCount, tabSize));
             } break;
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            {
+                // NOP, The data was output in the pNext chain above.
+            } break;
+            /// @todo This should be fine as the data was output in the pNext chain above
+            //  via generated code but needs checking on RADV.
+            case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
+            /// @todo This should also be fine, as the code to output the related data via
+            /// the pNext chain above is all generated but needs checking with a trace using
+            /// the old NV RT extension:
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+            {
+                GFXRECON_LOG_WARNING_ONCE("Untested descriptorType in VkWriteDescriptorSet: %s.", ToString(obj.descriptorType, 0, 0, 0).c_str());
+            } break;
             default: 
             {
-                GFXRECON_LOG_ERROR("Unknown descriptorType in VkWriteDescriptorSet.");
+                GFXRECON_LOG_ERROR("Unknown descriptorType in VkWriteDescriptorSet: %s.", ToString(obj.descriptorType, 0, 0, 0).c_str());
             }
             break;
             }
