@@ -41,22 +41,20 @@ GFXRECON_BEGIN_NAMESPACE(util)
 template <>
 std::string ToString<decode::Decoded_SECURITY_ATTRIBUTES>(const decode::Decoded_SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(obj.decoded_value);
     if(obj.decoded_value)
     {
         return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return "";
+    return "null";
 }
 
 // Follow the decoded struct pointers.
 template<>
 std::string ToString<decode::Decoded_VkAccelerationStructureGeometryKHR>(const decode::Decoded_VkAccelerationStructureGeometryKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureGeometryKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -99,13 +97,11 @@ std::string ToString<decode::Decoded_VkAccelerationStructureGeometryKHR>(const d
 template <>
 std::string ToString<decode::Decoded_VkAccelerationStructureMotionInstanceNV>(const decode::Decoded_VkAccelerationStructureMotionInstanceNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(obj.decoded_value);
-    std::string str;
     if(obj.decoded_value)
     {
-        str += ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+        return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return str;
+    return "null";
 }
 
 // Dispatch to the raw vulkan version as there are no pNexts or handles reachable through this.
@@ -115,33 +111,30 @@ std::string ToString<decode::Decoded_VkClearColorValue>(const decode::Decoded_Vk
                                         uint32_t                 tabCount,
                                         uint32_t                 tabSize)
 {
-    assert(obj.decoded_value);
     if(obj.decoded_value)
     {
         return ToString<VkClearColorValue>(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return "";
+    return "null";
 }
 
 // Dispatch to the raw vulkan version as there are no pNexts or handles reachable through this.
 template <>
 std::string ToString<decode::Decoded_VkClearValue>(const decode::Decoded_VkClearValue& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(obj.decoded_value);
     if(obj.decoded_value)
     {
         return ToString<VkClearValue>(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return "";
+    return "null";
 }
 
 template <>
 std::string ToString<decode::Decoded_VkDescriptorImageInfo>(const decode::Decoded_VkDescriptorImageInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkDescriptorImageInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -160,12 +153,11 @@ std::string ToString<decode::Decoded_VkDeviceOrHostAddressConstKHR>(const decode
                                                     uint32_t                             tabCount,
                                                     uint32_t                             tabSize)
 {
-    assert(obj.decoded_value);
     if(obj.decoded_value)
     {
         return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return "";
+    return "null";
 }
 
 template <>
@@ -174,25 +166,22 @@ std::string ToString<decode::Decoded_VkDeviceOrHostAddressKHR>(const decode::Dec
                                                uint32_t                        tabCount,
                                                uint32_t                        tabSize)
 {
-    assert(obj.decoded_value);
     if(obj.decoded_value)
     {
         return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return "";
+    return "null";
 }
 
 // Call through to raw vulkan struct version as there are no handles reachable through this.
 template <>
 std::string ToString<decode::Decoded_VkPerformanceValueINTEL>(const decode::Decoded_VkPerformanceValueINTEL& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(obj.decoded_value);
-    std::string str;
     if(obj.decoded_value)
     {
-        str += ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+        return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return str;
+    return "null";
 }
 
 template <>
@@ -201,10 +190,9 @@ std::string ToString<decode::Decoded_VkPipelineExecutableStatisticKHR>(const dec
                                            uint32_t                    tabCount,
                                            uint32_t                    tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineExecutableStatisticKHR& obj = *decoded_obj.decoded_value;
 
@@ -256,10 +244,9 @@ std::string ToString<decode::Decoded_VkWriteDescriptorSet>(const decode::Decoded
                                            uint32_t                    tabCount,
                                            uint32_t                    tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkWriteDescriptorSet& obj = *decoded_obj.decoded_value;
     
@@ -309,10 +296,9 @@ std::string ToString<decode::Decoded_VkWriteDescriptorSet>(const decode::Decoded
 template <>
 std::string ToString<decode::Decoded_VkAccelerationStructureBuildGeometryInfoKHR>(const decode::Decoded_VkAccelerationStructureBuildGeometryInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureBuildGeometryInfoKHR& obj = *decoded_obj.decoded_value;
 
@@ -362,10 +348,9 @@ std::string ToString<decode::Decoded_VkAccelerationStructureBuildGeometryInfoKHR
 template <>
 std::string ToString<decode::Decoded_VkAccelerationStructureVersionInfoKHR>(const decode::Decoded_VkAccelerationStructureVersionInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkAccelerationStructureVersionInfoKHR& obj = *decoded_obj.decoded_value;
 
@@ -384,13 +369,11 @@ std::string ToString<decode::Decoded_VkAccelerationStructureVersionInfoKHR>(cons
 template <>
 std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryProperties>(const decode::Decoded_VkPhysicalDeviceMemoryProperties& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(obj.decoded_value);
-    std::string str;
     if(obj.decoded_value)
     {
-        str += ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+        return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return str;
+    return "null";
 }
 
 
@@ -398,10 +381,9 @@ std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryProperties>(const dec
 template <>
 std::string ToString<decode::Decoded_VkPipelineMultisampleStateCreateInfo>(const decode::Decoded_VkPipelineMultisampleStateCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkPipelineMultisampleStateCreateInfo& obj = *decoded_obj.decoded_value;
     
@@ -425,10 +407,9 @@ std::string ToString<decode::Decoded_VkPipelineMultisampleStateCreateInfo>(const
 template <>
 std::string ToString<decode::Decoded_VkShaderModuleCreateInfo>(const decode::Decoded_VkShaderModuleCreateInfo& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(decoded_obj.decoded_value != nullptr);
     if(decoded_obj.decoded_value == nullptr)
     {
-        return "";
+        return "null";
     }
     const VkShaderModuleCreateInfo& obj = *decoded_obj.decoded_value;
 
@@ -448,13 +429,11 @@ std::string ToString<decode::Decoded_VkShaderModuleCreateInfo>(const decode::Dec
 template <>
 std::string ToString<decode::Decoded_VkTransformMatrixKHR>(const decode::Decoded_VkTransformMatrixKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    assert(obj.decoded_value);
-    std::string str;
     if(obj.decoded_value)
     {
-        str += ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
+        return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
-    return str;
+    return "null";
 }
 
 // clang-format on
