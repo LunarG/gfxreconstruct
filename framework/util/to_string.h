@@ -139,21 +139,23 @@ inline std::string ArrayToString(size_t                    count,
                                  ValidateArrayFunctionType validateArrayFunction,
                                  ToStringFunctionType      toStringFunction)
 {
+    if (!(count && validateArrayFunction()))
+    {
+        return "null";
+    }
+
     std::stringstream strStrm;
     strStrm << '[';
-    if (count && validateArrayFunction())
+    strStrm << GetNewlineString(toStringFlags);
+    for (uint32_t i = 0; i < count; ++i)
     {
-        strStrm << GetNewlineString(toStringFlags);
-        for (uint32_t i = 0; i < count; ++i)
+        if (i)
         {
-            if (i)
-            {
-                strStrm << ',' << GetNewlineString(toStringFlags);
-            }
-            strStrm << GetTabString(toStringFlags, tabCount + 1, tabSize) << toStringFunction(i);
+            strStrm << ',' << GetNewlineString(toStringFlags);
         }
-        strStrm << GetNewlineString(toStringFlags) << GetTabString(toStringFlags, tabCount, tabSize);
+        strStrm << GetTabString(toStringFlags, tabCount + 1, tabSize) << toStringFunction(i);
     }
+    strStrm << GetNewlineString(toStringFlags) << GetTabString(toStringFlags, tabCount, tabSize);
     strStrm << ']';
     return strStrm.str();
 }
