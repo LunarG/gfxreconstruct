@@ -2205,6 +2205,25 @@ void VulkanCaptureManager::PreProcess_vkGetAndroidHardwareBufferPropertiesANDROI
 #endif
 }
 
+void VulkanCaptureManager::PostProcess_vkSetPrivateData(VkResult          result,
+                                                        VkDevice          device,
+                                                        VkObjectType      objectType,
+                                                        uint64_t          objectHandle,
+                                                        VkPrivateDataSlot privateDataSlot,
+                                                        uint64_t          data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(privateDataSlot);
+
+    if (privateDataSlot != VK_NULL_HANDLE)
+    {
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackSetPrivateData(device, objectType, objectHandle, privateDataSlot, data);
+        }
+    }
+}
+
 #if defined(__ANDROID__)
 void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
                                                                            VkPresentModeKHR* pPresentModes)

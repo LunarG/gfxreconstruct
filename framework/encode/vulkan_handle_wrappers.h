@@ -78,7 +78,6 @@ struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsM
 struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
 struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
 struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct PrivateDataSlotWrapper               : public HandleWrapper<VkPrivateDataSlot> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
@@ -453,6 +452,14 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
 {
     // TODO: Determine what additional state tracking is needed.
+};
+
+struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
+{
+    DeviceWrapper* device{ nullptr };
+    VkObjectType   object_type{ VK_OBJECT_TYPE_UNKNOWN };
+    uint64_t       object_handle{ 0 };
+    uint64_t       data{ 0 };
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.

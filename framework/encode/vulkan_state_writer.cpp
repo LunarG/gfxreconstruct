@@ -113,7 +113,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     StandardCreateWrite<DebugUtilsMessengerEXTWrapper>(state_table);
     StandardCreateWrite<ValidationCacheEXTWrapper>(state_table);
     StandardCreateWrite<DeferredOperationKHRWrapper>(state_table);
-    StandardCreateWrite<PrivateDataSlotEXTWrapper>(state_table);
+    WritePrivateDataSlotState(state_table);
 
     // Synchronization primitive creation.
     WriteFenceState(state_table);
@@ -294,6 +294,38 @@ void VulkanStateWriter::WriteTrimCommandPool(const VulkanStateTable& state_table
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkTrimCommandPool, &parameter_stream_);
             parameter_stream_.Reset();
+        }
+    });
+}
+
+void VulkanStateWriter::WritePrivateDataSlotState(const VulkanStateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+
+    state_table.VisitWrappers([&](const PrivateDataSlotWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        {
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+            processed.insert(wrapper->create_parameters.get());
+
+            // vkSetPrivateData shouldn't affect rendering. It's not necessary to replay. But it could help as debug
+            // info.
+            if (wrapper->data != 0)
+            {
+                const DeviceWrapper* device_wrapper = wrapper->device;
+                assert(device_wrapper != nullptr);
+
+                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                encoder_.EncodeEnumValue(wrapper->object_type);
+                encoder_.EncodeUInt64Value(wrapper->object_handle);
+                encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                encoder_.EncodeUInt64Value(wrapper->data);
+                encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                WriteFunctionCall(format::ApiCallId::ApiCall_vkSetPrivateData, &parameter_stream_);
+                parameter_stream_.Reset();
+            }
         }
     });
 }

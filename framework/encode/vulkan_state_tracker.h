@@ -393,6 +393,12 @@ class VulkanStateTracker
 
     void TrackReleaseFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain);
 
+    void TrackSetPrivateData(VkDevice          device,
+                             VkObjectType      objectType,
+                             uint64_t          objectHandle,
+                             VkPrivateDataSlot privateDataSlot,
+                             uint64_t          data);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                  parent_handle,

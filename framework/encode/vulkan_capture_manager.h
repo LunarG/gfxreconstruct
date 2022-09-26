@@ -1151,6 +1151,13 @@ class VulkanCaptureManager : public CaptureManager
     void
     PreProcess_vkBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 
+    void PostProcess_vkSetPrivateData(VkResult          result,
+                                      VkDevice          device,
+                                      VkObjectType      objectType,
+                                      uint64_t          objectHandle,
+                                      VkPrivateDataSlot privateDataSlot,
+                                      uint64_t          data);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif

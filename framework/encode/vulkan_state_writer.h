@@ -103,6 +103,8 @@ class VulkanStateWriter
 
     void WriteTrimCommandPool(const VulkanStateTable& state_table);
 
+    void WritePrivateDataSlotState(const VulkanStateTable& state_table);
+
     void WriteFenceState(const VulkanStateTable& state_table);
 
     void WriteEventState(const VulkanStateTable& state_table);
