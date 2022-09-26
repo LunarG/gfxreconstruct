@@ -1310,6 +1310,20 @@ void VulkanStateTracker::TrackReleaseFullScreenExclusiveMode(VkDevice device, Vk
     wrapper->release_full_screen_exclusive_mode = true;
 }
 
+void VulkanStateTracker::TrackSetPrivateData(
+    VkDevice device, VkObjectType objectType, uint64_t objectHandle, VkPrivateDataSlot privateDataSlot, uint64_t data)
+{
+    assert(privateDataSlot != VK_NULL_HANDLE);
+
+    auto wrapper        = reinterpret_cast<PrivateDataSlotWrapper*>(privateDataSlot);
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+
+    wrapper->device        = device_wrapper;
+    wrapper->object_type   = objectType;
+    wrapper->object_handle = GetWrappedId(objectHandle, objectType);
+    wrapper->data          = data;
+}
+
 void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
 {
     assert(wrapper != nullptr);
