@@ -139,7 +139,7 @@ The following example demonstrates how to set the layer's log level to
 export GFXRECON_LOG_LEVEL=warning
 ```
 
-##### Supported Options
+#### Supported Options
 
 Options with the BOOL type accept the following values:
 
