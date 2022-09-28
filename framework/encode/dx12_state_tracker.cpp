@@ -796,6 +796,12 @@ void Dx12StateTracker::TrackCreateStateObject(ID3D12Device5_Wrapper*         dev
                                               void**                         state_object_void_ptr)
 {
     // Track root signatures associated with this state object.
+    TrackRootSignatureWithStateObject(desc, state_object_void_ptr);
+}
+
+void Dx12StateTracker::TrackRootSignatureWithStateObject(const D3D12_STATE_OBJECT_DESC* desc,
+                                                         void**                         state_object_void_ptr)
+{
     for (UINT i = 0; i < desc->NumSubobjects; ++i)
     {
         const auto&                  subobject              = desc->pSubobjects[i];
@@ -837,6 +843,26 @@ void Dx12StateTracker::TrackCreateStateObject(ID3D12Device5_Wrapper*         dev
             state_object_info->root_signature_wrapper_infos[root_signature_wrapper->GetCaptureId()] =
                 root_signature_wrapper->GetObjectInfo();
         }
+    }
+}
+
+void Dx12StateTracker::TrackAddToStateObject(ID3D12Device7_Wrapper*         device5_wrapper,
+                                             const D3D12_STATE_OBJECT_DESC* desc,
+                                             ID3D12StateObject*             state_object_to_grow_from,
+                                             void**                         state_object_void_ptr)
+{
+    if ((state_object_to_grow_from != nullptr) && (state_object_void_ptr != nullptr) &&
+        (*state_object_void_ptr != nullptr))
+    {
+        TrackRootSignatureWithStateObject(desc, state_object_void_ptr);
+        auto state_object_wrapper           = reinterpret_cast<ID3D12StateObject_Wrapper*>(*state_object_void_ptr);
+        auto grow_from_state_object_wrapper = reinterpret_cast<ID3D12StateObject_Wrapper*>(state_object_to_grow_from);
+
+        GFXRECON_ASSERT(state_object_wrapper->GetObjectInfo() != nullptr);
+        GFXRECON_ASSERT(grow_from_state_object_wrapper->GetObjectInfo() != nullptr);
+        auto state_object_info                                 = state_object_wrapper->GetObjectInfo();
+        state_object_info->grow_from_state_object_wrapper_info = std::make_pair(
+            grow_from_state_object_wrapper->GetCaptureId(), grow_from_state_object_wrapper->GetObjectInfo());
     }
 }
 

@@ -205,6 +205,11 @@ class Dx12StateTracker
                                 const D3D12_STATE_OBJECT_DESC* desc,
                                 void**                         state_object_void_ptr);
 
+    void TrackAddToStateObject(ID3D12Device7_Wrapper*         device5_wrapper,
+                               const D3D12_STATE_OBJECT_DESC* desc,
+                               ID3D12StateObject*             state_object_to_grow_from,
+                               void**                         state_object_void_ptr);
+
     void TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrapper* state_object_properties_wrapper,
                                   void*                                result,
                                   LPCWSTR                              export_name,
@@ -237,7 +242,9 @@ class Dx12StateTracker
     uint64_t CommitAccelerationStructureCopyInfo(DxAccelerationStructureCopyInfo&      accel_struct_copy,
                                                  graphics::dx12::ID3D12ResourceComPtr& inputs_data_resource);
 
-  private:
+    // Track root signatures associated with state object.
+    void TrackRootSignatureWithStateObject(const D3D12_STATE_OBJECT_DESC* desc, void** state_object_void_ptr);
+
     std::mutex           state_table_mutex_;
     Dx12StateTable       state_table_;
     std::atomic_uint64_t accel_struct_id_;

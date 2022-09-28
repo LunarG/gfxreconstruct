@@ -655,7 +655,7 @@ void Dx12StateWriter::FlushStagingBuffersData(graphics::Dx12ResourceDataUtil*   
                 resource_info.get()->staging_buffer_info.staging_buffer_data.data());
             WriteBufferData(res);
             resource_info->staging_buffer_info.staging_buffer_data = std::vector<BYTE>();
-            resource_info->staging_buffer = nullptr;
+            resource_info->staging_buffer                          = nullptr;
         }
     }
     submitted_resources.clear();
@@ -1627,28 +1627,48 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
                       accel_struct_file_bytes);
 }
 
+void Dx12StateWriter::WriteStateObjectAndDependency(const format::HandleId                state_object_id,
+                                                    const ID3D12StateObjectInfo*          state_object_info,
+                                                    std::unordered_set<format::HandleId>& written_objs)
+{
+    if (written_objs.count(state_object_id) == 0)
+    {
+        for (const auto& root_sig_info_pair : state_object_info->root_signature_wrapper_infos)
+        {
+            auto root_sig_id = root_sig_info_pair.first;
+            if ((root_sig_info_pair.second->GetWrapper() == nullptr) && (written_objs.count(root_sig_id) == 0))
+            {
+                StandardCreateWrite(root_sig_id, *root_sig_info_pair.second.get());
+                written_objs.insert(root_sig_id);
+            }
+        }
+
+        if (state_object_info->grow_from_state_object_wrapper_info.first != gfxrecon::format::kNullHandleId)
+        {
+            auto grow_from_state_obj_id = state_object_info->grow_from_state_object_wrapper_info.first;
+            if (written_objs.count(grow_from_state_obj_id) == 0)
+            {
+                WriteStateObjectAndDependency(grow_from_state_obj_id,
+                                              static_cast<const ID3D12StateObjectInfo*>(
+                                                  state_object_info->grow_from_state_object_wrapper_info.second.get()),
+                                              written_objs);
+            }
+        }
+        StandardCreateWrite(state_object_id, *state_object_info);
+        written_objs.insert(state_object_id);
+    }
+}
+
 void Dx12StateWriter::WriteStateObjectsState(const Dx12StateTable& state_table)
 {
-    std::unordered_set<format::HandleId> written_root_sigs;
+    std::unordered_set<format::HandleId> written_objs;
     state_table.VisitWrappers([&](const ID3D12StateObject_Wrapper* state_object_wrapper) {
         GFXRECON_ASSERT(state_object_wrapper != nullptr);
         GFXRECON_ASSERT(state_object_wrapper->GetObjectInfo() != nullptr);
         GFXRECON_ASSERT(state_object_wrapper->GetObjectInfo()->create_parameters != nullptr);
 
-        // Create any root signatures that this state object depends on that were released before trimming was
-        // activated.
-        auto state_object_info = state_object_wrapper->GetObjectInfo();
-        for (const auto& root_sig_info_pair : state_object_info->root_signature_wrapper_infos)
-        {
-            auto root_sig_id = root_sig_info_pair.first;
-            if ((root_sig_info_pair.second->GetWrapper() == nullptr) && (written_root_sigs.count(root_sig_id) == 0))
-            {
-                StandardCreateWrite(root_sig_id, *root_sig_info_pair.second.get());
-                written_root_sigs.insert(root_sig_id);
-            }
-        }
-
-        StandardCreateWrite(state_object_wrapper);
+        WriteStateObjectAndDependency(
+            state_object_wrapper->GetCaptureId(), state_object_wrapper->GetObjectInfo().get(), written_objs);
     });
 }
 

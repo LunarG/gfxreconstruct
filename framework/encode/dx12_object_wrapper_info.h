@@ -313,6 +313,10 @@ struct ID3D12StateObjectInfo : public DxWrapperInfo
     //// Begin state tracking members
 
     std::unordered_map<format::HandleId, std::shared_ptr<const DxWrapperInfo>> root_signature_wrapper_infos;
+
+    std::pair<format::HandleId, std::shared_ptr<const DxWrapperInfo>> grow_from_state_object_wrapper_info{
+        format::kNullHandleId, nullptr
+    };
 };
 
 struct ID3D12StateObjectPropertiesInfo : public DxWrapperInfo

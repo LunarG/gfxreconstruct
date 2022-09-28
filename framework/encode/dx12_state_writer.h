@@ -58,7 +58,6 @@ class Dx12StateWriter
         ID3D12Resource_Wrapper* resource_wrapper{ nullptr };
     };
 
-  private:
     // TODO: This is similar to the method in VulkanStateWriter. Possibly refactor to share common code.
     template <typename Wrapper>
     void StandardCreateWrite(const Dx12StateTable& state_table)
@@ -181,7 +180,10 @@ class Dx12StateWriter
 
     void WriteStateObjectPropertiesState(const Dx12StateTable& state_table);
 
-  private:
+    void WriteStateObjectAndDependency(const format::HandleId                state_object_id,
+                                       const ID3D12StateObjectInfo*          state_object_info,
+                                       std::unordered_set<format::HandleId>& written_objs);
+
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
     std::vector<uint8_t>     compressed_parameter_buffer_;

@@ -321,14 +321,17 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
     {
         if (inputs_desc.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
         {
-            GFXRECON_ASSERT(inputs_desc.InstanceDescs != 0);
+            if (inputs_desc.NumDescs > 0)
+            {
+                GFXRECON_ASSERT(inputs_desc.InstanceDescs != 0);
 
-            inputs_buffer_size = inputs_desc.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
-            InputsBufferEntry entry{};
-            entry.desc_gpu_va = &inputs_desc.InstanceDescs;
-            entry.offset      = 0;
-            entry.size        = inputs_buffer_size;
-            entries.push_back(entry);
+                inputs_buffer_size = inputs_desc.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
+                InputsBufferEntry entry{};
+                entry.desc_gpu_va = &inputs_desc.InstanceDescs;
+                entry.offset      = 0;
+                entry.size        = inputs_buffer_size;
+                entries.push_back(entry);
+            }
         }
         else
         {

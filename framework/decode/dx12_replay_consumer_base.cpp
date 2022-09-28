@@ -3323,6 +3323,8 @@ Dx12ReplayConsumerBase::OverrideAddToStateObject(
     Decoded_GUID                                           riid_decoder,
     HandlePointerDecoder<void*>*                           new_state_object_decoder)
 {
+    GFXRECON_ASSERT(state_object_to_grow_from_object_info != nullptr);
+
     auto device7                   = static_cast<ID3D12Device7*>(device7_object_info->object);
     auto state_object_to_grow_from = static_cast<ID3D12StateObject*>(state_object_to_grow_from_object_info->object);
 
@@ -3365,6 +3367,8 @@ void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_ob
 void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_list4_object_info,
                                                        DxObjectInfo* state_object_object_info)
 {
+    GFXRECON_ASSERT(state_object_object_info != nullptr);
+
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
     auto state_object  = static_cast<ID3D12StateObject*>(state_object_object_info->object);
     command_list4->SetPipelineState1(state_object);

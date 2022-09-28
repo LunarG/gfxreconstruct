@@ -2251,6 +2251,20 @@ void D3D12CaptureManager::PostProcess_ID3D12Device5_CreateStateObject(ID3D12Devi
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device7_AddToStateObject(ID3D12Device7_Wrapper*         device7_wrapper,
+                                                                     HRESULT                        result,
+                                                                     const D3D12_STATE_OBJECT_DESC* addition,
+                                                                     ID3D12StateObject* state_object_to_grow_from,
+                                                                     REFIID             riid,
+                                                                     void**             new_state_object)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack && SUCCEEDED(result) && (new_state_object != nullptr) &&
+        (*new_state_object != nullptr))
+    {
+        state_tracker_->TrackAddToStateObject(device7_wrapper, addition, state_object_to_grow_from, new_state_object);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
     ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name)
 {

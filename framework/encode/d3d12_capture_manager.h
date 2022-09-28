@@ -604,6 +604,13 @@ class D3D12CaptureManager : public CaptureManager
                                                      REFIID                         riid,
                                                      void**                         state_object);
 
+    void PostProcess_ID3D12Device7_AddToStateObject(ID3D12Device7_Wrapper*         device7_wrapper,
+                                                    HRESULT                        result,
+                                                    const D3D12_STATE_OBJECT_DESC* addition,
+                                                    ID3D12StateObject*             state_object_to_grow_from,
+                                                    REFIID                         riid,
+                                                    void**                         new_state_object);
+
     void PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
         ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name);
 
