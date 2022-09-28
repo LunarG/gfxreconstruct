@@ -620,7 +620,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         {
                             auto* acc_struct = reinterpret_cast<VkWriteDescriptorSetAccelerationStructureKHR*>(
                                 const_cast<void*>(binding.write_pnext));
-                            binding.record_write_set_accel_structs.resize(acc_struct->accelerationStructureCount);
+                            binding.record_write_set_accel_structs.clear();
                             std::copy(acc_struct->pAccelerationStructures,
                                       acc_struct->pAccelerationStructures + acc_struct->accelerationStructureCount,
                                       std::back_inserter(binding.record_write_set_accel_structs));
