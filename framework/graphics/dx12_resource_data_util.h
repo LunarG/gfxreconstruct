@@ -76,15 +76,24 @@ class Dx12ResourceDataUtil
                              std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts,
                              uint64_t&                                        total_size);
 
+    bool Dx12ResourceDataUtil::ChangeResourceStateForUnknownLayoutTexture(
+        ID3D12Resource*                             resource,
+        const std::vector<dx12::ResourceStateInfo>& before_states,
+        bool                                        transition_to_state_common);
+
+    static bool IsTextureWithUnknownLayout(ID3D12Resource*           target_resource,
+                                           D3D12_RESOURCE_DIMENSION* dimension = nullptr);
+
     // Copy data to or from a mappable resource. Also transitions the resource to after_states.
-    bool CopyMappableResource(ID3D12Resource*                             target_resource,
-                              const std::vector<dx12::ResourceStateInfo>& before_states,
-                              const std::vector<dx12::ResourceStateInfo>& after_states,
-                              CopyType                                    copy_type,
-                              std::vector<uint8_t>*                       read_data,
-                              const std::vector<uint8_t>*                 write_data,
-                              const std::vector<uint64_t>&                subresource_offsets,
-                              const std::vector<uint64_t>&                subresource_sizes);
+    bool CopyMappableResource(ID3D12Resource*                                        target_resource,
+                              const std::vector<dx12::ResourceStateInfo>&            before_states,
+                              const std::vector<dx12::ResourceStateInfo>&            after_states,
+                              CopyType                                               copy_type,
+                              std::vector<uint8_t>*                                  read_data,
+                              const std::vector<uint8_t>*                            write_data,
+                              const std::vector<uint64_t>&                           subresource_offsets,
+                              const std::vector<uint64_t>&                           subresource_sizes,
+                              const std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>* layouts = nullptr);
 
     HRESULT ExecuteAndWaitForCommandList();
 
@@ -112,6 +121,24 @@ class Dx12ResourceDataUtil
 
     HRESULT MapSubresourceAndReadData(ID3D12Resource* resource, UINT subresource, size_t size, uint8_t* data);
 
+    HRESULT MapSubresourceAndWriteData(ID3D12Resource* resource, UINT subresource, size_t size, const uint8_t* data);
+
+    HRESULT
+    MapSubresourceAndReadDataForUnknownLayoutTexture(ID3D12Resource*                           resource,
+                                                     UINT                                      subresource,
+                                                     size_t                                    size,
+                                                     uint8_t*                                  data,
+                                                     D3D12_RESOURCE_DIMENSION                  resource_dimension,
+                                                     const D3D12_PLACED_SUBRESOURCE_FOOTPRINT* layout);
+
+    HRESULT
+    MapSubresourceAndWriteDataForUnknownLayoutTexture(ID3D12Resource*                           resource,
+                                                      UINT                                      subresource,
+                                                      size_t                                    size,
+                                                      const uint8_t*                            data,
+                                                      D3D12_RESOURCE_DIMENSION                  resource_dimension,
+                                                      const D3D12_PLACED_SUBRESOURCE_FOOTPRINT* layout);
+
   private:
     ID3D12Device*                         device_;
     dx12::ID3D12CommandQueueComPtr        command_queue_;
@@ -122,6 +149,8 @@ class Dx12ResourceDataUtil
     uint64_t                              staging_buffer_sizes_[2];
     const uint64_t                        min_buffer_size_;
     uint64_t                              fence_value_;
+    dx12::ID3D12GraphicsCommandListComPtr command_list_for_unknown_layout_texture_;
+    dx12::ID3D12CommandAllocatorComPtr    command_allocator_for_unknown_layout_texture_;
 
     // Temporary buffers.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts_;

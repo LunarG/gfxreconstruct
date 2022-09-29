@@ -628,14 +628,32 @@ void Dx12StateWriter::WriteResourceCreationState(
     {
         auto     mappable_resource = map_info.resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
         uint8_t* result_ptr        = nullptr;
+        bool     is_special_mapping =
+            gfxrecon::graphics::Dx12ResourceDataUtil::IsTextureWithUnknownLayout(mappable_resource);
         graphics::dx12::MapSubresource(
-            mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr);
+            mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr, is_special_mapping);
 
         for (int32_t i = 0; i < map_info.map_count; ++i)
         {
             encoder_.EncodeUInt32Value(map_info.subresource);
             EncodeStructPtr<D3D12_RANGE>(&encoder_, nullptr);
-            encoder_.EncodeVoidPtrPtr<void>(reinterpret_cast<void**>(&result_ptr));
+            if (!is_special_mapping)
+            {
+                encoder_.EncodeVoidPtrPtr<void>(reinterpret_cast<void**>(&result_ptr));
+            }
+            else
+            {
+                // Quote: "A null pointer is valid and is useful to cache a CPU virtual address range for methods like
+                // WriteToSubresource."
+                //
+                // Source: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-map
+                //
+                // The resource is a texture with unknown layout, here we gererate special map call in trim trace file
+                // so the following WriteToSubresource call can be used to restore its content in trim loading states.
+
+                encoder_.EncodeVoidPtrPtr<void>(nullptr);
+            }
+
             encoder_.EncodeInt32Value(S_OK);
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Resource_Map,
                             map_info.resource_wrapper->GetCaptureId(),
@@ -902,7 +920,8 @@ void Dx12StateWriter::WriteMappableResource(graphics::Dx12ResourceDataUtil* reso
                                                  &resource_info->staging_buffer_info.staging_buffer_data,
                                                  nullptr,
                                                  resource_info.get()->staging_buffer_info.subresource_offsets,
-                                                 resource_info.get()->staging_buffer_info.subresource_sizes))
+                                                 resource_info.get()->staging_buffer_info.subresource_sizes,
+                                                 &resource_info.get()->staging_buffer_info.layouts))
     {
         WriteBufferData(resource_wrapper);
     }
