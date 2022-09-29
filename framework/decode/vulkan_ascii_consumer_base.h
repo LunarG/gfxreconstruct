@@ -154,6 +154,8 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
     }
 
   private:
+    /// File to write textual representation of capture out to.
+    /// @note This is passed to us in Initialize() and owned elsewhere.
     FILE* file_{ nullptr };
     /// Reusable string stream for formatting top-level objects like vkFuncs into.
     std::stringstream strStrm_;
