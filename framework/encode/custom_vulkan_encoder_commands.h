@@ -1030,6 +1030,66 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBuffe
     }
 };
 
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBindBufferMemory(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBindBufferMemory2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBindBufferMemory2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBindImageMemory(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBindImageMemory2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBindImageMemory2(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

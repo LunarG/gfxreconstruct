@@ -106,6 +106,8 @@ class PageGuardManager
 
     void FreePersistentShadowMemory(uintptr_t shadow_memory_handle);
 
+    size_t GetSystemPageSize() const;
+
   protected:
     PageGuardManager();
 
@@ -184,7 +186,6 @@ class PageGuardManager
     typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
 
   private:
-    size_t GetSystemPageSize() const;
     size_t GetSystemPagePotShift() const;
     void   InitializeSystemExceptionContext();
 

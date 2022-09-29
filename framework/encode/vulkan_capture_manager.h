@@ -1131,6 +1131,17 @@ class VulkanCaptureManager : public CaptureManager
                                                                 const struct AHardwareBuffer*             buffer,
                                                                 VkAndroidHardwareBufferPropertiesANDROID* pProperties);
 
+    void
+    PreProcess_vkBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+
+    void
+    PreProcess_vkBindBufferMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindBufferMemoryInfo* pBindInfos);
+
+    void PreProcess_vkBindImageMemory(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+
+    void
+    PreProcess_vkBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
@@ -1193,6 +1204,7 @@ class VulkanCaptureManager : public CaptureManager
     bool ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer);
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
+    bool CheckBindAlignment(VkDeviceSize memoryOffset);
 
   private:
     void QueueSubmitWriteFillMemoryCmd();
