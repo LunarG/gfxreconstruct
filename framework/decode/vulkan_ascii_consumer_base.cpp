@@ -74,7 +74,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
         auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
         auto commandBufferCount   = pDecodedAllocateInfo ? pDecodedAllocateInfo->commandBufferCount : 0;
 
-        FieldToString(strStrm, false, "[out]pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
     };
     const auto return_val = ToString(returnValue, toStringFlags, tabCount, tabSize);
     WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString, return_val);
@@ -101,7 +101,7 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
         auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
         auto descriptorSetCount   = pDecodedAllocateInfo ? pDecodedAllocateInfo->descriptorSetCount : 0;
 
-        FieldToString(strStrm, false, "[out]pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
     };
     const auto return_val = ToString(returnValue, toStringFlags, tabCount, tabSize);
     WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString, return_val);
@@ -213,7 +213,7 @@ void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
         auto pDecodedMaxPrimitiveCounts = pMaxPrimitiveCounts ? pMaxPrimitiveCounts -> GetPointer() : nullptr;
 
         FieldToString(strStrm, false, "pMaxPrimitiveCounts", toStringFlags, tabCount, tabSize, ArrayToString(geometryCount, pDecodedMaxPrimitiveCounts, toStringFlags, tabCount, tabSize));
-        FieldToString(strStrm, false, "[out]pSizeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSizeInfo, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pSizeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSizeInfo, toStringFlags, tabCount, tabSize));
     };
 
     WriteApiCallToFile(call_info, "vkGetAccelerationStructureBuildSizesKHR", toStringFlags, tabCount, tabSize, createString);

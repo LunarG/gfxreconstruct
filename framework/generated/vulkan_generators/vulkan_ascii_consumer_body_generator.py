@@ -229,8 +229,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            valueName = ('[out]' if self.is_output_parameter(value) else '') + value.name
             toString = toString.format(value.name, value.array_length)
-            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, valueName, toString)
+            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable
