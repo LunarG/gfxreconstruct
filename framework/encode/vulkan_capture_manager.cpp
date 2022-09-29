@@ -2218,5 +2218,87 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint3
 }
 #endif
 
+bool VulkanCaptureManager::CheckBindAlignment(VkDeviceSize memoryOffset)
+{
+    if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) && !GetPageGuardAlignBufferSizes())
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        return (memoryOffset % manager->GetSystemPageSize()) == 0;
+    }
+
+    return true;
+}
+
+void VulkanCaptureManager::PreProcess_vkBindBufferMemory(VkDevice       device,
+                                                         VkBuffer       buffer,
+                                                         VkDeviceMemory memory,
+                                                         VkDeviceSize   memoryOffset)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(buffer);
+    GFXRECON_UNREFERENCED_PARAMETER(memory);
+
+    if (!CheckBindAlignment(memoryOffset))
+    {
+        GFXRECON_LOG_WARNING_ONCE("Buffer bound to device memory at an offset which is not page aligned. Corruption "
+                                  "might occur. In that case set "
+                                  "Page Guard Align Buffer Sizes env variable to true.");
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkBindBufferMemory2(VkDevice                      device,
+                                                          uint32_t                      bindInfoCount,
+                                                          const VkBindBufferMemoryInfo* pBindInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    for (uint32_t i = 0; i < bindInfoCount; ++i)
+    {
+        if (!CheckBindAlignment(pBindInfos[i].memoryOffset))
+        {
+            GFXRECON_LOG_WARNING_ONCE(
+                "Buffer bound to device memory at an offset which is not page aligned. Corruption "
+                "might occur. In that case set "
+                "Page Guard Align Buffer Sizes env variable to true.");
+        }
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkBindImageMemory(VkDevice       device,
+                                                        VkImage        image,
+                                                        VkDeviceMemory memory,
+                                                        VkDeviceSize   memoryOffset)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(image);
+    GFXRECON_UNREFERENCED_PARAMETER(memory);
+
+    if (!CheckBindAlignment(memoryOffset))
+    {
+        GFXRECON_LOG_WARNING_ONCE("Image bound to device memory at an offset which is not page aligned. Corruption "
+                                  "might occur. In that case set "
+                                  "Page Guard Align Buffer Sizes env variable to true.");
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkBindImageMemory2(VkDevice                     device,
+                                                         uint32_t                     bindInfoCount,
+                                                         const VkBindImageMemoryInfo* pBindInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    for (uint32_t i = 0; i < bindInfoCount; ++i)
+    {
+        if (!CheckBindAlignment(pBindInfos[i].memoryOffset))
+        {
+            GFXRECON_LOG_WARNING_ONCE("Image bound to device memory at an offset which is not page aligned. Corruption "
+                                      "might occur. In that case set "
+                                      "Page Guard Align Buffer Sizes env variable to true.");
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
