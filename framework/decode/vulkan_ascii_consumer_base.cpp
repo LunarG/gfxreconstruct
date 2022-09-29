@@ -43,6 +43,7 @@ void VulkanAsciiConsumerBase::Initialize(FILE* file)
 
 void VulkanAsciiConsumerBase::Destroy()
 {
+    // The file is owned elsewhere and was passed to Initialize() so don't close:
     file_ = nullptr;
     strStrm_.str(std::string{});
 }
