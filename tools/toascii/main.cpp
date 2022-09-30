@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,7 +22,6 @@
 */
 
 #include "project_version.h"
-
 #include "tool_settings.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
@@ -57,8 +56,10 @@ static void PrintUsage(const char* exe_name)
 #endif
 }
 
-static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser,
-                                     const std::string&                    input_filename)
+namespace
+{
+
+std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser, const std::string& input_filename)
 {
     std::string output_filename;
     if (arg_parser.IsArgumentSet(kOutput))
@@ -77,6 +78,8 @@ static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_p
     }
     return output_filename;
 }
+
+} // namespace
 
 int main(int argc, const char** argv)
 {
@@ -109,8 +112,8 @@ int main(int argc, const char** argv)
 #endif
 
     const auto& positional_arguments = arg_parser.GetPositionalArguments();
-    std::string input_filename       = positional_arguments[0];
-    std::string output_filename      = GetOutputFileName(arg_parser, input_filename);
+    const std::string input_filename       = positional_arguments[0];
+    const std::string output_filename      = GetOutputFileName(arg_parser, input_filename);
 
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
@@ -128,7 +131,13 @@ int main(int argc, const char** argv)
         if (output_file)
         {
             gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
-            ascii_consumer.Initialize(output_file);
+            ascii_consumer.Initialize(output_file,
+                                      GFXRECON_PROJECT_VERSION_STRING,
+                                      (std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                       std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                       std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)))
+                                          .c_str(),
+                                      input_filename.c_str());
             gfxrecon::decode::VulkanDecoder decoder;
             decoder.AddConsumer(&ascii_consumer);
             file_processor.AddDecoder(&decoder);
