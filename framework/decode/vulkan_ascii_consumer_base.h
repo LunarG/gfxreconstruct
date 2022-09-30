@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -46,7 +46,11 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     /// @brief  Initialize the consumer for writing to the file passed in.
     /// @param file A file to output to. The caller retains ownership. Do not close this.
-    void Initialize(FILE* file);
+    /// @param gfxrVersion The version of the GFXReconstruct project the convert tool was built from,
+    /// including the branch and git commit in the case of a development build.
+    /// @param vulkanVersion The version of Vulkan Headers that is being built against.
+    /// @param inputFilepath The path to the source file as passed to the application.
+    void Initialize(FILE* file, const char gfxrVersion[], const char vulkanVersion[], const char inputFilepath[]);
 
     void Destroy();
 

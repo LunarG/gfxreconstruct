@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,6 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file A consumer of capture decode which converts the calls into JSON Lines.
 
 #include "decode/vulkan_ascii_consumer_base.h"
 #include "decode/custom_vulkan_ascii_consumer.h"
@@ -28,6 +29,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+/// The version of the JSON file format which will be produced.
+/// Inc the minor number when anything is added.
+#define GFXRECON_CONVERT_JSON_VERSION "0.8.0"
+
 VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : file_(nullptr) {}
 
 VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
@@ -35,10 +40,24 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
     Destroy();
 }
 
-void VulkanAsciiConsumerBase::Initialize(FILE* file)
+void VulkanAsciiConsumerBase::Initialize(FILE*      file,
+                                         const char gfxrVersion[],
+                                         const char vulkanVersion[],
+                                         const char inputFilepath[])
 {
     assert(file);
     file_ = file;
+    if (file != nullptr)
+    {
+        // Emit the header object as the first line of the file:
+        fprintf(file_,
+                "{\"header\":{\"source-path\":\"%s\",\"json-version\":"
+                "\"" GFXRECON_CONVERT_JSON_VERSION "\",\"gfxrecon-version\":\"%s\",\"vulkan-version\":\"%s\"}}\n",
+                inputFilepath,
+                gfxrVersion,
+                vulkanVersion);
+        fflush(file_);
+    }
 }
 
 void VulkanAsciiConsumerBase::Destroy()
