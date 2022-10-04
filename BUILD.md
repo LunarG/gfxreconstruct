@@ -50,7 +50,7 @@ organized with the following file structure:
 | | extract | Tool to extract SPIR-V binaries from GFXR capture files. |
 | | info | Tool to print information describing GFXR capture files. |
 | | replay | Tool to replay GFXR capture files. |
-| | toascii | Tool to convert GFXR capture files to an ASCII listing of API calls. |
+| | convert | Tool to convert GFXR capture files to a JSON Lines listing of API calls. |
 
 ## Repository Set-Up
 

@@ -51,8 +51,8 @@ The GFXReconstruct components currently provided with this repository are:
     zlib, which are currently optional build dependencies.
 * The `gfxrecon-extract` tool to extract SPIR-V binaries from
   GFXReconstruct capture files.
-* The `gfxrecon-toascii` tool to convert GFXReconstruct capture files to
-  an ASCII listing of API calls.
+* The `gfxrecon-convert` tool to convert GFXReconstruct capture files to
+  a [JSON Lines](https://jsonlines.org/) listing of API calls.
 
 
 

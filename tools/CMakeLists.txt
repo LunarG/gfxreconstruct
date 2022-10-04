@@ -5,8 +5,7 @@ add_subdirectory(extract)
 add_subdirectory(optimize)
 add_subdirectory(capture)
 add_subdirectory(gfxrecon)
-
-# TOASCII build is currently disabled pending resolution of some issues
-if(BUILD_TOASCII)
-add_subdirectory(toascii)
+# gfxrecon-convert build is currently disabled pending resolution of some issues
+if(GFXRECON_BUILD_CONVERT)
+add_subdirectory(convert)
 endif()
