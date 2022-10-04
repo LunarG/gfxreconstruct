@@ -26,18 +26,18 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
-add_executable(gfxrecon-toascii "")
+add_executable(gfxrecon-convert "")
 
-target_sources(gfxrecon-toascii
+target_sources(gfxrecon-convert
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
               )
 
-target_include_directories(gfxrecon-toascii PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/..)
+target_include_directories(gfxrecon-convert PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/..)
 
-target_link_libraries(gfxrecon-toascii gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
+target_link_libraries(gfxrecon-convert gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
 
-common_build_directives(gfxrecon-toascii)
+common_build_directives(gfxrecon-convert)
 
-install(TARGETS gfxrecon-toascii RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS gfxrecon-convert RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
