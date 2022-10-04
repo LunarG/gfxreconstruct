@@ -695,11 +695,18 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             uint64_t data_size = header.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
 
-            // TODO (GH #547): Add compression support for FillMemoryResourceValueCommand blocks.
-            // This command does not support compression.
-            GFXRECON_ASSERT(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
-            success = ReadParameterBuffer(static_cast<size_t>(data_size));
+            if (format::IsBlockCompressed(block_header.type))
+            {
+                size_t uncompressed_size = 0;
+                size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_data_id) -
+                                         sizeof(header.thread_id) - sizeof(header.resource_value_count);
+                size_t uncompressed_data = static_cast<size_t>(data_size);
+                success = ReadCompressedParameterBuffer(compressed_size, uncompressed_data, &uncompressed_size);
+            }
+            else
+            {
+                success = ReadParameterBuffer(static_cast<size_t>(data_size));
+            }
 
             if (success)
             {

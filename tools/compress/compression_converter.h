@@ -75,6 +75,8 @@ class CompressionConverter : public decode::FileTransformer
     bool WriteInitDx12AccelerationStructureMetaData(const format::BlockHeader& block_header,
                                                     format::MetaDataId         meta_data_id);
 
+    bool WriteFillMemoryResourceValueMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
+
     void PrepMetadataBlock(format::MetaDataHeader& meta_data_header,
                            format::MetaDataId      meta_data_id,
                            const uint8_t*&         data_address,

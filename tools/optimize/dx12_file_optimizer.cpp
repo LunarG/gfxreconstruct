@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -78,14 +79,12 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
 
     bool not_compressed = true;
 
-    // If compression is enabled, compress and write the data.
-    // TODO (GH #547): Add compression support for FillMemoryResourceValueCommand blocks.
-    /*
-    compressed_write_buffer_.clear();
+    std::vector<uint8_t> compressed_write_buffer;
+
     if (GetCompressor() != nullptr)
     {
         size_t compressed_size =
-            GetCompressor()->Compress(write_buffer_.size(), write_buffer_.data(), &compressed_write_buffer_, 0);
+            GetCompressor()->Compress(write_buffer_.size(), write_buffer_.data(), &compressed_write_buffer, 0);
 
         if ((compressed_size > 0) && (compressed_size < uncompressed_size))
         {
@@ -96,10 +95,9 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
             rv_header.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
 
             success = success && WriteBytes(&rv_header, header_size);
-            success = success && WriteBytes(compressed_write_buffer_.data(), compressed_size);
+            success = success && WriteBytes(compressed_write_buffer.data(), compressed_size);
         }
     }
-    */
 
     // If the data was not compressed, write the uncompressed data here.
     if (not_compressed)
@@ -122,15 +120,21 @@ bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header,
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
 
     // If needed, add a FillMemoryResourceValueCommand before the fill memory command.
-    if (((meta_data_type == format::MetaDataType::kFillMemoryCommand) ||
-         (meta_data_type == format::MetaDataType::kInitSubresourceCommand)) &&
-        (fill_command_resource_values_ != nullptr) && (!fill_command_resource_values_->empty()) &&
-        (resource_values_iter_->first == GetCurrentBlockIndex()))
+    if ((meta_data_type == format::MetaDataType::kFillMemoryCommand) ||
+        (meta_data_type == format::MetaDataType::kInitSubresourceCommand))
     {
-        if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
+        if ((fill_command_resource_values_ != nullptr) && (!fill_command_resource_values_->empty()))
         {
-            GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR optimization. "
-                               "Optimized file may be invalid.");
+            if ((resource_values_iter_ != fill_command_resource_values_->end()) &&
+                (resource_values_iter_->first == GetCurrentBlockIndex()))
+            {
+                if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
+                {
+                    GFXRECON_LOG_ERROR(
+                        "Failed to write the FillMemoryResourceValueCommand needed for DXR optimization. "
+                        "Optimized file may be invalid.");
+                }
+            }
         }
     }
 

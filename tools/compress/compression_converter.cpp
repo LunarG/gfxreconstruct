@@ -233,6 +233,10 @@ bool CompressionConverter::ProcessMetaData(const format::BlockHeader& block_head
     {
         return WriteInitDx12AccelerationStructureMetaData(block_header, meta_data_id);
     }
+    else if (meta_data_type == format::MetaDataType::kFillMemoryResourceValueCommand)
+    {
+        return WriteFillMemoryResourceValueMetaData(block_header, meta_data_id);
+    }
     else
     {
         // The current block should not be compressed.  If it is compressed, it is most likely a new block type that is
@@ -848,6 +852,73 @@ bool CompressionConverter::WriteInitDx12AccelerationStructureMetaData(const form
     {
         HandleBlockReadError(kErrorReadingBlockHeader,
                              "Failed to read init DX12 acceleration structure meta-data block header");
+    }
+
+    return true;
+}
+
+bool CompressionConverter::WriteFillMemoryResourceValueMetaData(const format::BlockHeader& block_header,
+                                                                format::MetaDataId         meta_data_id)
+{
+    format::FillMemoryResourceValueCommandHeader rv_cmd;
+    bool                                         success = ReadBytes(&rv_cmd.thread_id, sizeof(rv_cmd.thread_id));
+
+    success = success && ReadBytes(&rv_cmd.resource_value_count, sizeof(rv_cmd.resource_value_count));
+
+    if (success)
+    {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, rv_cmd.resource_value_count);
+        size_t data_size =
+            static_cast<size_t>(rv_cmd.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t)));
+
+        if (format::IsBlockCompressed(block_header.type))
+        {
+            size_t uncompressed_size = 0;
+            size_t compressed_size = static_cast<size_t>(block_header.size - format::GetMetaDataBlockBaseSize(rv_cmd));
+
+            if (!ReadCompressedParameterBuffer(compressed_size, data_size, &uncompressed_size))
+            {
+                HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                     "Failed to read fill memory resource value meta-data block");
+                return false;
+            }
+
+            assert(uncompressed_size == data_size);
+        }
+        else
+        {
+            if (!ReadParameterBuffer(data_size))
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read fill memory resource value meta-data block");
+                return false;
+            }
+        }
+
+        const auto&    buffer       = GetParameterBuffer();
+        const uint8_t* data_address = buffer.data();
+
+        PrepMetadataBlock(rv_cmd.meta_header, meta_data_id, data_address, data_size);
+
+        // Calculate size of packet with compressed or uncompressed data size.
+        rv_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(rv_cmd) + data_size;
+
+        if (!WriteBytes(&rv_cmd, sizeof(rv_cmd)))
+        {
+            HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write fill memory meta-data block header");
+            return false;
+        }
+
+        if (!WriteBytes(data_address, data_size))
+        {
+            HandleBlockWriteError(kErrorWritingBlockData, "Failed to read fill memory resource value meta-data block");
+            return false;
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to write fill memory resource value meta-data block");
+        return false;
     }
 
     return true;
