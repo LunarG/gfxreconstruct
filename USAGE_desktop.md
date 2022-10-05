@@ -31,7 +31,8 @@ Vulkan API calls on Desktop systems.
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
     3. [Shader Extraction](#shader-extraction)
-    4. [Trimmed File Optimizer](#trimmed-file-optimizer)
+    4. [Trimmed File Optimization](#trimmed-file-optimization)
+    5. [JSON Lines Conversion](#json-lines-conversion)
     6. [Command Launcher](#command-launcher)
 
 ## Capturing API calls
@@ -570,6 +571,48 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
+```
+
+### JSON Lines Conversion
+
+The `gfxrecon-convert` tool converts a capture file into a series of JSON
+documents, one per line following the
+[JSON Lines standard](https://jsonlines.org/).
+The JSON document on each line is designed to be parsed by tools such as simple
+Python scripts as well as being useful for inspection by eye after pretty
+printing, for example by piping through a command-line tool such as
+[`jq`](https://stedolan.github.io/jq/).
+For these post-processing use cases, `gfxrecon-convert` can be used to stream
+from binary captures directly, without
+having to save the intermediate JSON files to storage.
+Because each JSON object is on its own line, line oriented tools such as
+grep, sed, head, and split can be applied ahead of JSON-aware ones which
+are heavier-weight to reduce their workload on large captures.
+
+The file begins with a header object containing some metadata, followed by a
+series of objects representing the sequence of Vulkan calls stored in the
+capture. More details of the file format can be found in the tool's
+[README](tools/convert/README.md).
+
+
+```text
+gfxrecon-convert - A tool to convert GFXReconstruct capture files to text.
+
+Usage:
+  gfxrecon-convert [-h | --help] [--version] <file>
+
+Required arguments:
+  <file>		Path to the GFXReconstruct capture file to be converted
+                to text.
+
+Optional arguments:
+  -h			        Print usage information and exit (same as --help).
+  --version		        Print version information and exit.
+  --output file         'stdout' or a path to a file to write JSON output
+                        to. Default is the input filepath with "gfxr" replaced
+                        by "txt".
+  --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
+                        displayed when abort() is called (Windows debug only).
 ```
 
 ### Command Launcher
