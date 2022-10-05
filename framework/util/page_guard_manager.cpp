@@ -201,7 +201,7 @@ void PageGuardManager::InitializeSystemExceptionContext(void)
 }
 
 PageGuardManager::PageGuardManager() :
-    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
+    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
     enable_separate_read_(kDefaultEnableSeparateRead), unblock_sigsegv_(kDefaultUnblockSIGSEGV),
     enable_signal_handler_watcher_(kDefaultEnableSignalHandlerWatcher),
@@ -216,7 +216,7 @@ PageGuardManager::PageGuardManager(bool enable_copy_on_map,
                                    bool unblock_SIGSEGV,
                                    bool enable_signal_handler_watcher) :
     exception_handler_(nullptr),
-    exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
+    exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
     enable_signal_handler_watcher_(enable_signal_handler_watcher),
@@ -361,21 +361,10 @@ void PageGuardManager::Destroy()
     }
 }
 
-size_t PageGuardManager::GetSystemPageSize() const
-{
-#if defined(WIN32)
-    SYSTEM_INFO sSysInfo;
-    GetSystemInfo(&sSysInfo);
-    return sSysInfo.dwPageSize;
-#else
-    return getpagesize();
-#endif
-}
-
 size_t PageGuardManager::GetSystemPagePotShift() const
 {
     size_t pot_shift = 0;
-    size_t page_size = GetSystemPageSize();
+    size_t page_size = util::platform::GetSystemPageSize();
 
     if (page_size != 0)
     {
