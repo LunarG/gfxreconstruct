@@ -52,6 +52,16 @@ std::string Join(const std::string& lhs, const std::string& rhs);
 
 std::string InsertFilenamePostfix(const std::string& filename, const std::string& postfix);
 
+std::string GetBasedir(const std::string& path);
+
+std::string GetFilename(const std::string& path);
+
+std::string GetFilenameStem(const std::string& path);
+
+std::string GetFilenameExtension(const std::string& path);
+
+bool MakeDirectory(const std::string& path);
+
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
 
 bool GetWindowsSystemLibrariesPath(std::string& base_path);

@@ -28,6 +28,7 @@
 
 #include "util/defines.h"
 
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -76,6 +77,14 @@ inline std::string ToString(uint32_t      apiFlags,
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
 
     return "0";
+}
+
+template <typename T, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
+std::string to_hex_string(T value)
+{
+    std::stringstream stream;
+    stream << "0x" << std::setfill('0') << std::setw(sizeof(T) * 2) << std::hex << value;
+    return stream.str();
 }
 
 template <typename PtrType>

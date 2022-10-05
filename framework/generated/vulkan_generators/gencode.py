@@ -59,6 +59,8 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator, DecodePNex
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
 from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator, VulkanAsciiConsumerBodyGeneratorOptions
+from vulkan_export_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
+from vulkan_export_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
 from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator, VulkanReferencedResourceHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator, VulkanReferencedResourceBodyGeneratorOptions
@@ -94,6 +96,11 @@ from vulkan_pnext_decoders_to_string_body_generator import VulkanPNextDecodersTo
 
 from vulkan_object_info_table_base2_header_generator import VulkanObjectInfoTableBase2HeaderGenerator, VulkanObjectInfoTableBase2HeaderGeneratorOptions
 from vulkan_state_table_header_generator import VulkanStateTableHeaderGenerator, VulkanStateTableHeaderGeneratorOptions
+
+from vulkan_enum_to_json_body_generator import VulkanEnumToJsonBodyGenerator, VulkanEnumToJsonBodyGeneratorOptions
+from vulkan_enum_to_json_header_generator import VulkanEnumToJsonHeaderGenerator, VulkanEnumToJsonHeaderGeneratorOptions
+from vulkan_struct_to_json_header_generator import VulkanStructToJsonHeaderGenerator, VulkanStructToJsonHeaderGeneratorOptions
+from vulkan_struct_to_json_body_generator import VulkanStructToJsonBodyGenerator, VulkanStructToJsonBodyGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -598,7 +605,7 @@ def make_gen_opts(args):
             protectFeature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
-    ]    
+    ]
 
     #
     # To string generators
@@ -743,6 +750,92 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_vulkan_export_json_consumer.h'] = [
+        VulkanExportJsonConsumerHeaderGenerator,
+        VulkanExportJsonConsumerHeaderGeneratorOptions(
+            class_name='VulkanExportJsonConsumer',
+            base_class_header='vulkan_export_json_consumer_base.h',
+            is_override=True,
+            filename='generated_vulkan_export_json_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_export_json_consumer.cpp'] = [
+        VulkanExportJsonConsumerBodyGenerator,
+        VulkanExportJsonConsumerBodyGeneratorOptions(
+            filename='generated_vulkan_export_json_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_to_json.h'] = [
+        VulkanStructToJsonHeaderGenerator,
+        VulkanStructToJsonHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_to_json.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_to_json.cpp'] = [
+        VulkanStructToJsonBodyGenerator,
+        VulkanStructToJsonBodyGeneratorOptions(
+            filename='generated_vulkan_struct_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_enum_to_json.h'] = [
+        VulkanEnumToJsonHeaderGenerator,
+        VulkanEnumToJsonHeaderGeneratorOptions(
+            filename='generated_vulkan_enum_to_json.h',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=True,
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_enum_to_json.cpp'] = [
+        VulkanEnumToJsonBodyGenerator,
+        VulkanEnumToJsonBodyGeneratorOptions(
+            filename='generated_vulkan_enum_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=False,
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
 
 def gen_target(args):
     """Generate a target based on the options in the matching gen_opts{} object.
