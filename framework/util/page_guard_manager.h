@@ -106,8 +106,6 @@ class PageGuardManager
 
     void FreePersistentShadowMemory(uintptr_t shadow_memory_handle);
 
-    size_t GetSystemPageSize() const;
-
   protected:
     PageGuardManager();
 

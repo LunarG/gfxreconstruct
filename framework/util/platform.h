@@ -211,6 +211,13 @@ inline int32_t MakeDirectory(const char* filename)
     return _mkdir(filename);
 }
 
+inline size_t GetSystemPageSize()
+{
+    SYSTEM_INFO sSysInfo;
+    GetSystemInfo(&sSysInfo);
+    return sSysInfo.dwPageSize;
+}
+
 #else // !defined(WIN32)
 
 // Error value indicating string was truncated
@@ -453,6 +460,11 @@ inline int32_t GMTime(tm* gm_time, const time_t* timer)
 inline int32_t MakeDirectory(const char* filename)
 {
     return mkdir(filename, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+}
+
+inline size_t GetSystemPageSize()
+{
+    return getpagesize();
 }
 
 #endif // WIN32

@@ -2222,10 +2222,7 @@ bool VulkanCaptureManager::CheckBindAlignment(VkDeviceSize memoryOffset)
 {
     if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) && !GetPageGuardAlignBufferSizes())
     {
-        util::PageGuardManager* manager = util::PageGuardManager::Get();
-        assert(manager != nullptr);
-
-        return (memoryOffset % manager->GetSystemPageSize()) == 0;
+        return (memoryOffset % util::platform::GetSystemPageSize()) == 0;
     }
 
     return true;
