@@ -534,7 +534,7 @@ Required arguments:
   <file>      The GFXReconstruct capture file to be processed.
 ```
 
-### Trimmed File Optimizer
+### Trimmed File Optimization
 
 The `gfxrecon-optimize` tool removes unused buffer and image initialization
 data from trimmed capture files.
