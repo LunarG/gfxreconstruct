@@ -377,6 +377,11 @@ Optional arguments:
                         returned by vkEnumeratePhysicalDevices.  Replay may fail
                         if the specified device is not compatible with the
                         original capture devices.
+  --gpu-group <index>   Use the specified device group for replay, where index
+                        is the zero-based index to the array of physical device group
+                        returned by vkEnumeratePhysicalDeviceGroups.  Replay may fail
+                        if the specified device group is not compatible with the
+                        original capture device group.
   --pause-frame <N>     Pause after replaying frame number N.
   --paused              Pause after replaying the first frame (same
                         as --pause-frame 1).

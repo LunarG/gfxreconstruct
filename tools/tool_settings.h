@@ -59,6 +59,7 @@ const char kLogFileArgument[]                    = "--log-file";
 const char kLogDebugView[]                       = "--log-debugview";
 const char kNoDebugPopup[]                       = "--no-debug-popup";
 const char kOverrideGpuArgument[]                = "--gpu";
+const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
@@ -708,6 +709,12 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!override_gpu.empty())
     {
         replay_options.override_gpu_index = std::stoi(override_gpu);
+    }
+
+    const auto& override_gpu_group = arg_parser.GetArgumentValue(kOverrideGpuGroupArgument);
+    if (!override_gpu_group.empty())
+    {
+        replay_options.override_gpu_group_index = std::stoi(override_gpu_group);
     }
 
     if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
