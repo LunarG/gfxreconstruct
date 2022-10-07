@@ -1062,10 +1062,16 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
 
     if (result == 0)
     {
-        assert(data != nullptr);
-
         WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-        WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
+
+        if (data != nullptr)
+        {
+            WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("AHardwareBuffer_unlock warning: data is nullptr");
+        }
 
         result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
         if (result != 0)
