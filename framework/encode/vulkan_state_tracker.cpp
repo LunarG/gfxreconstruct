@@ -222,24 +222,27 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
                                                            uint32_t                  format_count,
                                                            const VkSurfaceFormatKHR* formats)
 {
-    assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (formats != nullptr));
+    GFXRECON_ASSERT(physical_device != VK_NULL_HANDLE);
 
-    auto  wrapper = reinterpret_cast<SurfaceKHRWrapper*>(surface);
-    auto& entry   = wrapper->surface_formats[GetWrappedId(physical_device)];
-
-    entry.surface_info_pnext_memory.Reset();
-    entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-    entry.surface_info.pNext   = nullptr;
-    entry.surface_info.surface = surface;
-
-    entry.surface_formats.resize(format_count);
-    entry.surface_formats_pnext_memory.resize(format_count);
-    for (uint32_t i = 0; i < format_count; ++i)
+    if (surface != VK_NULL_HANDLE && format_count > 0)
     {
-        entry.surface_formats_pnext_memory[i].Reset();
-        entry.surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
-        entry.surface_formats[i].pNext         = nullptr;
-        entry.surface_formats[i].surfaceFormat = formats[i];
+        auto  wrapper = reinterpret_cast<SurfaceKHRWrapper*>(surface);
+        auto& entry   = wrapper->surface_formats[GetWrappedId(physical_device)];
+
+        entry.surface_info_pnext_memory.Reset();
+        entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
+        entry.surface_info.pNext   = nullptr;
+        entry.surface_info.surface = surface;
+
+        entry.surface_formats.resize(format_count);
+        entry.surface_formats_pnext_memory.resize(format_count);
+        for (uint32_t i = 0; i < format_count; ++i)
+        {
+            entry.surface_formats_pnext_memory[i].Reset();
+            entry.surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
+            entry.surface_formats[i].pNext         = nullptr;
+            entry.surface_formats[i].surfaceFormat = formats[i];
+        }
     }
 }
 
@@ -248,35 +251,37 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats2(VkPhysicalDevice    
                                                             uint32_t                               surface_format_count,
                                                             VkSurfaceFormat2KHR*                   surface_formats)
 {
-    assert((physical_device != VK_NULL_HANDLE) && (surface_info.surface != VK_NULL_HANDLE) &&
-           (surface_formats != nullptr));
+    GFXRECON_ASSERT(physical_device != VK_NULL_HANDLE);
 
-    auto  wrapper = reinterpret_cast<SurfaceKHRWrapper*>(surface_info.surface);
-    auto& entry   = wrapper->surface_formats[GetWrappedId(physical_device)];
-
-    entry.surface_info_pnext_memory.Reset();
-    entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-    entry.surface_info.pNext   = nullptr;
-    entry.surface_info.surface = surface_info.surface;
-
-    if (surface_info.pNext != nullptr)
+    if (surface_info.surface != VK_NULL_HANDLE && surface_format_count > 0)
     {
-        entry.surface_info.pNext = TrackPNextStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
-    }
+        auto  wrapper = reinterpret_cast<SurfaceKHRWrapper*>(surface_info.surface);
+        auto& entry   = wrapper->surface_formats[GetWrappedId(physical_device)];
 
-    entry.surface_formats.resize(surface_format_count);
-    entry.surface_formats_pnext_memory.resize(surface_format_count);
-    for (uint32_t i = 0; i < surface_format_count; ++i)
-    {
-        entry.surface_formats_pnext_memory[i].Reset();
-        entry.surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
-        entry.surface_formats[i].pNext         = nullptr;
-        entry.surface_formats[i].surfaceFormat = surface_formats[i].surfaceFormat;
+        entry.surface_info_pnext_memory.Reset();
+        entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
+        entry.surface_info.pNext   = nullptr;
+        entry.surface_info.surface = surface_info.surface;
 
-        if (surface_formats[i].pNext != nullptr)
+        if (surface_info.pNext != nullptr)
         {
-            entry.surface_formats[i].pNext =
-                const_cast<void*>(TrackPNextStruct(surface_formats[i].pNext, &entry.surface_formats_pnext_memory[i]));
+            entry.surface_info.pNext = TrackPNextStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
+        }
+
+        entry.surface_formats.resize(surface_format_count);
+        entry.surface_formats_pnext_memory.resize(surface_format_count);
+        for (uint32_t i = 0; i < surface_format_count; ++i)
+        {
+            entry.surface_formats_pnext_memory[i].Reset();
+            entry.surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
+            entry.surface_formats[i].pNext         = nullptr;
+            entry.surface_formats[i].surfaceFormat = surface_formats[i].surfaceFormat;
+
+            if (surface_formats[i].pNext != nullptr)
+            {
+                entry.surface_formats[i].pNext = const_cast<void*>(
+                    TrackPNextStruct(surface_formats[i].pNext, &entry.surface_formats_pnext_memory[i]));
+            }
         }
     }
 }
