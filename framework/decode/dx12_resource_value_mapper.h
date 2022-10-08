@@ -145,19 +145,26 @@ class Dx12ResourceValueMapper
                   std::vector<uint8_t>&    result_data,
                   format::HandleId         resource_id,
                   D3D12ResourceInfo*       resource_info,
+                  ResourceValueInfoMap&    indirect_values_map,
                   uint64_t                 base_offset = 0);
 
     bool IsNonEmptyShaderRecord(const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
 
     void MapResources(const ResourceValueInfoMap&                        resource_value_info_map,
-                      std::map<DxObjectInfo*, MappedResourceRevertInfo>& resource_data_to_revert);
+                      std::map<DxObjectInfo*, MappedResourceRevertInfo>& resource_data_to_revert,
+                      ResourceValueInfoMap&                              indirect_values_map);
 
     void InitializeRequiredObjects(ID3D12CommandQueue* command_queue, D3D12CommandQueueInfo* command_queue_extra_info);
 
-    void GetShaderTableResourceValues(D3D12CommandListInfo*     command_list_extra_info,
+    void GetShaderTableResourceValues(ResourceValueInfoMap&     resource_value_info_map,
+                                      D3D12StateObjectInfo*     state_object_extra_info,
                                       D3D12_GPU_VIRTUAL_ADDRESS start_address,
                                       UINT64                    size,
                                       UINT64                    stride);
+
+    void GetDispatchRaysResourceValues(ResourceValueInfoMap&           resource_value_info_map,
+                                       D3D12StateObjectInfo*           state_object_extra_info,
+                                       const D3D12_DISPATCH_RAYS_DESC& desc);
 
     // Parse the D3D12_STATE_OBJECT_DESC for LRS association information.
     void GetStateObjectLrsAssociationInfo(

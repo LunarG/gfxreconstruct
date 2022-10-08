@@ -349,10 +349,9 @@ void Dx12ResourceValueMapper::PostProcessCreateCommandSignature(HandlePointerDec
                 byte_offset += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
                 break;
             case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS:
-                // TODO (GH# 416): Implement support for D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS. Also validate that
-                // byte_offset is updated correctly.
-                GFXRECON_LOG_WARNING("Application created command signature with unsupported argument type: "
-                                     "D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS");
+                resource_value_infos.insert({ byte_offset,
+                                              ResourceValueType::kIndirectArgumentDispatchRays,
+                                              sizeof(D3D12_DISPATCH_RAYS_DESC) });
                 byte_offset += sizeof(D3D12_DISPATCH_RAYS_DESC);
                 break;
             case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH:
@@ -389,12 +388,20 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
     }
 
     // Add resource value offsets to resource_value_infos based on the command signature's arguments.
+    D3D12StateObjectInfo* state_object_extra_info = nullptr;
+    if (command_list_extra_info->active_state_object != nullptr)
+    {
+        state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object);
+    }
     uint64_t command_byte_offset = argument_buffer_offset;
     for (UINT i = 0; i < max_command_count; ++i)
     {
         for (const auto& resource_value_info : command_signature_extra_info->resource_value_infos)
         {
-            resource_value_infos.insert({ resource_value_info.offset + command_byte_offset, resource_value_info.type });
+            resource_value_infos.insert({ resource_value_info.offset + command_byte_offset,
+                                          resource_value_info.type,
+                                          resource_value_info.size,
+                                          state_object_extra_info });
         }
         command_byte_offset += command_signature_extra_info->byte_stride;
     }
@@ -650,30 +657,13 @@ void Dx12ResourceValueMapper::PostProcessDispatchRays(
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
     GFXRECON_ASSERT(command_list_extra_info != nullptr);
 
-    if (command_list_extra_info->active_state_object == nullptr)
-    {
-        GFXRECON_LOG_ERROR("No ID3D12StateObject was set on the command list before DispatchRays was called. Unable to "
-                           "map the values in the shader table. Replay may fail.");
-        return;
-    }
-
     // Ray gen only has 1 record, so stride == size
-    GetShaderTableResourceValues(command_list_extra_info,
-                                 desc->RayGenerationShaderRecord.StartAddress,
-                                 desc->RayGenerationShaderRecord.SizeInBytes,
-                                 desc->RayGenerationShaderRecord.SizeInBytes);
-    GetShaderTableResourceValues(command_list_extra_info,
-                                 desc->MissShaderTable.StartAddress,
-                                 desc->MissShaderTable.SizeInBytes,
-                                 desc->MissShaderTable.StrideInBytes);
-    GetShaderTableResourceValues(command_list_extra_info,
-                                 desc->HitGroupTable.StartAddress,
-                                 desc->HitGroupTable.SizeInBytes,
-                                 desc->HitGroupTable.StrideInBytes);
-    GetShaderTableResourceValues(command_list_extra_info,
-                                 desc->CallableShaderTable.StartAddress,
-                                 desc->CallableShaderTable.SizeInBytes,
-                                 desc->CallableShaderTable.StrideInBytes);
+    D3D12StateObjectInfo* state_object_extra_info = nullptr;
+    if (command_list_extra_info->active_state_object != nullptr)
+    {
+        state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object);
+    }
+    GetDispatchRaysResourceValues(command_list_extra_info->resource_value_info_map, state_object_extra_info, *desc);
 }
 
 void Dx12ResourceValueMapper::PostProcessSetPipelineState1(DxObjectInfo* command_list4_object_info,
@@ -839,17 +829,26 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
         WaitForSingleObject(args.fence_event, INFINITE);
     }
 
-    // Process resource copies so values are mapped in the source resource.
-    const auto copies_size = args.resource_copies.size();
-    for (size_t i = 0; i < copies_size; ++i)
-    {
-        auto& copy_info = args.resource_copies[copies_size - i - 1];
-        CopyResourceValues(copy_info, args.resource_value_info_map);
-    }
-
-    // Apply the resource value mappings to the resources on the GPU.
+    auto resource_value_info_map = std::move(args.resource_value_info_map);
+    args.resource_value_info_map.clear();
+    const auto                                        copies_size = args.resource_copies.size();
     std::map<DxObjectInfo*, MappedResourceRevertInfo> resource_data_to_revert;
-    MapResources(args.resource_value_info_map, resource_data_to_revert);
+    while (!resource_value_info_map.empty())
+    {
+        // Process resource copies so values are mapped in the source resource.
+        for (size_t i = 0; i < copies_size; ++i)
+        {
+            auto& copy_info = args.resource_copies[copies_size - i - 1];
+            CopyResourceValues(copy_info, resource_value_info_map);
+        }
+
+        // Apply the resource value mappings to the resources on the GPU.
+        ResourceValueInfoMap indirect_values_map;
+        MapResources(resource_value_info_map, resource_data_to_revert, indirect_values_map);
+
+        // If indirect_values_map is not empty, another pass of mapping is required.
+        resource_value_info_map = std::move(indirect_values_map);
+    }
 
     // Track mapped values that were copied to other resources.
     for (size_t i = 0; i < copies_size; ++i)
@@ -920,6 +919,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                                        std::vector<uint8_t>&    result_data,
                                        format::HandleId         resource_id,
                                        D3D12ResourceInfo*       resource_info,
+                                       ResourceValueInfoMap&    indirect_values_map,
                                        uint64_t                 base_offset)
 {
     uint64_t final_offset = value_info.offset + base_offset;
@@ -1035,6 +1035,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                              result_data,
                              resource_id,
                              resource_info,
+                             indirect_values_map,
                              final_offset + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
                 }
             }
@@ -1052,6 +1053,45 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
             }
         }
     }
+    else if (value_info.type == ResourceValueType::kIndirectArgumentDispatchRays)
+    {
+        GFXRECON_ASSERT(value_info.size == sizeof(D3D12_DISPATCH_RAYS_DESC));
+
+        uint8_t* desc_data_ptr = result_data.data() + final_offset;
+
+        // First map the StartAddress GPU VAs from D3D12_DISPATCH_RAYS_DESC in resource data.
+        ResourceValueInfo rvi;
+        rvi.size         = sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+        rvi.type         = ResourceValueType::kGpuVirtualAddress;
+        rvi.state_object = value_info.state_object;
+
+        // Map ray gen shader record StartAddress.
+        rvi.offset = value_info.offset + offsetof(D3D12_DISPATCH_RAYS_DESC, RayGenerationShaderRecord) +
+                     offsetof(D3D12_GPU_VIRTUAL_ADDRESS_RANGE, StartAddress);
+        MapValue(rvi, result_data, resource_id, resource_info, indirect_values_map, base_offset);
+
+        // Map miss shader table StartAddress.
+        rvi.offset = value_info.offset + offsetof(D3D12_DISPATCH_RAYS_DESC, MissShaderTable) +
+                     offsetof(D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE, StartAddress);
+        MapValue(rvi, result_data, resource_id, resource_info, indirect_values_map, base_offset);
+
+        // Map hit group table StartAddress.
+        rvi.offset = value_info.offset + offsetof(D3D12_DISPATCH_RAYS_DESC, HitGroupTable) +
+                     offsetof(D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE, StartAddress);
+        MapValue(rvi, result_data, resource_id, resource_info, indirect_values_map, base_offset);
+
+        // Map callable shader table StartAddress.
+        rvi.offset = value_info.offset + offsetof(D3D12_DISPATCH_RAYS_DESC, CallableShaderTable) +
+                     offsetof(D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE, StartAddress);
+        MapValue(rvi, result_data, resource_id, resource_info, indirect_values_map, base_offset);
+
+        // After mapping the start GPU VAs in the D3D12_DISPATCH_RAYS_DESC, add the resource values the shader records
+        // will reference to indirect_values_map. These will be mapped in a follow-up mapping pass.
+        D3D12_DISPATCH_RAYS_DESC desc;
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, value_info.size);
+        util::platform::MemoryCopy(&desc, sizeof(desc), desc_data_ptr, static_cast<size_t>(value_info.size));
+        GetDispatchRaysResourceValues(indirect_values_map, value_info.state_object, desc);
+    }
     else
     {
         GFXRECON_ASSERT(false && "Unrecognized resource value type.");
@@ -1059,7 +1099,8 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 }
 
 void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&                        resource_value_info_map,
-                                           std::map<DxObjectInfo*, MappedResourceRevertInfo>& resource_data_to_revert)
+                                           std::map<DxObjectInfo*, MappedResourceRevertInfo>& resource_data_to_revert,
+                                           ResourceValueInfoMap&                              indirect_values_map)
 {
     for (const auto& resource_value_infos : resource_value_info_map)
     {
@@ -1116,7 +1157,11 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
 
             for (const auto& value_info : value_infos)
             {
-                MapValue(value_info, temp_resource_data, resource_object_info->capture_id, resource_extra_info);
+                MapValue(value_info,
+                         temp_resource_data,
+                         resource_object_info->capture_id,
+                         resource_extra_info,
+                         indirect_values_map);
             }
 
             hr = resource_data_util_->WriteToResource(resource,
@@ -1172,7 +1217,8 @@ void Dx12ResourceValueMapper::InitializeRequiredObjects(ID3D12CommandQueue*    c
     }
 }
 
-void Dx12ResourceValueMapper::GetShaderTableResourceValues(D3D12CommandListInfo*     command_list_extra_info,
+void Dx12ResourceValueMapper::GetShaderTableResourceValues(ResourceValueInfoMap&     resource_value_info_map,
+                                                           D3D12StateObjectInfo*     state_object_extra_info,
                                                            D3D12_GPU_VIRTUAL_ADDRESS start_address,
                                                            UINT64                    size,
                                                            UINT64                    stride)
@@ -1196,7 +1242,7 @@ void Dx12ResourceValueMapper::GetShaderTableResourceValues(D3D12CommandListInfo*
     GFXRECON_ASSERT((resouce_object_info != nullptr) && (resouce_object_info->object != nullptr));
     auto resource = static_cast<ID3D12Resource*>(resouce_object_info->object);
 
-    auto& resource_value_infos = command_list_extra_info->resource_value_info_map[resouce_object_info];
+    auto& resource_value_infos = resource_value_info_map[resouce_object_info];
 
     UINT64 shader_record_count = 1;
     UINT64 shader_record_size  = size;
@@ -1211,12 +1257,43 @@ void Dx12ResourceValueMapper::GetShaderTableResourceValues(D3D12CommandListInfo*
     for (UINT64 i = 0; i < shader_record_count; ++i)
     {
         resource_value_infos.insert(
-            { byte_offset,
-              ResourceValueType::kShaderIdentifier,
-              shader_record_size,
-              GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object) });
+            { byte_offset, ResourceValueType::kShaderIdentifier, shader_record_size, state_object_extra_info });
         byte_offset += shader_record_size;
     }
+}
+
+void Dx12ResourceValueMapper::GetDispatchRaysResourceValues(ResourceValueInfoMap&           resource_value_info_map,
+                                                            D3D12StateObjectInfo*           state_object_extra_info,
+                                                            const D3D12_DISPATCH_RAYS_DESC& desc)
+{
+    if (state_object_extra_info == nullptr)
+    {
+        GFXRECON_LOG_ERROR("No ID3D12StateObject was set on the command list before DispatchRays was called. Unable to "
+                           "map the values in the shader table. Replay may fail.");
+        return;
+    }
+
+    // Ray gen only has 1 record, so stride == size
+    GetShaderTableResourceValues(resource_value_info_map,
+                                 state_object_extra_info,
+                                 desc.RayGenerationShaderRecord.StartAddress,
+                                 desc.RayGenerationShaderRecord.SizeInBytes,
+                                 desc.RayGenerationShaderRecord.SizeInBytes);
+    GetShaderTableResourceValues(resource_value_info_map,
+                                 state_object_extra_info,
+                                 desc.MissShaderTable.StartAddress,
+                                 desc.MissShaderTable.SizeInBytes,
+                                 desc.MissShaderTable.StrideInBytes);
+    GetShaderTableResourceValues(resource_value_info_map,
+                                 state_object_extra_info,
+                                 desc.HitGroupTable.StartAddress,
+                                 desc.HitGroupTable.SizeInBytes,
+                                 desc.HitGroupTable.StrideInBytes);
+    GetShaderTableResourceValues(resource_value_info_map,
+                                 state_object_extra_info,
+                                 desc.CallableShaderTable.StartAddress,
+                                 desc.CallableShaderTable.SizeInBytes,
+                                 desc.CallableShaderTable.StrideInBytes);
 }
 
 void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(

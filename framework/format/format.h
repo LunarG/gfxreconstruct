@@ -200,10 +200,11 @@ struct EnabledOptions
 // Resource values are values contained in resource data that may require special handling (e.g., mapping for replay).
 enum class ResourceValueType : uint8_t
 {
-    kUnknown,
-    kGpuVirtualAddress,
-    kGpuDescriptorHandle,
-    kShaderIdentifier
+    kUnknown                      = 0,
+    kGpuVirtualAddress            = 1,
+    kGpuDescriptorHandle          = 2,
+    kShaderIdentifier             = 3,
+    kIndirectArgumentDispatchRays = 4
 };
 
 #pragma pack(push)
