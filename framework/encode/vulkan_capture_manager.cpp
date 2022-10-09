@@ -1374,8 +1374,6 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
 
             if (result == 0)
             {
-                assert(data != nullptr);
-
                 VkAndroidHardwareBufferPropertiesANDROID properties = {
                     VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
                 };
@@ -1393,24 +1391,27 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
                     ahb_info.reference_count     = 0;
 
                     WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-                    WriteFillMemoryCmd(memory_id, 0, properties.allocationSize, data);
-
-                    if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
-                        GetPageGuardTrackAhbMemory())
+                    if (data != nullptr)
                     {
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, properties.allocationSize);
+                        WriteFillMemoryCmd(memory_id, 0, properties.allocationSize, data);
 
-                        util::PageGuardManager* manager = util::PageGuardManager::Get();
-                        assert(manager != nullptr);
+                        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+                            GetPageGuardTrackAhbMemory())
+                        {
+                            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, properties.allocationSize);
 
-                        manager->AddTrackedMemory(
-                            memory_id,
-                            data,
-                            0,
-                            static_cast<size_t>(properties.allocationSize),
-                            util::PageGuardManager::kNullShadowHandle,
-                            false,  // No shadow memory for the imported AHB memory; Track directly with mprotect().
-                            false); // Write watch is not supported for this case.
+                            util::PageGuardManager* manager = util::PageGuardManager::Get();
+                            assert(manager != nullptr);
+
+                            manager->AddTrackedMemory(
+                                memory_id,
+                                data,
+                                0,
+                                static_cast<size_t>(properties.allocationSize),
+                                util::PageGuardManager::kNullShadowHandle,
+                                false,  // No shadow memory for the imported AHB memory; Track directly with mprotect().
+                                false); // Write watch is not supported for this case.
+                        }
                     }
                 }
                 else
