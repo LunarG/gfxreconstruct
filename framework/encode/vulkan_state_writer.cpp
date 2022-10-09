@@ -1070,7 +1070,7 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
         }
         else
         {
-            GFXRECON_LOG_WARNING("AHardwareBuffer_unlock warning: data is nullptr");
+            GFXRECON_LOG_WARNING("AHardwareBuffer_lock returned nullptr for data pointer");
         }
 
         result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
