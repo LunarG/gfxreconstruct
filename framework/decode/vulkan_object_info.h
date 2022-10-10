@@ -258,6 +258,8 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+
+    std::vector<VkPhysicalDevice> replay_device_group;
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>

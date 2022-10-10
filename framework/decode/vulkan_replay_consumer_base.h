@@ -946,7 +946,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void SelectPhysicalDevice(PhysicalDeviceInfo* physical_device_info);
 
     void SelectPhysicalDeviceGroup(PhysicalDeviceInfo*                  physical_device_info,
-                                   VkDeviceGroupDeviceCreateInfo&       device_group_create_info,
                                    const std::vector<format::HandleId>& capture_device_group,
                                    std::vector<VkPhysicalDevice>&       replay_device_group);
 
@@ -954,14 +953,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     bool GetOverrideDeviceGroup(InstanceInfo*                  instance_info,
                                 PhysicalDeviceInfo*            physical_device_info,
-                                VkDeviceGroupDeviceCreateInfo& device_group_create_info,
                                 std::vector<VkPhysicalDevice>& replay_device_group);
 
     void GetMatchingDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info);
 
     void GetMatchingDeviceGroup(InstanceInfo*                        instance_info,
                                 PhysicalDeviceInfo*                  physical_device_info,
-                                VkDeviceGroupDeviceCreateInfo&       device_group_create_info,
                                 const std::vector<format::HandleId>& capture_device_group,
                                 std::vector<VkPhysicalDevice>&       replay_device_group);
 
