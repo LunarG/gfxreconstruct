@@ -1290,7 +1290,6 @@ void VulkanReplayConsumerBase::SelectPhysicalDevice(PhysicalDeviceInfo* physical
 }
 
 void VulkanReplayConsumerBase::SelectPhysicalDeviceGroup(PhysicalDeviceInfo*                  physical_device_info,
-                                                         VkDeviceGroupDeviceCreateInfo&       device_group_create_info,
                                                          const std::vector<format::HandleId>& capture_device_group,
                                                          std::vector<VkPhysicalDevice>&       replay_device_group)
 {
@@ -1304,17 +1303,12 @@ void VulkanReplayConsumerBase::SelectPhysicalDeviceGroup(PhysicalDeviceInfo*    
 
         if (options_.override_gpu_group_index >= 0)
         {
-            have_override = GetOverrideDeviceGroup(
-                instance_info, physical_device_info, device_group_create_info, replay_device_group);
+            have_override = GetOverrideDeviceGroup(instance_info, physical_device_info, replay_device_group);
         }
 
         if (!have_override)
         {
-            GetMatchingDeviceGroup(instance_info,
-                                   physical_device_info,
-                                   device_group_create_info,
-                                   capture_device_group,
-                                   replay_device_group);
+            GetMatchingDeviceGroup(instance_info, physical_device_info, capture_device_group, replay_device_group);
         }
 
         CheckPhysicalDeviceGroupCompatibility(instance_info, capture_device_group, replay_device_group);
@@ -1395,7 +1389,6 @@ bool VulkanReplayConsumerBase::GetOverrideDevice(InstanceInfo* instance_info, Ph
 
 bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(InstanceInfo*                  instance_info,
                                                       PhysicalDeviceInfo*            physical_device_info,
-                                                      VkDeviceGroupDeviceCreateInfo& device_group_create_info,
                                                       std::vector<VkPhysicalDevice>& replay_device_group)
 {
     VkInstance instance               = instance_info->handle;
@@ -1434,9 +1427,6 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(InstanceInfo*             
     std::copy(override_group_props.physicalDevices,
               override_group_props.physicalDevices + override_group_props.physicalDeviceCount,
               std::back_inserter(replay_device_group));
-
-    device_group_create_info.physicalDeviceCount = override_group_props.physicalDeviceCount;
-    device_group_create_info.pPhysicalDevices    = replay_device_group.data();
 
     GFXRECON_LOG_INFO("Creating logical device from manually specified GPU group[%d]",
                       options_.override_gpu_group_index);
@@ -1551,7 +1541,6 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
 
 void VulkanReplayConsumerBase::GetMatchingDeviceGroup(InstanceInfo*                        instance_info,
                                                       PhysicalDeviceInfo*                  physical_device_info,
-                                                      VkDeviceGroupDeviceCreateInfo&       device_group_create_info,
                                                       const std::vector<format::HandleId>& capture_device_group,
                                                       std::vector<VkPhysicalDevice>&       replay_device_group)
 {
@@ -1621,9 +1610,6 @@ void VulkanReplayConsumerBase::GetMatchingDeviceGroup(InstanceInfo*             
             }
         }
     }
-
-    device_group_create_info.physicalDeviceCount = static_cast<uint32_t>(replay_device_group.size());
-    device_group_create_info.pPhysicalDevices    = replay_device_group.data();
 }
 
 void VulkanReplayConsumerBase::CheckPhysicalDeviceCompatibility(PhysicalDeviceInfo* physical_device_info)
@@ -2347,10 +2333,13 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                 {
                     modified_device_group_create_info =
                         (*reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(replay_next));
-                    SelectPhysicalDeviceGroup(physical_device_info,
-                                              modified_device_group_create_info,
-                                              capture_device_group,
-                                              replay_device_group);
+
+                    SelectPhysicalDeviceGroup(physical_device_info, capture_device_group, replay_device_group);
+
+                    modified_device_group_create_info.physicalDeviceCount =
+                        static_cast<uint32_t>(replay_device_group.size());
+                    modified_device_group_create_info.pPhysicalDevices = replay_device_group.data();
+
                     VkBaseInStructure** ppnext = const_cast<VkBaseInStructure**>(&replay_previous_next->pNext);
                     (*ppnext) = reinterpret_cast<VkBaseInStructure*>(&modified_device_group_create_info);
                     break;
@@ -2427,8 +2416,9 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             auto device_info = reinterpret_cast<DeviceInfo*>(pDevice->GetConsumerData(0));
             assert(device_info != nullptr);
 
-            device_info->extensions = std::move(extensions);
-            device_info->parent     = physical_device;
+            device_info->replay_device_group = std::move(replay_device_group);
+            device_info->extensions          = std::move(extensions);
+            device_info->parent              = physical_device;
 
             // Create the memory allocator for the selected physical device.
             auto replay_device_info = physical_device_info->replay_device_info;
