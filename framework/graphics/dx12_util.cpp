@@ -162,6 +162,7 @@ HRESULT MapSubresource(ID3D12Resource*    resource,
         result   = resource->Map(subresource, read_range, nullptr);
         data_ptr = nullptr;
     }
+
     return result;
 }
 
@@ -995,6 +996,29 @@ uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC
     }
 
     return size;
+}
+
+bool IsTextureWithUnknownLayout(ID3D12Resource* target_resource, D3D12_RESOURCE_DIMENSION* dimension)
+{
+    bool                is_texture_with_unknown_layout = false;
+    D3D12_RESOURCE_DESC target_resource_desc           = target_resource->GetDesc();
+
+    if (target_resource_desc.Layout == D3D12_TEXTURE_LAYOUT_UNKNOWN)
+    {
+        if ((target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) ||
+            (target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
+            (target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D))
+        {
+            is_texture_with_unknown_layout = true;
+        }
+    }
+
+    if (dimension != nullptr)
+    {
+        *dimension = target_resource_desc.Dimension;
+    }
+
+    return is_texture_with_unknown_layout;
 }
 
 GFXRECON_END_NAMESPACE(dx12)

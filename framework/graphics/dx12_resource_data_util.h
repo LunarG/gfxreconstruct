@@ -81,9 +81,6 @@ class Dx12ResourceDataUtil
         const std::vector<dx12::ResourceStateInfo>& before_states,
         bool                                        transition_to_state_common);
 
-    static bool IsTextureWithUnknownLayout(ID3D12Resource*           target_resource,
-                                           D3D12_RESOURCE_DIMENSION* dimension = nullptr);
-
     // Copy data to or from a mappable resource. Also transitions the resource to after_states.
     bool CopyMappableResource(ID3D12Resource*                                        target_resource,
                               const std::vector<dx12::ResourceStateInfo>&            before_states,

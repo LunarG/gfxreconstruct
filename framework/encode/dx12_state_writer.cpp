@@ -628,8 +628,8 @@ void Dx12StateWriter::WriteResourceCreationState(
     {
         auto     mappable_resource = map_info.resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
         uint8_t* result_ptr        = nullptr;
-        bool     is_special_mapping =
-            gfxrecon::graphics::Dx12ResourceDataUtil::IsTextureWithUnknownLayout(mappable_resource);
+        bool     is_special_mapping = graphics::dx12::IsTextureWithUnknownLayout(mappable_resource);
+
         graphics::dx12::MapSubresource(
             mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr, is_special_mapping);
 

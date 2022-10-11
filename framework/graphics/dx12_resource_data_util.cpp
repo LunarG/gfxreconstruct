@@ -652,6 +652,7 @@ bool Dx12ResourceDataUtil::ChangeResourceStateForUnknownLayoutTexture(
     HRESULT result = E_FAIL;
 
     result = command_allocator_for_unknown_layout_texture_->Reset();
+
     if (SUCCEEDED(result))
     {
         result =
@@ -663,75 +664,57 @@ bool Dx12ResourceDataUtil::ChangeResourceStateForUnknownLayoutTexture(
         GFXRECON_LOG_ERROR("Could not reset command list for state transition of unknown layout texture. (error = %lx)",
                            result);
     }
-
-    for (UINT subresource = 0; subresource < before_states.size(); subresource++)
+    else
     {
-        if (transition_to_state_common)
+        for (UINT subresource = 0; subresource < before_states.size(); subresource++)
         {
-            if (before_states.at(subresource).states != D3D12_RESOURCE_STATE_COMMON)
+            if (transition_to_state_common)
             {
-                dx12::ResourceStateInfo new_state_info = before_states.at(subresource);
-                new_state_info.states                  = D3D12_RESOURCE_STATE_COMMON;
-                if (AddTransitionBarrier(command_list_for_unknown_layout_texture_,
-                                         resource,
-                                         subresource,
-                                         before_states.at(subresource),
-                                         new_state_info) != true)
+                if (before_states.at(subresource).states != D3D12_RESOURCE_STATE_COMMON)
                 {
-                    GFXRECON_LOG_ERROR("Failed to change resource state to D3D12_RESOURCE_STATE_COMMON!");
+                    dx12::ResourceStateInfo new_state_info = before_states.at(subresource);
+                    new_state_info.states                  = D3D12_RESOURCE_STATE_COMMON;
+
+                    if (AddTransitionBarrier(command_list_for_unknown_layout_texture_,
+                                             resource,
+                                             subresource,
+                                             before_states.at(subresource),
+                                             new_state_info) != true)
+                    {
+                        GFXRECON_LOG_ERROR("Failed to change resource state to D3D12_RESOURCE_STATE_COMMON");
+                    }
+                }
+            }
+            else
+            {
+                if (before_states.at(subresource).states != D3D12_RESOURCE_STATE_COMMON)
+                {
+                    dx12::ResourceStateInfo old_state_info = before_states.at(subresource);
+                    old_state_info.states                  = D3D12_RESOURCE_STATE_COMMON;
+
+                    if (AddTransitionBarrier(command_list_for_unknown_layout_texture_,
+                                             resource,
+                                             subresource,
+                                             old_state_info,
+                                             before_states.at(subresource)) != true)
+                    {
+                        GFXRECON_LOG_ERROR("Failed to restore resource state");
+                    }
                 }
             }
         }
-        else
+
+        result = command_list_for_unknown_layout_texture_->Close();
+
+        if (SUCCEEDED(result))
         {
-            if (before_states.at(subresource).states != D3D12_RESOURCE_STATE_COMMON)
-            {
-                dx12::ResourceStateInfo old_state_info = before_states.at(subresource);
-                old_state_info.states                  = D3D12_RESOURCE_STATE_COMMON;
-                if (AddTransitionBarrier(command_list_for_unknown_layout_texture_,
-                                         resource,
-                                         subresource,
-                                         old_state_info,
-                                         before_states.at(subresource)) != true)
-                {
-                    GFXRECON_LOG_ERROR("Failed to restore resource state!");
-                }
-            }
+            ID3D12CommandList* cmd_lists[] = { command_list_for_unknown_layout_texture_ };
+            command_queue_->ExecuteCommandLists(1, cmd_lists);
+            result = dx12::WaitForQueue(command_queue_, command_fence_, ++fence_value_);
         }
-    }
-
-    result = command_list_for_unknown_layout_texture_->Close();
-
-    if (SUCCEEDED(result))
-    {
-        ID3D12CommandList* cmd_lists[] = { command_list_for_unknown_layout_texture_ };
-        command_queue_->ExecuteCommandLists(1, cmd_lists);
-        result = dx12::WaitForQueue(command_queue_, command_fence_, ++fence_value_);
     }
 
     return SUCCEEDED(result);
-}
-
-bool Dx12ResourceDataUtil::IsTextureWithUnknownLayout(ID3D12Resource*           target_resource,
-                                                      D3D12_RESOURCE_DIMENSION* dimension)
-{
-    bool                is_texture_with_unknown_layout = false;
-    D3D12_RESOURCE_DESC target_resource_desc           = target_resource->GetDesc();
-
-    if (((target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) ||
-         (target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
-         (target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D)) &&
-        (target_resource_desc.Layout == D3D12_TEXTURE_LAYOUT_UNKNOWN))
-    {
-        is_texture_with_unknown_layout = true;
-    }
-
-    if (dimension != nullptr)
-    {
-        *dimension = target_resource_desc.Dimension;
-    }
-
-    return is_texture_with_unknown_layout;
 }
 
 // If target_resource belong to special mapping case, layouts must point to valid data, otherwise, it can be nullptr.
@@ -763,10 +746,10 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
         if (is_cpu_accessible)
         {
             D3D12_RESOURCE_DIMENSION target_resource_dimension;
-            bool                     need_special_mapping_handling =
-                IsTextureWithUnknownLayout(target_resource, &target_resource_dimension);
+            bool                     target_texture_with_unknown_layout =
+                dx12::IsTextureWithUnknownLayout(target_resource, &target_resource_dimension);
 
-            if (!need_special_mapping_handling)
+            if (!target_texture_with_unknown_layout)
             {
                 for (UINT i = 0; i < subresource_count; ++i)
                 {
@@ -789,8 +772,8 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
                     {
                         GFXRECON_LOG_ERROR_ONCE("CPU buffer state not match");
                     }
-                    return SUCCEEDED(result);
                 }
+                return SUCCEEDED(result);
             }
             else
             {
@@ -847,14 +830,16 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
                                                                                    target_resource_dimension,
                                                                                    &layouts->at(i));
                     }
+
                     if (before_states[i].states != after_states[i].states)
                     {
-                        GFXRECON_LOG_ERROR_ONCE("CPU buffer state not match");
+                        GFXRECON_LOG_ERROR_ONCE("Buffer state mismatch");
                     }
-                    return SUCCEEDED(result);
                 }
 
                 Dx12ResourceDataUtil::ChangeResourceStateForUnknownLayoutTexture(target_resource, before_states, false);
+
+                return SUCCEEDED(result);
             }
         }
     }
