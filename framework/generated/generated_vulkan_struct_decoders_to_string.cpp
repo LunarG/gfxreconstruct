@@ -40,7 +40,7 @@ template <> std::string ToString<decode::Decoded_VkExtent2D>(const decode::Decod
     {
         return "null";
     }
-    const VkExtent2D& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExtent2D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -56,7 +56,7 @@ template <> std::string ToString<decode::Decoded_VkExtent3D>(const decode::Decod
     {
         return "null";
     }
-    const VkExtent3D& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExtent3D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -73,7 +73,7 @@ template <> std::string ToString<decode::Decoded_VkOffset2D>(const decode::Decod
     {
         return "null";
     }
-    const VkOffset2D& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkOffset2D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -89,7 +89,7 @@ template <> std::string ToString<decode::Decoded_VkOffset3D>(const decode::Decod
     {
         return "null";
     }
-    const VkOffset3D& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkOffset3D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -106,7 +106,7 @@ template <> std::string ToString<decode::Decoded_VkRect2D>(const decode::Decoded
     {
         return "null";
     }
-    const VkRect2D& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRect2D& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -122,7 +122,7 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier>(const de
     {
         return "null";
     }
-    const VkBufferMemoryBarrier& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferMemoryBarrier& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -145,7 +145,7 @@ template <> std::string ToString<decode::Decoded_VkDispatchIndirectCommand>(cons
     {
         return "null";
     }
-    const VkDispatchIndirectCommand& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDispatchIndirectCommand& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -162,7 +162,7 @@ template <> std::string ToString<decode::Decoded_VkDrawIndexedIndirectCommand>(c
     {
         return "null";
     }
-    const VkDrawIndexedIndirectCommand& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDrawIndexedIndirectCommand& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -181,7 +181,7 @@ template <> std::string ToString<decode::Decoded_VkDrawIndirectCommand>(const de
     {
         return "null";
     }
-    const VkDrawIndirectCommand& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDrawIndirectCommand& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -199,7 +199,7 @@ template <> std::string ToString<decode::Decoded_VkImageSubresourceRange>(const 
     {
         return "null";
     }
-    const VkImageSubresourceRange& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageSubresourceRange& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -218,7 +218,7 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier>(const dec
     {
         return "null";
     }
-    const VkImageMemoryBarrier& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageMemoryBarrier& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -242,7 +242,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryBarrier>(const decode::
     {
         return "null";
     }
-    const VkMemoryBarrier& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryBarrier& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -260,7 +260,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCacheHeaderVersionOne
     {
         return "null";
     }
-    const VkPipelineCacheHeaderVersionOne& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCacheHeaderVersionOne& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -279,7 +279,7 @@ template <> std::string ToString<decode::Decoded_VkAllocationCallbacks>(const de
     {
         return "null";
     }
-    const VkAllocationCallbacks& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAllocationCallbacks& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -299,7 +299,7 @@ template <> std::string ToString<decode::Decoded_VkApplicationInfo>(const decode
     {
         return "null";
     }
-    const VkApplicationInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkApplicationInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -320,7 +320,7 @@ template <> std::string ToString<decode::Decoded_VkFormatProperties>(const decod
     {
         return "null";
     }
-    const VkFormatProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -337,7 +337,7 @@ template <> std::string ToString<decode::Decoded_VkImageFormatProperties>(const 
     {
         return "null";
     }
-    const VkImageFormatProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -356,7 +356,7 @@ template <> std::string ToString<decode::Decoded_VkInstanceCreateInfo>(const dec
     {
         return "null";
     }
-    const VkInstanceCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkInstanceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -378,7 +378,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryHeap>(const decode::Dec
     {
         return "null";
     }
-    const VkMemoryHeap& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryHeap& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -394,7 +394,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryType>(const decode::Dec
     {
         return "null";
     }
-    const VkMemoryType& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryType& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -410,7 +410,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFeatures>(const
     {
         return "null";
     }
-    const VkPhysicalDeviceFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -479,7 +479,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLimits>(const d
     {
         return "null";
     }
-    const VkPhysicalDeviceLimits& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceLimits& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -599,7 +599,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSparsePropertie
     {
         return "null";
     }
-    const VkPhysicalDeviceSparseProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSparseProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -618,7 +618,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProperties>(con
     {
         return "null";
     }
-    const VkPhysicalDeviceProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -641,7 +641,7 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyProperties>(const 
     {
         return "null";
     }
-    const VkQueueFamilyProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueueFamilyProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -659,7 +659,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceQueueCreateInfo>(const 
     {
         return "null";
     }
-    const VkDeviceQueueCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceQueueCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -679,7 +679,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceCreateInfo>(const decod
     {
         return "null";
     }
-    const VkDeviceCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -703,7 +703,7 @@ template <> std::string ToString<decode::Decoded_VkExtensionProperties>(const de
     {
         return "null";
     }
-    const VkExtensionProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExtensionProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -719,7 +719,7 @@ template <> std::string ToString<decode::Decoded_VkLayerProperties>(const decode
     {
         return "null";
     }
-    const VkLayerProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkLayerProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -737,7 +737,7 @@ template <> std::string ToString<decode::Decoded_VkSubmitInfo>(const decode::Dec
     {
         return "null";
     }
-    const VkSubmitInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -760,7 +760,7 @@ template <> std::string ToString<decode::Decoded_VkMappedMemoryRange>(const deco
     {
         return "null";
     }
-    const VkMappedMemoryRange& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMappedMemoryRange& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -779,7 +779,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryAllocateInfo>(const dec
     {
         return "null";
     }
-    const VkMemoryAllocateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -797,7 +797,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryRequirements>(const dec
     {
         return "null";
     }
-    const VkMemoryRequirements& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -814,7 +814,7 @@ template <> std::string ToString<decode::Decoded_VkSparseMemoryBind>(const decod
     {
         return "null";
     }
-    const VkSparseMemoryBind& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseMemoryBind& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -833,7 +833,7 @@ template <> std::string ToString<decode::Decoded_VkSparseBufferMemoryBindInfo>(c
     {
         return "null";
     }
-    const VkSparseBufferMemoryBindInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseBufferMemoryBindInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -850,7 +850,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageOpaqueMemoryBindIn
     {
         return "null";
     }
-    const VkSparseImageOpaqueMemoryBindInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseImageOpaqueMemoryBindInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -867,7 +867,7 @@ template <> std::string ToString<decode::Decoded_VkImageSubresource>(const decod
     {
         return "null";
     }
-    const VkImageSubresource& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageSubresource& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -884,7 +884,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBind>(const 
     {
         return "null";
     }
-    const VkSparseImageMemoryBind& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseImageMemoryBind& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -904,7 +904,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBindInfo>(co
     {
         return "null";
     }
-    const VkSparseImageMemoryBindInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseImageMemoryBindInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -921,7 +921,7 @@ template <> std::string ToString<decode::Decoded_VkBindSparseInfo>(const decode:
     {
         return "null";
     }
-    const VkBindSparseInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindSparseInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -947,7 +947,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageFormatProperties>(
     {
         return "null";
     }
-    const VkSparseImageFormatProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -964,7 +964,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryRequirements
     {
         return "null";
     }
-    const VkSparseImageMemoryRequirements& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseImageMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -983,7 +983,7 @@ template <> std::string ToString<decode::Decoded_VkFenceCreateInfo>(const decode
     {
         return "null";
     }
-    const VkFenceCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFenceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1000,7 +1000,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreCreateInfo>(const de
     {
         return "null";
     }
-    const VkSemaphoreCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1017,7 +1017,7 @@ template <> std::string ToString<decode::Decoded_VkEventCreateInfo>(const decode
     {
         return "null";
     }
-    const VkEventCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkEventCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1034,7 +1034,7 @@ template <> std::string ToString<decode::Decoded_VkQueryPoolCreateInfo>(const de
     {
         return "null";
     }
-    const VkQueryPoolCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueryPoolCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1054,7 +1054,7 @@ template <> std::string ToString<decode::Decoded_VkBufferCreateInfo>(const decod
     {
         return "null";
     }
-    const VkBufferCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1076,7 +1076,7 @@ template <> std::string ToString<decode::Decoded_VkBufferViewCreateInfo>(const d
     {
         return "null";
     }
-    const VkBufferViewCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferViewCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1097,7 +1097,7 @@ template <> std::string ToString<decode::Decoded_VkImageCreateInfo>(const decode
     {
         return "null";
     }
-    const VkImageCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1126,7 +1126,7 @@ template <> std::string ToString<decode::Decoded_VkSubresourceLayout>(const deco
     {
         return "null";
     }
-    const VkSubresourceLayout& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubresourceLayout& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1145,7 +1145,7 @@ template <> std::string ToString<decode::Decoded_VkComponentMapping>(const decod
     {
         return "null";
     }
-    const VkComponentMapping& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkComponentMapping& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1163,7 +1163,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewCreateInfo>(const de
     {
         return "null";
     }
-    const VkImageViewCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageViewCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1185,7 +1185,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCacheCreateInfo>(cons
     {
         return "null";
     }
-    const VkPipelineCacheCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCacheCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1204,7 +1204,7 @@ template <> std::string ToString<decode::Decoded_VkSpecializationMapEntry>(const
     {
         return "null";
     }
-    const VkSpecializationMapEntry& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSpecializationMapEntry& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1221,7 +1221,7 @@ template <> std::string ToString<decode::Decoded_VkSpecializationInfo>(const dec
     {
         return "null";
     }
-    const VkSpecializationInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSpecializationInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1239,7 +1239,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageCreateInfo
     {
         return "null";
     }
-    const VkPipelineShaderStageCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineShaderStageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1260,7 +1260,7 @@ template <> std::string ToString<decode::Decoded_VkComputePipelineCreateInfo>(co
     {
         return "null";
     }
-    const VkComputePipelineCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkComputePipelineCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1281,7 +1281,7 @@ template <> std::string ToString<decode::Decoded_VkVertexInputBindingDescription
     {
         return "null";
     }
-    const VkVertexInputBindingDescription& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkVertexInputBindingDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1298,7 +1298,7 @@ template <> std::string ToString<decode::Decoded_VkVertexInputAttributeDescripti
     {
         return "null";
     }
-    const VkVertexInputAttributeDescription& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkVertexInputAttributeDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1316,7 +1316,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineVertexInputStateCreat
     {
         return "null";
     }
-    const VkPipelineVertexInputStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineVertexInputStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1337,7 +1337,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineInputAssemblyStateCre
     {
         return "null";
     }
-    const VkPipelineInputAssemblyStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineInputAssemblyStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1356,7 +1356,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineTessellationStateCrea
     {
         return "null";
     }
-    const VkPipelineTessellationStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineTessellationStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1374,7 +1374,7 @@ template <> std::string ToString<decode::Decoded_VkViewport>(const decode::Decod
     {
         return "null";
     }
-    const VkViewport& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkViewport& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1394,7 +1394,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportStateCreateIn
     {
         return "null";
     }
-    const VkPipelineViewportStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineViewportStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1415,7 +1415,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateCre
     {
         return "null";
     }
-    const VkPipelineRasterizationStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRasterizationStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1442,7 +1442,7 @@ template <> std::string ToString<decode::Decoded_VkStencilOpState>(const decode:
     {
         return "null";
     }
-    const VkStencilOpState& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkStencilOpState& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1463,7 +1463,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineDepthStencilStateCrea
     {
         return "null";
     }
-    const VkPipelineDepthStencilStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineDepthStencilStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1489,7 +1489,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorBlendAttachmentS
     {
         return "null";
     }
-    const VkPipelineColorBlendAttachmentState& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineColorBlendAttachmentState& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1511,7 +1511,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorBlendStateCreate
     {
         return "null";
     }
-    const VkPipelineColorBlendStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineColorBlendStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1533,7 +1533,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineDynamicStateCreateInf
     {
         return "null";
     }
-    const VkPipelineDynamicStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineDynamicStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1552,7 +1552,7 @@ template <> std::string ToString<decode::Decoded_VkGraphicsPipelineCreateInfo>(c
     {
         return "null";
     }
-    const VkGraphicsPipelineCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGraphicsPipelineCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1585,7 +1585,7 @@ template <> std::string ToString<decode::Decoded_VkPushConstantRange>(const deco
     {
         return "null";
     }
-    const VkPushConstantRange& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPushConstantRange& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1602,7 +1602,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineLayoutCreateInfo>(con
     {
         return "null";
     }
-    const VkPipelineLayoutCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineLayoutCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1623,7 +1623,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerCreateInfo>(const deco
     {
         return "null";
     }
-    const VkSamplerCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSamplerCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1655,7 +1655,7 @@ template <> std::string ToString<decode::Decoded_VkCopyDescriptorSet>(const deco
     {
         return "null";
     }
-    const VkCopyDescriptorSet& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyDescriptorSet& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1678,7 +1678,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorBufferInfo>(const d
     {
         return "null";
     }
-    const VkDescriptorBufferInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorBufferInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1695,7 +1695,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorPoolSize>(const dec
     {
         return "null";
     }
-    const VkDescriptorPoolSize& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorPoolSize& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1711,7 +1711,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorPoolCreateInfo>(con
     {
         return "null";
     }
-    const VkDescriptorPoolCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorPoolCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1731,7 +1731,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetAllocateInfo>(co
     {
         return "null";
     }
-    const VkDescriptorSetAllocateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1750,7 +1750,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutBinding>(c
     {
         return "null";
     }
-    const VkDescriptorSetLayoutBinding& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetLayoutBinding& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1769,7 +1769,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutCreateInfo
     {
         return "null";
     }
-    const VkDescriptorSetLayoutCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetLayoutCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1788,7 +1788,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentDescription>(const 
     {
         return "null";
     }
-    const VkAttachmentDescription& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1811,7 +1811,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentReference>(const de
     {
         return "null";
     }
-    const VkAttachmentReference& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentReference& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1827,7 +1827,7 @@ template <> std::string ToString<decode::Decoded_VkFramebufferCreateInfo>(const 
     {
         return "null";
     }
-    const VkFramebufferCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFramebufferCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1850,7 +1850,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassDescription>(const dec
     {
         return "null";
     }
-    const VkSubpassDescription& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassDescription& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1874,7 +1874,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassDependency>(const deco
     {
         return "null";
     }
-    const VkSubpassDependency& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassDependency& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1895,7 +1895,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreateInfo>(const d
     {
         return "null";
     }
-    const VkRenderPassCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1918,7 +1918,7 @@ template <> std::string ToString<decode::Decoded_VkCommandPoolCreateInfo>(const 
     {
         return "null";
     }
-    const VkCommandPoolCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandPoolCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1936,7 +1936,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferAllocateInfo>(co
     {
         return "null";
     }
-    const VkCommandBufferAllocateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1955,7 +1955,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceInfo>
     {
         return "null";
     }
-    const VkCommandBufferInheritanceInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferInheritanceInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1977,7 +1977,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferBeginInfo>(const
     {
         return "null";
     }
-    const VkCommandBufferBeginInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -1995,7 +1995,7 @@ template <> std::string ToString<decode::Decoded_VkBufferCopy>(const decode::Dec
     {
         return "null";
     }
-    const VkBufferCopy& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferCopy& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2012,7 +2012,7 @@ template <> std::string ToString<decode::Decoded_VkImageSubresourceLayers>(const
     {
         return "null";
     }
-    const VkImageSubresourceLayers& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageSubresourceLayers& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2030,7 +2030,7 @@ template <> std::string ToString<decode::Decoded_VkBufferImageCopy>(const decode
     {
         return "null";
     }
-    const VkBufferImageCopy& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferImageCopy& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2050,7 +2050,7 @@ template <> std::string ToString<decode::Decoded_VkClearDepthStencilValue>(const
     {
         return "null";
     }
-    const VkClearDepthStencilValue& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkClearDepthStencilValue& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2066,7 +2066,7 @@ template <> std::string ToString<decode::Decoded_VkClearAttachment>(const decode
     {
         return "null";
     }
-    const VkClearAttachment& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkClearAttachment& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2083,7 +2083,7 @@ template <> std::string ToString<decode::Decoded_VkClearRect>(const decode::Deco
     {
         return "null";
     }
-    const VkClearRect& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkClearRect& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2100,7 +2100,7 @@ template <> std::string ToString<decode::Decoded_VkImageBlit>(const decode::Deco
     {
         return "null";
     }
-    const VkImageBlit& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageBlit& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2118,7 +2118,7 @@ template <> std::string ToString<decode::Decoded_VkImageCopy>(const decode::Deco
     {
         return "null";
     }
-    const VkImageCopy& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageCopy& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2137,7 +2137,7 @@ template <> std::string ToString<decode::Decoded_VkImageResolve>(const decode::D
     {
         return "null";
     }
-    const VkImageResolve& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageResolve& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2156,7 +2156,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassBeginInfo>(const de
     {
         return "null";
     }
-    const VkRenderPassBeginInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2177,7 +2177,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupPropert
     {
         return "null";
     }
-    const VkPhysicalDeviceSubgroupProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSubgroupProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2197,7 +2197,7 @@ template <> std::string ToString<decode::Decoded_VkBindBufferMemoryInfo>(const d
     {
         return "null";
     }
-    const VkBindBufferMemoryInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindBufferMemoryInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2216,7 +2216,7 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemoryInfo>(const de
     {
         return "null";
     }
-    const VkBindImageMemoryInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindImageMemoryInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2235,7 +2235,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevice16BitStorageFea
     {
         return "null";
     }
-    const VkPhysicalDevice16BitStorageFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevice16BitStorageFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2255,7 +2255,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryDedicatedRequirements>(
     {
         return "null";
     }
-    const VkMemoryDedicatedRequirements& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryDedicatedRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2273,7 +2273,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryDedicatedAllocateInfo>(
     {
         return "null";
     }
-    const VkMemoryDedicatedAllocateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryDedicatedAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2291,7 +2291,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryAllocateFlagsInfo>(cons
     {
         return "null";
     }
-    const VkMemoryAllocateFlagsInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryAllocateFlagsInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2309,7 +2309,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupRenderPassBeginInf
     {
         return "null";
     }
-    const VkDeviceGroupRenderPassBeginInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupRenderPassBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2328,7 +2328,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupCommandBufferBegin
     {
         return "null";
     }
-    const VkDeviceGroupCommandBufferBeginInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupCommandBufferBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2345,7 +2345,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupSubmitInfo>(const 
     {
         return "null";
     }
-    const VkDeviceGroupSubmitInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2367,7 +2367,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupBindSparseInfo>(co
     {
         return "null";
     }
-    const VkDeviceGroupBindSparseInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupBindSparseInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2385,7 +2385,7 @@ template <> std::string ToString<decode::Decoded_VkBindBufferMemoryDeviceGroupIn
     {
         return "null";
     }
-    const VkBindBufferMemoryDeviceGroupInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindBufferMemoryDeviceGroupInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2403,7 +2403,7 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemoryDeviceGroupInf
     {
         return "null";
     }
-    const VkBindImageMemoryDeviceGroupInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindImageMemoryDeviceGroupInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2423,7 +2423,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGroupProperties
     {
         return "null";
     }
-    const VkPhysicalDeviceGroupProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceGroupProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2442,7 +2442,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupDeviceCreateInfo>(
     {
         return "null";
     }
-    const VkDeviceGroupDeviceCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupDeviceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2460,7 +2460,7 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryRequirementsInfo2
     {
         return "null";
     }
-    const VkBufferMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2477,7 +2477,7 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryRequirementsInfo2>
     {
         return "null";
     }
-    const VkImageMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2494,7 +2494,7 @@ template <> std::string ToString<decode::Decoded_VkImageSparseMemoryRequirements
     {
         return "null";
     }
-    const VkImageSparseMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageSparseMemoryRequirementsInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2511,7 +2511,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryRequirements2>(const de
     {
         return "null";
     }
-    const VkMemoryRequirements2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryRequirements2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2528,7 +2528,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryRequirements
     {
         return "null";
     }
-    const VkSparseImageMemoryRequirements2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseImageMemoryRequirements2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2545,7 +2545,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFeatures2>(cons
     {
         return "null";
     }
-    const VkPhysicalDeviceFeatures2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFeatures2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2562,7 +2562,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProperties2>(co
     {
         return "null";
     }
-    const VkPhysicalDeviceProperties2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2579,7 +2579,7 @@ template <> std::string ToString<decode::Decoded_VkFormatProperties2>(const deco
     {
         return "null";
     }
-    const VkFormatProperties2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFormatProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2596,7 +2596,7 @@ template <> std::string ToString<decode::Decoded_VkImageFormatProperties2>(const
     {
         return "null";
     }
-    const VkImageFormatProperties2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageFormatProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2613,7 +2613,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageFormatInfo
     {
         return "null";
     }
-    const VkPhysicalDeviceImageFormatInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageFormatInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2634,7 +2634,7 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyProperties2>(const
     {
         return "null";
     }
-    const VkQueueFamilyProperties2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueueFamilyProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2651,7 +2651,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryPropertie
     {
         return "null";
     }
-    const VkPhysicalDeviceMemoryProperties2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMemoryProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2668,7 +2668,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageFormatProperties2>
     {
         return "null";
     }
-    const VkSparseImageFormatProperties2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSparseImageFormatProperties2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2685,7 +2685,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSparseImageForm
     {
         return "null";
     }
-    const VkPhysicalDeviceSparseImageFormatInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSparseImageFormatInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2706,7 +2706,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePointClippingPr
     {
         return "null";
     }
-    const VkPhysicalDevicePointClippingProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePointClippingProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2723,7 +2723,7 @@ template <> std::string ToString<decode::Decoded_VkInputAttachmentAspectReferenc
     {
         return "null";
     }
-    const VkInputAttachmentAspectReference& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkInputAttachmentAspectReference& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2740,7 +2740,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassInputAttachmentAspe
     {
         return "null";
     }
-    const VkRenderPassInputAttachmentAspectCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassInputAttachmentAspectCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2758,7 +2758,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewUsageCreateInfo>(con
     {
         return "null";
     }
-    const VkImageViewUsageCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageViewUsageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2775,7 +2775,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineTessellationDomainOri
     {
         return "null";
     }
-    const VkPipelineTessellationDomainOriginStateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineTessellationDomainOriginStateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2792,7 +2792,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassMultiviewCreateInfo
     {
         return "null";
     }
-    const VkRenderPassMultiviewCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassMultiviewCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2814,7 +2814,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewFeatur
     {
         return "null";
     }
-    const VkPhysicalDeviceMultiviewFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMultiviewFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2833,7 +2833,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewProper
     {
         return "null";
     }
-    const VkPhysicalDeviceMultiviewProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMultiviewProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2851,7 +2851,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVariablePointer
     {
         return "null";
     }
-    const VkPhysicalDeviceVariablePointersFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVariablePointersFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2869,7 +2869,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProtectedMemory
     {
         return "null";
     }
-    const VkPhysicalDeviceProtectedMemoryFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceProtectedMemoryFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2886,7 +2886,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProtectedMemory
     {
         return "null";
     }
-    const VkPhysicalDeviceProtectedMemoryProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceProtectedMemoryProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2903,7 +2903,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceQueueInfo2>(const decod
     {
         return "null";
     }
-    const VkDeviceQueueInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceQueueInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2922,7 +2922,7 @@ template <> std::string ToString<decode::Decoded_VkProtectedSubmitInfo>(const de
     {
         return "null";
     }
-    const VkProtectedSubmitInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkProtectedSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2939,7 +2939,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionCreateI
     {
         return "null";
     }
-    const VkSamplerYcbcrConversionCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSamplerYcbcrConversionCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2963,7 +2963,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionInfo>(c
     {
         return "null";
     }
-    const VkSamplerYcbcrConversionInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSamplerYcbcrConversionInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2980,7 +2980,7 @@ template <> std::string ToString<decode::Decoded_VkBindImagePlaneMemoryInfo>(con
     {
         return "null";
     }
-    const VkBindImagePlaneMemoryInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindImagePlaneMemoryInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -2997,7 +2997,7 @@ template <> std::string ToString<decode::Decoded_VkImagePlaneMemoryRequirementsI
     {
         return "null";
     }
-    const VkImagePlaneMemoryRequirementsInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImagePlaneMemoryRequirementsInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3014,7 +3014,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSamplerYcbcrCon
     {
         return "null";
     }
-    const VkPhysicalDeviceSamplerYcbcrConversionFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSamplerYcbcrConversionFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3031,7 +3031,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionImageFo
     {
         return "null";
     }
-    const VkSamplerYcbcrConversionImageFormatProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSamplerYcbcrConversionImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3048,7 +3048,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorUpdateTemplateEntry
     {
         return "null";
     }
-    const VkDescriptorUpdateTemplateEntry& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorUpdateTemplateEntry& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3068,7 +3068,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorUpdateTemplateCreat
     {
         return "null";
     }
-    const VkDescriptorUpdateTemplateCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorUpdateTemplateCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3092,7 +3092,7 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryProperties>(con
     {
         return "null";
     }
-    const VkExternalMemoryProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalMemoryProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3109,7 +3109,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalImageFo
     {
         return "null";
     }
-    const VkPhysicalDeviceExternalImageFormatInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExternalImageFormatInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3126,7 +3126,7 @@ template <> std::string ToString<decode::Decoded_VkExternalImageFormatProperties
     {
         return "null";
     }
-    const VkExternalImageFormatProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalImageFormatProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3143,7 +3143,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalBufferI
     {
         return "null";
     }
-    const VkPhysicalDeviceExternalBufferInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExternalBufferInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3162,7 +3162,7 @@ template <> std::string ToString<decode::Decoded_VkExternalBufferProperties>(con
     {
         return "null";
     }
-    const VkExternalBufferProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalBufferProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3179,7 +3179,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceIDProperties>(c
     {
         return "null";
     }
-    const VkPhysicalDeviceIDProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceIDProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3200,7 +3200,7 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryImageCreateInfo
     {
         return "null";
     }
-    const VkExternalMemoryImageCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalMemoryImageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3217,7 +3217,7 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryBufferCreateInf
     {
         return "null";
     }
-    const VkExternalMemoryBufferCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalMemoryBufferCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3234,7 +3234,7 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryAllocateInfo>(con
     {
         return "null";
     }
-    const VkExportMemoryAllocateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportMemoryAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3251,7 +3251,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalFenceIn
     {
         return "null";
     }
-    const VkPhysicalDeviceExternalFenceInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExternalFenceInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3268,7 +3268,7 @@ template <> std::string ToString<decode::Decoded_VkExternalFenceProperties>(cons
     {
         return "null";
     }
-    const VkExternalFenceProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalFenceProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3287,7 +3287,7 @@ template <> std::string ToString<decode::Decoded_VkExportFenceCreateInfo>(const 
     {
         return "null";
     }
-    const VkExportFenceCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportFenceCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3304,7 +3304,7 @@ template <> std::string ToString<decode::Decoded_VkExportSemaphoreCreateInfo>(co
     {
         return "null";
     }
-    const VkExportSemaphoreCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportSemaphoreCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3321,7 +3321,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalSemapho
     {
         return "null";
     }
-    const VkPhysicalDeviceExternalSemaphoreInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExternalSemaphoreInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3338,7 +3338,7 @@ template <> std::string ToString<decode::Decoded_VkExternalSemaphoreProperties>(
     {
         return "null";
     }
-    const VkExternalSemaphoreProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalSemaphoreProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3357,7 +3357,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance3Pro
     {
         return "null";
     }
-    const VkPhysicalDeviceMaintenance3Properties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMaintenance3Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3375,7 +3375,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutSupport>(c
     {
         return "null";
     }
-    const VkDescriptorSetLayoutSupport& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetLayoutSupport& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3392,7 +3392,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderDrawParam
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderDrawParametersFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderDrawParametersFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3409,7 +3409,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan11Feature
     {
         return "null";
     }
-    const VkPhysicalDeviceVulkan11Features& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVulkan11Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3437,7 +3437,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan11Propert
     {
         return "null";
     }
-    const VkPhysicalDeviceVulkan11Properties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVulkan11Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3468,7 +3468,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan12Feature
     {
         return "null";
     }
-    const VkPhysicalDeviceVulkan12Features& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVulkan12Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3531,7 +3531,7 @@ template <> std::string ToString<decode::Decoded_VkConformanceVersion>(const dec
     {
         return "null";
     }
-    const VkConformanceVersion& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkConformanceVersion& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3549,7 +3549,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan12Propert
     {
         return "null";
     }
-    const VkPhysicalDeviceVulkan12Properties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVulkan12Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3617,7 +3617,7 @@ template <> std::string ToString<decode::Decoded_VkImageFormatListCreateInfo>(co
     {
         return "null";
     }
-    const VkImageFormatListCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageFormatListCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3635,7 +3635,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentDescription2>(const
     {
         return "null";
     }
-    const VkAttachmentDescription2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentDescription2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3660,7 +3660,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentReference2>(const d
     {
         return "null";
     }
-    const VkAttachmentReference2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentReference2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3679,7 +3679,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassDescription2>(const de
     {
         return "null";
     }
-    const VkSubpassDescription2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassDescription2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3706,7 +3706,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassDependency2>(const dec
     {
         return "null";
     }
-    const VkSubpassDependency2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassDependency2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3730,7 +3730,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreateInfo2>(const 
     {
         return "null";
     }
-    const VkRenderPassCreateInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassCreateInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3755,7 +3755,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassBeginInfo>(const decod
     {
         return "null";
     }
-    const VkSubpassBeginInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3772,7 +3772,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassEndInfo>(const decode:
     {
         return "null";
     }
-    const VkSubpassEndInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassEndInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3788,7 +3788,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevice8BitStorageFeat
     {
         return "null";
     }
-    const VkPhysicalDevice8BitStorageFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevice8BitStorageFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3807,7 +3807,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDriverPropertie
     {
         return "null";
     }
-    const VkPhysicalDeviceDriverProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDriverProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3827,7 +3827,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicInt
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderAtomicInt64Features& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderAtomicInt64Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3845,7 +3845,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderFloat16In
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderFloat16Int8Features& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderFloat16Int8Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3863,7 +3863,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFloatControlsPr
     {
         return "null";
     }
-    const VkPhysicalDeviceFloatControlsProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFloatControlsProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3896,7 +3896,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutBindingFla
     {
         return "null";
     }
-    const VkDescriptorSetLayoutBindingFlagsCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetLayoutBindingFlagsCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3914,7 +3914,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorIndex
     {
         return "null";
     }
-    const VkPhysicalDeviceDescriptorIndexingFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDescriptorIndexingFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3950,7 +3950,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorIndex
     {
         return "null";
     }
-    const VkPhysicalDeviceDescriptorIndexingProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDescriptorIndexingProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -3989,7 +3989,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetVariableDescript
     {
         return "null";
     }
-    const VkDescriptorSetVariableDescriptorCountAllocateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetVariableDescriptorCountAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4007,7 +4007,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetVariableDescript
     {
         return "null";
     }
-    const VkDescriptorSetVariableDescriptorCountLayoutSupport& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetVariableDescriptorCountLayoutSupport& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4024,7 +4024,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassDescriptionDepthStenci
     {
         return "null";
     }
-    const VkSubpassDescriptionDepthStencilResolve& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassDescriptionDepthStencilResolve& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4043,7 +4043,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthStencilRes
     {
         return "null";
     }
-    const VkPhysicalDeviceDepthStencilResolveProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDepthStencilResolveProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4063,7 +4063,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceScalarBlockLayo
     {
         return "null";
     }
-    const VkPhysicalDeviceScalarBlockLayoutFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceScalarBlockLayoutFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4080,7 +4080,7 @@ template <> std::string ToString<decode::Decoded_VkImageStencilUsageCreateInfo>(
     {
         return "null";
     }
-    const VkImageStencilUsageCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageStencilUsageCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4097,7 +4097,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerReductionModeCreateInf
     {
         return "null";
     }
-    const VkSamplerReductionModeCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSamplerReductionModeCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4114,7 +4114,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSamplerFilterMi
     {
         return "null";
     }
-    const VkPhysicalDeviceSamplerFilterMinmaxProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSamplerFilterMinmaxProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4132,7 +4132,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkanMemoryMod
     {
         return "null";
     }
-    const VkPhysicalDeviceVulkanMemoryModelFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVulkanMemoryModelFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4151,7 +4151,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImagelessFrameb
     {
         return "null";
     }
-    const VkPhysicalDeviceImagelessFramebufferFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImagelessFramebufferFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4168,7 +4168,7 @@ template <> std::string ToString<decode::Decoded_VkFramebufferAttachmentImageInf
     {
         return "null";
     }
-    const VkFramebufferAttachmentImageInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFramebufferAttachmentImageInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4191,7 +4191,7 @@ template <> std::string ToString<decode::Decoded_VkFramebufferAttachmentsCreateI
     {
         return "null";
     }
-    const VkFramebufferAttachmentsCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFramebufferAttachmentsCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4209,7 +4209,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassAttachmentBeginInfo
     {
         return "null";
     }
-    const VkRenderPassAttachmentBeginInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassAttachmentBeginInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4227,7 +4227,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceUniformBufferSt
     {
         return "null";
     }
-    const VkPhysicalDeviceUniformBufferStandardLayoutFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceUniformBufferStandardLayoutFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4244,7 +4244,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSubgroupE
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4261,7 +4261,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSeparateDepthSt
     {
         return "null";
     }
-    const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4278,7 +4278,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentReferenceStencilLay
     {
         return "null";
     }
-    const VkAttachmentReferenceStencilLayout& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentReferenceStencilLayout& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4295,7 +4295,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentDescriptionStencilL
     {
         return "null";
     }
-    const VkAttachmentDescriptionStencilLayout& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentDescriptionStencilLayout& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4313,7 +4313,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceHostQueryResetF
     {
         return "null";
     }
-    const VkPhysicalDeviceHostQueryResetFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceHostQueryResetFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4330,7 +4330,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTimelineSemapho
     {
         return "null";
     }
-    const VkPhysicalDeviceTimelineSemaphoreFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTimelineSemaphoreFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4347,7 +4347,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTimelineSemapho
     {
         return "null";
     }
-    const VkPhysicalDeviceTimelineSemaphoreProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTimelineSemaphoreProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4364,7 +4364,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreTypeCreateInfo>(cons
     {
         return "null";
     }
-    const VkSemaphoreTypeCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreTypeCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4382,7 +4382,7 @@ template <> std::string ToString<decode::Decoded_VkTimelineSemaphoreSubmitInfo>(
     {
         return "null";
     }
-    const VkTimelineSemaphoreSubmitInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkTimelineSemaphoreSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4402,7 +4402,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreWaitInfo>(const deco
     {
         return "null";
     }
-    const VkSemaphoreWaitInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreWaitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4422,7 +4422,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreSignalInfo>(const de
     {
         return "null";
     }
-    const VkSemaphoreSignalInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreSignalInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4440,7 +4440,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBufferDeviceAdd
     {
         return "null";
     }
-    const VkPhysicalDeviceBufferDeviceAddressFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceBufferDeviceAddressFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4459,7 +4459,7 @@ template <> std::string ToString<decode::Decoded_VkBufferDeviceAddressInfo>(cons
     {
         return "null";
     }
-    const VkBufferDeviceAddressInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferDeviceAddressInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4476,7 +4476,7 @@ template <> std::string ToString<decode::Decoded_VkBufferOpaqueCaptureAddressCre
     {
         return "null";
     }
-    const VkBufferOpaqueCaptureAddressCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferOpaqueCaptureAddressCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4493,7 +4493,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryOpaqueCaptureAddressAll
     {
         return "null";
     }
-    const VkMemoryOpaqueCaptureAddressAllocateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryOpaqueCaptureAddressAllocateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4510,7 +4510,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceMemoryOpaqueCaptureAddr
     {
         return "null";
     }
-    const VkDeviceMemoryOpaqueCaptureAddressInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceMemoryOpaqueCaptureAddressInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4527,7 +4527,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan13Feature
     {
         return "null";
     }
-    const VkPhysicalDeviceVulkan13Features& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVulkan13Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4558,7 +4558,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan13Propert
     {
         return "null";
     }
-    const VkPhysicalDeviceVulkan13Properties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVulkan13Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4619,7 +4619,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCreationFeedback>(con
     {
         return "null";
     }
-    const VkPipelineCreationFeedback& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCreationFeedback& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4635,7 +4635,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCreationFeedbackCreat
     {
         return "null";
     }
-    const VkPipelineCreationFeedbackCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCreationFeedbackCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4654,7 +4654,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderTerminate
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderTerminateInvocationFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderTerminateInvocationFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4671,7 +4671,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceToolProperties>
     {
         return "null";
     }
-    const VkPhysicalDeviceToolProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceToolProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4692,7 +4692,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderDemoteToH
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4709,7 +4709,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrivateDataFeat
     {
         return "null";
     }
-    const VkPhysicalDevicePrivateDataFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePrivateDataFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4726,7 +4726,7 @@ template <> std::string ToString<decode::Decoded_VkDevicePrivateDataCreateInfo>(
     {
         return "null";
     }
-    const VkDevicePrivateDataCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDevicePrivateDataCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4743,7 +4743,7 @@ template <> std::string ToString<decode::Decoded_VkPrivateDataSlotCreateInfo>(co
     {
         return "null";
     }
-    const VkPrivateDataSlotCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPrivateDataSlotCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4760,7 +4760,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineCreatio
     {
         return "null";
     }
-    const VkPhysicalDevicePipelineCreationCacheControlFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePipelineCreationCacheControlFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4777,7 +4777,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryBarrier2>(const decode:
     {
         return "null";
     }
-    const VkMemoryBarrier2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryBarrier2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4797,7 +4797,7 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier2>(const d
     {
         return "null";
     }
-    const VkBufferMemoryBarrier2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferMemoryBarrier2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4822,7 +4822,7 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier2>(const de
     {
         return "null";
     }
-    const VkImageMemoryBarrier2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageMemoryBarrier2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4848,7 +4848,7 @@ template <> std::string ToString<decode::Decoded_VkDependencyInfo>(const decode:
     {
         return "null";
     }
-    const VkDependencyInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDependencyInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4871,7 +4871,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreSubmitInfo>(const de
     {
         return "null";
     }
-    const VkSemaphoreSubmitInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4891,7 +4891,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferSubmitInfo>(cons
     {
         return "null";
     }
-    const VkCommandBufferSubmitInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferSubmitInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4909,7 +4909,7 @@ template <> std::string ToString<decode::Decoded_VkSubmitInfo2>(const decode::De
     {
         return "null";
     }
-    const VkSubmitInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubmitInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4932,7 +4932,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSynchronization
     {
         return "null";
     }
-    const VkPhysicalDeviceSynchronization2Features& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSynchronization2Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4949,7 +4949,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceZeroInitializeW
     {
         return "null";
     }
-    const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4966,7 +4966,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageRobustness
     {
         return "null";
     }
-    const VkPhysicalDeviceImageRobustnessFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageRobustnessFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -4983,7 +4983,7 @@ template <> std::string ToString<decode::Decoded_VkBufferCopy2>(const decode::De
     {
         return "null";
     }
-    const VkBufferCopy2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferCopy2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5002,7 +5002,7 @@ template <> std::string ToString<decode::Decoded_VkCopyBufferInfo2>(const decode
     {
         return "null";
     }
-    const VkCopyBufferInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyBufferInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5022,7 +5022,7 @@ template <> std::string ToString<decode::Decoded_VkImageCopy2>(const decode::Dec
     {
         return "null";
     }
-    const VkImageCopy2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageCopy2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5043,7 +5043,7 @@ template <> std::string ToString<decode::Decoded_VkCopyImageInfo2>(const decode:
     {
         return "null";
     }
-    const VkCopyImageInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5065,7 +5065,7 @@ template <> std::string ToString<decode::Decoded_VkBufferImageCopy2>(const decod
     {
         return "null";
     }
-    const VkBufferImageCopy2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferImageCopy2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5087,7 +5087,7 @@ template <> std::string ToString<decode::Decoded_VkCopyBufferToImageInfo2>(const
     {
         return "null";
     }
-    const VkCopyBufferToImageInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyBufferToImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5108,7 +5108,7 @@ template <> std::string ToString<decode::Decoded_VkCopyImageToBufferInfo2>(const
     {
         return "null";
     }
-    const VkCopyImageToBufferInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyImageToBufferInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5129,7 +5129,7 @@ template <> std::string ToString<decode::Decoded_VkImageBlit2>(const decode::Dec
     {
         return "null";
     }
-    const VkImageBlit2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageBlit2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5149,7 +5149,7 @@ template <> std::string ToString<decode::Decoded_VkBlitImageInfo2>(const decode:
     {
         return "null";
     }
-    const VkBlitImageInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBlitImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5172,7 +5172,7 @@ template <> std::string ToString<decode::Decoded_VkImageResolve2>(const decode::
     {
         return "null";
     }
-    const VkImageResolve2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageResolve2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5193,7 +5193,7 @@ template <> std::string ToString<decode::Decoded_VkResolveImageInfo2>(const deco
     {
         return "null";
     }
-    const VkResolveImageInfo2& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkResolveImageInfo2& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5215,7 +5215,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupSizeCon
     {
         return "null";
     }
-    const VkPhysicalDeviceSubgroupSizeControlFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSubgroupSizeControlFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5233,7 +5233,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubgroupSizeCon
     {
         return "null";
     }
-    const VkPhysicalDeviceSubgroupSizeControlProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSubgroupSizeControlProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5253,7 +5253,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageRequiredSu
     {
         return "null";
     }
-    const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5270,7 +5270,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInlineUniformBl
     {
         return "null";
     }
-    const VkPhysicalDeviceInlineUniformBlockFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceInlineUniformBlockFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5288,7 +5288,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInlineUniformBl
     {
         return "null";
     }
-    const VkPhysicalDeviceInlineUniformBlockProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceInlineUniformBlockProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5309,7 +5309,7 @@ template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetInlineUnifo
     {
         return "null";
     }
-    const VkWriteDescriptorSetInlineUniformBlock& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkWriteDescriptorSetInlineUniformBlock& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5327,7 +5327,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorPoolInlineUniformBl
     {
         return "null";
     }
-    const VkDescriptorPoolInlineUniformBlockCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorPoolInlineUniformBlockCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5344,7 +5344,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTextureCompress
     {
         return "null";
     }
-    const VkPhysicalDeviceTextureCompressionASTCHDRFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTextureCompressionASTCHDRFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5361,7 +5361,7 @@ template <> std::string ToString<decode::Decoded_VkRenderingAttachmentInfo>(cons
     {
         return "null";
     }
-    const VkRenderingAttachmentInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderingAttachmentInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5385,7 +5385,7 @@ template <> std::string ToString<decode::Decoded_VkRenderingInfo>(const decode::
     {
         return "null";
     }
-    const VkRenderingInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderingInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5409,7 +5409,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRenderingCreateInfo>(
     {
         return "null";
     }
-    const VkPipelineRenderingCreateInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRenderingCreateInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5430,7 +5430,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDynamicRenderin
     {
         return "null";
     }
-    const VkPhysicalDeviceDynamicRenderingFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDynamicRenderingFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5447,7 +5447,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceRende
     {
         return "null";
     }
-    const VkCommandBufferInheritanceRenderingInfo& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferInheritanceRenderingInfo& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5470,7 +5470,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerDo
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderIntegerDotProductFeatures& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderIntegerDotProductFeatures& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5487,7 +5487,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerDo
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderIntegerDotProductProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderIntegerDotProductProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5533,7 +5533,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTexelBufferAlig
     {
         return "null";
     }
-    const VkPhysicalDeviceTexelBufferAlignmentProperties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTexelBufferAlignmentProperties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5553,7 +5553,7 @@ template <> std::string ToString<decode::Decoded_VkFormatProperties3>(const deco
     {
         return "null";
     }
-    const VkFormatProperties3& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFormatProperties3& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5572,7 +5572,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance4Fea
     {
         return "null";
     }
-    const VkPhysicalDeviceMaintenance4Features& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMaintenance4Features& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5589,7 +5589,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMaintenance4Pro
     {
         return "null";
     }
-    const VkPhysicalDeviceMaintenance4Properties& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMaintenance4Properties& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5606,7 +5606,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceBufferMemoryRequirement
     {
         return "null";
     }
-    const VkDeviceBufferMemoryRequirements& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceBufferMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5623,7 +5623,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceImageMemoryRequirements
     {
         return "null";
     }
-    const VkDeviceImageMemoryRequirements& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceImageMemoryRequirements& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5641,7 +5641,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilitiesKHR>(const
     {
         return "null";
     }
-    const VkSurfaceCapabilitiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5665,7 +5665,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFormatKHR>(const decod
     {
         return "null";
     }
-    const VkSurfaceFormatKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceFormatKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5681,7 +5681,7 @@ template <> std::string ToString<decode::Decoded_VkSwapchainCreateInfoKHR>(const
     {
         return "null";
     }
-    const VkSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5713,7 +5713,7 @@ template <> std::string ToString<decode::Decoded_VkPresentInfoKHR>(const decode:
     {
         return "null";
     }
-    const VkPresentInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPresentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5735,7 +5735,7 @@ template <> std::string ToString<decode::Decoded_VkImageSwapchainCreateInfoKHR>(
     {
         return "null";
     }
-    const VkImageSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5752,7 +5752,7 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemorySwapchainInfoK
     {
         return "null";
     }
-    const VkBindImageMemorySwapchainInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindImageMemorySwapchainInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5770,7 +5770,7 @@ template <> std::string ToString<decode::Decoded_VkAcquireNextImageInfoKHR>(cons
     {
         return "null";
     }
-    const VkAcquireNextImageInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAcquireNextImageInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5791,7 +5791,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupPresentCapabilitie
     {
         return "null";
     }
-    const VkDeviceGroupPresentCapabilitiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupPresentCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5809,7 +5809,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupPresentInfoKHR>(co
     {
         return "null";
     }
-    const VkDeviceGroupPresentInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupPresentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5828,7 +5828,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceGroupSwapchainCreateInf
     {
         return "null";
     }
-    const VkDeviceGroupSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceGroupSwapchainCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5845,7 +5845,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayModeParametersKHR>(con
     {
         return "null";
     }
-    const VkDisplayModeParametersKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayModeParametersKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5861,7 +5861,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayModeCreateInfoKHR>(con
     {
         return "null";
     }
-    const VkDisplayModeCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayModeCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5879,7 +5879,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayModePropertiesKHR>(con
     {
         return "null";
     }
-    const VkDisplayModePropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayModePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5895,7 +5895,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneCapabilitiesKHR>(
     {
         return "null";
     }
-    const VkDisplayPlaneCapabilitiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPlaneCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5918,7 +5918,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlanePropertiesKHR>(co
     {
         return "null";
     }
-    const VkDisplayPlanePropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPlanePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5934,7 +5934,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPropertiesKHR>(const d
     {
         return "null";
     }
-    const VkDisplayPropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5955,7 +5955,7 @@ template <> std::string ToString<decode::Decoded_VkDisplaySurfaceCreateInfoKHR>(
     {
         return "null";
     }
-    const VkDisplaySurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplaySurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5979,7 +5979,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPresentInfoKHR>(const 
     {
         return "null";
     }
-    const VkDisplayPresentInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPresentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -5998,7 +5998,7 @@ template <> std::string ToString<decode::Decoded_VkXlibSurfaceCreateInfoKHR>(con
     {
         return "null";
     }
-    const VkXlibSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkXlibSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6017,7 +6017,7 @@ template <> std::string ToString<decode::Decoded_VkXcbSurfaceCreateInfoKHR>(cons
     {
         return "null";
     }
-    const VkXcbSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkXcbSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6036,7 +6036,7 @@ template <> std::string ToString<decode::Decoded_VkWaylandSurfaceCreateInfoKHR>(
     {
         return "null";
     }
-    const VkWaylandSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkWaylandSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6055,7 +6055,7 @@ template <> std::string ToString<decode::Decoded_VkAndroidSurfaceCreateInfoKHR>(
     {
         return "null";
     }
-    const VkAndroidSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAndroidSurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6073,7 +6073,7 @@ template <> std::string ToString<decode::Decoded_VkWin32SurfaceCreateInfoKHR>(co
     {
         return "null";
     }
-    const VkWin32SurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkWin32SurfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6092,7 +6092,7 @@ template <> std::string ToString<decode::Decoded_VkRenderingFragmentShadingRateA
     {
         return "null";
     }
-    const VkRenderingFragmentShadingRateAttachmentInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderingFragmentShadingRateAttachmentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6111,7 +6111,7 @@ template <> std::string ToString<decode::Decoded_VkRenderingFragmentDensityMapAt
     {
         return "null";
     }
-    const VkRenderingFragmentDensityMapAttachmentInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderingFragmentDensityMapAttachmentInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6129,7 +6129,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentSampleCountInfoAMD>
     {
         return "null";
     }
-    const VkAttachmentSampleCountInfoAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentSampleCountInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6148,7 +6148,7 @@ template <> std::string ToString<decode::Decoded_VkMultiviewPerViewAttributesInf
     {
         return "null";
     }
-    const VkMultiviewPerViewAttributesInfoNVX& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMultiviewPerViewAttributesInfoNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6166,7 +6166,7 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryWin32HandleInfoKH
     {
         return "null";
     }
-    const VkImportMemoryWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportMemoryWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6185,7 +6185,7 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryWin32HandleInfoKH
     {
         return "null";
     }
-    const VkExportMemoryWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportMemoryWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6204,7 +6204,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryWin32HandlePropertiesKH
     {
         return "null";
     }
-    const VkMemoryWin32HandlePropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryWin32HandlePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6221,7 +6221,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetWin32HandleInfoKHR>(
     {
         return "null";
     }
-    const VkMemoryGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6239,7 +6239,7 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryFdInfoKHR>(const 
     {
         return "null";
     }
-    const VkImportMemoryFdInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportMemoryFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6257,7 +6257,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryFdPropertiesKHR>(const 
     {
         return "null";
     }
-    const VkMemoryFdPropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryFdPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6274,7 +6274,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetFdInfoKHR>(const dec
     {
         return "null";
     }
-    const VkMemoryGetFdInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryGetFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6292,7 +6292,7 @@ template <> std::string ToString<decode::Decoded_VkWin32KeyedMutexAcquireRelease
     {
         return "null";
     }
-    const VkWin32KeyedMutexAcquireReleaseInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkWin32KeyedMutexAcquireReleaseInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6315,7 +6315,7 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreWin32HandleInf
     {
         return "null";
     }
-    const VkImportSemaphoreWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportSemaphoreWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6336,7 +6336,7 @@ template <> std::string ToString<decode::Decoded_VkExportSemaphoreWin32HandleInf
     {
         return "null";
     }
-    const VkExportSemaphoreWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportSemaphoreWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6355,7 +6355,7 @@ template <> std::string ToString<decode::Decoded_VkD3D12FenceSubmitInfoKHR>(cons
     {
         return "null";
     }
-    const VkD3D12FenceSubmitInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkD3D12FenceSubmitInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6375,7 +6375,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetWin32HandleInfoKH
     {
         return "null";
     }
-    const VkSemaphoreGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6393,7 +6393,7 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreFdInfoKHR>(con
     {
         return "null";
     }
-    const VkImportSemaphoreFdInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportSemaphoreFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6413,7 +6413,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetFdInfoKHR>(const 
     {
         return "null";
     }
-    const VkSemaphoreGetFdInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreGetFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6431,7 +6431,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePushDescriptorP
     {
         return "null";
     }
-    const VkPhysicalDevicePushDescriptorPropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePushDescriptorPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6448,7 +6448,7 @@ template <> std::string ToString<decode::Decoded_VkRectLayerKHR>(const decode::D
     {
         return "null";
     }
-    const VkRectLayerKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRectLayerKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6465,7 +6465,7 @@ template <> std::string ToString<decode::Decoded_VkPresentRegionKHR>(const decod
     {
         return "null";
     }
-    const VkPresentRegionKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPresentRegionKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6481,7 +6481,7 @@ template <> std::string ToString<decode::Decoded_VkPresentRegionsKHR>(const deco
     {
         return "null";
     }
-    const VkPresentRegionsKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPresentRegionsKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6499,7 +6499,7 @@ template <> std::string ToString<decode::Decoded_VkSharedPresentSurfaceCapabilit
     {
         return "null";
     }
-    const VkSharedPresentSurfaceCapabilitiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSharedPresentSurfaceCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6516,7 +6516,7 @@ template <> std::string ToString<decode::Decoded_VkImportFenceWin32HandleInfoKHR
     {
         return "null";
     }
-    const VkImportFenceWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportFenceWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6537,7 +6537,7 @@ template <> std::string ToString<decode::Decoded_VkExportFenceWin32HandleInfoKHR
     {
         return "null";
     }
-    const VkExportFenceWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportFenceWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6556,7 +6556,7 @@ template <> std::string ToString<decode::Decoded_VkFenceGetWin32HandleInfoKHR>(c
     {
         return "null";
     }
-    const VkFenceGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFenceGetWin32HandleInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6574,7 +6574,7 @@ template <> std::string ToString<decode::Decoded_VkImportFenceFdInfoKHR>(const d
     {
         return "null";
     }
-    const VkImportFenceFdInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportFenceFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6594,7 +6594,7 @@ template <> std::string ToString<decode::Decoded_VkFenceGetFdInfoKHR>(const deco
     {
         return "null";
     }
-    const VkFenceGetFdInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFenceGetFdInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6612,7 +6612,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePerformanceQuer
     {
         return "null";
     }
-    const VkPhysicalDevicePerformanceQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePerformanceQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6630,7 +6630,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePerformanceQuer
     {
         return "null";
     }
-    const VkPhysicalDevicePerformanceQueryPropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePerformanceQueryPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6647,7 +6647,7 @@ template <> std::string ToString<decode::Decoded_VkPerformanceCounterKHR>(const 
     {
         return "null";
     }
-    const VkPerformanceCounterKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPerformanceCounterKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6667,7 +6667,7 @@ template <> std::string ToString<decode::Decoded_VkPerformanceCounterDescription
     {
         return "null";
     }
-    const VkPerformanceCounterDescriptionKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPerformanceCounterDescriptionKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6687,7 +6687,7 @@ template <> std::string ToString<decode::Decoded_VkQueryPoolPerformanceCreateInf
     {
         return "null";
     }
-    const VkQueryPoolPerformanceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueryPoolPerformanceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6706,7 +6706,7 @@ template <> std::string ToString<decode::Decoded_VkAcquireProfilingLockInfoKHR>(
     {
         return "null";
     }
-    const VkAcquireProfilingLockInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAcquireProfilingLockInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6724,7 +6724,7 @@ template <> std::string ToString<decode::Decoded_VkPerformanceQuerySubmitInfoKHR
     {
         return "null";
     }
-    const VkPerformanceQuerySubmitInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPerformanceQuerySubmitInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6741,7 +6741,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSurfaceInfo2KHR
     {
         return "null";
     }
-    const VkPhysicalDeviceSurfaceInfo2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSurfaceInfo2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6758,7 +6758,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilities2KHR>(cons
     {
         return "null";
     }
-    const VkSurfaceCapabilities2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceCapabilities2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6775,7 +6775,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFormat2KHR>(const deco
     {
         return "null";
     }
-    const VkSurfaceFormat2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceFormat2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6792,7 +6792,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayProperties2KHR>(const 
     {
         return "null";
     }
-    const VkDisplayProperties2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayProperties2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6809,7 +6809,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneProperties2KHR>(c
     {
         return "null";
     }
-    const VkDisplayPlaneProperties2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPlaneProperties2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6826,7 +6826,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayModeProperties2KHR>(co
     {
         return "null";
     }
-    const VkDisplayModeProperties2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayModeProperties2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6843,7 +6843,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneInfo2KHR>(const d
     {
         return "null";
     }
-    const VkDisplayPlaneInfo2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPlaneInfo2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6861,7 +6861,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneCapabilities2KHR>
     {
         return "null";
     }
-    const VkDisplayPlaneCapabilities2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPlaneCapabilities2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6878,7 +6878,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePortabilitySubs
     {
         return "null";
     }
-    const VkPhysicalDevicePortabilitySubsetFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePortabilitySubsetFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6909,7 +6909,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePortabilitySubs
     {
         return "null";
     }
-    const VkPhysicalDevicePortabilitySubsetPropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePortabilitySubsetPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6926,7 +6926,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderClockFeat
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderClockFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderClockFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6944,7 +6944,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceQueueGlobalPriorityCrea
     {
         return "null";
     }
-    const VkDeviceQueueGlobalPriorityCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceQueueGlobalPriorityCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6961,7 +6961,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGlobalPriorityQ
     {
         return "null";
     }
-    const VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6978,7 +6978,7 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyGlobalPriorityProp
     {
         return "null";
     }
-    const VkQueueFamilyGlobalPriorityPropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueueFamilyGlobalPriorityPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -6996,7 +6996,7 @@ template <> std::string ToString<decode::Decoded_VkFragmentShadingRateAttachment
     {
         return "null";
     }
-    const VkFragmentShadingRateAttachmentInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFragmentShadingRateAttachmentInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7014,7 +7014,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineFragmentShadingRateSt
     {
         return "null";
     }
-    const VkPipelineFragmentShadingRateStateCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineFragmentShadingRateStateCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7032,7 +7032,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShadingRateFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShadingRateFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7051,7 +7051,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShadingRatePropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShadingRatePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7084,7 +7084,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShadingRateKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShadingRateKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7102,7 +7102,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceProtectedCapabilitiesK
     {
         return "null";
     }
-    const VkSurfaceProtectedCapabilitiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceProtectedCapabilitiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7119,7 +7119,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePresentWaitFeat
     {
         return "null";
     }
-    const VkPhysicalDevicePresentWaitFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePresentWaitFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7136,7 +7136,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineExecuta
     {
         return "null";
     }
-    const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7153,7 +7153,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineInfoKHR>(const decode
     {
         return "null";
     }
-    const VkPipelineInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7170,7 +7170,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutablePropertiesK
     {
         return "null";
     }
-    const VkPipelineExecutablePropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineExecutablePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7190,7 +7190,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutableInfoKHR>(co
     {
         return "null";
     }
-    const VkPipelineExecutableInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineExecutableInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7208,7 +7208,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutableInternalRep
     {
         return "null";
     }
-    const VkPipelineExecutableInternalRepresentationKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineExecutableInternalRepresentationKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7229,7 +7229,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineLibraryCreateInfoKHR>
     {
         return "null";
     }
-    const VkPipelineLibraryCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineLibraryCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7247,7 +7247,7 @@ template <> std::string ToString<decode::Decoded_VkPresentIdKHR>(const decode::D
     {
         return "null";
     }
-    const VkPresentIdKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPresentIdKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7265,7 +7265,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePresentIdFeatur
     {
         return "null";
     }
-    const VkPhysicalDevicePresentIdFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePresentIdFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7282,7 +7282,7 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyCheckpointProperti
     {
         return "null";
     }
-    const VkQueueFamilyCheckpointProperties2NV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueueFamilyCheckpointProperties2NV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7299,7 +7299,7 @@ template <> std::string ToString<decode::Decoded_VkCheckpointData2NV>(const deco
     {
         return "null";
     }
-    const VkCheckpointData2NV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCheckpointData2NV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7317,7 +7317,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderB
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7334,7 +7334,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderB
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7351,7 +7351,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSubgroupU
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7368,7 +7368,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceWorkgroupMemory
     {
         return "null";
     }
-    const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7388,7 +7388,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingMaint
     {
         return "null";
     }
-    const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7406,7 +7406,7 @@ template <> std::string ToString<decode::Decoded_VkTraceRaysIndirectCommand2KHR>
     {
         return "null";
     }
-    const VkTraceRaysIndirectCommand2KHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkTraceRaysIndirectCommand2KHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7434,7 +7434,7 @@ template <> std::string ToString<decode::Decoded_VkDebugReportCallbackCreateInfo
     {
         return "null";
     }
-    const VkDebugReportCallbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugReportCallbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7453,7 +7453,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateRas
     {
         return "null";
     }
-    const VkPipelineRasterizationStateRasterizationOrderAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRasterizationStateRasterizationOrderAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7470,7 +7470,7 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerObjectNameInfoEXT>
     {
         return "null";
     }
-    const VkDebugMarkerObjectNameInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugMarkerObjectNameInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7489,7 +7489,7 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerObjectTagInfoEXT>(
     {
         return "null";
     }
-    const VkDebugMarkerObjectTagInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugMarkerObjectTagInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7510,7 +7510,7 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerMarkerInfoEXT>(con
     {
         return "null";
     }
-    const VkDebugMarkerMarkerInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugMarkerMarkerInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7528,7 +7528,7 @@ template <> std::string ToString<decode::Decoded_VkDedicatedAllocationImageCreat
     {
         return "null";
     }
-    const VkDedicatedAllocationImageCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDedicatedAllocationImageCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7545,7 +7545,7 @@ template <> std::string ToString<decode::Decoded_VkDedicatedAllocationBufferCrea
     {
         return "null";
     }
-    const VkDedicatedAllocationBufferCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDedicatedAllocationBufferCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7562,7 +7562,7 @@ template <> std::string ToString<decode::Decoded_VkDedicatedAllocationMemoryAllo
     {
         return "null";
     }
-    const VkDedicatedAllocationMemoryAllocateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDedicatedAllocationMemoryAllocateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7580,7 +7580,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTransformFeedba
     {
         return "null";
     }
-    const VkPhysicalDeviceTransformFeedbackFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTransformFeedbackFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7598,7 +7598,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTransformFeedba
     {
         return "null";
     }
-    const VkPhysicalDeviceTransformFeedbackPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTransformFeedbackPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7624,7 +7624,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationStateStr
     {
         return "null";
     }
-    const VkPipelineRasterizationStateStreamCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRasterizationStateStreamCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7642,7 +7642,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewHandleInfoNVX>(const
     {
         return "null";
     }
-    const VkImageViewHandleInfoNVX& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageViewHandleInfoNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7661,7 +7661,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewAddressPropertiesNVX
     {
         return "null";
     }
-    const VkImageViewAddressPropertiesNVX& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageViewAddressPropertiesNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7679,7 +7679,7 @@ template <> std::string ToString<decode::Decoded_VkTextureLODGatherFormatPropert
     {
         return "null";
     }
-    const VkTextureLODGatherFormatPropertiesAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkTextureLODGatherFormatPropertiesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7696,7 +7696,7 @@ template <> std::string ToString<decode::Decoded_VkShaderResourceUsageAMD>(const
     {
         return "null";
     }
-    const VkShaderResourceUsageAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkShaderResourceUsageAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7715,7 +7715,7 @@ template <> std::string ToString<decode::Decoded_VkShaderStatisticsInfoAMD>(cons
     {
         return "null";
     }
-    const VkShaderStatisticsInfoAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkShaderStatisticsInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7736,7 +7736,7 @@ template <> std::string ToString<decode::Decoded_VkStreamDescriptorSurfaceCreate
     {
         return "null";
     }
-    const VkStreamDescriptorSurfaceCreateInfoGGP& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkStreamDescriptorSurfaceCreateInfoGGP& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7754,7 +7754,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCornerSampledIm
     {
         return "null";
     }
-    const VkPhysicalDeviceCornerSampledImageFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceCornerSampledImageFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7771,7 +7771,7 @@ template <> std::string ToString<decode::Decoded_VkExternalImageFormatProperties
     {
         return "null";
     }
-    const VkExternalImageFormatPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalImageFormatPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7789,7 +7789,7 @@ template <> std::string ToString<decode::Decoded_VkExternalMemoryImageCreateInfo
     {
         return "null";
     }
-    const VkExternalMemoryImageCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalMemoryImageCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7806,7 +7806,7 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryAllocateInfoNV>(c
     {
         return "null";
     }
-    const VkExportMemoryAllocateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportMemoryAllocateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7823,7 +7823,7 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryWin32HandleInfoNV
     {
         return "null";
     }
-    const VkImportMemoryWin32HandleInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportMemoryWin32HandleInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7841,7 +7841,7 @@ template <> std::string ToString<decode::Decoded_VkExportMemoryWin32HandleInfoNV
     {
         return "null";
     }
-    const VkExportMemoryWin32HandleInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExportMemoryWin32HandleInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7859,7 +7859,7 @@ template <> std::string ToString<decode::Decoded_VkWin32KeyedMutexAcquireRelease
     {
         return "null";
     }
-    const VkWin32KeyedMutexAcquireReleaseInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkWin32KeyedMutexAcquireReleaseInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7882,7 +7882,7 @@ template <> std::string ToString<decode::Decoded_VkValidationFlagsEXT>(const dec
     {
         return "null";
     }
-    const VkValidationFlagsEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkValidationFlagsEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7900,7 +7900,7 @@ template <> std::string ToString<decode::Decoded_VkViSurfaceCreateInfoNN>(const 
     {
         return "null";
     }
-    const VkViSurfaceCreateInfoNN& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkViSurfaceCreateInfoNN& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7918,7 +7918,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewASTCDecodeModeEXT>(c
     {
         return "null";
     }
-    const VkImageViewASTCDecodeModeEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageViewASTCDecodeModeEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7935,7 +7935,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceASTCDecodeFeatu
     {
         return "null";
     }
-    const VkPhysicalDeviceASTCDecodeFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceASTCDecodeFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7952,7 +7952,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustn
     {
         return "null";
     }
-    const VkPhysicalDevicePipelineRobustnessFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePipelineRobustnessFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7969,7 +7969,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineRobustn
     {
         return "null";
     }
-    const VkPhysicalDevicePipelineRobustnessPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePipelineRobustnessPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -7989,7 +7989,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRobustnessCreateInfoE
     {
         return "null";
     }
-    const VkPipelineRobustnessCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRobustnessCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8009,7 +8009,7 @@ template <> std::string ToString<decode::Decoded_VkConditionalRenderingBeginInfo
     {
         return "null";
     }
-    const VkConditionalRenderingBeginInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkConditionalRenderingBeginInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8028,7 +8028,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceConditionalRend
     {
         return "null";
     }
-    const VkPhysicalDeviceConditionalRenderingFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceConditionalRenderingFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8046,7 +8046,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceCondi
     {
         return "null";
     }
-    const VkCommandBufferInheritanceConditionalRenderingInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferInheritanceConditionalRenderingInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8063,7 +8063,7 @@ template <> std::string ToString<decode::Decoded_VkViewportWScalingNV>(const dec
     {
         return "null";
     }
-    const VkViewportWScalingNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkViewportWScalingNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8079,7 +8079,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportWScalingState
     {
         return "null";
     }
-    const VkPipelineViewportWScalingStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineViewportWScalingStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8098,7 +8098,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilities2EXT>(cons
     {
         return "null";
     }
-    const VkSurfaceCapabilities2EXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceCapabilities2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8125,7 +8125,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPowerInfoEXT>(const de
     {
         return "null";
     }
-    const VkDisplayPowerInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayPowerInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8142,7 +8142,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceEventInfoEXT>(const dec
     {
         return "null";
     }
-    const VkDeviceEventInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceEventInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8159,7 +8159,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayEventInfoEXT>(const de
     {
         return "null";
     }
-    const VkDisplayEventInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayEventInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8176,7 +8176,7 @@ template <> std::string ToString<decode::Decoded_VkSwapchainCounterCreateInfoEXT
     {
         return "null";
     }
-    const VkSwapchainCounterCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSwapchainCounterCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8193,7 +8193,7 @@ template <> std::string ToString<decode::Decoded_VkRefreshCycleDurationGOOGLE>(c
     {
         return "null";
     }
-    const VkRefreshCycleDurationGOOGLE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRefreshCycleDurationGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8208,7 +8208,7 @@ template <> std::string ToString<decode::Decoded_VkPastPresentationTimingGOOGLE>
     {
         return "null";
     }
-    const VkPastPresentationTimingGOOGLE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPastPresentationTimingGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8227,7 +8227,7 @@ template <> std::string ToString<decode::Decoded_VkPresentTimeGOOGLE>(const deco
     {
         return "null";
     }
-    const VkPresentTimeGOOGLE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPresentTimeGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8243,7 +8243,7 @@ template <> std::string ToString<decode::Decoded_VkPresentTimesInfoGOOGLE>(const
     {
         return "null";
     }
-    const VkPresentTimesInfoGOOGLE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPresentTimesInfoGOOGLE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8261,7 +8261,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewPerVie
     {
         return "null";
     }
-    const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8278,7 +8278,7 @@ template <> std::string ToString<decode::Decoded_VkViewportSwizzleNV>(const deco
     {
         return "null";
     }
-    const VkViewportSwizzleNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkViewportSwizzleNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8296,7 +8296,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportSwizzleStateC
     {
         return "null";
     }
-    const VkPipelineViewportSwizzleStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineViewportSwizzleStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8315,7 +8315,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDiscardRectangl
     {
         return "null";
     }
-    const VkPhysicalDeviceDiscardRectanglePropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDiscardRectanglePropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8332,7 +8332,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineDiscardRectangleState
     {
         return "null";
     }
-    const VkPipelineDiscardRectangleStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineDiscardRectangleStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8352,7 +8352,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceConservativeRas
     {
         return "null";
     }
-    const VkPhysicalDeviceConservativeRasterizationPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceConservativeRasterizationPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8377,7 +8377,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationConserva
     {
         return "null";
     }
-    const VkPipelineRasterizationConservativeStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRasterizationConservativeStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8396,7 +8396,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthClipEnable
     {
         return "null";
     }
-    const VkPhysicalDeviceDepthClipEnableFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDepthClipEnableFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8413,7 +8413,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationDepthCli
     {
         return "null";
     }
-    const VkPipelineRasterizationDepthClipStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRasterizationDepthClipStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8431,7 +8431,7 @@ template <> std::string ToString<decode::Decoded_VkXYColorEXT>(const decode::Dec
     {
         return "null";
     }
-    const VkXYColorEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkXYColorEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8447,7 +8447,7 @@ template <> std::string ToString<decode::Decoded_VkHdrMetadataEXT>(const decode:
     {
         return "null";
     }
-    const VkHdrMetadataEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkHdrMetadataEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8471,7 +8471,7 @@ template <> std::string ToString<decode::Decoded_VkIOSSurfaceCreateInfoMVK>(cons
     {
         return "null";
     }
-    const VkIOSSurfaceCreateInfoMVK& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkIOSSurfaceCreateInfoMVK& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8489,7 +8489,7 @@ template <> std::string ToString<decode::Decoded_VkMacOSSurfaceCreateInfoMVK>(co
     {
         return "null";
     }
-    const VkMacOSSurfaceCreateInfoMVK& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMacOSSurfaceCreateInfoMVK& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8507,7 +8507,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsLabelEXT>(const dec
     {
         return "null";
     }
-    const VkDebugUtilsLabelEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugUtilsLabelEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8525,7 +8525,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsObjectNameInfoEXT>(
     {
         return "null";
     }
-    const VkDebugUtilsObjectNameInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugUtilsObjectNameInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8544,7 +8544,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCallbackDa
     {
         return "null";
     }
-    const VkDebugUtilsMessengerCallbackDataEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugUtilsMessengerCallbackDataEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8570,7 +8570,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCreateInfo
     {
         return "null";
     }
-    const VkDebugUtilsMessengerCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugUtilsMessengerCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8591,7 +8591,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsObjectTagInfoEXT>(c
     {
         return "null";
     }
-    const VkDebugUtilsObjectTagInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDebugUtilsObjectTagInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8612,7 +8612,7 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferUsageAND
     {
         return "null";
     }
-    const VkAndroidHardwareBufferUsageANDROID& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAndroidHardwareBufferUsageANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8629,7 +8629,7 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferProperti
     {
         return "null";
     }
-    const VkAndroidHardwareBufferPropertiesANDROID& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAndroidHardwareBufferPropertiesANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8647,7 +8647,7 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferFormatPr
     {
         return "null";
     }
-    const VkAndroidHardwareBufferFormatPropertiesANDROID& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAndroidHardwareBufferFormatPropertiesANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8671,7 +8671,7 @@ template <> std::string ToString<decode::Decoded_VkImportAndroidHardwareBufferIn
     {
         return "null";
     }
-    const VkImportAndroidHardwareBufferInfoANDROID& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportAndroidHardwareBufferInfoANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8688,7 +8688,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetAndroidHardwareBuffe
     {
         return "null";
     }
-    const VkMemoryGetAndroidHardwareBufferInfoANDROID& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryGetAndroidHardwareBufferInfoANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8705,7 +8705,7 @@ template <> std::string ToString<decode::Decoded_VkExternalFormatANDROID>(const 
     {
         return "null";
     }
-    const VkExternalFormatANDROID& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkExternalFormatANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8722,7 +8722,7 @@ template <> std::string ToString<decode::Decoded_VkAndroidHardwareBufferFormatPr
     {
         return "null";
     }
-    const VkAndroidHardwareBufferFormatProperties2ANDROID& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAndroidHardwareBufferFormatProperties2ANDROID& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8746,7 +8746,7 @@ template <> std::string ToString<decode::Decoded_VkSampleLocationEXT>(const deco
     {
         return "null";
     }
-    const VkSampleLocationEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSampleLocationEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8762,7 +8762,7 @@ template <> std::string ToString<decode::Decoded_VkSampleLocationsInfoEXT>(const
     {
         return "null";
     }
-    const VkSampleLocationsInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSampleLocationsInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8782,7 +8782,7 @@ template <> std::string ToString<decode::Decoded_VkAttachmentSampleLocationsEXT>
     {
         return "null";
     }
-    const VkAttachmentSampleLocationsEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAttachmentSampleLocationsEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8798,7 +8798,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassSampleLocationsEXT>(co
     {
         return "null";
     }
-    const VkSubpassSampleLocationsEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassSampleLocationsEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8814,7 +8814,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSampleLocationsBegi
     {
         return "null";
     }
-    const VkRenderPassSampleLocationsBeginInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassSampleLocationsBeginInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8834,7 +8834,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineSampleLocationsStateC
     {
         return "null";
     }
-    const VkPipelineSampleLocationsStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineSampleLocationsStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8852,7 +8852,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSampleLocations
     {
         return "null";
     }
-    const VkPhysicalDeviceSampleLocationsPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSampleLocationsPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8873,7 +8873,7 @@ template <> std::string ToString<decode::Decoded_VkMultisamplePropertiesEXT>(con
     {
         return "null";
     }
-    const VkMultisamplePropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMultisamplePropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8890,7 +8890,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBlendOperationA
     {
         return "null";
     }
-    const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8907,7 +8907,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBlendOperationA
     {
         return "null";
     }
-    const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8929,7 +8929,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorBlendAdvancedSta
     {
         return "null";
     }
-    const VkPipelineColorBlendAdvancedStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineColorBlendAdvancedStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8948,7 +8948,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCoverageToColorStateC
     {
         return "null";
     }
-    const VkPipelineCoverageToColorStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCoverageToColorStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8967,7 +8967,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCoverageModulationSta
     {
         return "null";
     }
-    const VkPipelineCoverageModulationStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCoverageModulationStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -8988,7 +8988,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSMBuiltin
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9006,7 +9006,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderSMBuiltin
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9023,7 +9023,7 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesEX
     {
         return "null";
     }
-    const VkDrmFormatModifierPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDrmFormatModifierPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9040,7 +9040,7 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesLi
     {
         return "null";
     }
-    const VkDrmFormatModifierPropertiesListEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDrmFormatModifierPropertiesListEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9058,7 +9058,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageDrmFormatM
     {
         return "null";
     }
-    const VkPhysicalDeviceImageDrmFormatModifierInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageDrmFormatModifierInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9078,7 +9078,7 @@ template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierListCre
     {
         return "null";
     }
-    const VkImageDrmFormatModifierListCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageDrmFormatModifierListCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9096,7 +9096,7 @@ template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierExplici
     {
         return "null";
     }
-    const VkImageDrmFormatModifierExplicitCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageDrmFormatModifierExplicitCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9115,7 +9115,7 @@ template <> std::string ToString<decode::Decoded_VkImageDrmFormatModifierPropert
     {
         return "null";
     }
-    const VkImageDrmFormatModifierPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageDrmFormatModifierPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9132,7 +9132,7 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierProperties2E
     {
         return "null";
     }
-    const VkDrmFormatModifierProperties2EXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDrmFormatModifierProperties2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9149,7 +9149,7 @@ template <> std::string ToString<decode::Decoded_VkDrmFormatModifierPropertiesLi
     {
         return "null";
     }
-    const VkDrmFormatModifierPropertiesList2EXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDrmFormatModifierPropertiesList2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9167,7 +9167,7 @@ template <> std::string ToString<decode::Decoded_VkValidationCacheCreateInfoEXT>
     {
         return "null";
     }
-    const VkValidationCacheCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkValidationCacheCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9186,7 +9186,7 @@ template <> std::string ToString<decode::Decoded_VkShaderModuleValidationCacheCr
     {
         return "null";
     }
-    const VkShaderModuleValidationCacheCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkShaderModuleValidationCacheCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9203,7 +9203,7 @@ template <> std::string ToString<decode::Decoded_VkShadingRatePaletteNV>(const d
     {
         return "null";
     }
-    const VkShadingRatePaletteNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkShadingRatePaletteNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9219,7 +9219,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportShadingRateIm
     {
         return "null";
     }
-    const VkPipelineViewportShadingRateImageStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineViewportShadingRateImageStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9238,7 +9238,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShadingRateImag
     {
         return "null";
     }
-    const VkPhysicalDeviceShadingRateImageFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShadingRateImageFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9256,7 +9256,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShadingRateImag
     {
         return "null";
     }
-    const VkPhysicalDeviceShadingRateImagePropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShadingRateImagePropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9275,7 +9275,7 @@ template <> std::string ToString<decode::Decoded_VkCoarseSampleLocationNV>(const
     {
         return "null";
     }
-    const VkCoarseSampleLocationNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCoarseSampleLocationNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9292,7 +9292,7 @@ template <> std::string ToString<decode::Decoded_VkCoarseSampleOrderCustomNV>(co
     {
         return "null";
     }
-    const VkCoarseSampleOrderCustomNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCoarseSampleOrderCustomNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9310,7 +9310,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportCoarseSampleO
     {
         return "null";
     }
-    const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9329,7 +9329,7 @@ template <> std::string ToString<decode::Decoded_VkRayTracingShaderGroupCreateIn
     {
         return "null";
     }
-    const VkRayTracingShaderGroupCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRayTracingShaderGroupCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9350,7 +9350,7 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoN
     {
         return "null";
     }
-    const VkRayTracingPipelineCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRayTracingPipelineCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9375,7 +9375,7 @@ template <> std::string ToString<decode::Decoded_VkGeometryTrianglesNV>(const de
     {
         return "null";
     }
-    const VkGeometryTrianglesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGeometryTrianglesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9402,7 +9402,7 @@ template <> std::string ToString<decode::Decoded_VkGeometryAABBNV>(const decode:
     {
         return "null";
     }
-    const VkGeometryAABBNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGeometryAABBNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9422,7 +9422,7 @@ template <> std::string ToString<decode::Decoded_VkGeometryDataNV>(const decode:
     {
         return "null";
     }
-    const VkGeometryDataNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGeometryDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9438,7 +9438,7 @@ template <> std::string ToString<decode::Decoded_VkGeometryNV>(const decode::Dec
     {
         return "null";
     }
-    const VkGeometryNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGeometryNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9457,7 +9457,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureInfoNV>(
     {
         return "null";
     }
-    const VkAccelerationStructureInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9478,7 +9478,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureCreateIn
     {
         return "null";
     }
-    const VkAccelerationStructureCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9496,7 +9496,7 @@ template <> std::string ToString<decode::Decoded_VkBindAccelerationStructureMemo
     {
         return "null";
     }
-    const VkBindAccelerationStructureMemoryInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindAccelerationStructureMemoryInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9517,7 +9517,7 @@ template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetAcceleratio
     {
         return "null";
     }
-    const VkWriteDescriptorSetAccelerationStructureNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkWriteDescriptorSetAccelerationStructureNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9535,7 +9535,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureMemoryRe
     {
         return "null";
     }
-    const VkAccelerationStructureMemoryRequirementsInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureMemoryRequirementsInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9553,7 +9553,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPrope
     {
         return "null";
     }
-    const VkPhysicalDeviceRayTracingPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRayTracingPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9577,7 +9577,7 @@ template <> std::string ToString<decode::Decoded_VkAabbPositionsKHR>(const decod
     {
         return "null";
     }
-    const VkAabbPositionsKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAabbPositionsKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9597,7 +9597,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureInstance
     {
         return "null";
     }
-    const VkAccelerationStructureInstanceKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureInstanceKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9617,7 +9617,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRepresentativeF
     {
         return "null";
     }
-    const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9634,7 +9634,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRepresentativeFragmen
     {
         return "null";
     }
-    const VkPipelineRepresentativeFragmentTestStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRepresentativeFragmentTestStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9651,7 +9651,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageViewImageF
     {
         return "null";
     }
-    const VkPhysicalDeviceImageViewImageFormatInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageViewImageFormatInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9668,7 +9668,7 @@ template <> std::string ToString<decode::Decoded_VkFilterCubicImageViewImageForm
     {
         return "null";
     }
-    const VkFilterCubicImageViewImageFormatPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFilterCubicImageViewImageFormatPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9686,7 +9686,7 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryHostPointerInfoEX
     {
         return "null";
     }
-    const VkImportMemoryHostPointerInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportMemoryHostPointerInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9704,7 +9704,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryHostPointerPropertiesEX
     {
         return "null";
     }
-    const VkMemoryHostPointerPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryHostPointerPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9721,7 +9721,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryH
     {
         return "null";
     }
-    const VkPhysicalDeviceExternalMemoryHostPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExternalMemoryHostPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9738,7 +9738,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCompilerControlCreate
     {
         return "null";
     }
-    const VkPipelineCompilerControlCreateInfoAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCompilerControlCreateInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9755,7 +9755,7 @@ template <> std::string ToString<decode::Decoded_VkCalibratedTimestampInfoEXT>(c
     {
         return "null";
     }
-    const VkCalibratedTimestampInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCalibratedTimestampInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9772,7 +9772,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCorePrope
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderCorePropertiesAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderCorePropertiesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9802,7 +9802,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceMemoryOverallocationCre
     {
         return "null";
     }
-    const VkDeviceMemoryOverallocationCreateInfoAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceMemoryOverallocationCreateInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9819,7 +9819,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexAttribute
     {
         return "null";
     }
-    const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9836,7 +9836,7 @@ template <> std::string ToString<decode::Decoded_VkVertexInputBindingDivisorDesc
     {
         return "null";
     }
-    const VkVertexInputBindingDivisorDescriptionEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkVertexInputBindingDivisorDescriptionEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9852,7 +9852,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineVertexInputDivisorSta
     {
         return "null";
     }
-    const VkPipelineVertexInputDivisorStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineVertexInputDivisorStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9870,7 +9870,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexAttribute
     {
         return "null";
     }
-    const VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9888,7 +9888,7 @@ template <> std::string ToString<decode::Decoded_VkPresentFrameTokenGGP>(const d
     {
         return "null";
     }
-    const VkPresentFrameTokenGGP& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPresentFrameTokenGGP& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9905,7 +9905,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceComputeShaderDe
     {
         return "null";
     }
-    const VkPhysicalDeviceComputeShaderDerivativesFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceComputeShaderDerivativesFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9923,7 +9923,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMeshShaderFeatu
     {
         return "null";
     }
-    const VkPhysicalDeviceMeshShaderFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMeshShaderFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9941,7 +9941,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMeshShaderPrope
     {
         return "null";
     }
-    const VkPhysicalDeviceMeshShaderPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMeshShaderPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9970,7 +9970,7 @@ template <> std::string ToString<decode::Decoded_VkDrawMeshTasksIndirectCommandN
     {
         return "null";
     }
-    const VkDrawMeshTasksIndirectCommandNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDrawMeshTasksIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -9986,7 +9986,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderImageFoot
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderImageFootprintFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderImageFootprintFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10003,7 +10003,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportExclusiveScis
     {
         return "null";
     }
-    const VkPipelineViewportExclusiveScissorStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineViewportExclusiveScissorStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10021,7 +10021,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExclusiveScisso
     {
         return "null";
     }
-    const VkPhysicalDeviceExclusiveScissorFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExclusiveScissorFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10038,7 +10038,7 @@ template <> std::string ToString<decode::Decoded_VkQueueFamilyCheckpointProperti
     {
         return "null";
     }
-    const VkQueueFamilyCheckpointPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueueFamilyCheckpointPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10055,7 +10055,7 @@ template <> std::string ToString<decode::Decoded_VkCheckpointDataNV>(const decod
     {
         return "null";
     }
-    const VkCheckpointDataNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCheckpointDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10073,7 +10073,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderIntegerFu
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10090,7 +10090,7 @@ template <> std::string ToString<decode::Decoded_VkInitializePerformanceApiInfoI
     {
         return "null";
     }
-    const VkInitializePerformanceApiInfoINTEL& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkInitializePerformanceApiInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10107,7 +10107,7 @@ template <> std::string ToString<decode::Decoded_VkQueryPoolPerformanceQueryCrea
     {
         return "null";
     }
-    const VkQueryPoolPerformanceQueryCreateInfoINTEL& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkQueryPoolPerformanceQueryCreateInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10124,7 +10124,7 @@ template <> std::string ToString<decode::Decoded_VkPerformanceMarkerInfoINTEL>(c
     {
         return "null";
     }
-    const VkPerformanceMarkerInfoINTEL& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPerformanceMarkerInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10141,7 +10141,7 @@ template <> std::string ToString<decode::Decoded_VkPerformanceStreamMarkerInfoIN
     {
         return "null";
     }
-    const VkPerformanceStreamMarkerInfoINTEL& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPerformanceStreamMarkerInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10158,7 +10158,7 @@ template <> std::string ToString<decode::Decoded_VkPerformanceOverrideInfoINTEL>
     {
         return "null";
     }
-    const VkPerformanceOverrideInfoINTEL& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPerformanceOverrideInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10177,7 +10177,7 @@ template <> std::string ToString<decode::Decoded_VkPerformanceConfigurationAcqui
     {
         return "null";
     }
-    const VkPerformanceConfigurationAcquireInfoINTEL& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPerformanceConfigurationAcquireInfoINTEL& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10194,7 +10194,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePCIBusInfoPrope
     {
         return "null";
     }
-    const VkPhysicalDevicePCIBusInfoPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePCIBusInfoPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10214,7 +10214,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayNativeHdrSurfaceCapabi
     {
         return "null";
     }
-    const VkDisplayNativeHdrSurfaceCapabilitiesAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDisplayNativeHdrSurfaceCapabilitiesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10231,7 +10231,7 @@ template <> std::string ToString<decode::Decoded_VkSwapchainDisplayNativeHdrCrea
     {
         return "null";
     }
-    const VkSwapchainDisplayNativeHdrCreateInfoAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSwapchainDisplayNativeHdrCreateInfoAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10248,7 +10248,7 @@ template <> std::string ToString<decode::Decoded_VkImagePipeSurfaceCreateInfoFUC
     {
         return "null";
     }
-    const VkImagePipeSurfaceCreateInfoFUCHSIA& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImagePipeSurfaceCreateInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10266,7 +10266,7 @@ template <> std::string ToString<decode::Decoded_VkMetalSurfaceCreateInfoEXT>(co
     {
         return "null";
     }
-    const VkMetalSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMetalSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10284,7 +10284,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentDensityMapFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentDensityMapFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10303,7 +10303,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentDensityMapPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentDensityMapPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10322,7 +10322,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassFragmentDensityMapC
     {
         return "null";
     }
-    const VkRenderPassFragmentDensityMapCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassFragmentDensityMapCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10339,7 +10339,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCorePrope
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderCoreProperties2AMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderCoreProperties2AMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10357,7 +10357,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCoherentMemoryF
     {
         return "null";
     }
-    const VkPhysicalDeviceCoherentMemoryFeaturesAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceCoherentMemoryFeaturesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10374,7 +10374,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderImageAtom
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10392,7 +10392,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryBudgetPro
     {
         return "null";
     }
-    const VkPhysicalDeviceMemoryBudgetPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMemoryBudgetPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10410,7 +10410,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMemoryPriorityF
     {
         return "null";
     }
-    const VkPhysicalDeviceMemoryPriorityFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMemoryPriorityFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10427,7 +10427,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryPriorityAllocateInfoEXT
     {
         return "null";
     }
-    const VkMemoryPriorityAllocateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryPriorityAllocateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10444,7 +10444,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDedicatedAlloca
     {
         return "null";
     }
-    const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10461,7 +10461,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBufferDeviceAdd
     {
         return "null";
     }
-    const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10480,7 +10480,7 @@ template <> std::string ToString<decode::Decoded_VkBufferDeviceAddressCreateInfo
     {
         return "null";
     }
-    const VkBufferDeviceAddressCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBufferDeviceAddressCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10497,7 +10497,7 @@ template <> std::string ToString<decode::Decoded_VkValidationFeaturesEXT>(const 
     {
         return "null";
     }
-    const VkValidationFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkValidationFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10517,7 +10517,7 @@ template <> std::string ToString<decode::Decoded_VkCooperativeMatrixPropertiesNV
     {
         return "null";
     }
-    const VkCooperativeMatrixPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCooperativeMatrixPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10541,7 +10541,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCooperativeMatr
     {
         return "null";
     }
-    const VkPhysicalDeviceCooperativeMatrixFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceCooperativeMatrixFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10559,7 +10559,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCooperativeMatr
     {
         return "null";
     }
-    const VkPhysicalDeviceCooperativeMatrixPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceCooperativeMatrixPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10576,7 +10576,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCoverageReducti
     {
         return "null";
     }
-    const VkPhysicalDeviceCoverageReductionModeFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceCoverageReductionModeFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10593,7 +10593,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineCoverageReductionStat
     {
         return "null";
     }
-    const VkPipelineCoverageReductionStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineCoverageReductionStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10611,7 +10611,7 @@ template <> std::string ToString<decode::Decoded_VkFramebufferMixedSamplesCombin
     {
         return "null";
     }
-    const VkFramebufferMixedSamplesCombinationNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkFramebufferMixedSamplesCombinationNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10631,7 +10631,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShaderI
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10650,7 +10650,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceYcbcrImageArray
     {
         return "null";
     }
-    const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10667,7 +10667,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProvokingVertex
     {
         return "null";
     }
-    const VkPhysicalDeviceProvokingVertexFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceProvokingVertexFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10685,7 +10685,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProvokingVertex
     {
         return "null";
     }
-    const VkPhysicalDeviceProvokingVertexPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceProvokingVertexPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10703,7 +10703,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationProvokin
     {
         return "null";
     }
-    const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10720,7 +10720,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFullScreenExclusiveInf
     {
         return "null";
     }
-    const VkSurfaceFullScreenExclusiveInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceFullScreenExclusiveInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10737,7 +10737,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilitiesFullScreen
     {
         return "null";
     }
-    const VkSurfaceCapabilitiesFullScreenExclusiveEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceCapabilitiesFullScreenExclusiveEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10754,7 +10754,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceFullScreenExclusiveWin
     {
         return "null";
     }
-    const VkSurfaceFullScreenExclusiveWin32InfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSurfaceFullScreenExclusiveWin32InfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10771,7 +10771,7 @@ template <> std::string ToString<decode::Decoded_VkHeadlessSurfaceCreateInfoEXT>
     {
         return "null";
     }
-    const VkHeadlessSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkHeadlessSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10788,7 +10788,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLineRasterizati
     {
         return "null";
     }
-    const VkPhysicalDeviceLineRasterizationFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceLineRasterizationFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10810,7 +10810,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLineRasterizati
     {
         return "null";
     }
-    const VkPhysicalDeviceLineRasterizationPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceLineRasterizationPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10827,7 +10827,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineRasterizationLineStat
     {
         return "null";
     }
-    const VkPipelineRasterizationLineStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineRasterizationLineStateCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10847,7 +10847,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicFlo
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10875,7 +10875,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceIndexTypeUint8F
     {
         return "null";
     }
-    const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10892,7 +10892,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamic
     {
         return "null";
     }
-    const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10909,7 +10909,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderAtomicFlo
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10937,7 +10937,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceGenerated
     {
         return "null";
     }
-    const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10962,7 +10962,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceGenerated
     {
         return "null";
     }
-    const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10979,7 +10979,7 @@ template <> std::string ToString<decode::Decoded_VkGraphicsShaderGroupCreateInfo
     {
         return "null";
     }
-    const VkGraphicsShaderGroupCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGraphicsShaderGroupCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -10999,7 +10999,7 @@ template <> std::string ToString<decode::Decoded_VkGraphicsPipelineShaderGroupsC
     {
         return "null";
     }
-    const VkGraphicsPipelineShaderGroupsCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGraphicsPipelineShaderGroupsCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11019,7 +11019,7 @@ template <> std::string ToString<decode::Decoded_VkBindShaderGroupIndirectComman
     {
         return "null";
     }
-    const VkBindShaderGroupIndirectCommandNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindShaderGroupIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11034,7 +11034,7 @@ template <> std::string ToString<decode::Decoded_VkBindIndexBufferIndirectComman
     {
         return "null";
     }
-    const VkBindIndexBufferIndirectCommandNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindIndexBufferIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11051,7 +11051,7 @@ template <> std::string ToString<decode::Decoded_VkBindVertexBufferIndirectComma
     {
         return "null";
     }
-    const VkBindVertexBufferIndirectCommandNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkBindVertexBufferIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11068,7 +11068,7 @@ template <> std::string ToString<decode::Decoded_VkSetStateFlagsIndirectCommandN
     {
         return "null";
     }
-    const VkSetStateFlagsIndirectCommandNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSetStateFlagsIndirectCommandNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11083,7 +11083,7 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsStreamNV>(con
     {
         return "null";
     }
-    const VkIndirectCommandsStreamNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkIndirectCommandsStreamNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11099,7 +11099,7 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsLayoutTokenNV
     {
         return "null";
     }
-    const VkIndirectCommandsLayoutTokenNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkIndirectCommandsLayoutTokenNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11128,7 +11128,7 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsLayoutCreateI
     {
         return "null";
     }
-    const VkIndirectCommandsLayoutCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkIndirectCommandsLayoutCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11150,7 +11150,7 @@ template <> std::string ToString<decode::Decoded_VkGeneratedCommandsInfoNV>(cons
     {
         return "null";
     }
-    const VkGeneratedCommandsInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGeneratedCommandsInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11179,7 +11179,7 @@ template <> std::string ToString<decode::Decoded_VkGeneratedCommandsMemoryRequir
     {
         return "null";
     }
-    const VkGeneratedCommandsMemoryRequirementsInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGeneratedCommandsMemoryRequirementsInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11199,7 +11199,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInheritedViewpo
     {
         return "null";
     }
-    const VkPhysicalDeviceInheritedViewportScissorFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceInheritedViewportScissorFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11216,7 +11216,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceViewp
     {
         return "null";
     }
-    const VkCommandBufferInheritanceViewportScissorInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferInheritanceViewportScissorInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11235,7 +11235,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTexelBufferAlig
     {
         return "null";
     }
-    const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11252,7 +11252,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassTransformBeginInfoQ
     {
         return "null";
     }
-    const VkRenderPassTransformBeginInfoQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassTransformBeginInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11269,7 +11269,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceRende
     {
         return "null";
     }
-    const VkCommandBufferInheritanceRenderPassTransformInfoQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCommandBufferInheritanceRenderPassTransformInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11287,7 +11287,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDeviceMemoryRep
     {
         return "null";
     }
-    const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11304,7 +11304,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceMemoryReportCallbackDat
     {
         return "null";
     }
-    const VkDeviceMemoryReportCallbackDataEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceMemoryReportCallbackDataEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11327,7 +11327,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceDeviceMemoryReportCreat
     {
         return "null";
     }
-    const VkDeviceDeviceMemoryReportCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceDeviceMemoryReportCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11346,7 +11346,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRobustness2Feat
     {
         return "null";
     }
-    const VkPhysicalDeviceRobustness2FeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRobustness2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11365,7 +11365,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRobustness2Prop
     {
         return "null";
     }
-    const VkPhysicalDeviceRobustness2PropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRobustness2PropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11383,7 +11383,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerCustomBorderColorCreat
     {
         return "null";
     }
-    const VkSamplerCustomBorderColorCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSamplerCustomBorderColorCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11401,7 +11401,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCustomBorderCol
     {
         return "null";
     }
-    const VkPhysicalDeviceCustomBorderColorPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceCustomBorderColorPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11418,7 +11418,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceCustomBorderCol
     {
         return "null";
     }
-    const VkPhysicalDeviceCustomBorderColorFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceCustomBorderColorFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11436,7 +11436,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDiagnosticsConf
     {
         return "null";
     }
-    const VkPhysicalDeviceDiagnosticsConfigFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDiagnosticsConfigFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11453,7 +11453,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceDiagnosticsConfigCreate
     {
         return "null";
     }
-    const VkDeviceDiagnosticsConfigCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDeviceDiagnosticsConfigCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11470,7 +11470,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelin
     {
         return "null";
     }
-    const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11487,7 +11487,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelin
     {
         return "null";
     }
-    const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11505,7 +11505,7 @@ template <> std::string ToString<decode::Decoded_VkGraphicsPipelineLibraryCreate
     {
         return "null";
     }
-    const VkGraphicsPipelineLibraryCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkGraphicsPipelineLibraryCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11522,7 +11522,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderEarlyAndL
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11539,7 +11539,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11558,7 +11558,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentShading
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11575,7 +11575,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineFragmentShadingRateEn
     {
         return "null";
     }
-    const VkPipelineFragmentShadingRateEnumStateCreateInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineFragmentShadingRateEnumStateCreateInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11594,7 +11594,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
     {
         return "null";
     }
-    const VkAccelerationStructureGeometryMotionTrianglesDataNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureGeometryMotionTrianglesDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11611,7 +11611,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureMotionIn
     {
         return "null";
     }
-    const VkAccelerationStructureMotionInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureMotionInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11629,7 +11629,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureMatrixMo
     {
         return "null";
     }
-    const VkAccelerationStructureMatrixMotionInstanceNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureMatrixMotionInstanceNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11650,7 +11650,7 @@ template <> std::string ToString<decode::Decoded_VkSRTDataNV>(const decode::Deco
     {
         return "null";
     }
-    const VkSRTDataNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSRTDataNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11680,7 +11680,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureSRTMotio
     {
         return "null";
     }
-    const VkAccelerationStructureSRTMotionInstanceNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureSRTMotionInstanceNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11701,7 +11701,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingMotio
     {
         return "null";
     }
-    const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11719,7 +11719,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceYcbcr2Plane444F
     {
         return "null";
     }
-    const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11736,7 +11736,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11753,7 +11753,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11773,7 +11773,7 @@ template <> std::string ToString<decode::Decoded_VkCopyCommandTransformInfoQCOM>
     {
         return "null";
     }
-    const VkCopyCommandTransformInfoQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyCommandTransformInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11790,7 +11790,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressio
     {
         return "null";
     }
-    const VkPhysicalDeviceImageCompressionControlFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageCompressionControlFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11807,7 +11807,7 @@ template <> std::string ToString<decode::Decoded_VkImageCompressionControlEXT>(c
     {
         return "null";
     }
-    const VkImageCompressionControlEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageCompressionControlEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11826,7 +11826,7 @@ template <> std::string ToString<decode::Decoded_VkSubresourceLayout2EXT>(const 
     {
         return "null";
     }
-    const VkSubresourceLayout2EXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubresourceLayout2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11843,7 +11843,7 @@ template <> std::string ToString<decode::Decoded_VkImageSubresource2EXT>(const d
     {
         return "null";
     }
-    const VkImageSubresource2EXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageSubresource2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11860,7 +11860,7 @@ template <> std::string ToString<decode::Decoded_VkImageCompressionPropertiesEXT
     {
         return "null";
     }
-    const VkImageCompressionPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageCompressionPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11878,7 +11878,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAttachmentFeedb
     {
         return "null";
     }
-    const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11895,7 +11895,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevice4444FormatsFeat
     {
         return "null";
     }
-    const VkPhysicalDevice4444FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevice4444FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11913,7 +11913,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRasterizationOr
     {
         return "null";
     }
-    const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11932,7 +11932,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRGBA10X6Formats
     {
         return "null";
     }
-    const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11949,7 +11949,7 @@ template <> std::string ToString<decode::Decoded_VkDirectFBSurfaceCreateInfoEXT>
     {
         return "null";
     }
-    const VkDirectFBSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDirectFBSurfaceCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11968,7 +11968,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMutableDescript
     {
         return "null";
     }
-    const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -11985,7 +11985,7 @@ template <> std::string ToString<decode::Decoded_VkMutableDescriptorTypeListVALV
     {
         return "null";
     }
-    const VkMutableDescriptorTypeListVALVE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMutableDescriptorTypeListVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12001,7 +12001,7 @@ template <> std::string ToString<decode::Decoded_VkMutableDescriptorTypeCreateIn
     {
         return "null";
     }
-    const VkMutableDescriptorTypeCreateInfoVALVE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMutableDescriptorTypeCreateInfoVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12019,7 +12019,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVertexInputDyna
     {
         return "null";
     }
-    const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12036,7 +12036,7 @@ template <> std::string ToString<decode::Decoded_VkVertexInputBindingDescription
     {
         return "null";
     }
-    const VkVertexInputBindingDescription2EXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkVertexInputBindingDescription2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12056,7 +12056,7 @@ template <> std::string ToString<decode::Decoded_VkVertexInputAttributeDescripti
     {
         return "null";
     }
-    const VkVertexInputAttributeDescription2EXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkVertexInputAttributeDescription2EXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12076,7 +12076,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDrmPropertiesEX
     {
         return "null";
     }
-    const VkPhysicalDeviceDrmPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDrmPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12098,7 +12098,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDepthClipContro
     {
         return "null";
     }
-    const VkPhysicalDeviceDepthClipControlFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDepthClipControlFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12115,7 +12115,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineViewportDepthClipCont
     {
         return "null";
     }
-    const VkPipelineViewportDepthClipControlCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineViewportDepthClipControlCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12132,7 +12132,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrimitiveTopolo
     {
         return "null";
     }
-    const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12150,7 +12150,7 @@ template <> std::string ToString<decode::Decoded_VkImportMemoryZirconHandleInfoF
     {
         return "null";
     }
-    const VkImportMemoryZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportMemoryZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12168,7 +12168,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryZirconHandlePropertiesF
     {
         return "null";
     }
-    const VkMemoryZirconHandlePropertiesFUCHSIA& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryZirconHandlePropertiesFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12185,7 +12185,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetZirconHandleInfoFUCH
     {
         return "null";
     }
-    const VkMemoryGetZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryGetZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12203,7 +12203,7 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreZirconHandleIn
     {
         return "null";
     }
-    const VkImportSemaphoreZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImportSemaphoreZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12223,7 +12223,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetZirconHandleInfoF
     {
         return "null";
     }
-    const VkSemaphoreGetZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSemaphoreGetZirconHandleInfoFUCHSIA& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12241,7 +12241,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceInvocationMaskF
     {
         return "null";
     }
-    const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12258,7 +12258,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetRemoteAddressInfoNV>
     {
         return "null";
     }
-    const VkMemoryGetRemoteAddressInfoNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMemoryGetRemoteAddressInfoNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12276,7 +12276,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExternalMemoryR
     {
         return "null";
     }
-    const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12293,7 +12293,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultisampledRen
     {
         return "null";
     }
-    const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12310,7 +12310,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassResolvePerformanceQuer
     {
         return "null";
     }
-    const VkSubpassResolvePerformanceQueryEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassResolvePerformanceQueryEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12327,7 +12327,7 @@ template <> std::string ToString<decode::Decoded_VkMultisampledRenderToSingleSam
     {
         return "null";
     }
-    const VkMultisampledRenderToSingleSampledInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMultisampledRenderToSingleSampledInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12345,7 +12345,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceExtendedDynamic
     {
         return "null";
     }
-    const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12364,7 +12364,7 @@ template <> std::string ToString<decode::Decoded_VkScreenSurfaceCreateInfoQNX>(c
     {
         return "null";
     }
-    const VkScreenSurfaceCreateInfoQNX& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkScreenSurfaceCreateInfoQNX& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12383,7 +12383,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceColorWriteEnabl
     {
         return "null";
     }
-    const VkPhysicalDeviceColorWriteEnableFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceColorWriteEnableFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12400,7 +12400,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineColorWriteCreateInfoE
     {
         return "null";
     }
-    const VkPipelineColorWriteCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineColorWriteCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12418,7 +12418,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePrimitivesGener
     {
         return "null";
     }
-    const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12437,7 +12437,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageViewMinLod
     {
         return "null";
     }
-    const VkPhysicalDeviceImageViewMinLodFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageViewMinLodFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12454,7 +12454,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewMinLodCreateInfoEXT>
     {
         return "null";
     }
-    const VkImageViewMinLodCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageViewMinLodCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12471,7 +12471,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiDrawFeatur
     {
         return "null";
     }
-    const VkPhysicalDeviceMultiDrawFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMultiDrawFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12488,7 +12488,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiDrawProper
     {
         return "null";
     }
-    const VkPhysicalDeviceMultiDrawPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceMultiDrawPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12505,7 +12505,7 @@ template <> std::string ToString<decode::Decoded_VkMultiDrawInfoEXT>(const decod
     {
         return "null";
     }
-    const VkMultiDrawInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMultiDrawInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12521,7 +12521,7 @@ template <> std::string ToString<decode::Decoded_VkMultiDrawIndexedInfoEXT>(cons
     {
         return "null";
     }
-    const VkMultiDrawIndexedInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkMultiDrawIndexedInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12538,7 +12538,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImage2DViewOf3D
     {
         return "null";
     }
-    const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12556,7 +12556,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBorderColorSwiz
     {
         return "null";
     }
-    const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12574,7 +12574,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerBorderColorComponentMa
     {
         return "null";
     }
-    const VkSamplerBorderColorComponentMappingCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSamplerBorderColorComponentMappingCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12592,7 +12592,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePageableDeviceL
     {
         return "null";
     }
-    const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12609,7 +12609,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDescriptorSetHo
     {
         return "null";
     }
-    const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12626,7 +12626,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetBindingReference
     {
         return "null";
     }
-    const VkDescriptorSetBindingReferenceVALVE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetBindingReferenceVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12644,7 +12644,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetLayoutHostMappin
     {
         return "null";
     }
-    const VkDescriptorSetLayoutHostMappingInfoVALVE& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkDescriptorSetLayoutHostMappingInfoVALVE& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12662,7 +12662,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceNonSeamlessCube
     {
         return "null";
     }
-    const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12679,7 +12679,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12696,7 +12696,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceFragmentDensity
     {
         return "null";
     }
-    const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12713,7 +12713,7 @@ template <> std::string ToString<decode::Decoded_VkSubpassFragmentDensityMapOffs
     {
         return "null";
     }
-    const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12731,7 +12731,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceLinearColorAtta
     {
         return "null";
     }
-    const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12748,7 +12748,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageCompressio
     {
         return "null";
     }
-    const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12765,7 +12765,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewSampleWeightCreateIn
     {
         return "null";
     }
-    const VkImageViewSampleWeightCreateInfoQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkImageViewSampleWeightCreateInfoQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12784,7 +12784,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessing
     {
         return "null";
     }
-    const VkPhysicalDeviceImageProcessingFeaturesQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageProcessingFeaturesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12803,7 +12803,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImageProcessing
     {
         return "null";
     }
-    const VkPhysicalDeviceImageProcessingPropertiesQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceImageProcessingPropertiesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12823,7 +12823,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSubpassMergeFee
     {
         return "null";
     }
-    const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12840,7 +12840,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreationControlEXT>
     {
         return "null";
     }
-    const VkRenderPassCreationControlEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassCreationControlEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12857,7 +12857,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackInf
     {
         return "null";
     }
-    const VkRenderPassCreationFeedbackInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassCreationFeedbackInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12872,7 +12872,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassCreationFeedbackCre
     {
         return "null";
     }
-    const VkRenderPassCreationFeedbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassCreationFeedbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12889,7 +12889,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackInfo
     {
         return "null";
     }
-    const VkRenderPassSubpassFeedbackInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassSubpassFeedbackInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12906,7 +12906,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackCrea
     {
         return "null";
     }
-    const VkRenderPassSubpassFeedbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRenderPassSubpassFeedbackCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12923,7 +12923,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIde
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12940,7 +12940,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIde
     {
         return "null";
     }
-    const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12957,7 +12957,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageModuleIden
     {
         return "null";
     }
-    const VkPipelineShaderStageModuleIdentifierCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPipelineShaderStageModuleIdentifierCreateInfoEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12975,7 +12975,7 @@ template <> std::string ToString<decode::Decoded_VkShaderModuleIdentifierEXT>(co
     {
         return "null";
     }
-    const VkShaderModuleIdentifierEXT& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkShaderModuleIdentifierEXT& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -12993,7 +12993,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceTilePropertiesF
     {
         return "null";
     }
-    const VkPhysicalDeviceTilePropertiesFeaturesQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceTilePropertiesFeaturesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13010,7 +13010,7 @@ template <> std::string ToString<decode::Decoded_VkTilePropertiesQCOM>(const dec
     {
         return "null";
     }
-    const VkTilePropertiesQCOM& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkTilePropertiesQCOM& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13029,7 +13029,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAmigoProfilingF
     {
         return "null";
     }
-    const VkPhysicalDeviceAmigoProfilingFeaturesSEC& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceAmigoProfilingFeaturesSEC& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13046,7 +13046,7 @@ template <> std::string ToString<decode::Decoded_VkAmigoProfilingSubmitInfoSEC>(
     {
         return "null";
     }
-    const VkAmigoProfilingSubmitInfoSEC& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAmigoProfilingSubmitInfoSEC& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13064,7 +13064,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureBuildRan
     {
         return "null";
     }
-    const VkAccelerationStructureBuildRangeInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureBuildRangeInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13082,7 +13082,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
     {
         return "null";
     }
-    const VkAccelerationStructureGeometryTrianglesDataKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureGeometryTrianglesDataKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13105,7 +13105,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
     {
         return "null";
     }
-    const VkAccelerationStructureGeometryAabbsDataKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureGeometryAabbsDataKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13123,7 +13123,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureGeometry
     {
         return "null";
     }
-    const VkAccelerationStructureGeometryInstancesDataKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureGeometryInstancesDataKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13141,7 +13141,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureCreateIn
     {
         return "null";
     }
-    const VkAccelerationStructureCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13163,7 +13163,7 @@ template <> std::string ToString<decode::Decoded_VkWriteDescriptorSetAcceleratio
     {
         return "null";
     }
-    const VkWriteDescriptorSetAccelerationStructureKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkWriteDescriptorSetAccelerationStructureKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13181,7 +13181,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAccelerationStr
     {
         return "null";
     }
-    const VkPhysicalDeviceAccelerationStructureFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceAccelerationStructureFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13202,7 +13202,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceAccelerationStr
     {
         return "null";
     }
-    const VkPhysicalDeviceAccelerationStructurePropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceAccelerationStructurePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13226,7 +13226,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureDeviceAd
     {
         return "null";
     }
-    const VkAccelerationStructureDeviceAddressInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureDeviceAddressInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13243,7 +13243,7 @@ template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureToMe
     {
         return "null";
     }
-    const VkCopyAccelerationStructureToMemoryInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyAccelerationStructureToMemoryInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13262,7 +13262,7 @@ template <> std::string ToString<decode::Decoded_VkCopyMemoryToAccelerationStruc
     {
         return "null";
     }
-    const VkCopyMemoryToAccelerationStructureInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyMemoryToAccelerationStructureInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13281,7 +13281,7 @@ template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureInfo
     {
         return "null";
     }
-    const VkCopyAccelerationStructureInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkCopyAccelerationStructureInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13300,7 +13300,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureBuildSiz
     {
         return "null";
     }
-    const VkAccelerationStructureBuildSizesInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkAccelerationStructureBuildSizesInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13319,7 +13319,7 @@ template <> std::string ToString<decode::Decoded_VkRayTracingShaderGroupCreateIn
     {
         return "null";
     }
-    const VkRayTracingShaderGroupCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRayTracingShaderGroupCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13341,7 +13341,7 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineInterfaceCr
     {
         return "null";
     }
-    const VkRayTracingPipelineInterfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRayTracingPipelineInterfaceCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13359,7 +13359,7 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoK
     {
         return "null";
     }
-    const VkRayTracingPipelineCreateInfoKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkRayTracingPipelineCreateInfoKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13387,7 +13387,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPipel
     {
         return "null";
     }
-    const VkPhysicalDeviceRayTracingPipelineFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRayTracingPipelineFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13408,7 +13408,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingPipel
     {
         return "null";
     }
-    const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13432,7 +13432,7 @@ template <> std::string ToString<decode::Decoded_VkStridedDeviceAddressRegionKHR
     {
         return "null";
     }
-    const VkStridedDeviceAddressRegionKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkStridedDeviceAddressRegionKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13449,7 +13449,7 @@ template <> std::string ToString<decode::Decoded_VkTraceRaysIndirectCommandKHR>(
     {
         return "null";
     }
-    const VkTraceRaysIndirectCommandKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkTraceRaysIndirectCommandKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -13466,7 +13466,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayQueryFeature
     {
         return "null";
     }
-    const VkPhysicalDeviceRayQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
+    GFXRECON_MAYBE_UNUSED const VkPhysicalDeviceRayQueryFeaturesKHR& obj = *decoded_obj.decoded_value;
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {

@@ -51,7 +51,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 typedef const void* DispatchKey;
 
 // Retrieve a dispatch key from a dispatchable handle
-inline static DispatchKey GetDispatchKey(const void* handle)
+GFXRECON_MAYBE_UNUSED static DispatchKey GetDispatchKey(const void* handle)
 {
     const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);
     return (*dispatch_key);
@@ -1126,7 +1126,7 @@ static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP
     }
 }
 
-inline static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)
+GFXRECON_MAYBE_UNUSED static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)
 {
     assert(table != nullptr);
 
@@ -1230,7 +1230,7 @@ inline static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance i
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceScreenPresentationSupportQNX", &table->GetPhysicalDeviceScreenPresentationSupportQNX);
 }
 
-inline static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)
+GFXRECON_MAYBE_UNUSED static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)
 {
     assert(table != nullptr);
 

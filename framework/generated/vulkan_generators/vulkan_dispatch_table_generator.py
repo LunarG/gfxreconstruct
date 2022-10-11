@@ -121,7 +121,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static DispatchKey GetDispatchKey(const void* handle)',
+            'GFXRECON_MAYBE_UNUSED static DispatchKey GetDispatchKey(const void* handle)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -259,7 +259,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def generate_load_instance_table_func(self):
         """Generate function to set the instance table's functions with a getprocaddress routine."""
         write(
-            'static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)',
+            'GFXRECON_MAYBE_UNUSED static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -282,7 +282,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def generate_load_device_table_func(self):
         """Generate function to set the device table's functions with a getprocaddress routine."""
         write(
-            'static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)',
+            'GFXRECON_MAYBE_UNUSED static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)',
             file=self.outFile
         )
         write('{', file=self.outFile)

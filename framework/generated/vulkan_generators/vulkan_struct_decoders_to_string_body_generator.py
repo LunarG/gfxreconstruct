@@ -131,7 +131,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                         {{
                             return "null";
                         }}
-                        const {0}& obj = *decoded_obj.decoded_value;
+                        GFXRECON_MAYBE_UNUSED const {0}& obj = *decoded_obj.decoded_value;
                         return ObjectToString(toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
                             {{
