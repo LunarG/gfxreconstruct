@@ -303,8 +303,6 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
                 result = device_table_->EndCommandBuffer(command_buffer);
 
-                VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
                 VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
                 submit_info.commandBufferCount = 1;
                 submit_info.pCommandBuffers    = &command_buffer;

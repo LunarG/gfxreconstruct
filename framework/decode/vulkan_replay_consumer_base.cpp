@@ -3942,7 +3942,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
         size_t image_info_count             = 0;
         size_t buffer_info_count            = 0;
         size_t texel_buffer_view_count      = 0;
-        size_t acceleration_structure_count = 0;
 
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
@@ -3967,7 +3966,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
             }
             else if (type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
             {
-                acceleration_structure_count += entry->descriptorCount;
             }
             else
             {
