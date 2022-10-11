@@ -41,7 +41,7 @@ GFXRECON_BEGIN_NAMESPACE(enumutil)
  * @param value VkResult code to process.
  * @return String describing the specified VkResult code.
  */
-inline static const char* GetResultDescription(VkResult result)
+GFXRECON_MAYBE_UNUSED static const char* GetResultDescription(VkResult result)
 {
     // clang-format off
     switch (result)
