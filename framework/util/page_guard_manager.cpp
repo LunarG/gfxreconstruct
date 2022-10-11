@@ -669,8 +669,9 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
                 sigaddset(&x, SIGSEGV);
                 if (sigprocmask(SIG_UNBLOCK, &x, nullptr))
                 {
-                    GFXRECON_LOG_ERROR(
-                        "sigprocmask failed to unblock SIGSEGV on thread %d (errno: %d)", platform::GetCurrentThreadId(), errno);
+                    GFXRECON_LOG_ERROR("sigprocmask failed to unblock SIGSEGV on thread %d (errno: %d)",
+                                       platform::GetCurrentThreadId(),
+                                       errno);
                 }
             }
         }
