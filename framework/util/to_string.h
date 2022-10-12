@@ -1,5 +1,6 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2022 Valve Corporation
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -19,6 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file Facilities for the conversion of types to strings.
 
 #ifndef GFXRECON_TO_STRING_H
 #define GFXRECON_TO_STRING_H
@@ -177,6 +179,78 @@ inline std::string ArrayToString(size_t        count,
         [&](uint32_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
+/// Replace special characters with their escaped versions.
+/// @note forward slash / solidus is not escaped as that is optional and leads
+/// to ugliness such as dates with escaped solidus separators.
+/// @note Slashes for explicit unicode code points will be erroneously escaped
+/// but Vulkan-derived C-strings should not have those embedded.
+inline void JSONEscape(const char c, std::string& out)
+{
+    char out_c = c;
+    switch (c)
+    {
+        case '\"':
+        case '\\':
+            out.push_back('\\');
+            break;
+        case '\b':
+            out.push_back('\\');
+            out_c = 'b';
+            break;
+        case '\f':
+            out.push_back('\\');
+            out_c = 'f';
+            break;
+        case '\n':
+            out.push_back('\\');
+            out_c = 'n';
+            break;
+        case '\r':
+            out.push_back('\\');
+            out_c = 'r';
+            break;
+        case '\t':
+            out.push_back('\\');
+            out_c = 't';
+            break;
+    }
+    out.push_back(out_c);
+}
+
+/// Replace special characters in strings with their escaped versions.
+/// <https://www.json.org/json-en.html>
+inline void JSONEscape(const char* cstr, std::string& escaped)
+{
+    if (cstr)
+    {
+        char c;
+        while (c = *cstr++)
+        {
+            JSONEscape(c, escaped);
+        }
+    }
+}
+
+/// @brief  A single point for the conversion of C-style strings to the JSON
+/// string type or null.
+inline std::string CStrToString(const char* const cstr)
+{
+    std::string str;
+    if (cstr != nullptr)
+    {
+        str.push_back('"');
+        JSONEscape(cstr, str);
+        str.push_back('"');
+    }
+    else
+    {
+        str.assign("null");
+    }
+    return str;
+}
+
+/// @brief  Convert an array of c-style string pointers into a JSON array of
+/// JSON strings or nulls.
 inline std::string CStrArrayToString(size_t             count,
                                      const char* const* ppStrs,
                                      ToStringFlags      toStringFlags = kToString_Default,
@@ -190,7 +264,7 @@ inline std::string CStrArrayToString(size_t             count,
         tabCount,
         tabSize,
         [&]() { return ppStrs != nullptr; },
-        [&](uint32_t i) { return ppStrs[i] ? ('"' + std::string(ppStrs[i]) + '"') : "null"; });
+        [&](uint32_t i) { return CStrToString(ppStrs[i]); });
 }
 
 GFXRECON_END_NAMESPACE(util)

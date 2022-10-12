@@ -201,7 +201,7 @@ inline std::string DescriptorUpdateTemplateDecoderToString(const DescriptorUpdat
 inline std::string StringDecoderToString(const StringDecoder* pObj)
 {
     auto pDecodedString = pObj ? pObj->GetPointer() : nullptr;
-    return pDecodedString ? ('"' + std::string(pDecodedString) + '"') : "null";
+    return util::CStrToString(pDecodedString);
 }
 
 template <typename CountType>

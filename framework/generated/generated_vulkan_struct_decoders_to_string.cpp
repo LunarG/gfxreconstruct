@@ -305,9 +305,9 @@ template <> std::string ToString<decode::Decoded_VkApplicationInfo>(const decode
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pApplicationName", toStringFlags, tabCount, tabSize, (obj.pApplicationName ? ("\"" + std::string(obj.pApplicationName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pApplicationName", toStringFlags, tabCount, tabSize, CStrToString(obj.pApplicationName));
             FieldToString(strStrm, false, "applicationVersion", toStringFlags, tabCount, tabSize, ToString(obj.applicationVersion, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pEngineName", toStringFlags, tabCount, tabSize, (obj.pEngineName ? ("\"" + std::string(obj.pEngineName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pEngineName", toStringFlags, tabCount, tabSize, CStrToString(obj.pEngineName));
             FieldToString(strStrm, false, "engineVersion", toStringFlags, tabCount, tabSize, ToString(obj.engineVersion, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "apiVersion", toStringFlags, tabCount, tabSize, ToString(obj.apiVersion, toStringFlags, tabCount, tabSize));
         }
@@ -627,7 +627,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceProperties>(con
             FieldToString(strStrm, false, "vendorID", toStringFlags, tabCount, tabSize, ToString(obj.vendorID, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceID", toStringFlags, tabCount, tabSize, ToString(obj.deviceID, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.deviceType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "deviceName", toStringFlags, tabCount, tabSize, '"' + std::string(obj.deviceName) + '"');
+            FieldToString(strStrm, false, "deviceName", toStringFlags, tabCount, tabSize, CStrToString(obj.deviceName));
             FieldToString(strStrm, false, "pipelineCacheUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.pipelineCacheUUID) + '"');
             FieldToString(strStrm, false, "limits", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.limits), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sparseProperties", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.sparseProperties), toStringFlags, tabCount, tabSize));
@@ -707,7 +707,7 @@ template <> std::string ToString<decode::Decoded_VkExtensionProperties>(const de
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "extensionName", toStringFlags, tabCount, tabSize, '"' + std::string(obj.extensionName) + '"');
+            FieldToString(strStrm, true, "extensionName", toStringFlags, tabCount, tabSize, CStrToString(obj.extensionName));
             FieldToString(strStrm, false, "specVersion", toStringFlags, tabCount, tabSize, ToString(obj.specVersion, toStringFlags, tabCount, tabSize));
         }
     );
@@ -723,10 +723,10 @@ template <> std::string ToString<decode::Decoded_VkLayerProperties>(const decode
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "layerName", toStringFlags, tabCount, tabSize, '"' + std::string(obj.layerName) + '"');
+            FieldToString(strStrm, true, "layerName", toStringFlags, tabCount, tabSize, CStrToString(obj.layerName));
             FieldToString(strStrm, false, "specVersion", toStringFlags, tabCount, tabSize, ToString(obj.specVersion, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "implementationVersion", toStringFlags, tabCount, tabSize, ToString(obj.implementationVersion, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
+            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
         }
     );
 }
@@ -1248,7 +1248,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageCreateInfo
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stage, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "module", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.module));
-            FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, (obj.pName ? ("\"" + std::string(obj.pName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, CStrToString(obj.pName));
             FieldToString(strStrm, false, "pSpecializationInfo", toStringFlags, tabCount, tabSize, ((decoded_obj.pSpecializationInfo && decoded_obj.pSpecializationInfo->GetMetaStructPointer()) ? ToString(*decoded_obj.pSpecializationInfo->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
         }
     );
@@ -3556,8 +3556,8 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceVulkan12Propert
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "driverID", toStringFlags, tabCount, tabSize, '"' + ToString(obj.driverID, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "driverName", toStringFlags, tabCount, tabSize, '"' + std::string(obj.driverName) + '"');
-            FieldToString(strStrm, false, "driverInfo", toStringFlags, tabCount, tabSize, '"' + std::string(obj.driverInfo) + '"');
+            FieldToString(strStrm, false, "driverName", toStringFlags, tabCount, tabSize, CStrToString(obj.driverName));
+            FieldToString(strStrm, false, "driverInfo", toStringFlags, tabCount, tabSize, CStrToString(obj.driverInfo));
             FieldToString(strStrm, false, "conformanceVersion", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.conformanceVersion), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "denormBehaviorIndependence", toStringFlags, tabCount, tabSize, '"' + ToString(obj.denormBehaviorIndependence, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "roundingModeIndependence", toStringFlags, tabCount, tabSize, '"' + ToString(obj.roundingModeIndependence, toStringFlags, tabCount, tabSize) + '"');
@@ -3814,8 +3814,8 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDriverPropertie
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "driverID", toStringFlags, tabCount, tabSize, '"' + ToString(obj.driverID, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "driverName", toStringFlags, tabCount, tabSize, '"' + std::string(obj.driverName) + '"');
-            FieldToString(strStrm, false, "driverInfo", toStringFlags, tabCount, tabSize, '"' + std::string(obj.driverInfo) + '"');
+            FieldToString(strStrm, false, "driverName", toStringFlags, tabCount, tabSize, CStrToString(obj.driverName));
+            FieldToString(strStrm, false, "driverInfo", toStringFlags, tabCount, tabSize, CStrToString(obj.driverInfo));
             FieldToString(strStrm, false, "conformanceVersion", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.conformanceVersion), toStringFlags, tabCount, tabSize));
         }
     );
@@ -4677,11 +4677,11 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceToolProperties>
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, '"' + std::string(obj.name) + '"');
-            FieldToString(strStrm, false, "version", toStringFlags, tabCount, tabSize, '"' + std::string(obj.version) + '"');
+            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
+            FieldToString(strStrm, false, "version", toStringFlags, tabCount, tabSize, CStrToString(obj.version));
             FieldToString(strStrm, false, "purposes", toStringFlags, tabCount, tabSize, ToString(obj.purposes, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
-            FieldToString(strStrm, false, "layer", toStringFlags, tabCount, tabSize, '"' + std::string(obj.layer) + '"');
+            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
+            FieldToString(strStrm, false, "layer", toStringFlags, tabCount, tabSize, CStrToString(obj.layer));
         }
     );
 }
@@ -5939,7 +5939,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPropertiesKHR>(const d
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "display", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.display));
-            FieldToString(strStrm, false, "displayName", toStringFlags, tabCount, tabSize, (obj.displayName ? ("\"" + std::string(obj.displayName) + "\"") : "null"));
+            FieldToString(strStrm, false, "displayName", toStringFlags, tabCount, tabSize, CStrToString(obj.displayName));
             FieldToString(strStrm, false, "physicalDimensions", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.physicalDimensions), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalResolution", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.physicalResolution), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedTransforms", toStringFlags, tabCount, tabSize, ToString(obj.supportedTransforms, toStringFlags, tabCount, tabSize));
@@ -6674,9 +6674,9 @@ template <> std::string ToString<decode::Decoded_VkPerformanceCounterDescription
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, '"' + std::string(obj.name) + '"');
-            FieldToString(strStrm, false, "category", toStringFlags, tabCount, tabSize, '"' + std::string(obj.category) + '"');
-            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
+            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
+            FieldToString(strStrm, false, "category", toStringFlags, tabCount, tabSize, CStrToString(obj.category));
+            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
         }
     );
 }
@@ -7177,8 +7177,8 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutablePropertiesK
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stages", toStringFlags, tabCount, tabSize, ToString(obj.stages, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, '"' + std::string(obj.name) + '"');
-            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
+            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
+            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
             FieldToString(strStrm, false, "subgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.subgroupSize, toStringFlags, tabCount, tabSize));
         }
     );
@@ -7214,8 +7214,8 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutableInternalRep
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, '"' + std::string(obj.name) + '"');
-            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
+            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
+            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
             FieldToString(strStrm, false, "isText", toStringFlags, tabCount, tabSize, ToString(obj.isText, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dataSize", toStringFlags, tabCount, tabSize, ToString(obj.dataSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(&decoded_obj.pData));
@@ -7478,7 +7478,7 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerObjectNameInfoEXT>
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.objectType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize, ToString(obj.object, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, (obj.pObjectName ? ("\"" + std::string(obj.pObjectName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, CStrToString(obj.pObjectName));
         }
     );
 }
@@ -7516,7 +7516,7 @@ template <> std::string ToString<decode::Decoded_VkDebugMarkerMarkerInfoEXT>(con
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pMarkerName", toStringFlags, tabCount, tabSize, (obj.pMarkerName ? ("\"" + std::string(obj.pMarkerName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pMarkerName", toStringFlags, tabCount, tabSize, CStrToString(obj.pMarkerName));
             FieldToString(strStrm, false, "color", toStringFlags, tabCount, tabSize, ArrayToString(4, obj.color, toStringFlags, tabCount, tabSize));
         }
     );
@@ -8513,7 +8513,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsLabelEXT>(const dec
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pLabelName", toStringFlags, tabCount, tabSize, (obj.pLabelName ? ("\"" + std::string(obj.pLabelName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pLabelName", toStringFlags, tabCount, tabSize, CStrToString(obj.pLabelName));
             FieldToString(strStrm, false, "color", toStringFlags, tabCount, tabSize, ArrayToString(4, obj.color, toStringFlags, tabCount, tabSize));
         }
     );
@@ -8533,7 +8533,7 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsObjectNameInfoEXT>(
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.objectType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, ToString(obj.objectHandle, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, (obj.pObjectName ? ("\"" + std::string(obj.pObjectName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, CStrToString(obj.pObjectName));
         }
     );
 }
@@ -8551,9 +8551,9 @@ template <> std::string ToString<decode::Decoded_VkDebugUtilsMessengerCallbackDa
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pMessageIdName", toStringFlags, tabCount, tabSize, (obj.pMessageIdName ? ("\"" + std::string(obj.pMessageIdName) + "\"") : "null"));
+            FieldToString(strStrm, false, "pMessageIdName", toStringFlags, tabCount, tabSize, CStrToString(obj.pMessageIdName));
             FieldToString(strStrm, false, "messageIdNumber", toStringFlags, tabCount, tabSize, ToString(obj.messageIdNumber, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pMessage", toStringFlags, tabCount, tabSize, (obj.pMessage ? ("\"" + std::string(obj.pMessage) + "\"") : "null"));
+            FieldToString(strStrm, false, "pMessage", toStringFlags, tabCount, tabSize, CStrToString(obj.pMessage));
             FieldToString(strStrm, false, "queueLabelCount", toStringFlags, tabCount, tabSize, ToString(obj.queueLabelCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pQueueLabels", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pQueueLabels, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "cmdBufLabelCount", toStringFlags, tabCount, tabSize, ToString(obj.cmdBufLabelCount, toStringFlags, tabCount, tabSize));
@@ -12894,7 +12894,7 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackInfo
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "subpassMergeStatus", toStringFlags, tabCount, tabSize, '"' + ToString(obj.subpassMergeStatus, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
+            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
             FieldToString(strStrm, false, "postMergeIndex", toStringFlags, tabCount, tabSize, ToString(obj.postMergeIndex, toStringFlags, tabCount, tabSize));
         }
     );

@@ -164,7 +164,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                 if 'const char* const*' in value.full_type:
                     toString = 'CStrArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
-                    toString = '(obj.{0} ? ("\\"" + std::string(obj.{0}) + "\\"") : "null")'
+                    toString = 'CStrToString(obj.{0})'
 
             # There's some repeated code in this if/else block...for instance, arrays of
             #   structs, enums, and primitives all route through ArrayToString()...It's
@@ -197,7 +197,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                     elif self.is_enum(value.base_type):
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif 'char' in value.base_type:
-                        toString = '\'"\' + std::string(obj.{0}) + \'"\''
+                        toString = 'CStrToString(obj.{0})'
                     elif 'UUID' in value.array_length or 'LUID' in value.array_length:
                         toString = '\'"\' + UIDToString({1}, obj.{0}) + \'"\''
                     else:
