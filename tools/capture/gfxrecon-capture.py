@@ -23,14 +23,12 @@
 #
 # Utility for capturing Vulkan API calls using gfxreconstruct
 
+
 import argparse
 import os
-import platform
 import shutil
 import sys
 import subprocess
-
-PATH_ENV_VAR_DELIMITER = ';' if 'windows' == platform.system().lower() else ':'
 
 
 ######################
@@ -50,13 +48,13 @@ def UsageMsg():
            '                           [--compression-type {LZ4,ZLIB,ZSTD,NONE}]' + os.linesep +
            '                           [--file-flush]' + os.linesep +
            '                           [--log-level {debug,info,warn,error,fatal}]' + os.linesep +
-           '                           [--log-file <file>]' + os.linesep +
-           '                           [--capture-layer <capture_layer_path>]' + os.linesep)
+           '                           [--log-file <file>]' + os.linesep)
     if sys.platform == 'win32':
         msg += '                           [--log-debugview]' + os.linesep
     msg += '                           [--memory-tracking-mode {page_guard,assisted,unassisted}]' + os.linesep
     msg += '                           <program> [<programArgs>]'
     return msg
+
 
 
 ######################
@@ -116,19 +114,10 @@ def ParseArgs():
                         '      for memory to be written to the capture file' + os.linesep +
                         '   unassisted: all mapped memory will be written to the' + os.linesep +
                         '      capture file during VkQueueSubmit and VkUnmapMemory')
-    parser.add_argument(
-        '--capture-layer',
-        dest='captureLayer',
-        metavar='<capture_layer>',
-        default=None,
-        help='\n'.join([
-            'The path to the capture layer.', '',
-            'The path specified must contain both the layer JSON, and the',
-            'layer library',
-            'It is recommended to use an absolute path for this option.'
-        ]))
+
     # Required args
     parser.add_argument('programAndArgs', metavar='<program> [<program args>]', nargs=argparse.REMAINDER, help='Program to capture, optionally followed by program arguments')
+
     return parser
 
 
@@ -154,27 +143,8 @@ def PrintArgs(args):
 # Get the full path to the command to execute
 def GetCommandPath(args):
     # Replace ~ or ~user with the user's home path before calling shutil.which()
-    programName = os.path.expanduser(args.programAndArgs[0])
+    programName=os.path.expanduser(args.programAndArgs[0])
     return shutil.which(programName)
-
-
-def ValidateCaptureLayer(capture_layer_dir):
-    '''Validate the capture layer dir exists and containes the capture layer binary and JSON
-    '''
-    if not os.path.isdir(capture_layer_dir):
-        return False
-    shared_lib_suffix = '.so'
-    if 'windows' == platform.system().lower():
-        shared_lib_suffix = '.dll'
-    if not os.path.isfile(
-            os.path.join(capture_layer_dir,
-                         'VkLayer_gfxreconstruct' + shared_lib_suffix)):
-        return False
-    if not os.path.isfile(
-            os.path.join(capture_layer_dir, 'VkLayer_gfxreconstruct.json')):
-        return False
-    return True
-
 
 ######################
 # Do validation on arguments
@@ -201,26 +171,6 @@ def ValidateArgs(args):
         PrintErrorAndExit('Capture file output directory ' + captureFileDir + ' does not exist')
     if (not os.path.isdir(captureFileDir)):
         PrintErrorAndExit('Capture file output directory ' + captureFileDir + ' is not a valid directory')
-    # Verify the capture layer path exists, is a directory, and contains the
-    # layer JSON and library.
-    if args.captureLayer is not None:
-        if not ValidateCaptureLayer(args.captureLayer):
-            PrintErrorAndExit('Invalid capture layer directory',
-                              args.captureLayer)
-    else:
-        if not 'VK_LAYER_PATH' in os.environ:
-            PrintErrorAndExit('Missing VK_LAYER_PATH environment variable')
-        else:
-            layers_paths = os.environ['VK_LAYER_PATH'].split(
-                PATH_ENV_VAR_DELIMITER)
-            valid_capture_layer = False
-            for path in layers_paths:
-                valid_capture_layer = valid_capture_layer or ValidateCaptureLayer(
-                    path)
-            if not valid_capture_layer:
-                PrintErrorAndExit(
-                    'Failed to find valid capture layer in VK_LAYER_PATH environment variable'
-                )
 
 
 ######################
