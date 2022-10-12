@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Copyright(c) 2019 Advanced Micro Devices, Inc.All rights reserved
+// Copyright (c) 2019 Advanced Micro Devices, Inc.All rights reserved
+// Copyright (c) 2022 Valve Corporation
+// Copyright (c) 2022 LunarG, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -19,9 +21,84 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-/// \author AMD Developer Tools Team
-/// \description gfxrecon_util test main entry point
+/// @file gfxrecon_util test main entry point
 ///////////////////////////////////////////////////////////////////////////////
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
+
+#include "util/to_string.h"
+#include "util/logging.h"
+
+TEST_CASE("JSONEscape", "[to_string]")
+{
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+
+    std::string escaped;
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("", escaped);
+    REQUIRE(escaped == "");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("a", escaped);
+    REQUIRE(escaped == "a");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("a.b", escaped);
+    REQUIRE(escaped == "a.b");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\"", escaped);
+    REQUIRE(escaped == "\\\"");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\"\"", escaped);
+    REQUIRE(escaped == "\\\"\\\"");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\"\"\"", escaped);
+    REQUIRE(escaped == "\\\"\\\"\\\"");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\"\"\"\"", escaped);
+    REQUIRE(escaped == "\\\"\\\"\\\"\\\"");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\t", escaped);
+    REQUIRE(escaped == "\\t");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\r", escaped);
+    REQUIRE(escaped == "\\r");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\n", escaped);
+    REQUIRE(escaped == "\\n");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\f", escaped);
+    REQUIRE(escaped == "\\f");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\b", escaped);
+    REQUIRE(escaped == "\\b");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("/", escaped);
+    REQUIRE(escaped == "/");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\\", escaped);
+    REQUIRE(escaped == "\\\\");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("/home/tracer/captures/app1/capture.gfxr", escaped);
+    REQUIRE(escaped == "/home/tracer/captures/app1/capture.gfxr");
+
+    escaped = "";
+    gfxrecon::util::JSONEscape("\\home\\tracer\\captures\\app1\\capture.gfxr", escaped);
+    REQUIRE(escaped == "\\\\home\\\\tracer\\\\captures\\\\app1\\\\capture.gfxr");
+
+    gfxrecon::util::Log::Release();
+}
