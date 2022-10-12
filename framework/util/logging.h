@@ -299,20 +299,30 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 #define GFXRECON_LOG_DEBUG_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_DEBUG(message, ##__VA_ARGS__))
 // clang-format on
 
-#ifdef GFXRECON_DISABLE_ASSERTS
+#ifdef NDEBUG // release version
 
-#define GFXRECON_ASSERT(EXP) ((void)0)
+// Release build: enable GFXRECON_ENABLE_RELEASE_ASSERTS to see assert output
+#ifdef GFXRECON_ENABLE_RELEASE_ASSERTS
+#define GFXRECON_ASSERT(EXP)                                                            \
+    if (!(EXP))                                                                         \
+    {                                                                                   \
+        GFXRECON_LOG_FATAL("Assertion failed: '%s' (%s:%d)", #EXP, __FILE__, __LINE__); \
+    }
 
+// Release build: asserts are by default a no-op
 #else
+#define GFXRECON_ASSERT(EXP) ((void)0);
+#endif
 
+// Debug build
+#else
 #define GFXRECON_ASSERT(EXP)                                                            \
     if (!(EXP))                                                                         \
     {                                                                                   \
         GFXRECON_LOG_FATAL("Assertion failed: '%s' (%s:%d)", #EXP, __FILE__, __LINE__); \
     }                                                                                   \
     assert(EXP);
-
-#endif // GFXRECON_DISABLE_ASSERTS
+#endif
 
 #ifdef GFXRECON_ENABLE_COMMAND_TRACE
 
