@@ -97,8 +97,8 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    fu
 
         for (const SwapchainKHRInfo::VirtualImage& image_info : swapchain_info->virtual_images)
         {
-            device_table_->FreeMemory(device, image_info.memory, nullptr);
-            device_table_->DestroyImage(device, image_info.image, nullptr);
+            allocator->DestroyImageDirect(image_info.image, nullptr, image_info.resource_allocator_data);
+            allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
         }
         for (const auto semaphore : swapchain_info->blit_semaphores)
         {
