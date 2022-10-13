@@ -47,8 +47,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-/// String representation of empty array.
-constexpr auto GFXRECON_TOJSON_EMPTY_ARRAY = "[]";
 /// String representation of a null pointer.
 constexpr auto GFXRECON_TOJSON_NULL = "null";
 
@@ -292,8 +290,8 @@ inline std::string PointerDecoderArrayToString(const StructPointerDecoder<Decode
     {
         return PointerDecoderArrayToString(*pObjsPointerDecoder, toStringFlags, tabCount, tabSize);
     }
-    // We represent a null pointer to an array as an empty array on a single line.
-    return GFXRECON_TOJSON_EMPTY_ARRAY;
+    // We represent a null pointer to an array as the JSON type null.
+    return GFXRECON_TOJSON_NULL;
 }
 
 template <typename CountType, typename PointerDecoderType>
