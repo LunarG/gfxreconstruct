@@ -353,9 +353,7 @@ std::string ToString<decode::Decoded_VkAccelerationStructureBuildGeometryInfoKHR
                         }
                     }
                 )
-                // Default to returning a string representing an empty array:
-                // pGeometries is also represented as an empty array if null.
-                : decode::GFXRECON_TOJSON_EMPTY_ARRAY
+                : decode::GFXRECON_TOJSON_NULL
             );
             FieldToString(strStrm, false, "scratchData", toStringFlags, tabCount, tabSize, ToString(obj.scratchData, toStringFlags, tabCount, tabSize));
         }
