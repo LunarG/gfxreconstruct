@@ -1192,7 +1192,7 @@ class BaseGenerator(OutputGenerator):
         """Generate an expression for the length of a given array value."""
         length_expr = value.array_length
         length_value = value.array_length_value
-
+    
         if length_value:
             if length_value.is_pointer:
                 # Add implicit dereference when length expr == pointer name
@@ -1209,7 +1209,6 @@ class BaseGenerator(OutputGenerator):
             length_expr = length_expr.replace(
                 length_value.name, prefix + length_value.name
             )
-
         return length_expr
 
     def make_array2d_length_expression(self, value, values, prefix=''):

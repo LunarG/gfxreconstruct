@@ -569,6 +569,24 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            commandBuffer,
         format::HandleId                            imageView,
         VkImageLayout                               imageLayout) override;
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        uint32_t                                    drawCount,
+        uint32_t                                    stride) override;
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        format::HandleId                            countBuffer,
+        VkDeviceSize                                countBufferOffset,
+        uint32_t                                    maxDrawCount,
+        uint32_t                                    stride) override;
 };
 
 GFXRECON_END_NAMESPACE(decode)

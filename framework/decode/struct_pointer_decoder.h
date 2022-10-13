@@ -173,7 +173,7 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
 
     T** GetMetaStructPointer() { return decoded_structs_; }
 
-    const T** GetMetaStructPointer() const { return decoded_structs_; }
+    const T* const* GetMetaStructPointer() const { return decoded_structs_; }
 
     typename T::struct_type** GetPointer() { return struct_memory_; }
 
