@@ -2219,6 +2219,49 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint3
 }
 #endif
 
+VkResult VulkanCaptureManager::OverrideGetSwapchainImagesKHR(VkDevice       device,
+                                                             VkSwapchainKHR swapchain,
+                                                             uint32_t*      pSwapchainImageCount,
+                                                             VkImage*       pSwapchainImages)
+{
+    VkDevice       device_unwrapped    = GetWrappedHandle<VkDevice>(device);
+    VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
+
+    VkResult result = GetDeviceTable(device)->GetSwapchainImagesKHR(
+        device_unwrapped, swapchain_unwrapped, pSwapchainImageCount, pSwapchainImages);
+
+    if (result >= 0)
+    {
+        if (pSwapchainImageCount && *pSwapchainImageCount && !pSwapchainImages)
+        {
+            std::vector<VkImage> images(*pSwapchainImageCount, VK_NULL_HANDLE);
+
+            VkResult get_images_result = GetDeviceTable(device)->GetSwapchainImagesKHR(
+                device_unwrapped, swapchain_unwrapped, pSwapchainImageCount, images.data());
+
+            if (get_images_result == VK_SUCCESS)
+            {
+                CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(
+                    device, swapchain, images.data(), *pSwapchainImageCount, VulkanCaptureManager::GetUniqueId);
+
+                VulkanCaptureManager::Get()->EndGroupCreateApiCallCapture<VkDevice, VkSwapchainKHR, ImageWrapper, void>(
+                    get_images_result, device, swapchain, *pSwapchainImageCount, images.data(), nullptr);
+            }
+        }
+        else
+        {
+            CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(
+                device,
+                swapchain,
+                pSwapchainImages,
+                (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0,
+                VulkanCaptureManager::GetUniqueId);
+        }
+    }
+
+    return result;
+}
+
 bool VulkanCaptureManager::CheckBindAlignment(VkDeviceSize memoryOffset)
 {
     if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) && !GetPageGuardAlignBufferSizes())

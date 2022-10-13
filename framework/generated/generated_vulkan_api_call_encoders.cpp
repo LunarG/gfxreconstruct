@@ -6470,6 +6470,20 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
     if (result >= 0)
     {
         CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchain, VulkanCaptureManager::GetUniqueId);
+        VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(*pSwapchain);
+
+        uint32_t n_images = 0;
+        result = GetDeviceTable(device)->GetSwapchainImagesKHR(device_unwrapped, swapchain_unwrapped, &n_images, nullptr);
+        assert(result == VK_SUCCESS);
+        assert(n_images);
+
+        SwapchainKHRWrapper *swapchain = reinterpret_cast<SwapchainKHRWrapper *>(*pSwapchain);
+        swapchain->child_images_unwrapped.resize(n_images);
+        result = GetDeviceTable(device)->GetSwapchainImagesKHR(device_unwrapped, swapchain_unwrapped, &n_images, swapchain->child_images_unwrapped.data());
+        assert(result == VK_SUCCESS);
+
+        CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(device, *pSwapchain, swapchain->child_images_unwrapped.data(), n_images, VulkanCaptureManager::GetUniqueId);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallCapture<VkDevice, VkSwapchainKHR, ImageWrapper, void>(result, device, *pSwapchain, n_images, swapchain->child_images_unwrapped.data(), nullptr);
     }
     else
     {
@@ -6534,16 +6548,35 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
+    VkResult result = VK_SUCCESS;
 
-    VkResult result = GetDeviceTable(device)->GetSwapchainImagesKHR(device_unwrapped, swapchain_unwrapped, pSwapchainImageCount, pSwapchainImages);
+    SwapchainKHRWrapper *swapchain_wrapper = reinterpret_cast<SwapchainKHRWrapper *>(swapchain);
 
-    if (result >= 0)
-    {
-        CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(device, swapchain, pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, VulkanCaptureManager::GetUniqueId);
-    }
-    else
-    {
-        omit_output_data = true;
+    if (!pSwapchainImages) {
+        if (pSwapchainImageCount)
+        {
+            assert(swapchain_wrapper->child_images_unwrapped.size());
+            *pSwapchainImageCount = static_cast<uint32_t>(swapchain_wrapper->child_images_unwrapped.size());
+        }
+    } else {
+        if (pSwapchainImageCount)
+        {
+            if (*pSwapchainImageCount < static_cast<uint32_t>(swapchain_wrapper->child_images_unwrapped.size()))
+            {
+                for (uint32_t i = 0; i < *pSwapchainImageCount; ++i)
+                {
+                    pSwapchainImages[i] = swapchain_wrapper->child_images_unwrapped[i];
+                    result = VK_INCOMPLETE;
+                }
+            }
+            else
+            {
+                for (uint32_t i = 0; i < static_cast<uint32_t>(swapchain_wrapper->child_images_unwrapped.size()); ++i)
+                {
+                    pSwapchainImages[i] = swapchain_wrapper->child_images_unwrapped[i];
+                }
+            }
+        }
     }
 
     auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR);
@@ -6554,7 +6587,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
         encoder->EncodeUInt32Ptr(pSwapchainImageCount, omit_output_data);
         encoder->EncodeHandleArray(pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        VulkanCaptureManager::Get()->EndGroupCreateApiCallCapture<VkDevice, VkSwapchainKHR, ImageWrapper, void>(result, device, swapchain, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, pSwapchainImages, nullptr);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain, pSwapchainImageCount, pSwapchainImages);

@@ -1146,6 +1146,11 @@ class VulkanCaptureManager : public CaptureManager
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
+    VkResult OverrideGetSwapchainImagesKHR(VkDevice       device,
+                                           VkSwapchainKHR swapchain,
+                                           uint32_t*      pSwapchainImageCount,
+                                           VkImage*       pSwapchainImages);
+
   protected:
     VulkanCaptureManager() : CaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 

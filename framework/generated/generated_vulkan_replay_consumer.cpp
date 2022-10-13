@@ -3188,6 +3188,13 @@ void VulkanReplayConsumer::Process_vkCreateSwapchainKHR(
 {
     auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
 
+    GFXRECON_WRITE_CONSOLE("++ VulkanReplayConsumer::%s()", __func__);
+    VkSwapchainCreateInfoKHR *replay_create_info = pCreateInfo->GetPointer();
+
+    GFXRECON_WRITE_CONSOLE("  replay_create_info.surface: %p", replay_create_info->surface);
+    GFXRECON_WRITE_CONSOLE("  replay_create_info.oldSwapchain: %p", replay_create_info->oldSwapchain);
+    GFXRECON_WRITE_CONSOLE("  replay_create_info.minImageCount: %u", replay_create_info->minImageCount);
+
     MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSwapchain->IsNull()) { pSwapchain->SetHandleLength(1); }
     SwapchainKHRInfo handle_info;
@@ -3197,6 +3204,7 @@ void VulkanReplayConsumer::Process_vkCreateSwapchainKHR(
     CheckResult("vkCreateSwapchainKHR", returnValue, replay_result);
 
     AddHandle<SwapchainKHRInfo>(device, pSwapchain->GetPointer(), pSwapchain->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddSwapchainKHRInfo);
+    GFXRECON_WRITE_CONSOLE("++ VulkanReplayConsumer::%s() <-------", __func__);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySwapchainKHR(
