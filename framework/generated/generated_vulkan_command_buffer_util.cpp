@@ -1133,6 +1133,71 @@ void TrackCmdBindInvocationMaskHUAWEIHandles(CommandBufferWrapper* wrapper, VkIm
     if(imageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(imageView));
 }
 
+void TrackCmdBuildMicromapsEXTHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkMicromapBuildInfoEXT* pInfos)
+{
+    assert(wrapper != nullptr);
+
+    if (pInfos != nullptr)
+    {
+        for (uint32_t pInfos_index = 0; pInfos_index < infoCount; ++pInfos_index)
+        {
+            if(pInfos[pInfos_index].dstMicromap != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::MicromapEXTHandle].insert(GetWrappedId(pInfos[pInfos_index].dstMicromap));
+        }
+    }
+}
+
+void TrackCmdCopyMicromapEXTHandles(CommandBufferWrapper* wrapper, const VkCopyMicromapInfoEXT* pInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pInfo != nullptr)
+    {
+        if(pInfo->src != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::MicromapEXTHandle].insert(GetWrappedId(pInfo->src));
+        if(pInfo->dst != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::MicromapEXTHandle].insert(GetWrappedId(pInfo->dst));
+    }
+}
+
+void TrackCmdCopyMicromapToMemoryEXTHandles(CommandBufferWrapper* wrapper, const VkCopyMicromapToMemoryInfoEXT* pInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pInfo != nullptr)
+    {
+        if(pInfo->src != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::MicromapEXTHandle].insert(GetWrappedId(pInfo->src));
+    }
+}
+
+void TrackCmdCopyMemoryToMicromapEXTHandles(CommandBufferWrapper* wrapper, const VkCopyMemoryToMicromapInfoEXT* pInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pInfo != nullptr)
+    {
+        if(pInfo->dst != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::MicromapEXTHandle].insert(GetWrappedId(pInfo->dst));
+    }
+}
+
+void TrackCmdWriteMicromapsPropertiesEXTHandles(CommandBufferWrapper* wrapper, uint32_t micromapCount, const VkMicromapEXT* pMicromaps, VkQueryPool queryPool)
+{
+    assert(wrapper != nullptr);
+
+    if (pMicromaps != nullptr)
+    {
+        for (uint32_t pMicromaps_index = 0; pMicromaps_index < micromapCount; ++pMicromaps_index)
+        {
+            if(pMicromaps[pMicromaps_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::MicromapEXTHandle].insert(GetWrappedId(pMicromaps[pMicromaps_index]));
+        }
+    }
+    if(queryPool != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::QueryPoolHandle].insert(GetWrappedId(queryPool));
+}
+
+void TrackCmdOpticalFlowExecuteNVHandles(CommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session)
+{
+    assert(wrapper != nullptr);
+
+    if(session != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::OpticalFlowSessionNVHandle].insert(GetWrappedId(session));
+}
+
 void TrackCmdBuildAccelerationStructuresKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos)
 {
     assert(wrapper != nullptr);
@@ -1204,6 +1269,21 @@ void TrackCmdWriteAccelerationStructuresPropertiesKHRHandles(CommandBufferWrappe
         }
     }
     if(queryPool != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::QueryPoolHandle].insert(GetWrappedId(queryPool));
+}
+
+void TrackCmdDrawMeshTasksIndirectEXTHandles(CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(buffer));
+}
+
+void TrackCmdDrawMeshTasksIndirectCountEXTHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(buffer));
+    if(countBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
 }
 
 GFXRECON_END_NAMESPACE(encode)

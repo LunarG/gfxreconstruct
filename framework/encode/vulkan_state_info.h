@@ -124,6 +124,8 @@ enum CommandHandleType : uint32_t
     AccelerationStructureNVHandle,
     IndirectCommandsLayoutNVHandle,
     DeferredOperationKHRHandle,
+    MicromapEXTHandle,
+    OpticalFlowSessionNVHandle,
     NumHandleTypes
 };
 

@@ -179,6 +179,22 @@ inline std::string ArrayToString(size_t        count,
         [&](uint32_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
+template <typename T>
+inline std::string Array2DToString(size_t          m,
+                                   size_t          n,
+                                   const T* const* pObjs,
+                                   ToStringFlags   toStringFlags = kToString_Default,
+                                   uint32_t        tabCount      = 0,
+                                   uint32_t        tabSize       = 4)
+{
+    std::stringstream strStrm;
+    for (size_t i = 0; i < m; ++i)
+    {
+        strStrm << ArrayToString(n, pObjs[i], toStringFlags, tabCount, tabSize);
+    }
+    return strStrm.str();
+}
+
 /// Replace special characters with their escaped versions.
 /// @note forward slash / solidus is not escaped as that is optional and leads
 /// to ugliness such as dates with escaped solidus separators.

@@ -934,6 +934,15 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePresentBarrierFeaturesNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfaceCapabilitiesPresentBarrierNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentBarrierCreateInfoNV*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(base));
             break;
@@ -997,23 +1006,32 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(base));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM*>(base));
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(base));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(base));
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(base));
             break;
-        case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkMutableDescriptorTypeCreateInfoVALVE*>(base));
+        case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDrmPropertiesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkDeviceAddressBindingCallbackDataEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDepthClipControlFeaturesEXT*>(base));
@@ -1069,6 +1087,15 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(base));
             break;
@@ -1080,6 +1107,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(base));
@@ -1108,6 +1138,12 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceImageProcessingPropertiesQCOM*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(base));
             break;
@@ -1129,6 +1165,24 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceOpticalFlowFeaturesNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceOpticalFlowPropertiesNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkOpticalFlowImageFormatInfoNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkOpticalFlowSessionCreatePrivateDataInfoNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(base));
             break;
@@ -1137,6 +1191,12 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
             EncodeStructPtr(encoder, reinterpret_cast<const VkAmigoProfilingSubmitInfoSEC*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(base));
             break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base));
@@ -1155,6 +1215,12 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceRayQueryFeaturesKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesEXT*>(base));
             break;
         }
     }

@@ -614,6 +614,12 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
+            return ToString(*reinterpret_cast<const VkPhysicalDevicePresentBarrierFeaturesNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
+            return ToString(*reinterpret_cast<const VkSurfaceCapabilitiesPresentBarrierNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
+            return ToString(*reinterpret_cast<const VkSwapchainPresentBarrierCreateInfoNV*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
@@ -656,18 +662,24 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM:
-            return ToString(*reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE:
-            return ToString(*reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(pNext), toStringFlags, tabCount, tabSize);
-        case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE:
-            return ToString(*reinterpret_cast<const VkMutableDescriptorTypeCreateInfoVALVE*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDrmPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
+            return ToString(*reinterpret_cast<const VkDeviceAddressBindingCallbackDataEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDepthClipControlFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT:
@@ -704,6 +716,12 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceMultiDrawPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+            return ToString(*reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
@@ -712,6 +730,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
@@ -730,6 +750,10 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceImageProcessingFeaturesQCOM*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceImageProcessingPropertiesQCOM*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
@@ -744,12 +768,28 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
             return ToString(*reinterpret_cast<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceOpticalFlowFeaturesNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceOpticalFlowPropertiesNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
+            return ToString(*reinterpret_cast<const VkOpticalFlowImageFormatInfoNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
+            return ToString(*reinterpret_cast<const VkOpticalFlowSessionCreatePrivateDataInfoNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
             return ToString(*reinterpret_cast<const VkAmigoProfilingSubmitInfoSEC*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             return ToString(*reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
@@ -762,6 +802,10 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceRayQueryFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         default: break;
         }
     }

@@ -3267,6 +3267,13 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkImageSubresource2EXT>* pSubresource,
         StructPointerDecoder<Decoded_VkSubresourceLayout2EXT>* pLayout) {}
 
+    virtual void Process_vkGetDeviceFaultInfoEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceFaultCountsEXT>* pFaultCounts,
+        StructPointerDecoder<Decoded_VkDeviceFaultInfoEXT>* pFaultInfo) {}
+
     virtual void Process_vkAcquireWinrtDisplayNV(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3409,6 +3416,103 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    stride,
         PointerDecoder<int32_t>*                    pVertexOffset) {}
 
+    virtual void Process_vkCreateMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMicromapCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkMicromapEXT>*        pMicromap) {}
+
+    virtual void Process_vkDestroyMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            micromap,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkCmdBuildMicromapsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos) {}
+
+    virtual void Process_vkBuildMicromapsEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos) {}
+
+    virtual void Process_vkCopyMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo) {}
+
+    virtual void Process_vkCopyMicromapToMemoryEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo) {}
+
+    virtual void Process_vkCopyMemoryToMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo) {}
+
+    virtual void Process_vkWriteMicromapsPropertiesEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    micromapCount,
+        HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
+        VkQueryType                                 queryType,
+        size_t                                      dataSize,
+        PointerDecoder<uint8_t>*                    pData,
+        size_t                                      stride) {}
+
+    virtual void Process_vkCmdCopyMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo) {}
+
+    virtual void Process_vkCmdCopyMicromapToMemoryEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo) {}
+
+    virtual void Process_vkCmdCopyMemoryToMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo) {}
+
+    virtual void Process_vkCmdWriteMicromapsPropertiesEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    micromapCount,
+        HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
+        VkQueryType                                 queryType,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery) {}
+
+    virtual void Process_vkGetDeviceMicromapCompatibilityEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMicromapVersionInfoEXT>* pVersionInfo,
+        PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility) {}
+
+    virtual void Process_vkGetMicromapBuildSizesEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        VkAccelerationStructureBuildTypeKHR         buildType,
+        StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pBuildInfo,
+        StructPointerDecoder<Decoded_VkMicromapBuildSizesInfoEXT>* pSizeInfo) {}
+
     virtual void Process_vkSetDeviceMemoryPriorityEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3427,6 +3531,173 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) {}
 
+    virtual void Process_vkCmdSetTessellationDomainOriginEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkTessellationDomainOrigin                  domainOrigin) {}
+
+    virtual void Process_vkCmdSetDepthClampEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthClampEnable) {}
+
+    virtual void Process_vkCmdSetPolygonModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPolygonMode                               polygonMode) {}
+
+    virtual void Process_vkCmdSetRasterizationSamplesEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkSampleCountFlagBits                       rasterizationSamples) {}
+
+    virtual void Process_vkCmdSetSampleMaskEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkSampleCountFlagBits                       samples,
+        PointerDecoder<VkSampleMask>*               pSampleMask) {}
+
+    virtual void Process_vkCmdSetAlphaToCoverageEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    alphaToCoverageEnable) {}
+
+    virtual void Process_vkCmdSetAlphaToOneEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    alphaToOneEnable) {}
+
+    virtual void Process_vkCmdSetLogicOpEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    logicOpEnable) {}
+
+    virtual void Process_vkCmdSetColorBlendEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        PointerDecoder<VkBool32>*                   pColorBlendEnables) {}
+
+    virtual void Process_vkCmdSetColorBlendEquationEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        StructPointerDecoder<Decoded_VkColorBlendEquationEXT>* pColorBlendEquations) {}
+
+    virtual void Process_vkCmdSetColorWriteMaskEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks) {}
+
+    virtual void Process_vkCmdSetRasterizationStreamEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    rasterizationStream) {}
+
+    virtual void Process_vkCmdSetConservativeRasterizationModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkConservativeRasterizationModeEXT          conservativeRasterizationMode) {}
+
+    virtual void Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        float                                       extraPrimitiveOverestimationSize) {}
+
+    virtual void Process_vkCmdSetDepthClipEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthClipEnable) {}
+
+    virtual void Process_vkCmdSetSampleLocationsEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    sampleLocationsEnable) {}
+
+    virtual void Process_vkCmdSetColorBlendAdvancedEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        StructPointerDecoder<Decoded_VkColorBlendAdvancedEXT>* pColorBlendAdvanced) {}
+
+    virtual void Process_vkCmdSetProvokingVertexModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkProvokingVertexModeEXT                    provokingVertexMode) {}
+
+    virtual void Process_vkCmdSetLineRasterizationModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkLineRasterizationModeEXT                  lineRasterizationMode) {}
+
+    virtual void Process_vkCmdSetLineStippleEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    stippledLineEnable) {}
+
+    virtual void Process_vkCmdSetDepthClipNegativeOneToOneEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    negativeOneToOne) {}
+
+    virtual void Process_vkCmdSetViewportWScalingEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    viewportWScalingEnable) {}
+
+    virtual void Process_vkCmdSetViewportSwizzleNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstViewport,
+        uint32_t                                    viewportCount,
+        StructPointerDecoder<Decoded_VkViewportSwizzleNV>* pViewportSwizzles) {}
+
+    virtual void Process_vkCmdSetCoverageToColorEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    coverageToColorEnable) {}
+
+    virtual void Process_vkCmdSetCoverageToColorLocationNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    coverageToColorLocation) {}
+
+    virtual void Process_vkCmdSetCoverageModulationModeNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkCoverageModulationModeNV                  coverageModulationMode) {}
+
+    virtual void Process_vkCmdSetCoverageModulationTableEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    coverageModulationTableEnable) {}
+
+    virtual void Process_vkCmdSetCoverageModulationTableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    coverageModulationTableCount,
+        PointerDecoder<float>*                      pCoverageModulationTable) {}
+
+    virtual void Process_vkCmdSetShadingRateImageEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    shadingRateImageEnable) {}
+
+    virtual void Process_vkCmdSetRepresentativeFragmentTestEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    representativeFragmentTestEnable) {}
+
+    virtual void Process_vkCmdSetCoverageReductionModeNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkCoverageReductionModeNV                   coverageReductionMode) {}
+
     virtual void Process_vkGetShaderModuleIdentifierEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3438,6 +3709,43 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier) {}
+
+    virtual void Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkOpticalFlowImageFormatInfoNV>* pOpticalFlowImageFormatInfo,
+        PointerDecoder<uint32_t>*                   pFormatCount,
+        StructPointerDecoder<Decoded_VkOpticalFlowImageFormatPropertiesNV>* pImageFormatProperties) {}
+
+    virtual void Process_vkCreateOpticalFlowSessionNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkOpticalFlowSessionCreateInfoNV>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkOpticalFlowSessionNV>* pSession) {}
+
+    virtual void Process_vkDestroyOpticalFlowSessionNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkBindOpticalFlowSessionImageNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            session,
+        VkOpticalFlowSessionBindingPointNV          bindingPoint,
+        format::HandleId                            view,
+        VkImageLayout                               layout) {}
+
+    virtual void Process_vkCmdOpticalFlowExecuteNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo) {}
 
     virtual void Process_vkGetFramebufferTilePropertiesQCOM(
         const ApiCallInfo&                          call_info,
@@ -3606,6 +3914,31 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         uint32_t                                    pipelineStackSize) {}
+
+    virtual void Process_vkCmdDrawMeshTasksEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    groupCountX,
+        uint32_t                                    groupCountY,
+        uint32_t                                    groupCountZ) {}
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        uint32_t                                    drawCount,
+        uint32_t                                    stride) {}
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        format::HandleId                            countBuffer,
+        VkDeviceSize                                countBufferOffset,
+        uint32_t                                    maxDrawCount,
+        uint32_t                                    stride) {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

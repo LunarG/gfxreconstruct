@@ -3267,6 +3267,13 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkImageSubresource2EXT>* pSubresource,
         StructPointerDecoder<Decoded_VkSubresourceLayout2EXT>* pLayout) override;
 
+    virtual void Process_vkGetDeviceFaultInfoEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceFaultCountsEXT>* pFaultCounts,
+        StructPointerDecoder<Decoded_VkDeviceFaultInfoEXT>* pFaultInfo) override;
+
     virtual void Process_vkAcquireWinrtDisplayNV(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3409,6 +3416,103 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    stride,
         PointerDecoder<int32_t>*                    pVertexOffset) override;
 
+    virtual void Process_vkCreateMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMicromapCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkMicromapEXT>*        pMicromap) override;
+
+    virtual void Process_vkDestroyMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            micromap,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkCmdBuildMicromapsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos) override;
+
+    virtual void Process_vkBuildMicromapsEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos) override;
+
+    virtual void Process_vkCopyMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo) override;
+
+    virtual void Process_vkCopyMicromapToMemoryEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo) override;
+
+    virtual void Process_vkCopyMemoryToMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo) override;
+
+    virtual void Process_vkWriteMicromapsPropertiesEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    micromapCount,
+        HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
+        VkQueryType                                 queryType,
+        size_t                                      dataSize,
+        PointerDecoder<uint8_t>*                    pData,
+        size_t                                      stride) override;
+
+    virtual void Process_vkCmdCopyMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo) override;
+
+    virtual void Process_vkCmdCopyMicromapToMemoryEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo) override;
+
+    virtual void Process_vkCmdCopyMemoryToMicromapEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo) override;
+
+    virtual void Process_vkCmdWriteMicromapsPropertiesEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    micromapCount,
+        HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
+        VkQueryType                                 queryType,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery) override;
+
+    virtual void Process_vkGetDeviceMicromapCompatibilityEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMicromapVersionInfoEXT>* pVersionInfo,
+        PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility) override;
+
+    virtual void Process_vkGetMicromapBuildSizesEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        VkAccelerationStructureBuildTypeKHR         buildType,
+        StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pBuildInfo,
+        StructPointerDecoder<Decoded_VkMicromapBuildSizesInfoEXT>* pSizeInfo) override;
+
     virtual void Process_vkSetDeviceMemoryPriorityEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3427,6 +3531,173 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) override;
 
+    virtual void Process_vkCmdSetTessellationDomainOriginEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkTessellationDomainOrigin                  domainOrigin) override;
+
+    virtual void Process_vkCmdSetDepthClampEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthClampEnable) override;
+
+    virtual void Process_vkCmdSetPolygonModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPolygonMode                               polygonMode) override;
+
+    virtual void Process_vkCmdSetRasterizationSamplesEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkSampleCountFlagBits                       rasterizationSamples) override;
+
+    virtual void Process_vkCmdSetSampleMaskEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkSampleCountFlagBits                       samples,
+        PointerDecoder<VkSampleMask>*               pSampleMask) override;
+
+    virtual void Process_vkCmdSetAlphaToCoverageEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    alphaToCoverageEnable) override;
+
+    virtual void Process_vkCmdSetAlphaToOneEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    alphaToOneEnable) override;
+
+    virtual void Process_vkCmdSetLogicOpEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    logicOpEnable) override;
+
+    virtual void Process_vkCmdSetColorBlendEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        PointerDecoder<VkBool32>*                   pColorBlendEnables) override;
+
+    virtual void Process_vkCmdSetColorBlendEquationEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        StructPointerDecoder<Decoded_VkColorBlendEquationEXT>* pColorBlendEquations) override;
+
+    virtual void Process_vkCmdSetColorWriteMaskEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks) override;
+
+    virtual void Process_vkCmdSetRasterizationStreamEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    rasterizationStream) override;
+
+    virtual void Process_vkCmdSetConservativeRasterizationModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkConservativeRasterizationModeEXT          conservativeRasterizationMode) override;
+
+    virtual void Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        float                                       extraPrimitiveOverestimationSize) override;
+
+    virtual void Process_vkCmdSetDepthClipEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthClipEnable) override;
+
+    virtual void Process_vkCmdSetSampleLocationsEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    sampleLocationsEnable) override;
+
+    virtual void Process_vkCmdSetColorBlendAdvancedEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstAttachment,
+        uint32_t                                    attachmentCount,
+        StructPointerDecoder<Decoded_VkColorBlendAdvancedEXT>* pColorBlendAdvanced) override;
+
+    virtual void Process_vkCmdSetProvokingVertexModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkProvokingVertexModeEXT                    provokingVertexMode) override;
+
+    virtual void Process_vkCmdSetLineRasterizationModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkLineRasterizationModeEXT                  lineRasterizationMode) override;
+
+    virtual void Process_vkCmdSetLineStippleEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    stippledLineEnable) override;
+
+    virtual void Process_vkCmdSetDepthClipNegativeOneToOneEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    negativeOneToOne) override;
+
+    virtual void Process_vkCmdSetViewportWScalingEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    viewportWScalingEnable) override;
+
+    virtual void Process_vkCmdSetViewportSwizzleNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstViewport,
+        uint32_t                                    viewportCount,
+        StructPointerDecoder<Decoded_VkViewportSwizzleNV>* pViewportSwizzles) override;
+
+    virtual void Process_vkCmdSetCoverageToColorEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    coverageToColorEnable) override;
+
+    virtual void Process_vkCmdSetCoverageToColorLocationNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    coverageToColorLocation) override;
+
+    virtual void Process_vkCmdSetCoverageModulationModeNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkCoverageModulationModeNV                  coverageModulationMode) override;
+
+    virtual void Process_vkCmdSetCoverageModulationTableEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    coverageModulationTableEnable) override;
+
+    virtual void Process_vkCmdSetCoverageModulationTableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    coverageModulationTableCount,
+        PointerDecoder<float>*                      pCoverageModulationTable) override;
+
+    virtual void Process_vkCmdSetShadingRateImageEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    shadingRateImageEnable) override;
+
+    virtual void Process_vkCmdSetRepresentativeFragmentTestEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    representativeFragmentTestEnable) override;
+
+    virtual void Process_vkCmdSetCoverageReductionModeNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkCoverageReductionModeNV                   coverageReductionMode) override;
+
     virtual void Process_vkGetShaderModuleIdentifierEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3438,6 +3709,43 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier) override;
+
+    virtual void Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkOpticalFlowImageFormatInfoNV>* pOpticalFlowImageFormatInfo,
+        PointerDecoder<uint32_t>*                   pFormatCount,
+        StructPointerDecoder<Decoded_VkOpticalFlowImageFormatPropertiesNV>* pImageFormatProperties) override;
+
+    virtual void Process_vkCreateOpticalFlowSessionNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkOpticalFlowSessionCreateInfoNV>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkOpticalFlowSessionNV>* pSession) override;
+
+    virtual void Process_vkDestroyOpticalFlowSessionNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkBindOpticalFlowSessionImageNV(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            session,
+        VkOpticalFlowSessionBindingPointNV          bindingPoint,
+        format::HandleId                            view,
+        VkImageLayout                               layout) override;
+
+    virtual void Process_vkCmdOpticalFlowExecuteNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo) override;
 
     virtual void Process_vkGetFramebufferTilePropertiesQCOM(
         const ApiCallInfo&                          call_info,
@@ -3606,6 +3914,31 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         uint32_t                                    pipelineStackSize) override;
+
+    virtual void Process_vkCmdDrawMeshTasksEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    groupCountX,
+        uint32_t                                    groupCountY,
+        uint32_t                                    groupCountZ) override;
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        uint32_t                                    drawCount,
+        uint32_t                                    stride) override;
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        format::HandleId                            countBuffer,
+        VkDeviceSize                                countBufferOffset,
+        uint32_t                                    maxDrawCount,
+        uint32_t                                    stride) override;
 };
 
 GFXRECON_END_NAMESPACE(decode)

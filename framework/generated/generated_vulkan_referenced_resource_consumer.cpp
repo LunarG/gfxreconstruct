@@ -1682,5 +1682,39 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     GetTable().AddResourceToUser(commandBuffer, imageView);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    uint32_t                                    drawCount,
+    uint32_t                                    stride)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
+    GFXRECON_UNREFERENCED_PARAMETER(stride);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    format::HandleId                            countBuffer,
+    VkDeviceSize                                countBufferOffset,
+    uint32_t                                    maxDrawCount,
+    uint32_t                                    stride)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
+    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
+    GFXRECON_UNREFERENCED_PARAMETER(stride);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+    GetTable().AddResourceToUser(commandBuffer, countBuffer);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

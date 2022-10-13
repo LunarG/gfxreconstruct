@@ -1200,11 +1200,72 @@ void UnwrapStructHandles(VkMemoryGetRemoteAddressInfoNV* value, HandleUnwrapMemo
     }
 }
 
+void UnwrapStructHandles(VkMicromapBuildInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->dstMicromap = GetWrappedHandle<VkMicromapEXT>(value->dstMicromap);
+    }
+}
+
+void UnwrapStructHandles(VkMicromapCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
+    }
+}
+
+void UnwrapStructHandles(VkCopyMicromapToMemoryInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->src = GetWrappedHandle<VkMicromapEXT>(value->src);
+    }
+}
+
+void UnwrapStructHandles(VkCopyMemoryToMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->dst = GetWrappedHandle<VkMicromapEXT>(value->dst);
+    }
+}
+
+void UnwrapStructHandles(VkCopyMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->src = GetWrappedHandle<VkMicromapEXT>(value->src);
+
+        value->dst = GetWrappedHandle<VkMicromapEXT>(value->dst);
+    }
+}
+
+void UnwrapStructHandles(VkAccelerationStructureTrianglesOpacityMicromapEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->micromap = GetWrappedHandle<VkMicromapEXT>(value->micromap);
+    }
+}
+
 void UnwrapStructHandles(VkDescriptorSetBindingReferenceVALVE* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
         value->descriptorSetLayout = GetWrappedHandle<VkDescriptorSetLayout>(value->descriptorSetLayout);
+    }
+}
+
+void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+        }
     }
 }
 
@@ -2162,6 +2223,15 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePresentBarrierFeaturesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilitiesPresentBarrierNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainPresentBarrierCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(base), 1, unwrap_memory));
         break;
@@ -2225,23 +2295,32 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(base), 1, unwrap_memory));
         break;
-    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM*>(base), 1, unwrap_memory));
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(base), 1, unwrap_memory));
         break;
-    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(base), 1, unwrap_memory));
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(base), 1, unwrap_memory));
         break;
-    case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMutableDescriptorTypeCreateInfoVALVE*>(base), 1, unwrap_memory));
+    case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDrmPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceAddressBindingCallbackDataEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDepthClipControlFeaturesEXT*>(base), 1, unwrap_memory));
@@ -2297,6 +2376,15 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -2308,6 +2396,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(base), 1, unwrap_memory));
@@ -2336,6 +2427,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceImageProcessingPropertiesQCOM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -2357,6 +2454,24 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceOpticalFlowFeaturesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceOpticalFlowPropertiesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpticalFlowImageFormatInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpticalFlowSessionCreatePrivateDataInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(base), 1, unwrap_memory));
         break;
@@ -2365,6 +2480,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAmigoProfilingSubmitInfoSEC*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base), 1, unwrap_memory));
@@ -2383,6 +2504,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRayQueryFeaturesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesEXT*>(base), 1, unwrap_memory));
         break;
     }
 
@@ -2439,6 +2566,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkGraphicsPipelineShaderGroupsCreateInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base), unwrap_memory);
         }

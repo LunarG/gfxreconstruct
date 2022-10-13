@@ -78,6 +78,9 @@ struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsM
 struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
 struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
 struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
+struct MicromapEXTWrapper                   : public HandleWrapper<VkMicromapEXT> {};
+struct OpticalFlowSessionNVWrapper          : public HandleWrapper<VkOpticalFlowSessionNV> {};
+
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.

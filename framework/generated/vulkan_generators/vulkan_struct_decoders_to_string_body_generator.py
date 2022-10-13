@@ -154,6 +154,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
         body = ''
 
         for value in values:
+            length_expr = ''
 
             # Start with a static_assert() so that if any values make it through the logic
             #   below without being handled the generated code will fail to compile
@@ -181,7 +182,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
             # C strings require custom handling
             elif 'const char*' in value.full_type:
                 if 'const char* const*' in value.full_type:
-                    toString = 'CStrArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                    toString = 'CStrArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     toString = 'CStrToString(obj.{0})'
 
@@ -195,15 +196,26 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                         toString = 'decode::HandlePointerDecoderArrayToString(decoded_obj.{0}.GetLength(), &decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
 
                     elif self.is_struct(value.base_type):
-                        # Pointer to array of structs case:
-                        toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
+                        if value.pointer_count > 1:
+                            toString = 'PointerDecoderArrayPointerToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
+                            length_list = self.make_array2d_length_expression(value, values, 'obj.')
+                            first = True
+                            for len in length_list:
+                                if first == False:
+                                    length_expr += ', '
+                                else:
+                                    first = False
+                                length_expr += len
+                        else:
+                            # Pointer to array of structs case:
+                            toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         # Pointer to array of enums case. For enums, it is fine to reach through to the
                         # raw struct since no deeper recursion will happen:
-                        toString = 'VkEnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'VkEnumArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     else:
                         # Pointer to array of anything else case can access the raw vulkan struct:
-                        toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     if self.is_handle(value.base_type):
                         toString = 'static_assert(false, "Unhandled pointer to VkHandle in `vulkan_struct_decoders_to_string_body_generator.py`")'
@@ -247,7 +259,13 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            toString = toString.format(value.name, value.array_length)
+
+            if length_expr == '':
+                length_expr = self.make_array_length_expression(value, 'obj.')        
+            if length_expr and ('value' in length_expr):
+                length_expr.replace('value', 'obj')
+
+            toString = toString.format(value.name, length_expr)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable

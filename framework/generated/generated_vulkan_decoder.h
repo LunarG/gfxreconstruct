@@ -978,6 +978,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetImageSubresourceLayout2EXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetDeviceFaultInfoEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkAcquireWinrtDisplayNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetWinrtDisplayNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -1020,15 +1022,115 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdDrawMultiIndexedEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCreateMicromapEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkDestroyMicromapEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBuildMicromapsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkBuildMicromapsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCopyMicromapEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCopyMicromapToMemoryEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCopyMemoryToMicromapEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkWriteMicromapsPropertiesEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyMicromapEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyMicromapToMemoryEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyMemoryToMicromapEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWriteMicromapsPropertiesEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceMicromapCompatibilityEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetMicromapBuildSizesEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkSetDeviceMemoryPriorityEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetDescriptorSetLayoutHostMappingInfoVALVE(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetDescriptorSetHostMappingVALVE(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdSetTessellationDomainOriginEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthClampEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPolygonModeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetRasterizationSamplesEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetSampleMaskEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetAlphaToCoverageEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetAlphaToOneEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetLogicOpEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetColorBlendEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetColorBlendEquationEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetColorWriteMaskEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetRasterizationStreamEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetConservativeRasterizationModeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetExtraPrimitiveOverestimationSizeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthClipEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetSampleLocationsEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetColorBlendAdvancedEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetProvokingVertexModeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetLineRasterizationModeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetLineStippleEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthClipNegativeOneToOneEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetViewportWScalingEnableNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetViewportSwizzleNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCoverageToColorEnableNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCoverageToColorLocationNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCoverageModulationModeNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCoverageModulationTableEnableNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCoverageModulationTableNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetShadingRateImageEnableNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetRepresentativeFragmentTestEnableNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCoverageReductionModeNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetShaderModuleIdentifierEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetShaderModuleCreateInfoIdentifierEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateOpticalFlowSessionNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkDestroyOpticalFlowSessionNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkBindOpticalFlowSessionImageNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdOpticalFlowExecuteNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetFramebufferTilePropertiesQCOM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -1071,6 +1173,12 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkGetRayTracingShaderGroupStackSizeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdSetRayTracingPipelineStackSizeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMeshTasksEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMeshTasksIndirectCountEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
 GFXRECON_END_NAMESPACE(decode)

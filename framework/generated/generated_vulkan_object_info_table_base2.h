@@ -65,6 +65,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void AddImageViewInfo(ImageViewInfo&& info) { AddObjectInfo(std::move(info), &imageView_map_); }
     void AddIndirectCommandsLayoutNVInfo(IndirectCommandsLayoutNVInfo&& info) { AddObjectInfo(std::move(info), &indirectCommandsLayoutNV_map_); }
     void AddInstanceInfo(InstanceInfo&& info) { AddObjectInfo(std::move(info), &instance_map_); }
+    void AddMicromapEXTInfo(MicromapEXTInfo&& info) { AddObjectInfo(std::move(info), &micromapEXT_map_); }
+    void AddOpticalFlowSessionNVInfo(OpticalFlowSessionNVInfo&& info) { AddObjectInfo(std::move(info), &opticalFlowSessionNV_map_); }
     void AddPerformanceConfigurationINTELInfo(PerformanceConfigurationINTELInfo&& info) { AddObjectInfo(std::move(info), &performanceConfigurationINTEL_map_); }
     void AddPhysicalDeviceInfo(PhysicalDeviceInfo&& info) { AddObjectInfo(std::move(info), &physicalDevice_map_); }
     void AddPipelineInfo(PipelineInfo&& info) { AddObjectInfo(std::move(info), &pipeline_map_); }
@@ -106,6 +108,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemoveImageViewInfo(format::HandleId id) { imageView_map_.erase(id); }
     void RemoveIndirectCommandsLayoutNVInfo(format::HandleId id) { indirectCommandsLayoutNV_map_.erase(id); }
     void RemoveInstanceInfo(format::HandleId id) { instance_map_.erase(id); }
+    void RemoveMicromapEXTInfo(format::HandleId id) { micromapEXT_map_.erase(id); }
+    void RemoveOpticalFlowSessionNVInfo(format::HandleId id) { opticalFlowSessionNV_map_.erase(id); }
     void RemovePerformanceConfigurationINTELInfo(format::HandleId id) { performanceConfigurationINTEL_map_.erase(id); }
     void RemovePhysicalDeviceInfo(format::HandleId id) { physicalDevice_map_.erase(id); }
     void RemovePipelineInfo(format::HandleId id) { pipeline_map_.erase(id); }
@@ -147,6 +151,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     const ImageViewInfo* GetImageViewInfo(format::HandleId id) const { return GetObjectInfo<ImageViewInfo>(id, &imageView_map_); }
     const IndirectCommandsLayoutNVInfo* GetIndirectCommandsLayoutNVInfo(format::HandleId id) const { return GetObjectInfo<IndirectCommandsLayoutNVInfo>(id, &indirectCommandsLayoutNV_map_); }
     const InstanceInfo* GetInstanceInfo(format::HandleId id) const { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
+    const MicromapEXTInfo* GetMicromapEXTInfo(format::HandleId id) const { return GetObjectInfo<MicromapEXTInfo>(id, &micromapEXT_map_); }
+    const OpticalFlowSessionNVInfo* GetOpticalFlowSessionNVInfo(format::HandleId id) const { return GetObjectInfo<OpticalFlowSessionNVInfo>(id, &opticalFlowSessionNV_map_); }
     const PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id) const { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
     const PhysicalDeviceInfo* GetPhysicalDeviceInfo(format::HandleId id) const { return GetObjectInfo<PhysicalDeviceInfo>(id, &physicalDevice_map_); }
     const PipelineInfo* GetPipelineInfo(format::HandleId id) const { return GetObjectInfo<PipelineInfo>(id, &pipeline_map_); }
@@ -188,6 +194,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     ImageViewInfo* GetImageViewInfo(format::HandleId id) { return GetObjectInfo<ImageViewInfo>(id, &imageView_map_); }
     IndirectCommandsLayoutNVInfo* GetIndirectCommandsLayoutNVInfo(format::HandleId id) { return GetObjectInfo<IndirectCommandsLayoutNVInfo>(id, &indirectCommandsLayoutNV_map_); }
     InstanceInfo* GetInstanceInfo(format::HandleId id) { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
+    MicromapEXTInfo* GetMicromapEXTInfo(format::HandleId id) { return GetObjectInfo<MicromapEXTInfo>(id, &micromapEXT_map_); }
+    OpticalFlowSessionNVInfo* GetOpticalFlowSessionNVInfo(format::HandleId id) { return GetObjectInfo<OpticalFlowSessionNVInfo>(id, &opticalFlowSessionNV_map_); }
     PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id) { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
     PhysicalDeviceInfo* GetPhysicalDeviceInfo(format::HandleId id) { return GetObjectInfo<PhysicalDeviceInfo>(id, &physicalDevice_map_); }
     PipelineInfo* GetPipelineInfo(format::HandleId id) { return GetObjectInfo<PipelineInfo>(id, &pipeline_map_); }
@@ -229,6 +237,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void VisitImageViewInfo(std::function<void(const ImageViewInfo*)> visitor) const {  for (const auto& entry : imageView_map_) { visitor(&entry.second); }  }
     void VisitIndirectCommandsLayoutNVInfo(std::function<void(const IndirectCommandsLayoutNVInfo*)> visitor) const {  for (const auto& entry : indirectCommandsLayoutNV_map_) { visitor(&entry.second); }  }
     void VisitInstanceInfo(std::function<void(const InstanceInfo*)> visitor) const {  for (const auto& entry : instance_map_) { visitor(&entry.second); }  }
+    void VisitMicromapEXTInfo(std::function<void(const MicromapEXTInfo*)> visitor) const {  for (const auto& entry : micromapEXT_map_) { visitor(&entry.second); }  }
+    void VisitOpticalFlowSessionNVInfo(std::function<void(const OpticalFlowSessionNVInfo*)> visitor) const {  for (const auto& entry : opticalFlowSessionNV_map_) { visitor(&entry.second); }  }
     void VisitPerformanceConfigurationINTELInfo(std::function<void(const PerformanceConfigurationINTELInfo*)> visitor) const {  for (const auto& entry : performanceConfigurationINTEL_map_) { visitor(&entry.second); }  }
     void VisitPhysicalDeviceInfo(std::function<void(const PhysicalDeviceInfo*)> visitor) const {  for (const auto& entry : physicalDevice_map_) { visitor(&entry.second); }  }
     void VisitPipelineInfo(std::function<void(const PipelineInfo*)> visitor) const {  for (const auto& entry : pipeline_map_) { visitor(&entry.second); }  }
@@ -271,6 +281,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
      std::unordered_map<format::HandleId, ImageViewInfo> imageView_map_;
      std::unordered_map<format::HandleId, IndirectCommandsLayoutNVInfo> indirectCommandsLayoutNV_map_;
      std::unordered_map<format::HandleId, InstanceInfo> instance_map_;
+     std::unordered_map<format::HandleId, MicromapEXTInfo> micromapEXT_map_;
+     std::unordered_map<format::HandleId, OpticalFlowSessionNVInfo> opticalFlowSessionNV_map_;
      std::unordered_map<format::HandleId, PerformanceConfigurationINTELInfo> performanceConfigurationINTEL_map_;
      std::unordered_map<format::HandleId, PhysicalDeviceInfo> physicalDevice_map_;
      std::unordered_map<format::HandleId, PipelineInfo> pipeline_map_;

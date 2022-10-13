@@ -278,6 +278,20 @@ inline std::string PointerDecoderArrayToString(const StructPointerDecoder<Decode
         [&](uint32_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
+template <typename Decoded_VkStructType>
+inline std::string
+PointerDecoderArrayPointerToString(const StructPointerDecoder<Decoded_VkStructType*>& pObjsPointerDecoder,
+                                   util::ToStringFlags toStringFlags = util::kToString_Default,
+                                   uint32_t            tabCount      = 0,
+                                   uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    const size_t                       countObj = pObjsPointerDecoder.GetLength();
+    const Decoded_VkStructType* const* pObjs    = pObjsPointerDecoder.GetMetaStructPointer();
+
+    return Array2DToString(GetCount(countObj), 1, pObjs, toStringFlags, tabCount, tabSize);
+}
+
 /// Convenience wrapper for PointerDecoderArrayToString() above to spare caller
 /// from checking for null.
 template <typename Decoded_VkStructType>
