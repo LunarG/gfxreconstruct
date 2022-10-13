@@ -3,7 +3,9 @@
 The `gfxrecon-convert` tool converts a capture file into a series of JSON
 documents, one per line following the
 [JSON Lines standard](https://jsonlines.org/).
-The text output is written by default to a .txt file in the directory of the specified GFXReconstruct capture file. Use `--output` to override the default filename for the output.
+The text output is written by default to a .jsonl file in the directory of the
+specified GFXReconstruct capture file. Use `--output` to override the default
+filename for the output.
 
 
 ```text
@@ -21,7 +23,7 @@ Optional arguments:
   --version             Print version information and exit.
   --output filename     'stdout' or a path to a file to write JSON output
                         to. Default is the input filepath with "gfxr" replaced
-                        by "txt".
+                        by "jsonl".
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
 ```
