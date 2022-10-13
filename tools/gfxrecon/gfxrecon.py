@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2020 LunarG, Inc.
+# Copyright (c) 2020-2022 LunarG, Inc.
+# Copyright (c) 2022 Valve Corporation
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,7 +25,7 @@
 # Utility for invoking gfxrecon commands
 # Usage:
 #
-#     gfxrecon.py [capture|compress|extract|info|optimize|replay] [<args>]
+#     gfxrecon.py [capture|compress|convert|extract|info|optimize|replay] [<args>]
 #
 #         args is a command-specific argument list
 
@@ -41,6 +42,7 @@ argc = len(sys.argv)
 valid_commands = [
     'capture',
     'compress',
+    'convert',
     'extract',
     'info',
     'optimize',
