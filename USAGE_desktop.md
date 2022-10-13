@@ -610,7 +610,7 @@ Optional arguments:
   --version		        Print version information and exit.
   --output file         'stdout' or a path to a file to write JSON output
                         to. Default is the input filepath with "gfxr" replaced
-                        by "txt".
+                        by "jsonl".
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
 ```
