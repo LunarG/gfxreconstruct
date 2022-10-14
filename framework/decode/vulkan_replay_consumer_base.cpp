@@ -37,6 +37,7 @@
 #include "util/file_path.h"
 #include "util/hash.h"
 #include "util/platform.h"
+#include "util/logging.h"
 
 #include "generated/generated_vulkan_enum_to_string.h"
 
@@ -3541,8 +3542,14 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
         // Check if this allocation was captured with an opaque address
         bool                uses_address   = false;
+        bool                uses_import_memory = false;
         uint64_t            opaque_address = 0;
         VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
+
+        size_t                                            host_pointer_size = 0;
+        std::unique_ptr<void, std::function<void(void*)>> external_memory_guard(
+            nullptr, [&](void* memory) { util::platform::FreeRawMemory(memory, host_pointer_size); });
+
         while (current_struct != nullptr)
         {
             if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
@@ -3564,12 +3571,49 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 }
                 break;
             }
+
+            if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT)
+            {
+                auto import_info = reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(current_struct);
+
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, replay_allocate_info->allocationSize);
+
+                size_t allocation_size = static_cast<size_t>(replay_allocate_info->allocationSize);
+
+                host_pointer_size =
+                    util::platform::GetAlignedSize(allocation_size, util::platform::GetSystemPageSize());
+
+                // VkAllocateMemory fails when memory was allocated with default malloc func, probably because of extra
+                // memory bytes allocated for malloc private info
+                import_info->pHostPointer = util::platform::AllocateRawMemory(host_pointer_size);
+
+                if (import_info->pHostPointer == nullptr)
+                {
+                    GFXRECON_LOG_ERROR("Failed to allocate raw memory with size = %" PRIuPTR " with error code: %u",
+                                       host_pointer_size,
+                                       util::platform::GetSystemLastErrorCode());
+                    std::abort();
+                }
+                external_memory_guard.reset(import_info->pHostPointer);
+
+                uses_import_memory = true;
+            }
+
             current_struct = current_struct->pNext;
         }
 
         if (uses_address)
         {
             // Insert VkMemoryOpaqueCaptureAddressAllocateInfo into front of pNext chain before allocating
+
+            // The Vulkan spec states: If the pNext chain includes a VkImportMemoryHostPointerInfoEXT structure,
+            // VkMemoryOpaqueCaptureAddressAllocateInfo::opaqueCaptureAddress must be zero
+            // (https://vulkan.lunarg.com/doc/view/1.3.216.0/linux/1.3-extensions/vkspec.html#VUID-VkMemoryAllocateInfo-pNext-03332)
+            if (uses_import_memory)
+            {
+                opaque_address = 0;
+            }
+
             VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
                 VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
@@ -3603,6 +3647,12 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             // When memory allocation fails at replay, but succeeded at capture, check for memory incompatibilities and
             // recommend enabling memory translation.
             allocator->ReportAllocateMemoryIncompatibility(replay_allocate_info);
+        }
+
+        if (result == VK_SUCCESS && uses_import_memory)
+        {
+            external_memory_.emplace(*replay_memory,
+                                     std::make_pair(external_memory_guard.release(), host_pointer_size));
         }
     }
     else
@@ -3732,6 +3782,13 @@ void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory  func,
     {
         memory         = memory_info->handle;
         allocator_data = memory_info->allocator_data;
+
+        auto findIt = external_memory_.find(memory);
+        if (findIt != external_memory_.end())
+        {
+            util::platform::FreeRawMemory(findIt->second.first, findIt->second.second);
+            external_memory_.erase(findIt);
+        }
 
         memory_info->allocator_data = 0;
     }
