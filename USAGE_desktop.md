@@ -626,10 +626,10 @@ usage: gfxrecon.py [-h] command ...
 GFXReconstruct utility launcher.
 
 positional arguments:
-  command     Command to execute. Valid options are [capture, compress, extract, info,
-              optimize, replay]
-  args        Command-specific argument list. Specify -h after command name for command
-              help.
+  command     Command to execute. Valid options are [capture, compress, convert,
+              extract, info, optimize, replay]
+  args        Command-specific argument list. Specify -h after command name for
+              command help.
 
 optional arguments:
   -h, --help  show this help message and exit
