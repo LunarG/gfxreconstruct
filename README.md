@@ -82,7 +82,7 @@ found at the following locations:
 This work is licensed under the terms of the MIT License; see
 [LICENSE](LICENSE.txt) for more information.
 
-## Approriate Use
+## Appropriate Use
 
 GFXReconstruct is a suite of tools intended for the purpose of
 improving application and platform quality by allowing the analysis
