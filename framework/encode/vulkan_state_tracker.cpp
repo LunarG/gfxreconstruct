@@ -1222,7 +1222,13 @@ void VulkanStateTracker::TrackAcquireImage(
 {
     auto wrapper = reinterpret_cast<SwapchainKHRWrapper*>(swapchain);
 
-    assert((wrapper != nullptr) && (image_index < wrapper->image_acquired_info.size()));
+    assert(wrapper != nullptr);
+
+    if (image_index >= wrapper->image_acquired_info.size())
+    {
+        wrapper->image_acquired_info.resize(image_index + 1);
+        wrapper->image_acquired_info[image_index].last_presented_queue = VK_NULL_HANDLE;
+    }
 
     wrapper->image_acquired_info[image_index].is_acquired           = true;
     wrapper->image_acquired_info[image_index].acquired_device_mask  = deviceMask;

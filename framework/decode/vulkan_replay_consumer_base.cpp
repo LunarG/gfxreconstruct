@@ -4560,6 +4560,11 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             auto table = GetDeviceTable(device);
             assert(table != nullptr);
 
+            if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+            {
+                swapchain_info->acquired_indices.resize(captured_index + 1);
+            }
+
             swapchain_info->acquired_indices[captured_index] = captured_index;
 
             // The image has already been acquired. Swap the synchronization objects.
@@ -4592,6 +4597,11 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
 
             result = swapchain_->AcquireNextImageKHR(
                 func, device_info, swapchain_info, timeout, semaphore_info, fence_info, captured_index, replay_index);
+
+            if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+            {
+                swapchain_info->acquired_indices.resize(captured_index + 1);
+            }
 
             // Track the index that was acquired on replay, which may be different than the captured index.
             swapchain_info->acquired_indices[captured_index] = (*replay_index);

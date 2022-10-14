@@ -657,8 +657,6 @@ inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, ImageWrapper, v
     wrapper->samples            = VK_SAMPLE_COUNT_1_BIT;
     wrapper->tiling             = VK_IMAGE_TILING_OPTIMAL;
     wrapper->queue_family_index = swapchain_wrapper->queue_family_index;
-
-    swapchain_wrapper->image_acquired_info.emplace_back(ImageAcquiredInfo{});
 }
 
 template <>
