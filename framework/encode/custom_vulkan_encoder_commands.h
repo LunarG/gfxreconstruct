@@ -1130,6 +1130,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetPrivateData>
     }
 };
 
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkSetLocalDimmingAMD(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

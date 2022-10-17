@@ -998,6 +998,20 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             WriteFunctionCall(format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT, &parameter_stream_);
             parameter_stream_.Reset();
         }
+
+        if (wrapper->using_local_dimming_AMD)
+        {
+            const DeviceWrapper* device_wrapper = wrapper->device;
+            assert(device_wrapper != nullptr);
+
+            const VkResult result = VK_SUCCESS;
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            encoder_.EncodeVkBool32Value(wrapper->local_dimming_enable_AMD);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
     });
 }
 

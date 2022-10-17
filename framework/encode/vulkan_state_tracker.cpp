@@ -1324,6 +1324,18 @@ void VulkanStateTracker::TrackSetPrivateData(
     wrapper->data          = data;
 }
 
+void VulkanStateTracker::TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable)
+{
+    assert(swapChain != VK_NULL_HANDLE);
+
+    auto wrapper        = reinterpret_cast<SwapchainKHRWrapper*>(swapChain);
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+
+    wrapper->device                   = device_wrapper;
+    wrapper->using_local_dimming_AMD  = true;
+    wrapper->local_dimming_enable_AMD = localDimmingEnable;
+}
+
 void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
 {
     assert(wrapper != nullptr);
