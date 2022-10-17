@@ -245,9 +245,11 @@ All values of a header are strings.
 
 ### vkFunc Objects
 
-Vulkan function objects contain `"index"` at the top level which is a
-JSON number representing the position of the call in the sequence recorded in
-the capture and a nested object under the key `"vkFunc"` which contains the data captured from a Vulkan call.
+Vulkan function objects contain `"index"` at the top level, which is a
+JSON number representing the position of the call in the sequence of
+successfully-decoded blocks in the original binary capture file,
+and a nested object under the key `"vkFunc"` which contains the data captured
+from a Vulkan call.
 
 ```json
 {
@@ -263,7 +265,7 @@ the capture and a nested object under the key `"vkFunc"` which contains the data
 ```
 
 When debugging during replay, the value of the `"index"` field can be matched
-to the value of the GFXReconstruct `FileProcessor::api_call_index_` member
+to the value of the GFXReconstruct `FileProcessor::block_index_` member
 variable.
 This allows a developer to see the history of calls in JSON form up to the point
 of interest in their debugger.
