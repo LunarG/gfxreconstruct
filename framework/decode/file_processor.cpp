@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), api_call_index_(0)
+    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0)
 {}
 
 FileProcessor::~FileProcessor()
@@ -285,6 +285,12 @@ bool FileProcessor::ProcessBlocks()
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                 success = SkipBytes(static_cast<size_t>(block_header.size));
             }
+            // Count successfully decoded blocks, but leave failed blocks out of
+            // the count:
+            if (success)
+            {
+                ++block_index_;
+            }
         }
         else
         {
@@ -396,7 +402,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
     ApiCallInfo call_info             = {};
-    call_info.index                   = api_call_index_;
+    call_info.index                   = block_index_;
     bool success                      = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
 
     if (success)
@@ -454,8 +460,6 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                     DecodeAllocator::End();
                 }
             }
-
-            ++api_call_index_;
         }
     }
     else
