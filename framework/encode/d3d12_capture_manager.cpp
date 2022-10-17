@@ -244,6 +244,7 @@ void D3D12CaptureManager::ResizeSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
 void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    device_wrapper,
                                                        ID3D12Resource_Wrapper*  resource_wrapper,
                                                        D3D12_RESOURCE_DIMENSION dimension,
+                                                       D3D12_TEXTURE_LAYOUT     layout,
                                                        UINT64                   width,
                                                        UINT64                   size,
                                                        D3D12_HEAP_TYPE          heap_type,
@@ -263,6 +264,8 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     info->memory_pool     = memory_pool;
     info->has_write_watch = has_write_watch;
     info->size_in_bytes   = size;
+    info->dimension       = dimension;
+    info->layout          = layout;
 
     if (dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
@@ -752,6 +755,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
             wrapper,
             resource_wrapper,
             desc->Dimension,
+            desc->Layout,
             desc->Width,
             total_size_in_bytes,
             heap_properties->Type,
@@ -791,6 +795,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
+                                     desc->Layout,
                                      desc->Width,
                                      total_size_in_bytes,
                                      heap_info->heap_type,
@@ -823,6 +828,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateReservedResource(
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
+                                     desc->Layout,
                                      desc->Width,
                                      total_size_in_bytes,
                                      D3D12_HEAP_TYPE_DEFAULT,
@@ -834,14 +840,14 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateReservedResource(
 }
 
 void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateReservedResource1(
-    ID3D12Device4_Wrapper*     wrapper,
-    HRESULT                    result,
-    const D3D12_RESOURCE_DESC* desc,
-    D3D12_RESOURCE_STATES      initial_state,
-    const D3D12_CLEAR_VALUE*   optimized_clear_value,
+    ID3D12Device4_Wrapper*          wrapper,
+    HRESULT                         result,
+    const D3D12_RESOURCE_DESC*      desc,
+    D3D12_RESOURCE_STATES           initial_state,
+    const D3D12_CLEAR_VALUE*        optimized_clear_value,
     ID3D12ProtectedResourceSession* protected_session,
-    REFIID                     riid,
-    void**                     resource)
+    REFIID                          riid,
+    void**                          resource)
 {
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(protected_session);
@@ -857,6 +863,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateReservedResource1(
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
+                                     desc->Layout,
                                      desc->Width,
                                      total_size_in_bytes,
                                      D3D12_HEAP_TYPE_DEFAULT,
@@ -961,6 +968,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
             wrapper,
             resource_wrapper,
             desc->Dimension,
+            desc->Layout,
             desc->Width,
             total_size_in_bytes,
             heap_properties->Type,
@@ -1000,6 +1008,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
             wrapper,
             resource_wrapper,
             desc->Dimension,
+            desc->Layout,
             desc->Width,
             total_size_in_bytes,
             heap_properties->Type,
@@ -1040,6 +1049,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
+                                     desc->Layout,
                                      desc->Width,
                                      total_size_in_bytes,
                                      heap_info->heap_type,

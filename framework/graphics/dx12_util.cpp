@@ -998,27 +998,27 @@ uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC
     return size;
 }
 
-bool IsTextureWithUnknownLayout(ID3D12Resource* target_resource, D3D12_RESOURCE_DIMENSION* dimension)
+bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTURE_LAYOUT layout)
 {
-    bool                is_texture_with_unknown_layout = false;
-    D3D12_RESOURCE_DESC target_resource_desc           = target_resource->GetDesc();
+    bool is_texture_with_unknown_layout = false;
 
-    if (target_resource_desc.Layout == D3D12_TEXTURE_LAYOUT_UNKNOWN)
+    if (layout == D3D12_TEXTURE_LAYOUT_UNKNOWN)
     {
-        if ((target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) ||
-            (target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
-            (target_resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D))
+        if ((dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) || (dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
+            (dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D))
         {
             is_texture_with_unknown_layout = true;
         }
     }
 
-    if (dimension != nullptr)
-    {
-        *dimension = target_resource_desc.Dimension;
-    }
-
     return is_texture_with_unknown_layout;
+}
+
+bool IsTextureWithUnknownLayout(ID3D12Resource* target_resource, D3D12_RESOURCE_DIMENSION* dimension)
+{
+    GFXRECON_ASSERT(target_resource != nullptr);
+    D3D12_RESOURCE_DESC target_resource_desc = target_resource->GetDesc();
+    return IsTextureWithUnknownLayout(target_resource_desc.Dimension, target_resource_desc.Layout);
 }
 
 GFXRECON_END_NAMESPACE(dx12)

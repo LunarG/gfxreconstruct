@@ -59,108 +59,6 @@ HRESULT Dx12ResourceDataUtil::MapSubresourceAndWriteData(ID3D12Resource* resourc
     return result;
 }
 
-HRESULT
-Dx12ResourceDataUtil::MapSubresourceAndReadDataForUnknownLayoutTexture(ID3D12Resource*          resource,
-                                                                       UINT                     subresource,
-                                                                       size_t                   size,
-                                                                       uint8_t*                 data,
-                                                                       D3D12_RESOURCE_DIMENSION resource_dimension,
-                                                                       const D3D12_PLACED_SUBRESOURCE_FOOTPRINT* layout)
-{
-    uint8_t* subresource_data = nullptr;
-    HRESULT  result           = dx12::MapSubresource(resource, subresource, nullptr, subresource_data, true);
-
-    GFXRECON_ASSERT(layout != nullptr);
-
-    if (SUCCEEDED(result))
-    {
-        const D3D12_BOX dstbox = {
-            0, 0, 0, layout->Footprint.Width, layout->Footprint.Height, layout->Footprint.Depth
-        };
-        size_t target_depth_pitch   = 0;
-        bool   is_invalid_dimension = false;
-
-        switch (resource_dimension)
-        {
-            case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
-            case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
-                target_depth_pitch = size;
-                break;
-            case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
-                target_depth_pitch = static_cast<size_t>(layout->Footprint.RowPitch) *
-                                     layout->Footprint.Height; // keep same unpadding process to be consistent with
-                                                               // Dx12ResourceDataUtil::GetResourceCopyInfo.
-                break;
-            default:
-                is_invalid_dimension = true;
-                GFXRECON_LOG_ERROR("Unsupported resource dimension: %d", resource_dimension);
-                break;
-        }
-
-        result = E_INVALIDARG;
-
-        if (!is_invalid_dimension)
-        {
-            result = resource->ReadFromSubresource(
-                data, layout->Footprint.RowPitch, static_cast<UINT>(target_depth_pitch), subresource, &dstbox);
-        }
-
-        resource->Unmap(subresource, &dx12::kZeroRange);
-    }
-
-    return result;
-}
-
-HRESULT Dx12ResourceDataUtil::MapSubresourceAndWriteDataForUnknownLayoutTexture(
-    ID3D12Resource*                           resource,
-    UINT                                      subresource,
-    size_t                                    size,
-    const uint8_t*                            data,
-    D3D12_RESOURCE_DIMENSION                  resource_dimension,
-    const D3D12_PLACED_SUBRESOURCE_FOOTPRINT* layout)
-{
-    uint8_t* subresource_data = nullptr;
-    HRESULT  result           = dx12::MapSubresource(resource, subresource, &dx12::kZeroRange, subresource_data, true);
-
-    GFXRECON_ASSERT(layout != nullptr);
-
-    if (SUCCEEDED(result))
-    {
-        const D3D12_BOX dstbox = {
-            0, 0, 0, layout->Footprint.Width, layout->Footprint.Height, layout->Footprint.Depth
-        };
-        size_t source_depth_pitch   = 0;
-        bool   is_invalid_dimension = false;
-
-        switch (resource_dimension)
-        {
-            case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
-            case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
-                source_depth_pitch = size;
-                break;
-            case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
-                source_depth_pitch = static_cast<size_t>(layout->Footprint.RowPitch) * layout->Footprint.Height;
-                break;
-            default:
-                is_invalid_dimension = true;
-                GFXRECON_LOG_ERROR("Unsupported resource dimension: %d", resource_dimension);
-                break;
-        }
-
-        result = E_INVALIDARG;
-
-        if (!is_invalid_dimension)
-        {
-            result = resource->WriteToSubresource(
-                subresource, &dstbox, data, layout->Footprint.RowPitch, static_cast<UINT>(source_depth_pitch));
-        }
-
-        resource->Unmap(subresource, nullptr);
-    }
-
-    return result;
-}
-
 // Add a transition barrier to cmd_list. Returns true if cmd_list was modified.
 bool AddTransitionBarrier(ID3D12GraphicsCommandList*     cmd_list,
                           ID3D12Resource*                resource,
@@ -348,25 +246,6 @@ Dx12ResourceDataUtil::Dx12ResourceDataUtil(ID3D12Device* device, uint64_t min_bu
                 if (SUCCEEDED(result))
                 {
                     result = device_->CreateFence(fence_value_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_fence_));
-
-                    if (SUCCEEDED(result))
-                    {
-                        result = device_->CreateCommandAllocator(
-                            list_type, IID_PPV_ARGS(&command_allocator_for_unknown_layout_texture_));
-                        if (SUCCEEDED(result))
-                        {
-                            result =
-                                device_->CreateCommandList(0,
-                                                           list_type,
-                                                           command_allocator_for_unknown_layout_texture_,
-                                                           nullptr,
-                                                           IID_PPV_ARGS(&command_list_for_unknown_layout_texture_));
-                            if (SUCCEEDED(result))
-                            {
-                                result = command_list_for_unknown_layout_texture_->Close();
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -498,16 +377,18 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
 
     data.clear();
     data.resize(static_cast<size_t>(required_data_size));
+    bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(target_resource, nullptr);
 
     // If the resource can be mapped, map it, copy the data, and return success.
-    if (try_map_and_copy && CopyMappableResource(target_resource,
-                                                 before_states,
-                                                 after_states,
-                                                 kCopyTypeRead,
-                                                 &data,
-                                                 nullptr,
-                                                 subresource_offsets,
-                                                 subresource_sizes))
+    if (try_map_and_copy && (!target_texture_with_unknown_layout) &&
+        CopyMappableResource(target_resource,
+                             before_states,
+                             after_states,
+                             kCopyTypeRead,
+                             &data,
+                             nullptr,
+                             subresource_offsets,
+                             subresource_sizes))
     {
         return S_OK;
     }
@@ -565,17 +446,19 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
                         layout_sizes,
                         temp_subresource_layouts_,
                         required_data_size);
+    bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(target_resource, nullptr);
 
-    // If the resource can be mapped, map it, copy the data, and return success.
-    if (try_map_and_copy && CopyMappableResource(target_resource,
-                                                 before_states,
-                                                 after_states,
-                                                 kCopyTypeWrite,
-                                                 nullptr,
-                                                 &data,
-                                                 subresource_offsets,
-                                                 subresource_sizes,
-                                                 &temp_subresource_layouts_))
+    // If the resource can be mapped and the resource is not a texture with
+    // unknown layout, map it, copy the data, and return success.
+    if (try_map_and_copy && (!target_texture_with_unknown_layout) &&
+        CopyMappableResource(target_resource,
+                             before_states,
+                             after_states,
+                             kCopyTypeWrite,
+                             nullptr,
+                             &data,
+                             subresource_offsets,
+                             subresource_sizes))
     {
         return S_OK;
     }
@@ -644,80 +527,6 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
     return result;
 }
 
-bool Dx12ResourceDataUtil::ChangeResourceStateForUnknownLayoutTexture(
-    ID3D12Resource*                             resource,
-    const std::vector<dx12::ResourceStateInfo>& before_states,
-    bool                                        transition_to_state_common)
-{
-    HRESULT result = E_FAIL;
-
-    result = command_allocator_for_unknown_layout_texture_->Reset();
-
-    if (SUCCEEDED(result))
-    {
-        result =
-            command_list_for_unknown_layout_texture_->Reset(command_allocator_for_unknown_layout_texture_, nullptr);
-    }
-
-    if (FAILED(result))
-    {
-        GFXRECON_LOG_ERROR("Could not reset command list for state transition of unknown layout texture. (error = %lx)",
-                           result);
-    }
-    else
-    {
-        for (UINT subresource = 0; subresource < before_states.size(); subresource++)
-        {
-            if (transition_to_state_common)
-            {
-                if (before_states.at(subresource).states != D3D12_RESOURCE_STATE_COMMON)
-                {
-                    dx12::ResourceStateInfo new_state_info = before_states.at(subresource);
-                    new_state_info.states                  = D3D12_RESOURCE_STATE_COMMON;
-
-                    if (AddTransitionBarrier(command_list_for_unknown_layout_texture_,
-                                             resource,
-                                             subresource,
-                                             before_states.at(subresource),
-                                             new_state_info) != true)
-                    {
-                        GFXRECON_LOG_ERROR("Failed to change resource state to D3D12_RESOURCE_STATE_COMMON");
-                    }
-                }
-            }
-            else
-            {
-                if (before_states.at(subresource).states != D3D12_RESOURCE_STATE_COMMON)
-                {
-                    dx12::ResourceStateInfo old_state_info = before_states.at(subresource);
-                    old_state_info.states                  = D3D12_RESOURCE_STATE_COMMON;
-
-                    if (AddTransitionBarrier(command_list_for_unknown_layout_texture_,
-                                             resource,
-                                             subresource,
-                                             old_state_info,
-                                             before_states.at(subresource)) != true)
-                    {
-                        GFXRECON_LOG_ERROR("Failed to restore resource state");
-                    }
-                }
-            }
-        }
-
-        result = command_list_for_unknown_layout_texture_->Close();
-
-        if (SUCCEEDED(result))
-        {
-            ID3D12CommandList* cmd_lists[] = { command_list_for_unknown_layout_texture_ };
-            command_queue_->ExecuteCommandLists(1, cmd_lists);
-            result = dx12::WaitForQueue(command_queue_, command_fence_, ++fence_value_);
-        }
-    }
-
-    return SUCCEEDED(result);
-}
-
-// If target_resource belong to special mapping case, layouts must point to valid data, otherwise, it can be nullptr.
 bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                             target_resource,
                                                 const std::vector<dx12::ResourceStateInfo>& before_states,
                                                 const std::vector<dx12::ResourceStateInfo>& after_states,
@@ -725,8 +534,7 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
                                                 std::vector<uint8_t>*                       read_data,
                                                 const std::vector<uint8_t>*                 write_data,
                                                 const std::vector<uint64_t>&                subresource_offsets,
-                                                const std::vector<uint64_t>&                subresource_sizes,
-                                                const std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>* layouts)
+                                                const std::vector<uint64_t>&                subresource_sizes)
 {
     uint64_t subresource_count = subresource_offsets.size();
 
@@ -745,100 +553,27 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
 
         if (is_cpu_accessible)
         {
-            D3D12_RESOURCE_DIMENSION target_resource_dimension;
-            bool                     target_texture_with_unknown_layout =
-                dx12::IsTextureWithUnknownLayout(target_resource, &target_resource_dimension);
-
-            if (!target_texture_with_unknown_layout)
+            for (UINT i = 0; i < subresource_count; ++i)
             {
-                for (UINT i = 0; i < subresource_count; ++i)
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_sizes[i]);
+                size_t subresource_size = static_cast<size_t>(subresource_sizes[i]);
+
+                if (copy_type == kCopyTypeRead)
                 {
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_sizes[i]);
-                    size_t subresource_size = static_cast<size_t>(subresource_sizes[i]);
-
-                    if (copy_type == kCopyTypeRead)
-                    {
-                        GFXRECON_ASSERT(read_data != nullptr);
-                        result = MapSubresourceAndReadData(
-                            target_resource, i, subresource_size, read_data->data() + subresource_offsets[i]);
-                    }
-                    else
-                    {
-                        GFXRECON_ASSERT(write_data != nullptr);
-                        result = MapSubresourceAndWriteData(
-                            target_resource, i, subresource_size, write_data->data() + subresource_offsets[i]);
-                    }
-                    if (before_states[i].states != after_states[i].states)
-                    {
-                        GFXRECON_LOG_ERROR_ONCE("CPU buffer state not match");
-                    }
+                    GFXRECON_ASSERT(read_data != nullptr);
+                    result = MapSubresourceAndReadData(
+                        target_resource, i, subresource_size, read_data->data() + subresource_offsets[i]);
                 }
-                return SUCCEEDED(result);
-            }
-            else
-            {
-                // Quote: "Textures must be in the D3D12_RESOURCE_STATE_COMMON state for CPU access through
-                //         WriteToSubresource and ReadFromSubresource to be legal;"
-                //
-                // Source:
-                // https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
-                //
-                // The cpu accessible resource is a texture with unknown layout, we need the following special mapping
-                // handling to copy its data:
-                //
-                // 1. If the state of the resource is not D3D12_RESOURCE_STATE_COMMON, change its state to
-                // D3D12_RESOURCE_STATE_COMMON so
-                //    ID3D12Resource::WriteToSubresource and ID3D12Resource::ReadFromSubresource can be used to copy
-                //    data to (from) the resource.
-                //
-                // 2. Call MapSubresourceAndReadDataForUnknownLayoutTexture or
-                // MapSubresourceAndWriteDataForUnknownLayoutTexture function to finish
-                //    actual copy. The two functions call ID3D12Resource::WriteToSubresource or
-                //    ID3D12Resource::ReadFromSubresource to proceed copy operation.
-                //
-                // 3. After copy, if the original state of the resource is not D3D12_RESOURCE_STATE_COMMON, change its
-                // state back to its original state.
-
-                GFXRECON_ASSERT(layouts != nullptr);
-
-                Dx12ResourceDataUtil::ChangeResourceStateForUnknownLayoutTexture(target_resource, before_states, true);
-
-                for (UINT i = 0; i < subresource_count; ++i)
+                else
                 {
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_sizes[i]);
-                    size_t subresource_size = static_cast<size_t>(subresource_sizes[i]);
-
-                    if (copy_type == kCopyTypeRead)
-                    {
-                        GFXRECON_ASSERT(read_data != nullptr);
-                        result =
-                            MapSubresourceAndReadDataForUnknownLayoutTexture(target_resource,
-                                                                             i,
-                                                                             subresource_size,
-                                                                             read_data->data() + subresource_offsets[i],
-                                                                             target_resource_dimension,
-                                                                             &layouts->at(i));
-                    }
-                    else
-                    {
-                        GFXRECON_ASSERT(write_data != nullptr);
-                        result = MapSubresourceAndWriteDataForUnknownLayoutTexture(target_resource,
-                                                                                   i,
-                                                                                   subresource_size,
-                                                                                   write_data->data() +
-                                                                                       subresource_offsets[i],
-                                                                                   target_resource_dimension,
-                                                                                   &layouts->at(i));
-                    }
-
-                    if (before_states[i].states != after_states[i].states)
-                    {
-                        GFXRECON_LOG_ERROR_ONCE("Buffer state mismatch");
-                    }
+                    GFXRECON_ASSERT(write_data != nullptr);
+                    result = MapSubresourceAndWriteData(
+                        target_resource, i, subresource_size, write_data->data() + subresource_offsets[i]);
                 }
-
-                Dx12ResourceDataUtil::ChangeResourceStateForUnknownLayoutTexture(target_resource, before_states, false);
-
+                if (before_states[i].states != after_states[i].states)
+                {
+                    GFXRECON_LOG_ERROR_ONCE("CPU buffer state not match");
+                }
                 return SUCCEEDED(result);
             }
         }

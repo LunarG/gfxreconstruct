@@ -628,16 +628,18 @@ void Dx12StateWriter::WriteResourceCreationState(
     {
         auto     mappable_resource = map_info.resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
         uint8_t* result_ptr        = nullptr;
-        bool     is_special_mapping = graphics::dx12::IsTextureWithUnknownLayout(mappable_resource);
+        auto     resource_info     = map_info.resource_wrapper->GetObjectInfo();
+        bool     unknown_layout_mapping =
+            graphics::dx12::IsTextureWithUnknownLayout(resource_info->dimension, resource_info->layout);
 
         graphics::dx12::MapSubresource(
-            mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr, is_special_mapping);
+            mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr, unknown_layout_mapping);
 
         for (int32_t i = 0; i < map_info.map_count; ++i)
         {
             encoder_.EncodeUInt32Value(map_info.subresource);
             EncodeStructPtr<D3D12_RANGE>(&encoder_, nullptr);
-            if (!is_special_mapping)
+            if (!unknown_layout_mapping)
             {
                 encoder_.EncodeVoidPtrPtr<void>(reinterpret_cast<void**>(&result_ptr));
             }
@@ -798,7 +800,9 @@ void Dx12StateWriter::WriteResourceSnapshots(
                           (resource_info.get()->create_call_id !=
                            format::ApiCall_ID3D12Device4_CreateReservedResource1)));
 
-                if (is_cpu_accessible == false)
+                bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(resource, nullptr);
+
+                if ((is_cpu_accessible == false) || (is_cpu_accessible && target_texture_with_unknown_layout))
                 {
                     // If the resource is non CPU accessible resource, create staging buffer for it
                     // And issue Copy() to download the data over to the staging buffer
@@ -920,8 +924,7 @@ void Dx12StateWriter::WriteMappableResource(graphics::Dx12ResourceDataUtil* reso
                                                  &resource_info->staging_buffer_info.staging_buffer_data,
                                                  nullptr,
                                                  resource_info.get()->staging_buffer_info.subresource_offsets,
-                                                 resource_info.get()->staging_buffer_info.subresource_sizes,
-                                                 &resource_info.get()->staging_buffer_info.layouts))
+                                                 resource_info.get()->staging_buffer_info.subresource_sizes))
     {
         WriteBufferData(resource_wrapper);
     }
