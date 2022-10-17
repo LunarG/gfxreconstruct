@@ -2225,6 +2225,22 @@ void VulkanCaptureManager::PostProcess_vkSetPrivateData(VkResult          result
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkSetLocalDimmingAMD(VkDevice       device,
+                                                            VkSwapchainKHR swapChain,
+                                                            VkBool32       localDimmingEnable)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(swapChain);
+
+    if (swapChain != VK_NULL_HANDLE)
+    {
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackSetLocalDimmingAMD(device, swapChain, localDimmingEnable);
+        }
+    }
+}
+
 #if defined(__ANDROID__)
 void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
                                                                            VkPresentModeKHR* pPresentModes)

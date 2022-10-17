@@ -1158,6 +1158,8 @@ class VulkanCaptureManager : public CaptureManager
                                       VkPrivateDataSlot privateDataSlot,
                                       uint64_t          data);
 
+    void PostProcess_vkSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif

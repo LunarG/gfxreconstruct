@@ -399,6 +399,8 @@ class VulkanStateTracker
                              VkPrivateDataSlot privateDataSlot,
                              uint64_t          data);
 
+    void TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                  parent_handle,

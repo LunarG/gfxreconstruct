@@ -443,6 +443,8 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     std::vector<ImageAcquiredInfo> image_acquired_info;
     bool                           acquire_full_screen_exclusive_mode{ false };
     bool                           release_full_screen_exclusive_mode{ false };
+    bool                           using_local_dimming_AMD{ false };
+    VkBool32                       local_dimming_enable_AMD{ false };
 };
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
