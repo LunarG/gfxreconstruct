@@ -444,6 +444,13 @@ void CaptureManager::EndApiCallCapture()
             WriteToFile(parameter_buffer->GetHeaderData(),
                         parameter_buffer->GetHeaderDataSize() + parameter_buffer->GetDataSize());
         }
+
+        // Flush after presents to avoid capture files with incomplete final
+        // blocks.
+        if (thread_data->call_id_ == format::ApiCall_vkQueuePresentKHR)
+        {
+            file_stream_->Flush();
+        }
     }
 }
 
