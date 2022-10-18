@@ -239,8 +239,7 @@ inline void JSONEscape(const char* cstr, std::string& escaped)
 {
     if (cstr)
     {
-        char c;
-        while (c = *cstr++)
+        while (char c = *cstr++)
         {
             JSONEscape(c, escaped);
         }
