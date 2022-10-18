@@ -700,6 +700,12 @@ void CaptureManager::EndFrame()
     }
 
     global_frame_count_++;
+
+    // Flush after presents to help avoid capture files with incomplete final blocks.
+    if (file_stream_.get() != nullptr)
+    {
+        file_stream_->Flush();
+    }
 }
 
 std::string CaptureManager::CreateTrimFilename(const std::string&                base_filename,
