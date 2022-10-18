@@ -39,7 +39,7 @@ argc = len(sys.argv)
 
 # Supported commands
 valid_commands = [
-    'capture',
+    'capture-vulkan',
     'compress',
     'extract',
     'info',
