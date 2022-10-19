@@ -536,8 +536,7 @@ int main(int argc, const char** argv)
         file_processor.AddDecoder(&decoder);
         file_processor.ProcessAllFrames();
 
-        if ((file_processor.GetCurrentFrameNumber() > 0) &&
-            (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+        if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("File info:");
 
@@ -618,10 +617,15 @@ int main(int argc, const char** argv)
                 }
             }
 
+            auto alocation_count = stats_consumer.GetAllocationCount();
             GFXRECON_WRITE_CONSOLE("\nDevice memory allocation info:");
-            GFXRECON_WRITE_CONSOLE("\tTotal allocations: %" PRIu64, stats_consumer.GetAllocationCount());
-            GFXRECON_WRITE_CONSOLE("\tMin allocation size: %" PRIu64, stats_consumer.GetMinAllocationSize());
-            GFXRECON_WRITE_CONSOLE("\tMax allocation size: %" PRIu64, stats_consumer.GetMaxAllocationSize());
+            GFXRECON_WRITE_CONSOLE("\tTotal allocations: %" PRIu64, alocation_count);
+
+            if (alocation_count > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("\tMin allocation size: %" PRIu64, stats_consumer.GetMinAllocationSize());
+                GFXRECON_WRITE_CONSOLE("\tMax allocation size: %" PRIu64, stats_consumer.GetMaxAllocationSize());
+            }
 
             GFXRECON_WRITE_CONSOLE("\nPipeline info:");
             GFXRECON_WRITE_CONSOLE("\tTotal graphics pipelines: %" PRIu64, stats_consumer.GetGraphicsPipelineCount());
@@ -632,16 +636,17 @@ int main(int argc, const char** argv)
             // GFXRECON_WRITE_CONSOLE("\nDraw/dispatch call info:");
             // GFXRECON_WRITE_CONSOLE("\tTotal draw calls: %" PRIu64, stats_consumer.GetDrawCount());
             // GFXRECON_WRITE_CONSOLE("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetDispatchCount());
+
+            if (file_processor.GetCurrentFrameNumber() == 0)
+            {
+                GFXRECON_WRITE_CONSOLE("\nFile did not contain any frames");
+            }
         }
-        else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+        else
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
             gfxrecon::util::Log::Release();
             exit(-1);
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("File did not contain any frames");
         }
     }
 
