@@ -46,9 +46,9 @@ class Dx12ShaderIdMap
 
     void Remove(const uint8_t* old_shader_id);
 
-    void Map(uint8_t* translated_shader_id) const;
+    bool Map(uint8_t* translated_shader_id) const;
 
-    void Map(uint8_t* dst_translated_shader_id, const uint8_t* src_translated_shader_id) const;
+    bool Map(uint8_t* dst_translated_shader_id, const uint8_t* src_translated_shader_id) const;
 
   private:
     // Key is old shader id. Value is new.

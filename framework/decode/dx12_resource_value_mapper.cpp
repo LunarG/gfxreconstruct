@@ -1015,7 +1015,14 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         if ((mapped_shader_id_iter == resource_info->mapped_shader_ids.end()) ||
             (current_id != mapped_shader_id_iter->second))
         {
-            shader_id_map_.Map(shader_id_ptr);
+            if (!shader_id_map_.Map(shader_id_ptr))
+            {
+                // If the shader ID was not found in the shader ID map, don't treat the data as a shader record.
+                // It is possible for a shader to specify a multiplier (e.g.,
+                // MultiplierForGeometryContributionToHitGroupIndex) for the shader record stride so not all data in the
+                // range of the shader table is necessarily a shader record.
+                return;
+            }
         }
 
         auto replay_shader_id = graphics::PackDx12ShaderIdentifier(shader_id_ptr);

@@ -3459,7 +3459,11 @@ void Dx12ReplayConsumerBase::ApplyFillMemoryResourceValueCommand(uint64_t       
                     }
                     case 3:
                     {
-                        shader_id_map_.Map(dst_value_ptr, src_value_ptr);
+                        if (!shader_id_map_.Map(dst_value_ptr, src_value_ptr))
+                        {
+                            GFXRECON_LOG_WARNING_ONCE(
+                                "Failed to map shader identifier for optimized DXR replay. Replay may fail.");
+                        }
                         break;
                     }
                 }
