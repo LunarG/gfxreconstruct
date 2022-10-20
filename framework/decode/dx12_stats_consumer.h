@@ -24,6 +24,8 @@
 #define GFXRECON_DECODE_DX12_STAT_CONSUMER_H
 
 #include "generated/generated_dx12_consumer.h"
+
+#include "decode/dx12_object_info.h"
 #include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -33,8 +35,8 @@ class Dx12StatsConsumer : public Dx12Consumer
 {
   public:
     Dx12StatsConsumer() :
-        swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false), dxr_workload_(false),
-        dxr_opt_fillmem_(false)
+        swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false),
+        dummy_trim_frame_count_(0), dxr_workload_(false), dxr_opt_fillmem_(false)
     {}
 
     bool IsComplete(uint64_t current_block_index) override { return false; }
@@ -57,6 +59,8 @@ class Dx12StatsConsumer : public Dx12Consumer
     bool ContainsDxrWorkload() { return dxr_workload_; }
 
     bool ContainsDXROptFillMem() { return dxr_opt_fillmem_; }
+
+    UINT GetDummyFrameCount() { return dummy_trim_frame_count_; }
 
     template <typename DescT>
     void CopyAdapterDesc(format::DxgiAdapterDesc& dest, DescT& src)
@@ -245,6 +249,14 @@ class Dx12StatsConsumer : public Dx12Consumer
         dxr_workload_ = true;
     }
 
+    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
+                                                      format::HandleId                                    swapchain_id,
+                                                      uint32_t                                            current_buffer_index,
+                                                      const std::vector<format::SwapchainImageStateInfo>& image_state)
+    {
+        dummy_trim_frame_count_ = current_buffer_index;
+    }
+
   private:
     // Holds adapter descs that were obtained from the app calling GetDesc()
     // This list is only here to support older captures which do contain kDxgiAdapterInfoCommand
@@ -257,6 +269,8 @@ class Dx12StatsConsumer : public Dx12Consumer
     UINT             swapchain_height_;
     format::HandleId swapchain_id_;
     bool             swapchain_info_found_;
+
+    UINT             dummy_trim_frame_count_;
 
     bool dxr_workload_;
     bool dxr_opt_fillmem_;

@@ -370,11 +370,13 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
         }
         else
         {
-            // Include the frame range for trimmed files.
-            GFXRECON_WRITE_CONSOLE("\tTotal frames: %u (trimmed frame range %u-%u)",
-                                   api_agnostic_stats.frame_count,
-                                   api_agnostic_stats.trim_start_frame,
-                                   api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
+            GFXRECON_WRITE_CONSOLE("\tBlank frames: %u", dx12_consumer.GetDummyFrameCount());
+            GFXRECON_WRITE_CONSOLE("\tCaptured frames: %u", api_agnostic_stats.frame_count);
+            GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", dx12_consumer.GetDummyFrameCount() + api_agnostic_stats.frame_count);
+
+            GFXRECON_WRITE_CONSOLE("\tApplication frame range: %u-%u",                
+                api_agnostic_stats.trim_start_frame,
+                api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
         }
 
         PrintDriverInfo(driver_info_consumer);
