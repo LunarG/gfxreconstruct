@@ -260,7 +260,7 @@ struct AnnotationHeader
     BlockHeader    block_header;
     AnnotationType annotation_type;
     uint32_t       label_length;
-    uint32_t       data_length;
+    uint64_t       data_length;
 };
 
 // Metadata block headers and data types.

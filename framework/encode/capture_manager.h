@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 ** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -125,6 +125,12 @@ class CaptureManager
     bool IsTrimHotkeyPressed();
 
     void WriteDisplayMessageCmd(const char* message);
+
+    /// @brief Inject an Annotation block into the capture file.
+    /// @param type Identifies the contents of data as plain, xml, or json text
+    /// @param label The key or name of the annotation.
+    /// @param data The value or payload text of the annotation.
+    void WriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 

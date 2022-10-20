@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 ** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -633,6 +633,17 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
     {
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
+        std::string header_annotation = "{\n"
+                                        "    \"tool\": \"capture\",\n"
+                                        "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
+                                        "    \"vulkan-version\": \"";
+        header_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
+        header_annotation += '.';
+        header_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
+        header_annotation += '.';
+        header_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+        header_annotation += "\"\n}";
+        WriteAnnotation(format::AnnotationType::kJson, "header", header_annotation.c_str());
     }
     else
     {
@@ -697,6 +708,24 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
         message_cmd.thread_id = GetThreadData()->thread_id_;
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
+    }
+}
+
+void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        const auto label_length = decltype(format::AnnotationHeader::label_length)(util::platform::StringLength(label));
+        const auto data_length  = decltype(format::AnnotationHeader::data_length)(util::platform::StringLength(data));
+        format::AnnotationHeader annotation;
+        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+        annotation.block_header.type = format::BlockType::kAnnotation;
+        annotation.annotation_type   = type;
+        annotation.label_length      = label_length;
+        annotation.data_length       = data_length;
+
+        CombineAndWriteToFile(
+            { { &annotation, sizeof(annotation) }, { label, size_t(label_length) }, { data, size_t(data_length) } });
     }
 }
 
