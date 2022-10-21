@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Given a gfxreconstruct command file, identify "interesting"
-keyframes based on distinct maximal function sets used in a frame.  Keyframes
-selected in this way tend to exercise more distinct parts of the trace,
-as many frames will use the same "footprint" of functions as other frames;
-by collapsing to maximal function sets, keyframes can be selected that more
-thoroughly exercise the graphics API.
+"""Given a text file of Vulkan function names, one per line, in order of execution,
+associated with a trace or capture file, identify "interesting" keyframes based on
+distinct maximal function sets used in a frame.  Keyframes selected in this way
+tend to exercise more distinct parts of the trace, as many frames will use the
+same "footprint" of functions as other frames; by collapsing to maximal function
+sets, keyframes can be selected that more thoroughly exercise the graphics API.
 
 The selected keyframes can be further refined through the use of filter
 operations.
@@ -40,9 +40,13 @@ The command file must include frame marker functions (e.g. vkQueuePresentKHR
 for Vulkan); if it does not, no frame boundaries can be established, and keyframes
 cannot be calculated.
 
-The gfxrecon-convert tool can be used to create such a file from a trace
-file, using an editor or a script to extract only the function or method
-name associated with each captured call.
+The gfxrecon-convert tool can be used to create such a file from a trace file.
+An editor or script can be used to extract only the function or method name
+associated with each captured call.  For example, you could extract the
+function names from a Vulkan XXX.jsonl file created by gfxrecon-convert
+using the "jq" tool and a command line like:
+
+    $ jq --raw-output 'select(.vkFunc)|.vkFunc.name' < XXX.jsonl > commandfile.txt
 
 Then using this script will yield the keyframes, e.g.:
 
@@ -55,7 +59,10 @@ Then using this script will yield the keyframes, e.g.:
     INFO: Keyframes in sorted order:   0,1051,1616,1908,1910,2086,2088,4280,4281,5329
 
 This script can also create a command_counts.json file in the same directory, and
-create stub reference images, each of which is helpful in trace processing.
+create stub reference images, which is useful for some CI processes (as reference
+images essentially encode the keyframes; a test execution that identifies the
+keyframes by the filenames in the reference_images/ directory could generate real
+images that can be hand-checked and then used to replace the stub reference image files).
 
 The script respects a .keyframesrc file, located in either the user's home
 directory, or in the current working directory or any parent working directory.
