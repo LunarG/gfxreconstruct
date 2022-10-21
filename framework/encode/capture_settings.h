@@ -74,6 +74,8 @@ class CaptureSettings
         std::vector<TrimRange>        trim_ranges;
         std::string                   trim_key;
         uint32_t                      trim_key_frames{ 0 };
+        bool                          trim_android_use_trigger{ false };
+        bool                          trim_android_trigger{ false };
         bool                          page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                          page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
         bool                          page_guard_persistent_memory{ false };
@@ -92,6 +94,7 @@ class CaptureSettings
     };
 
   public:
+    CaptureSettings() = default;
     CaptureSettings(const TraceSettings& trace_settings);
 
     ~CaptureSettings();
@@ -102,6 +105,7 @@ class CaptureSettings
 
     // Load all settings.
     static void LoadSettings(CaptureSettings* settings);
+    static void LoadRunTimeEnvVarSettings(CaptureSettings* settings);
 
     // Load only log settings.
     static void LoadLogSettings(CaptureSettings* settings);
@@ -114,10 +118,12 @@ class CaptureSettings
     LoadSingleOptionEnvVar(OptionsMap* options, const std::string& environment_variable, const std::string& option_key);
 
     static void LoadOptionsEnvVar(OptionsMap* options);
+    static void LoadRunTimeOptionsEnvVar(OptionsMap* options);
 
     static void LoadOptionsFile(OptionsMap* options);
 
     static void ProcessOptions(OptionsMap* options, CaptureSettings* settings);
+    static void ProcessRunTimeOptions(OptionsMap* options, CaptureSettings* settings);
 
     static void ProcessLogOptions(OptionsMap* options, CaptureSettings* settings);
 

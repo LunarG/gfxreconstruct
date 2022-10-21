@@ -124,6 +124,8 @@ class CaptureManager
 
     bool IsTrimHotkeyPressed();
 
+    bool IsTrimEnvVarEnabled();
+
     void WriteDisplayMessageCmd(const char* message);
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
