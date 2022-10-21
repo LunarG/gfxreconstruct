@@ -5053,6 +5053,11 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             auto table = GetDeviceTable(device);
             assert(table != nullptr);
 
+            if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+            {
+                swapchain_info->acquired_indices.resize(captured_index + 1);
+            }
+
             if (swapchain_info != nullptr)
             {
                 swapchain_info->acquired_indices[captured_index] = captured_index;
@@ -5090,6 +5095,11 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
             result = swapchain_->AcquireNextImage2KHR(
                 func, device_info, swapchain_info, replay_acquire_info, captured_index, replay_index);
+
+            if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+            {
+                swapchain_info->acquired_indices.resize(captured_index + 1);
+            }
 
             // Track the index that was acquired on replay, which may be different than the captured index.
             swapchain_info->acquired_indices[captured_index] = (*replay_index);
