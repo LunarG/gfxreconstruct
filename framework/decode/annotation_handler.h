@@ -1,5 +1,6 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2022 Valve Corporation
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -36,7 +37,10 @@ class AnnotationHandler
   public:
     virtual ~AnnotationHandler() {}
 
-    virtual void ProcessAnnotation(format::AnnotationType type, const std::string& label, const std::string& data) = 0;
+    virtual void ProcessAnnotation(uint64_t               block_index,
+                                   format::AnnotationType type,
+                                   const std::string&     label,
+                                   const std::string&     data) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)
