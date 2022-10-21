@@ -124,6 +124,8 @@ class CaptureManager
 
     bool IsTrimHotkeyPressed();
 
+    bool IsTrimEnvVarEnabled();
+
     void WriteDisplayMessageCmd(const char* message);
 
     /// @brief Inject an Annotation block into the capture file.

@@ -83,6 +83,10 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_TRIGGER_UPPER                   "CAPTURE_TRIGGER"
 #define CAPTURE_TRIGGER_FRAMES_LOWER            "capture_trigger_frames"
 #define CAPTURE_TRIGGER_FRAMES_UPPER            "CAPTURE_TRIGGER_FRAMES"
+#define CAPTURE_ANDROID_USE_TRIGGER_LOWER       "capture_android_use_trigger"
+#define CAPTURE_ANDROID_USE_TRIGGER_UPPER       "CAPTURE_ANDROID_USE_TRIGGER"
+#define CAPTURE_ANDROID_TRIGGER_LOWER           "capture_android_trigger"
+#define CAPTURE_ANDROID_TRIGGER_UPPER           "CAPTURE_ANDROID_TRIGGER"
 #define PAGE_GUARD_COPY_ON_MAP_LOWER            "page_guard_copy_on_map"
 #define PAGE_GUARD_COPY_ON_MAP_UPPER            "PAGE_GUARD_COPY_ON_MAP"
 #define PAGE_GUARD_SEPARATE_READ_LOWER          "page_guard_separate_read"
@@ -142,6 +146,8 @@ const char kPageGuardUnblockSIGSEGVEnvVar[]       = GFXRECON_ENV_VAR_PREFIX PAGE
 const char kPageGuardSignalHandlerWatcherEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER;
 const char kDebugLayerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]               = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
+const char kCaptureAndroidUseTriggerEnvVar[]      = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_USE_TRIGGER_LOWER;
+const char kCaptureAndroidTriggerEnvVar[]         = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_LOWER;
 
 #else
 // Desktop environment settings
@@ -180,6 +186,8 @@ const char kCaptureTriggerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX CAPT
 const char kCaptureTriggerFramesEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_UPPER;
 const char kDebugLayerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
 const char kDebugDeviceLostEnvVar[]               = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_UPPER;
+const char kCaptureAndroidUseTriggerEnvVar[]      = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_USE_TRIGGER_UPPER;
+const char kCaptureAndroidTriggerEnvVar[]         = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -217,6 +225,8 @@ const std::string kOptionKeyPageGuardUnblockSigSegV       = std::string(kSetting
 const std::string kOptionKeyPageGuardSignalHandlerWatcher = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER);
 const std::string kDebugLayer                             = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                        = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
+const std::string kOptionKeyCaptureAndroidUseTrigger      = std::string(kSettingsFilter) + std::string(CAPTURE_ANDROID_USE_TRIGGER_LOWER);
+const std::string kOptionKeyCaptureAndroidTrigger         = std::string(kSettingsFilter) + std::string(CAPTURE_ANDROID_TRIGGER_LOWER);
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -243,6 +253,9 @@ void CaptureSettings::LoadSettings(CaptureSettings* settings)
         LoadOptionsEnvVar(&capture_settings);
         ProcessOptions(&capture_settings, settings);
 
+        LoadRunTimeOptionsEnvVar(&capture_settings);
+        ProcessRunTimeOptions(&capture_settings, settings);
+
         // Valid options are removed as they are read from the OptionsMap.  Therefore, if anything
         // is remaining in it after we're done, it's an invalid setting.
         if (!capture_settings.empty())
@@ -254,6 +267,17 @@ void CaptureSettings::LoadSettings(CaptureSettings* settings)
                                      iter->second.c_str());
             }
         }
+    }
+}
+
+void CaptureSettings::LoadRunTimeEnvVarSettings(CaptureSettings* settings)
+{
+    if (settings != nullptr)
+    {
+        OptionsMap capture_settings;
+
+        LoadRunTimeOptionsEnvVar(&capture_settings);
+        ProcessRunTimeOptions(&capture_settings, settings);
     }
 }
 
@@ -323,6 +347,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kPageGuardExternalMemoryEnvVar, kOptionKeyPageGuardExternalMemory);
     LoadSingleOptionEnvVar(options, kPageGuardUnblockSIGSEGVEnvVar, kOptionKeyPageGuardUnblockSigSegV);
     LoadSingleOptionEnvVar(options, kPageGuardSignalHandlerWatcherEnvVar, kOptionKeyPageGuardSignalHandlerWatcher);
+    LoadSingleOptionEnvVar(options, kCaptureAndroidUseTriggerEnvVar, kOptionKeyCaptureAndroidUseTrigger);
 
     // Debug environment variables
     LoadSingleOptionEnvVar(options, kDebugLayerEnvVar, kDebugLayer);
@@ -331,6 +356,13 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     // Screenshot environment variables
     LoadSingleOptionEnvVar(options, kScreenshotDirEnvVar, kOptionKeyScreenshotDir);
     LoadSingleOptionEnvVar(options, kScreenshotFramesEnvVar, kOptionKeyScreenshotFrames);
+}
+
+void CaptureSettings::LoadRunTimeOptionsEnvVar(OptionsMap* options)
+{
+    assert(options != nullptr);
+
+    LoadSingleOptionEnvVar(options, kCaptureAndroidTriggerEnvVar, kOptionKeyCaptureAndroidTrigger);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -417,6 +449,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.page_guard_signal_handler_watcher =
         ParseBoolString(FindOption(options, kOptionKeyPageGuardSignalHandlerWatcher),
                         settings->trace_settings_.page_guard_signal_handler_watcher);
+    settings->trace_settings_.trim_android_use_trigger = ParseBoolString(
+        FindOption(options, kOptionKeyCaptureAndroidUseTrigger), settings->trace_settings_.trim_android_use_trigger);
 
     // Debug options
     settings->trace_settings_.debug_layer =
@@ -430,6 +464,14 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.screenshot_dir =
         FindOption(options, kOptionKeyScreenshotDir, settings->trace_settings_.screenshot_dir);
     ParseFramesList(FindOption(options, kOptionKeyScreenshotFrames), &settings->trace_settings_.screenshot_ranges);
+}
+
+void CaptureSettings::ProcessRunTimeOptions(OptionsMap* options, CaptureSettings* settings)
+{
+    assert(settings != nullptr);
+
+    settings->trace_settings_.trim_android_trigger = ParseBoolString(
+        FindOption(options, kOptionKeyCaptureAndroidTrigger), settings->trace_settings_.trim_android_trigger);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)

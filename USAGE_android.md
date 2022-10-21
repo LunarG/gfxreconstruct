@@ -148,6 +148,8 @@ Option | Property | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | debug.gfxrecon.capture_file | STRING | Path to use when creating the capture file.  Default is: `/sdcard/gfxrecon_capture.gfxr`
 Capture Specific Frames | debug.gfxrecon.capture_frames | STRING | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).
+Capture triggered for Android | debug.gfxrecon.capture_android_use_trigger | BOOL | Specifies that `debug.gfxrecon.capture_android_trigger` will be used to star/stop trimmed captures. Default is: `false`
+Capture trigger for Android | debug.gfxrecon.capture_android_trigger | BOOL | Set to `true` to start capturing and to `false` to stop. Default is: `false`
 Capture File Compression Type | debug.gfxrecon.capture_compression_type | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
 Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
 Capture File Flush After Write | debug.gfxrecon.capture_file_flush | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
@@ -375,9 +377,9 @@ optional arguments:
                         Omit Vulkan API calls which would pass a NULL
                         AHardwareBuffer*.  (forwarded to replay tool)
   --use-captured-swapchain-indices
-                        Use the swapchain indices stored in the capture directly on the swapchain 
+                        Use the swapchain indices stored in the capture directly on the swapchain
                         setup for replay. The default without this option is to use a Virtual Swapchain
-                        of images which match the swapchain in effect at capture time and which are 
+                        of images which match the swapchain in effect at capture time and which are
                         copied to the underlying swapchain of the implementation being replayed on.
 ```
 
