@@ -1113,7 +1113,10 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
     {
         const auto& value_infos = resource_value_infos.second;
 
-        GFXRECON_ASSERT(!value_infos.empty());
+        if (value_infos.empty())
+        {
+            GFXRECON_LOG_WARNING_ONCE("Did not find resource value info for the given object.");
+        }
 
         auto resource_object_info = resource_value_infos.first;
         auto resource             = static_cast<ID3D12Resource*>(resource_object_info->object);
