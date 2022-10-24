@@ -354,7 +354,8 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage,
                                            trace_settings.page_guard_unblock_sigsegv,
-                                           trace_settings.page_guard_signal_handler_watcher);
+                                           trace_settings.page_guard_signal_handler_watcher,
+                                           trace_settings.page_guard_signal_handler_watcher_max_restores);
         }
 
         if ((capture_mode_ & kModeTrack) == kModeTrack)
