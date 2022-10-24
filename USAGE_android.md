@@ -170,6 +170,7 @@ Page Guard Align Buffer Sizes | debug.gfxrecon.page_guard_align_buffer_sizes | B
 Omit calls with NULL AHardwareBuffer* | debug.gfxrecon.omit_null_hardware_buffers | BOOL | Some GFXReconstruct capture files may replay with a NULL AHardwareBuffer* parameter, for example, vkGetAndroidHardwareBufferPropertiesANDROID.  Although this is invalid Vulkan usage, some drivers may ignore these calls and some may not. This option causes replay to omit Vulkan calls for which the AHardwareBuffer* would be NULL. Default is `false`
 Page guard unblock SIGSEGV | debug.gfxrecon.page_guard_unblock_sigsegv | BOOL | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask. Default is `false`
 Page guard signal handler watcher | debug.gfxrecon.page_guard_signal_handler_watcher | BOOL | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`
+Page guard signal handler watcher max restores | debug.gfxrecon.page_guard_signal_handler_watcher_max_restores | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative value will make the watcher thread run indefinitely. Default is `1`
 
 #### Memory Tracking Known Issues
 

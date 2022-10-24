@@ -204,6 +204,7 @@ PageGuardManager::PageGuardManager() :
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
     enable_separate_read_(kDefaultEnableSeparateRead), unblock_sigsegv_(kDefaultUnblockSIGSEGV),
     enable_signal_handler_watcher_(kDefaultEnableSignalHandlerWatcher),
+    signal_handler_watcher_max_restores_(kDefaultSignalHandlerWatcherMaxRestores),
     enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {
     InitializeSystemExceptionContext();
@@ -213,12 +214,14 @@ PageGuardManager::PageGuardManager(bool enable_copy_on_map,
                                    bool enable_separate_read,
                                    bool expect_read_write_same_page,
                                    bool unblock_SIGSEGV,
-                                   bool enable_signal_handler_watcher) :
+                                   bool enable_signal_handler_watcher,
+                                   int  signal_handler_watcher_max_restores) :
     exception_handler_(nullptr),
     exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
     enable_signal_handler_watcher_(enable_signal_handler_watcher),
+    signal_handler_watcher_max_restores_(signal_handler_watcher_max_restores),
     enable_read_write_same_page_(expect_read_write_same_page)
 {
     InitializeSystemExceptionContext();
@@ -233,8 +236,7 @@ PageGuardManager::~PageGuardManager()
 }
 
 #if !defined(WIN32)
-constexpr uint32_t PageGuardManager::signal_handler_watcher_max_restores_;
-uint32_t           PageGuardManager::signal_handler_watcher_restores_ = 0;
+uint32_t PageGuardManager::signal_handler_watcher_restores_ = 0;
 
 void PageGuardManager::MarkAllTrackedMemoryAsDirty()
 {
@@ -295,7 +297,8 @@ bool PageGuardManager::CheckSignalHandler()
 void* PageGuardManager::SignalHandlerWatcher(void* args)
 {
     while (instance_->enable_signal_handler_watcher_ &&
-           signal_handler_watcher_restores_ < signal_handler_watcher_max_restores_)
+           (instance_->signal_handler_watcher_max_restores_ < 0 ||
+            signal_handler_watcher_restores_ < static_cast<uint32_t>(instance_->signal_handler_watcher_max_restores_)))
     {
         if (CheckSignalHandler())
         {
@@ -311,7 +314,8 @@ void PageGuardManager::Create(bool enable_copy_on_map,
                               bool enable_separate_read,
                               bool expect_read_write_same_page,
                               bool unblock_SIGSEGV,
-                              bool enable_signal_handler_watcher)
+                              bool enable_signal_handler_watcher,
+                              int  signal_handler_watcher_max_restores)
 {
     if (instance_ == nullptr)
     {
@@ -319,10 +323,13 @@ void PageGuardManager::Create(bool enable_copy_on_map,
                                          enable_separate_read,
                                          expect_read_write_same_page,
                                          unblock_SIGSEGV,
-                                         enable_signal_handler_watcher);
+                                         enable_signal_handler_watcher,
+                                         signal_handler_watcher_max_restores);
 
 #if !defined(WIN32)
-        if (enable_signal_handler_watcher && signal_handler_watcher_restores_ < signal_handler_watcher_max_restores_)
+        if (enable_signal_handler_watcher &&
+            (signal_handler_watcher_max_restores < 0 ||
+             signal_handler_watcher_restores_ < static_cast<uint32_t>(signal_handler_watcher_max_restores)))
         {
             int ret =
                 pthread_create(&instance_->signal_handler_watcher_thread_, nullptr, SignalHandlerWatcher, nullptr);

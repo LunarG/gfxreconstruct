@@ -76,6 +76,7 @@ class CaptureSettings
         uint32_t                      trim_key_frames{ 0 };
         bool                          trim_android_use_trigger{ false };
         bool                          trim_android_trigger{ false };
+        int                           page_guard_signal_handler_watcher_max_restores{ 1 };
         bool                          page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                          page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
         bool                          page_guard_persistent_memory{ false };
@@ -130,6 +131,8 @@ class CaptureSettings
     static std::string FindOption(OptionsMap* options, const std::string& key, const std::string& default_value = "");
 
     static bool ParseBoolString(const std::string& value_string, bool default_value);
+
+    static int ParseIntegerString(const std::string& value_string, int default_value);
 
     static MemoryTrackingMode ParseMemoryTrackingModeString(const std::string& value_string,
                                                             MemoryTrackingMode default_value);
