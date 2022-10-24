@@ -28,6 +28,7 @@
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
+#include "util/strings.h"
 #include "util/logging.h"
 
 #include "vulkan/vulkan.h"
@@ -152,7 +153,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxr
         trimmed_frame_ = static_cast<uint32_t>(frame_number);
     }
 
-    /// @brief Count all annotations and save the header ones which contain data
+    /// @brief Count all annotations and save the operation ones which contain data
     /// such as build versions from the tools that have processed the file.
     virtual void ProcessAnnotation(uint64_t                         block_index,
                                    gfxrecon::format::AnnotationType type,
@@ -662,16 +663,9 @@ int main(int argc, const char** argv)
                 if (operation_annotation_datas.size() > 0)
                 {
                     GFXRECON_WRITE_CONSOLE("\tOperation annotations: %" PRIu64 "\n", operation_annotation_datas.size());
-                    for (const auto& header : operation_annotation_datas)
+                    for (const auto& operation : operation_annotation_datas)
                     {
-                        // Tab out the json file to line up with output:
-                        auto   tabbed = "\t" + header;
-                        size_t match  = 0;
-                        while ((match = tabbed.find('\n', match + 1)) != std::string::npos)
-                        {
-                            tabbed.replace(match, 1, "\n\t");
-                        }
-
+                        auto tabbed = gfxrecon::util::strings::TabRight(operation);
                         GFXRECON_WRITE_CONSOLE(tabbed.c_str());
                     }
                 }

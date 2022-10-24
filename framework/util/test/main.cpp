@@ -102,3 +102,19 @@ TEST_CASE("JSONEscape", "[to_string]")
 
     gfxrecon::util::Log::Release();
 }
+
+#include "util/strings.h"
+
+TEST_CASE("TabRight", "[strings]")
+{
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+
+    REQUIRE(gfxrecon::util::strings::TabRight("") == "\t");
+    REQUIRE(gfxrecon::util::strings::TabRight("\n") == "\t\n\t");
+    REQUIRE(gfxrecon::util::strings::TabRight("\t") == "\t\t");
+    REQUIRE(gfxrecon::util::strings::TabRight("\t\t") == "\t\t\t");
+    REQUIRE(gfxrecon::util::strings::TabRight("l1\nl2\nl3") == "\tl1\n\tl2\n\tl3");
+    REQUIRE_FALSE(gfxrecon::util::strings::TabRight("l1\nl2\n\nl3") == "\tl1\n\tl2\n\tl3");
+
+    gfxrecon::util::Log::Release();
+}
