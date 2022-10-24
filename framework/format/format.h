@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,6 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file Definition of the capture file format.
 
 #ifndef GFXRECON_FORMAT_FORMAT_H
 #define GFXRECON_FORMAT_FORMAT_H
@@ -57,6 +58,10 @@ const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
 const HandleId kNullHandleId              = 0;
+
+/// Label for operation annotation, which captures parameters used by tools
+/// operating on a capture file.
+const char* const kAnnotationLabelOperation = "operation";
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {

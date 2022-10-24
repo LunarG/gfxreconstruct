@@ -633,17 +633,18 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
     {
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
-        std::string header_annotation = "{\n"
-                                        "    \"tool\": \"capture\",\n"
-                                        "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
-                                        "    \"vulkan-version\": \"";
-        header_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
-        header_annotation += '.';
-        header_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
-        header_annotation += '.';
-        header_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-        header_annotation += "\"\n}";
-        WriteAnnotation(format::AnnotationType::kJson, "header", header_annotation.c_str());
+        // Save parameters of the capture in an annotation.
+        std::string operation_annotation = "{\n"
+                                           "    \"tool\": \"capture\",\n"
+                                           "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
+                                           "    \"vulkan-version\": \"";
+        operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += '.';
+        operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += '.';
+        operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += "\"\n}";
+        WriteAnnotation(format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
     }
     else
     {

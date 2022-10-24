@@ -132,7 +132,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxr
     uint64_t                        GetMinAllocationSize() const { return min_allocation_size_; }
     uint64_t                        GetMaxAllocationSize() const { return max_allocation_size_; }
     uint64_t                        GetAnnotationCount() const { return annotation_count_; }
-    const std::vector<std::string>& GetHeaderAnnotationDatas() const { return header_annotation_datas_; }
+    const std::vector<std::string>& GetOperationAnnotationDatas() const { return operation_annotation_datas_; }
 
     const std::set<gfxrecon::format::HandleId>& GetInstantiatedDevices() const { return used_physical_devices_; }
     const VkPhysicalDeviceProperties*           GetDeviceProperties(gfxrecon::format::HandleId id) const
@@ -160,9 +160,10 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxr
                                    const std::string&               data) override
     {
         ++annotation_count_;
-        if (type == gfxrecon::format::AnnotationType::kJson && label.compare("header") == 0)
+        if (type == gfxrecon::format::AnnotationType::kJson &&
+            label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
         {
-            header_annotation_datas_.push_back(data);
+            operation_annotation_datas_.push_back(data);
         }
     }
 
@@ -511,7 +512,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxr
     uint64_t max_allocation_size_{ 0 };
 
     // Annotation info.
-    std::vector<std::string> header_annotation_datas_;
+    std::vector<std::string> operation_annotation_datas_;
     uint64_t                 annotation_count_{ 0 };
 };
 
@@ -657,11 +658,11 @@ int main(int argc, const char** argv)
             {
                 GFXRECON_WRITE_CONSOLE("\nAnnotation info:");
                 GFXRECON_WRITE_CONSOLE("\tTotal annotations: %" PRIu64, annotation_count);
-                auto& header_annotation_datas = stats_consumer.GetHeaderAnnotationDatas();
-                if (header_annotation_datas.size() > 0)
+                auto& operation_annotation_datas = stats_consumer.GetOperationAnnotationDatas();
+                if (operation_annotation_datas.size() > 0)
                 {
-                    GFXRECON_WRITE_CONSOLE("\tHeader annotations: %" PRIu64 "\n", header_annotation_datas.size());
-                    for (const auto& header : header_annotation_datas)
+                    GFXRECON_WRITE_CONSOLE("\tOperation annotations: %" PRIu64 "\n", operation_annotation_datas.size());
+                    for (const auto& header : operation_annotation_datas)
                     {
                         // Tab out the json file to line up with output:
                         auto   tabbed = "\t" + header;
