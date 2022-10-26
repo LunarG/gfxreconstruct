@@ -47,18 +47,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void Track_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12GraphicsCommandList_Wrapper* wrapper,
-                                                     UINT                               NumBarriers,
-                                                     const D3D12_RESOURCE_BARRIER*      pBarriers);
+void Track_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12CommandList_Wrapper*    wrapper,
+                                                     UINT                          NumBarriers,
+                                                     const D3D12_RESOURCE_BARRIER* pBarriers);
 
-void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList_Wrapper*          wrapper,
+void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12CommandList_Wrapper*                  wrapper,
                                                       UINT                                        NumRenderTargets,
                                                       const D3D12_RENDER_PASS_RENDER_TARGET_DESC* pRenderTargets,
                                                       const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
                                                       D3D12_RENDER_PASS_FLAGS                     Flags);
 
 void Track_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
-    ID3D12GraphicsCommandList_Wrapper*                                 wrapper,
+    ID3D12CommandList_Wrapper*                                         wrapper,
     const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          pDesc,
     UINT                                                               NumPostbuildInfoDescs,
     const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs);

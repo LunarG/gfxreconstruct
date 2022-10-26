@@ -87,9 +87,9 @@ void Dx12StateTracker::TrackFenceSignal(ID3D12Fence_Wrapper* fence_wrapper, UINT
     }
 }
 
-void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                             format::ApiCallId                  call_id,
-                                             const util::MemoryOutputStream*    parameter_buffer)
+void Dx12StateTracker::TrackCommandExecution(ID3D12CommandList_Wrapper*      list_wrapper,
+                                             format::ApiCallId               call_id,
+                                             const util::MemoryOutputStream* parameter_buffer)
 {
     if (list_wrapper == nullptr)
     {
@@ -138,9 +138,9 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* 
     list_info->command_data.Write(parameter_buffer->GetData(), size);
 }
 
-void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                    format::ApiCallId                  call_id,
-                                    const util::MemoryOutputStream*    parameter_buffer)
+void Dx12StateTracker::TrackCommand(ID3D12CommandList_Wrapper*      list_wrapper,
+                                    format::ApiCallId               call_id,
+                                    const util::MemoryOutputStream* parameter_buffer)
 {
     if (list_wrapper != nullptr)
     {
@@ -148,9 +148,9 @@ void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrap
     }
 }
 
-void Dx12StateTracker::TrackResourceBarriers(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                             UINT                               num_barriers,
-                                             const D3D12_RESOURCE_BARRIER*      barriers)
+void Dx12StateTracker::TrackResourceBarriers(ID3D12CommandList_Wrapper*    list_wrapper,
+                                             UINT                          num_barriers,
+                                             const D3D12_RESOURCE_BARRIER* barriers)
 {
     for (UINT i = 0; i < num_barriers; ++i)
     {
@@ -176,7 +176,7 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
 {
     for (UINT i = 0; i < num_lists; ++i)
     {
-        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(lists[i]);
+        auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[i]);
         auto list_info    = list_wrapper->GetObjectInfo();
 
         // Apply pending resource transitions to tracked resource states.
@@ -293,9 +293,9 @@ void Dx12StateTracker::TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapp
     state_table_.AddResourceGpuVa(resource_wrapper, address);
 }
 
-void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                                bool                               created_closed,
-                                                D3D12_COMMAND_LIST_TYPE            command_list_type)
+void Dx12StateTracker::TrackCommandListCreation(ID3D12CommandList_Wrapper* list_wrapper,
+                                                bool                       created_closed,
+                                                D3D12_COMMAND_LIST_TYPE    command_list_type)
 {
     auto list_info               = list_wrapper->GetObjectInfo();
     list_info->is_closed         = created_closed;

@@ -147,11 +147,11 @@ class D3D12CaptureManager : public CaptureManager
     void EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
                                               ID3D12Device_Wrapper*       create_object_wrapper);
 
-    void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper);
+    void EndCommandListMethodCallCapture(ID3D12CommandList_Wrapper* list_wrapper);
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
-    void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                         GetHandlesFunc                     func,
+    void EndCommandListMethodCallCapture(ID3D12CommandList_Wrapper* list_wrapper,
+                                         GetHandlesFunc             func,
                                          GetHandlesArgs... args)
     {
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
@@ -391,9 +391,9 @@ class D3D12CaptureManager : public CaptureManager
                                                ID3D12Fence*                fence,
                                                UINT64                      value);
 
-    void PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                                               UINT                               num_barriers,
-                                                               const D3D12_RESOURCE_BARRIER*      barriers);
+    void PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12CommandList_Wrapper*    list_wrapper,
+                                                               UINT                          num_barriers,
+                                                               const D3D12_RESOURCE_BARRIER* barriers);
 
     void PostProcess_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
         ID3D12GraphicsCommandList4_Wrapper*                                list_wrapper,

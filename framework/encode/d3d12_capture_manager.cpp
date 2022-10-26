@@ -97,7 +97,7 @@ void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIP
     EndMethodCallCapture();
 }
 
-void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper)
+void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12CommandList_Wrapper* list_wrapper)
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
@@ -1886,8 +1886,9 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_Signal(ID3D12CommandQue
     }
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
-    ID3D12GraphicsCommandList_Wrapper* list_wrapper, UINT num_barriers, const D3D12_RESOURCE_BARRIER* barriers)
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12CommandList_Wrapper* list_wrapper,
+                                                                                UINT                       num_barriers,
+                                                                                const D3D12_RESOURCE_BARRIER* barriers)
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
@@ -1934,7 +1935,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Devic
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
+        auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
         state_tracker_->TrackCommandListCreation(list_wrapper, false, type);
     }
 }
@@ -1949,7 +1950,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Dev
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
+        auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
         state_tracker_->TrackCommandListCreation(list_wrapper, true, type);
     }
 }

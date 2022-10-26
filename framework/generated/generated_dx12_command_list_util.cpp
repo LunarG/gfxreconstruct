@@ -34,7 +34,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void Track_ID3D12GraphicsCommandList_Reset(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12CommandAllocator * pAllocator, ID3D12PipelineState * pInitialState)
+void Track_ID3D12GraphicsCommandList_Reset(ID3D12CommandList_Wrapper* wrapper, ID3D12CommandAllocator * pAllocator, ID3D12PipelineState * pInitialState)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -50,7 +50,7 @@ void Track_ID3D12GraphicsCommandList_Reset(ID3D12GraphicsCommandList_Wrapper* wr
 }
 
 
-void Track_ID3D12GraphicsCommandList_ClearState(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12PipelineState * pPipelineState)
+void Track_ID3D12GraphicsCommandList_ClearState(ID3D12CommandList_Wrapper* wrapper, ID3D12PipelineState * pPipelineState)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -62,7 +62,7 @@ void Track_ID3D12GraphicsCommandList_ClearState(ID3D12GraphicsCommandList_Wrappe
 }
 
 
-void Track_ID3D12GraphicsCommandList_CopyBufferRegion(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pDstBuffer, UINT64 DstOffset, ID3D12Resource * pSrcBuffer, UINT64 SrcOffset, UINT64 NumBytes)
+void Track_ID3D12GraphicsCommandList_CopyBufferRegion(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pDstBuffer, UINT64 DstOffset, ID3D12Resource * pSrcBuffer, UINT64 SrcOffset, UINT64 NumBytes)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -78,7 +78,7 @@ void Track_ID3D12GraphicsCommandList_CopyBufferRegion(ID3D12GraphicsCommandList_
 }
 
 
-void Track_ID3D12GraphicsCommandList_CopyTextureRegion(ID3D12GraphicsCommandList_Wrapper* wrapper, const D3D12_TEXTURE_COPY_LOCATION * pDst, UINT DstX, UINT DstY, UINT DstZ, const D3D12_TEXTURE_COPY_LOCATION * pSrc, const D3D12_BOX * pSrcBox)
+void Track_ID3D12GraphicsCommandList_CopyTextureRegion(ID3D12CommandList_Wrapper* wrapper, const D3D12_TEXTURE_COPY_LOCATION * pDst, UINT DstX, UINT DstY, UINT DstZ, const D3D12_TEXTURE_COPY_LOCATION * pSrc, const D3D12_BOX * pSrcBox)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -100,7 +100,7 @@ void Track_ID3D12GraphicsCommandList_CopyTextureRegion(ID3D12GraphicsCommandList
 }
 
 
-void Track_ID3D12GraphicsCommandList_CopyResource(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pDstResource, ID3D12Resource * pSrcResource)
+void Track_ID3D12GraphicsCommandList_CopyResource(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pDstResource, ID3D12Resource * pSrcResource)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -116,7 +116,7 @@ void Track_ID3D12GraphicsCommandList_CopyResource(ID3D12GraphicsCommandList_Wrap
 }
 
 
-void Track_ID3D12GraphicsCommandList_CopyTiles(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pTiledResource, const D3D12_TILED_RESOURCE_COORDINATE * pTileRegionStartCoordinate, const D3D12_TILE_REGION_SIZE * pTileRegionSize, ID3D12Resource * pBuffer, UINT64 BufferStartOffsetInBytes, D3D12_TILE_COPY_FLAGS Flags)
+void Track_ID3D12GraphicsCommandList_CopyTiles(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pTiledResource, const D3D12_TILED_RESOURCE_COORDINATE * pTileRegionStartCoordinate, const D3D12_TILE_REGION_SIZE * pTileRegionSize, ID3D12Resource * pBuffer, UINT64 BufferStartOffsetInBytes, D3D12_TILE_COPY_FLAGS Flags)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -132,7 +132,7 @@ void Track_ID3D12GraphicsCommandList_CopyTiles(ID3D12GraphicsCommandList_Wrapper
 }
 
 
-void Track_ID3D12GraphicsCommandList_ResolveSubresource(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pDstResource, UINT DstSubresource, ID3D12Resource * pSrcResource, UINT SrcSubresource, DXGI_FORMAT Format)
+void Track_ID3D12GraphicsCommandList_ResolveSubresource(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pDstResource, UINT DstSubresource, ID3D12Resource * pSrcResource, UINT SrcSubresource, DXGI_FORMAT Format)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -148,7 +148,7 @@ void Track_ID3D12GraphicsCommandList_ResolveSubresource(ID3D12GraphicsCommandLis
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetPipelineState(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12PipelineState * pPipelineState)
+void Track_ID3D12GraphicsCommandList_SetPipelineState(ID3D12CommandList_Wrapper* wrapper, ID3D12PipelineState * pPipelineState)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -160,7 +160,7 @@ void Track_ID3D12GraphicsCommandList_SetPipelineState(ID3D12GraphicsCommandList_
 }
 
 
-void Track_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12GraphicsCommandList * pCommandList)
+void Track_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12CommandList_Wrapper* wrapper, ID3D12GraphicsCommandList * pCommandList)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -172,7 +172,7 @@ void Track_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wra
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetDescriptorHeaps(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT NumDescriptorHeaps, ID3D12DescriptorHeap * const * ppDescriptorHeaps)
+void Track_ID3D12GraphicsCommandList_SetDescriptorHeaps(ID3D12CommandList_Wrapper* wrapper, UINT NumDescriptorHeaps, ID3D12DescriptorHeap * const * ppDescriptorHeaps)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -187,7 +187,7 @@ void Track_ID3D12GraphicsCommandList_SetDescriptorHeaps(ID3D12GraphicsCommandLis
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetComputeRootSignature(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12RootSignature * pRootSignature)
+void Track_ID3D12GraphicsCommandList_SetComputeRootSignature(ID3D12CommandList_Wrapper* wrapper, ID3D12RootSignature * pRootSignature)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -199,7 +199,7 @@ void Track_ID3D12GraphicsCommandList_SetComputeRootSignature(ID3D12GraphicsComma
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetGraphicsRootSignature(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12RootSignature * pRootSignature)
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootSignature(ID3D12CommandList_Wrapper* wrapper, ID3D12RootSignature * pRootSignature)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -211,7 +211,7 @@ void Track_ID3D12GraphicsCommandList_SetGraphicsRootSignature(ID3D12GraphicsComm
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+void Track_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -220,7 +220,7 @@ void Track_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(ID3D12Graphic
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -229,7 +229,7 @@ void Track_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(ID3D12Graphi
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+void Track_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -238,7 +238,7 @@ void Track_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(ID3D12Grap
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -247,7 +247,7 @@ void Track_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(ID3D12Gra
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+void Track_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -256,7 +256,7 @@ void Track_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(ID3D12Grap
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -265,7 +265,7 @@ void Track_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(ID3D12Gra
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+void Track_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -274,7 +274,7 @@ void Track_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(ID3D12Gra
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(ID3D12CommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -283,7 +283,7 @@ void Track_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(ID3D12Gr
 }
 
 
-void Track_ID3D12GraphicsCommandList_IASetIndexBuffer(ID3D12GraphicsCommandList_Wrapper* wrapper, const D3D12_INDEX_BUFFER_VIEW * pView)
+void Track_ID3D12GraphicsCommandList_IASetIndexBuffer(ID3D12CommandList_Wrapper* wrapper, const D3D12_INDEX_BUFFER_VIEW * pView)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -295,7 +295,7 @@ void Track_ID3D12GraphicsCommandList_IASetIndexBuffer(ID3D12GraphicsCommandList_
 }
 
 
-void Track_ID3D12GraphicsCommandList_IASetVertexBuffers(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT StartSlot, UINT NumViews, const D3D12_VERTEX_BUFFER_VIEW * pViews)
+void Track_ID3D12GraphicsCommandList_IASetVertexBuffers(ID3D12CommandList_Wrapper* wrapper, UINT StartSlot, UINT NumViews, const D3D12_VERTEX_BUFFER_VIEW * pViews)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -310,7 +310,7 @@ void Track_ID3D12GraphicsCommandList_IASetVertexBuffers(ID3D12GraphicsCommandLis
 }
 
 
-void Track_ID3D12GraphicsCommandList_SOSetTargets(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT StartSlot, UINT NumViews, const D3D12_STREAM_OUTPUT_BUFFER_VIEW * pViews)
+void Track_ID3D12GraphicsCommandList_SOSetTargets(ID3D12CommandList_Wrapper* wrapper, UINT StartSlot, UINT NumViews, const D3D12_STREAM_OUTPUT_BUFFER_VIEW * pViews)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -326,7 +326,7 @@ void Track_ID3D12GraphicsCommandList_SOSetTargets(ID3D12GraphicsCommandList_Wrap
 }
 
 
-void Track_ID3D12GraphicsCommandList_OMSetRenderTargets(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT NumRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE * pRenderTargetDescriptors, BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE * pDepthStencilDescriptor)
+void Track_ID3D12GraphicsCommandList_OMSetRenderTargets(ID3D12CommandList_Wrapper* wrapper, UINT NumRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE * pRenderTargetDescriptors, BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE * pDepthStencilDescriptor)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -349,7 +349,7 @@ void Track_ID3D12GraphicsCommandList_OMSetRenderTargets(ID3D12GraphicsCommandLis
 }
 
 
-void Track_ID3D12GraphicsCommandList_ClearDepthStencilView(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView, D3D12_CLEAR_FLAGS ClearFlags, FLOAT Depth, UINT8 Stencil, UINT NumRects, const D3D12_RECT * pRects)
+void Track_ID3D12GraphicsCommandList_ClearDepthStencilView(ID3D12CommandList_Wrapper* wrapper, D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView, D3D12_CLEAR_FLAGS ClearFlags, FLOAT Depth, UINT8 Stencil, UINT NumRects, const D3D12_RECT * pRects)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -358,7 +358,7 @@ void Track_ID3D12GraphicsCommandList_ClearDepthStencilView(ID3D12GraphicsCommand
 }
 
 
-void Track_ID3D12GraphicsCommandList_ClearRenderTargetView(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetView, const FLOAT* ColorRGBA, UINT NumRects, const D3D12_RECT * pRects)
+void Track_ID3D12GraphicsCommandList_ClearRenderTargetView(ID3D12CommandList_Wrapper* wrapper, D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetView, const FLOAT* ColorRGBA, UINT NumRects, const D3D12_RECT * pRects)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -367,7 +367,7 @@ void Track_ID3D12GraphicsCommandList_ClearRenderTargetView(ID3D12GraphicsCommand
 }
 
 
-void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource * pResource, const UINT* Values, UINT NumRects, const D3D12_RECT * pRects)
+void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(ID3D12CommandList_Wrapper* wrapper, D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource * pResource, const UINT* Values, UINT NumRects, const D3D12_RECT * pRects)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -381,7 +381,7 @@ void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(ID3D12Graphics
 }
 
 
-void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource * pResource, const FLOAT* Values, UINT NumRects, const D3D12_RECT * pRects)
+void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(ID3D12CommandList_Wrapper* wrapper, D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource * pResource, const FLOAT* Values, UINT NumRects, const D3D12_RECT * pRects)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -395,7 +395,7 @@ void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(ID3D12Graphic
 }
 
 
-void Track_ID3D12GraphicsCommandList_DiscardResource(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pResource, const D3D12_DISCARD_REGION * pRegion)
+void Track_ID3D12GraphicsCommandList_DiscardResource(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, const D3D12_DISCARD_REGION * pRegion)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -407,7 +407,7 @@ void Track_ID3D12GraphicsCommandList_DiscardResource(ID3D12GraphicsCommandList_W
 }
 
 
-void Track_ID3D12GraphicsCommandList_BeginQuery(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12QueryHeap * pQueryHeap, D3D12_QUERY_TYPE Type, UINT Index)
+void Track_ID3D12GraphicsCommandList_BeginQuery(ID3D12CommandList_Wrapper* wrapper, ID3D12QueryHeap * pQueryHeap, D3D12_QUERY_TYPE Type, UINT Index)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -419,7 +419,7 @@ void Track_ID3D12GraphicsCommandList_BeginQuery(ID3D12GraphicsCommandList_Wrappe
 }
 
 
-void Track_ID3D12GraphicsCommandList_EndQuery(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12QueryHeap * pQueryHeap, D3D12_QUERY_TYPE Type, UINT Index)
+void Track_ID3D12GraphicsCommandList_EndQuery(ID3D12CommandList_Wrapper* wrapper, ID3D12QueryHeap * pQueryHeap, D3D12_QUERY_TYPE Type, UINT Index)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -431,7 +431,7 @@ void Track_ID3D12GraphicsCommandList_EndQuery(ID3D12GraphicsCommandList_Wrapper*
 }
 
 
-void Track_ID3D12GraphicsCommandList_ResolveQueryData(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12QueryHeap * pQueryHeap, D3D12_QUERY_TYPE Type, UINT StartIndex, UINT NumQueries, ID3D12Resource * pDestinationBuffer, UINT64 AlignedDestinationBufferOffset)
+void Track_ID3D12GraphicsCommandList_ResolveQueryData(ID3D12CommandList_Wrapper* wrapper, ID3D12QueryHeap * pQueryHeap, D3D12_QUERY_TYPE Type, UINT StartIndex, UINT NumQueries, ID3D12Resource * pDestinationBuffer, UINT64 AlignedDestinationBufferOffset)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -447,7 +447,7 @@ void Track_ID3D12GraphicsCommandList_ResolveQueryData(ID3D12GraphicsCommandList_
 }
 
 
-void Track_ID3D12GraphicsCommandList_SetPredication(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pBuffer, UINT64 AlignedBufferOffset, D3D12_PREDICATION_OP Operation)
+void Track_ID3D12GraphicsCommandList_SetPredication(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pBuffer, UINT64 AlignedBufferOffset, D3D12_PREDICATION_OP Operation)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -459,7 +459,7 @@ void Track_ID3D12GraphicsCommandList_SetPredication(ID3D12GraphicsCommandList_Wr
 }
 
 
-void Track_ID3D12GraphicsCommandList_ExecuteIndirect(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12CommandSignature * pCommandSignature, UINT MaxCommandCount, ID3D12Resource * pArgumentBuffer, UINT64 ArgumentBufferOffset, ID3D12Resource * pCountBuffer, UINT64 CountBufferOffset)
+void Track_ID3D12GraphicsCommandList_ExecuteIndirect(ID3D12CommandList_Wrapper* wrapper, ID3D12CommandSignature * pCommandSignature, UINT MaxCommandCount, ID3D12Resource * pArgumentBuffer, UINT64 ArgumentBufferOffset, ID3D12Resource * pCountBuffer, UINT64 CountBufferOffset)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -479,7 +479,7 @@ void Track_ID3D12GraphicsCommandList_ExecuteIndirect(ID3D12GraphicsCommandList_W
 }
 
 
-void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pDstBuffer, UINT64 DstOffset, ID3D12Resource * pSrcBuffer, UINT64 SrcOffset, UINT Dependencies, ID3D12Resource * const * ppDependentResources, const D3D12_SUBRESOURCE_RANGE_UINT64 * pDependentSubresourceRanges)
+void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pDstBuffer, UINT64 DstOffset, ID3D12Resource * pSrcBuffer, UINT64 SrcOffset, UINT Dependencies, ID3D12Resource * const * ppDependentResources, const D3D12_SUBRESOURCE_RANGE_UINT64 * pDependentSubresourceRanges)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -502,7 +502,7 @@ void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(ID3D12GraphicsCommand
 }
 
 
-void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pDstBuffer, UINT64 DstOffset, ID3D12Resource * pSrcBuffer, UINT64 SrcOffset, UINT Dependencies, ID3D12Resource * const * ppDependentResources, const D3D12_SUBRESOURCE_RANGE_UINT64 * pDependentSubresourceRanges)
+void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pDstBuffer, UINT64 DstOffset, ID3D12Resource * pSrcBuffer, UINT64 SrcOffset, UINT Dependencies, ID3D12Resource * const * ppDependentResources, const D3D12_SUBRESOURCE_RANGE_UINT64 * pDependentSubresourceRanges)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -525,7 +525,7 @@ void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(ID3D12GraphicsComma
 }
 
 
-void Track_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pDstResource, UINT DstSubresource, UINT DstX, UINT DstY, ID3D12Resource * pSrcResource, UINT SrcSubresource, D3D12_RECT * pSrcRect, DXGI_FORMAT Format, D3D12_RESOLVE_MODE ResolveMode)
+void Track_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pDstResource, UINT DstSubresource, UINT DstX, UINT DstY, ID3D12Resource * pSrcResource, UINT SrcSubresource, D3D12_RECT * pSrcRect, DXGI_FORMAT Format, D3D12_RESOLVE_MODE ResolveMode)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -541,7 +541,7 @@ void Track_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(ID3D12GraphicsCom
 }
 
 
-void Track_ID3D12GraphicsCommandList2_WriteBufferImmediate(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT Count, const D3D12_WRITEBUFFERIMMEDIATE_PARAMETER * pParams, const D3D12_WRITEBUFFERIMMEDIATE_MODE * pModes)
+void Track_ID3D12GraphicsCommandList2_WriteBufferImmediate(ID3D12CommandList_Wrapper* wrapper, UINT Count, const D3D12_WRITEBUFFERIMMEDIATE_PARAMETER * pParams, const D3D12_WRITEBUFFERIMMEDIATE_MODE * pModes)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -556,7 +556,7 @@ void Track_ID3D12GraphicsCommandList2_WriteBufferImmediate(ID3D12GraphicsCommand
 }
 
 
-void Track_ID3D12GraphicsCommandList3_SetProtectedResourceSession(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12ProtectedResourceSession * pProtectedResourceSession)
+void Track_ID3D12GraphicsCommandList3_SetProtectedResourceSession(ID3D12CommandList_Wrapper* wrapper, ID3D12ProtectedResourceSession * pProtectedResourceSession)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -568,7 +568,7 @@ void Track_ID3D12GraphicsCommandList3_SetProtectedResourceSession(ID3D12Graphics
 }
 
 
-void Track_ID3D12GraphicsCommandList4_InitializeMetaCommand(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12MetaCommand * pMetaCommand, const void * pInitializationParametersData, SIZE_T InitializationParametersDataSizeInBytes)
+void Track_ID3D12GraphicsCommandList4_InitializeMetaCommand(ID3D12CommandList_Wrapper* wrapper, ID3D12MetaCommand * pMetaCommand, const void * pInitializationParametersData, SIZE_T InitializationParametersDataSizeInBytes)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -580,7 +580,7 @@ void Track_ID3D12GraphicsCommandList4_InitializeMetaCommand(ID3D12GraphicsComman
 }
 
 
-void Track_ID3D12GraphicsCommandList4_ExecuteMetaCommand(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12MetaCommand * pMetaCommand, const void * pExecutionParametersData, SIZE_T ExecutionParametersDataSizeInBytes)
+void Track_ID3D12GraphicsCommandList4_ExecuteMetaCommand(ID3D12CommandList_Wrapper* wrapper, ID3D12MetaCommand * pMetaCommand, const void * pExecutionParametersData, SIZE_T ExecutionParametersDataSizeInBytes)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -592,7 +592,7 @@ void Track_ID3D12GraphicsCommandList4_ExecuteMetaCommand(ID3D12GraphicsCommandLi
 }
 
 
-void Track_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(ID3D12GraphicsCommandList_Wrapper* wrapper, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC * pDesc, UINT NumSourceAccelerationStructures, const D3D12_GPU_VIRTUAL_ADDRESS * pSourceAccelerationStructureData)
+void Track_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(ID3D12CommandList_Wrapper* wrapper, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC * pDesc, UINT NumSourceAccelerationStructures, const D3D12_GPU_VIRTUAL_ADDRESS * pSourceAccelerationStructureData)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -611,7 +611,7 @@ void Track_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbui
 }
 
 
-void Track_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_GPU_VIRTUAL_ADDRESS DestAccelerationStructureData, D3D12_GPU_VIRTUAL_ADDRESS SourceAccelerationStructureData, D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode)
+void Track_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(ID3D12CommandList_Wrapper* wrapper, D3D12_GPU_VIRTUAL_ADDRESS DestAccelerationStructureData, D3D12_GPU_VIRTUAL_ADDRESS SourceAccelerationStructureData, D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -621,7 +621,7 @@ void Track_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(ID3D12
 }
 
 
-void Track_ID3D12GraphicsCommandList4_SetPipelineState1(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12StateObject * pStateObject)
+void Track_ID3D12GraphicsCommandList4_SetPipelineState1(ID3D12CommandList_Wrapper* wrapper, ID3D12StateObject * pStateObject)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -633,7 +633,7 @@ void Track_ID3D12GraphicsCommandList4_SetPipelineState1(ID3D12GraphicsCommandLis
 }
 
 
-void Track_ID3D12GraphicsCommandList4_DispatchRays(ID3D12GraphicsCommandList_Wrapper* wrapper, const D3D12_DISPATCH_RAYS_DESC * pDesc)
+void Track_ID3D12GraphicsCommandList4_DispatchRays(ID3D12CommandList_Wrapper* wrapper, const D3D12_DISPATCH_RAYS_DESC * pDesc)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -648,7 +648,7 @@ void Track_ID3D12GraphicsCommandList4_DispatchRays(ID3D12GraphicsCommandList_Wra
 }
 
 
-void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * shadingRateImage)
+void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * shadingRateImage)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -660,7 +660,7 @@ void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12GraphicsComman
 }
 
 
-void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State)
+void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -672,7 +672,7 @@ void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12GraphicsCommandList
 }
 
 
-void Track_ID3D12DebugCommandList_AssertResourceState(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State)
+void Track_ID3D12DebugCommandList_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();

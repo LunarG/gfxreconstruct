@@ -29,9 +29,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <typename T>
-void TrackObjectForCommandList(ID3D12GraphicsCommandListInfo* info,
-                               D3D12GraphicsCommandObjectType type,
-                               const T*                       object)
+void TrackObjectForCommandList(ID3D12CommandListInfo* info, D3D12GraphicsCommandObjectType type, const T* object)
 {
     if (object)
     {
@@ -39,9 +37,9 @@ void TrackObjectForCommandList(ID3D12GraphicsCommandListInfo* info,
     }
 }
 
-void Track_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12GraphicsCommandList_Wrapper* wrapper,
-                                                     UINT                               NumBarriers,
-                                                     const D3D12_RESOURCE_BARRIER*      pBarriers)
+void Track_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12CommandList_Wrapper*    wrapper,
+                                                     UINT                          NumBarriers,
+                                                     const D3D12_RESOURCE_BARRIER* pBarriers)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
@@ -83,7 +81,7 @@ void Track_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12GraphicsCommandList_W
     }
 }
 
-void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList_Wrapper*          wrapper,
+void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12CommandList_Wrapper*                  wrapper,
                                                       UINT                                        NumRenderTargets,
                                                       const D3D12_RENDER_PASS_RENDER_TARGET_DESC* pRenderTargets,
                                                       const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
@@ -133,7 +131,7 @@ void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList_
     }
 }
 
-void TrackRaytracingGeometry(ID3D12GraphicsCommandListInfo*        info,
+void TrackRaytracingGeometry(ID3D12CommandListInfo*                info,
                              D3D12_RAYTRACING_GEOMETRY_TYPE        type,
                              const D3D12_RAYTRACING_GEOMETRY_DESC* geometry_desc)
 {
@@ -150,7 +148,7 @@ void TrackRaytracingGeometry(ID3D12GraphicsCommandListInfo*        info,
 }
 
 void Track_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
-    ID3D12GraphicsCommandList_Wrapper*                                 wrapper,
+    ID3D12CommandList_Wrapper*                                         wrapper,
     const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          pDesc,
     UINT                                                               NumPostbuildInfoDescs,
     const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs)

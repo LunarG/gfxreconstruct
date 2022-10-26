@@ -111,7 +111,10 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
                     final_number = final_class_name[i + 1:]
                     break
 
-        class_family_names = [base_name]
+        class_family_names = []
+        if base_name in self.FAMILY_CLASSES_EXECPTION:
+            class_family_names.append(self.FAMILY_CLASSES_EXECPTION[base_name])
+        class_family_names.append(base_name)
         if final_number:
             # Generate with class numbers in ascending order, from 1 to n.
             for i in range(1, int(final_number) + 1):
@@ -175,6 +178,13 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
         decl += indent + 'it->second(riid,object,resources);\n'
+        indent = self.decrement_indent(indent)
+        decl += indent + '}\n'
+        decl += indent + 'else\n'
+        decl += indent + '{\n'
+        indent = self.increment_indent(indent)
+        decl += indent + 'GFXRECON_LOG_ERROR("An object with an unknown IID {%8x-%4hx-%4hx-%2hhx%2hhx-%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx} was created. GFXReconstruct cannot track the object and may produce an invalid capture",\\\n'
+        decl += indent + '                    riid.Data1, riid.Data2, riid.Data3, riid.Data4[0], riid.Data4[1], riid.Data4[2], riid.Data4[3], riid.Data4[4], riid.Data4[5], riid.Data4[6], riid.Data4[7]);\n'
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
         indent = self.decrement_indent(indent)

@@ -142,7 +142,7 @@ void WrapID3D12Tools(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12SDKConfiguration(REFIID riid, void** object, DxWrapperResources* resources);
 
-void WrapID3D12GraphicsCommandList(REFIID riid, void** object, DxWrapperResources* resources);
+void WrapID3D12CommandList(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D10Blob(REFIID riid, void** object, DxWrapperResources* resources);
 
@@ -255,13 +255,14 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12Device9, WrapID3D12Device },
     { IID_ID3D12Tools, WrapID3D12Tools },
     { IID_ID3D12SDKConfiguration, WrapID3D12SDKConfiguration },
-    { IID_ID3D12GraphicsCommandList, WrapID3D12GraphicsCommandList },
-    { IID_ID3D12GraphicsCommandList1, WrapID3D12GraphicsCommandList },
-    { IID_ID3D12GraphicsCommandList2, WrapID3D12GraphicsCommandList },
-    { IID_ID3D12GraphicsCommandList3, WrapID3D12GraphicsCommandList },
-    { IID_ID3D12GraphicsCommandList4, WrapID3D12GraphicsCommandList },
-    { IID_ID3D12GraphicsCommandList5, WrapID3D12GraphicsCommandList },
-    { IID_ID3D12GraphicsCommandList6, WrapID3D12GraphicsCommandList },
+    { IID_ID3D12CommandList, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList1, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList2, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList3, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList4, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList5, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList6, WrapID3D12CommandList },
     { IID_ID3D10Blob, WrapID3D10Blob },
     { IID_ID3DDestructionNotifier, WrapID3DDestructionNotifier },
     { IID_ID3D12Debug1, WrapID3D12Debug1 },

@@ -431,7 +431,7 @@ enum D3D12GraphicsCommandObjectType : uint32_t
     NumObjectTypes
 };
 
-struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
+struct ID3D12CommandListInfo : public DxWrapperInfo
 {
     bool                             was_reset{ false };
     bool                             is_closed{ false };

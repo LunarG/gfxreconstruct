@@ -152,7 +152,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
     WriteResidencyPriority(state_table);
-    WriteGraphicsCommandListState(state_table);
+    WriteCommandListState(state_table);
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
@@ -1033,17 +1033,17 @@ void Dx12StateWriter::WriteResidencyPriority(const Dx12StateTable& state_table)
     });
 }
 
-void Dx12StateWriter::WriteGraphicsCommandListState(const Dx12StateTable& state_table)
+void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
 {
-    std::vector<ID3D12GraphicsCommandList_Wrapper*> direct_command_lists;
-    std::vector<ID3D12GraphicsCommandList_Wrapper*> open_command_lists;
+    std::vector<ID3D12CommandList_Wrapper*> direct_command_lists;
+    std::vector<ID3D12CommandList_Wrapper*> open_command_lists;
 
-    state_table.VisitWrappers([&](ID3D12GraphicsCommandList_Wrapper* list_wrapper) {
+    state_table.VisitWrappers([&](ID3D12CommandList_Wrapper* list_wrapper) {
         GFXRECON_ASSERT(list_wrapper != nullptr);
         GFXRECON_ASSERT(list_wrapper->GetWrappedObject() != nullptr);
         GFXRECON_ASSERT(list_wrapper->GetObjectInfo() != nullptr);
 
-        auto list      = list_wrapper->GetWrappedObjectAs<ID3D12GraphicsCommandList>();
+        auto list      = list_wrapper->GetWrappedObjectAs<ID3D12CommandList>();
         auto list_info = list_wrapper->GetObjectInfo();
 
         GFXRECON_ASSERT(list_info->create_parameters != nullptr);
@@ -1108,12 +1108,12 @@ void Dx12StateWriter::WriteGraphicsCommandListState(const Dx12StateTable& state_
     }
 }
 
-void Dx12StateWriter::WriteCommandListCommands(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                               const Dx12StateTable&                    state_table)
+void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* list_wrapper,
+                                               const Dx12StateTable&            state_table)
 {
     auto list_info = list_wrapper->GetObjectInfo();
 
-    bool write_commands = CheckGraphicsCommandListObjects(list_info.get(), state_table);
+    bool write_commands = CheckCommandListObjects(list_info.get(), state_table);
 
     // Write each of the commands that was recorded for the command buffer.
     size_t         offset    = 0;
@@ -1158,7 +1158,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12GraphicsCommandList_W
     GFXRECON_ASSERT(offset == data_size);
 }
 
-void Dx12StateWriter::WriteCommandListCreation(const ID3D12GraphicsCommandList_Wrapper* list_wrapper)
+void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper)
 {
     // Write call to create the command list.
     StandardCreateWrite(list_wrapper);
@@ -1174,7 +1174,7 @@ void Dx12StateWriter::WriteCommandListCreation(const ID3D12GraphicsCommandList_W
     }
 }
 
-void Dx12StateWriter::WriteCommandListClose(const ID3D12GraphicsCommandList_Wrapper* list_wrapper)
+void Dx12StateWriter::WriteCommandListClose(const ID3D12CommandList_Wrapper* list_wrapper)
 {
     encoder_.EncodeUInt32Value(S_OK);
     WriteMethodCall(
@@ -1182,15 +1182,14 @@ void Dx12StateWriter::WriteCommandListClose(const ID3D12GraphicsCommandList_Wrap
     parameter_stream_.Reset();
 }
 
-bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsCommandListInfo* list_info,
-                                                      const Dx12StateTable&                state_table)
+bool Dx12StateWriter::CheckCommandListObjects(const ID3D12CommandListInfo* list_info, const Dx12StateTable& state_table)
 {
     // Ignore commands that reference destroyed objects.
     for (uint32_t i = 0; i < D3D12GraphicsCommandObjectType::NumObjectTypes; ++i)
     {
         for (auto id : list_info->command_objects[i])
         {
-            if (!CheckGraphicsCommandListObject(static_cast<D3D12GraphicsCommandObjectType>(i), id, state_table))
+            if (!CheckCommandListObject(static_cast<D3D12GraphicsCommandObjectType>(i), id, state_table))
             {
                 return false;
             }
@@ -1222,9 +1221,9 @@ bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsComman
     return true;
 }
 
-bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectType object_type,
-                                                     format::HandleId               handle_id,
-                                                     const Dx12StateTable&          state_table)
+bool Dx12StateWriter::CheckCommandListObject(D3D12GraphicsCommandObjectType object_type,
+                                             format::HandleId               handle_id,
+                                             const Dx12StateTable&          state_table)
 {
     switch (object_type)
     {
@@ -1235,7 +1234,7 @@ bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectT
         case D3D12GraphicsCommandObjectType::ID3D12ResourceObject:
             return (state_table.GetID3D12Resource_Wrapper(handle_id) != nullptr);
         case D3D12GraphicsCommandObjectType::ID3D12GraphicsCommandListObject:
-            return (state_table.GetID3D12GraphicsCommandList_Wrapper(handle_id) != nullptr);
+            return (state_table.GetID3D12CommandList_Wrapper(handle_id) != nullptr);
         case D3D12GraphicsCommandObjectType::ID3D12DescriptorHeapObject:
             return (state_table.GetID3D12DescriptorHeap_Wrapper(handle_id) != nullptr);
         case D3D12GraphicsCommandObjectType::ID3D12RootSignatureObject:
@@ -1275,7 +1274,7 @@ bool Dx12StateWriter::CheckDescriptorObjects(const DxDescriptorInfo& descriptor_
     for (auto descriptor_resource_id : descriptor_info.resource_ids)
     {
         if ((descriptor_resource_id != format::kNullHandleId) &&
-            !CheckGraphicsCommandListObject(ID3D12ResourceObject, descriptor_resource_id, state_table))
+            !CheckCommandListObject(ID3D12ResourceObject, descriptor_resource_id, state_table))
         {
             return false;
         }
