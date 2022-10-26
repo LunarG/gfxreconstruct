@@ -23,24 +23,19 @@
 #ifndef GFXRECON_CUSTOM_COMMON_TO_STRING_H
 #define GFXRECON_CUSTOM_COMMON_TO_STRING_H
 
-#include "util/to_string.h"
-
 #include "format/platform_types.h"
+#include "util/to_string.h"
 
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-#if defined(WIN32)
-
 template <>
 std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj,
                                           ToStringFlags              toStringFlags,
                                           uint32_t                   tabCount,
                                           uint32_t                   tabSize);
-
-#endif
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
