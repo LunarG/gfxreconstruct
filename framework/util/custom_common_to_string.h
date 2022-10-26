@@ -25,6 +25,8 @@
 
 #include "util/to_string.h"
 
+#include "format/platform_types.h"
+
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
