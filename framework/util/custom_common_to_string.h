@@ -30,11 +30,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+#if defined(WIN32)
+
 template <>
 std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj,
                                           ToStringFlags              toStringFlags,
                                           uint32_t                   tabCount,
                                           uint32_t                   tabSize);
+
+#endif
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

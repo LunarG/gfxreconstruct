@@ -27,6 +27,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+#if defined(WIN32)
+
 // clang-format off
 
 template <>
@@ -43,6 +45,8 @@ std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj, ToStri
 }
 
 // clang-format on
+
+#endif
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
