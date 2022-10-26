@@ -24,6 +24,7 @@
 #define GFXRECON_CUSTOM_DX12_TO_STRING_H
 
 #include "format/platform_types.h"
+#include "util/custom_common_to_string.h"
 #include "util/defines.h"
 #include "util/to_string.h"
 

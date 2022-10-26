@@ -43,6 +43,8 @@ class ExeInfoDecoderBase : public ApiDecoder
 
     virtual bool IsComplete(uint64_t block_index) override;
 
+    virtual void WaitIdle() override{};
+
     virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info){};
 
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
@@ -99,7 +101,7 @@ class ExeInfoDecoderBase : public ApiDecoder
                                                      uint32_t                                            width,
                                                      uint32_t                                            height,
                                                      uint32_t                                            stride,
-                                                     uint32_t                                            usage,
+                                                     uint64_t                                            usage,
                                                      uint32_t                                            layers,
                                                      const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
     {}

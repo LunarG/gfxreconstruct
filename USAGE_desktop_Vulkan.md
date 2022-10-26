@@ -9,7 +9,7 @@
 
 Copyright &copy; 2018-2022 LunarG, Inc.
 
-# GFXReconstruct API Capture and Replay
+# GFXReconstruct API Capture and Replay - Vulkan
 
 ## **Desktop Version**
 

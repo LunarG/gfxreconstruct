@@ -49,6 +49,10 @@ class VulkanConsumerBase
 
     virtual void WaitDevicesIdle() {}
 
+    virtual bool IsComplete(uint64_t block_index) { return false; }
+
+    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
+
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) {}
@@ -56,6 +60,11 @@ class VulkanConsumerBase
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
 
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
+
+    virtual void
+    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                          const uint8_t*                                      data)
+    {}
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
 
@@ -75,6 +84,8 @@ class VulkanConsumerBase
     {}
 
     virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) {}
+
+    virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) {}
 
     virtual void ProcessSetDevicePropertiesCommand(format::HandleId   physical_device_id,
                                                    uint32_t           api_version,
@@ -126,6 +137,16 @@ class VulkanConsumerBase
                                          uint32_t                     layout,
                                          const std::vector<uint64_t>& level_sizes,
                                          const uint8_t*               data)
+    {}
+
+    virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                               const uint8_t*                              data)
+    {}
+
+    virtual void ProcessInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data)
     {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,

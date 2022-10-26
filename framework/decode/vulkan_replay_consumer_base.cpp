@@ -57,7 +57,8 @@ const int32_t  kDefaultWindowPositionY = 0;
 const uint32_t kDefaultWindowWidth     = 320;
 const uint32_t kDefaultWindowHeight    = 240;
 
-const char kUnknownDeviceLabel[] = "<Unknown>";
+const char kUnknownDeviceLabel[]  = "<Unknown>";
+const char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
 
 const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, VK_MVK_IOS_SURFACE_EXTENSION_NAME, VK_MVK_MACOS_SURFACE_EXTENSION_NAME,
@@ -100,13 +101,24 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
     GFXRECON_UNREFERENCED_PARAMETER(pUserData);
 
     if ((pCallbackData != nullptr) && (pCallbackData->pMessageIdName != nullptr) &&
-        (pCallbackData->pMessage != nullptr) &&
-        ((messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) ==
-         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) &&
-        ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) ==
-         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT))
+        (pCallbackData->pMessage != nullptr))
     {
-        GFXRECON_WRITE_CONSOLE("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+        if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+        {
+            GFXRECON_LOG_ERROR("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+        }
+        else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        {
+            GFXRECON_LOG_WARNING("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+        }
+        else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+        {
+            GFXRECON_LOG_INFO("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+        }
     }
 
     return VK_FALSE;
@@ -165,6 +177,11 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     else
     {
         swapchain_ = std::make_unique<VulkanVirtualSwapchain>();
+    }
+
+    if (options_.enable_debug_device_lost)
+    {
+        GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
     }
 }
 
@@ -241,13 +258,13 @@ void VulkanReplayConsumerBase::WaitDevicesIdle()
 
 void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 {
-    GFXRECON_LOG_INFO("Loading state for captured frame %" PRId64, frame_number);
+    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = true;
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
-    GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
+    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = false;
     if (fps_info_ != nullptr)
     {
@@ -2155,15 +2172,39 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         InitializeLoader();
     }
 
-    // Replace WSI extension in extension list.
+    std::vector<const char*> filtered_layers;
     std::vector<const char*> filtered_extensions;
     VkInstanceCreateInfo     modified_create_info{};
 
+    // This struct may be inserted into the pNext chain of modified_create_info.
+    VkDebugUtilsMessengerCreateInfoEXT messenger_create_info{};
+
     if (replay_create_info != nullptr)
     {
+        modified_create_info = (*replay_create_info);
+
         // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update
         // the callback pointers.
         ProcessCreateInstanceDebugCallbackInfo(pCreateInfo->GetMetaStructPointer());
+
+        // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are
+        // needed in the replay application.
+        PFN_vkEnumerateInstanceLayerProperties instance_layer_proc =
+            reinterpret_cast<PFN_vkEnumerateInstanceLayerProperties>(
+                get_instance_proc_addr_(nullptr, "vkEnumerateInstanceLayerProperties"));
+        PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
+            reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+                get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
+
+        // Query for available extensions.
+        std::vector<VkExtensionProperties> available_extensions;
+        VkResult                           extension_query_result =
+            feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions);
+        if (extension_query_result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_WARNING(
+                "Failed to query for available instance extensions. Some replay features may not work correctly.");
+        }
 
         if (replay_create_info->ppEnabledExtensionNames)
         {
@@ -2172,7 +2213,13 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             assert(application_);
             for (const auto& itr : application_->GetWsiContexts())
             {
-                filtered_extensions.push_back(itr.first.c_str());
+                // TODO : It's kinda ugly to be referencing Dx12 (even if just by name) in the Vulkan codepath, but
+                // having a string associated with the WSI context isn't really something Dx12 has a concept of...this
+                // should be able to be refactored away in another PR
+                if (gfxrecon::util::platform::StringCompareNoCase(itr.first.c_str(), "Dx12WsiContext"))
+                {
+                    filtered_extensions.push_back(itr.first.c_str());
+                }
             }
 
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
@@ -2185,18 +2232,12 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 }
             }
 
-            PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
-                reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
-                    get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
-            std::vector<VkExtensionProperties> properties;
-            if (feature_util::GetInstanceExtensions(instance_extension_proc, &properties) == VK_SUCCESS)
+            if (extension_query_result == VK_SUCCESS)
             {
                 if (options_.remove_unsupported_features)
                 {
                     // Remove enabled extensions that are not available from the replay instance.
-                    // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but
-                    // are needed in the replay application.
-                    feature_util::RemoveUnsupportedExtensions(properties, &filtered_extensions);
+                    feature_util::RemoveUnsupportedExtensions(available_extensions, &filtered_extensions);
                 }
                 else
                 {
@@ -2204,7 +2245,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                     for (auto extensionIter = filtered_extensions.begin(); extensionIter != filtered_extensions.end();
                          ++extensionIter)
                     {
-                        if (!feature_util::IsSupportedExtension(properties, *extensionIter))
+                        if (!feature_util::IsSupportedExtension(available_extensions, *extensionIter))
                         {
                             GFXRECON_LOG_WARNING("Extension %s, is not supported by the replay device.",
                                                  *extensionIter);
@@ -2219,7 +2260,57 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             }
         }
 
-        modified_create_info                         = (*replay_create_info);
+        // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
+        if (options_.enable_validation_layer)
+        {
+            std::vector<VkLayerProperties> available_layers;
+            if (feature_util::GetInstanceLayers(instance_layer_proc, &available_layers) == VK_SUCCESS)
+            {
+                if (feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
+                {
+                    filtered_layers.push_back(kValidationLayerName);
+
+                    // Create a debug util messenger if replay was run with the enable_validation_layer option and the
+                    // VK_EXT_debug_utils extension is available. Note that if the app also included one or more
+                    // VkDebugUtilsMessengerCreateInfoEXT structs in the pNext chain, those messengers will also be
+                    // created.
+                    if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+                    {
+                        filtered_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+                        messenger_create_info.sType       = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+                        messenger_create_info.pNext       = modified_create_info.pNext;
+                        messenger_create_info.flags       = 0;
+                        messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+                        messenger_create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+                        messenger_create_info.pfnUserCallback = DebugUtilsCallback;
+                        messenger_create_info.pUserData       = nullptr;
+
+                        modified_create_info.pNext = &messenger_create_info;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Failed to create debug utils callback for the validation layer enabled by replay option "
+                            "'--validate'. VK_EXT_debug_utils extension is not available for the replay instance.");
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Failed to enable validation layer '%s' required for replay option '--validate'.",
+                        kValidationLayerName);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Failed to query for available instance layers. Some replay features may not work correctly.");
+            }
+        }
+
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
         modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
     }
@@ -2242,6 +2333,21 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         modified_create_info.enabledLayerCount   = 0;
         modified_create_info.ppEnabledLayerNames = nullptr;
+    }
+
+    // Enable any required layers.
+    if (!filtered_layers.empty())
+    {
+        GFXRECON_LOG_INFO(
+            "Replay has added the following required layers to VkInstanceCreateInfo when calling vkCreateInstance:");
+
+        for (auto layer : filtered_layers)
+        {
+            GFXRECON_LOG_INFO("\t%s", layer);
+        }
+
+        modified_create_info.enabledLayerCount   = static_cast<uint32_t>(filtered_layers.size());
+        modified_create_info.ppEnabledLayerNames = filtered_layers.data();
     }
 
     VkResult result = create_instance_proc_(&modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);

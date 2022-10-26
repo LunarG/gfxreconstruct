@@ -165,11 +165,13 @@ variations of the Visual Studio 2017 WIN32 and x64 build configurations:
 - 64-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15 Win64"
 - 32-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15"
 
-Running either of the above commands will create a Windows solution file named
+Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
 
 At this point, you can build the solution from the command line or open the
 generated solution with Visual Studio.
+
+**Note: the build uses Windows 10 SDK 10.0.20348.0. Windows 11 SDK 10.0.22000.194 is not compatible at the present time. If you need to specify a Windows 10 SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0` .**
 
 #### Build the Solution From the Command Line
 

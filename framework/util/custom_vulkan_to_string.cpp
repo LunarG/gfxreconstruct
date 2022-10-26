@@ -21,6 +21,7 @@
 */
 
 #include "custom_vulkan_to_string.h"
+
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_to_string.h"
 
@@ -319,19 +320,6 @@ std::string ToString<VkWriteDescriptorSet>(const VkWriteDescriptorSet& obj, ToSt
             FieldToString(strStrm, false, "pImageInfo", toStringFlags, tabCount, tabSize, ArrayToString(obj.descriptorCount, pImageInfo, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBufferInfo", toStringFlags, tabCount, tabSize, ArrayToString(obj.descriptorCount, pBufferInfo, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pTexelBufferView", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.descriptorCount, pTexelBufferView, toStringFlags, tabCount, tabSize));
-        }
-    );
-}
-
-template <>
-std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "nLength", toStringFlags, tabCount, tabSize, ToString(obj.nLength, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "lpSecurityDescriptor", toStringFlags, tabCount, tabSize, HandleIdToString(obj.lpSecurityDescriptor));
-            FieldToString(strStrm, false, "bInheritHandle", toStringFlags, tabCount, tabSize, ToString(obj.bInheritHandle, toStringFlags, tabCount, tabSize));
         }
     );
 }

@@ -41,7 +41,7 @@ GFXRECON_BEGIN_NAMESPACE(util)
 template <>
 std::string ToString<decode::Decoded_SECURITY_ATTRIBUTES>(const decode::Decoded_SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    if(obj.decoded_value)
+    if (obj.decoded_value)
     {
         return ToString(*obj.decoded_value, toStringFlags, tabCount, tabSize);
     }
@@ -249,7 +249,7 @@ std::string ToString<decode::Decoded_VkWriteDescriptorSet>(const decode::Decoded
         return "null";
     }
     const VkWriteDescriptorSet& obj = *decoded_obj.decoded_value;
-    
+
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
@@ -300,7 +300,7 @@ std::string ToString<decode::Decoded_VkWriteDescriptorSet>(const decode::Decoded
             {
                 GFXRECON_LOG_WARNING_ONCE("Untested descriptorType in VkWriteDescriptorSet: %s.", ToString(obj.descriptorType, 0, 0, 0).c_str());
             } break;
-            default: 
+            default:
             {
                 GFXRECON_LOG_ERROR("Unknown descriptorType in VkWriteDescriptorSet: %s.", ToString(obj.descriptorType, 0, 0, 0).c_str());
             }
@@ -401,7 +401,7 @@ std::string ToString<decode::Decoded_VkPipelineMultisampleStateCreateInfo>(const
         return "null";
     }
     const VkPipelineMultisampleStateCreateInfo& obj = *decoded_obj.decoded_value;
-    
+
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {

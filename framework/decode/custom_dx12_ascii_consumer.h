@@ -25,7 +25,6 @@
 
 #include "decode/custom_dx12_struct_decoders.h"
 #include "decode/custom_vulkan_struct_decoders.h"
-#include "decode/custom_vulkan_to_string.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
@@ -912,6 +911,19 @@ StructPointerDecoderToString<Decoded_D3D12_STATE_SUBOBJECT>(StructPointerDecoder
         return util::ToString(obj, toStringFlags, tabCount, tabSize);
     }
     return "null";
+}
+
+template <>
+inline std::string
+StructPointerDecoderToString<Decoded__SECURITY_ATTRIBUTES>(StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pObj,
+                                                           util::ToStringFlags toStringFlags,
+                                                           uint32_t            tabCount,
+                                                           uint32_t            tabSize)
+{
+    // TODO : Untested
+    auto pMetaStructPointer = pObj ? pObj->GetMetaStructPointer() : nullptr;
+    auto pDecodedObj        = pMetaStructPointer ? pMetaStructPointer->decoded_value : nullptr;
+    return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
 }
 
 GFXRECON_END_NAMESPACE(decode)

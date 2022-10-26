@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2022 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,43 +20,29 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_REPLAY_OPTIONS_H
+#include "custom_common_to_string.h"
 
-#include "util/defines.h"
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
 
-static constexpr char kDefaultScreenshotFilePrefix[] = "screenshot";
+// clang-format off
 
-enum class ScreenshotFormat : uint32_t
+template <>
+std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
-    kBmp = 0
-};
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "nLength", toStringFlags, tabCount, tabSize, ToString(obj.nLength, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "lpSecurityDescriptor", toStringFlags, tabCount, tabSize, HandleIdToString(obj.lpSecurityDescriptor));
+            FieldToString(strStrm, false, "bInheritHandle", toStringFlags, tabCount, tabSize, ToString(obj.bInheritHandle, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
 
-struct ScreenshotRange
-{
-    uint32_t first{ 0 }; // First frame to capture.
-    uint32_t last{ 0 };  // Last frame to capture.
-};
+// clang-format on
 
-struct ReplayOptions
-{
-    bool     enable_validation_layer{ false };
-    bool     sync_queue_submissions{ false };
-    bool     enable_debug_device_lost{ false };
-    bool     create_dummy_allocations{ false };
-    bool     omit_null_hardware_buffers{ false };
-    bool     quit_after_measurement_frame_range{ false };
-    bool     flush_measurement_frame_range{ false };
-    bool     force_windowed{ false };
-    uint32_t windowed_width{ 0 };
-    uint32_t windowed_height{ 0 };
-    int32_t  override_gpu_index{ -1 };
-};
-
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_DECODE_REPLAY_OPTIONS_H

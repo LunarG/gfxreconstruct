@@ -30,6 +30,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
+#include "decoder_util.h"
 
 #include "vulkan/vulkan.h"
 
@@ -55,6 +56,11 @@ class VulkanDecoderBase : public ApiDecoder
     }
 
     virtual void WaitIdle() override;
+
+    virtual bool IsComplete(uint64_t block_index)
+    {
+        return decode::IsComplete<VulkanConsumer*>(consumers_, block_index);
+    }
 
     virtual bool SupportsApiCall(format::ApiCallId call_id) override
     {
@@ -82,6 +88,10 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
+    virtual void
+    DispatchFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                           const uint8_t*                                      data) override;
+
     virtual void DispatchResizeWindowCommand(format::ThreadId thread_id,
                                              format::HandleId surface_id,
                                              uint32_t         width,
@@ -106,6 +116,10 @@ class VulkanDecoderBase : public ApiDecoder
                                         const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
 
     virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) override;
+
+    virtual void DispatchCreateHeapAllocationCommand(format::ThreadId thread_id,
+                                                     uint64_t         allocation_id,
+                                                     uint64_t         allocation_size) override;
 
     virtual void DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
                                                     format::HandleId   physical_device_id,
@@ -162,6 +176,19 @@ class VulkanDecoderBase : public ApiDecoder
                                           uint32_t                     layout,
                                           const std::vector<uint64_t>& level_sizes,
                                           const uint8_t*               data) override;
+
+    virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                                const uint8_t*                              data) override;
+
+    virtual void DispatchInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data) override
+    {}
+
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) {}
+
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) {}
 
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }

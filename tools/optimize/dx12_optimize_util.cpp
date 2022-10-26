@@ -46,9 +46,9 @@ struct Dx12OptimizationInfo
 
 class Dx12ResourceValueTrackingConsumer : public decode::Dx12ReplayConsumer
 {
-  public:
+public:
     Dx12ResourceValueTrackingConsumer(std::shared_ptr<application::Application> application,
-                                      const decode::DxReplayOptions&            options) :
+        const decode::DxReplayOptions& options) :
         Dx12ReplayConsumer(application, options)
     {
         GetResourceValueMapper()->EnableResourceValueTracker();
@@ -64,13 +64,13 @@ class Dx12ResourceValueTrackingConsumer : public decode::Dx12ReplayConsumer
     }
 };
 
-void CreateResourceValueTrackingConsumer(decode::FileProcessor*                              file_processor,
-                                         std::unique_ptr<Dx12ResourceValueTrackingConsumer>& dx12_replay_consumer,
-                                         std::shared_ptr<application::Application>&          application)
+void CreateResourceValueTrackingConsumer(decode::FileProcessor* file_processor,
+    std::unique_ptr<Dx12ResourceValueTrackingConsumer>& dx12_replay_consumer,
+    std::shared_ptr<application::Application>& application)
 {
     // Dx12ReplayConsumer requires a windowed application.
     application = std::make_shared<gfxrecon::application::Application>("GFXReconstruct Optimizer - analyzing file",
-                                                                       file_processor);
+        file_processor);
     application->InitializeDx12WsiContext();
 
     // Use default replay options, except dcp.
@@ -84,6 +84,21 @@ void CreateResourceValueTrackingConsumer(decode::FileProcessor*                 
 
 bool FileProcessorSucceeded(const decode::FileProcessor& processor)
 {
+    if ((processor.GetCurrentFrameNumber() > 0) == false)
+    {
+        GFXRECON_WRITE_CONSOLE("Did not detect any frames in the capture.");
+    }
+
+    if ((processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone) == false)
+    {
+        GFXRECON_WRITE_CONSOLE("Encountered error while reading the capture.");
+    }
+
+    if ((processor.EntireFileWasProcessed()) == false)
+    {
+        GFXRECON_WRITE_CONSOLE("Did not reach the end of the capture.");
+    }
+
     return (processor.GetCurrentFrameNumber() > 0) &&
            (processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone) &&
            processor.EntireFileWasProcessed();

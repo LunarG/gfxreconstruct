@@ -48,6 +48,8 @@ class ApiDecoder
 
     virtual void WaitIdle() = 0;
 
+    virtual bool IsComplete(uint64_t block_index) = 0;
+
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
     virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) = 0;
@@ -57,14 +59,29 @@ class ApiDecoder
                                     const uint8_t*     buffer,
                                     size_t             buffer_size) = 0;
 
+    virtual void DecodeMethodCall(format::ApiCallId  call_id,
+                                  format::HandleId   object_id,
+                                  const ApiCallInfo& call_options,
+                                  const uint8_t*     parameter_buffer,
+                                  size_t             buffer_size)
+    {}
+
     virtual void DispatchStateBeginMarker(uint64_t frame_number) = 0;
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) = 0;
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) = 0;
 
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) = 0;
+
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) = 0;
+
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) = 0;
+
+    virtual void
+    DispatchFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                           const uint8_t*                                      data) = 0;
 
     virtual void DispatchResizeWindowCommand(format::ThreadId thread_id,
                                              format::HandleId surface_id,
@@ -90,6 +107,10 @@ class ApiDecoder
                                         const std::vector<format::HardwareBufferPlaneInfo>& plane_info) = 0;
 
     virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) = 0;
+
+    virtual void DispatchCreateHeapAllocationCommand(format::ThreadId thread_id,
+                                                     uint64_t         allocation_id,
+                                                     uint64_t         allocation_size) = 0;
 
     virtual void DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
                                                     format::HandleId   physical_device_id,
@@ -146,6 +167,18 @@ class ApiDecoder
                                           uint32_t                     layout,
                                           const std::vector<uint64_t>& level_sizes,
                                           const uint8_t*               data) = 0;
+
+    virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                                const uint8_t*                              data) = 0;
+
+    virtual void DispatchInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data) = 0;
+
+    virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header){};
+
+    virtual void SetCurrentBlockIndex(uint64_t block_index){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

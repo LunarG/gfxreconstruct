@@ -76,6 +76,10 @@ class Application final
 
     void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
+#if defined(WIN32)
+    void InitializeDx12WsiContext();
+#endif
+
     void StopRunning() { running_ = false; }
 
   private:
@@ -87,8 +91,8 @@ class Application final
     uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
     std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
-    graphics::FpsInfo*           fps_info_;                 ///< A optional FPS info object that logs the FPS across a configured framerange.
-                                                            ///< capture file data.
+    graphics::FpsInfo*                                           fps_info_;          ///< A optional FPS info object that logs the FPS across a configured framerange.
+                                                                                     ///< capture file data.
     // clang-format on
 };
 

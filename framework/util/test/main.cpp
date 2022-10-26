@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2019 Advanced Micro Devices, Inc.All rights reserved
+// Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 // Copyright (c) 2022 Valve Corporation
 // Copyright (c) 2022 LunarG, Inc.
 //

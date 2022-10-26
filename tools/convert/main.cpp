@@ -24,12 +24,20 @@
 #include "project_version.h"
 #include "tool_settings.h"
 #include "format/format.h"
-#include "generated/generated_vulkan_ascii_consumer.h"
 #include "util/platform.h"
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup";
+#include "generated/generated_vulkan_ascii_consumer.h"
+#if defined(WIN32)
+#include "generated/generated_dx12_ascii_consumer.h"
+#endif
 
-const char kArguments[] = "--output";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--json-object";
+
+const char kArguments[] = "--output"
+#if defined(WIN32)
+                          ",--api"
+#endif
+    ;
 
 static void PrintUsage(const char* exe_name)
 {
@@ -52,9 +60,17 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --output file\t\t'stdout' or a path to a file to write JSON output");
     GFXRECON_WRITE_CONSOLE("               \t\tto. Default is the input filepath with \"gfxr\" replaced");
     GFXRECON_WRITE_CONSOLE("               \t\tby \"jsonl\".");
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tDump ASCII output for the specified API (Windows only).");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDump only Vulkan API calls.", kApiFamilyVulkan);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDump only D3D12 API calls.", kApiFamilyD3D12);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tDump both Vulkan and D3D12 API calls. This is the default.",
+                           kApiFamilyAll);
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("                  \tdisplayed when abort() is called (Windows debug only).");
+#endif
 #endif
 }
 
@@ -94,18 +110,21 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(0);
     }
+
     if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
         gfxrecon::util::Log::Release();
         exit(-1);
     }
+
     if (arg_parser.IsArgumentSet(kOutput) && arg_parser.GetArgumentValue(kOutput).empty())
     {
         GFXRECON_LOG_ERROR("Empty string given for argument \"--output\"; must be a valid path or 'stdout'");
         gfxrecon::util::Log::Release();
         exit(-1);
     }
+
 #if defined(WIN32) && defined(_DEBUG)
     if (arg_parser.IsOptionSet(kNoDebugPopup))
     {
@@ -132,19 +151,59 @@ int main(int argc, const char** argv)
 
         if (output_file)
         {
-            gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
-            ascii_consumer.Initialize(output_file,
-                                      GFXRECON_PROJECT_VERSION_STRING,
-                                      (std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                       std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                       std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)))
-                                          .c_str(),
-                                      input_filename.c_str());
-            gfxrecon::decode::VulkanDecoder decoder;
-            decoder.AddConsumer(&ascii_consumer);
-            file_processor.AddDecoder(&decoder);
+            auto to_string_flags = gfxrecon::util::kToString_Default;
+            if (arg_parser.IsOptionSet(kJsonObjectArgument))
+            {
+                to_string_flags = gfxrecon::util::kToString_Formatted;
+            }
+
+            gfxrecon::decode::VulkanAsciiConsumer vulkan_ascii_consumer;
+            gfxrecon::decode::VulkanDecoder       vulkan_decoder;
+
+#if defined(WIN32)
+            gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
+            gfxrecon::decode::Dx12Decoder       dx12_decoder;
+#endif
+
+            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+            auto vulkan_replay_options = GetVulkanReplayOptions(arg_parser, input_filename, &tracked_object_info_table);
+            if (vulkan_replay_options.enable_vulkan)
+            {
+                vulkan_ascii_consumer.Initialize(output_file,
+                                                 GFXRECON_PROJECT_VERSION_STRING,
+                                                 (std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                                  std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                                  std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)))
+                                                     .c_str(),
+                                                 input_filename.c_str());
+                vulkan_decoder.AddConsumer(&vulkan_ascii_consumer);
+                file_processor.AddDecoder(&vulkan_decoder);
+            }
+
+#if defined(WIN32)
+            auto dx_replay_options = GetDxReplayOptions(arg_parser);
+            if (dx_replay_options.enable_d3d12)
+            {
+                dx12_ascii_consumer.Initialize(output_file, to_string_flags);
+                dx12_decoder.AddConsumer(&dx12_ascii_consumer);
+                file_processor.AddDecoder(&dx12_decoder);
+            }
+#endif
+
             file_processor.ProcessAllFrames();
-            ascii_consumer.Destroy();
+
+            if (vulkan_replay_options.enable_vulkan)
+            {
+                vulkan_ascii_consumer.Destroy();
+            }
+
+#if defined(WIN32)
+            if (dx_replay_options.enable_d3d12)
+            {
+                dx12_ascii_consumer.Destroy();
+            }
+#endif
+
             if (output_file != stdout)
             {
                 gfxrecon::util::platform::FileClose(output_file);

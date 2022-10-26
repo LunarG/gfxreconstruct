@@ -16,6 +16,9 @@ explore potential performance and feature enhancements, such as compression
 for capture files (currently available) and support for multi-threaded replay
 (to be added in the future).
 
+GFXReconstruct's software architecture is API-agnostic. Capture and replay of 
+D3D12 applications has also been added, including support for DXR workloads.
+
 ## Stability
 
 The GFXReconstruct project is currently Beta quality software.  The primary
@@ -29,19 +32,18 @@ GFXReconstruct versions.
 
 # Project Components
 
-The GFXReconstruct project provides tools for the capture and replay of Vulkan
-API calls, allowing the graphics commands executed by a Vulkan application to
-be recorded to a file that may later be replayed to reconstruct the
+The GFXReconstruct project provides tools for the capture and replay of Vulkan 
+and D3D12 API calls, allowing the graphics commands executed by an application
+to be recorded to a file that may later be replayed to reconstruct the
 graphics-specific behavior of the captured application. The replay code has
 been organized with a framework design to make it easy to create additional
-tools for processing capture files. Although the software is currently
-exclusive to the Vulkan API, it has been designed such that support for
-additional graphics APIs is possible.
+tools for processing capture files. 
 
 The GFXReconstruct components currently provided with this repository are:
 
 * The `VK_LAYER_LUNARG_gfxreconstruct` Vulkan layer for capturing
    Vulkan application commands.
+* The D3D12 capture libraries for capturing D3D12 application commands.
 * The `gfxrecon-replay` tool to replay GFXReconstruct capture files.
 * The `gfxrecon-info` tool to print information describing GFXReconstruct
   capture files.
@@ -53,6 +55,8 @@ The GFXReconstruct components currently provided with this repository are:
   GFXReconstruct capture files.
 * The `gfxrecon-convert` tool to convert GFXReconstruct capture files to
   a [JSON Lines](https://jsonlines.org/) listing of API calls.
+* The `gfxrecon-optimize` tool to produce new capture files with 
+  improved replay performance.
 
 
 
@@ -74,7 +78,8 @@ the [BUILD.md](BUILD.md) documentation.
 Instructions for using the GFXReconstruct capture and replay tools can be
 found at the following locations:
 
-* [Desktop Usage](USAGE_desktop.md)
+* [Desktop Usage - Vulkan](USAGE_desktop_Vulkan.md)
+* [Desktop Usage - D3D12](USAGE_desktop_D3D12.md)
 * [Android Usage](USAGE_android.md)
 
 ## License

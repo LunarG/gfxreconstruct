@@ -25,8 +25,11 @@
 #ifndef GFXRECON_TO_STRING_H
 #define GFXRECON_TO_STRING_H
 
+#include "format/format.h"
 #include "util/defines.h"
 
+#include <codecvt>
+#include <locale>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -36,9 +39,10 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 enum ToStringFlagBits
 {
-    kToString_Unformatted = 0,
-    kToString_Formatted   = 1,
-    kToString_Default     = kToString_Unformatted,
+    kToString_Unformatted  = 0,
+    kToString_Formatted    = 1,
+    kToString_Concatenated = 2,
+    kToString_Default      = kToString_Unformatted,
 };
 
 typedef uint32_t ToStringFlags;
@@ -64,6 +68,62 @@ inline std::string ToString(uint32_t      apiFlags,
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
     return "0";
+}
+
+template <typename HandleIdType>
+inline std::string HandleIdToString(HandleIdType handleId)
+{
+    std::stringstream strStrm;
+    if (handleId)
+    {
+        strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
+    }
+    else
+    {
+        strStrm << "\"NULL\"";
+    }
+    return strStrm.str();
+}
+
+template <>
+inline std::string HandleIdToString(format::HandleId handleId)
+{
+    return std::to_string(handleId);
+}
+
+inline std::string WCharArrayToString(const wchar_t* pStr)
+{
+    auto str = pStr ? std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(pStr) : std::string();
+    for (auto i = str.find('\\'); i != std::string::npos; i = str.find('\\'))
+    {
+        str = str.replace(i, 1, "-");
+    }
+    return str;
+}
+
+template <typename BitmaskType, typename FlagsType>
+inline std::string BitmaskToString(FlagsType flags)
+{
+    std::string str;
+    FlagsType   index = 0;
+    while (flags)
+    {
+        if (flags & 1)
+        {
+            if (!str.empty())
+            {
+                str.append("|");
+            }
+            str.append(ToString(static_cast<BitmaskType>(1 << index)));
+        }
+        ++index;
+        flags >>= 1;
+    }
+    if (str.empty())
+    {
+        str.append(ToString(static_cast<BitmaskType>(0)));
+    }
+    return str;
 }
 
 template <typename PtrType>
@@ -176,7 +236,7 @@ inline std::string ArrayToString(size_t        count,
         tabCount,
         tabSize,
         [&]() { return pObjs != nullptr; },
-        [&](uint32_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
+        [&](size_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
 template <typename T>
@@ -280,6 +340,24 @@ inline std::string CStrArrayToString(size_t             count,
         tabSize,
         [&]() { return ppStrs != nullptr; },
         [&](uint32_t i) { return CStrToString(ppStrs[i]); });
+}
+
+template <typename EnumType>
+inline std::string EnumArrayToString(size_t              count,
+                                     const EnumType*     pObjs,
+                                     util::ToStringFlags toStringFlags = util::kToString_Default,
+                                     uint32_t            tabCount      = 0,
+                                     uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    return ArrayToString(
+        count,
+        pObjs,
+        toStringFlags,
+        tabCount,
+        tabSize,
+        [&]() { return pObjs != nullptr; },
+        [&](size_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
 }
 
 GFXRECON_END_NAMESPACE(util)

@@ -54,6 +54,8 @@ class Dx12DecoderBase : public ApiDecoder
         consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer));
     }
 
+    virtual void WaitIdle() override {}
+
     virtual bool SupportsApiCall(format::ApiCallId call_id) override
     {
         auto family_id = format::GetApiCallFamily(call_id);
@@ -127,7 +129,7 @@ class Dx12DecoderBase : public ApiDecoder
                                         uint32_t                                            width,
                                         uint32_t                                            height,
                                         uint32_t                                            stride,
-                                        uint32_t                                            usage,
+                                        uint64_t                                            usage,
                                         uint32_t                                            layers,
                                         const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
 
