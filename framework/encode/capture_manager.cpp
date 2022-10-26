@@ -725,8 +725,10 @@ void CaptureManager::WriteAnnotation(const format::AnnotationType type, const ch
         annotation.label_length      = label_length;
         annotation.data_length       = data_length;
 
-        CombineAndWriteToFile(
-            { { &annotation, sizeof(annotation) }, { label, size_t(label_length) }, { data, size_t(data_length) } });
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
+        CombineAndWriteToFile({ { &annotation, sizeof(annotation) },
+                                { label, label_length },
+                                { data, static_cast<size_t>(data_length) } });
     }
 }
 

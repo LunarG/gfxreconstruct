@@ -1290,7 +1290,9 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
         {
             std::string label;
             std::string data;
-            size_t      total_length = size_t(label_length + data_length);
+            const auto  size_sum = label_length + data_length;
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size_sum);
+            const size_t total_length = static_cast<size_t>(size_sum);
 
             success = ReadParameterBuffer(total_length);
             if (success)
@@ -1304,7 +1306,8 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
                 if (data_length > 0)
                 {
                     auto data_start = std::next(parameter_buffer_.begin(), label_length);
-                    data.assign(data_start, std::next(data_start, size_t(data_length)));
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
+                    data.assign(data_start, std::next(data_start, static_cast<size_t>(data_length)));
                 }
 
                 assert(annotation_handler_ != nullptr);
