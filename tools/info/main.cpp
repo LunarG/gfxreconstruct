@@ -28,6 +28,7 @@
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
+#include "util/strings.h"
 #include "util/logging.h"
 
 #include "vulkan/vulkan.h"
@@ -115,22 +116,24 @@ static std::string GetVersionString(uint32_t api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
-class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
+class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxrecon::decode::AnnotationHandler
 {
   public:
-    uint32_t           GetTrimmedStartFrame() const { return trimmed_frame_; }
-    const std::string& GetAppName() const { return app_name_; }
-    uint32_t           GetAppVersion() const { return app_version_; }
-    const std::string& GetEngineName() const { return engine_name_; }
-    uint32_t           GetEngineVersion() const { return engine_version_; }
-    uint32_t           GetApiVersion() const { return api_version_; }
-    uint64_t           GetGraphicsPipelineCount() const { return graphics_pipelines_; }
-    uint64_t           GetComputePipelineCount() const { return compute_pipelines_; }
-    uint64_t           GetDrawCount() const { return draw_count_; }
-    uint64_t           GetDispatchCount() const { return dispatch_count_; }
-    uint64_t           GetAllocationCount() const { return allocation_count_; }
-    uint64_t           GetMinAllocationSize() const { return min_allocation_size_; }
-    uint64_t           GetMaxAllocationSize() const { return max_allocation_size_; }
+    uint32_t                        GetTrimmedStartFrame() const { return trimmed_frame_; }
+    const std::string&              GetAppName() const { return app_name_; }
+    uint32_t                        GetAppVersion() const { return app_version_; }
+    const std::string&              GetEngineName() const { return engine_name_; }
+    uint32_t                        GetEngineVersion() const { return engine_version_; }
+    uint32_t                        GetApiVersion() const { return api_version_; }
+    uint64_t                        GetGraphicsPipelineCount() const { return graphics_pipelines_; }
+    uint64_t                        GetComputePipelineCount() const { return compute_pipelines_; }
+    uint64_t                        GetDrawCount() const { return draw_count_; }
+    uint64_t                        GetDispatchCount() const { return dispatch_count_; }
+    uint64_t                        GetAllocationCount() const { return allocation_count_; }
+    uint64_t                        GetMinAllocationSize() const { return min_allocation_size_; }
+    uint64_t                        GetMaxAllocationSize() const { return max_allocation_size_; }
+    uint64_t                        GetAnnotationCount() const { return annotation_count_; }
+    const std::vector<std::string>& GetOperationAnnotationDatas() const { return operation_annotation_datas_; }
 
     const std::set<gfxrecon::format::HandleId>& GetInstantiatedDevices() const { return used_physical_devices_; }
     const VkPhysicalDeviceProperties*           GetDeviceProperties(gfxrecon::format::HandleId id) const
@@ -148,6 +151,21 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     {
         // Theres should only be one of these in a capture file.
         trimmed_frame_ = static_cast<uint32_t>(frame_number);
+    }
+
+    /// @brief Count all annotations and save the operation ones which contain data
+    /// such as build versions from the tools that have processed the file.
+    virtual void ProcessAnnotation(uint64_t                         block_index,
+                                   gfxrecon::format::AnnotationType type,
+                                   const std::string&               label,
+                                   const std::string&               data) override
+    {
+        ++annotation_count_;
+        if (type == gfxrecon::format::AnnotationType::kJson &&
+            label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
+        {
+            operation_annotation_datas_.push_back(data);
+        }
     }
 
     virtual void Process_vkCreateInstance(
@@ -493,6 +511,10 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     uint64_t allocation_count_{ 0 };
     uint64_t min_allocation_size_{ std::numeric_limits<uint64_t>::max() };
     uint64_t max_allocation_size_{ 0 };
+
+    // Annotation info.
+    std::vector<std::string> operation_annotation_datas_;
+    uint64_t                 annotation_count_{ 0 };
 };
 
 int main(int argc, const char** argv)
@@ -534,6 +556,7 @@ int main(int argc, const char** argv)
         decoder.AddConsumer(&stats_consumer);
 
         file_processor.AddDecoder(&decoder);
+        file_processor.SetAnnotationProcessor(&stats_consumer);
         file_processor.ProcessAllFrames();
 
         if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
@@ -631,8 +654,25 @@ int main(int argc, const char** argv)
             GFXRECON_WRITE_CONSOLE("\tTotal graphics pipelines: %" PRIu64, stats_consumer.GetGraphicsPipelineCount());
             GFXRECON_WRITE_CONSOLE("\tTotal compute pipelines: %" PRIu64, stats_consumer.GetComputePipelineCount());
 
-            // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls executed
-            // when recorded once to a command buffer that is submitted/replayed more than once.
+            const auto annotation_count = stats_consumer.GetAnnotationCount();
+            if (annotation_count > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("\nAnnotation info:");
+                GFXRECON_WRITE_CONSOLE("\tTotal annotations: %" PRIu64, annotation_count);
+                auto& operation_annotation_datas = stats_consumer.GetOperationAnnotationDatas();
+                if (operation_annotation_datas.size() > 0)
+                {
+                    GFXRECON_WRITE_CONSOLE("\tOperation annotations: %" PRIu64 "\n", operation_annotation_datas.size());
+                    for (const auto& operation : operation_annotation_datas)
+                    {
+                        auto tabbed = gfxrecon::util::strings::TabRight(operation);
+                        GFXRECON_WRITE_CONSOLE(tabbed.c_str());
+                    }
+                }
+            }
+
+            // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls
+            // executed when recorded once to a command buffer that is submitted/replayed more than once.
             // GFXRECON_WRITE_CONSOLE("\nDraw/dispatch call info:");
             // GFXRECON_WRITE_CONSOLE("\tTotal draw calls: %" PRIu64, stats_consumer.GetDrawCount());
             // GFXRECON_WRITE_CONSOLE("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetDispatchCount());

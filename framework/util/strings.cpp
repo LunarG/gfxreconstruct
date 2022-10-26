@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2021-2022 LunarG, Inc.
 ** Copyright (c) 2022 Valve Corporation
+** Copyright (c) 2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,29 +21,25 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ANNOTATION_HANDLER_DECODER_H
-#define GFXRECON_ANNOTATION_HANDLER_DECODER_H
-
-#include "format/format.h"
-#include "util/defines.h"
-
-#include <string>
+#include "util/strings.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(strings)
 
-class AnnotationHandler
+/// @note A deliberately simple, slow implementation for low-frequency use.
+///       Feel free to tune it if it shows up in a profile.
+std::string TabRight(const std::string& str)
 {
-  public:
-    virtual ~AnnotationHandler() {}
+    auto   tabbed = "\t" + str;
+    size_t match  = 0;
+    while ((match = tabbed.find('\n', match + 1)) != std::string::npos)
+    {
+        tabbed.replace(match, 1, "\n\t");
+    }
+    return tabbed;
+}
 
-    virtual void ProcessAnnotation(uint64_t               block_index,
-                                   format::AnnotationType type,
-                                   const std::string&     label,
-                                   const std::string&     data) = 0;
-};
-
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(strings)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_ANNOTATION_HANDLER_DECODER_H

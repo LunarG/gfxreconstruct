@@ -143,6 +143,7 @@ int main(int argc, const char** argv)
             gfxrecon::decode::VulkanDecoder decoder;
             decoder.AddConsumer(&ascii_consumer);
             file_processor.AddDecoder(&decoder);
+            file_processor.SetAnnotationProcessor(&ascii_consumer);
             file_processor.ProcessAllFrames();
             ascii_consumer.Destroy();
             if (output_file != stdout)

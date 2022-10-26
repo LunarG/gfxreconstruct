@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2020,2022 Valve Corporation
+** Copyright (c) 2018-2020,2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1279,8 +1279,8 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
 bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
 {
     bool     success      = false;
-    uint32_t label_length = 0;
-    uint32_t data_length  = 0;
+    decltype(format::AnnotationHeader::label_length) label_length = 0;
+    decltype(format::AnnotationHeader::data_length)  data_length  = 0;
 
     success = ReadBytes(&label_length, sizeof(label_length));
     success = success && ReadBytes(&data_length, sizeof(data_length));
@@ -1290,7 +1290,9 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
         {
             std::string label;
             std::string data;
-            auto        total_length = label_length + data_length;
+            const auto  size_sum = label_length + data_length;
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size_sum);
+            const size_t total_length = static_cast<size_t>(size_sum);
 
             success = ReadParameterBuffer(total_length);
             if (success)
@@ -1304,11 +1306,12 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
                 if (data_length > 0)
                 {
                     auto data_start = std::next(parameter_buffer_.begin(), label_length);
-                    data.assign(data_start, std::next(data_start, data_length));
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
+                    data.assign(data_start, std::next(data_start, static_cast<size_t>(data_length)));
                 }
 
                 assert(annotation_handler_ != nullptr);
-                annotation_handler_->ProcessAnnotation(annotation_type, label, data);
+                annotation_handler_->ProcessAnnotation(block_index_, annotation_type, label, data);
             }
             else
             {

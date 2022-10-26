@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018, 2022 Valve Corporation
+** Copyright (c) 2018, 2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,7 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-
+/// @file Helpers for the capture file format.
 #ifndef GFXRECON_FORMAT_FORMAT_UTIL_H
 #define GFXRECON_FORMAT_FORMAT_UTIL_H
 
@@ -79,6 +79,12 @@ template <typename T>
 uint64_t GetMetaDataBlockBaseSize(const T& block)
 {
     return (sizeof(block) - sizeof(block.meta_header.block_header));
+}
+
+/// @return The size of an annotation block header minus the size of the header
+constexpr size_t GetAnnotationBlockBaseSize()
+{
+    return (sizeof(AnnotationHeader) - sizeof(BlockHeader));
 }
 
 // Utilities for format validation.

@@ -66,6 +66,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.h
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/strings.h
+                    ${CMAKE_CURRENT_LIST_DIR}/strings.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/options.h
                     ${CMAKE_CURRENT_LIST_DIR}/options.cpp

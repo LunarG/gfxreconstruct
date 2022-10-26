@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
 
 #include "format/platform_types.h"
+#include "annotation_handler.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
 #include "util/to_string.h"
@@ -37,7 +38,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanAsciiConsumerBase : public VulkanConsumer
+/// @brief Factor out manually-written code from the derived class
+/// VulkanAsciiConsumer which is generated.
+class VulkanAsciiConsumerBase : public VulkanConsumer, public AnnotationHandler
 {
   public:
     VulkanAsciiConsumerBase();
@@ -55,6 +58,12 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
     void Destroy();
 
     bool IsValid() const { return (file_ != nullptr); }
+
+    /// @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
+    virtual void ProcessAnnotation(uint64_t               block_index,
+                                   format::AnnotationType type,
+                                   const std::string&     label,
+                                   const std::string&     data) override;
 
     virtual void
     Process_vkAllocateCommandBuffers(const ApiCallInfo&                                         call_info,

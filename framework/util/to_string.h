@@ -246,6 +246,16 @@ inline void JSONEscape(const char* cstr, std::string& escaped)
     }
 }
 
+inline std::string JSONEscape(const std::string& str)
+{
+    std::string escaped;
+    for (const auto c : str)
+    {
+        JSONEscape(c, escaped);
+    }
+    return escaped;
+}
+
 /// @brief  A single point for the conversion of C-style strings to the JSON
 /// string type or null.
 inline std::string CStrToString(const char* const cstr)

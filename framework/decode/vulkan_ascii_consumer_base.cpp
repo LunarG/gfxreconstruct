@@ -27,6 +27,38 @@
 #include "generated/generated_vulkan_ascii_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+namespace
+{
+std::string AnnotationTypeToString(const format::AnnotationType& type)
+{
+    std::string str;
+    switch (type)
+    {
+        case format::AnnotationType::kUnknown:
+            str.assign("kUnknown");
+            break;
+        case format::AnnotationType::kText:
+            str.assign("kText");
+            break;
+        case format::AnnotationType::kJson:
+            str.assign("kJson");
+            break;
+        case format::AnnotationType::kXml:
+            str.assign("kXml");
+            break;
+        default:
+            str.assign("OUT_OF_RANGE_ERROR");
+            GFXRECON_LOG_WARNING("format::AnnotationType with out of range value: %lu", (long unsigned)type);
+            break;
+    }
+    return str;
+}
+} // namespace
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /// The version of the JSON file format which will be produced.
@@ -65,6 +97,19 @@ void VulkanAsciiConsumerBase::Destroy()
     // The file is owned elsewhere and was passed to Initialize() so don't close:
     file_ = nullptr;
     strStrm_.str(std::string{});
+}
+
+void VulkanAsciiConsumerBase::ProcessAnnotation(uint64_t               block_index,
+                                                format::AnnotationType type,
+                                                const std::string&     label,
+                                                const std::string&     data)
+{
+    fprintf(file_,
+            "{\"index\":%llu,\"annotation\":{\"type\":\"%s\",\"label\":\"%s\",\"data\":\"%s\"}}\n",
+            (long long unsigned int)block_index,
+            util::AnnotationTypeToString(type).c_str(),
+            label.c_str(),
+            util::JSONEscape(data).c_str());
 }
 
 // clang-format off
