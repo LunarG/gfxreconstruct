@@ -716,19 +716,18 @@ void CaptureManager::WriteAnnotation(const format::AnnotationType type, const ch
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        const auto label_length = decltype(format::AnnotationHeader::label_length)(util::platform::StringLength(label));
-        const auto data_length  = decltype(format::AnnotationHeader::data_length)(util::platform::StringLength(data));
+        const auto label_length = util::platform::StringLength(label);
+        const auto data_length  = util::platform::StringLength(data);
+
         format::AnnotationHeader annotation;
         annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
         annotation.block_header.type = format::BlockType::kAnnotation;
         annotation.annotation_type   = type;
-        annotation.label_length      = label_length;
-        annotation.data_length       = data_length;
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, label_length);
+        annotation.label_length = static_cast<uint32_t>(label_length);
+        annotation.data_length  = data_length;
 
-        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
-        CombineAndWriteToFile({ { &annotation, sizeof(annotation) },
-                                { label, label_length },
-                                { data, static_cast<size_t>(data_length) } });
+        CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
     }
 }
 
