@@ -618,6 +618,10 @@ class D3D12CaptureManager : public CaptureManager
 
     void WriteDriverInfoCommand(const std::string& info);
 
+    void WriteDx12RuntimeInfo();
+
+    void WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeInfo& runtime_info);
+
     void PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory);
 
     void PostProcess_CreateDXGIFactory1(HRESULT result, REFIID riid, void** ppFactory);

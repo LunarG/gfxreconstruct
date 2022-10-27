@@ -31,6 +31,7 @@
 #endif
 #include <winver.h>
 #include <windows.h>
+#include <psapi.h>
 #else
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -257,7 +258,7 @@ bool QueryStringFileInfo(
     return found;
 }
 
-void GetApplicationFileExeVersion(FileInfo& exe_info, const std::string& file_path)
+void GetFileInfo(FileInfo& file_info, const std::string& file_path)
 {
 #if defined(WIN32)
     DWORD ver_size = GetFileVersionInfoSize(file_path.c_str(), nullptr);
@@ -283,10 +284,10 @@ void GetApplicationFileExeVersion(FileInfo& exe_info, const std::string& file_pa
 
                         VS_FIXEDFILEINFO* ver_info = reinterpret_cast<VS_FIXEDFILEINFO*>(buffer);
 
-                        exe_info.AppVersion[0] = (ver_info->dwFileVersionMS >> 16) & exe_version_mask;
-                        exe_info.AppVersion[1] = (ver_info->dwFileVersionMS >> 0) & exe_version_mask;
-                        exe_info.AppVersion[2] = (ver_info->dwFileVersionLS >> 16) & exe_version_mask;
-                        exe_info.AppVersion[3] = (ver_info->dwFileVersionLS >> 0) & exe_version_mask;
+                        file_info.AppVersion[0] = (ver_info->dwFileVersionMS >> 16) & exe_version_mask;
+                        file_info.AppVersion[1] = (ver_info->dwFileVersionMS >> 0) & exe_version_mask;
+                        file_info.AppVersion[2] = (ver_info->dwFileVersionLS >> 16) & exe_version_mask;
+                        file_info.AppVersion[3] = (ver_info->dwFileVersionLS >> 0) & exe_version_mask;
 
                         static const std::unordered_map<ExeInfoMember, const char*> query_map{
                             { kExeInfoCompanyName, "CompanyName" },
@@ -310,7 +311,7 @@ void GetApplicationFileExeVersion(FileInfo& exe_info, const std::string& file_pa
                                     ver_data.data(), ver_ret_val, query_size, code_page_idx_2, it.second);
                             }
 
-                            UpdateExeFileInfo(it.first, ver_ret_val, exe_info);
+                            UpdateExeFileInfo(it.first, ver_ret_val, file_info);
                         }
                     }
                     else
@@ -343,7 +344,7 @@ void GetApplicationInfo(FileInfo& file_info)
     if (size_path > 0)
     {
         filepath = module_name;
-        GetApplicationFileExeVersion(file_info, filepath);
+        GetFileInfo(file_info, filepath);
         strncpy_s(file_info.AppName,
                   sizeof(file_info.AppName),
                   filepath.substr(filepath.find_last_of("/\\") + 1).c_str(),
@@ -389,6 +390,91 @@ void CheckReplayerName(const std::string& exe_info_name)
     }
 
 #endif
+}
+
+bool EqualStr(const std::string& str1, const std::string& str2, bool case_sensitive)
+{
+    bool equal = true;
+
+    // Case sensitive compare
+    if (case_sensitive == true)
+    {
+        if (str1 != str2)
+        {
+            equal = false;
+        }
+    }
+
+    // Case insensitive compare
+    else
+    {
+        const size_t str1_len = str1.size();
+        const size_t str2_len = str2.size();
+
+        if (str1_len != str2_len)
+        {
+            equal = false;
+        }
+        else
+        {
+            for (uint32_t i = 0; i < str1_len; ++i)
+            {
+                if (tolower(str1[i]) != tolower(str2[i]))
+                {
+                    equal = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    return equal;
+}
+
+std::string FindModulePath(const std::string& target_module, bool case_sensitive)
+{
+    std::string target_module_path = "";
+
+#if defined(WIN32)
+    HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetCurrentProcessId());
+
+    if (process != nullptr)
+    {
+        const int max_module_count          = 1024;
+        HMODULE   modules[max_module_count] = {};
+        DWORD     size                      = 0;
+
+        // Enumerate all the app's loaded modules
+        if (EnumProcessModules(process, modules, sizeof(modules), &size))
+        {
+            for (uint32_t i = 0; i < (size / sizeof(HMODULE)); i++)
+            {
+                TCHAR enumerated_module[MAX_PATH] = {};
+
+                // Get individual module info
+                if (GetModuleFileNameEx(
+                        process, modules[i], enumerated_module, sizeof(enumerated_module) / sizeof(TCHAR)))
+                {
+                    const std::string curr_module_path = enumerated_module;
+                    const std::string curr_module_name =
+                        curr_module_path.substr(curr_module_path.find_last_of(util::filepath::kAltPathLastSepStr) + 1)
+                            .c_str();
+
+                    if (EqualStr(curr_module_name, target_module, case_sensitive))
+                    {
+                        target_module_path = curr_module_path;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        CloseHandle(process);
+    }
+#endif
+
+    return target_module_path;
 }
 
 GFXRECON_END_NAMESPACE(filepath)

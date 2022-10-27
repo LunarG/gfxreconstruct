@@ -47,42 +47,16 @@ GFXRECON_BEGIN_NAMESPACE(driverinfo)
 
 std::string FindLoadedDriverModule(const std::vector<std::string>& known_user_mode_drivers)
 {
-#if defined(WIN32)
-    HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetCurrentProcessId());
-
-    if (process != nullptr)
+    for (uint32_t i = 0; i < known_user_mode_drivers.size(); i++)
     {
-        const int max_module_count          = 1024;
-        HMODULE   modules[max_module_count] = {};
-        DWORD     size                      = 0;
+        std::string umd_path = util::filepath::FindModulePath(known_user_mode_drivers[i], true);
 
-        // Get a list of all the modules in this process.
-        if (EnumProcessModules(process, modules, sizeof(modules), &size))
+        if (umd_path.empty() == false)
         {
-            for (uint32_t i = 0; i < (size / sizeof(HMODULE)); i++)
-            {
-                TCHAR enumerated_module[MAX_PATH] = {};
-
-                if (GetModuleFileNameEx(
-                        process, modules[i], enumerated_module, sizeof(enumerated_module) / sizeof(TCHAR)))
-                {
-                    std::string const module_path = enumerated_module;
-                    std::string const module_name = module_path.substr(module_path.find_last_of("/\\") + 1).c_str();
-
-                    for (uint32_t j = 0; j < known_user_mode_drivers.size(); j++)
-                    {
-                        if (known_user_mode_drivers[j] == module_name)
-                        {
-                            return module_path;
-                        }
-                    }
-                }
-            }
+            return umd_path;
         }
-
-        CloseHandle(process);
     }
-#endif
+
     return "";
 }
 
@@ -133,7 +107,7 @@ bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_i
                   active_driver_path.substr(active_driver_path.find_last_of("/\\") + 1).c_str(),
                   active_driver_path.substr(active_driver_path.find_last_of("/\\") + 1).length());
 
-        GetApplicationFileExeVersion(file_info, active_driver_path);
+        GetFileInfo(file_info, active_driver_path);
         if (file_info.FileVersion != "")
         {
             driver_info += "UMD version (" + static_cast<std::string>(file_info.AppName) +

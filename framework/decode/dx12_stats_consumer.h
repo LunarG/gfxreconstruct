@@ -41,6 +41,8 @@ class Dx12StatsConsumer : public Dx12Consumer
 
     bool IsComplete(uint64_t current_block_index) override { return false; }
 
+    format::Dx12RuntimeInfo GetDx12RuntimeInfo() { return runtime_info_; }
+
     const std::vector<format::DxgiAdapterDesc> GetAdapters()
     {
         // If a kDxgiAdapterInfoCommand block was detected, then return that info
@@ -249,6 +251,14 @@ class Dx12StatsConsumer : public Dx12Consumer
         dxr_workload_ = true;
     }
 
+    virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header)
+    {
+        util::platform::MemoryCopy(&runtime_info_,
+                                   sizeof(runtime_info_),
+                                   &runtime_info_header.runtime_info,
+                                   sizeof(runtime_info_header.runtime_info));
+    }
+
     virtual void ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
                                                       format::HandleId                                    swapchain_id,
                                                       uint32_t                                            current_buffer_index,
@@ -274,6 +284,8 @@ class Dx12StatsConsumer : public Dx12Consumer
 
     bool dxr_workload_;
     bool dxr_opt_fillmem_;
+
+    format::Dx12RuntimeInfo runtime_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

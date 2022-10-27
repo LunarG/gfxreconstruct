@@ -87,6 +87,8 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     // This ensures the replayer gets a chance to process the metadata command
     D3D12CaptureManager::Get()->WriteDxgiAdapterInfo();
     D3D12CaptureManager::Get()->WriteDx12DriverInfo();
+    D3D12CaptureManager::Get()->WriteDx12RuntimeInfo();
+
     // Queue
     StandardCreateWrite<ID3D12CommandQueue_Wrapper>(state_table);
 

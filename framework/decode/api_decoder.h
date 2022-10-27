@@ -176,6 +176,8 @@ class ApiDecoder
 
     virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header){};
 
+    virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header){};
+
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
 };
 

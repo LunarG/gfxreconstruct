@@ -114,7 +114,7 @@ enum class MetaDataType : uint16_t
     kEndResourceInitCommand                 = 6,
     kInitBufferCommand                      = 7,
     kInitImageCommand                       = 8,
-    kCreateHardwareBufferCommand            = 9,
+    kCreateHardwareBufferCommand_deprecated = 9,
     kDestroyHardwareBufferCommand           = 10,
     kSetDevicePropertiesCommand             = 11,
     kSetDeviceMemoryPropertiesCommand       = 12,
@@ -127,7 +127,11 @@ enum class MetaDataType : uint16_t
     kInitDx12AccelerationStructureCommand   = 19,
     kFillMemoryResourceValueCommand         = 20,
     kDxgiAdapterInfoCommand                 = 21,
-    kDriverInfoCommand                      = 22
+    kDriverInfoCommand                      = 22,
+    kReserved23                             = 23,
+    kCreateHardwareBufferCommand            = 24,
+    kReserved25                             = 25,
+    kDx12RuntimeInfoCommand                 = 26,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -570,6 +574,19 @@ struct DxgiAdapterInfoCommandHeader
     MetaDataHeader  meta_header;
     ThreadId        thread_id;
     DxgiAdapterDesc adapter_desc;
+};
+
+struct Dx12RuntimeInfo
+{
+    uint32_t version[util::filepath::kFileVersionSize] = {};
+    char     src[util::filepath::kMaxFilePropertySize] = {};
+};
+
+struct Dx12RuntimeInfoCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    Dx12RuntimeInfo  runtime_info;
 };
 
 #pragma pack(pop)
