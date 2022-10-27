@@ -119,124 +119,114 @@ int main(int argc, const char** argv)
             auto        application =
                 std::make_shared<gfxrecon::application::Application>(kApplicationName, wsi_extension, &file_processor);
 
-            if (!application)
+            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+            gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
+                GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+
+            uint32_t start_frame = 0;
+            uint32_t end_frame = 0;
+
+            bool has_mfr = false;
+            bool quit_after_measurement_frame_range = false;
+            bool flush_measurement_frame_range = false;
+
+            if (vulkan_replay_options.enable_vulkan)
             {
-                GFXRECON_WRITE_CONSOLE(
-                    "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
-                    "Vulkan platform extensions have been enabled.");
+                has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
+                quit_after_measurement_frame_range = vulkan_replay_options.quit_after_measurement_frame_range;
+                flush_measurement_frame_range = vulkan_replay_options.flush_measurement_frame_range;
+            }
+
+            gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
+                static_cast<uint64_t>(end_frame),
+                has_mfr,
+                quit_after_measurement_frame_range,
+                flush_measurement_frame_range);
+
+            gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
+            gfxrecon::decode::VulkanDecoder        vulkan_decoder;
+
+            if (vulkan_replay_options.enable_vulkan)
+            {
+                vulkan_replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
+                vulkan_replay_consumer.SetFpsInfo(&fps_info);
+
+                vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
+                file_processor.AddDecoder(&vulkan_decoder);
+            }
+
+#if defined(WIN32)
+            gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser);
+            gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
+            gfxrecon::decode::Dx12Decoder        dx12_decoder;
+
+            if (dx_replay_options.enable_d3d12)
+            {
+                application->InitializeDx12WsiContext();
+
+                dx12_replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
+                dx12_replay_consumer.SetFpsInfo(&fps_info);
+
+                // check for user option if first pass tracking is enabled
+                if (dx_replay_options.enable_d3d12_two_pass_replay)
+                {
+                    gfxrecon::decode::FileProcessor              file_processor_tracking;
+                    gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
+                    auto                                         tracking_consumer =
+                        new gfxrecon::decode::DX12TrackingConsumer(dx_replay_options, &tracked_object_info_table);
+                    if (file_processor_tracking.Initialize(filename))
+                    {
+                        dx12_decoder.AddConsumer(tracking_consumer);
+                        file_processor_tracking.AddDecoder(&dx12_decoder);
+                        file_processor_tracking.ProcessAllFrames();
+                        file_processor_tracking.RemoveDecoder(&dx12_decoder);
+                        dx12_decoder.RemoveConsumer(tracking_consumer);
+                    }
+                }
+                dx12_decoder.AddConsumer(&dx12_replay_consumer);
+                file_processor.AddDecoder(&dx12_decoder);
+            }
+#endif
+
+            // Warn if the capture layer is active.
+            CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
+
+            fps_info.BeginFile();
+
+            application->SetPauseFrame(GetPauseFrame(arg_parser));
+            application->SetFpsInfo(&fps_info);
+            application->Run();
+
+            // XXX if the final frame ended with a Present, this would be the *next* frame
+            // Add one so that it matches the trim range frame number semantic
+            fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);
+
+            if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+            {
+                if (file_processor.GetCurrentFrameNumber() < start_frame)
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
+                        "Measurements were never started, cannot calculate measurement range FPS.",
+                        start_frame,
+                        file_processor.GetCurrentFrameNumber());
+                }
+                else
+                {
+                    fps_info.LogToConsole();
+                }
+            }
+            else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            {
+                GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 return_code = -1;
             }
             else
             {
-                gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
-                    GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
-
-                uint32_t start_frame = 0;
-                uint32_t end_frame   = 0;
-
-                bool has_mfr                            = false;
-                bool quit_after_measurement_frame_range = false;
-                bool flush_measurement_frame_range      = false;
-
-                if (vulkan_replay_options.enable_vulkan)
-                {
-                    has_mfr                            = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
-                    quit_after_measurement_frame_range = vulkan_replay_options.quit_after_measurement_frame_range;
-                    flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
-                }
-
-                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
-                                                     static_cast<uint64_t>(end_frame),
-                                                     has_mfr,
-                                                     quit_after_measurement_frame_range,
-                                                     flush_measurement_frame_range);
-
-                gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
-                gfxrecon::decode::VulkanDecoder        vulkan_decoder;
-
-                if (vulkan_replay_options.enable_vulkan)
-                {
-                    vulkan_replay_consumer.SetFatalErrorHandler(
-                        [](const char* message) { throw std::runtime_error(message); });
-                    vulkan_replay_consumer.SetFpsInfo(&fps_info);
-
-                    vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
-                    file_processor.AddDecoder(&vulkan_decoder);
-                }
-
-#if defined(WIN32)
-                gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser);
-                gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
-                gfxrecon::decode::Dx12Decoder        dx12_decoder;
-
-                if (dx_replay_options.enable_d3d12)
-                {
-                    application->InitializeDx12WsiContext();
-
-                    dx12_replay_consumer.SetFatalErrorHandler(
-                        [](const char* message) { throw std::runtime_error(message); });
-                    dx12_replay_consumer.SetFpsInfo(&fps_info);
-
-                    // check for user option if first pass tracking is enabled
-                    if (dx_replay_options.enable_d3d12_two_pass_replay)
-                    {
-                        gfxrecon::decode::FileProcessor              file_processor_tracking;
-                        gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
-                        auto                                         tracking_consumer =
-                            new gfxrecon::decode::DX12TrackingConsumer(dx_replay_options, &tracked_object_info_table);
-                        if (file_processor_tracking.Initialize(filename))
-                        {
-                            dx12_decoder.AddConsumer(tracking_consumer);
-                            file_processor_tracking.AddDecoder(&dx12_decoder);
-                            file_processor_tracking.ProcessAllFrames();
-                            file_processor_tracking.RemoveDecoder(&dx12_decoder);
-                            dx12_decoder.RemoveConsumer(tracking_consumer);
-                        }
-                    }
-                    dx12_decoder.AddConsumer(&dx12_replay_consumer);
-                    file_processor.AddDecoder(&dx12_decoder);
-                }
-#endif
-
-                // Warn if the capture layer is active.
-                CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
-
-                fps_info.BeginFile();
-
-                application->SetPauseFrame(GetPauseFrame(arg_parser));
-                application->SetFpsInfo(&fps_info);
-                application->Run();
-
-                // XXX if the final frame ended with a Present, this would be the *next* frame
-                // Add one so that it matches the trim range frame number semantic
-                fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);
-
-                if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
-                {
-                    if (file_processor.GetCurrentFrameNumber() < start_frame)
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
-                            "Measurements were never started, cannot calculate measurement range FPS.",
-                            start_frame,
-                            file_processor.GetCurrentFrameNumber());
-                    }
-                    else
-                    {
-                        fps_info.LogToConsole();
-                    }
-                }
-                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-                {
-                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
-                    return_code = -1;
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-                }
+                GFXRECON_WRITE_CONSOLE("File did not contain any frames");
             }
         }
     }
