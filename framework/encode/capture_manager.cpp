@@ -31,6 +31,7 @@
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
+#include "util/date_time.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -647,14 +648,18 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
         // Save parameters of the capture in an annotation.
         std::string operation_annotation = "{\n"
                                            "    \"tool\": \"capture\",\n"
-                                           "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
-                                           "    \"vulkan-version\": \"";
+                                           "    \"timestamp\": \"";
+        operation_annotation += util::datetime::UtcNowString();
+        operation_annotation += "\",\n";
+        operation_annotation += "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
+                                "    \"vulkan-version\": \"";
         operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
         operation_annotation += '.';
         operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
         operation_annotation += '.';
         operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
         operation_annotation += "\"\n}";
+
         WriteAnnotation(format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
     }
     else
