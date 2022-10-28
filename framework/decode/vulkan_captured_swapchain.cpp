@@ -498,7 +498,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                         {
                             if (image_info[image_index].acquired)
                             {
-                                swapchain_info->acquired_indices[i] = image_index;
+                                swapchain_info->acquired_indices[i] = { image_index, true };
 
                                 // The upcoming frames expect the image to be acquired. The synchronization objects
                                 // used to acquire the image were already set to the appropriate signaled state when
@@ -767,7 +767,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                     {
                         if (image_info[i].acquired)
                         {
-                            swapchain_info->acquired_indices[i] = image_index;
+                            swapchain_info->acquired_indices[i] = { image_index, true };
 
                             // Transition the image to the expected layout and keep it acquired.
                             VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[i].image_layout);
