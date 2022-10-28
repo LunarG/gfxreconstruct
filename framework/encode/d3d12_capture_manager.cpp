@@ -63,6 +63,27 @@ void D3D12CaptureManager::DestroyInstance()
                                     });
 }
 
+bool D3D12CaptureManager::CreateCaptureFile(const std::string& base_filename)
+{
+    auto state_lock = AcquireUniqueStateLock();
+
+    return CaptureManager::CreateCaptureFile(base_filename);
+}
+
+void D3D12CaptureManager::ActivateTrimming()
+{
+    auto state_lock = AcquireUniqueStateLock();
+
+    CaptureManager::ActivateTrimming();
+}
+
+void D3D12CaptureManager::DeactivateTrimming()
+{
+    auto state_lock = AcquireUniqueStateLock();
+
+    CaptureManager::DeactivateTrimming();
+}
+
 void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle)
 {
     if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))

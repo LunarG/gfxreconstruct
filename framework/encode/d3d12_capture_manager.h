@@ -52,6 +52,10 @@ class D3D12CaptureManager : public CaptureManager
     // already zero.
     static void DestroyInstance();
 
+    virtual bool CreateCaptureFile(const std::string& base_filename);
+    virtual void ActivateTrimming();
+    virtual void DeactivateTrimming();
+
     //----------------------------------------------------------------------------
     /// \brief Initializes the DXGI dispatch table.
     ///
