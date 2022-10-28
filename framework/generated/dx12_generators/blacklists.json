@@ -1,5 +1,6 @@
 {
   "functions": [],
+  "functions-decoder": [],
   "classmethods": {
     "ID3D12Device": [
       "CheckFeatureSupport"

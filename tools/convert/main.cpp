@@ -31,7 +31,7 @@
 #include "generated/generated_dx12_ascii_consumer.h"
 #endif
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--json-object";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup";
 
 const char kArguments[] = "--output"
 #if defined(WIN32)
@@ -67,7 +67,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDump only D3D12 API calls.", kApiFamilyD3D12);
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tDump both Vulkan and D3D12 API calls. This is the default.",
                            kApiFamilyAll);
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("                  \tdisplayed when abort() is called (Windows debug only).");
 #endif
@@ -152,10 +152,6 @@ int main(int argc, const char** argv)
         if (output_file)
         {
             auto to_string_flags = gfxrecon::util::kToString_Default;
-            if (arg_parser.IsOptionSet(kJsonObjectArgument))
-            {
-                to_string_flags = gfxrecon::util::kToString_Formatted;
-            }
 
             gfxrecon::decode::VulkanAsciiConsumer vulkan_ascii_consumer;
             gfxrecon::decode::VulkanDecoder       vulkan_decoder;

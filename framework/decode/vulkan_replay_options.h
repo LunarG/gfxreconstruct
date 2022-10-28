@@ -48,7 +48,6 @@ struct VulkanReplayOptions : public ReplayOptions
     bool                         omit_pipeline_cache_data{ false };
     bool                         remove_unsupported_features{ false };
     bool                         enable_use_captured_swapchain_indices{ false };
-    int32_t                      override_gpu_index{ -1 };
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;

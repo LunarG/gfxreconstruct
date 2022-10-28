@@ -356,11 +356,11 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
-                        [--surface-index <N>] [--remove-unsupported]
+                        [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
                         [--use-captured-swapchain-indices]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        <file>
+                        [--api <api>] [--no-debug-popup] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -429,6 +429,9 @@ Optional arguments:
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   --remove-unsupported  Remove unsupported extensions and features from instance
                         and device creation parameters.
+  --validate            Enables the Khronos Vulkan validation layer when replaying a
+                        Vulkan capture or the Direct3D debug layer when replaying a
+                        Direct3D 12 capture.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:
@@ -446,6 +449,14 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
+  --api <api>           Use the specified API for replay (Windows only).
+                        Available values are:
+                            vulkan      Replay with the Vulkan API enabled.
+                            d3d12       Replay with the Direct3D API enabled.
+                            all         Replay with both the Vulkan and Direct3D 12 APIs
+                                        enabled. This is the default.
+  --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
+                        displayed when abort() is called (Windows debug only).
   --use-captured-swapchain-indices 
                         Use the swapchain indices stored in the capture directly on the swapchain 
                         setup for replay. The default without this option is to use a Virtual Swapchain

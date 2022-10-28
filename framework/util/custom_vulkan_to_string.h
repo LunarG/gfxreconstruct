@@ -38,12 +38,6 @@ GFXRECON_BEGIN_NAMESPACE(util)
 std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 
 template <>
-std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj,
-                                          ToStringFlags              toStringFlags,
-                                          uint32_t                   tabCount,
-                                          uint32_t                   tabSize);
-
-template <>
 std::string ToString<VkAccelerationStructureGeometryKHR>(const VkAccelerationStructureGeometryKHR& obj,
                                                          ToStringFlags                             toStringFlags,
                                                          uint32_t                                  tabCount,

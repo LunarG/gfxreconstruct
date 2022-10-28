@@ -736,39 +736,44 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12SDKConfiguration_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D12CommandList)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D12GraphicsCommandList)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12GraphicsCommandList1)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12GraphicsCommandList2)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12GraphicsCommandList3)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12GraphicsCommandList4)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12GraphicsCommandList5)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12GraphicsCommandList6)
     {
-        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D10Blob)

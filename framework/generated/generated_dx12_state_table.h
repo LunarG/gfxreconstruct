@@ -318,7 +318,7 @@ class Dx12StateTable : public Dx12StateTableBase
 
     ID3D12SDKConfiguration_Wrapper* GetID3D12SDKConfiguration_Wrapper(format::HandleId id) { return GetWrapper<ID3D12SDKConfiguration_Wrapper>(id, ID3D12SDKConfiguration_Wrapper_map_); }
     const ID3D12SDKConfiguration_Wrapper* GetID3D12SDKConfiguration_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12SDKConfiguration_Wrapper>(id, ID3D12SDKConfiguration_Wrapper_map_); }
-    
+
     ID3D12CommandList_Wrapper* GetID3D12CommandList_Wrapper(format::HandleId id) { return GetWrapper<ID3D12CommandList_Wrapper>(id, ID3D12CommandList_Wrapper_map_); }
     const ID3D12CommandList_Wrapper* GetID3D12CommandList_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12CommandList_Wrapper>(id, ID3D12CommandList_Wrapper_map_); }
 
