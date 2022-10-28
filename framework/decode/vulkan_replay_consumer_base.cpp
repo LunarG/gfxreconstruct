@@ -3541,9 +3541,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         auto                                capture_id           = (*pMemory->GetPointer());
 
         // Check if this allocation was captured with an opaque address
-        bool                uses_address   = false;
+        bool                uses_address       = false;
         bool                uses_import_memory = false;
-        uint64_t            opaque_address = 0;
+        uint64_t            opaque_address     = 0;
         VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
 
         size_t                                            host_pointer_size = 0;
@@ -4954,7 +4954,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
                 swapchain_info->acquired_indices.resize(captured_index + 1);
             }
 
-            swapchain_info->acquired_indices[captured_index] = captured_index;
+            swapchain_info->acquired_indices[captured_index] = { captured_index, true };
 
             // The image has already been acquired. Swap the synchronization objects.
             if (semaphore != VK_NULL_HANDLE)
@@ -4993,7 +4993,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             }
 
             // Track the index that was acquired on replay, which may be different than the captured index.
-            swapchain_info->acquired_indices[captured_index] = (*replay_index);
+            swapchain_info->acquired_indices[captured_index] = { (*replay_index), true };
         }
     }
     else
@@ -5060,7 +5060,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
             if (swapchain_info != nullptr)
             {
-                swapchain_info->acquired_indices[captured_index] = captured_index;
+                swapchain_info->acquired_indices[captured_index] = { captured_index, true };
             }
 
             // The image has already been acquired. Swap the synchronization objects.
@@ -5102,7 +5102,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             }
 
             // Track the index that was acquired on replay, which may be different than the captured index.
-            swapchain_info->acquired_indices[captured_index] = (*replay_index);
+            swapchain_info->acquired_indices[captured_index] = { (*replay_index), true };
         }
     }
     else
@@ -5182,7 +5182,47 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
                 uint32_t capture_image_index = present_info->pImageIndices[i];
                 capture_image_indices.emplace_back(capture_image_index);
-                uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index];
+
+                if (capture_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+                {
+                    swapchain_info->acquired_indices.resize(capture_image_index + 1);
+                }
+
+                if (!swapchain_info->acquired_indices[capture_image_index].acquired)
+                {
+                    GFXRECON_ASSERT(swapchain_info->device_info);
+
+                    VkDevice device = swapchain_info->device_info->handle;
+                    GFXRECON_ASSERT(device);
+
+                    auto    device_table  = GetDeviceTable(device);
+                    VkFence acquire_fence = VK_NULL_HANDLE;
+
+                    VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+                    fence_create_info.pNext             = nullptr;
+                    fence_create_info.flags             = 0;
+                    result = device_table->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
+                    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+                    uint32_t replay_index = 0;
+                    result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
+                                                             swapchain_info->device_info,
+                                                             swapchain_info,
+                                                             std::numeric_limits<uint64_t>::max(),
+                                                             VK_NULL_HANDLE,
+                                                             acquire_fence,
+                                                             capture_image_index,
+                                                             &replay_index);
+                    GFXRECON_ASSERT((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR));
+
+                    result = device_table->WaitForFences(
+                        device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+                    swapchain_info->acquired_indices[capture_image_index] = { replay_index, true };
+                }
+
+                uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
                 modified_image_indices.emplace_back(replay_image_index);
             }
             else
@@ -5309,8 +5349,49 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
                 uint32_t capture_image_index = present_info->pImageIndices[i];
                 capture_image_indices[i]     = capture_image_index;
-                uint32_t replay_image_index  = swapchain_info->acquired_indices[capture_image_index];
-                modified_image_indices[i]    = replay_image_index;
+
+                if (capture_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+                {
+                    swapchain_info->acquired_indices.resize(capture_image_index + 1);
+                }
+
+                if (!swapchain_info->acquired_indices[capture_image_index].acquired)
+                {
+                    GFXRECON_ASSERT(swapchain_info->device_info);
+
+                    VkDevice device = swapchain_info->device_info->handle;
+                    GFXRECON_ASSERT(device);
+
+                    auto device_table = GetDeviceTable(device);
+                    GFXRECON_ASSERT(device_table);
+
+                    VkFence acquire_fence = VK_NULL_HANDLE;
+
+                    VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+                    fence_create_info.pNext             = nullptr;
+                    fence_create_info.flags             = 0;
+                    result = device_table->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
+                    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+                    uint32_t replay_index = 0;
+                    result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
+                                                             swapchain_info->device_info,
+                                                             swapchain_info,
+                                                             std::numeric_limits<uint64_t>::max(),
+                                                             VK_NULL_HANDLE,
+                                                             acquire_fence,
+                                                             capture_image_index,
+                                                             &replay_index);
+                    GFXRECON_ASSERT((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR));
+
+                    result = device_table->WaitForFences(
+                        device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+                    swapchain_info->acquired_indices[capture_image_index] = { replay_index, true };
+                }
+                uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
+                modified_image_indices[i]   = replay_image_index;
             }
         }
 
