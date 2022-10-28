@@ -6,6 +6,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/date_time.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/defines.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.cpp
