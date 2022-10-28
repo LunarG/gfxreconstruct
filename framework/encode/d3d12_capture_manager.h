@@ -52,10 +52,6 @@ class D3D12CaptureManager : public CaptureManager
     // already zero.
     static void DestroyInstance();
 
-    virtual bool CreateCaptureFile(const std::string& base_filename);
-    virtual void ActivateTrimming();
-    virtual void DeactivateTrimming();
-
     //----------------------------------------------------------------------------
     /// \brief Initializes the DXGI dispatch table.
     ///
@@ -125,6 +121,10 @@ class D3D12CaptureManager : public CaptureManager
     /// \return The scope count for the current thread.
     //----------------------------------------------------------------------------
     uint32_t DecrementCallScope() { return --call_scope_; }
+
+    virtual bool CreateCaptureFile(const std::string& base_filename) override;
+    virtual void ActivateTrimming() override;
+    virtual void DeactivateTrimming() override;
 
     void EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle);
 
