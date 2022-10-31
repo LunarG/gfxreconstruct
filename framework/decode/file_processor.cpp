@@ -214,6 +214,7 @@ bool FileProcessor::ProcessBlocks()
                     {
                         // Make sure to increment the frame number on the way out.
                         ++current_frame_number_;
+                        ++block_index_;
                         break;
                     }
                 }
@@ -285,12 +286,6 @@ bool FileProcessor::ProcessBlocks()
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                 success = SkipBytes(static_cast<size_t>(block_header.size));
             }
-            // Count successfully decoded blocks, but leave failed blocks out of
-            // the count:
-            if (success)
-            {
-                ++block_index_;
-            }
         }
         else
         {
@@ -304,6 +299,7 @@ bool FileProcessor::ProcessBlocks()
                 error_state_ = kErrorReadingBlockHeader;
             }
         }
+        ++block_index_;
     }
 
     return success;
