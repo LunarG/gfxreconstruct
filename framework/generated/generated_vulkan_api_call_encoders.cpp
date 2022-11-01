@@ -1534,17 +1534,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pImage);
 
-    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkImageCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->CreateImage(device_unwrapped, pCreateInfo_unwrapped, pAllocator, pImage);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageWrapper>(device, NoParentWrapper::kHandleValue, pImage, VulkanCaptureManager::GetUniqueId);
-    }
-    else
+    VkResult result = VulkanCaptureManager::Get()->OverrideCreateImage(device, pCreateInfo, pAllocator, pImage);
+    if (result < 0)
     {
         omit_output_data = true;
     }

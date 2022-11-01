@@ -715,14 +715,24 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                                     const VkAllocationCallbacks* pAllocator,
                                                     VkBuffer*                    pBuffer)
 {
-    VkResult result           = VK_SUCCESS;
-    auto     device_wrapper   = reinterpret_cast<DeviceWrapper*>(device);
-    VkDevice device_unwrapped = device_wrapper->handle;
-    auto     device_table     = GetDeviceTable(device);
+    VkResult                  result                = VK_SUCCESS;
+    auto                      device_wrapper        = reinterpret_cast<DeviceWrapper*>(device);
+    VkDevice                  device_unwrapped      = device_wrapper->handle;
+    auto                      device_table          = GetDeviceTable(device);
+    auto                      handle_unwrap_memory  = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    const VkBufferCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkBufferCreateInfo modified_create_info = (*pCreateInfo_unwrapped);
+
+    if (IsTrimEnabled())
+    {
+        modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
 
     bool                uses_address         = false;
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
+
     if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
         if ((pCreateInfo->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
@@ -751,16 +761,10 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
         // If the buffer has shader device address usage, but the device address capture replay flag was not set, it
         // needs to be set here.  We create copy from an override to prevent the modified pCreateInfo from being
         // written to the capture file.
-        VkBufferCreateInfo modified_create_info = (*pCreateInfo);
         modified_create_info.flags |= address_create_flags;
         modified_create_info.usage |= address_usage_flags;
-
-        result = device_table->CreateBuffer(device_unwrapped, &modified_create_info, pAllocator, pBuffer);
     }
-    else
-    {
-        result = device_table->CreateBuffer(device_unwrapped, pCreateInfo, pAllocator, pBuffer);
-    }
+    result = device_table->CreateBuffer(device_unwrapped, &modified_create_info, pAllocator, pBuffer);
 
     if ((result == VK_SUCCESS) && (pBuffer != nullptr))
     {
@@ -796,6 +800,32 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
         }
     }
 
+    return result;
+}
+
+VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     device,
+                                                   const VkImageCreateInfo*     pCreateInfo,
+                                                   const VkAllocationCallbacks* pAllocator,
+                                                   VkImage*                     pImage)
+{
+    auto                     handle_unwrap_memory  = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    VkDevice                 device_unwrapped      = GetWrappedHandle<VkDevice>(device);
+    const VkImageCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkImageCreateInfo modified_create_info = (*pCreateInfo_unwrapped);
+
+    if (IsTrimEnabled())
+    {
+        modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+
+    VkResult result = GetDeviceTable(device)->CreateImage(device_unwrapped, &modified_create_info, pAllocator, pImage);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageWrapper>(
+            device, NoParentWrapper::kHandleValue, pImage, VulkanCaptureManager::GetUniqueId);
+    }
     return result;
 }
 
