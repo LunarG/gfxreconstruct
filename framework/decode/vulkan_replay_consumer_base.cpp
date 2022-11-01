@@ -1761,6 +1761,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     VulkanResourceAllocator::Functions functions;
     functions.get_physical_device_properties        = instance_table->GetPhysicalDeviceProperties;
     functions.get_physical_device_memory_properties = instance_table->GetPhysicalDeviceMemoryProperties;
+    functions.get_instance_proc_addr                = instance_table->GetInstanceProcAddr;
 
     functions.allocate_memory                = device_table->AllocateMemory;
     functions.free_memory                    = device_table->FreeMemory;
@@ -1779,6 +1780,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     functions.get_image_memory_requirements  = device_table->GetImageMemoryRequirements;
     functions.get_image_subresource_layout   = device_table->GetImageSubresourceLayout;
     functions.bind_image_memory              = device_table->BindImageMemory;
+    functions.get_device_proc_addr           = device_table->GetDeviceProcAddr;
 
     if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
@@ -3541,9 +3543,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         auto                                capture_id           = (*pMemory->GetPointer());
 
         // Check if this allocation was captured with an opaque address
-        bool                uses_address   = false;
+        bool                uses_address       = false;
         bool                uses_import_memory = false;
-        uint64_t            opaque_address = 0;
+        uint64_t            opaque_address     = 0;
         VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
 
         size_t                                            host_pointer_size = 0;
