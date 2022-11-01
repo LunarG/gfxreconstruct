@@ -64,7 +64,7 @@ void WrapObject(REFIID riid, void** object, DxWrapperResources* resources)
         }
         else
         {
-            GFXRECON_LOG_ERROR("An object with an unknown IID {%8x-%4hx-%4hx-%2hhx%2hhx-%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx} was created. GFXReconstruct cannot track the object and may produce an invalid capture",\
+            GFXRECON_LOG_DEBUG("An object with an unknown IID {%08x-%04hx-%04hx-%02hhx%02hhx-%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx} was created. GFXReconstruct cannot track the object and may produce an invalid capture",\
                                 riid.Data1, riid.Data2, riid.Data3, riid.Data4[0], riid.Data4[1], riid.Data4[2], riid.Data4[3], riid.Data4[4], riid.Data4[5], riid.Data4[6], riid.Data4[7]);
         }
     }
