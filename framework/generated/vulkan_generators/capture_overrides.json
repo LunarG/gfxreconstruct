@@ -3,6 +3,7 @@
     "vkCreateInstance": "VulkanCaptureManager::OverrideCreateInstance",
     "vkCreateDevice": "VulkanCaptureManager::Get()->OverrideCreateDevice",
     "vkCreateBuffer": "VulkanCaptureManager::Get()->OverrideCreateBuffer",
+    "vkCreateImage": "VulkanCaptureManager::Get()->OverrideCreateImage",
     "vkAllocateMemory": "VulkanCaptureManager::Get()->OverrideAllocateMemory",
     "vkGetPhysicalDeviceToolPropertiesEXT": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT",
     "vkCreateAccelerationStructureKHR": "VulkanCaptureManager::Get()->OverrideCreateAccelerationStructureKHR",

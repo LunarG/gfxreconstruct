@@ -217,6 +217,7 @@ class CaptureManager
     bool                                GetPageGuardTrackAhbMemory() const { return page_guard_track_ahb_memory_; }
     PageGuardMemoryMode                 GetPageGuardMemoryMode() const { return page_guard_memory_mode_; }
     const std::string&                  GetTrimKey() const { return trim_key_; }
+    bool                                IsTrimEnabled() const { return trim_enabled_; }
     uint32_t                            GetCurrentFrame() const { return current_frame_; }
     CaptureMode                         GetCaptureMode() const { return capture_mode_; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
