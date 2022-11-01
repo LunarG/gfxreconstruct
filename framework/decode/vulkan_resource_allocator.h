@@ -73,6 +73,8 @@ class VulkanResourceAllocator
         PFN_vkGetImageSubresourceLayout          get_image_subresource_layout{ nullptr };
         PFN_vkBindImageMemory                    bind_image_memory{ nullptr };
         PFN_vkBindImageMemory2                   bind_image_memory2{ nullptr };
+        PFN_vkGetInstanceProcAddr                get_instance_proc_addr{ nullptr };
+        PFN_vkGetDeviceProcAddr                  get_device_proc_addr{ nullptr };
     };
 
   public:
