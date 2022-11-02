@@ -1720,7 +1720,7 @@ Dx12ReplayConsumerBase::OverrideReadFromSubresource(DxObjectInfo*               
     GFXRECON_UNREFERENCED_PARAMETER(src_subresource);
     GFXRECON_UNREFERENCED_PARAMETER(src_box);
 
-    // TODO(GH-71): Implement function
+    // TODO: Implement function
     return E_FAIL;
 }
 
@@ -1742,7 +1742,7 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
     // Add a command queue signal and CPU wait after command list execution.
     bool do_sync_after_execute = options_.sync_queue_submissions && !command_lists->IsNull() && !needs_mapping;
 
-    // TODO (GH #550): Determine why a sync is required after executing commands lists that contain DispatchRays or
+    // TODO: Determine why a sync is required after executing commands lists that contain DispatchRays or
     // BuildRayTracingAccelerationStructures.
     // Check if the command list requires sync after mapping.
     // If resource value mapping is needed, it will sync after command lists execution, so we don't need to add an

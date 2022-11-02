@@ -37,9 +37,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12TrackedObjectInfoTable
 {
   public:
-    // TODO(#256): add getter and setter for tracked objects info.
+    // TODO: add getter and setter for tracked objects info.
   private:
-    // TODO(#256): add maps for each tracked objects info
+    // TODO: add maps for each tracked objects info
 };
 
 GFXRECON_END_NAMESPACE(decode)

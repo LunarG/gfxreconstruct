@@ -185,7 +185,7 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
             auto resource_wrapper = transition_barrier.resource_wrapper;
             auto resource_info    = resource_wrapper->GetObjectInfo();
 
-            // TODO (GH #83): Should it be valid for resources to have an empty transitions array?
+            // TODO: Should it be valid for resources to have an empty transitions array?
             if (resource_info->subresource_transitions.empty())
             {
                 continue;
@@ -953,7 +953,7 @@ Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCop
     // Mark that the source acceleration structure was copied.
     source_build_info.was_copy_source = true;
 
-    // TODO (GH #476): Set dest_size from post build info.
+    // TODO: Set dest_size from post build info.
     dest_build_info.dest_size = 1;
 
     inputs_data_resource = dest_build_info.input_data_resource;

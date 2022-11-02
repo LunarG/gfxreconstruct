@@ -380,7 +380,7 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
 
     auto& resource_value_infos = command_list_extra_info->resource_value_info_map[argument_buffer_object_info];
 
-    // TODO (GH# 417): Support pCountBuffer argument.
+    // TODO: Support pCountBuffer argument.
     if ((count_buffer_object_info != nullptr) && (count_buffer_object_info->object != nullptr))
     {
         GFXRECON_LOG_WARNING_ONCE("The pCountBuffer argument for ExecuteIndirect is not currently supported. The "
@@ -450,7 +450,7 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
             }
             else
             {
-                // TODO (GH #424): Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
+                // TODO: Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
                 GFXRECON_LOG_WARNING("Application built acceleration structure with unsupported layout: ",
                                      "D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS");
             }
@@ -1139,7 +1139,7 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
         }
         else
         {
-            // TODO (GH #415): Track resource state transitions for resources on other heap types.
+            // TODO: Track resource state transitions for resources on other heap types.
             temp_resource_states.push_back({ D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE });
         }
 
@@ -1351,7 +1351,7 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
         }
         else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG)
         {
-            // TODO (GH #432): handle external dependencies for resolving exports and LRS associations.
+            // TODO: handle external dependencies for resolving exports and LRS associations.
             if ((subobject_decoder.state_object_config->GetPointer()->Flags &
                  D3D12_STATE_OBJECT_FLAG_ALLOW_LOCAL_DEPENDENCIES_ON_EXTERNAL_DEFINITIONS) != 0)
             {
@@ -1369,7 +1369,7 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
         }
         else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY)
         {
-            // TODO (GH #431): Parse local root signatures and their shader associations from the DXIL library.
+            // TODO: Parse local root signatures and their shader associations from the DXIL library.
             GFXRECON_LOG_WARNING_ONCE("A state object is being created with a DXIL library subobject. Some usages of "
                                       "DXIL library subobjects may not be fully supported by GFXR replay.");
 
@@ -1378,7 +1378,7 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
             auto num_exports           = dxil_lib_desc_decoder->GetPointer()->NumExports;
             if (num_exports == 0)
             {
-                // TODO (GH #431): Parse the names of all shaders exported from the DXIL library.
+                // TODO: Parse the names of all shaders exported from the DXIL library.
             }
             else
             {

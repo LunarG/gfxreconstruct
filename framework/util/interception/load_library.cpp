@@ -413,7 +413,7 @@ void HookLoadLibrary()
     hook_success = HookAPICall(&(PVOID&)real_free_library, gfxrecon::util::interception::FreeLibrary);
     assert(hook_success == true);
 
-    // TODO(#32): Load "dxgi.dll" at the beginning since we sometimes miss loading it
+    // TODO: Load "dxgi.dll" at the beginning since we sometimes miss loading it
     LoadLibraryA("dxgi.dll");
 }
 

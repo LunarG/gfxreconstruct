@@ -239,7 +239,7 @@ class DxDllInitializer
                                 std::string debug_str =
                                     std::string("GFXRECON: Failed to retrieve '") + initialize_func_name +
                                     "' proc from GFXReconstruct capture DLL '" + capture_dll_name + "'";
-                                // TODO(GH-68): Unify logging
+                                // TODO: Unify logging
                                 OutputDebugStringA(debug_str.c_str());
                                 OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
                             }
@@ -249,7 +249,7 @@ class DxDllInitializer
                             std::string debug_str =
                                 std::string("GFXRECON: Failed to load GFXReconstruct capture DLL '") +
                                 capture_dll_name + "' needed to get proc '" + initialize_func_name + "'";
-                            // TODO(GH-68): Unify logging
+                            // TODO: Unify logging
                             OutputDebugStringA(debug_str.c_str());
                             OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
                         }
@@ -259,7 +259,7 @@ class DxDllInitializer
                 {
                     std::string debug_str =
                         std::string("GFXRECON: Failed to load system DLL '") + system_dll_name + "'";
-                    // TODO(GH-68): Unify logging
+                    // TODO: Unify logging
                     OutputDebugStringA(debug_str.c_str());
                     return false;
                 }
@@ -293,7 +293,7 @@ class DxDllInitializer
 
     static bool IsCaptureEnabled()
     {
-        // TODO(GH-48): Read environment variable.
+        // TODO: Read environment variable.
         return true;
     }
 

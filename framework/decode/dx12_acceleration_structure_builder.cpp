@@ -111,7 +111,7 @@ Dx12AccelerationStructureBuilder::Dx12AccelerationStructureBuilder(graphics::dx1
     }
 }
 
-// TODO (GH #484): Consider batching multiple accel struct builds where possible.
+// TODO: Consider batching multiple accel struct builds where possible.
 void Dx12AccelerationStructureBuilder::Build(
     const graphics::Dx12GpuVaMap&                                         gpu_va_map,
     const format::InitDx12AccelerationStructureCommandHeader&             command_header,

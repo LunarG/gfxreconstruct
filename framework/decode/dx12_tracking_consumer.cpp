@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO(#256): all functions are declared as skeletons,
+// TODO: all functions are declared as skeletons,
 // need to fill up the functions body to do resources tracking
 
 DX12TrackingConsumer::DX12TrackingConsumer(const DxReplayOptions&      options,

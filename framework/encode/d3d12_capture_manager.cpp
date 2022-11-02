@@ -2086,7 +2086,7 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_CopyTileMappings(
     const D3D12_TILE_REGION_SIZE*          region_size,
     D3D12_TILE_MAPPING_FLAGS               flags)
 {
-    // TODO (GH #297): Implement tracking for CopyTileMappings.
+    // TODO: Implement tracking for CopyTileMappings.
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         GFXRECON_LOG_ERROR("ID3D12CommandQueue::CopyTileMappings support is not implemented for trimmed capture.");

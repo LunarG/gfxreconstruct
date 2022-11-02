@@ -100,7 +100,7 @@ class Dx12StateTracker
                 std::unique_lock<std::mutex> lock(state_table_mutex_);
                 if (!state_table_.RemoveWrapper(wrapper))
                 {
-                    // TODO (GH #83): Once tracking is complete and all wrappers are tracked, enable this warning.
+                    // TODO: Once tracking is complete and all wrappers are tracked, enable this warning.
                     // Disable it for now in order to prevent redundant log messages.
                     // GFXRECON_LOG_WARNING(
                     //    "Attempting to remove entry from state tracker for object that is not being tracked");

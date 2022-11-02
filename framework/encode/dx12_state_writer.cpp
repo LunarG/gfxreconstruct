@@ -354,7 +354,7 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
             }
         }
 
-        // TODO (GH #83): Add D3D12 trimming support, handle custom state for other heap types
+        // TODO: Add D3D12 trimming support, handle custom state for other heap types
         StandardCreateWrite(wrapper);
     });
 }
@@ -590,7 +590,7 @@ void Dx12StateWriter::WriteResourceCreationState(
 
         if (resource_desc.SampleDesc.Count > 1)
         {
-            // TODO (GH #288): Add support for multi-sampled resources.
+            // TODO: Add support for multi-sampled resources.
             GFXRECON_LOG_WARNING_ONCE("Skipping resource data capture for multi-sampled resource(s).");
         }
         else if ((resource_info->initial_state & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
