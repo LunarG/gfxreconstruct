@@ -26,6 +26,7 @@
 #define GFXRECON_TO_STRING_H
 
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <sstream>
 #include <string>
@@ -43,6 +44,16 @@ enum ToStringFlagBits
 
 typedef uint32_t ToStringFlags;
 
+/// @brief  Template ToString to handle easy cases with primitive types like
+/// bool, char, and the many ints and floats.
+/// @note The hundreds of manual and generated ToString() functions are only
+/// template specializations to logically tie them to this template which can be
+/// used to avoid having one concrete function per primitive type, a decision
+/// with its own trade-offs such as not being able to breakpoint only on a
+/// particular primitive type, and requiring the function to be inline in a
+/// header.
+/// @deprecated This function can be removed once all the ToString functions
+/// in the system are no longer template specializations.
 template <typename T>
 inline std::string
 ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
@@ -50,20 +61,157 @@ ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    GFXRECON_LOG_ERROR("ToString() base template called for type: %s with value: %s. This should never be called.",
+                       typeid(obj).name(),
+                       std::to_string(obj).c_str());
     return std::to_string(obj);
 }
 
+/// @deprecated This seems to be outputting a string containing a zero for any
+/// uint32_t passed-in.
+/// Hopefully the name resolution rules / priorities around function templates
+/// meant this was never actually called.
 template <typename T>
 inline std::string ToString(uint32_t      apiFlags,
                             ToStringFlags toStringFlags = kToString_Default,
                             uint32_t      tabCount      = 0,
                             uint32_t      tabSize       = 4)
 {
+    GFXRECON_LOG_ERROR(
+        "ToString(uint32_t apiFlags) template called for type: %s with value: %s. This should never be called.",
+        typeid(T).name(),
+        std::to_string(apiFlags).c_str());
     GFXRECON_UNREFERENCED_PARAMETER(apiFlags);
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
     return "0";
+}
+
+inline std::string
+ToString(const char& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string
+ToString(const bool& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const int8_t& obj,
+                            ToStringFlags toStringFlags = kToString_Default,
+                            uint32_t      tabCount      = 0,
+                            uint32_t      tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const int16_t& obj,
+                            ToStringFlags  toStringFlags = kToString_Default,
+                            uint32_t       tabCount      = 0,
+                            uint32_t       tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const int32_t& obj,
+                            ToStringFlags  toStringFlags = kToString_Default,
+                            uint32_t       tabCount      = 0,
+                            uint32_t       tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const int64_t& obj,
+                            ToStringFlags  toStringFlags = kToString_Default,
+                            uint32_t       tabCount      = 0,
+                            uint32_t       tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const uint8_t& obj,
+                            ToStringFlags  toStringFlags = kToString_Default,
+                            uint32_t       tabCount      = 0,
+                            uint32_t       tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const uint16_t& obj,
+                            ToStringFlags   toStringFlags = kToString_Default,
+                            uint32_t        tabCount      = 0,
+                            uint32_t        tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const uint32_t& obj,
+                            ToStringFlags   toStringFlags = kToString_Default,
+                            uint32_t        tabCount      = 0,
+                            uint32_t        tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const uint64_t& obj,
+                            ToStringFlags   toStringFlags = kToString_Default,
+                            uint32_t        tabCount      = 0,
+                            uint32_t        tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string
+ToString(const float& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
+}
+
+inline std::string ToString(const double& obj,
+                            ToStringFlags toStringFlags = kToString_Default,
+                            uint32_t      tabCount      = 0,
+                            uint32_t      tabSize       = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    return std::to_string(obj);
 }
 
 template <typename PtrType>
