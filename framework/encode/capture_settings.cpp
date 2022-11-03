@@ -539,7 +539,7 @@ int CaptureSettings::ParseIntegerString(const std::string& value_string, int def
     while (it != value_string.end() && (std::isdigit(*it) || *it == '-' || *it == '+')) ++it;
     const bool is_integer = !value_string.empty() && it == value_string.end();
 
-    if (!is_integer)
+    if (!is_integer && !value_string.empty())
     {
         GFXRECON_LOG_WARNING("Settings Loader: Ignoring unrecognized Integer option value \"%s\"",
                              value_string.c_str());
