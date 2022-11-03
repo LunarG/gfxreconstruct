@@ -23,7 +23,7 @@
 
 #include "project_version.h"
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include "decode/dx_replay_options.h"
 #include <initguid.h>
 #include "generated/generated_dx12_decoder.h"
@@ -804,7 +804,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     return replay_options;
 }
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     gfxrecon::decode::DxReplayOptions replay_options;

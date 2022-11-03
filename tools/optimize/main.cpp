@@ -26,7 +26,7 @@
 
 #include "../tool_settings.h"
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include "dx12_optimize_util.h"
 #endif
 
@@ -174,7 +174,7 @@ void RunDx12Optimizations(const std::string&                        input_filena
                           const std::string&                        output_filename,
                           gfxrecon::decode::Dx12OptimizationOptions dx12_options)
 {
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
     bool result = gfxrecon::Dx12OptimizeFile(input_filename, output_filename, dx12_options);
     if (!result)
     {

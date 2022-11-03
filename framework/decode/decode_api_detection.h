@@ -28,7 +28,7 @@
 #include "decode/file_processor.h"
 #include "decode/vulkan_detection_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include "decode/dx12_detection_consumer.h"
 #endif
 

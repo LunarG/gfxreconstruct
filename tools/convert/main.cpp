@@ -156,7 +156,7 @@ int main(int argc, const char** argv)
             gfxrecon::decode::VulkanAsciiConsumer vulkan_ascii_consumer;
             gfxrecon::decode::VulkanDecoder       vulkan_decoder;
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
             gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
             gfxrecon::decode::Dx12Decoder       dx12_decoder;
 #endif
@@ -176,7 +176,7 @@ int main(int argc, const char** argv)
                 file_processor.AddDecoder(&vulkan_decoder);
             }
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
             auto dx_replay_options = GetDxReplayOptions(arg_parser);
             if (dx_replay_options.enable_d3d12)
             {
@@ -193,7 +193,7 @@ int main(int argc, const char** argv)
                 vulkan_ascii_consumer.Destroy();
             }
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
             if (dx_replay_options.enable_d3d12)
             {
                 dx12_ascii_consumer.Destroy();

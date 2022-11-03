@@ -291,7 +291,7 @@ void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* 
     }
 }
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 void Application::InitializeDx12WsiContext()
 {
     wsi_contexts_["Dx12WsiContext"] = std::make_unique<Win32Context>(this);

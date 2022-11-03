@@ -41,7 +41,7 @@ target_link_libraries(gfxrecon-info
                       gfxrecon_format
                       gfxrecon_util
                       platform_specific
-                      $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
+                      $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
 
 common_build_directives(gfxrecon-info)
 

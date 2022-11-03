@@ -37,14 +37,14 @@ bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vu
         gfxrecon::decode::VulkanDecoder           vulkan_decoder;
         vulkan_decoder.AddConsumer(&vulkan_detection_consumer);
         file_processor.AddDecoder(&vulkan_decoder);
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
         gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer;
         gfxrecon::decode::Dx12Decoder           dx12_decoder;
         dx12_decoder.AddConsumer(&dx12_detection_consumer);
         file_processor.AddDecoder(&dx12_decoder);
 #endif
         file_processor.ProcessAllFrames();
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
         if (dx12_detection_consumer.WasD3D12APIDetected())
         {
             dx12_detected = true;

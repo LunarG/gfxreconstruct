@@ -133,11 +133,26 @@ if(MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
 
     # Add option to enable/disable D3D12 support.
-    option(BUILD_D3D12 "Build with Direct3D 12 support enabled" ON)
+    option(D3D12_SUPPORT "Build with Direct3D 12 support enabled" ON)
+
+    # Add option to enable/disable launcher and interceptor.
+    option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
+
+    if(${D3D12_SUPPORT})
+        add_definitions(-DD3D12_SUPPORT)
+    else()
+        set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
+    endif()
+
+
+    if(${BUILD_LAUNCHER_AND_INTERCEPTOR})
+        add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
+    endif()
+	
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
-    option(BUILD_D3D12 "Build with Direct3D 12 support enabled" OFF)
-
+    set(D3D12_SUPPORT OFF)
+    set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
         set(CMAKE_PREFIX_PATH
             ${CMAKE_PREFIX_PATH}
@@ -182,15 +197,17 @@ if(UNIX)
 endif(UNIX)
 
 add_library(windows_specific INTERFACE)
+
 target_compile_definitions(windows_specific INTERFACE
     WIN32_LEAN_AND_MEAN
     NOMINMAX
     VK_USE_PLATFORM_WIN32_KHR
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>
-    "GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\""
-    "GFXR_D3D12_CAPTURE_PATH=\"$<TARGET_FILE:d3d12_capture>\""
-    "GFXR_D3D12_PATH=\"$<TARGET_FILE:d3d12>\""
-    "GFXR_DXGI_PATH=\"$<TARGET_FILE:dxgi>\"")
+    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:"GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\"">
+    $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_CAPTURE_PATH=\"$<TARGET_FILE:d3d12_capture>\"">
+    $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_PATH=\"$<TARGET_FILE:d3d12>\"">
+    $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_DXGI_PATH=\"$<TARGET_FILE:dxgi>\"">)
+
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION

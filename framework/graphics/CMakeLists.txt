@@ -29,16 +29,16 @@ add_library(gfxrecon_graphics STATIC "")
 
 target_sources(gfxrecon_graphics
                PRIVATE
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_data_util.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_data_util.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_util.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_util.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_shader_id_map.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_shader_id_map.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_data_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_data_util.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_util.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_shader_id_map.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_shader_id_map.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
@@ -51,7 +51,7 @@ target_include_directories(gfxrecon_graphics
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific $<$<BOOL:${BUILD_D3D12}>:D3DCompiler.lib>)
+target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific $<$<BOOL:${D3D12_SUPPORT}>:D3DCompiler.lib>)
 
 common_build_directives(gfxrecon_graphics)
 

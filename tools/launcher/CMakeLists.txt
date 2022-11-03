@@ -26,17 +26,20 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
-add_executable(gfxrecon-launcher "")
+if(BUILD_LAUNCHER_AND_INTERCEPTOR)
+    add_executable(gfxrecon-launcher "")
 
-target_sources(gfxrecon-launcher
-               PRIVATE
-                    ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
-)
 
-target_include_directories(gfxrecon-launcher PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/layer/d3d12_hook ${CMAKE_SOURCE_DIR}/framework/util ${CMAKE_SOURCE_DIR}/framework/interception_util)
+    target_sources(gfxrecon-launcher
+                   PRIVATE
+                        ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
+    )
 
-target_link_libraries(gfxrecon-launcher gfxrecon_util)
+    target_include_directories(gfxrecon-launcher PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/layer/d3d12_hook ${CMAKE_SOURCE_DIR}/framework/util ${CMAKE_SOURCE_DIR}/framework/interception_util)
 
-common_build_directives(gfxrecon-launcher)
+    target_link_libraries(gfxrecon-launcher gfxrecon_util)
 
-install(TARGETS gfxrecon-launcher RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    common_build_directives(gfxrecon-launcher)
+
+    install(TARGETS gfxrecon-launcher RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()

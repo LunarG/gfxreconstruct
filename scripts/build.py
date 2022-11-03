@@ -115,6 +115,9 @@ def parse_args():
         '--cmake-system-version', dest='cmake_system_version',
         type=str, default="10.0.20348.0",help='Select SDK version')
     arg_parser.add_argument(
+        '--skip-d3d12-support', dest='skip_d3d12_support',
+        action='store_true', default=False,help='Skip Direct3D 12 build')
+    arg_parser.add_argument(
         '--lint', dest='lint',
         action='store_true', default=False,
         help='Run static analysis lint tests on code')
@@ -209,6 +212,9 @@ def cmake_generate_options(args):
             generate_options.append(
                 '-DCMAKE_SYSTEM_VERSION={}'.format(
                     args.cmake_system_version))
+        generate_options.append(
+            '-DD3D12_SUPPORT={}'.format(
+                'ON' if not args.skip_d3d12_support else 'OFF'))
     
     return generate_options
 

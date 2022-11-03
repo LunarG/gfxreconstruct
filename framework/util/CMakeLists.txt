@@ -68,23 +68,23 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/options.h
                     ${CMAKE_CURRENT_LIST_DIR}/options.cpp
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/real_and_mine_hook.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.cpp>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.h>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.cpp>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.h>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.cpp>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/real_and_mine_hook.h>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.cpp>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.h>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.cpp>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.h>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.cpp>
+                    $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.h
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/to_string.h
@@ -112,7 +112,7 @@ target_sources(gfxrecon_util
 
 target_include_directories(gfxrecon_util PUBLIC ${CMAKE_SOURCE_DIR}/framework)
 target_link_libraries(gfxrecon_util platform_specific vulkan_registry ${CMAKE_DL_LIBS})
-target_link_libraries(gfxrecon_util $<$<BOOL:${BUILD_D3D12}>:version.lib>)
+target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
 
 if (MSVC)
     # These files may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
@@ -189,17 +189,17 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_util_test "")
     target_sources(gfxrecon_util_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/gpu_va_map_tests.cpp>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/getwritewatch_tests.cpp>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.h>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dxgi_pointers.h>)
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/gpu_va_map_tests.cpp>
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/getwritewatch_tests.cpp>
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.h>
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dxgi_pointers.h>)
     target_link_libraries(gfxrecon_util_test
                         PRIVATE
                             gfxrecon_util
-                            $<$<BOOL:${BUILD_D3D12}>:d3d12.lib>
-                            $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
+                            $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
+                            $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
     common_build_directives(gfxrecon_util_test)
     common_test_directives(gfxrecon_util_test)
 endif()

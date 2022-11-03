@@ -38,15 +38,15 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_forward.h
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_decoders.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_decoders_forward.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_decoders.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_object_mappers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_object_mappers.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_ascii_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_ascii_consumer.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_to_string.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_to_string.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_decoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_decoders_forward.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_decoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_object_mappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_object_mappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_ascii_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_ascii_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_to_string.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_to_string.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_to_string.cpp
@@ -65,9 +65,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/exe_info_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/driver_info_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/driver_info_decoder_base.cpp
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx_replay_options.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_options.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx_replay_options.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_options.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h
@@ -105,32 +105,32 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/stat_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_detection_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/decoder_util.h
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_acceleration_structure_builder.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_acceleration_structure_builder.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_stats_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_detection_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_consumer_base.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_replay_consumer_base.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_replay_consumer_base.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_tracker.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_tracker.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_ascii_consumer_base.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_ascii_consumer_base.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_mapping_util.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_mapping_util.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_enum_util.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer_base.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracked_object_info_table.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_acceleration_structure_builder.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_acceleration_structure_builder.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_stats_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_detection_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_consumer_base.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_replay_consumer_base.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_replay_consumer_base.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_tracker.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_tracker.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_mapper.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_ascii_consumer_base.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_ascii_consumer_base.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_mapping_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_mapping_util.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_enum_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer_base.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracked_object_info_table.h>
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
@@ -196,22 +196,22 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_forward.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_replay_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_replay_consumer.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_to_string.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_to_string.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_forward.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_replay_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_replay_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_to_string.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_to_string.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.cpp>
 )
 
 if (MSVC)
@@ -233,7 +233,7 @@ target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific $<$<BOOL:${BUILD_D3D12}>:dxguid.lib>)
+target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)
 

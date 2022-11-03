@@ -44,8 +44,8 @@ target_link_libraries(gfxrecon-replay
                           gfxrecon_format
                           gfxrecon_util
                           platform_specific
-                          $<$<BOOL:${BUILD_D3D12}>:d3d12.lib>
-                          $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
+                          $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
+                          $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
 
 # A multithreaded Vulkan driver loaded through dlopen() mechanism
 # won't work if libstdc++ has started in a single-threaded mode.

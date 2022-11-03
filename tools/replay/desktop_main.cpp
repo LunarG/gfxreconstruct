@@ -33,7 +33,7 @@
 #include "util/argument_parser.h"
 #include "util/logging.h"
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
 #include "decode/dx12_tracking_consumer.h"
@@ -46,7 +46,7 @@
 #include <vector>
 #include <utility>
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include <conio.h>
 void WaitForExit()
 {
@@ -156,7 +156,7 @@ int main(int argc, const char** argv)
                 file_processor.AddDecoder(&vulkan_decoder);
             }
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
             gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser);
             gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
             gfxrecon::decode::Dx12Decoder        dx12_decoder;

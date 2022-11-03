@@ -37,7 +37,7 @@
 #include "decode/driver_info_decoder_base.h"
 #include "decode/vulkan_detection_consumer.h"
 #include "decode/vulkan_stats_consumer.h"
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include "decode/dx12_stats_consumer.h"
 #include "generated/generated_dx12_decoder.h"
 #include "decode/dx12_detection_consumer.h"
@@ -367,7 +367,7 @@ void GatherVulkanStats(const std::string& input_filename, const gfxrecon::decode
     }
 }
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 void PrintDx12RuntimeInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
     GFXRECON_WRITE_CONSOLE("D3D12 runtime info:");
@@ -571,7 +571,7 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
 
 void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
 {
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
     gfxrecon::decode::FileProcessor file_processor;
 
     if (file_processor.Initialize(input_filename))
@@ -631,7 +631,7 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(0);
     }
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
     else if (CheckOptionEnumGpuIndices(argv[0], arg_parser))
     {
         gfxrecon::util::Log::Release();

@@ -41,36 +41,36 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_command_buffer_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.cpp
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_api_call_encoders.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_api_call_encoders.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_wrapper_commands.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_unwrappers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_unwrappers.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_command_list_util.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_command_list_util.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_api_call_encoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_api_call_encoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_wrapper_commands.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_unwrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_unwrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_command_list_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_command_list_util.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.cpp
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_capture_manager.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_capture_manager.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_dispatch_table.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_capture_manager.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_capture_manager.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_dispatch_table.h>
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_info.h
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dll_initializer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_info.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_resources.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_resources.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_util.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_util.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_table_base.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_tracker.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_tracker.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_tracker_initializers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_writer.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_writer.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dxgi_dispatch_table.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dll_initializer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_info.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_resources.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_resources.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_wrapper_util.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_table_base.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_tracker.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_tracker.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_tracker_initializers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_writer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_writer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dxgi_dispatch_table.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/handle_unwrap_memory.h
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_buffer.h
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_encoder.h
@@ -87,20 +87,20 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_tracker_initializers.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.cpp
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_add_entries.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_state_table.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_add_entries.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_state_table.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
