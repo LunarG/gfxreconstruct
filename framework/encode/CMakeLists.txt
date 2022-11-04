@@ -71,6 +71,7 @@ target_sources(gfxrecon_encode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_wrapper_handle_list.h
 
 )
 
