@@ -427,6 +427,12 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (GetHardwareBufferFormatBpp(format) == 0)
+    {
+        GFXRECON_LOG_WARNING("Treating AHB format %u (0x%x) as AHARDWAREBUFFER_FORMAT_Y8Cb8Cr8_420", format)
+        format = AHARDWAREBUFFER_FORMAT_Y8Cb8Cr8_420;
+    }
+
     assert(hardware_buffers_.find(buffer_id) == hardware_buffers_.end());
 
     AHardwareBuffer_Desc desc = {};
