@@ -30,6 +30,7 @@
 #include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
+#include "generated/generated_vulkan_wrapper_handle_list.h"
 #include "graphics/vulkan_device_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
@@ -54,6 +55,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 VulkanCaptureManager* VulkanCaptureManager::instance_ = nullptr;
 LayerTable            VulkanCaptureManager::layer_table_;
+
+VulkanWrapperHandleList VulkanWrapperHandleList::instance_;
 
 bool VulkanCaptureManager::CreateInstance()
 {
