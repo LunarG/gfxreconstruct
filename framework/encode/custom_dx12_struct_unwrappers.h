@@ -61,6 +61,8 @@ void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value,
                          const D3D12_STATE_SUBOBJECT*            unwrapped_subobjects,
                          UINT                                    num_subojects);
 
+void UnwrapStructObjects(D3D12_BARRIER_GROUP* value, HandleUnwrapMemory* unwrap_memory);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

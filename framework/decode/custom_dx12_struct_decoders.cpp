@@ -1113,5 +1113,67 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUB
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BARRIER_GROUP* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t               bytes_read = 0;
+    D3D12_BARRIER_GROUP* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBarriers));
+
+    switch (value->Type)
+    {
+        case D3D12_BARRIER_TYPE_GLOBAL:
+            wrapper->global_barriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_GLOBAL_BARRIER>>();
+            bytes_read += wrapper->global_barriers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pGlobalBarriers = wrapper->global_barriers->GetPointer();
+            break;
+        case D3D12_BARRIER_TYPE_TEXTURE:
+            wrapper->texture_barriers =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_TEXTURE_BARRIER>>();
+            bytes_read += wrapper->texture_barriers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pTextureBarriers = wrapper->texture_barriers->GetPointer();
+            break;
+        case D3D12_BARRIER_TYPE_BUFFER:
+            wrapper->buffer_barriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_BUFFER_BARRIER>>();
+            bytes_read += wrapper->buffer_barriers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pBufferBarriers = wrapper->buffer_barriers->GetPointer();
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SAMPLER_DESC2* wrapper)
+{
+    size_t               bytes_read = 0;
+    D3D12_SAMPLER_DESC2* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Filter));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->AddressU));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->AddressV));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->AddressW));
+    bytes_read +=
+        ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MipLODBias));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxAnisotropy));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComparisonFunc));
+
+    wrapper->FloatBorderColor.SetExternalMemory(value->FloatBorderColor, 4);
+    bytes_read += wrapper->FloatBorderColor.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinLOD));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxLOD));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    return bytes_read;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

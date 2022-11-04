@@ -477,6 +477,23 @@ struct Decoded_D3D12_DEPTH_STENCIL_DESC1
     Decoded_D3D12_DEPTH_STENCILOP_DESC* BackFace{ nullptr };
 };
 
+struct Decoded_D3D12_DEPTH_STENCILOP_DESC1
+{
+    using struct_type = D3D12_DEPTH_STENCILOP_DESC1;
+
+    D3D12_DEPTH_STENCILOP_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_DEPTH_STENCIL_DESC2
+{
+    using struct_type = D3D12_DEPTH_STENCIL_DESC2;
+
+    D3D12_DEPTH_STENCIL_DESC2* decoded_value{ nullptr };
+
+    Decoded_D3D12_DEPTH_STENCILOP_DESC1* FrontFace{ nullptr };
+    Decoded_D3D12_DEPTH_STENCILOP_DESC1* BackFace{ nullptr };
+};
+
 struct Decoded_D3D12_RENDER_TARGET_BLEND_DESC
 {
     using struct_type = D3D12_RENDER_TARGET_BLEND_DESC;
@@ -693,6 +710,13 @@ struct Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS
     D3D12_FEATURE_DATA_EXISTING_HEAPS* decoded_value{ nullptr };
 };
 
+struct Decoded_D3D12_FEATURE_DATA_DISPLAYABLE
+{
+    using struct_type = D3D12_FEATURE_DATA_DISPLAYABLE;
+
+    D3D12_FEATURE_DATA_DISPLAYABLE* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4
 {
     using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS4;
@@ -760,11 +784,46 @@ struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS9
     D3D12_FEATURE_DATA_D3D12_OPTIONS9* decoded_value{ nullptr };
 };
 
-struct Decoded_D3D12_FEATURE_DATA_WAVE_MMA
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS10
 {
-    using struct_type = D3D12_FEATURE_DATA_WAVE_MMA;
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS10;
 
-    D3D12_FEATURE_DATA_WAVE_MMA* decoded_value{ nullptr };
+    D3D12_FEATURE_DATA_D3D12_OPTIONS10* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS11
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS11;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS11* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS12
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS12;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS12* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS13
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS13;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS13* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS14
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS14;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS14* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS15;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS15* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO
@@ -1088,6 +1147,20 @@ struct Decoded_D3D12_TEX2D_ARRAY_UAV
     using struct_type = D3D12_TEX2D_ARRAY_UAV;
 
     D3D12_TEX2D_ARRAY_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_TEX2DMS_UAV
+{
+    using struct_type = D3D12_TEX2DMS_UAV;
+
+    D3D12_TEX2DMS_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_TEX2DMS_ARRAY_UAV
+{
+    using struct_type = D3D12_TEX2DMS_ARRAY_UAV;
+
+    D3D12_TEX2DMS_ARRAY_UAV* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_TEX3D_UAV
@@ -1907,6 +1980,39 @@ struct Decoded_D3D12_SHADER_CACHE_SESSION_DESC
     Decoded_GUID* Identifier{ nullptr };
 };
 
+struct Decoded_D3D12_BARRIER_SUBRESOURCE_RANGE
+{
+    using struct_type = D3D12_BARRIER_SUBRESOURCE_RANGE;
+
+    D3D12_BARRIER_SUBRESOURCE_RANGE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_GLOBAL_BARRIER
+{
+    using struct_type = D3D12_GLOBAL_BARRIER;
+
+    D3D12_GLOBAL_BARRIER* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_TEXTURE_BARRIER
+{
+    using struct_type = D3D12_TEXTURE_BARRIER;
+
+    D3D12_TEXTURE_BARRIER* decoded_value{ nullptr };
+
+    format::HandleId pResource{ format::kNullHandleId };
+    Decoded_D3D12_BARRIER_SUBRESOURCE_RANGE* Subresources{ nullptr };
+};
+
+struct Decoded_D3D12_BUFFER_BARRIER
+{
+    using struct_type = D3D12_BUFFER_BARRIER;
+
+    D3D12_BUFFER_BARRIER* decoded_value{ nullptr };
+
+    format::HandleId pResource{ format::kNullHandleId };
+};
+
 struct Decoded_D3D12_SUBRESOURCE_DATA
 {
     using struct_type = D3D12_SUBRESOURCE_DATA;
@@ -1923,6 +2029,13 @@ struct Decoded_D3D12_MEMCPY_DEST
     D3D12_MEMCPY_DEST* decoded_value{ nullptr };
 
     uint64_t pData{ 0 };
+};
+
+struct Decoded_D3D12_DEVICE_CONFIGURATION_DESC
+{
+    using struct_type = D3D12_DEVICE_CONFIGURATION_DESC;
+
+    D3D12_DEVICE_CONFIGURATION_DESC* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_DISPATCH_MESH_ARGUMENTS

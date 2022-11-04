@@ -674,7 +674,7 @@ void WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, void** object, DxW
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12DeviceRemovedExtendedDataSettings2_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -814,7 +814,27 @@ void WrapID3D12Device(REFIID riid, void** object, DxWrapperResources* resources)
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12Device9_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12Device11_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D12VirtualizationGuestDevice(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D12VirtualizationGuestDevice_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D12VirtualizationGuestDevice_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -854,7 +874,47 @@ void WrapID3D12SDKConfiguration(REFIID riid, void** object, DxWrapperResources* 
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12SDKConfiguration_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12SDKConfiguration1_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D12DeviceFactory(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D12DeviceFactory_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D12DeviceFactory_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D12DeviceConfiguration(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D12DeviceConfiguration_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D12DeviceConfiguration_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -874,7 +934,7 @@ void WrapID3D12CommandList(REFIID riid, void** object, DxWrapperResources* resou
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12GraphicsCommandList6_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12GraphicsCommandList8_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -974,7 +1034,7 @@ void WrapID3D12Debug(REFIID riid, void** object, DxWrapperResources* resources)
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12Debug5_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12Debug6_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -1034,7 +1094,7 @@ void WrapID3D12DebugCommandQueue(REFIID riid, void** object, DxWrapperResources*
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12DebugCommandQueue_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12DebugCommandQueue1_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -1074,7 +1134,7 @@ void WrapID3D12DebugCommandList(REFIID riid, void** object, DxWrapperResources* 
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12DebugCommandList2_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12DebugCommandList3_Wrapper(riid, *wrap_object, resources);
     }
 }
 

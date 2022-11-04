@@ -277,5 +277,29 @@ void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value,
     }
 }
 
+void UnwrapStructObjects(D3D12_BARRIER_GROUP* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+
+    if (value != nullptr)
+    {
+        for (UINT i = 0; i < value->NumBarriers; ++i)
+        {
+            switch (value->Type)
+            {
+                case D3D12_BARRIER_TYPE_TEXTURE:
+                    UnwrapStructObjects(const_cast<D3D12_TEXTURE_BARRIER*>(&value->pTextureBarriers[i]), unwrap_memory);
+                    break;
+                case D3D12_BARRIER_TYPE_BUFFER:
+                    UnwrapStructObjects(const_cast<D3D12_BUFFER_BARRIER*>(&value->pBufferBarriers[i]), unwrap_memory);
+                    break;
+                case D3D12_BARRIER_TYPE_GLOBAL:
+                default:
+                    break;
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

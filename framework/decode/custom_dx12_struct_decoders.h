@@ -273,6 +273,25 @@ struct Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION
     WStringArrayDecoder                                  pExports;
 };
 
+struct Decoded_D3D12_BARRIER_GROUP
+{
+    using struct_type = D3D12_BARRIER_GROUP;
+
+    D3D12_BARRIER_GROUP* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D12_GLOBAL_BARRIER>*  global_barriers{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_TEXTURE_BARRIER>* texture_barriers{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_BUFFER_BARRIER>*  buffer_barriers{ nullptr };
+};
+
+struct Decoded_D3D12_SAMPLER_DESC2
+{
+    using struct_type = D3D12_SAMPLER_DESC2;
+
+    D3D12_SAMPLER_DESC2*  decoded_value{ nullptr };
+    PointerDecoder<float> FloatBorderColor;
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

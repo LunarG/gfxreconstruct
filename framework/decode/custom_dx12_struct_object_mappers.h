@@ -88,6 +88,10 @@ void MapStructObjects(Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC* wrapper,
                       const Dx12ObjectInfoTable&               object_info_table,
                       const graphics::Dx12GpuVaMap&            gpu_va_map);
 
+void MapStructObjects(Decoded_D3D12_BARRIER_GROUP*  wrapper,
+                      const Dx12ObjectInfoTable&    object_info_table,
+                      const graphics::Dx12GpuVaMap& gpu_va_map);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

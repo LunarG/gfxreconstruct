@@ -429,6 +429,26 @@ void MapStructObjects(Decoded_D3D12_DISPATCH_RAYS_DESC* wrapper, const Dx12Objec
         MapStructObjects(wrapper->CallableShaderTable, object_info_table, gpu_va_map);
     }
 }
+
+void MapStructObjects(Decoded_D3D12_TEXTURE_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        D3D12_TEXTURE_BARRIER* value = wrapper->decoded_value;
+
+        value->pResource = object_mapping::MapObject<ID3D12Resource>(wrapper->pResource, object_info_table);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_BUFFER_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        D3D12_BUFFER_BARRIER* value = wrapper->decoded_value;
+
+        value->pResource = object_mapping::MapObject<ID3D12Resource>(wrapper->pResource, object_info_table);
+    }
+}
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* capture_value, const D3D12_GRAPHICS_PIPELINE_STATE_DESC* new_value, Dx12ObjectInfoTable& object_info_table)
 {
     auto decoded_struct = capture_value->GetMetaStructPointer();
@@ -603,6 +623,24 @@ void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_RENDER_PASS_ENDIN
     if(decoded_struct->pDstResource && new_value->pDstResource)
     {
         object_mapping::AddObject(&decoded_struct->pDstResource, const_cast<ID3D12Resource**>(&new_value->pDstResource), &object_info_table);
+    }
+}
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_TEXTURE_BARRIER>* capture_value, const D3D12_TEXTURE_BARRIER* new_value, Dx12ObjectInfoTable& object_info_table)
+{
+    auto decoded_struct = capture_value->GetMetaStructPointer();
+    if(decoded_struct->pResource && new_value->pResource)
+    {
+        object_mapping::AddObject(&decoded_struct->pResource, const_cast<ID3D12Resource**>(&new_value->pResource), &object_info_table);
+    }
+}
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_BUFFER_BARRIER>* capture_value, const D3D12_BUFFER_BARRIER* new_value, Dx12ObjectInfoTable& object_info_table)
+{
+    auto decoded_struct = capture_value->GetMetaStructPointer();
+    if(decoded_struct->pResource && new_value->pResource)
+    {
+        object_mapping::AddObject(&decoded_struct->pResource, const_cast<ID3D12Resource**>(&new_value->pResource), &object_info_table);
     }
 }
 

@@ -334,6 +334,7 @@ def Build(label) {
 								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\tools\\replay\\Release\\D3D12\\D3D12Core.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\D3D12
                                 rmdir /S /Q ..\\${ArchiveName64}-x64
                                 mkdir ..\\${ArchiveName64}-x64\\
                                 move GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin ..\\${ArchiveName64}-x64\\${ArchiveName64}-x64
@@ -382,6 +383,7 @@ def Build(label) {
 								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
 								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\tools\\replay\\Release\\D3D12\\D3D12Core.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\D3D12
                                 rmdir /S /Q ..\\${ArchiveName86}
                                 mkdir ..\\${ArchiveName64}-x86\\
                                 move GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin ..\\${kPackageNameRoot}-x86\\${kPackageNameRoot}-x86

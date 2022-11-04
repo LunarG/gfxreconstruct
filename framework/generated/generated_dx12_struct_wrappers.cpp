@@ -218,5 +218,21 @@ void WrapStruct(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value)
     }
 }
 
+void WrapStruct(const D3D12_TEXTURE_BARRIER* value)
+{
+    if(value->pResource)
+    {
+        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResource), nullptr);
+    }
+}
+
+void WrapStruct(const D3D12_BUFFER_BARRIER* value)
+{
+    if(value->pResource)
+    {
+        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResource), nullptr);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

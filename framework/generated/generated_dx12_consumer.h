@@ -2421,6 +2421,11 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         D3D12_DRED_ENABLEMENT Enablement){}
 
+    virtual void Process_ID3D12DeviceRemovedExtendedDataSettings2_UseMarkersOnlyAutoBreadcrumbs(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL MarkersOnly){}
+
     virtual void Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2679,6 +2684,69 @@ class Dx12Consumer : public Dx12ConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandQueue){}
 
+    virtual void Process_ID3D12Device10_CreateCommittedResource3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+        D3D12_HEAP_FLAGS HeapFlags,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
+        D3D12_BARRIER_LAYOUT InitialLayout,
+        StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
+        format::HandleId pProtectedSession,
+        UINT32 NumCastableFormats,
+        PointerDecoder<DXGI_FORMAT>* pCastableFormats,
+        Decoded_GUID riidResource,
+        HandlePointerDecoder<void*>* ppvResource){}
+
+    virtual void Process_ID3D12Device10_CreatePlacedResource2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pHeap,
+        UINT64 HeapOffset,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
+        D3D12_BARRIER_LAYOUT InitialLayout,
+        StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
+        UINT32 NumCastableFormats,
+        PointerDecoder<DXGI_FORMAT>* pCastableFormats,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvResource){}
+
+    virtual void Process_ID3D12Device10_CreateReservedResource2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
+        D3D12_BARRIER_LAYOUT InitialLayout,
+        StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
+        format::HandleId pProtectedSession,
+        UINT32 NumCastableFormats,
+        PointerDecoder<DXGI_FORMAT>* pCastableFormats,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvResource){}
+
+    virtual void Process_ID3D12Device11_CreateSampler2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor){}
+
+    virtual void Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pObject,
+        PointerDecoder<uint64_t, void*>* pHandle){}
+
+    virtual void Process_ID3D12VirtualizationGuestDevice_CreateFenceFd(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pFence,
+        UINT64 FenceValue,
+        PointerDecoder<int>* pFenceFd){}
+
     virtual void Process_ID3D12Tools_EnableShaderInstrumentation(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2695,6 +2763,95 @@ class Dx12Consumer : public Dx12ConsumerBase
         HRESULT return_value,
         UINT SDKVersion,
         StringDecoder* SDKPath){}
+
+    virtual void Process_ID3D12SDKConfiguration1_CreateDeviceFactory(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT SDKVersion,
+        StringDecoder* SDKPath,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvFactory){}
+
+    virtual void Process_ID3D12SDKConfiguration1_FreeUnusedSDKs(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id){}
+
+    virtual void Process_ID3D12DeviceFactory_InitializeFromGlobalState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value){}
+
+    virtual void Process_ID3D12DeviceFactory_ApplyToGlobalState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value){}
+
+    virtual void Process_ID3D12DeviceFactory_SetFlags(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D12_DEVICE_FACTORY_FLAGS flags){}
+
+    virtual void Process_ID3D12DeviceFactory_GetFlags(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_DEVICE_FACTORY_FLAGS return_value){}
+
+    virtual void Process_ID3D12DeviceFactory_GetConfigurationInterface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID clsid,
+        Decoded_GUID iid,
+        HandlePointerDecoder<void*>* ppv){}
+
+    virtual void Process_ID3D12DeviceFactory_EnableExperimentalFeatures(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumFeatures,
+        StructPointerDecoder<Decoded_GUID>* pIIDs,
+        PointerDecoder<uint8_t>* pConfigurationStructs,
+        PointerDecoder<UINT>* pConfigurationStructSizes){}
+
+    virtual void Process_ID3D12DeviceFactory_CreateDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId adapter,
+        D3D_FEATURE_LEVEL FeatureLevel,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDevice){}
+
+    virtual void Process_ID3D12DeviceConfiguration_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_DEVICE_CONFIGURATION_DESC return_value){}
+
+    virtual void Process_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_GUID>* pGuids,
+        UINT NumGuids){}
+
+    virtual void Process_ID3D12DeviceConfiguration_SerializeVersionedRootSignature(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pDesc,
+        HandlePointerDecoder<ID3D10Blob*>* ppResult,
+        HandlePointerDecoder<ID3D10Blob*>* ppError){}
+
+    virtual void Process_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pBlob,
+        SIZE_T Size,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDeserializer){}
 
     virtual void Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         const ApiCallInfo& call_info,
@@ -2713,6 +2870,18 @@ class Dx12Consumer : public Dx12ConsumerBase
         UINT ThreadGroupCountX,
         UINT ThreadGroupCountY,
         UINT ThreadGroupCountZ){}
+
+    virtual void Process_ID3D12GraphicsCommandList7_Barrier(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT32 NumBarrierGroups,
+        StructPointerDecoder<Decoded_D3D12_BARRIER_GROUP>* pBarrierGroups){}
+
+    virtual void Process_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT FrontStencilRef,
+        UINT BackStencilRef){}
 
 /*
 ** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
@@ -2793,6 +2962,11 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         BOOL Enable){}
 
+    virtual void Process_ID3D12Debug6_SetForceLegacyBarrierValidation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL Enable){}
+
     virtual void Process_ID3D12DebugDevice1_SetDebugParameter(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2856,6 +3030,20 @@ class Dx12Consumer : public Dx12ConsumerBase
         UINT Subresource,
         UINT State){}
 
+    virtual void Process_ID3D12DebugCommandQueue1_AssertResourceAccess(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResource,
+        UINT Subresource,
+        D3D12_BARRIER_ACCESS Access){}
+
+    virtual void Process_ID3D12DebugCommandQueue1_AssertTextureLayout(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResource,
+        UINT Subresource,
+        D3D12_BARRIER_LAYOUT Layout){}
+
     virtual void Process_ID3D12DebugCommandList1_AssertResourceState(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2914,6 +3102,20 @@ class Dx12Consumer : public Dx12ConsumerBase
         D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize){}
+
+    virtual void Process_ID3D12DebugCommandList3_AssertResourceAccess(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResource,
+        UINT Subresource,
+        D3D12_BARRIER_ACCESS Access){}
+
+    virtual void Process_ID3D12DebugCommandList3_AssertTextureLayout(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResource,
+        UINT Subresource,
+        D3D12_BARRIER_LAYOUT Layout){}
 
     virtual void Process_ID3D12SharingContract_Present(
         const ApiCallInfo& call_info,

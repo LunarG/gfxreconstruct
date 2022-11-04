@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2021 LunarG, Inc.
-# Copyright (c) 2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2020-2022 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -55,5 +55,7 @@ find_package(Threads REQUIRED)
 target_link_libraries(gfxrecon-replay Threads::Threads)
 
 common_build_directives(gfxrecon-replay)
+
+include(${CMAKE_SOURCE_DIR}/cmake/AgilitySDK.cmake)
 
 install(TARGETS gfxrecon-replay RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

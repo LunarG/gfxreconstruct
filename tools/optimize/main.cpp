@@ -49,6 +49,17 @@
 #include <unordered_set>
 #include <vector>
 
+#if defined(WIN32)
+extern "C"
+{
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 606;
+}
+extern "C"
+{
+    __declspec(dllexport) extern const char* D3D12SDKPath = u8".\\D3D12\\";
+}
+#endif
+
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr";
 
 const char kD3d12PsoRemoval[] = "--d3d12-pso-removal";

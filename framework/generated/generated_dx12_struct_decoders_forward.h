@@ -81,6 +81,8 @@ struct Decoded_D3D12_BOX;
 struct Decoded_D3D12_DEPTH_STENCILOP_DESC;
 struct Decoded_D3D12_DEPTH_STENCIL_DESC;
 struct Decoded_D3D12_DEPTH_STENCIL_DESC1;
+struct Decoded_D3D12_DEPTH_STENCILOP_DESC1;
+struct Decoded_D3D12_DEPTH_STENCIL_DESC2;
 struct Decoded_D3D12_RENDER_TARGET_BLEND_DESC;
 struct Decoded_D3D12_BLEND_DESC;
 struct Decoded_D3D12_RASTERIZER_DESC;
@@ -108,6 +110,7 @@ struct Decoded_D3D12_FEATURE_DATA_SHADER_CACHE;
 struct Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3;
 struct Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS;
+struct Decoded_D3D12_FEATURE_DATA_DISPLAYABLE;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4;
 struct Decoded_D3D12_FEATURE_DATA_SERIALIZATION;
 struct Decoded_D3D12_FEATURE_DATA_CROSS_NODE;
@@ -117,7 +120,12 @@ struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7;
 struct Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS8;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS9;
-struct Decoded_D3D12_FEATURE_DATA_WAVE_MMA;
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS10;
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS11;
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS12;
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS13;
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS14;
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15;
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO;
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO1;
 struct Decoded_D3D12_HEAP_PROPERTIES;
@@ -160,11 +168,14 @@ struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV;
 struct Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC;
 struct Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC;
 struct Decoded_D3D12_SAMPLER_DESC;
+struct Decoded_D3D12_SAMPLER_DESC2;
 struct Decoded_D3D12_BUFFER_UAV;
 struct Decoded_D3D12_TEX1D_UAV;
 struct Decoded_D3D12_TEX1D_ARRAY_UAV;
 struct Decoded_D3D12_TEX2D_UAV;
 struct Decoded_D3D12_TEX2D_ARRAY_UAV;
+struct Decoded_D3D12_TEX2DMS_UAV;
+struct Decoded_D3D12_TEX2DMS_ARRAY_UAV;
 struct Decoded_D3D12_TEX3D_UAV;
 struct Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC;
 struct Decoded_D3D12_BUFFER_RTV;
@@ -278,8 +289,14 @@ struct Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC;
 struct Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC;
 struct Decoded_D3D12_DISPATCH_RAYS_DESC;
 struct Decoded_D3D12_SHADER_CACHE_SESSION_DESC;
+struct Decoded_D3D12_BARRIER_SUBRESOURCE_RANGE;
+struct Decoded_D3D12_GLOBAL_BARRIER;
+struct Decoded_D3D12_TEXTURE_BARRIER;
+struct Decoded_D3D12_BUFFER_BARRIER;
+struct Decoded_D3D12_BARRIER_GROUP;
 struct Decoded_D3D12_SUBRESOURCE_DATA;
 struct Decoded_D3D12_MEMCPY_DEST;
+struct Decoded_D3D12_DEVICE_CONFIGURATION_DESC;
 struct Decoded_D3D12_DISPATCH_MESH_ARGUMENTS;
 struct Decoded_D3D_SHADER_MACRO;
 struct Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS;
@@ -422,6 +439,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEP
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEPTH_STENCIL_DESC1* wrapper);
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEPTH_STENCILOP_DESC1* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEPTH_STENCIL_DESC2* wrapper);
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_TARGET_BLEND_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BLEND_DESC* wrapper);
@@ -474,6 +495,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS* wrapper);
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_DISPLAYABLE* wrapper);
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_SERIALIZATION* wrapper);
@@ -492,7 +515,17 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS9* wrapper);
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_WAVE_MMA* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS10* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS11* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS12* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS13* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS14* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RESOURCE_ALLOCATION_INFO* wrapper);
 
@@ -579,6 +612,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX2D_UAV* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX2D_ARRAY_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX2DMS_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX2DMS_ARRAY_UAV* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX3D_UAV* wrapper);
 
@@ -774,9 +811,19 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DIS
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHADER_CACHE_SESSION_DESC* wrapper);
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BARRIER_SUBRESOURCE_RANGE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GLOBAL_BARRIER* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEXTURE_BARRIER* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUFFER_BARRIER* wrapper);
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUBRESOURCE_DATA* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_MEMCPY_DEST* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEVICE_CONFIGURATION_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DISPATCH_MESH_ARGUMENTS* wrapper);
 

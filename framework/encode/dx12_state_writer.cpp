@@ -83,6 +83,10 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     // Device
     StandardCreateWrite<ID3D12Device_Wrapper>(state_table);
 
+    // Agility SDK constructs
+    StandardCreateWrite<ID3D12DeviceFactory_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DeviceConfiguration_Wrapper>(state_table);
+
     // Write this out before rendering begins
     // This ensures the replayer gets a chance to process the metadata command
     D3D12CaptureManager::Get()->WriteDxgiAdapterInfo();
@@ -155,6 +159,10 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
     WriteResidencyPriority(state_table);
     WriteCommandListState(state_table);
+
+    // TODO (GH# 648): Determine dependencies for creation of ID3D12VirtualizationGuestDevice
+    // Since the dependency chain is unclear, just write their state at the very end
+    StandardCreateWrite<ID3D12VirtualizationGuestDevice_Wrapper>(state_table);
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));

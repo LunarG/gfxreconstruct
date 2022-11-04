@@ -1,5 +1,6 @@
 ###############################################################################
 # Copyright (c) 2020 LunarG, Inc.
+# Copyright (c) 2022 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -53,5 +54,7 @@ target_link_libraries(gfxrecon-optimize
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
 
 common_build_directives(gfxrecon-optimize)
+
+include(${CMAKE_SOURCE_DIR}/cmake/AgilitySDK.cmake)
 
 install(TARGETS gfxrecon-optimize RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

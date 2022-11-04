@@ -174,5 +174,21 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, HandleUnwr
     }
 }
 
+void UnwrapStructObjects(D3D12_TEXTURE_BARRIER* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pResource = GetWrappedObject<ID3D12Resource>(value->pResource);
+    }
+}
+
+void UnwrapStructObjects(D3D12_BUFFER_BARRIER* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pResource = GetWrappedObject<ID3D12Resource>(value->pResource);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

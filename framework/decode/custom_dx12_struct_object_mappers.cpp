@@ -305,5 +305,21 @@ void MapStructObjects(Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC* wrapper,
     }
 }
 
+void MapStructObjects(Decoded_D3D12_BARRIER_GROUP*  wrapper,
+                      const Dx12ObjectInfoTable&    object_info_table,
+                      const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        auto length   = wrapper->texture_barriers->GetLength();
+        auto wrappers = wrapper->texture_barriers->GetMetaStructPointer();
+
+        for (size_t i = 0; i < length; ++i)
+        {
+            MapStructObjects(&wrappers[i], object_info_table, gpu_va_map);
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

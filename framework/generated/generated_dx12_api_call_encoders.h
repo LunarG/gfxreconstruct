@@ -1133,6 +1133,10 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_DESC& val
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_DESC1& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCILOP_DESC1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_DESC2& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_TARGET_BLEND_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BLEND_DESC& value);
@@ -1216,6 +1220,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTI
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_EXISTING_HEAPS& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_DISPLAYABLE& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS4& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SERIALIZATION& value);
@@ -1234,7 +1240,17 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTI
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS9& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_WAVE_MMA& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS10& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS11& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS12& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS13& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS14& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS15& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALLOCATION_INFO& value);
 
@@ -1321,6 +1337,10 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX1D_ARRAY_UAV& value)
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2D_UAV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2D_ARRAY_UAV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2DMS_UAV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2DMS_ARRAY_UAV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX3D_UAV& value);
 
@@ -2554,6 +2574,10 @@ void Encode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablem
     ID3D12DeviceRemovedExtendedDataSettings1_Wrapper* wrapper,
     D3D12_DRED_ENABLEMENT Enablement);
 
+void Encode_ID3D12DeviceRemovedExtendedDataSettings2_UseMarkersOnlyAutoBreadcrumbs(
+    ID3D12DeviceRemovedExtendedDataSettings2_Wrapper* wrapper,
+    BOOL MarkersOnly);
+
 void Encode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
     ID3D12DeviceRemovedExtendedData_Wrapper* wrapper,
     HRESULT return_value,
@@ -2752,6 +2776,14 @@ void Encode_ID3D12GraphicsCommandList4_DispatchRays(
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_CACHE_SESSION_DESC& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_SUBRESOURCE_RANGE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_GLOBAL_BARRIER& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEXTURE_BARRIER& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUFFER_BARRIER& value);
+
 void Encode_ID3D12ShaderCacheSession_FindValue(
     ID3D12ShaderCacheSession_Wrapper* wrapper,
     HRESULT return_value,
@@ -2796,6 +2828,63 @@ void Encode_ID3D12Device9_CreateCommandQueue1(
     REFIID riid,
     void** ppCommandQueue);
 
+void Encode_ID3D12Device10_CreateCommittedResource3(
+    ID3D12Device10_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_HEAP_PROPERTIES* pHeapProperties,
+    D3D12_HEAP_FLAGS HeapFlags,
+    const D3D12_RESOURCE_DESC1* pDesc,
+    D3D12_BARRIER_LAYOUT InitialLayout,
+    const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+    ID3D12ProtectedResourceSession* pProtectedSession,
+    UINT32 NumCastableFormats,
+    DXGI_FORMAT* pCastableFormats,
+    REFIID riidResource,
+    void** ppvResource);
+
+void Encode_ID3D12Device10_CreatePlacedResource2(
+    ID3D12Device10_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Heap* pHeap,
+    UINT64 HeapOffset,
+    const D3D12_RESOURCE_DESC1* pDesc,
+    D3D12_BARRIER_LAYOUT InitialLayout,
+    const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+    UINT32 NumCastableFormats,
+    DXGI_FORMAT* pCastableFormats,
+    REFIID riid,
+    void** ppvResource);
+
+void Encode_ID3D12Device10_CreateReservedResource2(
+    ID3D12Device10_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_RESOURCE_DESC* pDesc,
+    D3D12_BARRIER_LAYOUT InitialLayout,
+    const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+    ID3D12ProtectedResourceSession* pProtectedSession,
+    UINT32 NumCastableFormats,
+    DXGI_FORMAT* pCastableFormats,
+    REFIID riid,
+    void** ppvResource);
+
+void Encode_ID3D12Device11_CreateSampler2(
+    ID3D12Device11_Wrapper* wrapper,
+    const D3D12_SAMPLER_DESC2* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+
+void Encode_ID3D12VirtualizationGuestDevice_ShareWithHost(
+    ID3D12VirtualizationGuestDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12DeviceChild* pObject,
+    HANDLE* pHandle);
+
+void Encode_ID3D12VirtualizationGuestDevice_CreateFenceFd(
+    ID3D12VirtualizationGuestDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Fence* pFence,
+    UINT64 FenceValue,
+    int* pFenceFd);
+
 void Encode_ID3D12Tools_EnableShaderInstrumentation(
     ID3D12Tools_Wrapper* wrapper,
     BOOL bEnable);
@@ -2814,6 +2903,84 @@ void Encode_ID3D12SDKConfiguration_SetSDKVersion(
     UINT SDKVersion,
     LPCSTR SDKPath);
 
+void Encode_ID3D12SDKConfiguration1_CreateDeviceFactory(
+    ID3D12SDKConfiguration1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT SDKVersion,
+    LPCSTR SDKPath,
+    REFIID riid,
+    void** ppvFactory);
+
+void Encode_ID3D12SDKConfiguration1_FreeUnusedSDKs(
+    ID3D12SDKConfiguration1_Wrapper* wrapper);
+
+void Encode_ID3D12DeviceFactory_InitializeFromGlobalState(
+    ID3D12DeviceFactory_Wrapper* wrapper,
+    HRESULT return_value);
+
+void Encode_ID3D12DeviceFactory_ApplyToGlobalState(
+    ID3D12DeviceFactory_Wrapper* wrapper,
+    HRESULT return_value);
+
+void Encode_ID3D12DeviceFactory_SetFlags(
+    ID3D12DeviceFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_DEVICE_FACTORY_FLAGS flags);
+
+void Encode_ID3D12DeviceFactory_GetFlags(
+    ID3D12DeviceFactory_Wrapper* wrapper,
+    D3D12_DEVICE_FACTORY_FLAGS return_value);
+
+void Encode_ID3D12DeviceFactory_GetConfigurationInterface(
+    ID3D12DeviceFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    REFCLSID clsid,
+    REFIID iid,
+    void** ppv);
+
+void Encode_ID3D12DeviceFactory_EnableExperimentalFeatures(
+    ID3D12DeviceFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT NumFeatures,
+    const IID* pIIDs,
+    void* pConfigurationStructs,
+    UINT* pConfigurationStructSizes);
+
+void Encode_ID3D12DeviceFactory_CreateDevice(
+    ID3D12DeviceFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* adapter,
+    D3D_FEATURE_LEVEL FeatureLevel,
+    REFIID riid,
+    void** ppvDevice);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_CONFIGURATION_DESC& value);
+
+void Encode_ID3D12DeviceConfiguration_GetDesc(
+    ID3D12DeviceConfiguration_Wrapper* wrapper,
+    D3D12_DEVICE_CONFIGURATION_DESC return_value);
+
+void Encode_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures(
+    ID3D12DeviceConfiguration_Wrapper* wrapper,
+    HRESULT return_value,
+    GUID* pGuids,
+    UINT NumGuids);
+
+void Encode_ID3D12DeviceConfiguration_SerializeVersionedRootSignature(
+    ID3D12DeviceConfiguration_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pDesc,
+    ID3DBlob** ppResult,
+    ID3DBlob** ppError);
+
+void Encode_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer(
+    ID3D12DeviceConfiguration_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pBlob,
+    SIZE_T Size,
+    REFIID riid,
+    void** ppvDeserializer);
+
 void Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
     ID3D12GraphicsCommandList5_Wrapper* wrapper,
     D3D12_SHADING_RATE baseShadingRate,
@@ -2830,6 +2997,16 @@ void Encode_ID3D12GraphicsCommandList6_DispatchMesh(
     UINT ThreadGroupCountX,
     UINT ThreadGroupCountY,
     UINT ThreadGroupCountZ);
+
+void Encode_ID3D12GraphicsCommandList7_Barrier(
+    ID3D12GraphicsCommandList7_Wrapper* wrapper,
+    UINT32 NumBarrierGroups,
+    const D3D12_BARRIER_GROUP* pBarrierGroups);
+
+void Encode_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef(
+    ID3D12GraphicsCommandList8_Wrapper* wrapper,
+    UINT FrontStencilRef,
+    UINT BackStencilRef);
 
 
 /*
@@ -2902,6 +3079,10 @@ void Encode_ID3D12Debug5_SetEnableAutoName(
     ID3D12Debug5_Wrapper* wrapper,
     BOOL Enable);
 
+void Encode_ID3D12Debug6_SetForceLegacyBarrierValidation(
+    ID3D12Debug6_Wrapper* wrapper,
+    BOOL Enable);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR& value);
@@ -2960,6 +3141,18 @@ void Encode_ID3D12DebugCommandQueue_AssertResourceState(
     UINT Subresource,
     UINT State);
 
+void Encode_ID3D12DebugCommandQueue1_AssertResourceAccess(
+    ID3D12DebugCommandQueue1_Wrapper* wrapper,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_ACCESS Access);
+
+void Encode_ID3D12DebugCommandQueue1_AssertTextureLayout(
+    ID3D12DebugCommandQueue1_Wrapper* wrapper,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_LAYOUT Layout);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS& value);
 
 void Encode_ID3D12DebugCommandList1_AssertResourceState(
@@ -3012,6 +3205,18 @@ void Encode_ID3D12DebugCommandList2_GetDebugParameter(
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize);
+
+void Encode_ID3D12DebugCommandList3_AssertResourceAccess(
+    ID3D12DebugCommandList3_Wrapper* wrapper,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_ACCESS Access);
+
+void Encode_ID3D12DebugCommandList3_AssertTextureLayout(
+    ID3D12DebugCommandList3_Wrapper* wrapper,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_LAYOUT Layout);
 
 void Encode_ID3D12SharingContract_Present(
     ID3D12SharingContract_Wrapper* wrapper,

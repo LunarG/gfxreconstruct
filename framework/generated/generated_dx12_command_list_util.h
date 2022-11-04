@@ -145,9 +145,15 @@ void Track_ID3D12GraphicsCommandList4_DispatchRays(ID3D12CommandList_Wrapper* wr
 
 void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * shadingRateImage);
 
+void Track_ID3D12GraphicsCommandList7_Barrier(ID3D12CommandList_Wrapper* wrapper, UINT32 NumBarrierGroups, const D3D12_BARRIER_GROUP * pBarrierGroups);
+
 void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State);
 
 void Track_ID3D12DebugCommandList_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State);
+
+void Track_ID3D12DebugCommandList3_AssertResourceAccess(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, D3D12_BARRIER_ACCESS Access);
+
+void Track_ID3D12DebugCommandList3_AssertTextureLayout(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, D3D12_BARRIER_LAYOUT Layout);
 
 
 GFXRECON_END_NAMESPACE(encode)

@@ -47,6 +47,16 @@
 #include <utility>
 
 #if defined(D3D12_SUPPORT)
+
+extern "C"
+{
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 606;
+}
+extern "C"
+{
+    __declspec(dllexport) extern const char* D3D12SDKPath = u8".\\D3D12\\";
+}
+
 #include <conio.h>
 void WaitForExit()
 {

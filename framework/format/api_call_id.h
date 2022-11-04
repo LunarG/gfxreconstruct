@@ -1120,7 +1120,6 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12InfoQueue_SetMuteDebugOutput                                                    = MakeApiCallId(ApiFamily_D3D12, 0x1119),
     ApiCall_ID3D12InfoQueue_GetMuteDebugOutput                                                    = MakeApiCallId(ApiFamily_D3D12, 0x111a),
 
-
     //win10 sdk 10.0.20348.0
     ApiCall_D3D12GetInterface                                                                     = MakeApiCallId(ApiFamily_D3D12, 0x111b),
     ApiCall_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2                        = MakeApiCallId(ApiFamily_D3D12, 0x111c),
@@ -1137,6 +1136,35 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12Debug5_SetEnableAutoName                                                        = MakeApiCallId(ApiFamily_D3D12, 0x1127),
     ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback                                            = MakeApiCallId(ApiFamily_D3D12, 0x1128),
     ApiCall_ID3D12InfoQueue1_RegisterMessageCallback                                              = MakeApiCallId(ApiFamily_D3D12, 0x1129),
+
+    // Agility SDK 1.606.4
+    ApiCall_ID3D12Device10_CreateCommittedResource3                                               = MakeApiCallId(ApiFamily_D3D12, 0x112a),
+    ApiCall_ID3D12Device10_CreatePlacedResource2                                                  = MakeApiCallId(ApiFamily_D3D12, 0x112b),
+    ApiCall_ID3D12Device10_CreateReservedResource2                                                = MakeApiCallId(ApiFamily_D3D12, 0x112c),
+    ApiCall_ID3D12Device11_CreateSampler2                                                         = MakeApiCallId(ApiFamily_D3D12, 0x112d),
+    ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost                                         = MakeApiCallId(ApiFamily_D3D12, 0x112e),
+    ApiCall_ID3D12VirtualizationGuestDevice_CreateFenceFd                                         = MakeApiCallId(ApiFamily_D3D12, 0x112f),
+    ApiCall_ID3D12SDKConfiguration1_CreateDeviceFactory                                           = MakeApiCallId(ApiFamily_D3D12, 0x1130),
+    ApiCall_ID3D12SDKConfiguration1_FreeUnusedSDKs                                                = MakeApiCallId(ApiFamily_D3D12, 0x1131),
+    ApiCall_ID3D12DeviceFactory_InitializeFromGlobalState                                         = MakeApiCallId(ApiFamily_D3D12, 0x1132),
+    ApiCall_ID3D12DeviceFactory_ApplyToGlobalState                                                = MakeApiCallId(ApiFamily_D3D12, 0x1133),
+    ApiCall_ID3D12DeviceFactory_SetFlags                                                          = MakeApiCallId(ApiFamily_D3D12, 0x1134),
+    ApiCall_ID3D12DeviceFactory_GetFlags                                                          = MakeApiCallId(ApiFamily_D3D12, 0x1135),
+    ApiCall_ID3D12DeviceFactory_GetConfigurationInterface                                         = MakeApiCallId(ApiFamily_D3D12, 0x1136),
+    ApiCall_ID3D12DeviceFactory_EnableExperimentalFeatures                                        = MakeApiCallId(ApiFamily_D3D12, 0x1137),
+    ApiCall_ID3D12DeviceFactory_CreateDevice                                                      = MakeApiCallId(ApiFamily_D3D12, 0x1138),
+    ApiCall_ID3D12DeviceConfiguration_GetDesc                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1139),
+    ApiCall_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures                              = MakeApiCallId(ApiFamily_D3D12, 0x113a),
+    ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature                             = MakeApiCallId(ApiFamily_D3D12, 0x113b),
+    ApiCall_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer                    = MakeApiCallId(ApiFamily_D3D12, 0x113c),
+    ApiCall_ID3D12GraphicsCommandList7_Barrier                                                    = MakeApiCallId(ApiFamily_D3D12, 0x113d),
+    ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef                                = MakeApiCallId(ApiFamily_D3D12, 0x113e),
+    ApiCall_ID3D12DeviceRemovedExtendedDataSettings2_UseMarkersOnlyAutoBreadcrumbs                = MakeApiCallId(ApiFamily_D3D12, 0x113f),
+    ApiCall_ID3D12Debug6_SetForceLegacyBarrierValidation                                          = MakeApiCallId(ApiFamily_D3D12, 0x1140),
+    ApiCall_ID3D12DebugCommandQueue1_AssertResourceAccess                                         = MakeApiCallId(ApiFamily_D3D12, 0x1141),
+    ApiCall_ID3D12DebugCommandQueue1_AssertTextureLayout                                          = MakeApiCallId(ApiFamily_D3D12, 0x1142),
+    ApiCall_ID3D12DebugCommandList3_AssertResourceAccess                                          = MakeApiCallId(ApiFamily_D3D12, 0x1143),
+    ApiCall_ID3D12DebugCommandList3_AssertTextureLayout                                           = MakeApiCallId(ApiFamily_D3D12, 0x1144),
 
     ApiCall_D3D12Last,
 

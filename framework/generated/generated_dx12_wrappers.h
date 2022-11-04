@@ -2667,6 +2667,16 @@ class ID3D12DeviceRemovedExtendedDataSettings1_Wrapper : public ID3D12DeviceRemo
 
 };
 
+class ID3D12DeviceRemovedExtendedDataSettings2_Wrapper : public ID3D12DeviceRemovedExtendedDataSettings1_Wrapper
+{
+  public:
+    ID3D12DeviceRemovedExtendedDataSettings2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings2_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE UseMarkersOnlyAutoBreadcrumbs(
+        BOOL MarkersOnly);
+
+};
+
 class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -2980,6 +2990,88 @@ class ID3D12Device9_Wrapper : public ID3D12Device8_Wrapper
 
 };
 
+class ID3D12Device10_Wrapper : public ID3D12Device9_Wrapper
+{
+  public:
+    ID3D12Device10_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device10_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CreateCommittedResource3(
+        const D3D12_HEAP_PROPERTIES* pHeapProperties,
+        D3D12_HEAP_FLAGS HeapFlags,
+        const D3D12_RESOURCE_DESC1* pDesc,
+        D3D12_BARRIER_LAYOUT InitialLayout,
+        const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+        ID3D12ProtectedResourceSession* pProtectedSession,
+        UINT32 NumCastableFormats,
+        DXGI_FORMAT* pCastableFormats,
+        REFIID riidResource,
+        void** ppvResource);
+
+    virtual HRESULT STDMETHODCALLTYPE CreatePlacedResource2(
+        ID3D12Heap* pHeap,
+        UINT64 HeapOffset,
+        const D3D12_RESOURCE_DESC1* pDesc,
+        D3D12_BARRIER_LAYOUT InitialLayout,
+        const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+        UINT32 NumCastableFormats,
+        DXGI_FORMAT* pCastableFormats,
+        REFIID riid,
+        void** ppvResource);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateReservedResource2(
+        const D3D12_RESOURCE_DESC* pDesc,
+        D3D12_BARRIER_LAYOUT InitialLayout,
+        const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+        ID3D12ProtectedResourceSession* pProtectedSession,
+        UINT32 NumCastableFormats,
+        DXGI_FORMAT* pCastableFormats,
+        REFIID riid,
+        void** ppvResource);
+
+};
+
+class ID3D12Device11_Wrapper : public ID3D12Device10_Wrapper
+{
+  public:
+    ID3D12Device11_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device11_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE CreateSampler2(
+        const D3D12_SAMPLER_DESC2* pDesc,
+        D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+
+};
+
+class ID3D12VirtualizationGuestDevice_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12VirtualizationGuestDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12VirtualizationGuestDevice_Wrapper*>(u); });
+
+    ~ID3D12VirtualizationGuestDevice_Wrapper();
+
+    static ID3D12VirtualizationGuestDevice_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12VirtualizationGuestDeviceInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12VirtualizationGuestDeviceInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE ShareWithHost(
+        ID3D12DeviceChild* pObject,
+        HANDLE* pHandle);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateFenceFd(
+        ID3D12Fence* pFence,
+        UINT64 FenceValue,
+        int* pFenceFd);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12VirtualizationGuestDevice_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12VirtualizationGuestDeviceInfo> info_;
+};
+
 class ID3D12Tools_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -3033,6 +3125,108 @@ class ID3D12SDKConfiguration_Wrapper : public IUnknown_Wrapper
     std::shared_ptr<ID3D12SDKConfigurationInfo> info_;
 };
 
+class ID3D12SDKConfiguration1_Wrapper : public ID3D12SDKConfiguration_Wrapper
+{
+  public:
+    ID3D12SDKConfiguration1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12SDKConfiguration1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CreateDeviceFactory(
+        UINT SDKVersion,
+        LPCSTR SDKPath,
+        REFIID riid,
+        void** ppvFactory);
+
+    virtual void STDMETHODCALLTYPE FreeUnusedSDKs();
+
+};
+
+class ID3D12DeviceFactory_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DeviceFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceFactory_Wrapper*>(u); });
+
+    ~ID3D12DeviceFactory_Wrapper();
+
+    static ID3D12DeviceFactory_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12DeviceFactoryInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12DeviceFactoryInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE InitializeFromGlobalState();
+
+    virtual HRESULT STDMETHODCALLTYPE ApplyToGlobalState();
+
+    virtual HRESULT STDMETHODCALLTYPE SetFlags(
+        D3D12_DEVICE_FACTORY_FLAGS flags);
+
+    virtual D3D12_DEVICE_FACTORY_FLAGS STDMETHODCALLTYPE GetFlags();
+
+    virtual HRESULT STDMETHODCALLTYPE GetConfigurationInterface(
+        REFCLSID clsid,
+        REFIID iid,
+        void** ppv);
+
+    virtual HRESULT STDMETHODCALLTYPE EnableExperimentalFeatures(
+        UINT NumFeatures,
+        const IID* pIIDs,
+        void* pConfigurationStructs,
+        UINT* pConfigurationStructSizes);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateDevice(
+        IUnknown* adapter,
+        D3D_FEATURE_LEVEL FeatureLevel,
+        REFIID riid,
+        void** ppvDevice);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DeviceFactory_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12DeviceFactoryInfo> info_;
+};
+
+class ID3D12DeviceConfiguration_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DeviceConfiguration_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceConfiguration_Wrapper*>(u); });
+
+    ~ID3D12DeviceConfiguration_Wrapper();
+
+    static ID3D12DeviceConfiguration_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12DeviceConfigurationInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12DeviceConfigurationInfo> GetObjectInfo() { return info_; }
+
+    virtual D3D12_DEVICE_CONFIGURATION_DESC STDMETHODCALLTYPE GetDesc();
+
+    virtual HRESULT STDMETHODCALLTYPE GetEnabledExperimentalFeatures(
+        GUID* pGuids,
+        UINT NumGuids);
+
+    virtual HRESULT STDMETHODCALLTYPE SerializeVersionedRootSignature(
+        const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pDesc,
+        ID3DBlob** ppResult,
+        ID3DBlob** ppError);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateVersionedRootSignatureDeserializer(
+        const void* pBlob,
+        SIZE_T Size,
+        REFIID riid,
+        void** ppvDeserializer);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DeviceConfiguration_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12DeviceConfigurationInfo> info_;
+};
+
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper
 {
   public:
@@ -3056,6 +3250,28 @@ class ID3D12GraphicsCommandList6_Wrapper : public ID3D12GraphicsCommandList5_Wra
         UINT ThreadGroupCountX,
         UINT ThreadGroupCountY,
         UINT ThreadGroupCountZ);
+
+};
+
+class ID3D12GraphicsCommandList7_Wrapper : public ID3D12GraphicsCommandList6_Wrapper
+{
+  public:
+    ID3D12GraphicsCommandList7_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList7_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE Barrier(
+        UINT32 NumBarrierGroups,
+        const D3D12_BARRIER_GROUP* pBarrierGroups);
+
+};
+
+class ID3D12GraphicsCommandList8_Wrapper : public ID3D12GraphicsCommandList7_Wrapper
+{
+  public:
+    ID3D12GraphicsCommandList8_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList8_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE OMSetFrontAndBackStencilRef(
+        UINT FrontStencilRef,
+        UINT BackStencilRef);
 
 };
 
@@ -3241,6 +3457,16 @@ class ID3D12Debug5_Wrapper : public ID3D12Debug4_Wrapper
 
 };
 
+class ID3D12Debug6_Wrapper : public ID3D12Debug5_Wrapper
+{
+  public:
+    ID3D12Debug6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Debug6_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE SetForceLegacyBarrierValidation(
+        BOOL Enable);
+
+};
+
 class ID3D12DebugDevice1_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -3350,6 +3576,23 @@ class ID3D12DebugCommandQueue_Wrapper : public IUnknown_Wrapper
     std::shared_ptr<ID3D12DebugCommandQueueInfo> info_;
 };
 
+class ID3D12DebugCommandQueue1_Wrapper : public ID3D12DebugCommandQueue_Wrapper
+{
+  public:
+    ID3D12DebugCommandQueue1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugCommandQueue1_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE AssertResourceAccess(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        D3D12_BARRIER_ACCESS Access);
+
+    virtual void STDMETHODCALLTYPE AssertTextureLayout(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        D3D12_BARRIER_LAYOUT Layout);
+
+};
+
 class ID3D12DebugCommandList1_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -3433,6 +3676,23 @@ class ID3D12DebugCommandList2_Wrapper : public ID3D12DebugCommandList_Wrapper
         D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
         void* pData,
         UINT DataSize);
+
+};
+
+class ID3D12DebugCommandList3_Wrapper : public ID3D12DebugCommandList2_Wrapper
+{
+  public:
+    ID3D12DebugCommandList3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugCommandList3_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE AssertResourceAccess(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        D3D12_BARRIER_ACCESS Access);
+
+    virtual void STDMETHODCALLTYPE AssertTextureLayout(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        D3D12_BARRIER_LAYOUT Layout);
 
 };
 

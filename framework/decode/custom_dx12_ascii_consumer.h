@@ -103,6 +103,17 @@ inline std::string DX12ReturnValueToString<Decoded_D3D12_SHADER_CACHE_SESSION_DE
 {
     return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
 }
+
+template <>
+inline std::string DX12ReturnValueToString<Decoded_D3D12_DEVICE_CONFIGURATION_DESC>(
+    const Decoded_D3D12_DEVICE_CONFIGURATION_DESC& return_value,
+    util::ToStringFlags                            to_string_flags,
+    uint32_t                                       tab_count,
+    uint32_t                                       tab_size)
+{
+    return util::ToString(*return_value.decoded_value, to_string_flags, tab_count, tab_size);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename EnumType>
@@ -924,6 +935,28 @@ StructPointerDecoderToString<Decoded__SECURITY_ATTRIBUTES>(StructPointerDecoder<
     auto pMetaStructPointer = pObj ? pObj->GetMetaStructPointer() : nullptr;
     auto pDecodedObj        = pMetaStructPointer ? pMetaStructPointer->decoded_value : nullptr;
     return pDecodedObj ? util::ToString(*pDecodedObj, toStringFlags, tabCount, tabSize) : "null";
+}
+
+template <>
+inline std::string StructPointerDecoderArrayToString(const UINT&                                        countObj,
+                                                     StructPointerDecoder<Decoded_D3D12_BARRIER_GROUP>* pObjs,
+                                                     util::ToStringFlags                                toStringFlags,
+                                                     uint32_t                                           tabCount,
+                                                     uint32_t                                           tabSize)
+{
+    // TODO : Unimplemented
+    return "null";
+}
+
+template <>
+inline std::string
+StructPointerDecoderToString<Decoded_D3D12_SAMPLER_DESC2>(StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2>* pObj,
+                                                          util::ToStringFlags toStringFlags,
+                                                          uint32_t            tabCount,
+                                                          uint32_t            tabSize)
+{
+    // TODO : Unimplemented
+    return "null";
 }
 
 GFXRECON_END_NAMESPACE(decode)

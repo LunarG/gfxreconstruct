@@ -55,7 +55,7 @@ GENERATE_TARGETS = [
     'generated_dx12_struct_to_string.cpp',
 ]
 
-DX12_SOURCE_LIST = [
+DXGI_SOURCE_LIST = [
     'shared\\dxgi.h',
     'shared\\dxgi1_2.h',
     'shared\\dxgi1_3.h',
@@ -65,9 +65,12 @@ DX12_SOURCE_LIST = [
     'shared\\dxgicommon.h',
     'shared\\dxgiformat.h',
     'shared\\dxgitype.h',
-    'um\\d3d12.h',
-    'um\\d3dcommon.h',
-    'um\\d3d12sdklayers.h',
+]
+
+DX12_SOURCE_LIST = [
+    'd3d12.h',
+    'd3dcommon.h',
+    'd3d12sdklayers.h',
 ]
 
 # The second value is required data. It only generates required data.
@@ -119,13 +122,19 @@ if __name__ == '__main__':
     from dx12_generators.dx12_CppHeaderParser import Dx12CppHeader, Dx12CppClass
 
     header_dict = {}
-    for source in DX12_SOURCE_LIST:
+    for source in DXGI_SOURCE_LIST:
         source_file = os.path.join(
             WINDOWS_SDK_DIR + 'Include\\' + WINDOWS_SDK_VERSION, source
         )
         print('Parsing', source_file)
         header_dict[source[source.find('\\') + 1:]
                     ] = Dx12CppHeader(source_file)
+
+    for source in DX12_SOURCE_LIST:
+        source_file = os.path.join('..', '..', 'external', 'AgilitySDK', 'inc', source)
+
+        print('Parsing', source_file)
+        header_dict[source[source.find('\\') + 1:]] = Dx12CppHeader(source_file)
 
     for source in WINAPI_SOURCE_LIST:
         source_file = os.path.join(

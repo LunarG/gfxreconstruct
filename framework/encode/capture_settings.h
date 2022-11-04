@@ -39,9 +39,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 class CaptureSettings
 {
-  private:
-    const static char kDefaultCaptureFileName[];
-
   public:
     enum MemoryTrackingMode
     {
@@ -61,6 +58,8 @@ class CaptureSettings
         uint32_t first{ 0 }; // First frame to capture.
         uint32_t total{ 0 }; // Total number of frames to capture.
     };
+
+    const static char kDefaultCaptureFileName[];
 
     struct TraceSettings
     {

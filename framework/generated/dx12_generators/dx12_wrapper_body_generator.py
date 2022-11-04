@@ -254,7 +254,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             data = []
             if not refiid_value:
-                if ((value.base_type == 'GUID') and (value.name != "rclsid") and (value.name != "CreatorID")):
+                if ((value.base_type == 'GUID') and (value.name != "rclsid") and (value.name != "CreatorID") and (value.name != "clsid")):
                     refiid_value = value
                 elif (
                     self.is_class(value)

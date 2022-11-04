@@ -79,6 +79,10 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_RENDER_TARGET_DESC* value, HandleUnwr
 
 void UnwrapStructObjects(D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructObjects(D3D12_TEXTURE_BARRIER* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructObjects(D3D12_BUFFER_BARRIER* value, HandleUnwrapMemory* unwrap_memory);
+
 template <typename T>
 T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {

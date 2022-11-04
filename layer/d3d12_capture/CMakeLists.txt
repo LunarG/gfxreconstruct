@@ -30,6 +30,12 @@ add_library(d3d12_capture SHARED "")
 target_sources(d3d12_capture PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def)
-target_include_directories(d3d12_capture PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+
+target_include_directories(d3d12_capture 
+                           PUBLIC 
+                               ${CMAKE_BINARY_DIR} 
+                               ${CMAKE_SOURCE_DIR}
+                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+
 target_link_libraries(d3d12_capture gfxrecon_encode gfxrecon_format gfxrecon_util platform_specific)
 common_build_directives(d3d12_capture)

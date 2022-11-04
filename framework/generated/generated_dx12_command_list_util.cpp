@@ -660,6 +660,14 @@ void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12CommandList_Wr
 }
 
 
+void Track_ID3D12GraphicsCommandList7_Barrier(ID3D12CommandList_Wrapper* wrapper, UINT32 NumBarrierGroups, const D3D12_BARRIER_GROUP * pBarrierGroups)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+}
+
+
 void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
@@ -673,6 +681,30 @@ void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12CommandList_Wrapper
 
 
 void Track_ID3D12DebugCommandList_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+    if(pResource != nullptr)
+    {
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pResource));
+    }
+}
+
+
+void Track_ID3D12DebugCommandList3_AssertResourceAccess(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, D3D12_BARRIER_ACCESS Access)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+    if(pResource != nullptr)
+    {
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pResource));
+    }
+}
+
+
+void Track_ID3D12DebugCommandList3_AssertTextureLayout(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, D3D12_BARRIER_LAYOUT Layout)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();

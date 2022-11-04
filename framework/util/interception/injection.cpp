@@ -25,6 +25,8 @@
 #include "util/logging.h"
 #include "util/options.h"
 
+#include <algorithm>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(interception)

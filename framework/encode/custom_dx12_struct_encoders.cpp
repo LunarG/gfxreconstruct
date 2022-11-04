@@ -668,6 +668,30 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
         case D3D12_FEATURE_D3D12_OPTIONS7:
             EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS7*>(feature_data));
             break;
+        case D3D12_FEATURE_D3D12_OPTIONS8:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS8*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS9:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS9*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS10:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS10*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS11:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS11*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS12:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS12*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS13:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS13*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS14:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS14*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS15:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS15*>(feature_data));
+            break;
         case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
             EncodeStructPtr(encoder,
                             reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT*>(feature_data));
@@ -768,6 +792,42 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_AS
     EncodeStructPtr(encoder, value.pSubobjectToAssociate);
     encoder->EncodeUInt32Value(value.NumExports);
     encoder->EncodeWStringArray(value.pExports, value.NumExports);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_GROUP& value)
+{
+    encoder->EncodeEnumValue(value.Type);
+    encoder->EncodeUInt32Value(value.NumBarriers);
+
+    switch (value.Type)
+    {
+        case D3D12_BARRIER_TYPE_GLOBAL:
+            EncodeStructArray(encoder, value.pGlobalBarriers, value.NumBarriers);
+            break;
+        case D3D12_BARRIER_TYPE_TEXTURE:
+            EncodeStructArray(encoder, value.pTextureBarriers, value.NumBarriers);
+            break;
+        case D3D12_BARRIER_TYPE_BUFFER:
+            EncodeStructArray(encoder, value.pBufferBarriers, value.NumBarriers);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLER_DESC2& value)
+{
+    encoder->EncodeEnumValue(value.Filter);
+    encoder->EncodeEnumValue(value.AddressU);
+    encoder->EncodeEnumValue(value.AddressV);
+    encoder->EncodeEnumValue(value.AddressW);
+    encoder->EncodeFloatValue(value.MipLODBias);
+    encoder->EncodeUInt32Value(value.MaxAnisotropy);
+    encoder->EncodeEnumValue(value.ComparisonFunc);
+    encoder->EncodeFloatArray(value.FloatBorderColor, 4);
+    encoder->EncodeFloatValue(value.MinLOD);
+    encoder->EncodeFloatValue(value.MaxLOD);
+    encoder->EncodeEnumValue(value.Flags);
 }
 
 GFXRECON_END_NAMESPACE(encode)

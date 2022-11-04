@@ -101,12 +101,19 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             # and this pointer is nullptr, ie: *pNumSubresourceTilings,
             # protection is added here to treat the nullptr as 0 and
             # pass 0 to EncodeStructArray().
-            if (value.array_length.find('*') != -1 and value.array_length.find('/') == -1):
+            if (
+                value.array_length.find('*') != -1
+                and value.array_length.find('/') == -1
+            ):
                 array_length_list = value.array_length.strip().split('*')
-                if(array_length_list[0]=='' and len(array_length_list) == 2):
+                if (
+                    array_length_list[0] == '' and len(array_length_list) == 2
+                ):
                     # Skip non-pointer parameter, ie: NumSamplesPerPixel*NumPixels in
                     # id3d12graphicscommandlist1::setsamplepositions
-                    value.array_length = '((' + array_length_list[1].strip() +' == nullptr) ? 0 : *' + array_length_list[1].strip() + ')'
+                    value.array_length = '((' + array_length_list[1].strip(
+                    ) + ' == nullptr) ? 0 : *' + array_length_list[1].strip(
+                    ) + ')'
             return 'EncodeStructArray(encoder, {}{}, {}{}{});'.format(#target
                 write_parameter_value, value.name, write_parameter_value,
                 value.array_length, omit_output_data
@@ -439,7 +446,11 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
             data = []
             if not refiid_value:
-                if ((value.base_type == 'GUID') and (value.name != "rclsid") and (value.name != "CreatorID")):
+                if (
+                    (value.base_type == 'GUID') and (value.name != "rclsid")
+                    and (value.name != "CreatorID")
+                    and (value.name != "clsid")
+                ):
                     refiid_value = value
                 elif (
                     self.is_class(value)

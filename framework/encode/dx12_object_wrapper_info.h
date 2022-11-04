@@ -488,6 +488,15 @@ struct ID3D12SharingContractInfo : public DxWrapperInfo
 struct ID3D12InfoQueueInfo : public DxWrapperInfo
 {};
 
+struct ID3D12VirtualizationGuestDeviceInfo : public DxWrapperInfo
+{};
+
+struct ID3D12DeviceFactoryInfo : public DxWrapperInfo
+{};
+
+struct ID3D12DeviceConfigurationInfo : public DxWrapperInfo
+{};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

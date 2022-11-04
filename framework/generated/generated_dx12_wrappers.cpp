@@ -134,10 +134,16 @@ ID3D12ShaderCacheSession_Wrapper::ObjectMap ID3D12ShaderCacheSession_Wrapper::ob
 std::mutex ID3D12ShaderCacheSession_Wrapper::object_map_lock_;
 ID3D12Device_Wrapper::ObjectMap ID3D12Device_Wrapper::object_map_;
 std::mutex ID3D12Device_Wrapper::object_map_lock_;
+ID3D12VirtualizationGuestDevice_Wrapper::ObjectMap ID3D12VirtualizationGuestDevice_Wrapper::object_map_;
+std::mutex ID3D12VirtualizationGuestDevice_Wrapper::object_map_lock_;
 ID3D12Tools_Wrapper::ObjectMap ID3D12Tools_Wrapper::object_map_;
 std::mutex ID3D12Tools_Wrapper::object_map_lock_;
 ID3D12SDKConfiguration_Wrapper::ObjectMap ID3D12SDKConfiguration_Wrapper::object_map_;
 std::mutex ID3D12SDKConfiguration_Wrapper::object_map_lock_;
+ID3D12DeviceFactory_Wrapper::ObjectMap ID3D12DeviceFactory_Wrapper::object_map_;
+std::mutex ID3D12DeviceFactory_Wrapper::object_map_lock_;
+ID3D12DeviceConfiguration_Wrapper::ObjectMap ID3D12DeviceConfiguration_Wrapper::object_map_;
+std::mutex ID3D12DeviceConfiguration_Wrapper::object_map_lock_;
 ID3D12CommandList_Wrapper::ObjectMap ID3D12CommandList_Wrapper::object_map_;
 std::mutex ID3D12CommandList_Wrapper::object_map_lock_;
 ID3D10Blob_Wrapper::ObjectMap ID3D10Blob_Wrapper::object_map_;
@@ -17883,6 +17889,46 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBrea
     manager->DecrementCallScope();
 }
 
+ID3D12DeviceRemovedExtendedDataSettings2_Wrapper::ID3D12DeviceRemovedExtendedDataSettings2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings2_Wrapper::UseMarkersOnlyAutoBreadcrumbs(
+    BOOL MarkersOnly)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings2_UseMarkersOnlyAutoBreadcrumbs>::Dispatch(
+            manager,
+            this,
+            MarkersOnly);
+
+        GetWrappedObjectAs<ID3D12DeviceRemovedExtendedDataSettings2>()->UseMarkersOnlyAutoBreadcrumbs(
+            MarkersOnly);
+
+        Encode_ID3D12DeviceRemovedExtendedDataSettings2_UseMarkersOnlyAutoBreadcrumbs(
+            this,
+            MarkersOnly);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings2_UseMarkersOnlyAutoBreadcrumbs>::Dispatch(
+            manager,
+            this,
+            MarkersOnly);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12DeviceRemovedExtendedDataSettings2>()->UseMarkersOnlyAutoBreadcrumbs(
+            MarkersOnly);
+    }
+
+    manager->DecrementCallScope();
+}
+
 ID3D12DeviceRemovedExtendedData_Wrapper::ID3D12DeviceRemovedExtendedData_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12DeviceRemovedExtendedDataInfo>();
@@ -19822,6 +19868,465 @@ HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::CreateCommandQueue1(
     return result;
 }
 
+ID3D12Device10_Wrapper::ID3D12Device10_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Device9_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateCommittedResource3(
+    const D3D12_HEAP_PROPERTIES* pHeapProperties,
+    D3D12_HEAP_FLAGS HeapFlags,
+    const D3D12_RESOURCE_DESC1* pDesc,
+    D3D12_BARRIER_LAYOUT InitialLayout,
+    const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+    ID3D12ProtectedResourceSession* pProtectedSession,
+    UINT32 NumCastableFormats,
+    DXGI_FORMAT* pCastableFormats,
+    REFIID riidResource,
+    void** ppvResource)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateCommittedResource3>::Dispatch(
+            manager,
+            this,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riidResource,
+            ppvResource);
+
+        result = GetWrappedObjectAs<ID3D12Device10>()->CreateCommittedResource3(
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(pProtectedSession),
+            NumCastableFormats,
+            pCastableFormats,
+            riidResource,
+            ppvResource);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riidResource, ppvResource, nullptr);
+        }
+
+        Encode_ID3D12Device10_CreateCommittedResource3(
+            this,
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riidResource,
+            ppvResource);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateCommittedResource3>::Dispatch(
+            manager,
+            this,
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riidResource,
+            ppvResource);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Device10>()->CreateCommittedResource3(
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riidResource,
+            ppvResource);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreatePlacedResource2(
+    ID3D12Heap* pHeap,
+    UINT64 HeapOffset,
+    const D3D12_RESOURCE_DESC1* pDesc,
+    D3D12_BARRIER_LAYOUT InitialLayout,
+    const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+    UINT32 NumCastableFormats,
+    DXGI_FORMAT* pCastableFormats,
+    REFIID riid,
+    void** ppvResource)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device10_CreatePlacedResource2>::Dispatch(
+            manager,
+            this,
+            pHeap,
+            HeapOffset,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+
+        result = GetWrappedObjectAs<ID3D12Device10>()->CreatePlacedResource2(
+            encode::GetWrappedObject<ID3D12Heap>(pHeap),
+            HeapOffset,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvResource, nullptr);
+        }
+
+        Encode_ID3D12Device10_CreatePlacedResource2(
+            this,
+            result,
+            pHeap,
+            HeapOffset,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device10_CreatePlacedResource2>::Dispatch(
+            manager,
+            this,
+            result,
+            pHeap,
+            HeapOffset,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Device10>()->CreatePlacedResource2(
+            pHeap,
+            HeapOffset,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateReservedResource2(
+    const D3D12_RESOURCE_DESC* pDesc,
+    D3D12_BARRIER_LAYOUT InitialLayout,
+    const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+    ID3D12ProtectedResourceSession* pProtectedSession,
+    UINT32 NumCastableFormats,
+    DXGI_FORMAT* pCastableFormats,
+    REFIID riid,
+    void** ppvResource)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateReservedResource2>::Dispatch(
+            manager,
+            this,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+
+        result = GetWrappedObjectAs<ID3D12Device10>()->CreateReservedResource2(
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(pProtectedSession),
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvResource, nullptr);
+        }
+
+        Encode_ID3D12Device10_CreateReservedResource2(
+            this,
+            result,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateReservedResource2>::Dispatch(
+            manager,
+            this,
+            result,
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Device10>()->CreateReservedResource2(
+            pDesc,
+            InitialLayout,
+            pOptimizedClearValue,
+            pProtectedSession,
+            NumCastableFormats,
+            pCastableFormats,
+            riid,
+            ppvResource);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D12Device11_Wrapper::ID3D12Device11_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Device10_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12Device11_Wrapper::CreateSampler2(
+    const D3D12_SAMPLER_DESC2* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device11_CreateSampler2>::Dispatch(
+            manager,
+            this,
+            pDesc,
+            DestDescriptor);
+
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
+        GetWrappedObjectAs<ID3D12Device11>()->CreateSampler2(
+            pDesc,
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
+
+        Encode_ID3D12Device11_CreateSampler2(
+            this,
+            pDesc,
+            DestDescriptor);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device11_CreateSampler2>::Dispatch(
+            manager,
+            this,
+            pDesc,
+            DestDescriptor);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12Device11>()->CreateSampler2(
+            pDesc,
+            DestDescriptor);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12VirtualizationGuestDevice_Wrapper::ID3D12VirtualizationGuestDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12VirtualizationGuestDeviceInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12VirtualizationGuestDevice_Wrapper::~ID3D12VirtualizationGuestDevice_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12VirtualizationGuestDevice>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12VirtualizationGuestDevice_Wrapper* ID3D12VirtualizationGuestDevice_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12VirtualizationGuestDevice_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12VirtualizationGuestDevice_Wrapper::ShareWithHost(
+    ID3D12DeviceChild* pObject,
+    HANDLE* pHandle)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost>::Dispatch(
+            manager,
+            this,
+            pObject,
+            pHandle);
+
+        result = GetWrappedObjectAs<ID3D12VirtualizationGuestDevice>()->ShareWithHost(
+            encode::GetWrappedObject<ID3D12DeviceChild>(pObject),
+            pHandle);
+
+        Encode_ID3D12VirtualizationGuestDevice_ShareWithHost(
+            this,
+            result,
+            pObject,
+            pHandle);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost>::Dispatch(
+            manager,
+            this,
+            result,
+            pObject,
+            pHandle);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12VirtualizationGuestDevice>()->ShareWithHost(
+            pObject,
+            pHandle);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12VirtualizationGuestDevice_Wrapper::CreateFenceFd(
+    ID3D12Fence* pFence,
+    UINT64 FenceValue,
+    int* pFenceFd)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_CreateFenceFd>::Dispatch(
+            manager,
+            this,
+            pFence,
+            FenceValue,
+            pFenceFd);
+
+        result = GetWrappedObjectAs<ID3D12VirtualizationGuestDevice>()->CreateFenceFd(
+            encode::GetWrappedObject<ID3D12Fence>(pFence),
+            FenceValue,
+            pFenceFd);
+
+        Encode_ID3D12VirtualizationGuestDevice_CreateFenceFd(
+            this,
+            result,
+            pFence,
+            FenceValue,
+            pFenceFd);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_CreateFenceFd>::Dispatch(
+            manager,
+            this,
+            result,
+            pFence,
+            FenceValue,
+            pFenceFd);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12VirtualizationGuestDevice>()->CreateFenceFd(
+            pFence,
+            FenceValue,
+            pFenceFd);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12Tools_Wrapper::ID3D12Tools_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12ToolsInfo>();
@@ -19982,6 +20487,688 @@ HRESULT STDMETHODCALLTYPE ID3D12SDKConfiguration_Wrapper::SetSDKVersion(
     return result;
 }
 
+ID3D12SDKConfiguration1_Wrapper::ID3D12SDKConfiguration1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12SDKConfiguration_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12SDKConfiguration1_Wrapper::CreateDeviceFactory(
+    UINT SDKVersion,
+    LPCSTR SDKPath,
+    REFIID riid,
+    void** ppvFactory)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration1_CreateDeviceFactory>::Dispatch(
+            manager,
+            this,
+            SDKVersion,
+            SDKPath,
+            riid,
+            ppvFactory);
+
+        result = GetWrappedObjectAs<ID3D12SDKConfiguration1>()->CreateDeviceFactory(
+            SDKVersion,
+            SDKPath,
+            riid,
+            ppvFactory);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvFactory, nullptr);
+        }
+
+        Encode_ID3D12SDKConfiguration1_CreateDeviceFactory(
+            this,
+            result,
+            SDKVersion,
+            SDKPath,
+            riid,
+            ppvFactory);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration1_CreateDeviceFactory>::Dispatch(
+            manager,
+            this,
+            result,
+            SDKVersion,
+            SDKPath,
+            riid,
+            ppvFactory);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12SDKConfiguration1>()->CreateDeviceFactory(
+            SDKVersion,
+            SDKPath,
+            riid,
+            ppvFactory);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+void STDMETHODCALLTYPE ID3D12SDKConfiguration1_Wrapper::FreeUnusedSDKs()
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration1_FreeUnusedSDKs>::Dispatch(
+            manager,
+            this);
+
+        GetWrappedObjectAs<ID3D12SDKConfiguration1>()->FreeUnusedSDKs();
+
+        Encode_ID3D12SDKConfiguration1_FreeUnusedSDKs(
+            this);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration1_FreeUnusedSDKs>::Dispatch(
+            manager,
+            this);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12SDKConfiguration1>()->FreeUnusedSDKs();
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12DeviceFactory_Wrapper::ID3D12DeviceFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12DeviceFactoryInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12DeviceFactory_Wrapper::~ID3D12DeviceFactory_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DeviceFactory>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12DeviceFactory_Wrapper* ID3D12DeviceFactory_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12DeviceFactory_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::InitializeFromGlobalState()
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_InitializeFromGlobalState>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->InitializeFromGlobalState();
+
+        Encode_ID3D12DeviceFactory_InitializeFromGlobalState(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_InitializeFromGlobalState>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->InitializeFromGlobalState();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::ApplyToGlobalState()
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_ApplyToGlobalState>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->ApplyToGlobalState();
+
+        Encode_ID3D12DeviceFactory_ApplyToGlobalState(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_ApplyToGlobalState>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->ApplyToGlobalState();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::SetFlags(
+    D3D12_DEVICE_FACTORY_FLAGS flags)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_SetFlags>::Dispatch(
+            manager,
+            this,
+            flags);
+
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->SetFlags(
+            flags);
+
+        Encode_ID3D12DeviceFactory_SetFlags(
+            this,
+            result,
+            flags);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_SetFlags>::Dispatch(
+            manager,
+            this,
+            result,
+            flags);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->SetFlags(
+            flags);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+D3D12_DEVICE_FACTORY_FLAGS STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::GetFlags()
+{
+    D3D12_DEVICE_FACTORY_FLAGS result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_GetFlags>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->GetFlags();
+
+        Encode_ID3D12DeviceFactory_GetFlags(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_GetFlags>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->GetFlags();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::GetConfigurationInterface(
+    REFCLSID clsid,
+    REFIID iid,
+    void** ppv)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_GetConfigurationInterface>::Dispatch(
+            manager,
+            this,
+            clsid,
+            iid,
+            ppv);
+
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->GetConfigurationInterface(
+            clsid,
+            iid,
+            ppv);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(iid, ppv, nullptr);
+        }
+
+        Encode_ID3D12DeviceFactory_GetConfigurationInterface(
+            this,
+            result,
+            clsid,
+            iid,
+            ppv);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_GetConfigurationInterface>::Dispatch(
+            manager,
+            this,
+            result,
+            clsid,
+            iid,
+            ppv);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->GetConfigurationInterface(
+            clsid,
+            iid,
+            ppv);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::EnableExperimentalFeatures(
+    UINT NumFeatures,
+    const IID* pIIDs,
+    void* pConfigurationStructs,
+    UINT* pConfigurationStructSizes)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_EnableExperimentalFeatures>::Dispatch(
+            manager,
+            this,
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
+
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->EnableExperimentalFeatures(
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
+
+        Encode_ID3D12DeviceFactory_EnableExperimentalFeatures(
+            this,
+            result,
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_EnableExperimentalFeatures>::Dispatch(
+            manager,
+            this,
+            result,
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->EnableExperimentalFeatures(
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::CreateDevice(
+    IUnknown* adapter,
+    D3D_FEATURE_LEVEL FeatureLevel,
+    REFIID riid,
+    void** ppvDevice)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_CreateDevice>::Dispatch(
+            manager,
+            this,
+            adapter,
+            FeatureLevel,
+            riid,
+            ppvDevice);
+
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->CreateDevice(
+            encode::GetWrappedObject<IUnknown>(adapter),
+            FeatureLevel,
+            riid,
+            ppvDevice);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvDevice, nullptr);
+        }
+
+        Encode_ID3D12DeviceFactory_CreateDevice(
+            this,
+            result,
+            adapter,
+            FeatureLevel,
+            riid,
+            ppvDevice);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_CreateDevice>::Dispatch(
+            manager,
+            this,
+            result,
+            adapter,
+            FeatureLevel,
+            riid,
+            ppvDevice);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceFactory>()->CreateDevice(
+            adapter,
+            FeatureLevel,
+            riid,
+            ppvDevice);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D12DeviceConfiguration_Wrapper::ID3D12DeviceConfiguration_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12DeviceConfigurationInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12DeviceConfiguration_Wrapper::~ID3D12DeviceConfiguration_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DeviceConfiguration>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12DeviceConfiguration_Wrapper* ID3D12DeviceConfiguration_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12DeviceConfiguration_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+D3D12_DEVICE_CONFIGURATION_DESC STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::GetDesc()
+{
+    D3D12_DEVICE_CONFIGURATION_DESC result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetDesc>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->GetDesc();
+
+        Encode_ID3D12DeviceConfiguration_GetDesc(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetDesc>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->GetDesc();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::GetEnabledExperimentalFeatures(
+    GUID* pGuids,
+    UINT NumGuids)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures>::Dispatch(
+            manager,
+            this,
+            pGuids,
+            NumGuids);
+
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->GetEnabledExperimentalFeatures(
+            pGuids,
+            NumGuids);
+
+        Encode_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures(
+            this,
+            result,
+            pGuids,
+            NumGuids);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures>::Dispatch(
+            manager,
+            this,
+            result,
+            pGuids,
+            NumGuids);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->GetEnabledExperimentalFeatures(
+            pGuids,
+            NumGuids);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::SerializeVersionedRootSignature(
+    const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pDesc,
+    ID3DBlob** ppResult,
+    ID3DBlob** ppError)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature>::Dispatch(
+            manager,
+            this,
+            pDesc,
+            ppResult,
+            ppError);
+
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->SerializeVersionedRootSignature(
+            pDesc,
+            ppResult,
+            ppError);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppResult), nullptr);
+            WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppError), nullptr);
+        }
+
+        Encode_ID3D12DeviceConfiguration_SerializeVersionedRootSignature(
+            this,
+            result,
+            pDesc,
+            ppResult,
+            ppError);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature>::Dispatch(
+            manager,
+            this,
+            result,
+            pDesc,
+            ppResult,
+            ppError);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->SerializeVersionedRootSignature(
+            pDesc,
+            ppResult,
+            ppError);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::CreateVersionedRootSignatureDeserializer(
+    const void* pBlob,
+    SIZE_T Size,
+    REFIID riid,
+    void** ppvDeserializer)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer>::Dispatch(
+            manager,
+            this,
+            pBlob,
+            Size,
+            riid,
+            ppvDeserializer);
+
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->CreateVersionedRootSignatureDeserializer(
+            pBlob,
+            Size,
+            riid,
+            ppvDeserializer);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvDeserializer, nullptr);
+        }
+
+        Encode_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer(
+            this,
+            result,
+            pBlob,
+            Size,
+            riid,
+            ppvDeserializer);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer>::Dispatch(
+            manager,
+            this,
+            result,
+            pBlob,
+            Size,
+            riid,
+            ppvDeserializer);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceConfiguration>()->CreateVersionedRootSignatureDeserializer(
+            pBlob,
+            Size,
+            riid,
+            ppvDeserializer);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12GraphicsCommandList5_Wrapper::ID3D12GraphicsCommandList5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12GraphicsCommandList4_Wrapper(riid, object, resources, destructor)
 {
 }
@@ -20111,6 +21298,100 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
             ThreadGroupCountX,
             ThreadGroupCountY,
             ThreadGroupCountZ);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12GraphicsCommandList7_Wrapper::ID3D12GraphicsCommandList7_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12GraphicsCommandList6_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12GraphicsCommandList7_Wrapper::Barrier(
+    UINT32 NumBarrierGroups,
+    const D3D12_BARRIER_GROUP* pBarrierGroups)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier>::Dispatch(
+            manager,
+            this,
+            NumBarrierGroups,
+            pBarrierGroups);
+
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
+        GetWrappedObjectAs<ID3D12GraphicsCommandList7>()->Barrier(
+            NumBarrierGroups,
+            UnwrapStructArrayObjects(pBarrierGroups, NumBarrierGroups, unwrap_memory));
+
+        Encode_ID3D12GraphicsCommandList7_Barrier(
+            this,
+            NumBarrierGroups,
+            pBarrierGroups);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier>::Dispatch(
+            manager,
+            this,
+            NumBarrierGroups,
+            pBarrierGroups);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12GraphicsCommandList7>()->Barrier(
+            NumBarrierGroups,
+            pBarrierGroups);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12GraphicsCommandList8_Wrapper::ID3D12GraphicsCommandList8_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12GraphicsCommandList7_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12GraphicsCommandList8_Wrapper::OMSetFrontAndBackStencilRef(
+    UINT FrontStencilRef,
+    UINT BackStencilRef)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef>::Dispatch(
+            manager,
+            this,
+            FrontStencilRef,
+            BackStencilRef);
+
+        GetWrappedObjectAs<ID3D12GraphicsCommandList8>()->OMSetFrontAndBackStencilRef(
+            FrontStencilRef,
+            BackStencilRef);
+
+        Encode_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef(
+            this,
+            FrontStencilRef,
+            BackStencilRef);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef>::Dispatch(
+            manager,
+            this,
+            FrontStencilRef,
+            BackStencilRef);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12GraphicsCommandList8>()->OMSetFrontAndBackStencilRef(
+            FrontStencilRef,
+            BackStencilRef);
     }
 
     manager->DecrementCallScope();
@@ -20750,6 +22031,46 @@ void STDMETHODCALLTYPE ID3D12Debug5_Wrapper::SetEnableAutoName(
     manager->DecrementCallScope();
 }
 
+ID3D12Debug6_Wrapper::ID3D12Debug6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Debug5_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12Debug6_Wrapper::SetForceLegacyBarrierValidation(
+    BOOL Enable)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug6_SetForceLegacyBarrierValidation>::Dispatch(
+            manager,
+            this,
+            Enable);
+
+        GetWrappedObjectAs<ID3D12Debug6>()->SetForceLegacyBarrierValidation(
+            Enable);
+
+        Encode_ID3D12Debug6_SetForceLegacyBarrierValidation(
+            this,
+            Enable);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Debug6_SetForceLegacyBarrierValidation>::Dispatch(
+            manager,
+            this,
+            Enable);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12Debug6>()->SetForceLegacyBarrierValidation(
+            Enable);
+    }
+
+    manager->DecrementCallScope();
+}
+
 ID3D12DebugDevice1_Wrapper::ID3D12DebugDevice1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12DebugDevice1Info>();
@@ -21246,6 +22567,106 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandQueue_Wrapper::AssertResourceState(
     return result;
 }
 
+ID3D12DebugCommandQueue1_Wrapper::ID3D12DebugCommandQueue1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DebugCommandQueue_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12DebugCommandQueue1_Wrapper::AssertResourceAccess(
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_ACCESS Access)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandQueue1_AssertResourceAccess>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Access);
+
+        GetWrappedObjectAs<ID3D12DebugCommandQueue1>()->AssertResourceAccess(
+            encode::GetWrappedObject<ID3D12Resource>(pResource),
+            Subresource,
+            Access);
+
+        Encode_ID3D12DebugCommandQueue1_AssertResourceAccess(
+            this,
+            pResource,
+            Subresource,
+            Access);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DebugCommandQueue1_AssertResourceAccess>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Access);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12DebugCommandQueue1>()->AssertResourceAccess(
+            pResource,
+            Subresource,
+            Access);
+    }
+
+    manager->DecrementCallScope();
+}
+
+void STDMETHODCALLTYPE ID3D12DebugCommandQueue1_Wrapper::AssertTextureLayout(
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_LAYOUT Layout)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandQueue1_AssertTextureLayout>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Layout);
+
+        GetWrappedObjectAs<ID3D12DebugCommandQueue1>()->AssertTextureLayout(
+            encode::GetWrappedObject<ID3D12Resource>(pResource),
+            Subresource,
+            Layout);
+
+        Encode_ID3D12DebugCommandQueue1_AssertTextureLayout(
+            this,
+            pResource,
+            Subresource,
+            Layout);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DebugCommandQueue1_AssertTextureLayout>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Layout);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12DebugCommandQueue1>()->AssertTextureLayout(
+            pResource,
+            Subresource,
+            Layout);
+    }
+
+    manager->DecrementCallScope();
+}
+
 ID3D12DebugCommandList1_Wrapper::ID3D12DebugCommandList1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12DebugCommandList1Info>();
@@ -21690,6 +23111,106 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList2_Wrapper::GetDebugParameter(
     manager->DecrementCallScope();
 
     return result;
+}
+
+ID3D12DebugCommandList3_Wrapper::ID3D12DebugCommandList3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DebugCommandList2_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12DebugCommandList3_Wrapper::AssertResourceAccess(
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_ACCESS Access)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList3_AssertResourceAccess>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Access);
+
+        GetWrappedObjectAs<ID3D12DebugCommandList3>()->AssertResourceAccess(
+            encode::GetWrappedObject<ID3D12Resource>(pResource),
+            Subresource,
+            Access);
+
+        Encode_ID3D12DebugCommandList3_AssertResourceAccess(
+            this,
+            pResource,
+            Subresource,
+            Access);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList3_AssertResourceAccess>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Access);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12DebugCommandList3>()->AssertResourceAccess(
+            pResource,
+            Subresource,
+            Access);
+    }
+
+    manager->DecrementCallScope();
+}
+
+void STDMETHODCALLTYPE ID3D12DebugCommandList3_Wrapper::AssertTextureLayout(
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    D3D12_BARRIER_LAYOUT Layout)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto state_lock = manager->AcquireSharedStateLock();
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList3_AssertTextureLayout>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Layout);
+
+        GetWrappedObjectAs<ID3D12DebugCommandList3>()->AssertTextureLayout(
+            encode::GetWrappedObject<ID3D12Resource>(pResource),
+            Subresource,
+            Layout);
+
+        Encode_ID3D12DebugCommandList3_AssertTextureLayout(
+            this,
+            pResource,
+            Subresource,
+            Layout);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList3_AssertTextureLayout>::Dispatch(
+            manager,
+            this,
+            pResource,
+            Subresource,
+            Layout);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12DebugCommandList3>()->AssertTextureLayout(
+            pResource,
+            Subresource,
+            Layout);
+    }
+
+    manager->DecrementCallScope();
 }
 
 ID3D12SharingContract_Wrapper::ID3D12SharingContract_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)

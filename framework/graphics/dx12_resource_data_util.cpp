@@ -26,6 +26,7 @@
 #include "util/logging.h"
 
 #include <inttypes.h>
+#include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)

@@ -34,7 +34,8 @@ SAL_TOKENS = [
     '_Out_writes_', '_Out_writes_all_', '_Out_writes_all_opt_',
     '_Out_writes_bytes_', '_Out_writes_bytes_opt_', '_Out_writes_bytes_to_',
     '_Out_writes_opt_', '_Out_writes_to_opt_',
-    '_Outptr_opt_result_bytebuffer_', '_Field_size_'
+    '_Outptr_opt_result_bytebuffer_', '_Field_size_', '_In_opt_count_',
+    '_In_count_'
 ]
 
 original_warning_print = CppHeaderParser.warning_print
@@ -110,17 +111,17 @@ class Dx12CppHeader(CppHeader):
         interface_scope = 0
         ignore_lines = False
         enum_scope = False
+        retval_param = False
 
         for line in lines:
+
             if 'DEFINE_ENUM_FLAG_OPERATORS(' in line:
                 continue
+            
             if interface_scope == 0:
                 source += line
                 enum_scope = line.startswith('typedef enum ')
-                if (
-                    line.startswith('#if') and
-                    ('!defined(CINTERFACE)' in line)
-                ) or enum_scope:
+                if (line.startswith('#if') and ('!defined(CINTERFACE)' in line)) or enum_scope:
                     interface_scope = 1
             else:
                 if enum_scope:
@@ -130,11 +131,25 @@ class Dx12CppHeader(CppHeader):
                 else:
                     if line.startswith('#if'):
                         interface_scope += 1
+                        
+                        if 'defined(_MSC_VER) || !defined(_WIN32)' in line:
+                            retval_param = True
+
                     elif line.startswith('#else'):
                         if interface_scope == 1:
                             ignore_lines = True
+
+                        if retval_param is True:
+                            ignore_lines = True
+
                     elif line.startswith('#endif'):
                         interface_scope -= 1
+
+                        if retval_param == True:
+                            ignore_lines = False
+
+                        retval_param = False
+
                         if interface_scope == 0:
                             ignore_lines = False
 
