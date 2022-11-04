@@ -62,6 +62,8 @@ struct HandleWrapper
     format::HandleId  handle_id{ format::kNullHandleId }; // Globally unique ID assigned to the handle by the layer.
     format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  create_parameters;
+
+    bool active{ false };
 };
 
 //
