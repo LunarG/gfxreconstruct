@@ -90,7 +90,8 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
-    current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false), debug_layer_(false),
+    current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
+    previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0)
 {}
 
@@ -282,7 +283,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     }
 
     if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty() &&
-        !trace_settings.trim_android_use_trigger)
+        trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kNotUsed)
     {
         // Use default kModeWrite capture mode.
         success = CreateCaptureFile(base_filename_);
@@ -313,13 +314,16 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
             }
         }
         // Check if trim is enabled by hot-key trigger at the first frame
-        else if (!trace_settings.trim_key.empty() || trace_settings.trim_android_use_trigger)
+        else if (!trace_settings.trim_key.empty() ||
+                 trace_settings.runtime_capture_trigger != CaptureSettings::RuntimeTriggerState::kNotUsed)
         {
-            trim_key_        = trace_settings.trim_key;
-            trim_key_frames_ = trace_settings.trim_key_frames;
+            trim_key_                       = trace_settings.trim_key;
+            trim_key_frames_                = trace_settings.trim_key_frames;
+            previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
 
             // Enable state tracking when hotkey pressed
-            if (IsTrimHotkeyPressed() || IsTrimEnvVarEnabled())
+            if (IsTrimHotkeyPressed() ||
+                trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled)
             {
                 capture_mode_         = kModeWriteAndTrack;
                 trim_key_first_frame_ = current_frame_;
@@ -459,13 +463,38 @@ bool CaptureManager::IsTrimHotkeyPressed()
     return hotkey_pressed;
 }
 
-bool CaptureManager::IsTrimEnvVarEnabled()
+CaptureSettings::RuntimeTriggerState CaptureManager::GetRuntimeTriggerState()
 {
     CaptureSettings settings;
-
     CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
 
-    return settings.GetTraceSettings().trim_android_trigger;
+    return settings.GetTraceSettings().runtime_capture_trigger;
+}
+
+bool CaptureManager::RuntimeTriggerEnabled()
+{
+    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+
+    bool result = (state == CaptureSettings::RuntimeTriggerState::kEnabled &&
+                   (previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kDisabled ||
+                    previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kNotUsed));
+
+    previous_runtime_trigger_state_ = state;
+
+    return result;
+}
+
+bool CaptureManager::RuntimeTriggerDisabled()
+{
+    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+
+    bool result = ((state == CaptureSettings::RuntimeTriggerState::kDisabled ||
+                    state == CaptureSettings::RuntimeTriggerState::kNotUsed) &&
+                   previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kEnabled);
+
+    previous_runtime_trigger_state_ = state;
+
+    return result;
 }
 
 void CaptureManager::CheckContinueCaptureForWriteMode()
@@ -510,7 +539,7 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
     }
     else if (IsTrimHotkeyPressed() ||
              ((trim_key_frames_ > 0) && (current_frame_ >= (trim_key_first_frame_ + trim_key_frames_))) ||
-             !IsTrimEnvVarEnabled())
+             RuntimeTriggerDisabled())
     {
         // Stop recording and close file.
         DeactivateTrimming();
@@ -538,7 +567,7 @@ void CaptureManager::CheckStartCaptureForTrackMode()
             }
         }
     }
-    else if (IsTrimHotkeyPressed() || IsTrimEnvVarEnabled())
+    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled())
     {
         bool success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
         if (success)

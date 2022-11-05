@@ -124,7 +124,11 @@ class CaptureManager
 
     bool IsTrimHotkeyPressed();
 
-    bool IsTrimEnvVarEnabled();
+    CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState();
+
+    bool RuntimeTriggerEnabled();
+
+    bool RuntimeTriggerDisabled();
 
     void WriteDisplayMessageCmd(const char* message);
 
@@ -298,6 +302,7 @@ class CaptureManager
     uint32_t                                current_frame_;
     CaptureMode                             capture_mode_;
     bool                                    previous_hotkey_state_;
+    CaptureSettings::RuntimeTriggerState    previous_runtime_trigger_state_;
     bool                                    debug_layer_;
     bool                                    debug_device_lost_;
     bool                                    screenshots_enabled_;
