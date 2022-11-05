@@ -116,7 +116,7 @@ ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize
 
 inline void FieldToString(std::stringstream& strStrm,
                           bool               firstField,
-                          const std::string& fieldName,
+                          const char*        fieldName,
                           ToStringFlags      toStringFlags,
                           uint32_t           tabCount,
                           uint32_t           tabSize,
