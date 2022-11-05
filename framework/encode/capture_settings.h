@@ -56,6 +56,16 @@ class CaptureSettings
         kPageGuard = 2
     };
 
+    enum RuntimeTriggerState
+    {
+        // Property for trimmed capture not set at all.
+        kNotUsed = 0,
+        // Property for trimmed capture set to false.
+        kEnabled = 1,
+        // Property for trimmed capture set to true.
+        kDisabled = 2
+    };
+
     struct TrimRange
     {
         uint32_t first{ 0 }; // First frame to capture.
@@ -74,8 +84,7 @@ class CaptureSettings
         std::vector<TrimRange>        trim_ranges;
         std::string                   trim_key;
         uint32_t                      trim_key_frames{ 0 };
-        bool                          trim_android_use_trigger{ false };
-        bool                          trim_android_trigger{ false };
+        RuntimeTriggerState           runtime_capture_trigger{ kNotUsed };
         int                           page_guard_signal_handler_watcher_max_restores{ 1 };
         bool                          page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                          page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
@@ -119,12 +128,10 @@ class CaptureSettings
     LoadSingleOptionEnvVar(OptionsMap* options, const std::string& environment_variable, const std::string& option_key);
 
     static void LoadOptionsEnvVar(OptionsMap* options);
-    static void LoadRunTimeOptionsEnvVar(OptionsMap* options);
 
     static void LoadOptionsFile(OptionsMap* options);
 
     static void ProcessOptions(OptionsMap* options, CaptureSettings* settings);
-    static void ProcessRunTimeOptions(OptionsMap* options, CaptureSettings* settings);
 
     static void ProcessLogOptions(OptionsMap* options, CaptureSettings* settings);
 
@@ -136,6 +143,9 @@ class CaptureSettings
 
     static MemoryTrackingMode ParseMemoryTrackingModeString(const std::string& value_string,
                                                             MemoryTrackingMode default_value);
+
+    static RuntimeTriggerState ParseAndroidRunTimeTrimState(const std::string&  value_string,
+                                                            RuntimeTriggerState default_value);
 
     static format::CompressionType ParseCompressionTypeString(const std::string&      value_string,
                                                               format::CompressionType default_value);
