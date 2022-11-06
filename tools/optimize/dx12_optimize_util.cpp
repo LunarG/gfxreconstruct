@@ -23,6 +23,7 @@
 
 #include "dx12_optimize_util.h"
 #include "block_skipping_file_processor.h"
+#include "dx12_resource_value_tracking_consumer.h"
 
 #include "dx12_file_optimizer.h"
 #include "decode/dx12_object_info.h"
@@ -44,36 +45,14 @@ struct Dx12OptimizationInfo
     decode::Dx12FillCommandResourceValueMap fill_command_resource_values;
 };
 
-class Dx12ResourceValueTrackingConsumer : public decode::Dx12ReplayConsumer
-{
-  public:
-    Dx12ResourceValueTrackingConsumer(std::shared_ptr<application::Application> application,
-                                      const decode::DxReplayOptions&            options) :
-        Dx12ReplayConsumer(application, options)
-    {
-        auto get_current_block_index_func = std::bind(static_cast<uint64_t (Dx12ReplayConsumerBase::*)(void)>(
-                                                          &Dx12ResourceValueTrackingConsumer::GetCurrentBlockIndex),
-                                                      this);
-        GetResourceValueMapper()->EnableResourceValueTracker(get_current_block_index_func);
-    }
-
-    void GetTrackedResourceValues(decode::Dx12FillCommandResourceValueMap& values)
-    {
-        // For already DXR-optimized file, Dx12ResourceValueMapper is nullptr
-        if (GetResourceValueMapper() != nullptr)
-        {
-            GetResourceValueMapper()->GetTrackedResourceValues(values);
-        }
-    }
-};
-
-void CreateResourceValueTrackingConsumer(decode::FileProcessor* file_processor,
-    std::unique_ptr<Dx12ResourceValueTrackingConsumer>& dx12_replay_consumer,
-    std::shared_ptr<application::Application>& application)
+void CreateResourceValueTrackingConsumer(
+    decode::FileProcessor*                                      file_processor,
+    std::unique_ptr<decode::Dx12ResourceValueTrackingConsumer>& dx12_replay_consumer,
+    std::shared_ptr<application::Application>&                  application)
 {
     // Dx12ReplayConsumer requires a windowed application.
     application = std::make_shared<gfxrecon::application::Application>("GFXReconstruct Optimizer - analyzing file",
-        file_processor);
+                                                                       file_processor);
     application->InitializeDx12WsiContext();
 
     // Use default replay options, except dcp.
@@ -81,7 +60,7 @@ void CreateResourceValueTrackingConsumer(decode::FileProcessor* file_processor,
     dx_replay_options.discard_cached_psos = true;
 
     // Create the replay consumer.
-    dx12_replay_consumer = std::make_unique<Dx12ResourceValueTrackingConsumer>(application, dx_replay_options);
+    dx12_replay_consumer = std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(application, dx_replay_options);
     dx12_replay_consumer->SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 }
 
@@ -193,8 +172,8 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
         decode::BlockSkippingFileProcessor        dxr_pass_file_processor;
         if (dxr_pass_file_processor.Initialize(input_filename))
         {
-            gfxrecon::decode::Dx12Decoder                      dxr_pass_decoder;
-            std::unique_ptr<Dx12ResourceValueTrackingConsumer> resource_value_tracking_consumer = nullptr;
+            gfxrecon::decode::Dx12Decoder                              dxr_pass_decoder;
+            std::unique_ptr<decode::Dx12ResourceValueTrackingConsumer> resource_value_tracking_consumer = nullptr;
             GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for DXR optimization information.",
                                    input_filename.c_str());
             CreateResourceValueTrackingConsumer(reinterpret_cast<decode::FileProcessor*>(&dxr_pass_file_processor),
