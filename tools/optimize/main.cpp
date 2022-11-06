@@ -60,10 +60,11 @@ extern "C"
 }
 #endif
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr,--dxr-experimental";
 
-const char kD3d12PsoRemoval[] = "--d3d12-pso-removal";
-const char kDx12OptimizeDxr[] = "--dxr";
+const char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
+const char kDx12OptimizeDxr[]             = "--dxr";
+const char kDx12OptimizeDxrExperimental[] = "--dxr-experimental";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -234,8 +235,14 @@ int main(int argc, const char** argv)
 
         // Parameter checking and API detection
         gfxrecon::decode::Dx12OptimizationOptions dx12_options;
-        dx12_options.optimize_dxr          = arg_parser.IsOptionSet(kDx12OptimizeDxr);
-        dx12_options.remove_redundant_psos = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+        dx12_options.optimize_dxr              = arg_parser.IsOptionSet(kDx12OptimizeDxr);
+        dx12_options.optimize_dxr_experimental = arg_parser.IsOptionSet(kDx12OptimizeDxrExperimental);
+        dx12_options.remove_redundant_psos     = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+
+        if (dx12_options.optimize_dxr_experimental)
+        {
+            dx12_options.optimize_dxr = true;
+        }
 
         // Automatic mode. User specified no options.
         if ((dx12_options.optimize_dxr == false) && (dx12_options.remove_redundant_psos == false))

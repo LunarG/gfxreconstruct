@@ -3394,17 +3394,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* pSrc,
     StructPointerDecoder<Decoded_D3D12_BOX>*    pSrcBox)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDst->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         MapStructObjects(pSrc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        replay_object->CopyTextureRegion(pDst->GetPointer(),
-                                         DstX,
-                                         DstY,
-                                         DstZ,
-                                         pSrc->GetPointer(),
-                                         pSrcBox->GetPointer());
+        OverrideCopyTextureRegion(replay_object,
+                                  pDst,
+                                  DstX,
+                                  DstY,
+                                  DstZ,
+                                  pSrc,
+                                  pSrcBox);
     }
 }
 
@@ -3810,11 +3811,12 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pView->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        replay_object->IASetIndexBuffer(pView->GetPointer());
+        OverrideIASetIndexBuffer(replay_object,
+                                 pView);
     }
 }
 
@@ -3825,13 +3827,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
     UINT                                        NumViews,
     StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* pViews)
 {
-    auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructArrayObjects(pViews->GetMetaStructPointer(), pViews->GetLength(), GetObjectInfoTable(), GetGpuVaTable());
-        replay_object->IASetVertexBuffers(StartSlot,
-                                          NumViews,
-                                          pViews->GetPointer());
+        OverrideIASetVertexBuffers(replay_object,
+                                   StartSlot,
+                                   NumViews,
+                                   pViews);
     }
 }
 

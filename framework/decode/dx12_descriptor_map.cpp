@@ -72,9 +72,14 @@ void Dx12DescriptorMap::GetCpuAddress(D3D12_CPU_DESCRIPTOR_HANDLE& descriptor) c
     }
 }
 
-void Dx12DescriptorMap::GetGpuAddress(D3D12_GPU_DESCRIPTOR_HANDLE& descriptor) const
+void Dx12DescriptorMap::GetGpuAddress(D3D12_GPU_DESCRIPTOR_HANDLE& descriptor, bool* found) const
 {
-    if (!Get(descriptor.ptr, descriptor_gpu_addresses_))
+    bool get_result = Get(descriptor.ptr, descriptor_gpu_addresses_);
+    if (found != nullptr)
+    {
+        *found = get_result;
+    }
+    else if (!get_result)
     {
         GFXRECON_LOG_FATAL("Failed to map GPU descriptor handle 0x%" PRIx64, descriptor.ptr);
     }

@@ -244,7 +244,7 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
         if (resource_value_mapper_ != nullptr)
         {
-            resource_value_mapper_->PostProcessFillMemoryCommand(entry->second.resource_id, offset, size);
+            resource_value_mapper_->PostProcessFillMemoryCommand(entry->second.resource_id, offset, size, data);
         }
     }
     else
@@ -443,7 +443,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 
     if ((resource_value_mapper_ != nullptr) && (resource_init_info.resource != nullptr))
     {
-        resource_value_mapper_->PostProcessInitSubresourceCommand(resource_init_info.resource, command_header);
+        resource_value_mapper_->PostProcessInitSubresourceCommand(resource_init_info.resource, command_header, data);
     }
 }
 
@@ -1429,6 +1429,16 @@ Dx12ReplayConsumerBase::OverrideGetGPUDescriptorHandleForHeapStart(
                                                  heap_info->capture_increments,
                                                  heap_info->replay_increments);
 
+            if (resource_value_mapper_ != nullptr)
+            {
+                resource_value_mapper_->AddGpuDescriptorHeap(*original_result.decoded_value,
+                                                             replay_result,
+                                                             heap_info->descriptor_type,
+                                                             heap_info->descriptor_count,
+                                                             heap_info->capture_increments,
+                                                             heap_info->replay_increments);
+            }
+
             heap_info->replay_gpu_addr_begin = replay_result.ptr;
         }
     }
@@ -2411,6 +2421,11 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
         {
             auto heap_info = static_cast<D3D12DescriptorHeapInfo*>(extra_info);
             descriptor_map_.RemoveGpuDescriptorHeap(heap_info->capture_gpu_addr_begin);
+
+            if (resource_value_mapper_ != nullptr)
+            {
+                resource_value_mapper_->RemoveGpuDescriptorHeap(heap_info->capture_gpu_addr_begin);
+            }
         }
         else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12HeapInfo)
         {
@@ -3365,6 +3380,63 @@ void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_lis
     if (resource_value_mapper_ != nullptr)
     {
         resource_value_mapper_->PostProcessSetPipelineState1(command_list4_object_info, state_object_object_info);
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideCopyTextureRegion(
+    DxObjectInfo*                                              command_list_object_info,
+    StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* dst_decoder,
+    UINT                                                       dst_x,
+    UINT                                                       dst_y,
+    UINT                                                       dst_z,
+    StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* src_decoder,
+    StructPointerDecoder<Decoded_D3D12_BOX>*                   src_box_decoder)
+{
+    GFXRECON_ASSERT(command_list_object_info != nullptr);
+    GFXRECON_ASSERT(command_list_object_info->object != nullptr);
+    auto command_list = reinterpret_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+
+    command_list->CopyTextureRegion(
+        dst_decoder->GetPointer(), dst_x, dst_y, dst_z, src_decoder->GetPointer(), src_box_decoder->GetPointer());
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessCopyTextureRegion(
+            command_list_object_info, dst_decoder, dst_x, dst_y, dst_z, src_decoder, src_box_decoder);
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideIASetIndexBuffer(
+    DxObjectInfo* command_list_object_info, StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* views_decoder)
+{
+    GFXRECON_ASSERT(command_list_object_info != nullptr);
+    GFXRECON_ASSERT(command_list_object_info->object != nullptr);
+    auto command_list = reinterpret_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+
+    command_list->IASetIndexBuffer(views_decoder->GetPointer());
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessIASetIndexBuffer(command_list_object_info, views_decoder);
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideIASetVertexBuffers(
+    DxObjectInfo*                                           command_list_object_info,
+    UINT                                                    start_slot,
+    UINT                                                    num_views,
+    StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* views_decoder)
+{
+    GFXRECON_ASSERT(command_list_object_info != nullptr);
+    GFXRECON_ASSERT(command_list_object_info->object != nullptr);
+    auto command_list = reinterpret_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+
+    command_list->IASetVertexBuffers(start_slot, num_views, views_decoder->GetPointer());
+
+    if (resource_value_mapper_ != nullptr)
+    {
+        resource_value_mapper_->PostProcessIASetVertexBuffers(
+            command_list_object_info, start_slot, num_views, views_decoder);
     }
 }
 

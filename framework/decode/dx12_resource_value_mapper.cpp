@@ -24,6 +24,7 @@
 #include "decode/dx12_resource_value_mapper.h"
 
 #include "decode/custom_dx12_struct_decoders.h"
+#include "decode/dx12_experimental_resource_value_tracker.h"
 #include "decode/dx12_object_mapping_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -138,13 +139,22 @@ Dx12ResourceValueMapper::Dx12ResourceValueMapper(std::function<DxObjectInfo*(for
                                                  const graphics::Dx12GpuVaMap&                     gpu_va_map,
                                                  const decode::Dx12DescriptorMap&                  descriptor_map) :
     get_object_info_func_(get_object_info_func),
-    shader_id_map_(shader_id_map), gpu_va_map_(gpu_va_map), descriptor_map_(descriptor_map)
+    shader_id_map_(shader_id_map), gpu_va_map_(gpu_va_map), descriptor_map_(descriptor_map), do_value_mapping_(true)
 {}
 
-void Dx12ResourceValueMapper::EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func)
+void Dx12ResourceValueMapper::EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func,
+                                                         bool                          experimental_tracker)
 {
-    resource_value_tracker_ =
-        std::make_unique<Dx12ResourceValueTracker>(get_object_info_func_, get_current_block_index_func);
+    if (experimental_tracker)
+    {
+        resource_value_tracker_ =
+            std::make_unique<Dx12ExperimentalResourceValueTracker>(get_object_info_func_, get_current_block_index_func);
+    }
+    else
+    {
+        resource_value_tracker_ =
+            std::make_unique<Dx12ResourceValueTracker>(get_object_info_func_, get_current_block_index_func);
+    }
 }
 
 void Dx12ResourceValueMapper::GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values)
@@ -155,6 +165,25 @@ void Dx12ResourceValueMapper::GetTrackedResourceValues(Dx12FillCommandResourceVa
     }
 }
 
+void Dx12ResourceValueMapper::GetUnassociatedResourceValues(Dx12UnassociatedResourceValueMap& unassociated_values)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->GetUnassociatedResourceValues(unassociated_values);
+    }
+}
+
+void Dx12ResourceValueMapper::SetUnassociatedResourceValues(Dx12FillCommandResourceValueMap&&  tracked_values,
+                                                            Dx12UnassociatedResourceValueMap&& unassociated_values)
+{
+    GFXRECON_ASSERT(resource_value_tracker_ != nullptr);
+
+    // Don't do value mapping on the second pass of optimization processing. tracked_values should contain the resource
+    // values found and mapped by the first pass.
+    do_value_mapping_ = false;
+    resource_value_tracker_->SetUnassociatedResourceValues(std::move(tracked_values), std::move(unassociated_values));
+}
+
 void Dx12ResourceValueMapper::PostProcessCommandListReset(DxObjectInfo* command_list_object_info)
 {
     // Clear tracked info.
@@ -162,6 +191,11 @@ void Dx12ResourceValueMapper::PostProcessCommandListReset(DxObjectInfo* command_
     command_list_extra_info->resource_copies.clear();
     command_list_extra_info->resource_value_info_map.clear();
     command_list_extra_info->active_state_object = nullptr;
+
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->PostProcessCommandListReset(command_list_object_info);
+    }
 }
 
 void Dx12ResourceValueMapper::PostProcessCopyResource(DxObjectInfo* command_list_object_info,
@@ -192,43 +226,46 @@ void Dx12ResourceValueMapper::PreProcessExecuteCommandLists(
     HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder,
     bool&                                     needs_mapping)
 {
-    auto command_queue            = static_cast<ID3D12CommandQueue*>(command_queue_object_info->object);
-    auto command_queue_extra_info = GetExtraInfo<D3D12CommandQueueInfo>(command_queue_object_info);
-
-    GFXRECON_ASSERT(command_queue_extra_info != nullptr);
-
-    if (command_queue_extra_info->resource_value_map_fence == nullptr)
-    {
-        InitializeRequiredObjects(command_queue, command_queue_extra_info);
-    }
-
-    // Determine if there are values that need to be mapped in resources referenced by the command list.
     needs_mapping = false;
-    for (UINT i = 0; (i < num_command_lists) && !needs_mapping; ++i)
+    if (do_value_mapping_)
     {
-        auto command_list_extra_info =
-            GetExtraInfo<D3D12CommandListInfo>(get_object_info_func_(command_lists_decoder->GetPointer()[i]));
-        GFXRECON_ASSERT(command_list_extra_info != nullptr);
+        auto command_queue            = static_cast<ID3D12CommandQueue*>(command_queue_object_info->object);
+        auto command_queue_extra_info = GetExtraInfo<D3D12CommandQueueInfo>(command_queue_object_info);
 
-        for (auto& resource_value_info_pair : command_list_extra_info->resource_value_info_map)
+        GFXRECON_ASSERT(command_queue_extra_info != nullptr);
+
+        if (command_queue_extra_info->resource_value_map_fence == nullptr)
         {
-            if (!resource_value_info_pair.second.empty())
+            InitializeRequiredObjects(command_queue, command_queue_extra_info);
+        }
+
+        // Determine if there are values that need to be mapped in resources referenced by the command list.
+        for (UINT i = 0; (i < num_command_lists) && !needs_mapping; ++i)
+        {
+            auto command_list_extra_info =
+                GetExtraInfo<D3D12CommandListInfo>(get_object_info_func_(command_lists_decoder->GetPointer()[i]));
+            GFXRECON_ASSERT(command_list_extra_info != nullptr);
+
+            for (auto& resource_value_info_pair : command_list_extra_info->resource_value_info_map)
             {
-                needs_mapping = true;
-                break;
+                if (!resource_value_info_pair.second.empty())
+                {
+                    needs_mapping = true;
+                    break;
+                }
             }
         }
-    }
 
-    if (needs_mapping)
-    {
-        // Signal the resource_value_map_fence to indicate it is safe to begin mapping, then wait for the
-        // resource_value_map_fence to ensure mapping has completed. No other objects should be signaling or waiting
-        // on this fence, so no events need to be added to the command queue's pending events list.
-        command_queue->Signal(command_queue_extra_info->resource_value_map_fence,
-                              command_queue_extra_info->resource_value_map_fence_value);
-        command_queue->Wait(command_queue_extra_info->resource_value_map_fence,
-                            command_queue_extra_info->resource_value_map_fence_value + 1);
+        if (needs_mapping)
+        {
+            // Signal the resource_value_map_fence to indicate it is safe to begin mapping, then wait for the
+            // resource_value_map_fence to ensure mapping has completed. No other objects should be signaling or waiting
+            // on this fence, so no events need to be added to the command queue's pending events list.
+            command_queue->Signal(command_queue_extra_info->resource_value_map_fence,
+                                  command_queue_extra_info->resource_value_map_fence_value);
+            command_queue->Wait(command_queue_extra_info->resource_value_map_fence,
+                                command_queue_extra_info->resource_value_map_fence_value + 1);
+        }
     }
 }
 
@@ -673,20 +710,62 @@ void Dx12ResourceValueMapper::PostProcessSetPipelineState1(DxObjectInfo* command
     command_list_extra_info->active_state_object = state_object_object_info;
 }
 
-void Dx12ResourceValueMapper::PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size)
+void Dx12ResourceValueMapper::PostProcessFillMemoryCommand(uint64_t       resource_id,
+                                                           uint64_t       offset,
+                                                           uint64_t       size,
+                                                           const uint8_t* data)
 {
     if (resource_value_tracker_ != nullptr)
     {
-        resource_value_tracker_->PostProcessFillMemoryCommand(resource_id, offset, size);
+        resource_value_tracker_->PostProcessFillMemoryCommand(resource_id, offset, size, data);
     }
 }
 
 void Dx12ResourceValueMapper::PostProcessInitSubresourceCommand(
-    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header)
+    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header, const uint8_t* data)
 {
     if (resource_value_tracker_ != nullptr)
     {
-        resource_value_tracker_->PostProcessInitSubresourceCommand(resource, command_header);
+        resource_value_tracker_->PostProcessInitSubresourceCommand(resource, command_header, data);
+    }
+}
+
+void Dx12ResourceValueMapper::PostProcessCopyTextureRegion(
+    DxObjectInfo*                                              command_list_object_info,
+    StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* dst_decoder,
+    UINT                                                       dst_x,
+    UINT                                                       dst_y,
+    UINT                                                       dst_z,
+    StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* src_decoder,
+    StructPointerDecoder<Decoded_D3D12_BOX>*                   src_box_decoder)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->PostProcessCopyTextureRegion(
+            command_list_object_info, dst_decoder, dst_x, dst_y, dst_z, src_decoder, src_box_decoder);
+    }
+}
+
+void Dx12ResourceValueMapper::PostProcessIASetIndexBuffer(
+    DxObjectInfo* command_list_object_info, StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* views_decoder)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->PostProcessIASetIndexBuffer(
+            command_list_object_info, views_decoder, reverse_gpu_va_map_);
+    }
+}
+
+void Dx12ResourceValueMapper::PostProcessIASetVertexBuffers(
+    DxObjectInfo*                                           command_list_object_info,
+    UINT                                                    start_slot,
+    UINT                                                    num_views,
+    StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* views_decoder)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->PostProcessIASetVertexBuffers(
+            command_list_object_info, start_slot, num_views, views_decoder, reverse_gpu_va_map_);
     }
 }
 
@@ -696,6 +775,11 @@ void Dx12ResourceValueMapper::AddResourceGpuVa(format::HandleId          resourc
                                                D3D12_GPU_VIRTUAL_ADDRESS capture_address)
 {
     reverse_gpu_va_map_.Add(resource_id, replay_address, width, capture_address);
+
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->AddResourceGpuVa(resource_id, replay_address, width, capture_address);
+    }
 }
 
 void Dx12ResourceValueMapper::RemoveResourceGpuVa(format::HandleId resource_id,
@@ -703,6 +787,37 @@ void Dx12ResourceValueMapper::RemoveResourceGpuVa(format::HandleId resource_id,
                                                   uint64_t         capture_address)
 {
     reverse_gpu_va_map_.Remove(resource_id, replay_address);
+
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->RemoveResourceGpuVa(resource_id, capture_address);
+    }
+}
+
+void Dx12ResourceValueMapper::AddGpuDescriptorHeap(const D3D12_GPU_DESCRIPTOR_HANDLE&     capture_gpu_start,
+                                                   const D3D12_GPU_DESCRIPTOR_HANDLE&     replay_gpu_start,
+                                                   D3D12_DESCRIPTOR_HEAP_TYPE             heap_info_descriptor_type,
+                                                   uint32_t                               heap_info_descriptor_count,
+                                                   std::shared_ptr<DescriptorIncrements>& heap_info_capture_increments,
+                                                   std::shared_ptr<DescriptorIncrements>& heap_info_replay_increments)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->AddGpuDescriptorHeap(capture_gpu_start,
+                                                      replay_gpu_start,
+                                                      heap_info_descriptor_type,
+                                                      heap_info_descriptor_count,
+                                                      heap_info_capture_increments,
+                                                      heap_info_replay_increments);
+    }
+}
+
+void Dx12ResourceValueMapper::RemoveGpuDescriptorHeap(uint64_t capture_gpu_start)
+{
+    if (resource_value_tracker_ != nullptr)
+    {
+        resource_value_tracker_->RemoveGpuDescriptorHeap(capture_gpu_start);
+    }
 }
 
 void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_info,
@@ -939,7 +1054,8 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 
         if (resource_value_tracker_ != nullptr)
         {
-            resource_value_tracker_->AddTrackedResourceValue(resource_id, value_info.type, final_offset);
+            resource_value_tracker_->AddTrackedResourceValue(
+                resource_id, value_info.type, final_offset, result_data.data() + final_offset, gpu_va_map_);
         }
 
         // If the current value at the given offset matches the result of a previous mapping, don't attempt to map
@@ -1007,7 +1123,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         if (resource_value_tracker_ != nullptr)
         {
             resource_value_tracker_->AddTrackedResourceValue(
-                resource_id, ResourceValueType::kShaderIdentifier, final_offset);
+                resource_id, ResourceValueType::kShaderIdentifier, final_offset, shader_id_ptr, gpu_va_map_);
         }
 
         // Map the shader ID if it wasn't previously mapped.
@@ -1056,6 +1172,19 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                 GFXRECON_LOG_ERROR_ONCE("Did not find an associated local root signature for one or more shader IDs "
                                         "used in a shader record. If the shader record contains GPU virtual "
                                         "addresses or descriptor handles, replay may fail.");
+
+                if (resource_value_tracker_ != nullptr)
+                {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, final_offset);
+
+                    resource_value_tracker_->AddShaderRecordData(
+                        resource_id,
+                        final_offset + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES,
+                        value_info.size - D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES,
+                        &result_data[static_cast<size_t>(final_offset) + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES],
+                        gpu_va_map_,
+                        descriptor_map_);
+                }
             }
         }
     }

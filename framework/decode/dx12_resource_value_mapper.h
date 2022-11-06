@@ -47,10 +47,16 @@ class Dx12ResourceValueMapper
                             const decode::Dx12DescriptorMap&                  descriptor_map);
 
     // Enable the Dx12ResoruceValueTracker. This should be done after construction, before any processing.
-    void EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func);
+    void EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func,
+                                    bool                          experimental_tracker);
 
     // Get the result of the resource value tracker.
     void GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values);
+
+    void GetUnassociatedResourceValues(Dx12UnassociatedResourceValueMap& unassociated_values);
+
+    void SetUnassociatedResourceValues(Dx12FillCommandResourceValueMap&&  tracked_values,
+                                       Dx12UnassociatedResourceValueMap&& unassociated_values);
 
     // Sets needs_mapping = true if the command lists contain resources that need to be mapped.
     void PreProcessExecuteCommandLists(DxObjectInfo*                             command_queue_object_info,
@@ -104,10 +110,27 @@ class Dx12ResourceValueMapper
 
     void PostProcessSetPipelineState1(DxObjectInfo* command_list4_object_info, DxObjectInfo* state_object_object_info);
 
-    void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size);
+    void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, const uint8_t* data);
 
     void PostProcessInitSubresourceCommand(ID3D12Resource*                             resource,
-                                           const format::InitSubresourceCommandHeader& command_header);
+                                           const format::InitSubresourceCommandHeader& command_header,
+                                           const uint8_t*                              data);
+
+    void PostProcessCopyTextureRegion(DxObjectInfo* command_list_object_info,
+                                      StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* dst_decoder,
+                                      UINT                                                       dst_x,
+                                      UINT                                                       dst_y,
+                                      UINT                                                       dst_z,
+                                      StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* src_decoder,
+                                      StructPointerDecoder<Decoded_D3D12_BOX>*                   src_box_decoder);
+
+    void PostProcessIASetIndexBuffer(DxObjectInfo*                                          command_list_object_info,
+                                     StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* views_decoder);
+
+    void PostProcessIASetVertexBuffers(DxObjectInfo*                                           command_list_object_info,
+                                       UINT                                                    start_slot,
+                                       UINT                                                    num_views,
+                                       StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* views_decoder);
 
     void AddResourceGpuVa(format::HandleId          resource_id,
                           D3D12_GPU_VIRTUAL_ADDRESS replay_address,
@@ -115,6 +138,15 @@ class Dx12ResourceValueMapper
                           D3D12_GPU_VIRTUAL_ADDRESS capture_address);
 
     void RemoveResourceGpuVa(format::HandleId resource_id, uint64_t replay_address, uint64_t capture_address);
+
+    void AddGpuDescriptorHeap(const D3D12_GPU_DESCRIPTOR_HANDLE&     capture_gpu_start,
+                              const D3D12_GPU_DESCRIPTOR_HANDLE&     replay_gpu_start,
+                              D3D12_DESCRIPTOR_HEAP_TYPE             heap_info_descriptor_type,
+                              uint32_t                               heap_info_descriptor_count,
+                              std::shared_ptr<DescriptorIncrements>& heap_info_capture_increments,
+                              std::shared_ptr<DescriptorIncrements>& heap_info_replay_increments);
+
+    void RemoveGpuDescriptorHeap(uint64_t capture_gpu_start);
 
   private:
     struct ProcessResourceMappingsArgs
@@ -189,6 +221,8 @@ class Dx12ResourceValueMapper
 
     const graphics::Dx12GpuVaMap&    gpu_va_map_;
     const decode::Dx12DescriptorMap& descriptor_map_;
+
+    bool do_value_mapping_;
 
     // Temporary vectors to reduce allocations.
     std::vector<uint8_t>                           temp_resource_data;

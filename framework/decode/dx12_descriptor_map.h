@@ -67,7 +67,7 @@ class Dx12DescriptorMap
 
     void GetCpuAddress(D3D12_CPU_DESCRIPTOR_HANDLE& descriptor) const;
 
-    void GetGpuAddress(D3D12_GPU_DESCRIPTOR_HANDLE& descriptor) const;
+    void GetGpuAddress(D3D12_GPU_DESCRIPTOR_HANDLE& descriptor, bool* found = nullptr) const;
 
     void RemoveCpuDescriptorHeap(const size_t capture_cpu_addr_begin);
 

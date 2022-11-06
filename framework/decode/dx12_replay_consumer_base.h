@@ -95,7 +95,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                const uint8_t*                              data) override;
 
-    void ProcessInitDx12AccelerationStructureCommand(
+    virtual void ProcessInitDx12AccelerationStructureCommand(
         const format::InitDx12AccelerationStructureCommandHeader&       command_header,
         std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
         const uint8_t*                                                  build_inputs_data) override;
@@ -524,15 +524,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                            Decoded_GUID                 riid,
                                            HandlePointerDecoder<void*>* command_signature_decoder);
 
-    void OverrideExecuteIndirect(DxObjectInfo* command_list_object_info,
-                                 DxObjectInfo* command_signature_object_info,
-                                 UINT          max_command_count,
-                                 DxObjectInfo* argument_buffer_object_info,
-                                 UINT64        argument_buffer_offset,
-                                 DxObjectInfo* count_buffer_object_info,
-                                 UINT64        count_buffer_offset);
+    virtual void OverrideExecuteIndirect(DxObjectInfo* command_list_object_info,
+                                         DxObjectInfo* command_signature_object_info,
+                                         UINT          max_command_count,
+                                         DxObjectInfo* argument_buffer_object_info,
+                                         UINT64        argument_buffer_offset,
+                                         DxObjectInfo* count_buffer_object_info,
+                                         UINT64        count_buffer_offset);
 
-    void OverrideBuildRaytracingAccelerationStructure(
+    virtual void OverrideBuildRaytracingAccelerationStructure(
         DxObjectInfo*                                                                     command_list4_object_info,
         StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* desc,
         UINT                                                                              num_post_build_info_descs,
@@ -565,10 +565,26 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                      Decoded_GUID                 riid_decoder,
                                      HandlePointerDecoder<void*>* new_state_object_decoder);
 
-    void OverrideDispatchRays(DxObjectInfo*                                           command_list4_object_info,
-                              StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
+    virtual void OverrideDispatchRays(DxObjectInfo*                                           command_list4_object_info,
+                                      StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
 
     void OverrideSetPipelineState1(DxObjectInfo* command_list4_object_info, DxObjectInfo* state_object_object_info);
+
+    void OverrideCopyTextureRegion(DxObjectInfo*                                              command_list_object_info,
+                                   StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* dst_decoder,
+                                   UINT                                                       dst_x,
+                                   UINT                                                       dst_y,
+                                   UINT                                                       dst_z,
+                                   StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* src_decoder,
+                                   StructPointerDecoder<Decoded_D3D12_BOX>*                   src_box_decoder);
+
+    void OverrideIASetIndexBuffer(DxObjectInfo*                                          command_list_object_info,
+                                  StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* views_decoder);
+
+    void OverrideIASetVertexBuffers(DxObjectInfo*                                           command_list_object_info,
+                                    UINT                                                    start_slot,
+                                    UINT                                                    num_views,
+                                    StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* views_decoder);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 

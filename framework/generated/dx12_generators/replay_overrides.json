@@ -87,7 +87,10 @@
       "CopyBufferRegion": "OverrideCopyBufferRegion",
       "CopyResource": "OverrideCopyResource",
       "ExecuteIndirect": "OverrideExecuteIndirect",
-      "Reset": "OverrideCommandListReset"
+      "Reset": "OverrideCommandListReset",
+      "CopyTextureRegion": "OverrideCopyTextureRegion",
+      "IASetIndexBuffer": "OverrideIASetIndexBuffer",
+      "IASetVertexBuffers": "OverrideIASetVertexBuffers"
     },
     "ID3D12GraphicsCommandList4": {
       "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",

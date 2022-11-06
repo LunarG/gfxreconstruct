@@ -121,7 +121,7 @@ struct ResourceCopyInfo
 
 typedef format::ResourceValueType ResourceValueType;
 
-static uint64_t GetResourceValueSize(ResourceValueType type)
+static size_t GetResourceValueSize(ResourceValueType type)
 {
     switch (type)
     {

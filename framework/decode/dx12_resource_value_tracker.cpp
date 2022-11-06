@@ -29,16 +29,24 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId  resource_id,
-                                                       ResourceValueType type,
-                                                       uint64_t          offset)
+void Dx12ResourceValueTracker::GetTrackedResourceValues(Dx12FillCommandResourceValueMap& tracked_values)
+{
+    tracked_values = std::move(tracked_resource_values_);
+    tracked_resource_values_.clear();
+}
+
+bool Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId              resource_id,
+                                                       ResourceValueType             type,
+                                                       uint64_t                      offset,
+                                                       const uint8_t*                resource_value_data,
+                                                       const graphics::Dx12GpuVaMap& gpu_va_map)
 {
     // Using the offset, determine which fill command wrote this value.
     bool     found_fill_command_block_index = false;
     uint64_t fill_command_block_index       = 0;
     uint64_t fill_command_offset            = 0;
     auto&    resource_fill_commands         = tracked_fill_commands_[resource_id];
-    uint64_t size                           = GetResourceValueSize(type);
+    auto     size                           = GetResourceValueSize(type);
 
     {
         // `resource_fill_commands.upper_bound(offset + size)` finds the first iter past the end of the added tracked
@@ -50,13 +58,34 @@ void Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId  resourc
         }
         if ((iter != resource_fill_commands.end()) && ((offset + size) <= (iter->second.offset + iter->second.size)))
         {
+            // If the value was written by a single fill command.
             if (offset >= iter->second.offset)
             {
-                // The value was written by a single fill command.
-                found_fill_command_block_index = true;
-                fill_command_block_index       = iter->second.fill_command_block_index;
-                fill_command_offset            = iter->second.original_offset + offset - iter->second.offset;
+                // If the data was originally written by an init subresource command (used during trimmed resource state
+                // load), then check whether the incoming resource value matches the source data value.
+                bool mismatch_init_subresource_data = false;
+                if ((iter->second.init_subresource_data != nullptr) && (!iter->second.init_subresource_data->empty()))
+                {
+                    auto data_offset_u64 = iter->second.original_offset + offset - iter->second.offset;
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_offset_u64);
+                    auto data_offset = static_cast<size_t>(data_offset_u64);
+                    auto value_size  = GetResourceValueSize(type);
+                    for (size_t i = 0; i < value_size; ++i)
+                    {
+                        mismatch_init_subresource_data =
+                            mismatch_init_subresource_data ||
+                            ((*iter->second.init_subresource_data)[data_offset + i] != resource_value_data[i]);
+                    }
+                }
+
+                if (!mismatch_init_subresource_data)
+                {
+                    found_fill_command_block_index = true;
+                    fill_command_block_index       = iter->second.fill_command_block_index;
+                    fill_command_offset            = iter->second.original_offset + offset - iter->second.offset;
+                }
             }
+            // Else the value may have been written by multiple fill commands.
             else
             {
                 // It is possible that a value was written by multiple fill commands. In this case, use the most recent
@@ -99,55 +128,64 @@ void Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId  resourc
     // memory command.
     if (found_fill_command_block_index)
     {
-        auto& block_resource_values = tracked_resource_values_[fill_command_block_index];
-
-        // Find the insert position sorted by fill_command_offset, erasing any existing values that overlap with the new
-        // value.
-        auto iter = std::upper_bound(
-            block_resource_values.begin(),
-            block_resource_values.end(),
-            fill_command_offset,
-            [](uint64_t offset, const auto& val) { return offset < (val.offset + GetResourceValueSize(val.type)); });
-        auto insert_iter = block_resource_values.end();
-        if (iter != block_resource_values.end())
-        {
-            bool erase_prev = false;
-            bool erase_next = false;
-
-            if ((fill_command_offset >= iter->offset) &&
-                (fill_command_offset < (iter->offset + GetResourceValueSize(iter->type))))
-            {
-                erase_prev = true;
-            }
-
-            auto next_iter = iter + 1;
-            while ((next_iter != block_resource_values.end()) &&
-                   (next_iter->offset < (fill_command_offset + GetResourceValueSize(type))))
-            {
-                erase_next = true;
-                ++next_iter;
-            }
-
-            if (erase_prev || erase_next)
-            {
-                auto erase_begin = erase_prev ? iter : iter + 1;
-                auto erase_end   = next_iter;
-                insert_iter      = block_resource_values.erase(erase_begin, erase_end);
-            }
-            else
-            {
-                insert_iter = iter;
-            }
-        }
-
-        // Insert the new value at the sorted position.
-        block_resource_values.insert(insert_iter, { fill_command_offset, type });
+        AddBlockResourceValue(fill_command_block_index, fill_command_offset, type);
+        return true;
     }
     else
     {
         GFXRECON_LOG_ERROR_ONCE("Failed to find the fill memory command associated with resource data that required "
-                                "mapping for replay. Tracked resource values may be incorrect.");
+                                "mapping for replay. Optimized result may be incorrect.");
+        return false;
     }
+}
+
+void Dx12ResourceValueTracker::AddBlockResourceValue(uint64_t          fill_command_block_index,
+                                                     uint64_t          fill_command_offset,
+                                                     ResourceValueType type)
+{
+    auto& block_resource_values = tracked_resource_values_[fill_command_block_index];
+
+    // Find the insert position sorted by fill_command_offset, erasing any existing values that overlap with
+    // the new value.
+    auto iter = std::upper_bound(
+        block_resource_values.begin(),
+        block_resource_values.end(),
+        fill_command_offset,
+        [](uint64_t offset, const auto& val) { return offset < (val.offset + GetResourceValueSize(val.type)); });
+    auto insert_iter = block_resource_values.end();
+    if (iter != block_resource_values.end())
+    {
+        bool erase_prev = false;
+        bool erase_next = false;
+
+        if ((fill_command_offset >= iter->offset) &&
+            (fill_command_offset < (iter->offset + GetResourceValueSize(iter->type))))
+        {
+            erase_prev = true;
+        }
+
+        auto next_iter = iter + 1;
+        while ((next_iter != block_resource_values.end()) &&
+               (next_iter->offset < (fill_command_offset + GetResourceValueSize(type))))
+        {
+            erase_next = true;
+            ++next_iter;
+        }
+
+        if (erase_prev || erase_next)
+        {
+            auto erase_begin = erase_prev ? iter : iter + 1;
+            auto erase_end   = next_iter;
+            insert_iter      = block_resource_values.erase(erase_begin, erase_end);
+        }
+        else
+        {
+            insert_iter = iter;
+        }
+    }
+
+    // Insert the new value at the sorted position.
+    block_resource_values.insert(insert_iter, { fill_command_offset, type });
 }
 
 void Dx12ResourceValueTracker::PostProcessExecuteCommandLists(
@@ -165,8 +203,8 @@ void Dx12ResourceValueTracker::PostProcessExecuteCommandLists(
 
     for (UINT i = 0; i < num_command_lists; ++i)
     {
-        auto command_list_extra_info =
-            GetExtraInfo<D3D12CommandListInfo>(get_object_info_func_(command_lists_decoder->GetPointer()[i]));
+        auto command_list_id         = command_lists_decoder->GetPointer()[i];
+        auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(get_object_info_func_(command_list_id));
         GFXRECON_ASSERT(command_list_extra_info != nullptr);
 
         process_args.resource_copies.insert(process_args.resource_copies.end(),
@@ -174,22 +212,22 @@ void Dx12ResourceValueTracker::PostProcessExecuteCommandLists(
                                             command_list_extra_info->resource_copies.end());
     }
 
-    if (!process_args.resource_copies.empty())
+    // Run (or queue) resource value mapping process.
+    if (pending_events.empty())
     {
-        // Run (or queue) resource value mapping process.
-        if (pending_events.empty())
-        {
-            ProcessExecuteCommandList(std::move(process_args));
-        }
-        else
-        {
-            command_queue_extra_info->pending_events.push_back(
-                CreateProcessExecuteCommandListSyncEvent(std::move(process_args)));
-        }
+        ProcessExecuteCommandList(std::move(process_args));
+    }
+    else
+    {
+        command_queue_extra_info->pending_events.push_back(
+            CreateProcessExecuteCommandListSyncEvent(std::move(process_args)));
     }
 }
 
-void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size)
+void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t       resource_id,
+                                                            uint64_t       offset,
+                                                            uint64_t       size,
+                                                            const uint8_t* data)
 {
     TrackedFillCommandInfo tracked_fill_command;
     tracked_fill_command.fill_command_block_index = get_current_block_index_func_();
@@ -200,7 +238,7 @@ void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t resource_id
 }
 
 void Dx12ResourceValueTracker::PostProcessInitSubresourceCommand(
-    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header)
+    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header, const uint8_t* data)
 {
     GFXRECON_ASSERT(resource != nullptr);
 
@@ -215,6 +253,8 @@ void Dx12ResourceValueTracker::PostProcessInitSubresourceCommand(
         tracked_fill_command.original_offset          = 0;
         tracked_fill_command.offset                   = 0;
         tracked_fill_command.size                     = command_header.data_size;
+        tracked_fill_command.init_subresource_data =
+            std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>(data, data + command_header.data_size));
         UpdateFillCommandState(command_header.resource_id, tracked_fill_command);
     }
 }
