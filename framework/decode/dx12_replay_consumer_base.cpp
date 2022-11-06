@@ -102,18 +102,8 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
     DetectAdapters();
 
     auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
-    auto map_gpu_va_func = std::bind(static_cast<void (Dx12ReplayConsumerBase::*)(D3D12_GPU_VIRTUAL_ADDRESS&)>(
-                                         &Dx12ReplayConsumerBase::MapGpuVirtualAddress),
-                                     this,
-                                     std::placeholders::_1);
-    auto map_gpu_desc_handle_func =
-        std::bind(static_cast<void (Dx12ReplayConsumerBase::*)(D3D12_GPU_DESCRIPTOR_HANDLE&)>(
-                      &Dx12ReplayConsumerBase::MapGpuDescriptorHandle),
-                  this,
-                  std::placeholders::_1);
-
-    resource_value_mapper_ = std::make_unique<Dx12ResourceValueMapper>(
-        get_object_func, map_gpu_va_func, map_gpu_desc_handle_func, shader_id_map_);
+    resource_value_mapper_ =
+        std::make_unique<Dx12ResourceValueMapper>(get_object_func, shader_id_map_, gpu_va_map_, descriptor_map_);
 }
 
 void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
@@ -254,8 +244,7 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
         if (resource_value_mapper_ != nullptr)
         {
-            resource_value_mapper_->PostProcessFillMemoryCommand(
-                entry->second.resource_id, offset, size, GetCurrentBlockIndex());
+            resource_value_mapper_->PostProcessFillMemoryCommand(entry->second.resource_id, offset, size);
         }
     }
     else
@@ -454,8 +443,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 
     if ((resource_value_mapper_ != nullptr) && (resource_init_info.resource != nullptr))
     {
-        resource_value_mapper_->PostProcessInitSubresourceCommand(
-            resource_init_info.resource, command_header, GetCurrentBlockIndex());
+        resource_value_mapper_->PostProcessInitSubresourceCommand(resource_init_info.resource, command_header);
     }
 }
 
@@ -1480,7 +1468,7 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
 
             if (resource_value_mapper_ != nullptr)
             {
-                resource_value_mapper_->AddReplayGpuVa(
+                resource_value_mapper_->AddResourceGpuVa(
                     replay_object_info->capture_id, replay_result, desc.Width, original_result);
             }
         }
@@ -2400,7 +2388,8 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
                 if (resource_value_mapper_ != nullptr)
                 {
-                    resource_value_mapper_->RemoveReplayGpuVa(info->capture_id, resource_info->replay_address_);
+                    resource_value_mapper_->RemoveResourceGpuVa(
+                        info->capture_id, resource_info->replay_address_, resource_info->capture_address_);
                 }
             }
 

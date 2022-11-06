@@ -24,6 +24,7 @@
 #include "decode/dx12_resource_value_mapper.h"
 
 #include "decode/custom_dx12_struct_decoders.h"
+#include "decode/dx12_object_mapping_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -132,19 +133,18 @@ void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, T>&                
 
 } // namespace
 
-Dx12ResourceValueMapper::Dx12ResourceValueMapper(
-    std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
-    std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
-    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
-    const graphics::Dx12ShaderIdMap&                  shader_id_map) :
+Dx12ResourceValueMapper::Dx12ResourceValueMapper(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
+                                                 const graphics::Dx12ShaderIdMap&                  shader_id_map,
+                                                 const graphics::Dx12GpuVaMap&                     gpu_va_map,
+                                                 const decode::Dx12DescriptorMap&                  descriptor_map) :
     get_object_info_func_(get_object_info_func),
-    map_gpu_va_func_(map_gpu_va_func), map_gpu_desc_handle_func_(map_gpu_desc_handle_func),
-    shader_id_map_(shader_id_map)
+    shader_id_map_(shader_id_map), gpu_va_map_(gpu_va_map), descriptor_map_(descriptor_map)
 {}
 
-void Dx12ResourceValueMapper::EnableResourceValueTracker()
+void Dx12ResourceValueMapper::EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func)
 {
-    resource_value_tracker_ = std::make_unique<Dx12ResourceValueTracker>(get_object_info_func_);
+    resource_value_tracker_ =
+        std::make_unique<Dx12ResourceValueTracker>(get_object_info_func_, get_current_block_index_func);
 }
 
 void Dx12ResourceValueMapper::GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values)
@@ -673,35 +673,34 @@ void Dx12ResourceValueMapper::PostProcessSetPipelineState1(DxObjectInfo* command
     command_list_extra_info->active_state_object = state_object_object_info;
 }
 
-void Dx12ResourceValueMapper::PostProcessFillMemoryCommand(uint64_t resource_id,
-                                                           uint64_t offset,
-                                                           uint64_t size,
-                                                           uint64_t block_index)
+void Dx12ResourceValueMapper::PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size)
 {
     if (resource_value_tracker_ != nullptr)
     {
-        resource_value_tracker_->PostProcessFillMemoryCommand(resource_id, offset, size, block_index);
+        resource_value_tracker_->PostProcessFillMemoryCommand(resource_id, offset, size);
     }
 }
 
 void Dx12ResourceValueMapper::PostProcessInitSubresourceCommand(
-    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header, uint64_t block_index)
+    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header)
 {
     if (resource_value_tracker_ != nullptr)
     {
-        resource_value_tracker_->PostProcessInitSubresourceCommand(resource, command_header, block_index);
+        resource_value_tracker_->PostProcessInitSubresourceCommand(resource, command_header);
     }
 }
 
-void Dx12ResourceValueMapper::AddReplayGpuVa(format::HandleId          resource_id,
-                                             D3D12_GPU_VIRTUAL_ADDRESS replay_address,
-                                             UINT64                    width,
-                                             D3D12_GPU_VIRTUAL_ADDRESS capture_address)
+void Dx12ResourceValueMapper::AddResourceGpuVa(format::HandleId          resource_id,
+                                               D3D12_GPU_VIRTUAL_ADDRESS replay_address,
+                                               UINT64                    width,
+                                               D3D12_GPU_VIRTUAL_ADDRESS capture_address)
 {
     reverse_gpu_va_map_.Add(resource_id, replay_address, width, capture_address);
 }
 
-void Dx12ResourceValueMapper::RemoveReplayGpuVa(format::HandleId resource_id, uint64_t replay_address)
+void Dx12ResourceValueMapper::RemoveResourceGpuVa(format::HandleId resource_id,
+                                                  uint64_t         replay_address,
+                                                  uint64_t         capture_address)
 {
     reverse_gpu_va_map_.Remove(resource_id, replay_address);
 }
@@ -955,7 +954,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
 
         if (value_info.type == ResourceValueType::kGpuVirtualAddress)
         {
-            map_gpu_va_func_(*address);
+            object_mapping::MapGpuVirtualAddress(*address, gpu_va_map_);
 
             if ((*address) == current_address)
             {
@@ -971,7 +970,7 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         {
             D3D12_GPU_DESCRIPTOR_HANDLE descriptor_handle;
             descriptor_handle.ptr = *address;
-            map_gpu_desc_handle_func_(descriptor_handle);
+            object_mapping::MapGpuDescriptorHandle(descriptor_handle, descriptor_map_);
             *address = descriptor_handle.ptr;
 
             if ((*address) == current_address)

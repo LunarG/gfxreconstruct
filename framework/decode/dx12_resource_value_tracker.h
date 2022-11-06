@@ -49,8 +49,10 @@ typedef std::map<Dx12FillCommandBlockIndex, std::vector<Dx12FillCommandResourceV
 class Dx12ResourceValueTracker
 {
   public:
-    Dx12ResourceValueTracker(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func) :
-        get_object_info_func_(get_object_info_func)
+    Dx12ResourceValueTracker(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
+                             std::function<uint64_t(void)>                     get_current_block_index_func) :
+        get_object_info_func_(get_object_info_func),
+        get_current_block_index_func_(get_current_block_index_func)
     {}
 
     // When Dx12ResourceValueMapper encounters a resource value that needs to be mapped, it will call
@@ -62,11 +64,10 @@ class Dx12ResourceValueTracker
                                         UINT                                      num_command_lists,
                                         HandlePointerDecoder<ID3D12CommandList*>* command_lists_decoder);
 
-    void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, uint64_t block_index);
+    void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size);
 
     void PostProcessInitSubresourceCommand(ID3D12Resource*                             resource,
-                                           const format::InitSubresourceCommandHeader& command_header,
-                                           uint64_t                                    block_index);
+                                           const format::InitSubresourceCommandHeader& command_header);
 
     void GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values)
     {
@@ -105,6 +106,7 @@ class Dx12ResourceValueTracker
     Dx12FillCommandResourceValueMap tracked_resource_values_;
 
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func_;
+    std::function<uint64_t(void)>                     get_current_block_index_func_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

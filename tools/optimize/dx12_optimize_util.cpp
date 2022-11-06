@@ -46,12 +46,15 @@ struct Dx12OptimizationInfo
 
 class Dx12ResourceValueTrackingConsumer : public decode::Dx12ReplayConsumer
 {
-public:
+  public:
     Dx12ResourceValueTrackingConsumer(std::shared_ptr<application::Application> application,
-        const decode::DxReplayOptions& options) :
+                                      const decode::DxReplayOptions&            options) :
         Dx12ReplayConsumer(application, options)
     {
-        GetResourceValueMapper()->EnableResourceValueTracker();
+        auto get_current_block_index_func = std::bind(static_cast<uint64_t (Dx12ReplayConsumerBase::*)(void)>(
+                                                          &Dx12ResourceValueTrackingConsumer::GetCurrentBlockIndex),
+                                                      this);
+        GetResourceValueMapper()->EnableResourceValueTracker(get_current_block_index_func);
     }
 
     void GetTrackedResourceValues(decode::Dx12FillCommandResourceValueMap& values)

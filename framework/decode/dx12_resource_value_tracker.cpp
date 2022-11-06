@@ -189,13 +189,10 @@ void Dx12ResourceValueTracker::PostProcessExecuteCommandLists(
     }
 }
 
-void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t resource_id,
-                                                            uint64_t offset,
-                                                            uint64_t size,
-                                                            uint64_t block_index)
+void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size)
 {
     TrackedFillCommandInfo tracked_fill_command;
-    tracked_fill_command.fill_command_block_index = block_index;
+    tracked_fill_command.fill_command_block_index = get_current_block_index_func_();
     tracked_fill_command.original_offset          = offset;
     tracked_fill_command.offset                   = offset;
     tracked_fill_command.size                     = size;
@@ -203,7 +200,7 @@ void Dx12ResourceValueTracker::PostProcessFillMemoryCommand(uint64_t resource_id
 }
 
 void Dx12ResourceValueTracker::PostProcessInitSubresourceCommand(
-    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header, uint64_t block_index)
+    ID3D12Resource* resource, const format::InitSubresourceCommandHeader& command_header)
 {
     GFXRECON_ASSERT(resource != nullptr);
 
@@ -214,7 +211,7 @@ void Dx12ResourceValueTracker::PostProcessInitSubresourceCommand(
         GFXRECON_ASSERT(command_header.subresource == 0);
 
         TrackedFillCommandInfo tracked_fill_command;
-        tracked_fill_command.fill_command_block_index = block_index;
+        tracked_fill_command.fill_command_block_index = get_current_block_index_func_();
         tracked_fill_command.original_offset          = 0;
         tracked_fill_command.offset                   = 0;
         tracked_fill_command.size                     = command_header.data_size;
@@ -276,6 +273,7 @@ void Dx12ResourceValueTracker::UpdateFillCommandState(format::HandleId          
 
 void Dx12ResourceValueTracker::ProcessExecuteCommandList(ProcessExecuteCommandListArgs args)
 {
+    // Process command list copies.
     for (auto& copy : args.resource_copies)
     {
         const auto& src_tracked_fill_commands = tracked_fill_commands_[copy.src_resource_object_info->capture_id];

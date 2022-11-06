@@ -42,12 +42,12 @@ class Dx12ResourceValueMapper
 {
   public:
     Dx12ResourceValueMapper(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
-                            std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func,
-                            std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func,
-                            const graphics::Dx12ShaderIdMap&                  shader_id_map);
+                            const graphics::Dx12ShaderIdMap&                  shader_id_map,
+                            const graphics::Dx12GpuVaMap&                     gpu_va_map,
+                            const decode::Dx12DescriptorMap&                  descriptor_map);
 
     // Enable the Dx12ResoruceValueTracker. This should be done after construction, before any processing.
-    void EnableResourceValueTracker();
+    void EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func);
 
     // Get the result of the resource value tracker.
     void GetTrackedResourceValues(Dx12FillCommandResourceValueMap& values);
@@ -104,18 +104,17 @@ class Dx12ResourceValueMapper
 
     void PostProcessSetPipelineState1(DxObjectInfo* command_list4_object_info, DxObjectInfo* state_object_object_info);
 
-    void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size, uint64_t block_index);
+    void PostProcessFillMemoryCommand(uint64_t resource_id, uint64_t offset, uint64_t size);
 
     void PostProcessInitSubresourceCommand(ID3D12Resource*                             resource,
-                                           const format::InitSubresourceCommandHeader& command_header,
-                                           uint64_t                                    block_index);
+                                           const format::InitSubresourceCommandHeader& command_header);
 
-    void AddReplayGpuVa(format::HandleId          resource_id,
-                        D3D12_GPU_VIRTUAL_ADDRESS replay_address,
-                        UINT64                    width,
-                        D3D12_GPU_VIRTUAL_ADDRESS capture_address);
+    void AddResourceGpuVa(format::HandleId          resource_id,
+                          D3D12_GPU_VIRTUAL_ADDRESS replay_address,
+                          UINT64                    width,
+                          D3D12_GPU_VIRTUAL_ADDRESS capture_address);
 
-    void RemoveReplayGpuVa(format::HandleId resource_id, uint64_t replay_address);
+    void RemoveResourceGpuVa(format::HandleId resource_id, uint64_t replay_address, uint64_t capture_address);
 
   private:
     struct ProcessResourceMappingsArgs
@@ -181,14 +180,15 @@ class Dx12ResourceValueMapper
 
   private:
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func_;
-    std::function<void(D3D12_GPU_VIRTUAL_ADDRESS&)>   map_gpu_va_func_;
-    std::function<void(D3D12_GPU_DESCRIPTOR_HANDLE&)> map_gpu_desc_handle_func_;
 
     graphics::Dx12GpuVaMap           reverse_gpu_va_map_; ///< Used to lookup a resource ID from a replay GPU VA.
     const graphics::Dx12ShaderIdMap& shader_id_map_;
 
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
     std::unique_ptr<Dx12ResourceValueTracker>       resource_value_tracker_;
+
+    const graphics::Dx12GpuVaMap&    gpu_va_map_;
+    const decode::Dx12DescriptorMap& descriptor_map_;
 
     // Temporary vectors to reduce allocations.
     std::vector<uint8_t>                           temp_resource_data;
