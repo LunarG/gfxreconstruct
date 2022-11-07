@@ -53,8 +53,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define LOG_ALLOW_INDENTS_UPPER                              "LOG_ALLOW_INDENTS"
 #define LOG_BREAK_ON_ERROR_LOWER                             "log_break_on_error"
 #define LOG_BREAK_ON_ERROR_UPPER                             "LOG_BREAK_ON_ERROR"
-#define LOG_ERRORS_TO_STDERR_LOWER                           "log_errors_to_stderr"
-#define LOG_ERRORS_TO_STDERR_UPPER                           "LOG_ERRORS_TO_STDERR"
+#define LOG_ERRORS_TO_STDOUT_LOWER                           "log_errors_to_stdout"
+#define LOG_ERRORS_TO_STDOUT_UPPER                           "LOG_ERRORS_TO_STDOUT"
 #define LOG_DETAILED_LOWER                                   "log_detailed"
 #define LOG_DETAILED_UPPER                                   "LOG_DETAILED"
 #define LOG_FILE_NAME_LOWER                                  "log_file"
@@ -123,7 +123,7 @@ const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_
 const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_LOWER;
 const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_LOWER;
 const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_LOWER;
-const char kLogErrorsToStderrEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_LOWER;
+const char kLogErrorsToStdoutEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDOUT_LOWER;
 const char kLogFileNameEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_LOWER;
 const char kLogFileCreateNewEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_LOWER;
 const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_LOWER;
@@ -164,7 +164,7 @@ const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_
 const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
 const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
 const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
-const char kLogErrorsToStderrEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
+const char kLogErrorsToStdoutEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDOUT_UPPER;
 const char kLogFileNameEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
 const char kLogFileCreateNewEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
 const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
@@ -203,7 +203,7 @@ const std::string kOptionKeyCaptureFileUseTimestamp                  = std::stri
 const std::string kOptionKeyLogAllowIndents                          = std::string(kSettingsFilter) + std::string(LOG_ALLOW_INDENTS_LOWER);
 const std::string kOptionKeyLogBreakOnError                          = std::string(kSettingsFilter) + std::string(LOG_BREAK_ON_ERROR_LOWER);
 const std::string kOptionKeyLogDetailed                              = std::string(kSettingsFilter) + std::string(LOG_DETAILED_LOWER);
-const std::string kOptionKeyLogErrorsToStderr                        = std::string(kSettingsFilter) + std::string(LOG_ERRORS_TO_STDERR_LOWER);
+const std::string kOptionKeyLogErrorsToStdout                        = std::string(kSettingsFilter) + std::string(LOG_ERRORS_TO_STDOUT_LOWER);
 const std::string kOptionKeyLogFile                                  = std::string(kSettingsFilter) + std::string(LOG_FILE_NAME_LOWER);
 const std::string kOptionKeyLogFileCreateNew                         = std::string(kSettingsFilter) + std::string(LOG_FILE_CREATE_NEW_LOWER);
 const std::string kOptionKeyLogFileFlushAfterWrite                   = std::string(kSettingsFilter) + std::string(LOG_FILE_FLUSH_AFTER_WRITE_LOWER);
@@ -324,7 +324,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kLogAllowIndentsEnvVar, kOptionKeyLogAllowIndents);
     LoadSingleOptionEnvVar(options, kLogBreakOnErrorEnvVar, kOptionKeyLogBreakOnError);
     LoadSingleOptionEnvVar(options, kLogDetailedEnvVar, kOptionKeyLogDetailed);
-    LoadSingleOptionEnvVar(options, kLogErrorsToStderrEnvVar, kOptionKeyLogErrorsToStderr);
+    LoadSingleOptionEnvVar(options, kLogErrorsToStdoutEnvVar, kOptionKeyLogErrorsToStdout);
     LoadSingleOptionEnvVar(options, kLogFileNameEnvVar, kOptionKeyLogFile);
     LoadSingleOptionEnvVar(options, kLogFileCreateNewEnvVar, kOptionKeyLogFileCreateNew);
     LoadSingleOptionEnvVar(options, kLogFileFlushAfterWriteEnvVar, kOptionKeyLogFileFlushAfterWrite);
@@ -498,8 +498,8 @@ void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* se
                                                                 settings->log_settings_.flush_after_write);
     settings->log_settings_.leave_file_open =
         ParseBoolString(FindOption(options, kOptionKeyLogFileKeepOpen), settings->log_settings_.leave_file_open);
-    settings->log_settings_.output_errors_to_stderr = ParseBoolString(FindOption(options, kOptionKeyLogErrorsToStderr),
-                                                                      settings->log_settings_.output_errors_to_stderr);
+    settings->log_settings_.output_errors_to_stdout = ParseBoolString(FindOption(options, kOptionKeyLogErrorsToStdout),
+                                                                      settings->log_settings_.output_errors_to_stdout);
     settings->log_settings_.write_to_console =
         ParseBoolString(FindOption(options, kOptionKeyLogOutputToConsole), settings->log_settings_.write_to_console);
     settings->log_settings_.output_to_os_debug_string = ParseBoolString(
