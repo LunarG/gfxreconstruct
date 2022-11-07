@@ -23,6 +23,7 @@
 
 #include "project_version.h"
 #include "tool_settings.h"
+#include "decode/decode_api_detection.h"
 #include "format/format.h"
 #include "util/platform.h"
 
@@ -99,6 +100,84 @@ std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser, 
 
 } // namespace
 
+void Convert(gfxrecon::util::ArgumentParser& arg_parser,
+             const std::string               input_filename,
+             const std::string               output_filename)
+{
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        FILE* output_file = nullptr;
+        if (gfxrecon::util::platform::StringCompare(output_filename.c_str(), "stdout") == 0)
+        {
+            output_file = stdout;
+        }
+        else
+        {
+            gfxrecon::util::platform::FileOpen(&output_file, output_filename.c_str(), "w");
+        }
+
+        if (output_file)
+        {
+            gfxrecon::decode::VulkanAsciiConsumer vulkan_ascii_consumer;
+            gfxrecon::decode::VulkanDecoder       vulkan_decoder;
+
+            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+            auto vulkan_replay_options = GetVulkanReplayOptions(arg_parser, input_filename, &tracked_object_info_table);
+            if (vulkan_replay_options.enable_vulkan)
+            {
+                vulkan_ascii_consumer.Initialize(output_file,
+                                                 GFXRECON_PROJECT_VERSION_STRING,
+                                                 (std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                                  std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                                  std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)))
+                                                     .c_str(),
+                                                 input_filename.c_str());
+                vulkan_decoder.AddConsumer(&vulkan_ascii_consumer);
+                file_processor.AddDecoder(&vulkan_decoder);
+            }
+
+// If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
+#ifdef CONVERT_EXPERIMENTAL_D3D12
+            gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
+            gfxrecon::decode::Dx12Decoder       dx12_decoder;
+
+            auto dx_replay_options = GetDxReplayOptions(arg_parser);
+            if (dx_replay_options.enable_d3d12)
+            {
+                dx12_ascii_consumer.Initialize(output_file, gfxrecon::util::kToString_Default);
+                dx12_decoder.AddConsumer(&dx12_ascii_consumer);
+                file_processor.AddDecoder(&dx12_decoder);
+            }
+#endif
+
+            file_processor.ProcessAllFrames();
+
+            if (vulkan_replay_options.enable_vulkan)
+            {
+                vulkan_ascii_consumer.Destroy();
+            }
+
+// If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
+#ifdef CONVERT_EXPERIMENTAL_D3D12
+            if (dx_replay_options.enable_d3d12)
+            {
+                dx12_ascii_consumer.Destroy();
+            }
+#endif
+
+            if (output_file != stdout)
+            {
+                gfxrecon::util::platform::FileClose(output_file);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"; is the path valid?", output_filename.c_str());
+        }
+    }
+}
+
 int main(int argc, const char** argv)
 {
     gfxrecon::util::Log::Init();
@@ -136,79 +215,27 @@ int main(int argc, const char** argv)
     const std::string input_filename       = positional_arguments[0];
     const std::string output_filename      = GetOutputFileName(arg_parser, input_filename);
 
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
+    // If CONVERT_EXPERIMENTAL_D3D12 was not set (Default):
+    // Detect API:
+    // - If DX12, then warn user about this being experimental, and don't run Convert code
+    // - If Vulkan, then run Convert code as usual
+
+#ifndef CONVERT_EXPERIMENTAL_D3D12
+    bool detected_d3d12  = false;
+    bool detected_vulkan = false;
+    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
+
+    if (detected_d3d12)
     {
-        FILE* output_file = nullptr;
-        if (gfxrecon::util::platform::StringCompare(output_filename.c_str(), "stdout") == 0)
-        {
-            output_file = stdout;
-        }
-        else
-        {
-            gfxrecon::util::platform::FileOpen(&output_file, output_filename.c_str(), "w");
-        }
-
-        if (output_file)
-        {
-            auto to_string_flags = gfxrecon::util::kToString_Default;
-
-            gfxrecon::decode::VulkanAsciiConsumer vulkan_ascii_consumer;
-            gfxrecon::decode::VulkanDecoder       vulkan_decoder;
-
-#if defined(D3D12_SUPPORT)
-            gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
-            gfxrecon::decode::Dx12Decoder       dx12_decoder;
+        GFXRECON_LOG_INFO("D3D12 support for gfxrecon-convert is currently experimental.");
+        GFXRECON_LOG_INFO("To enable it, run cmake again with switch -DCONVERT_EXPERIMENTAL_D3D12");
+    }
+    else
 #endif
 
-            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-            auto vulkan_replay_options = GetVulkanReplayOptions(arg_parser, input_filename, &tracked_object_info_table);
-            if (vulkan_replay_options.enable_vulkan)
-            {
-                vulkan_ascii_consumer.Initialize(output_file,
-                                                 GFXRECON_PROJECT_VERSION_STRING,
-                                                 (std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                                  std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                                  std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)))
-                                                     .c_str(),
-                                                 input_filename.c_str());
-                vulkan_decoder.AddConsumer(&vulkan_ascii_consumer);
-                file_processor.AddDecoder(&vulkan_decoder);
-            }
-
-#if defined(D3D12_SUPPORT)
-            auto dx_replay_options = GetDxReplayOptions(arg_parser);
-            if (dx_replay_options.enable_d3d12)
-            {
-                dx12_ascii_consumer.Initialize(output_file, to_string_flags);
-                dx12_decoder.AddConsumer(&dx12_ascii_consumer);
-                file_processor.AddDecoder(&dx12_decoder);
-            }
-#endif
-
-            file_processor.ProcessAllFrames();
-
-            if (vulkan_replay_options.enable_vulkan)
-            {
-                vulkan_ascii_consumer.Destroy();
-            }
-
-#if defined(D3D12_SUPPORT)
-            if (dx_replay_options.enable_d3d12)
-            {
-                dx12_ascii_consumer.Destroy();
-            }
-#endif
-
-            if (output_file != stdout)
-            {
-                gfxrecon::util::platform::FileClose(output_file);
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"; is the path valid?", output_filename.c_str());
-        }
+    // If CONVERT_EXPERIMENTAL_D3D12 was set, then run Convert code as usual
+    {
+        Convert(arg_parser, input_filename, output_filename);
     }
 
     gfxrecon::util::Log::Release();

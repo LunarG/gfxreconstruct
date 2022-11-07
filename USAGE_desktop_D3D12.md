@@ -28,9 +28,8 @@ This document describes the GFXReconstruct software for capturing and replaying 
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
-    4. [Capture File Optimizer](#capture-file-optimizer)
-    4. [Capture File ASCII Dump](#capture-file-ascii-dump)
-    5. [Renaming Scripts](#renaming-scripts)
+    3. [Capture File Optimizer](#capture-file-optimizer)
+    4. [Renaming Scripts](#renaming-scripts)
 
 
 
@@ -391,38 +390,6 @@ Optional arguments:
 
 Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.
 ```
-
-### Capture File ASCII Dump
-
-The `gfxrecon-toascii` tool produces human-legible API call history, in JSON format, for a given capture file.
-
-```text
-gfxrecon-toascii.exe - A tool to convert GFXReconstruct capture files to text.
-
-Usage:
-  gfxrecon-toascii.exe [-h | --help] [--version]
-                        [--api <api>] [--no-debug-popup] <file>
-
-Required arguments:
-  <file>                Path to the GFXReconstruct capture file to be converted
-                        to text.
-
-Optional arguments:
-  -h                    Print usage information and exit (same as --help).
-  --version             Print version information and exit.
-  --json-object         Output a single JSON object, the default is to output concatenated JSON objects.
-  --output file         'stdout' or a path to a file to write JSON output
-                        to. Default is the input filepath with "gfxr" replaced by "txt".
-  --api <api>           Dump ASCII output for the specified API (Windows only).
-                        Available values are:
-                            vulkan      Dump only Vulkan API calls.
-                            d3d12       Dump only D3D12 API calls.
-                            all         Dump both Vulkan and D3D12 API calls. This is the default.
-  --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
-                        displayed when abort() is called (Windows debug only).
-```
-
-
 
 ### Renaming Scripts
 
