@@ -1821,7 +1821,8 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info->memory_properties != nullptr);
 
-    VkResult result = allocator->Initialize(physical_device_info->parent_api_version,
+    VkResult result = allocator->Initialize(std::min(physical_device_info->parent_api_version,
+                                                     physical_device_info->replay_device_info->properties->apiVersion),
                                             physical_device_info->parent,
                                             physical_device_info->handle,
                                             device,
