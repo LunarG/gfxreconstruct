@@ -27,6 +27,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+#define GFXRECON_ACCEL_STRUCT_TRIM_BARRIER 0
+
 Dx12StateTracker::Dx12StateTracker() : accel_struct_id_(1) {}
 
 Dx12StateTracker::~Dx12StateTracker() {}
@@ -665,12 +667,14 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     continue;
                 }
 
-                auto src_resource      = src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
                 auto src_resource_info = src_resource_wrapper->GetObjectInfo();
-
-                GFXRECON_ASSERT(src_resource != nullptr);
                 GFXRECON_ASSERT(src_resource_info != nullptr);
                 GFXRECON_ASSERT(src_resource_info->subresource_sizes[0] > 0);
+
+#if GFXRECON_ACCEL_STRUCT_TRIM_BARRIER
+                auto src_resource = src_resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+
+                GFXRECON_ASSERT(src_resource != nullptr);
 
                 // Look for a transition for the resource that was recorded to the current command list.
                 auto src_resource_states = src_resource_info->subresource_transitions.at(0).states;
@@ -709,7 +713,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     pre_barrier.Transition = pre_transition;
                     list_wrapper->ResourceBarrier(1, &pre_barrier);
                 }
-
+#endif
                 // Copy all inputs data from the current resource to the inputs_data_resource.
                 auto end_gpu_va = src_resource_info->gpu_va + src_resource_info->subresource_sizes[0];
                 while ((curr_entry_iter != end_entry_iter) && (*curr_entry_iter->desc_gpu_va < end_gpu_va))
@@ -727,6 +731,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     ++curr_entry_iter;
                 }
 
+#if GFXRECON_ACCEL_STRUCT_TRIM_BARRIER
                 // Add a resource transition after the copy, restoring the original state.
                 if (needs_resource_transition)
                 {
@@ -741,6 +746,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     post_barrier.Transition = post_transition;
                     list_wrapper->ResourceBarrier(1, &post_barrier);
                 }
+#endif
             }
         }
     }
