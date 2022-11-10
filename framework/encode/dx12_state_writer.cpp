@@ -362,7 +362,6 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
             }
         }
 
-        // TODO: Add D3D12 trimming support, handle custom state for other heap types
         StandardCreateWrite(wrapper);
     });
 }
@@ -1629,11 +1628,14 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
         written_addresses.insert(as_build.dest_gpu_va);
     }
 
-    GFXRECON_LOG_INFO("Wrote acceleration structure build data to trim state block: %" PRIu64 " bottom level, %" PRIu64
-                      " top level, %" PRIu64 " file bytes.",
-                      blas_addresses.size(),
-                      (written_addresses.size() - blas_addresses.size()),
-                      accel_struct_file_bytes);
+    if (accel_struct_file_bytes > 0)
+    {
+        GFXRECON_LOG_INFO("Wrote acceleration structure build data to trim state block: %" PRIu64
+                          " bottom level, %" PRIu64 " top level, %" PRIu64 " file bytes.",
+                          blas_addresses.size(),
+                          (written_addresses.size() - blas_addresses.size()),
+                          accel_struct_file_bytes);
+    }
 }
 
 void Dx12StateWriter::WriteStateObjectAndDependency(const format::HandleId                state_object_id,

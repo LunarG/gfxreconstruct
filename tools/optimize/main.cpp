@@ -241,6 +241,8 @@ int main(int argc, const char** argv)
 
         if (dx12_options.optimize_dxr_experimental)
         {
+            GFXRECON_WRITE_CONSOLE("Running experimental DXR optimization. This mode is experimental, and should only "
+                                   "be used if --dxr did not produce a valid capture file.");
             dx12_options.optimize_dxr = true;
         }
 

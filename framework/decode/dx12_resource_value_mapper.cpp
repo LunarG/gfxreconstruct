@@ -1169,9 +1169,9 @@ void Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
             if ((value_info.size > D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES) &&
                 IsNonEmptyShaderRecord(result_data, final_offset, value_info.size))
             {
-                GFXRECON_LOG_ERROR_ONCE("Did not find an associated local root signature for one or more shader IDs "
-                                        "used in a shader record. If the shader record contains GPU virtual "
-                                        "addresses or descriptor handles, replay may fail.");
+                GFXRECON_LOG_WARNING_ONCE("Did not find an associated local root signature for one or more shader IDs "
+                                          "used in a shader record. If the shader record contains GPU virtual "
+                                          "addresses or descriptor handles, replay may fail.");
 
                 if (resource_value_tracker_ != nullptr)
                 {
@@ -1498,8 +1498,8 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
         else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY)
         {
             // TODO: Parse local root signatures and their shader associations from the DXIL library.
-            GFXRECON_LOG_WARNING_ONCE("A state object is being created with a DXIL library subobject. Some usages of "
-                                      "DXIL library subobjects may not be fully supported by GFXR replay.");
+            GFXRECON_LOG_DEBUG_ONCE("A state object is being created with a DXIL library subobject. Some usages of "
+                                    "DXIL library subobjects may not be fully supported by GFXR replay.");
 
             GFXRECON_ASSERT(subobject_decoder.dxil_library_desc != nullptr);
             auto dxil_lib_desc_decoder = subobject_decoder.dxil_library_desc;

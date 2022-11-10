@@ -133,8 +133,8 @@ bool Dx12ResourceValueTracker::AddTrackedResourceValue(format::HandleId         
     }
     else
     {
-        GFXRECON_LOG_ERROR_ONCE("Failed to find the fill memory command associated with resource data that required "
-                                "mapping for replay. Optimized result may be incorrect.");
+        GFXRECON_LOG_ERROR_ONCE(
+            "Failed to find the required data for DXR optimization. The optimized result may be invalid.");
         return false;
     }
 }

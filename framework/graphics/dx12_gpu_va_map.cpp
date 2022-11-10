@@ -93,7 +93,7 @@ uint64_t Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool
 
         if (!local_found && (found == nullptr))
         {
-            GFXRECON_LOG_WARNING("No matching replay address found for capture address 0x%" PRIx64, address);
+            GFXRECON_LOG_WARNING_ONCE("No matching replay address found for capture address.");
         }
     }
 

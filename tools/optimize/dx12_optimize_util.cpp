@@ -269,9 +269,9 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
         // If unassocaited resource values were found the resource value tracker must be run again.
         if (options.optimize_dxr_experimental && (info.unassociated_resource_values.size() > 0))
         {
-            GFXRECON_WRITE_CONSOLE("Failed to find the required information for DXR optimization. A second pass of the "
-                                   "optimizer will attempt to find these values. This is not guaranteed to produce an "
-                                   "accurate or even working optimized capture file.");
+            GFXRECON_WRITE_CONSOLE(
+                "The first pass of experimental DXR optimization was unable to find all required optimization data. A "
+                "second pass will attempt to find this data using a brute-force search.");
             dxr_scan_result = dxr_scan_result && GetDxrOptimizationInfo(input_filename, info, false, options);
         }
     }
