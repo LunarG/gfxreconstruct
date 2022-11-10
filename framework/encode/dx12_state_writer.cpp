@@ -160,7 +160,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     WriteResidencyPriority(state_table);
     WriteCommandListState(state_table);
 
-    // TODO (GH# 648): Determine dependencies for creation of ID3D12VirtualizationGuestDevice
+    // TODO: Determine dependencies for creation of ID3D12VirtualizationGuestDevice
     // Since the dependency chain is unclear, just write their state at the very end
     StandardCreateWrite<ID3D12VirtualizationGuestDevice_Wrapper>(state_table);
 
