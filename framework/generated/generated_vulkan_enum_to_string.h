@@ -197,8 +197,14 @@ template <> std::string ToString<VkSemaphoreType>(const VkSemaphoreType& value, 
 template <> std::string ToString<VkSemaphoreWaitFlagBits>(const VkSemaphoreWaitFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSemaphoreWaitFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkShaderFloatControlsIndependence>(const VkShaderFloatControlsIndependence& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string VkAccessFlagBits2ToString(const VkAccessFlagBits2 value);
+std::string VkAccessFlags2ToString(VkFlags64 vkFlags);
+std::string VkFormatFeatureFlagBits2ToString(const VkFormatFeatureFlagBits2 value);
+std::string VkFormatFeatureFlags2ToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(const VkPipelineCreationFeedbackFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineCreationFeedbackFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string VkPipelineStageFlagBits2ToString(const VkPipelineStageFlagBits2 value);
+std::string VkPipelineStageFlags2ToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkRenderingFlagBits>(const VkRenderingFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkRenderingFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSubmitFlagBits>(const VkSubmitFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
