@@ -28,7 +28,7 @@
 #include "util/platform.h"
 
 #include "generated/generated_vulkan_ascii_consumer.h"
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include "generated/generated_dx12_ascii_consumer.h"
 #endif
 
