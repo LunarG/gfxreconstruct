@@ -20,12 +20,14 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-/// @file Facilities for the conversion of types to strings.
+/// @file Facilities for the conversion of types to strings, oriented  towards
+/// JSON Lines output.
 
 #ifndef GFXRECON_TO_STRING_H
 #define GFXRECON_TO_STRING_H
 
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <sstream>
 #include <string>
@@ -43,6 +45,8 @@ enum ToStringFlagBits
 
 typedef uint32_t ToStringFlags;
 
+/// @brief  A template ToString to take care of simple POD cases like the many
+/// types of integers and the 32 bit and 64 bit floating point types.
 template <typename T>
 inline std::string
 ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
@@ -53,6 +57,12 @@ ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t
     return std::to_string(obj);
 }
 
+/// @brief A template that exists only to allow the ToStrings for 32 bit sets of
+/// flags to be template specializations.
+/// We certainly wouldn't want to call it since it always returns a zero.
+/// @note There seems to be no reason for those ToStrings to be template
+/// function specializations since a caller has to explicitly spell out a type
+/// to call one of them and there is no deduction going on.
 template <typename T>
 inline std::string ToString(uint32_t      apiFlags,
                             ToStringFlags toStringFlags = kToString_Default,
@@ -63,6 +73,9 @@ inline std::string ToString(uint32_t      apiFlags,
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+    GFXRECON_LOG_ERROR("std::string ToString(uint32_t apiFlags,..) should never be called see: " __FILE__ ", line %d ",
+                       __LINE__);
+    GFXRECON_ASSERT(nullptr == "Shutting down to make the error impossible to ignore.");
     return "0";
 }
 
