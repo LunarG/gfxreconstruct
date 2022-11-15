@@ -67,6 +67,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
+    void PostReplay();
+
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;

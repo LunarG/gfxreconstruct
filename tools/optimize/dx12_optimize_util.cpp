@@ -104,8 +104,8 @@ bool BypassDxrOptimization(gfxrecon::decode::Dx12ObjectScanningConsumer& resref_
 {
     bool bypass_dxr_optimization = false;
 
-    bool contains_dxr_workload = resref_consumer.ContainsDXRWorkload();
-    bool is_dxr_optimized      = resref_consumer.ContainsDXROptFillMem();
+    bool contains_dxr_workload = resref_consumer.ContainsDxrWorkload();
+    bool is_dxr_optimized      = resref_consumer.ContainsOptFillMem();
 
     if ((contains_dxr_workload == false) || (is_dxr_optimized == true))
     {

@@ -289,6 +289,8 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryResourceValueCommand(
         resource_value_mapper_ = nullptr;
         GFXRECON_LOG_INFO("Found data to enable optimized playback of DXR and/or ExecuteIndirect commands.");
     }
+
+    opt_fillmem_ = true;
 }
 
 void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size)
@@ -466,6 +468,8 @@ void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
     }
 
     accel_struct_builder_->Build(gpu_va_map_, command_header, geometry_descs, build_inputs_data);
+
+    dxr_workload_ = true;
 }
 
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
@@ -3192,6 +3196,8 @@ void Dx12ReplayConsumerBase::OverrideExecuteIndirect(DxObjectInfo* command_list_
                                                            count_buffer_object_info,
                                                            count_buffer_offset);
     }
+
+    ei_workload_ = true;
 }
 
 void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
@@ -3215,6 +3221,8 @@ void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
     {
         resource_value_mapper_->PostProcessBuildRaytracingAccelerationStructure(command_list4_object_info, desc);
     }
+
+    dxr_workload_ = true;
 }
 
 void Dx12ReplayConsumerBase::OverrideGetRaytracingAccelerationStructurePrebuildInfo(
@@ -3536,6 +3544,20 @@ void Dx12ReplayConsumerBase::ApplyFillMemoryResourceValueCommand(uint64_t       
         {
             GFXRECON_LOG_ERROR("Unexpected state found for the data required for optimized replay of DXR and/or "
                                "ExecuteIndirect commands. Replay may fail.");
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::PostReplay()
+{
+    if (ContainsDxrWorkload() || ContainsEiWorkload())
+    {
+        if (ContainsOptFillMem() == false)
+        {
+            GFXRECON_LOG_INFO_ONCE(
+                "This capture contains DXR and/or ExecuteIndirect workloads, but has not been optimized.");
+            GFXRECON_LOG_INFO_ONCE(
+                "Use gfxrecon-optimize to obtain an optimized capture with improved playback performance.");
         }
     }
 }

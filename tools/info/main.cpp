@@ -443,26 +443,40 @@ void PrintDx12SwapchainInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     GFXRECON_WRITE_CONSOLE("");
 }
 
-void PrintDxrInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
+    if (dx12_consumer.ContainsEiWorkload())
+    {
+        GFXRECON_WRITE_CONSOLE("D3D12 EI workload: yes");
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("D3D12 EI workload: no");
+    }
+
+    GFXRECON_WRITE_CONSOLE("");
+
     if (dx12_consumer.ContainsDxrWorkload())
     {
         GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
-
-        GFXRECON_WRITE_CONSOLE("");
-
-        if (dx12_consumer.ContainsDXROptFillMem())
-        {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: yes");
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: no");
-        }
     }
     else
     {
         GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
+    }
+
+    GFXRECON_WRITE_CONSOLE("");
+
+    if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
+    {
+        if (dx12_consumer.ContainsOptFillMem())
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: yes");
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: no");
+        }
     }
 }
 
@@ -512,7 +526,7 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
 
         PrintDx12SwapchainInfo(dx12_consumer);
 
-        PrintDxrInfo(dx12_consumer);
+        PrintDxrEiInfo(dx12_consumer);
     }
     else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
     {

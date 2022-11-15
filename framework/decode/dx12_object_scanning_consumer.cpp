@@ -152,7 +152,7 @@ void Dx12ObjectScanningConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytrac
 void Dx12ObjectScanningConsumer::ProcessFillMemoryResourceValueCommand(
     const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
 {
-    dxr_opt_fillmem_ = true;
+    opt_fillmem_ = true;
 }
 
 void Dx12ObjectScanningConsumer::ProcessInitDx12AccelerationStructureCommand(

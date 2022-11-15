@@ -31,11 +31,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ObjectScanningConsumer : public Dx12ObjectScanningConsumerBase
 {
   public:
-    Dx12ObjectScanningConsumer() : dxr_workload_(false), dxr_opt_fillmem_(false) {}
+    Dx12ObjectScanningConsumer() {}
     virtual ~Dx12ObjectScanningConsumer() override {}
-
-    bool ContainsDXRWorkload() { return dxr_workload_; }
-    bool ContainsDXROptFillMem() { return dxr_opt_fillmem_; };
 
     virtual void Process_ID3D12PipelineState_GetCachedBlob(const ApiCallInfo&                 call_info,
                                                            format::HandleId                   object_id,
@@ -119,10 +116,6 @@ class Dx12ObjectScanningConsumer : public Dx12ObjectScanningConsumerBase
         const format::InitDx12AccelerationStructureCommandHeader&       command_header,
         std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
         const uint8_t*                                                  build_inputs_data);
-
-  private:
-    bool dxr_workload_;
-    bool dxr_opt_fillmem_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

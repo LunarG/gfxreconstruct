@@ -36,7 +36,7 @@ class Dx12StatsConsumer : public Dx12Consumer
   public:
     Dx12StatsConsumer() :
         swapchain_width_(0), swapchain_height_(0), swapchain_id_(0), swapchain_info_found_(false),
-        dummy_trim_frame_count_(0), dxr_workload_(false), dxr_opt_fillmem_(false)
+        dummy_trim_frame_count_(0)
     {}
 
     bool IsComplete(uint64_t current_block_index) override { return false; }
@@ -57,10 +57,6 @@ class Dx12StatsConsumer : public Dx12Consumer
     }
 
     bool FoundSwapchainInfo() { return swapchain_info_found_; }
-
-    bool ContainsDxrWorkload() { return dxr_workload_; }
-
-    bool ContainsDXROptFillMem() { return dxr_opt_fillmem_; }
 
     UINT GetDummyFrameCount() { return dummy_trim_frame_count_; }
 
@@ -240,7 +236,7 @@ class Dx12StatsConsumer : public Dx12Consumer
     ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
                                           const uint8_t*                                      data)
     {
-        dxr_opt_fillmem_ = true;
+        opt_fillmem_ = true;
     }
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
@@ -249,6 +245,18 @@ class Dx12StatsConsumer : public Dx12Consumer
         const uint8_t*                                                  build_inputs_data)
     {
         dxr_workload_ = true;
+    }
+
+    void Process_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                           format::HandleId   object_id,
+                                                           format::HandleId   pCommandSignature,
+                                                           UINT               MaxCommandCount,
+                                                           format::HandleId   pArgumentBuffer,
+                                                           UINT64             ArgumentBufferOffset,
+                                                           format::HandleId   pCountBuffer,
+                                                           UINT64             CountBufferOffset)
+    {
+        ei_workload_ = true;
     }
 
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header)
@@ -281,9 +289,6 @@ class Dx12StatsConsumer : public Dx12Consumer
     bool             swapchain_info_found_;
 
     UINT             dummy_trim_frame_count_;
-
-    bool dxr_workload_;
-    bool dxr_opt_fillmem_;
 
     format::Dx12RuntimeInfo runtime_info_;
 };

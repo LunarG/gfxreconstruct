@@ -173,8 +173,18 @@ class Dx12ConsumerBase
 
     void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; };
 
+    bool ContainsDxrWorkload() { return dxr_workload_; }
+
+    bool ContainsEiWorkload() { return ei_workload_; }
+
+    bool ContainsOptFillMem() { return opt_fillmem_; }
+
   protected:
     auto GetCurrentBlockIndex() { return current_block_index_; }
+
+    bool dxr_workload_{ false };
+    bool ei_workload_{ false };
+    bool opt_fillmem_{ false };
 
   private:
     uint64_t current_block_index_{ 0 };

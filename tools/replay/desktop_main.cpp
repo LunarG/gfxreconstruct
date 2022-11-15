@@ -226,6 +226,10 @@ int main(int argc, const char** argv)
                 }
                 else
                 {
+#if defined(D3D12_SUPPORT)
+                    dx12_replay_consumer.PostReplay();
+#endif
+
                     fps_info.LogToConsole();
                 }
             }
