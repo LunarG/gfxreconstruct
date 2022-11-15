@@ -488,7 +488,7 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
             else
             {
                 // TODO: Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
-                GFXRECON_LOG_WARNING("Application built acceleration structure with unsupported layout: ",
+                GFXRECON_LOG_WARNING("Application built acceleration structure with unsupported layout: "
                                      "D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS");
             }
         }
