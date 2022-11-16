@@ -1383,13 +1383,18 @@ class BaseGenerator(OutputGenerator):
             if platform_structs:
                 self.PLATFORM_STRUCTS += platform_structs
 
+    # Return true if the type passed in is used to hold a set of bitwise flags
+    # that is 64 bits wide.
+    def is_64bit_flags(self, flag_type):
+        if flag_type in self.flags_types:
+            if self.flags_types[flag_type] == 'VkFlags64':
+                return True
+        return False
+
     # Return true if the enum or 64 bit pseudo enum passed-in represents a set
     # of bitwise flags.
     # Note, all 64 bit pseudo-enums represent flags since the only reason to go to
     # 64 bits is to allow more than 32 flags to be represented.
     def is_flags_enum_64bit(self, enum):
         flag_type = BitsEnumToFlagsTypedef(enum)
-        if flag_type in self.flags_types:
-            if self.flags_types[flag_type] == 'VkFlags64':
-                return True
-        return False
+        return self.is_64bit_flags(flag_type)

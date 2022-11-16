@@ -23,7 +23,6 @@
 import os, re, sys, inspect
 from base_generator import *
 
-
 class VulkanStructToStringBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
@@ -222,8 +221,15 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = 'Quote(ToString(obj.{0}, toStringFlags, tabCount, tabSize))'
+                    # Some simple scalar data like an int or a float, or a 32 bit or 64 bit flag set typedef:
                     else:
-                        toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
+                        # Check whether we have a set of 64 bit flags:
+                        if self.is_64bit_flags(value.base_type):
+                            # Synthesize the name of the function to call for this set of flags:
+                            toString = '{2}ToString(obj.{0})'
+                        # ToDo: if self.is_32bit_flags(enum): dispatch the correct call to fix Issue #620
+                        else:
+                            toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
 
@@ -232,7 +238,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             if length_expr and ('value' in length_expr):
                 length_expr.replace('value', 'obj')
             
-            toString = toString.format(value.name, length_expr)
+            toString = toString.format(value.name, length_expr, value.base_type)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable

@@ -3621,10 +3621,10 @@ template <> std::string ToString<VkMemoryBarrier2>(const VkMemoryBarrier2& obj, 
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, ToString(obj.srcStageMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstStageMask", toStringFlags, tabCount, tabSize, ToString(obj.dstStageMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.srcStageMask));
+            FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, VkAccessFlags2ToString(obj.srcAccessMask));
+            FieldToString(strStrm, false, "dstStageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.dstStageMask));
+            FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, VkAccessFlags2ToString(obj.dstAccessMask));
         }
     );
 }
@@ -3636,10 +3636,10 @@ template <> std::string ToString<VkBufferMemoryBarrier2>(const VkBufferMemoryBar
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, ToString(obj.srcStageMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstStageMask", toStringFlags, tabCount, tabSize, ToString(obj.dstStageMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.srcStageMask));
+            FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, VkAccessFlags2ToString(obj.srcAccessMask));
+            FieldToString(strStrm, false, "dstStageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.dstStageMask));
+            FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, VkAccessFlags2ToString(obj.dstAccessMask));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
@@ -3656,10 +3656,10 @@ template <> std::string ToString<VkImageMemoryBarrier2>(const VkImageMemoryBarri
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, ToString(obj.srcStageMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstStageMask", toStringFlags, tabCount, tabSize, ToString(obj.dstStageMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.srcStageMask));
+            FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, VkAccessFlags2ToString(obj.srcAccessMask));
+            FieldToString(strStrm, false, "dstStageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.dstStageMask));
+            FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, VkAccessFlags2ToString(obj.dstAccessMask));
             FieldToString(strStrm, false, "oldLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.oldLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "newLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.newLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -3697,7 +3697,7 @@ template <> std::string ToString<VkSemaphoreSubmitInfo>(const VkSemaphoreSubmitI
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
             FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize, ToString(obj.value, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, ToString(obj.stageMask, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.stageMask));
             FieldToString(strStrm, false, "deviceIndex", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4212,9 +4212,9 @@ template <> std::string ToString<VkFormatProperties3>(const VkFormatProperties3&
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "linearTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.linearTilingFeatures, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "optimalTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.optimalTilingFeatures, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "bufferFeatures", toStringFlags, tabCount, tabSize, ToString(obj.bufferFeatures, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "linearTilingFeatures", toStringFlags, tabCount, tabSize, VkFormatFeatureFlags2ToString(obj.linearTilingFeatures));
+            FieldToString(strStrm, false, "optimalTilingFeatures", toStringFlags, tabCount, tabSize, VkFormatFeatureFlags2ToString(obj.optimalTilingFeatures));
+            FieldToString(strStrm, false, "bufferFeatures", toStringFlags, tabCount, tabSize, VkFormatFeatureFlags2ToString(obj.bufferFeatures));
         }
     );
 }
@@ -5481,7 +5481,7 @@ template <> std::string ToString<VkQueueFamilyCheckpointProperties2NV>(const VkQ
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "checkpointExecutionStageMask", toStringFlags, tabCount, tabSize, ToString(obj.checkpointExecutionStageMask, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "checkpointExecutionStageMask", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.checkpointExecutionStageMask));
         }
     );
 }
@@ -5493,7 +5493,7 @@ template <> std::string ToString<VkCheckpointData2NV>(const VkCheckpointData2NV&
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(obj.stage, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, VkPipelineStageFlags2ToString(obj.stage));
             FieldToString(strStrm, false, "pCheckpointMarker", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pCheckpointMarker)));
         }
     );
@@ -6538,7 +6538,7 @@ template <> std::string ToString<VkAndroidHardwareBufferFormatProperties2ANDROID
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "externalFormat", toStringFlags, tabCount, tabSize, ToString(obj.externalFormat, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "formatFeatures", toStringFlags, tabCount, tabSize, ToString(obj.formatFeatures, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "formatFeatures", toStringFlags, tabCount, tabSize, VkFormatFeatureFlags2ToString(obj.formatFeatures));
             FieldToString(strStrm, false, "samplerYcbcrConversionComponents", toStringFlags, tabCount, tabSize, ToString(obj.samplerYcbcrConversionComponents, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "suggestedYcbcrModel", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYcbcrModel, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "suggestedYcbcrRange", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYcbcrRange, toStringFlags, tabCount, tabSize)));
@@ -6836,7 +6836,7 @@ template <> std::string ToString<VkDrmFormatModifierProperties2EXT>(const VkDrmF
         {
             FieldToString(strStrm, true, "drmFormatModifier", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifier, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifierPlaneCount", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierPlaneCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "drmFormatModifierTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierTilingFeatures, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "drmFormatModifierTilingFeatures", toStringFlags, tabCount, tabSize, VkFormatFeatureFlags2ToString(obj.drmFormatModifierTilingFeatures));
         }
     );
 }
