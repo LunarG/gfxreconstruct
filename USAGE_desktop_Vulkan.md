@@ -36,6 +36,7 @@ Vulkan API calls on Desktop systems.
     4. [Trimmed File Optimization](#trimmed-file-optimization)
     5. [JSON Lines Conversion](#json-lines-conversion)
     6. [Command Launcher](#command-launcher)
+    7. [Options Common To All Tools](#common-options)
 
 ## Capturing API calls
 
@@ -658,3 +659,17 @@ gfxrecon.py capture -o vkcube.gfxr vkcube
 
 On Windows, after installing Python3, be sure to associate the `.py` file extension with
 the Python3 interpreter before you run the script.
+
+### Options Common To all Tools
+
+If the environment variable `GFXRECON_NO_DEBUG_POPUP` has any non-zero
+number or non-empty, non-numeric string value when running any of
+of the file processing tools, the tool will attempt to disable the
+'Abort, Retry, Ignore' message box displayed when `assert()` fails on
+Windows in a Debug build.  This behavior is slightly different than
+`--no-debug-popup` in that the message box is disabled before any other
+variable initialization.  This is probably most useful in headless or
+"Continuous Integration" builds when an on-screen message box that
+can't be automatically dismissed may hang scripts or cause directories
+to be locked.  (Note that "FALSE" and "no", as examples, are non-empty,
+non-numeric string values and will be interpreted as enabling the option.)

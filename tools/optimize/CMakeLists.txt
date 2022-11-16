@@ -41,7 +41,18 @@ target_sources(gfxrecon-optimize
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_value_tracking_consumer.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/block_skipping_file_processor.h>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/block_skipping_file_processor.cpp>
+                   ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
               )
+
+if (MSVC)
+    # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+    # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+    if(NOT CMAKE_CL_64)
+      target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+    else()
+      target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+    endif()
+endif()
 
 target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR})
 
