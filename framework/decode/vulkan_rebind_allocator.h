@@ -282,6 +282,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
         // Image layouts for performing mapped memory writes to linear images with different capture/replay memory
         // alignments.
+        SubresourceLayouts              init_layouts;
         std::vector<SubresourceLayouts> layouts;
     };
 

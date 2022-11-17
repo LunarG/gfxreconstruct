@@ -251,6 +251,17 @@ VkResult VulkanRebindAllocator::CreateImage(const VkImageCreateInfo*     create_
             {
                 resource_alloc_info->uses_extensions = true;
             }
+
+            VkImageSubresource subresource;
+            subresource.aspectMask = VK_IMAGE_ASPECT_NONE;
+            subresource.mipLevel   = 0;
+            subresource.arrayLayer = 0;
+            VkSubresourceLayout layout;
+            functions_.get_image_subresource_layout(device_, *image, &subresource, &layout);
+
+            resource_alloc_info->init_layouts.subresource = subresource;
+            resource_alloc_info->init_layouts.rebind      = layout;
+            resource_alloc_info->init_layouts.original    = layout;
         }
     }
 
@@ -909,43 +920,37 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
             }
             else
             {
-                if (!resource_alloc_info->layouts.empty())
+                if (resource_alloc_info->layouts.size() > 1)
                 {
-                    if (resource_alloc_info->layouts.size() == 1)
-                    {
-                        const auto& layouts = resource_alloc_info->layouts[0];
-
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts.original.rowPitch);
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts.rebind.rowPitch);
-
-                        size_t original_row_pitch = static_cast<size_t>(layouts.original.rowPitch);
-                        size_t rebind_row_pitch   = static_cast<size_t>(layouts.rebind.rowPitch);
-
-                        resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer),
-                                                             data + copy_src_offset,
-                                                             copy_dst_offset,
-                                                             copy_size,
-                                                             rebind_row_pitch,
-                                                             original_row_pitch,
-                                                             resource_alloc_info->height);
-                    }
-                    else
-                    {
-                        // TODO: multi-plane image format support when strides do not match.
-                        GFXRECON_LOG_ERROR("Skipping mapped memory write for image with multiple subresources: support "
-                                           "not yet implemented");
-                    }
+                    // TODO: multi-plane image format support when strides do not match.
+                    GFXRECON_LOG_ERROR("Skipping mapped memory write for image with multiple subresources: support "
+                                       "not yet implemented");
                 }
                 else
                 {
-                    GFXRECON_LOG_WARNING("Image subresource layout info is not available for mapped memory write; "
-                                         "capture/replay memory alignment differences will not be handled properly");
+                    SubresourceLayouts* layouts = nullptr;
+                    if (resource_alloc_info->layouts.size() == 1)
+                    {
+                        layouts = &resource_alloc_info->layouts[0];
+                    }
+                    else
+                    {
+                        layouts = &resource_alloc_info->init_layouts;
+                    }
 
-                    util::platform::MemoryCopy(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer) +
-                                                   copy_dst_offset,
-                                               copy_size,
-                                               data + copy_src_offset,
-                                               copy_size);
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts->original.rowPitch);
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts->rebind.rowPitch);
+
+                    size_t original_row_pitch = static_cast<size_t>(layouts->original.rowPitch);
+                    size_t rebind_row_pitch   = static_cast<size_t>(layouts->rebind.rowPitch);
+
+                    resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer),
+                                                         data + copy_src_offset,
+                                                         copy_dst_offset,
+                                                         copy_size,
+                                                         rebind_row_pitch,
+                                                         original_row_pitch,
+                                                         resource_alloc_info->height);
                 }
             }
         }
