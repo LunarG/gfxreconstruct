@@ -94,13 +94,13 @@ template <> std::string ToString<VkBufferMemoryBarrier>(const VkBufferMemoryBarr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
         }
@@ -165,15 +165,15 @@ template <> std::string ToString<VkImageMemoryBarrier>(const VkImageMemoryBarrie
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "oldLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.oldLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "newLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.newLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "oldLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.oldLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "newLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.newLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(obj.subresourceRange, toStringFlags, tabCount, tabSize));
         }
     );
@@ -184,7 +184,7 @@ template <> std::string ToString<VkMemoryBarrier>(const VkMemoryBarrier& obj, To
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
@@ -198,10 +198,10 @@ template <> std::string ToString<VkPipelineCacheHeaderVersionOne>(const VkPipeli
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "headerSize", toStringFlags, tabCount, tabSize, ToString(obj.headerSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "headerVersion", toStringFlags, tabCount, tabSize, '"' + ToString(obj.headerVersion, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "headerVersion", toStringFlags, tabCount, tabSize, Quote(ToString(obj.headerVersion, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "vendorID", toStringFlags, tabCount, tabSize, ToString(obj.vendorID, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceID", toStringFlags, tabCount, tabSize, ToString(obj.deviceID, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipelineCacheUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.pipelineCacheUUID) + '"');
+            FieldToString(strStrm, false, "pipelineCacheUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.pipelineCacheUUID)));
         }
     );
 }
@@ -211,12 +211,12 @@ template <> std::string ToString<VkAllocationCallbacks>(const VkAllocationCallba
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "pUserData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pUserData) + "\"");
-            FieldToString(strStrm, false, "pfnAllocation", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnAllocation) + "\"");
-            FieldToString(strStrm, false, "pfnReallocation", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnReallocation) + "\"");
-            FieldToString(strStrm, false, "pfnFree", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnFree) + "\"");
-            FieldToString(strStrm, false, "pfnInternalAllocation", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnInternalAllocation) + "\"");
-            FieldToString(strStrm, false, "pfnInternalFree", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnInternalFree) + "\"");
+            FieldToString(strStrm, true, "pUserData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pUserData)));
+            FieldToString(strStrm, false, "pfnAllocation", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnAllocation)));
+            FieldToString(strStrm, false, "pfnReallocation", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnReallocation)));
+            FieldToString(strStrm, false, "pfnFree", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnFree)));
+            FieldToString(strStrm, false, "pfnInternalAllocation", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnInternalAllocation)));
+            FieldToString(strStrm, false, "pfnInternalFree", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnInternalFree)));
         }
     );
 }
@@ -226,7 +226,7 @@ template <> std::string ToString<VkApplicationInfo>(const VkApplicationInfo& obj
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pApplicationName", toStringFlags, tabCount, tabSize, CStrToString(obj.pApplicationName));
             FieldToString(strStrm, false, "applicationVersion", toStringFlags, tabCount, tabSize, ToString(obj.applicationVersion, toStringFlags, tabCount, tabSize));
@@ -268,7 +268,7 @@ template <> std::string ToString<VkInstanceCreateInfo>(const VkInstanceCreateInf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pApplicationInfo", toStringFlags, tabCount, tabSize, (obj.pApplicationInfo ? ToString(*obj.pApplicationInfo, toStringFlags, tabCount, tabSize) : "null"));
@@ -504,9 +504,9 @@ template <> std::string ToString<VkPhysicalDeviceProperties>(const VkPhysicalDev
             FieldToString(strStrm, false, "driverVersion", toStringFlags, tabCount, tabSize, ToString(obj.driverVersion, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vendorID", toStringFlags, tabCount, tabSize, ToString(obj.vendorID, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceID", toStringFlags, tabCount, tabSize, ToString(obj.deviceID, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "deviceType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.deviceType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "deviceType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.deviceType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "deviceName", toStringFlags, tabCount, tabSize, CStrToString(obj.deviceName));
-            FieldToString(strStrm, false, "pipelineCacheUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.pipelineCacheUUID) + '"');
+            FieldToString(strStrm, false, "pipelineCacheUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.pipelineCacheUUID)));
             FieldToString(strStrm, false, "limits", toStringFlags, tabCount, tabSize, ToString(obj.limits, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sparseProperties", toStringFlags, tabCount, tabSize, ToString(obj.sparseProperties, toStringFlags, tabCount, tabSize));
         }
@@ -531,7 +531,7 @@ template <> std::string ToString<VkDeviceQueueCreateInfo>(const VkDeviceQueueCre
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -546,7 +546,7 @@ template <> std::string ToString<VkDeviceCreateInfo>(const VkDeviceCreateInfo& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queueCreateInfoCount", toStringFlags, tabCount, tabSize, ToString(obj.queueCreateInfoCount, toStringFlags, tabCount, tabSize));
@@ -589,7 +589,7 @@ template <> std::string ToString<VkSubmitInfo>(const VkSubmitInfo& obj, ToString
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "waitSemaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.waitSemaphoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pWaitSemaphores", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.waitSemaphoreCount, obj.pWaitSemaphores, toStringFlags, tabCount, tabSize));
@@ -607,9 +607,9 @@ template <> std::string ToString<VkMappedMemoryRange>(const VkMappedMemoryRange&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
         }
@@ -621,7 +621,7 @@ template <> std::string ToString<VkMemoryAllocateInfo>(const VkMemoryAllocateInf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "allocationSize", toStringFlags, tabCount, tabSize, ToString(obj.allocationSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryTypeIndex", toStringFlags, tabCount, tabSize, ToString(obj.memoryTypeIndex, toStringFlags, tabCount, tabSize));
@@ -648,7 +648,7 @@ template <> std::string ToString<VkSparseMemoryBind>(const VkSparseMemoryBind& o
         {
             FieldToString(strStrm, true, "resourceOffset", toStringFlags, tabCount, tabSize, ToString(obj.resourceOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -660,7 +660,7 @@ template <> std::string ToString<VkSparseBufferMemoryBindInfo>(const VkSparseBuf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, ArrayToString(obj.bindCount, obj.pBinds, toStringFlags, tabCount, tabSize));
         }
@@ -672,7 +672,7 @@ template <> std::string ToString<VkSparseImageOpaqueMemoryBindInfo>(const VkSpar
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
+            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, ArrayToString(obj.bindCount, obj.pBinds, toStringFlags, tabCount, tabSize));
         }
@@ -699,7 +699,7 @@ template <> std::string ToString<VkSparseImageMemoryBind>(const VkSparseImageMem
             FieldToString(strStrm, true, "subresource", toStringFlags, tabCount, tabSize, ToString(obj.subresource, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "extent", toStringFlags, tabCount, tabSize, ToString(obj.extent, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -711,7 +711,7 @@ template <> std::string ToString<VkSparseImageMemoryBindInfo>(const VkSparseImag
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
+            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, ArrayToString(obj.bindCount, obj.pBinds, toStringFlags, tabCount, tabSize));
         }
@@ -723,7 +723,7 @@ template <> std::string ToString<VkBindSparseInfo>(const VkBindSparseInfo& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "waitSemaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.waitSemaphoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pWaitSemaphores", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.waitSemaphoreCount, obj.pWaitSemaphores, toStringFlags, tabCount, tabSize));
@@ -770,7 +770,7 @@ template <> std::string ToString<VkFenceCreateInfo>(const VkFenceCreateInfo& obj
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -782,7 +782,7 @@ template <> std::string ToString<VkSemaphoreCreateInfo>(const VkSemaphoreCreateI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -794,7 +794,7 @@ template <> std::string ToString<VkEventCreateInfo>(const VkEventCreateInfo& obj
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -806,10 +806,10 @@ template <> std::string ToString<VkQueryPoolCreateInfo>(const VkQueryPoolCreateI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "queryType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.queryType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "queryType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.queryType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "queryCount", toStringFlags, tabCount, tabSize, ToString(obj.queryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineStatistics", toStringFlags, tabCount, tabSize, ToString(obj.pipelineStatistics, toStringFlags, tabCount, tabSize));
         }
@@ -821,12 +821,12 @@ template <> std::string ToString<VkBufferCreateInfo>(const VkBufferCreateInfo& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sharingMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sharingMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "sharingMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sharingMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "queueFamilyIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pQueueFamilyIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.queueFamilyIndexCount, obj.pQueueFamilyIndices, toStringFlags, tabCount, tabSize));
         }
@@ -838,11 +838,11 @@ template <> std::string ToString<VkBufferViewCreateInfo>(const VkBufferViewCreat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "range", toStringFlags, tabCount, tabSize, ToString(obj.range, toStringFlags, tabCount, tabSize));
         }
@@ -854,21 +854,21 @@ template <> std::string ToString<VkImageCreateInfo>(const VkImageCreateInfo& obj
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "extent", toStringFlags, tabCount, tabSize, ToString(obj.extent, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mipLevels", toStringFlags, tabCount, tabSize, ToString(obj.mipLevels, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "arrayLayers", toStringFlags, tabCount, tabSize, ToString(obj.arrayLayers, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.samples, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "tiling", toStringFlags, tabCount, tabSize, '"' + ToString(obj.tiling, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.samples, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "tiling", toStringFlags, tabCount, tabSize, Quote(ToString(obj.tiling, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sharingMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sharingMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "sharingMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sharingMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "queueFamilyIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pQueueFamilyIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.queueFamilyIndexCount, obj.pQueueFamilyIndices, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "initialLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.initialLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "initialLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.initialLayout, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -892,10 +892,10 @@ template <> std::string ToString<VkComponentMapping>(const VkComponentMapping& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "r", toStringFlags, tabCount, tabSize, '"' + ToString(obj.r, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "g", toStringFlags, tabCount, tabSize, '"' + ToString(obj.g, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "b", toStringFlags, tabCount, tabSize, '"' + ToString(obj.b, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "a", toStringFlags, tabCount, tabSize, '"' + ToString(obj.a, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "r", toStringFlags, tabCount, tabSize, Quote(ToString(obj.r, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "g", toStringFlags, tabCount, tabSize, Quote(ToString(obj.g, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "b", toStringFlags, tabCount, tabSize, Quote(ToString(obj.b, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "a", toStringFlags, tabCount, tabSize, Quote(ToString(obj.a, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -905,12 +905,12 @@ template <> std::string ToString<VkImageViewCreateInfo>(const VkImageViewCreateI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
-            FieldToString(strStrm, false, "viewType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.viewType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
+            FieldToString(strStrm, false, "viewType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.viewType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "components", toStringFlags, tabCount, tabSize, ToString(obj.components, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(obj.subresourceRange, toStringFlags, tabCount, tabSize));
         }
@@ -922,11 +922,11 @@ template <> std::string ToString<VkPipelineCacheCreateInfo>(const VkPipelineCach
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "initialDataSize", toStringFlags, tabCount, tabSize, ToString(obj.initialDataSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pInitialData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pInitialData) + "\"");
+            FieldToString(strStrm, false, "pInitialData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pInitialData)));
         }
     );
 }
@@ -951,7 +951,7 @@ template <> std::string ToString<VkSpecializationInfo>(const VkSpecializationInf
             FieldToString(strStrm, true, "mapEntryCount", toStringFlags, tabCount, tabSize, ToString(obj.mapEntryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pMapEntries", toStringFlags, tabCount, tabSize, ArrayToString(obj.mapEntryCount, obj.pMapEntries, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dataSize", toStringFlags, tabCount, tabSize, ToString(obj.dataSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pData) + "\"");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pData)));
         }
     );
 }
@@ -961,11 +961,11 @@ template <> std::string ToString<VkPipelineShaderStageCreateInfo>(const VkPipeli
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stage, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "module", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.module) + '"');
+            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stage, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "module", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.module)));
             FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, CStrToString(obj.pName));
             FieldToString(strStrm, false, "pSpecializationInfo", toStringFlags, tabCount, tabSize, (obj.pSpecializationInfo ? ToString(*obj.pSpecializationInfo, toStringFlags, tabCount, tabSize) : "null"));
         }
@@ -977,12 +977,12 @@ template <> std::string ToString<VkComputePipelineCreateInfo>(const VkComputePip
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(obj.stage, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.layout) + '"');
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.layout)));
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.basePipelineHandle)));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -995,7 +995,7 @@ template <> std::string ToString<VkVertexInputBindingDescription>(const VkVertex
         {
             FieldToString(strStrm, true, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(obj.stride, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "inputRate", toStringFlags, tabCount, tabSize, '"' + ToString(obj.inputRate, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "inputRate", toStringFlags, tabCount, tabSize, Quote(ToString(obj.inputRate, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -1007,7 +1007,7 @@ template <> std::string ToString<VkVertexInputAttributeDescription>(const VkVert
         {
             FieldToString(strStrm, true, "location", toStringFlags, tabCount, tabSize, ToString(obj.location, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1018,7 +1018,7 @@ template <> std::string ToString<VkPipelineVertexInputStateCreateInfo>(const VkP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexBindingDescriptionCount", toStringFlags, tabCount, tabSize, ToString(obj.vertexBindingDescriptionCount, toStringFlags, tabCount, tabSize));
@@ -1034,10 +1034,10 @@ template <> std::string ToString<VkPipelineInputAssemblyStateCreateInfo>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "topology", toStringFlags, tabCount, tabSize, '"' + ToString(obj.topology, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "topology", toStringFlags, tabCount, tabSize, Quote(ToString(obj.topology, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "primitiveRestartEnable", toStringFlags, tabCount, tabSize, ToString(obj.primitiveRestartEnable, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1048,7 +1048,7 @@ template <> std::string ToString<VkPipelineTessellationStateCreateInfo>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "patchControlPoints", toStringFlags, tabCount, tabSize, ToString(obj.patchControlPoints, toStringFlags, tabCount, tabSize));
@@ -1076,7 +1076,7 @@ template <> std::string ToString<VkPipelineViewportStateCreateInfo>(const VkPipe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewportCount", toStringFlags, tabCount, tabSize, ToString(obj.viewportCount, toStringFlags, tabCount, tabSize));
@@ -1092,14 +1092,14 @@ template <> std::string ToString<VkPipelineRasterizationStateCreateInfo>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthClampEnable", toStringFlags, tabCount, tabSize, ToString(obj.depthClampEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rasterizerDiscardEnable", toStringFlags, tabCount, tabSize, ToString(obj.rasterizerDiscardEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "polygonMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.polygonMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "polygonMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.polygonMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "cullMode", toStringFlags, tabCount, tabSize, ToString(obj.cullMode, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "frontFace", toStringFlags, tabCount, tabSize, '"' + ToString(obj.frontFace, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "frontFace", toStringFlags, tabCount, tabSize, Quote(ToString(obj.frontFace, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "depthBiasEnable", toStringFlags, tabCount, tabSize, ToString(obj.depthBiasEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthBiasConstantFactor", toStringFlags, tabCount, tabSize, ToString(obj.depthBiasConstantFactor, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthBiasClamp", toStringFlags, tabCount, tabSize, ToString(obj.depthBiasClamp, toStringFlags, tabCount, tabSize));
@@ -1114,10 +1114,10 @@ template <> std::string ToString<VkStencilOpState>(const VkStencilOpState& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "failOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.failOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "passOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.passOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "depthFailOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.depthFailOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "compareOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.compareOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "failOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.failOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "passOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.passOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "depthFailOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.depthFailOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "compareOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.compareOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "compareMask", toStringFlags, tabCount, tabSize, ToString(obj.compareMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "writeMask", toStringFlags, tabCount, tabSize, ToString(obj.writeMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "reference", toStringFlags, tabCount, tabSize, ToString(obj.reference, toStringFlags, tabCount, tabSize));
@@ -1130,12 +1130,12 @@ template <> std::string ToString<VkPipelineDepthStencilStateCreateInfo>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthTestEnable", toStringFlags, tabCount, tabSize, ToString(obj.depthTestEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthWriteEnable", toStringFlags, tabCount, tabSize, ToString(obj.depthWriteEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "depthCompareOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.depthCompareOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "depthCompareOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.depthCompareOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "depthBoundsTestEnable", toStringFlags, tabCount, tabSize, ToString(obj.depthBoundsTestEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stencilTestEnable", toStringFlags, tabCount, tabSize, ToString(obj.stencilTestEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "front", toStringFlags, tabCount, tabSize, ToString(obj.front, toStringFlags, tabCount, tabSize));
@@ -1152,12 +1152,12 @@ template <> std::string ToString<VkPipelineColorBlendAttachmentState>(const VkPi
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "blendEnable", toStringFlags, tabCount, tabSize, ToString(obj.blendEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcColorBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcColorBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstColorBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstColorBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "colorBlendOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.colorBlendOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "srcAlphaBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcAlphaBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstAlphaBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstAlphaBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "alphaBlendOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.alphaBlendOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "srcColorBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcColorBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstColorBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstColorBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "colorBlendOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.colorBlendOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "srcAlphaBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcAlphaBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstAlphaBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstAlphaBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "alphaBlendOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.alphaBlendOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "colorWriteMask", toStringFlags, tabCount, tabSize, ToString(obj.colorWriteMask, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1168,11 +1168,11 @@ template <> std::string ToString<VkPipelineColorBlendStateCreateInfo>(const VkPi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "logicOpEnable", toStringFlags, tabCount, tabSize, ToString(obj.logicOpEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "logicOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.logicOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "logicOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.logicOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttachments", toStringFlags, tabCount, tabSize, ArrayToString(obj.attachmentCount, obj.pAttachments, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "blendConstants", toStringFlags, tabCount, tabSize, ArrayToString(4, obj.blendConstants, toStringFlags, tabCount, tabSize));
@@ -1185,7 +1185,7 @@ template <> std::string ToString<VkPipelineDynamicStateCreateInfo>(const VkPipel
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dynamicStateCount", toStringFlags, tabCount, tabSize, ToString(obj.dynamicStateCount, toStringFlags, tabCount, tabSize));
@@ -1199,7 +1199,7 @@ template <> std::string ToString<VkGraphicsPipelineCreateInfo>(const VkGraphicsP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageCount", toStringFlags, tabCount, tabSize, ToString(obj.stageCount, toStringFlags, tabCount, tabSize));
@@ -1213,10 +1213,10 @@ template <> std::string ToString<VkGraphicsPipelineCreateInfo>(const VkGraphicsP
             FieldToString(strStrm, false, "pDepthStencilState", toStringFlags, tabCount, tabSize, (obj.pDepthStencilState ? ToString(*obj.pDepthStencilState, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pColorBlendState", toStringFlags, tabCount, tabSize, (obj.pColorBlendState ? ToString(*obj.pColorBlendState, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pDynamicState", toStringFlags, tabCount, tabSize, (obj.pDynamicState ? ToString(*obj.pDynamicState, toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.layout) + '"');
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.renderPass) + '"');
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.layout)));
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.renderPass)));
             FieldToString(strStrm, false, "subpass", toStringFlags, tabCount, tabSize, ToString(obj.subpass, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.basePipelineHandle)));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1239,7 +1239,7 @@ template <> std::string ToString<VkPipelineLayoutCreateInfo>(const VkPipelineLay
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "setLayoutCount", toStringFlags, tabCount, tabSize, ToString(obj.setLayoutCount, toStringFlags, tabCount, tabSize));
@@ -1255,23 +1255,23 @@ template <> std::string ToString<VkSamplerCreateInfo>(const VkSamplerCreateInfo&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "magFilter", toStringFlags, tabCount, tabSize, '"' + ToString(obj.magFilter, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "minFilter", toStringFlags, tabCount, tabSize, '"' + ToString(obj.minFilter, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "mipmapMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mipmapMode, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "addressModeU", toStringFlags, tabCount, tabSize, '"' + ToString(obj.addressModeU, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "addressModeV", toStringFlags, tabCount, tabSize, '"' + ToString(obj.addressModeV, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "addressModeW", toStringFlags, tabCount, tabSize, '"' + ToString(obj.addressModeW, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "magFilter", toStringFlags, tabCount, tabSize, Quote(ToString(obj.magFilter, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "minFilter", toStringFlags, tabCount, tabSize, Quote(ToString(obj.minFilter, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "mipmapMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mipmapMode, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "addressModeU", toStringFlags, tabCount, tabSize, Quote(ToString(obj.addressModeU, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "addressModeV", toStringFlags, tabCount, tabSize, Quote(ToString(obj.addressModeV, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "addressModeW", toStringFlags, tabCount, tabSize, Quote(ToString(obj.addressModeW, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "mipLodBias", toStringFlags, tabCount, tabSize, ToString(obj.mipLodBias, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "anisotropyEnable", toStringFlags, tabCount, tabSize, ToString(obj.anisotropyEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxAnisotropy", toStringFlags, tabCount, tabSize, ToString(obj.maxAnisotropy, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "compareEnable", toStringFlags, tabCount, tabSize, ToString(obj.compareEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "compareOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.compareOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "compareOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.compareOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "minLod", toStringFlags, tabCount, tabSize, ToString(obj.minLod, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxLod", toStringFlags, tabCount, tabSize, ToString(obj.maxLod, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "borderColor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.borderColor, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "borderColor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.borderColor, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "unnormalizedCoordinates", toStringFlags, tabCount, tabSize, ToString(obj.unnormalizedCoordinates, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1282,12 +1282,12 @@ template <> std::string ToString<VkCopyDescriptorSet>(const VkCopyDescriptorSet&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcSet", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.srcSet) + '"');
+            FieldToString(strStrm, false, "srcSet", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.srcSet)));
             FieldToString(strStrm, false, "srcBinding", toStringFlags, tabCount, tabSize, ToString(obj.srcBinding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcArrayElement", toStringFlags, tabCount, tabSize, ToString(obj.srcArrayElement, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstSet", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstSet) + '"');
+            FieldToString(strStrm, false, "dstSet", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstSet)));
             FieldToString(strStrm, false, "dstBinding", toStringFlags, tabCount, tabSize, ToString(obj.dstBinding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstArrayElement", toStringFlags, tabCount, tabSize, ToString(obj.dstArrayElement, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorCount, toStringFlags, tabCount, tabSize));
@@ -1300,7 +1300,7 @@ template <> std::string ToString<VkDescriptorBufferInfo>(const VkDescriptorBuffe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "range", toStringFlags, tabCount, tabSize, ToString(obj.range, toStringFlags, tabCount, tabSize));
         }
@@ -1312,7 +1312,7 @@ template <> std::string ToString<VkDescriptorPoolSize>(const VkDescriptorPoolSiz
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "descriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorCount, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1323,7 +1323,7 @@ template <> std::string ToString<VkDescriptorPoolCreateInfo>(const VkDescriptorP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxSets", toStringFlags, tabCount, tabSize, ToString(obj.maxSets, toStringFlags, tabCount, tabSize));
@@ -1338,9 +1338,9 @@ template <> std::string ToString<VkDescriptorSetAllocateInfo>(const VkDescriptor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.descriptorPool) + '"');
+            FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.descriptorPool)));
             FieldToString(strStrm, false, "descriptorSetCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSetCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSetLayouts", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.descriptorSetCount, obj.pSetLayouts, toStringFlags, tabCount, tabSize));
         }
@@ -1353,7 +1353,7 @@ template <> std::string ToString<VkDescriptorSetLayoutBinding>(const VkDescripto
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.descriptorType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.descriptorType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "descriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageFlags", toStringFlags, tabCount, tabSize, ToString(obj.stageFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pImmutableSamplers", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.descriptorCount, obj.pImmutableSamplers, toStringFlags, tabCount, tabSize));
@@ -1366,7 +1366,7 @@ template <> std::string ToString<VkDescriptorSetLayoutCreateInfo>(const VkDescri
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bindingCount", toStringFlags, tabCount, tabSize, ToString(obj.bindingCount, toStringFlags, tabCount, tabSize));
@@ -1381,14 +1381,14 @@ template <> std::string ToString<VkAttachmentDescription>(const VkAttachmentDesc
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.samples, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.loadOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.storeOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilLoadOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilLoadOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilStoreOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilStoreOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "initialLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.initialLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "finalLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.finalLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.samples, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.loadOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.storeOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilLoadOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilLoadOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilStoreOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilStoreOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "initialLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.initialLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "finalLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.finalLayout, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -1399,7 +1399,7 @@ template <> std::string ToString<VkAttachmentReference>(const VkAttachmentRefere
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "attachment", toStringFlags, tabCount, tabSize, ToString(obj.attachment, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.layout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.layout, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -1409,10 +1409,10 @@ template <> std::string ToString<VkFramebufferCreateInfo>(const VkFramebufferCre
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.renderPass) + '"');
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.renderPass)));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttachments", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.attachmentCount, obj.pAttachments, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "width", toStringFlags, tabCount, tabSize, ToString(obj.width, toStringFlags, tabCount, tabSize));
@@ -1428,7 +1428,7 @@ template <> std::string ToString<VkSubpassDescription>(const VkSubpassDescriptio
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "inputAttachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.inputAttachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pInputAttachments", toStringFlags, tabCount, tabSize, ArrayToString(obj.inputAttachmentCount, obj.pInputAttachments, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "colorAttachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.colorAttachmentCount, toStringFlags, tabCount, tabSize));
@@ -1462,7 +1462,7 @@ template <> std::string ToString<VkRenderPassCreateInfo>(const VkRenderPassCreat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
@@ -1480,7 +1480,7 @@ template <> std::string ToString<VkCommandPoolCreateInfo>(const VkCommandPoolCre
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -1493,10 +1493,10 @@ template <> std::string ToString<VkCommandBufferAllocateInfo>(const VkCommandBuf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.commandPool) + '"');
-            FieldToString(strStrm, false, "level", toStringFlags, tabCount, tabSize, '"' + ToString(obj.level, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.commandPool)));
+            FieldToString(strStrm, false, "level", toStringFlags, tabCount, tabSize, Quote(ToString(obj.level, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "commandBufferCount", toStringFlags, tabCount, tabSize, ToString(obj.commandBufferCount, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1507,11 +1507,11 @@ template <> std::string ToString<VkCommandBufferInheritanceInfo>(const VkCommand
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.renderPass) + '"');
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.renderPass)));
             FieldToString(strStrm, false, "subpass", toStringFlags, tabCount, tabSize, ToString(obj.subpass, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.framebuffer) + '"');
+            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.framebuffer)));
             FieldToString(strStrm, false, "occlusionQueryEnable", toStringFlags, tabCount, tabSize, ToString(obj.occlusionQueryEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queryFlags", toStringFlags, tabCount, tabSize, ToString(obj.queryFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineStatistics", toStringFlags, tabCount, tabSize, ToString(obj.pipelineStatistics, toStringFlags, tabCount, tabSize));
@@ -1524,7 +1524,7 @@ template <> std::string ToString<VkCommandBufferBeginInfo>(const VkCommandBuffer
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pInheritanceInfo", toStringFlags, tabCount, tabSize, (obj.pInheritanceInfo ? ToString(*obj.pInheritanceInfo, toStringFlags, tabCount, tabSize) : "null"));
@@ -1653,10 +1653,10 @@ template <> std::string ToString<VkRenderPassBeginInfo>(const VkRenderPassBeginI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.renderPass) + '"');
-            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.framebuffer) + '"');
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.renderPass)));
+            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.framebuffer)));
             FieldToString(strStrm, false, "renderArea", toStringFlags, tabCount, tabSize, ToString(obj.renderArea, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "clearValueCount", toStringFlags, tabCount, tabSize, ToString(obj.clearValueCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pClearValues", toStringFlags, tabCount, tabSize, ArrayToString(obj.clearValueCount, obj.pClearValues, toStringFlags, tabCount, tabSize));
@@ -1669,7 +1669,7 @@ template <> std::string ToString<VkPhysicalDeviceSubgroupProperties>(const VkPhy
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.subgroupSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedStages", toStringFlags, tabCount, tabSize, ToString(obj.supportedStages, toStringFlags, tabCount, tabSize));
@@ -1684,10 +1684,10 @@ template <> std::string ToString<VkBindBufferMemoryInfo>(const VkBindBufferMemor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1698,10 +1698,10 @@ template <> std::string ToString<VkBindImageMemoryInfo>(const VkBindImageMemoryI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1712,7 +1712,7 @@ template <> std::string ToString<VkPhysicalDevice16BitStorageFeatures>(const VkP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "storageBuffer16BitAccess", toStringFlags, tabCount, tabSize, ToString(obj.storageBuffer16BitAccess, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "uniformAndStorageBuffer16BitAccess", toStringFlags, tabCount, tabSize, ToString(obj.uniformAndStorageBuffer16BitAccess, toStringFlags, tabCount, tabSize));
@@ -1727,7 +1727,7 @@ template <> std::string ToString<VkMemoryDedicatedRequirements>(const VkMemoryDe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "prefersDedicatedAllocation", toStringFlags, tabCount, tabSize, ToString(obj.prefersDedicatedAllocation, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "requiresDedicatedAllocation", toStringFlags, tabCount, tabSize, ToString(obj.requiresDedicatedAllocation, toStringFlags, tabCount, tabSize));
@@ -1740,10 +1740,10 @@ template <> std::string ToString<VkMemoryDedicatedAllocateInfo>(const VkMemoryDe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
         }
     );
 }
@@ -1753,7 +1753,7 @@ template <> std::string ToString<VkMemoryAllocateFlagsInfo>(const VkMemoryAlloca
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
@@ -1766,7 +1766,7 @@ template <> std::string ToString<VkDeviceGroupRenderPassBeginInfo>(const VkDevic
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceRenderAreaCount", toStringFlags, tabCount, tabSize, ToString(obj.deviceRenderAreaCount, toStringFlags, tabCount, tabSize));
@@ -1780,7 +1780,7 @@ template <> std::string ToString<VkDeviceGroupCommandBufferBeginInfo>(const VkDe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
         }
@@ -1792,7 +1792,7 @@ template <> std::string ToString<VkDeviceGroupSubmitInfo>(const VkDeviceGroupSub
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "waitSemaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.waitSemaphoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pWaitSemaphoreDeviceIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.waitSemaphoreCount, obj.pWaitSemaphoreDeviceIndices, toStringFlags, tabCount, tabSize));
@@ -1809,7 +1809,7 @@ template <> std::string ToString<VkDeviceGroupBindSparseInfo>(const VkDeviceGrou
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "resourceDeviceIndex", toStringFlags, tabCount, tabSize, ToString(obj.resourceDeviceIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryDeviceIndex", toStringFlags, tabCount, tabSize, ToString(obj.memoryDeviceIndex, toStringFlags, tabCount, tabSize));
@@ -1822,7 +1822,7 @@ template <> std::string ToString<VkBindBufferMemoryDeviceGroupInfo>(const VkBind
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDeviceIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.deviceIndexCount, obj.pDeviceIndices, toStringFlags, tabCount, tabSize));
@@ -1835,7 +1835,7 @@ template <> std::string ToString<VkBindImageMemoryDeviceGroupInfo>(const VkBindI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDeviceIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.deviceIndexCount, obj.pDeviceIndices, toStringFlags, tabCount, tabSize));
@@ -1850,7 +1850,7 @@ template <> std::string ToString<VkPhysicalDeviceGroupProperties>(const VkPhysic
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalDeviceCount", toStringFlags, tabCount, tabSize, ToString(obj.physicalDeviceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalDevices", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.physicalDeviceCount, obj.physicalDevices, toStringFlags, tabCount, tabSize));
@@ -1864,7 +1864,7 @@ template <> std::string ToString<VkDeviceGroupDeviceCreateInfo>(const VkDeviceGr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalDeviceCount", toStringFlags, tabCount, tabSize, ToString(obj.physicalDeviceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pPhysicalDevices", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.physicalDeviceCount, obj.pPhysicalDevices, toStringFlags, tabCount, tabSize));
@@ -1877,9 +1877,9 @@ template <> std::string ToString<VkBufferMemoryRequirementsInfo2>(const VkBuffer
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
         }
     );
 }
@@ -1889,9 +1889,9 @@ template <> std::string ToString<VkImageMemoryRequirementsInfo2>(const VkImageMe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
         }
     );
 }
@@ -1901,9 +1901,9 @@ template <> std::string ToString<VkImageSparseMemoryRequirementsInfo2>(const VkI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
         }
     );
 }
@@ -1913,7 +1913,7 @@ template <> std::string ToString<VkMemoryRequirements2>(const VkMemoryRequiremen
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryRequirements", toStringFlags, tabCount, tabSize, ToString(obj.memoryRequirements, toStringFlags, tabCount, tabSize));
         }
@@ -1925,7 +1925,7 @@ template <> std::string ToString<VkSparseImageMemoryRequirements2>(const VkSpars
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryRequirements", toStringFlags, tabCount, tabSize, ToString(obj.memoryRequirements, toStringFlags, tabCount, tabSize));
         }
@@ -1937,7 +1937,7 @@ template <> std::string ToString<VkPhysicalDeviceFeatures2>(const VkPhysicalDevi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "features", toStringFlags, tabCount, tabSize, ToString(obj.features, toStringFlags, tabCount, tabSize));
         }
@@ -1949,7 +1949,7 @@ template <> std::string ToString<VkPhysicalDeviceProperties2>(const VkPhysicalDe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "properties", toStringFlags, tabCount, tabSize, ToString(obj.properties, toStringFlags, tabCount, tabSize));
         }
@@ -1961,7 +1961,7 @@ template <> std::string ToString<VkFormatProperties2>(const VkFormatProperties2&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "formatProperties", toStringFlags, tabCount, tabSize, ToString(obj.formatProperties, toStringFlags, tabCount, tabSize));
         }
@@ -1973,7 +1973,7 @@ template <> std::string ToString<VkImageFormatProperties2>(const VkImageFormatPr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageFormatProperties", toStringFlags, tabCount, tabSize, ToString(obj.imageFormatProperties, toStringFlags, tabCount, tabSize));
         }
@@ -1985,11 +1985,11 @@ template <> std::string ToString<VkPhysicalDeviceImageFormatInfo2>(const VkPhysi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "tiling", toStringFlags, tabCount, tabSize, '"' + ToString(obj.tiling, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "tiling", toStringFlags, tabCount, tabSize, Quote(ToString(obj.tiling, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -2001,7 +2001,7 @@ template <> std::string ToString<VkQueueFamilyProperties2>(const VkQueueFamilyPr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queueFamilyProperties", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyProperties, toStringFlags, tabCount, tabSize));
         }
@@ -2013,7 +2013,7 @@ template <> std::string ToString<VkPhysicalDeviceMemoryProperties2>(const VkPhys
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryProperties", toStringFlags, tabCount, tabSize, ToString(obj.memoryProperties, toStringFlags, tabCount, tabSize));
         }
@@ -2025,7 +2025,7 @@ template <> std::string ToString<VkSparseImageFormatProperties2>(const VkSparseI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "properties", toStringFlags, tabCount, tabSize, ToString(obj.properties, toStringFlags, tabCount, tabSize));
         }
@@ -2037,13 +2037,13 @@ template <> std::string ToString<VkPhysicalDeviceSparseImageFormatInfo2>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.samples, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.samples, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "tiling", toStringFlags, tabCount, tabSize, '"' + ToString(obj.tiling, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "tiling", toStringFlags, tabCount, tabSize, Quote(ToString(obj.tiling, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2053,9 +2053,9 @@ template <> std::string ToString<VkPhysicalDevicePointClippingProperties>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pointClippingBehavior", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pointClippingBehavior, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pointClippingBehavior", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pointClippingBehavior, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2077,7 +2077,7 @@ template <> std::string ToString<VkRenderPassInputAttachmentAspectCreateInfo>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "aspectReferenceCount", toStringFlags, tabCount, tabSize, ToString(obj.aspectReferenceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAspectReferences", toStringFlags, tabCount, tabSize, ArrayToString(obj.aspectReferenceCount, obj.pAspectReferences, toStringFlags, tabCount, tabSize));
@@ -2090,7 +2090,7 @@ template <> std::string ToString<VkImageViewUsageCreateInfo>(const VkImageViewUs
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
         }
@@ -2102,9 +2102,9 @@ template <> std::string ToString<VkPipelineTessellationDomainOriginStateCreateIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "domainOrigin", toStringFlags, tabCount, tabSize, '"' + ToString(obj.domainOrigin, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "domainOrigin", toStringFlags, tabCount, tabSize, Quote(ToString(obj.domainOrigin, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2114,7 +2114,7 @@ template <> std::string ToString<VkRenderPassMultiviewCreateInfo>(const VkRender
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subpassCount", toStringFlags, tabCount, tabSize, ToString(obj.subpassCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pViewMasks", toStringFlags, tabCount, tabSize, ArrayToString(obj.subpassCount, obj.pViewMasks, toStringFlags, tabCount, tabSize));
@@ -2131,7 +2131,7 @@ template <> std::string ToString<VkPhysicalDeviceMultiviewFeatures>(const VkPhys
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "multiview", toStringFlags, tabCount, tabSize, ToString(obj.multiview, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "multiviewGeometryShader", toStringFlags, tabCount, tabSize, ToString(obj.multiviewGeometryShader, toStringFlags, tabCount, tabSize));
@@ -2145,7 +2145,7 @@ template <> std::string ToString<VkPhysicalDeviceMultiviewProperties>(const VkPh
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxMultiviewViewCount", toStringFlags, tabCount, tabSize, ToString(obj.maxMultiviewViewCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxMultiviewInstanceIndex", toStringFlags, tabCount, tabSize, ToString(obj.maxMultiviewInstanceIndex, toStringFlags, tabCount, tabSize));
@@ -2158,7 +2158,7 @@ template <> std::string ToString<VkPhysicalDeviceVariablePointersFeatures>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "variablePointersStorageBuffer", toStringFlags, tabCount, tabSize, ToString(obj.variablePointersStorageBuffer, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "variablePointers", toStringFlags, tabCount, tabSize, ToString(obj.variablePointers, toStringFlags, tabCount, tabSize));
@@ -2171,7 +2171,7 @@ template <> std::string ToString<VkPhysicalDeviceProtectedMemoryFeatures>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "protectedMemory", toStringFlags, tabCount, tabSize, ToString(obj.protectedMemory, toStringFlags, tabCount, tabSize));
         }
@@ -2183,7 +2183,7 @@ template <> std::string ToString<VkPhysicalDeviceProtectedMemoryProperties>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "protectedNoFault", toStringFlags, tabCount, tabSize, ToString(obj.protectedNoFault, toStringFlags, tabCount, tabSize));
         }
@@ -2195,7 +2195,7 @@ template <> std::string ToString<VkDeviceQueueInfo2>(const VkDeviceQueueInfo2& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndex, toStringFlags, tabCount, tabSize));
@@ -2209,7 +2209,7 @@ template <> std::string ToString<VkProtectedSubmitInfo>(const VkProtectedSubmitI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "protectedSubmit", toStringFlags, tabCount, tabSize, ToString(obj.protectedSubmit, toStringFlags, tabCount, tabSize));
         }
@@ -2221,15 +2221,15 @@ template <> std::string ToString<VkSamplerYcbcrConversionCreateInfo>(const VkSam
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "ycbcrModel", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ycbcrModel, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "ycbcrRange", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ycbcrRange, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "ycbcrModel", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ycbcrModel, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "ycbcrRange", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ycbcrRange, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "components", toStringFlags, tabCount, tabSize, ToString(obj.components, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "xChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.xChromaOffset, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "yChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.yChromaOffset, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "chromaFilter", toStringFlags, tabCount, tabSize, '"' + ToString(obj.chromaFilter, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "xChromaOffset", toStringFlags, tabCount, tabSize, Quote(ToString(obj.xChromaOffset, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "yChromaOffset", toStringFlags, tabCount, tabSize, Quote(ToString(obj.yChromaOffset, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "chromaFilter", toStringFlags, tabCount, tabSize, Quote(ToString(obj.chromaFilter, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "forceExplicitReconstruction", toStringFlags, tabCount, tabSize, ToString(obj.forceExplicitReconstruction, toStringFlags, tabCount, tabSize));
         }
     );
@@ -2240,9 +2240,9 @@ template <> std::string ToString<VkSamplerYcbcrConversionInfo>(const VkSamplerYc
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "conversion", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.conversion) + '"');
+            FieldToString(strStrm, false, "conversion", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.conversion)));
         }
     );
 }
@@ -2252,9 +2252,9 @@ template <> std::string ToString<VkBindImagePlaneMemoryInfo>(const VkBindImagePl
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "planeAspect", toStringFlags, tabCount, tabSize, '"' + ToString(obj.planeAspect, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "planeAspect", toStringFlags, tabCount, tabSize, Quote(ToString(obj.planeAspect, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2264,9 +2264,9 @@ template <> std::string ToString<VkImagePlaneMemoryRequirementsInfo>(const VkIma
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "planeAspect", toStringFlags, tabCount, tabSize, '"' + ToString(obj.planeAspect, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "planeAspect", toStringFlags, tabCount, tabSize, Quote(ToString(obj.planeAspect, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2276,7 +2276,7 @@ template <> std::string ToString<VkPhysicalDeviceSamplerYcbcrConversionFeatures>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "samplerYcbcrConversion", toStringFlags, tabCount, tabSize, ToString(obj.samplerYcbcrConversion, toStringFlags, tabCount, tabSize));
         }
@@ -2288,7 +2288,7 @@ template <> std::string ToString<VkSamplerYcbcrConversionImageFormatProperties>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "combinedImageSamplerDescriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.combinedImageSamplerDescriptorCount, toStringFlags, tabCount, tabSize));
         }
@@ -2303,7 +2303,7 @@ template <> std::string ToString<VkDescriptorUpdateTemplateEntry>(const VkDescri
             FieldToString(strStrm, true, "dstBinding", toStringFlags, tabCount, tabSize, ToString(obj.dstBinding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstArrayElement", toStringFlags, tabCount, tabSize, ToString(obj.dstArrayElement, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.descriptorType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.descriptorType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(obj.stride, toStringFlags, tabCount, tabSize));
         }
@@ -2315,15 +2315,15 @@ template <> std::string ToString<VkDescriptorUpdateTemplateCreateInfo>(const VkD
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorUpdateEntryCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorUpdateEntryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDescriptorUpdateEntries", toStringFlags, tabCount, tabSize, ArrayToString(obj.descriptorUpdateEntryCount, obj.pDescriptorUpdateEntries, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "templateType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.templateType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.descriptorSetLayout) + '"');
-            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "pipelineLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipelineLayout) + '"');
+            FieldToString(strStrm, false, "templateType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.templateType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.descriptorSetLayout)));
+            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pipelineLayout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.pipelineLayout)));
             FieldToString(strStrm, false, "set", toStringFlags, tabCount, tabSize, ToString(obj.set, toStringFlags, tabCount, tabSize));
         }
     );
@@ -2346,9 +2346,9 @@ template <> std::string ToString<VkPhysicalDeviceExternalImageFormatInfo>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2358,7 +2358,7 @@ template <> std::string ToString<VkExternalImageFormatProperties>(const VkExtern
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "externalMemoryProperties", toStringFlags, tabCount, tabSize, ToString(obj.externalMemoryProperties, toStringFlags, tabCount, tabSize));
         }
@@ -2370,11 +2370,11 @@ template <> std::string ToString<VkPhysicalDeviceExternalBufferInfo>(const VkPhy
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2384,7 +2384,7 @@ template <> std::string ToString<VkExternalBufferProperties>(const VkExternalBuf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "externalMemoryProperties", toStringFlags, tabCount, tabSize, ToString(obj.externalMemoryProperties, toStringFlags, tabCount, tabSize));
         }
@@ -2396,11 +2396,11 @@ template <> std::string ToString<VkPhysicalDeviceIDProperties>(const VkPhysicalD
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "deviceUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.deviceUUID) + '"');
-            FieldToString(strStrm, false, "driverUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.driverUUID) + '"');
-            FieldToString(strStrm, false, "deviceLUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_LUID_SIZE, obj.deviceLUID) + '"');
+            FieldToString(strStrm, false, "deviceUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.deviceUUID)));
+            FieldToString(strStrm, false, "driverUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.driverUUID)));
+            FieldToString(strStrm, false, "deviceLUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_LUID_SIZE, obj.deviceLUID)));
             FieldToString(strStrm, false, "deviceNodeMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceNodeMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceLUIDValid", toStringFlags, tabCount, tabSize, ToString(obj.deviceLUIDValid, toStringFlags, tabCount, tabSize));
         }
@@ -2412,7 +2412,7 @@ template <> std::string ToString<VkExternalMemoryImageCreateInfo>(const VkExtern
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleTypes", toStringFlags, tabCount, tabSize, ToString(obj.handleTypes, toStringFlags, tabCount, tabSize));
         }
@@ -2424,7 +2424,7 @@ template <> std::string ToString<VkExternalMemoryBufferCreateInfo>(const VkExter
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleTypes", toStringFlags, tabCount, tabSize, ToString(obj.handleTypes, toStringFlags, tabCount, tabSize));
         }
@@ -2436,7 +2436,7 @@ template <> std::string ToString<VkExportMemoryAllocateInfo>(const VkExportMemor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleTypes", toStringFlags, tabCount, tabSize, ToString(obj.handleTypes, toStringFlags, tabCount, tabSize));
         }
@@ -2448,9 +2448,9 @@ template <> std::string ToString<VkPhysicalDeviceExternalFenceInfo>(const VkPhys
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2460,7 +2460,7 @@ template <> std::string ToString<VkExternalFenceProperties>(const VkExternalFenc
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "exportFromImportedHandleTypes", toStringFlags, tabCount, tabSize, ToString(obj.exportFromImportedHandleTypes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "compatibleHandleTypes", toStringFlags, tabCount, tabSize, ToString(obj.compatibleHandleTypes, toStringFlags, tabCount, tabSize));
@@ -2474,7 +2474,7 @@ template <> std::string ToString<VkExportFenceCreateInfo>(const VkExportFenceCre
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleTypes", toStringFlags, tabCount, tabSize, ToString(obj.handleTypes, toStringFlags, tabCount, tabSize));
         }
@@ -2486,7 +2486,7 @@ template <> std::string ToString<VkExportSemaphoreCreateInfo>(const VkExportSema
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleTypes", toStringFlags, tabCount, tabSize, ToString(obj.handleTypes, toStringFlags, tabCount, tabSize));
         }
@@ -2498,9 +2498,9 @@ template <> std::string ToString<VkPhysicalDeviceExternalSemaphoreInfo>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2510,7 +2510,7 @@ template <> std::string ToString<VkExternalSemaphoreProperties>(const VkExternal
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "exportFromImportedHandleTypes", toStringFlags, tabCount, tabSize, ToString(obj.exportFromImportedHandleTypes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "compatibleHandleTypes", toStringFlags, tabCount, tabSize, ToString(obj.compatibleHandleTypes, toStringFlags, tabCount, tabSize));
@@ -2524,7 +2524,7 @@ template <> std::string ToString<VkPhysicalDeviceMaintenance3Properties>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxPerSetDescriptors", toStringFlags, tabCount, tabSize, ToString(obj.maxPerSetDescriptors, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxMemoryAllocationSize", toStringFlags, tabCount, tabSize, ToString(obj.maxMemoryAllocationSize, toStringFlags, tabCount, tabSize));
@@ -2537,7 +2537,7 @@ template <> std::string ToString<VkDescriptorSetLayoutSupport>(const VkDescripto
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supported", toStringFlags, tabCount, tabSize, ToString(obj.supported, toStringFlags, tabCount, tabSize));
         }
@@ -2549,7 +2549,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderDrawParametersFeatures>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderDrawParameters", toStringFlags, tabCount, tabSize, ToString(obj.shaderDrawParameters, toStringFlags, tabCount, tabSize));
         }
@@ -2561,7 +2561,7 @@ template <> std::string ToString<VkPhysicalDeviceVulkan11Features>(const VkPhysi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "storageBuffer16BitAccess", toStringFlags, tabCount, tabSize, ToString(obj.storageBuffer16BitAccess, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "uniformAndStorageBuffer16BitAccess", toStringFlags, tabCount, tabSize, ToString(obj.uniformAndStorageBuffer16BitAccess, toStringFlags, tabCount, tabSize));
@@ -2584,18 +2584,18 @@ template <> std::string ToString<VkPhysicalDeviceVulkan11Properties>(const VkPhy
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "deviceUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.deviceUUID) + '"');
-            FieldToString(strStrm, false, "driverUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.driverUUID) + '"');
-            FieldToString(strStrm, false, "deviceLUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_LUID_SIZE, obj.deviceLUID) + '"');
+            FieldToString(strStrm, false, "deviceUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.deviceUUID)));
+            FieldToString(strStrm, false, "driverUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.driverUUID)));
+            FieldToString(strStrm, false, "deviceLUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_LUID_SIZE, obj.deviceLUID)));
             FieldToString(strStrm, false, "deviceNodeMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceNodeMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceLUIDValid", toStringFlags, tabCount, tabSize, ToString(obj.deviceLUIDValid, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.subgroupSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subgroupSupportedStages", toStringFlags, tabCount, tabSize, ToString(obj.subgroupSupportedStages, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subgroupSupportedOperations", toStringFlags, tabCount, tabSize, ToString(obj.subgroupSupportedOperations, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subgroupQuadOperationsInAllStages", toStringFlags, tabCount, tabSize, ToString(obj.subgroupQuadOperationsInAllStages, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pointClippingBehavior", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pointClippingBehavior, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pointClippingBehavior", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pointClippingBehavior, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "maxMultiviewViewCount", toStringFlags, tabCount, tabSize, ToString(obj.maxMultiviewViewCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxMultiviewInstanceIndex", toStringFlags, tabCount, tabSize, ToString(obj.maxMultiviewInstanceIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "protectedNoFault", toStringFlags, tabCount, tabSize, ToString(obj.protectedNoFault, toStringFlags, tabCount, tabSize));
@@ -2610,7 +2610,7 @@ template <> std::string ToString<VkPhysicalDeviceVulkan12Features>(const VkPhysi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "samplerMirrorClampToEdge", toStringFlags, tabCount, tabSize, ToString(obj.samplerMirrorClampToEdge, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drawIndirectCount", toStringFlags, tabCount, tabSize, ToString(obj.drawIndirectCount, toStringFlags, tabCount, tabSize));
@@ -2681,14 +2681,14 @@ template <> std::string ToString<VkPhysicalDeviceVulkan12Properties>(const VkPhy
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "driverID", toStringFlags, tabCount, tabSize, '"' + ToString(obj.driverID, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "driverID", toStringFlags, tabCount, tabSize, Quote(ToString(obj.driverID, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "driverName", toStringFlags, tabCount, tabSize, CStrToString(obj.driverName));
             FieldToString(strStrm, false, "driverInfo", toStringFlags, tabCount, tabSize, CStrToString(obj.driverInfo));
             FieldToString(strStrm, false, "conformanceVersion", toStringFlags, tabCount, tabSize, ToString(obj.conformanceVersion, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "denormBehaviorIndependence", toStringFlags, tabCount, tabSize, '"' + ToString(obj.denormBehaviorIndependence, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "roundingModeIndependence", toStringFlags, tabCount, tabSize, '"' + ToString(obj.roundingModeIndependence, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "denormBehaviorIndependence", toStringFlags, tabCount, tabSize, Quote(ToString(obj.denormBehaviorIndependence, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "roundingModeIndependence", toStringFlags, tabCount, tabSize, Quote(ToString(obj.roundingModeIndependence, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "shaderSignedZeroInfNanPreserveFloat16", toStringFlags, tabCount, tabSize, ToString(obj.shaderSignedZeroInfNanPreserveFloat16, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSignedZeroInfNanPreserveFloat32", toStringFlags, tabCount, tabSize, ToString(obj.shaderSignedZeroInfNanPreserveFloat32, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSignedZeroInfNanPreserveFloat64", toStringFlags, tabCount, tabSize, ToString(obj.shaderSignedZeroInfNanPreserveFloat64, toStringFlags, tabCount, tabSize));
@@ -2744,7 +2744,7 @@ template <> std::string ToString<VkImageFormatListCreateInfo>(const VkImageForma
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewFormatCount", toStringFlags, tabCount, tabSize, ToString(obj.viewFormatCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pViewFormats", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.viewFormatCount, obj.pViewFormats, toStringFlags, tabCount, tabSize));
@@ -2757,17 +2757,17 @@ template <> std::string ToString<VkAttachmentDescription2>(const VkAttachmentDes
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.samples, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.loadOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.storeOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilLoadOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilLoadOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilStoreOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilStoreOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "initialLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.initialLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "finalLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.finalLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "samples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.samples, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.loadOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.storeOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilLoadOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilLoadOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilStoreOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilStoreOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "initialLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.initialLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "finalLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.finalLayout, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2777,10 +2777,10 @@ template <> std::string ToString<VkAttachmentReference2>(const VkAttachmentRefer
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachment", toStringFlags, tabCount, tabSize, ToString(obj.attachment, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.layout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.layout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "aspectMask", toStringFlags, tabCount, tabSize, ToString(obj.aspectMask, toStringFlags, tabCount, tabSize));
         }
     );
@@ -2791,10 +2791,10 @@ template <> std::string ToString<VkSubpassDescription2>(const VkSubpassDescripti
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "viewMask", toStringFlags, tabCount, tabSize, ToString(obj.viewMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "inputAttachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.inputAttachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pInputAttachments", toStringFlags, tabCount, tabSize, ArrayToString(obj.inputAttachmentCount, obj.pInputAttachments, toStringFlags, tabCount, tabSize));
@@ -2813,7 +2813,7 @@ template <> std::string ToString<VkSubpassDependency2>(const VkSubpassDependency
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcSubpass", toStringFlags, tabCount, tabSize, ToString(obj.srcSubpass, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstSubpass", toStringFlags, tabCount, tabSize, ToString(obj.dstSubpass, toStringFlags, tabCount, tabSize));
@@ -2832,7 +2832,7 @@ template <> std::string ToString<VkRenderPassCreateInfo2>(const VkRenderPassCrea
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
@@ -2852,9 +2852,9 @@ template <> std::string ToString<VkSubpassBeginInfo>(const VkSubpassBeginInfo& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "contents", toStringFlags, tabCount, tabSize, '"' + ToString(obj.contents, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "contents", toStringFlags, tabCount, tabSize, Quote(ToString(obj.contents, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -2864,7 +2864,7 @@ template <> std::string ToString<VkSubpassEndInfo>(const VkSubpassEndInfo& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
         }
     );
@@ -2875,7 +2875,7 @@ template <> std::string ToString<VkPhysicalDevice8BitStorageFeatures>(const VkPh
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "storageBuffer8BitAccess", toStringFlags, tabCount, tabSize, ToString(obj.storageBuffer8BitAccess, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "uniformAndStorageBuffer8BitAccess", toStringFlags, tabCount, tabSize, ToString(obj.uniformAndStorageBuffer8BitAccess, toStringFlags, tabCount, tabSize));
@@ -2889,9 +2889,9 @@ template <> std::string ToString<VkPhysicalDeviceDriverProperties>(const VkPhysi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "driverID", toStringFlags, tabCount, tabSize, '"' + ToString(obj.driverID, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "driverID", toStringFlags, tabCount, tabSize, Quote(ToString(obj.driverID, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "driverName", toStringFlags, tabCount, tabSize, CStrToString(obj.driverName));
             FieldToString(strStrm, false, "driverInfo", toStringFlags, tabCount, tabSize, CStrToString(obj.driverInfo));
             FieldToString(strStrm, false, "conformanceVersion", toStringFlags, tabCount, tabSize, ToString(obj.conformanceVersion, toStringFlags, tabCount, tabSize));
@@ -2904,7 +2904,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderAtomicInt64Features>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderBufferInt64Atomics", toStringFlags, tabCount, tabSize, ToString(obj.shaderBufferInt64Atomics, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSharedInt64Atomics", toStringFlags, tabCount, tabSize, ToString(obj.shaderSharedInt64Atomics, toStringFlags, tabCount, tabSize));
@@ -2917,7 +2917,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderFloat16Int8Features>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderFloat16", toStringFlags, tabCount, tabSize, ToString(obj.shaderFloat16, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderInt8", toStringFlags, tabCount, tabSize, ToString(obj.shaderInt8, toStringFlags, tabCount, tabSize));
@@ -2930,10 +2930,10 @@ template <> std::string ToString<VkPhysicalDeviceFloatControlsProperties>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "denormBehaviorIndependence", toStringFlags, tabCount, tabSize, '"' + ToString(obj.denormBehaviorIndependence, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "roundingModeIndependence", toStringFlags, tabCount, tabSize, '"' + ToString(obj.roundingModeIndependence, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "denormBehaviorIndependence", toStringFlags, tabCount, tabSize, Quote(ToString(obj.denormBehaviorIndependence, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "roundingModeIndependence", toStringFlags, tabCount, tabSize, Quote(ToString(obj.roundingModeIndependence, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "shaderSignedZeroInfNanPreserveFloat16", toStringFlags, tabCount, tabSize, ToString(obj.shaderSignedZeroInfNanPreserveFloat16, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSignedZeroInfNanPreserveFloat32", toStringFlags, tabCount, tabSize, ToString(obj.shaderSignedZeroInfNanPreserveFloat32, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSignedZeroInfNanPreserveFloat64", toStringFlags, tabCount, tabSize, ToString(obj.shaderSignedZeroInfNanPreserveFloat64, toStringFlags, tabCount, tabSize));
@@ -2958,7 +2958,7 @@ template <> std::string ToString<VkDescriptorSetLayoutBindingFlagsCreateInfo>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bindingCount", toStringFlags, tabCount, tabSize, ToString(obj.bindingCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBindingFlags", toStringFlags, tabCount, tabSize, ArrayToString(obj.bindingCount, obj.pBindingFlags, toStringFlags, tabCount, tabSize));
@@ -2971,7 +2971,7 @@ template <> std::string ToString<VkPhysicalDeviceDescriptorIndexingFeatures>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderInputAttachmentArrayDynamicIndexing", toStringFlags, tabCount, tabSize, ToString(obj.shaderInputAttachmentArrayDynamicIndexing, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderUniformTexelBufferArrayDynamicIndexing", toStringFlags, tabCount, tabSize, ToString(obj.shaderUniformTexelBufferArrayDynamicIndexing, toStringFlags, tabCount, tabSize));
@@ -3002,7 +3002,7 @@ template <> std::string ToString<VkPhysicalDeviceDescriptorIndexingProperties>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxUpdateAfterBindDescriptorsInAllPools", toStringFlags, tabCount, tabSize, ToString(obj.maxUpdateAfterBindDescriptorsInAllPools, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderUniformBufferArrayNonUniformIndexingNative", toStringFlags, tabCount, tabSize, ToString(obj.shaderUniformBufferArrayNonUniformIndexingNative, toStringFlags, tabCount, tabSize));
@@ -3036,7 +3036,7 @@ template <> std::string ToString<VkDescriptorSetVariableDescriptorCountAllocateI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorSetCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSetCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDescriptorCounts", toStringFlags, tabCount, tabSize, ArrayToString(obj.descriptorSetCount, obj.pDescriptorCounts, toStringFlags, tabCount, tabSize));
@@ -3049,7 +3049,7 @@ template <> std::string ToString<VkDescriptorSetVariableDescriptorCountLayoutSup
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxVariableDescriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.maxVariableDescriptorCount, toStringFlags, tabCount, tabSize));
         }
@@ -3061,10 +3061,10 @@ template <> std::string ToString<VkSubpassDescriptionDepthStencilResolve>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "depthResolveMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.depthResolveMode, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilResolveMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilResolveMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "depthResolveMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.depthResolveMode, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilResolveMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilResolveMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pDepthStencilResolveAttachment", toStringFlags, tabCount, tabSize, (obj.pDepthStencilResolveAttachment ? ToString(*obj.pDepthStencilResolveAttachment, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
@@ -3075,7 +3075,7 @@ template <> std::string ToString<VkPhysicalDeviceDepthStencilResolveProperties>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedDepthResolveModes", toStringFlags, tabCount, tabSize, ToString(obj.supportedDepthResolveModes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedStencilResolveModes", toStringFlags, tabCount, tabSize, ToString(obj.supportedStencilResolveModes, toStringFlags, tabCount, tabSize));
@@ -3090,7 +3090,7 @@ template <> std::string ToString<VkPhysicalDeviceScalarBlockLayoutFeatures>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "scalarBlockLayout", toStringFlags, tabCount, tabSize, ToString(obj.scalarBlockLayout, toStringFlags, tabCount, tabSize));
         }
@@ -3102,7 +3102,7 @@ template <> std::string ToString<VkImageStencilUsageCreateInfo>(const VkImageSte
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stencilUsage", toStringFlags, tabCount, tabSize, ToString(obj.stencilUsage, toStringFlags, tabCount, tabSize));
         }
@@ -3114,9 +3114,9 @@ template <> std::string ToString<VkSamplerReductionModeCreateInfo>(const VkSampl
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "reductionMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.reductionMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "reductionMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.reductionMode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -3126,7 +3126,7 @@ template <> std::string ToString<VkPhysicalDeviceSamplerFilterMinmaxProperties>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "filterMinmaxSingleComponentFormats", toStringFlags, tabCount, tabSize, ToString(obj.filterMinmaxSingleComponentFormats, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "filterMinmaxImageComponentMapping", toStringFlags, tabCount, tabSize, ToString(obj.filterMinmaxImageComponentMapping, toStringFlags, tabCount, tabSize));
@@ -3139,7 +3139,7 @@ template <> std::string ToString<VkPhysicalDeviceVulkanMemoryModelFeatures>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vulkanMemoryModel", toStringFlags, tabCount, tabSize, ToString(obj.vulkanMemoryModel, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vulkanMemoryModelDeviceScope", toStringFlags, tabCount, tabSize, ToString(obj.vulkanMemoryModelDeviceScope, toStringFlags, tabCount, tabSize));
@@ -3153,7 +3153,7 @@ template <> std::string ToString<VkPhysicalDeviceImagelessFramebufferFeatures>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imagelessFramebuffer", toStringFlags, tabCount, tabSize, ToString(obj.imagelessFramebuffer, toStringFlags, tabCount, tabSize));
         }
@@ -3165,7 +3165,7 @@ template <> std::string ToString<VkFramebufferAttachmentImageInfo>(const VkFrame
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
@@ -3183,7 +3183,7 @@ template <> std::string ToString<VkFramebufferAttachmentsCreateInfo>(const VkFra
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentImageInfoCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentImageInfoCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttachmentImageInfos", toStringFlags, tabCount, tabSize, ArrayToString(obj.attachmentImageInfoCount, obj.pAttachmentImageInfos, toStringFlags, tabCount, tabSize));
@@ -3196,7 +3196,7 @@ template <> std::string ToString<VkRenderPassAttachmentBeginInfo>(const VkRender
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttachments", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.attachmentCount, obj.pAttachments, toStringFlags, tabCount, tabSize));
@@ -3209,7 +3209,7 @@ template <> std::string ToString<VkPhysicalDeviceUniformBufferStandardLayoutFeat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "uniformBufferStandardLayout", toStringFlags, tabCount, tabSize, ToString(obj.uniformBufferStandardLayout, toStringFlags, tabCount, tabSize));
         }
@@ -3221,7 +3221,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderSubgroupExtendedTypesFeat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSubgroupExtendedTypes", toStringFlags, tabCount, tabSize, ToString(obj.shaderSubgroupExtendedTypes, toStringFlags, tabCount, tabSize));
         }
@@ -3233,7 +3233,7 @@ template <> std::string ToString<VkPhysicalDeviceSeparateDepthStencilLayoutsFeat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "separateDepthStencilLayouts", toStringFlags, tabCount, tabSize, ToString(obj.separateDepthStencilLayouts, toStringFlags, tabCount, tabSize));
         }
@@ -3245,9 +3245,9 @@ template <> std::string ToString<VkAttachmentReferenceStencilLayout>(const VkAtt
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "stencilLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "stencilLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilLayout, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -3257,10 +3257,10 @@ template <> std::string ToString<VkAttachmentDescriptionStencilLayout>(const VkA
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "stencilInitialLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilInitialLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilFinalLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilFinalLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "stencilInitialLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilInitialLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilFinalLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilFinalLayout, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -3270,7 +3270,7 @@ template <> std::string ToString<VkPhysicalDeviceHostQueryResetFeatures>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "hostQueryReset", toStringFlags, tabCount, tabSize, ToString(obj.hostQueryReset, toStringFlags, tabCount, tabSize));
         }
@@ -3282,7 +3282,7 @@ template <> std::string ToString<VkPhysicalDeviceTimelineSemaphoreFeatures>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "timelineSemaphore", toStringFlags, tabCount, tabSize, ToString(obj.timelineSemaphore, toStringFlags, tabCount, tabSize));
         }
@@ -3294,7 +3294,7 @@ template <> std::string ToString<VkPhysicalDeviceTimelineSemaphoreProperties>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxTimelineSemaphoreValueDifference", toStringFlags, tabCount, tabSize, ToString(obj.maxTimelineSemaphoreValueDifference, toStringFlags, tabCount, tabSize));
         }
@@ -3306,9 +3306,9 @@ template <> std::string ToString<VkSemaphoreTypeCreateInfo>(const VkSemaphoreTyp
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphoreType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.semaphoreType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "semaphoreType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.semaphoreType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "initialValue", toStringFlags, tabCount, tabSize, ToString(obj.initialValue, toStringFlags, tabCount, tabSize));
         }
     );
@@ -3319,7 +3319,7 @@ template <> std::string ToString<VkTimelineSemaphoreSubmitInfo>(const VkTimeline
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "waitSemaphoreValueCount", toStringFlags, tabCount, tabSize, ToString(obj.waitSemaphoreValueCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pWaitSemaphoreValues", toStringFlags, tabCount, tabSize, ArrayToString(obj.waitSemaphoreValueCount, obj.pWaitSemaphoreValues, toStringFlags, tabCount, tabSize));
@@ -3334,7 +3334,7 @@ template <> std::string ToString<VkSemaphoreWaitInfo>(const VkSemaphoreWaitInfo&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "semaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.semaphoreCount, toStringFlags, tabCount, tabSize));
@@ -3349,9 +3349,9 @@ template <> std::string ToString<VkSemaphoreSignalInfo>(const VkSemaphoreSignalI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
             FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize, ToString(obj.value, toStringFlags, tabCount, tabSize));
         }
     );
@@ -3362,7 +3362,7 @@ template <> std::string ToString<VkPhysicalDeviceBufferDeviceAddressFeatures>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bufferDeviceAddress", toStringFlags, tabCount, tabSize, ToString(obj.bufferDeviceAddress, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bufferDeviceAddressCaptureReplay", toStringFlags, tabCount, tabSize, ToString(obj.bufferDeviceAddressCaptureReplay, toStringFlags, tabCount, tabSize));
@@ -3376,9 +3376,9 @@ template <> std::string ToString<VkBufferDeviceAddressInfo>(const VkBufferDevice
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
         }
     );
 }
@@ -3388,7 +3388,7 @@ template <> std::string ToString<VkBufferOpaqueCaptureAddressCreateInfo>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "opaqueCaptureAddress", toStringFlags, tabCount, tabSize, ToString(obj.opaqueCaptureAddress, toStringFlags, tabCount, tabSize));
         }
@@ -3400,7 +3400,7 @@ template <> std::string ToString<VkMemoryOpaqueCaptureAddressAllocateInfo>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "opaqueCaptureAddress", toStringFlags, tabCount, tabSize, ToString(obj.opaqueCaptureAddress, toStringFlags, tabCount, tabSize));
         }
@@ -3412,9 +3412,9 @@ template <> std::string ToString<VkDeviceMemoryOpaqueCaptureAddressInfo>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
         }
     );
 }
@@ -3424,7 +3424,7 @@ template <> std::string ToString<VkPhysicalDeviceVulkan13Features>(const VkPhysi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "robustImageAccess", toStringFlags, tabCount, tabSize, ToString(obj.robustImageAccess, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "inlineUniformBlock", toStringFlags, tabCount, tabSize, ToString(obj.inlineUniformBlock, toStringFlags, tabCount, tabSize));
@@ -3450,7 +3450,7 @@ template <> std::string ToString<VkPhysicalDeviceVulkan13Properties>(const VkPhy
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minSubgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.minSubgroupSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxSubgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.maxSubgroupSize, toStringFlags, tabCount, tabSize));
@@ -3517,7 +3517,7 @@ template <> std::string ToString<VkPipelineCreationFeedbackCreateInfo>(const VkP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pPipelineCreationFeedback", toStringFlags, tabCount, tabSize, (obj.pPipelineCreationFeedback ? ToString(*obj.pPipelineCreationFeedback, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pipelineStageCreationFeedbackCount", toStringFlags, tabCount, tabSize, ToString(obj.pipelineStageCreationFeedbackCount, toStringFlags, tabCount, tabSize));
@@ -3531,7 +3531,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderTerminateInvocationFeatur
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderTerminateInvocation", toStringFlags, tabCount, tabSize, ToString(obj.shaderTerminateInvocation, toStringFlags, tabCount, tabSize));
         }
@@ -3543,7 +3543,7 @@ template <> std::string ToString<VkPhysicalDeviceToolProperties>(const VkPhysica
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
             FieldToString(strStrm, false, "version", toStringFlags, tabCount, tabSize, CStrToString(obj.version));
@@ -3559,7 +3559,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderDemoteToHelperInvocationF
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderDemoteToHelperInvocation", toStringFlags, tabCount, tabSize, ToString(obj.shaderDemoteToHelperInvocation, toStringFlags, tabCount, tabSize));
         }
@@ -3571,7 +3571,7 @@ template <> std::string ToString<VkPhysicalDevicePrivateDataFeatures>(const VkPh
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "privateData", toStringFlags, tabCount, tabSize, ToString(obj.privateData, toStringFlags, tabCount, tabSize));
         }
@@ -3583,7 +3583,7 @@ template <> std::string ToString<VkDevicePrivateDataCreateInfo>(const VkDevicePr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "privateDataSlotRequestCount", toStringFlags, tabCount, tabSize, ToString(obj.privateDataSlotRequestCount, toStringFlags, tabCount, tabSize));
         }
@@ -3595,7 +3595,7 @@ template <> std::string ToString<VkPrivateDataSlotCreateInfo>(const VkPrivateDat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -3607,7 +3607,7 @@ template <> std::string ToString<VkPhysicalDevicePipelineCreationCacheControlFea
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineCreationCacheControl", toStringFlags, tabCount, tabSize, ToString(obj.pipelineCreationCacheControl, toStringFlags, tabCount, tabSize));
         }
@@ -3619,7 +3619,7 @@ template <> std::string ToString<VkMemoryBarrier2>(const VkMemoryBarrier2& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, ToString(obj.srcStageMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
@@ -3634,7 +3634,7 @@ template <> std::string ToString<VkBufferMemoryBarrier2>(const VkBufferMemoryBar
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, ToString(obj.srcStageMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
@@ -3642,7 +3642,7 @@ template <> std::string ToString<VkBufferMemoryBarrier2>(const VkBufferMemoryBar
             FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
         }
@@ -3654,17 +3654,17 @@ template <> std::string ToString<VkImageMemoryBarrier2>(const VkImageMemoryBarri
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcStageMask", toStringFlags, tabCount, tabSize, ToString(obj.srcStageMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.srcAccessMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstStageMask", toStringFlags, tabCount, tabSize, ToString(obj.dstStageMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "oldLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.oldLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "newLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.newLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "oldLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.oldLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "newLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.newLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(obj.subresourceRange, toStringFlags, tabCount, tabSize));
         }
     );
@@ -3675,7 +3675,7 @@ template <> std::string ToString<VkDependencyInfo>(const VkDependencyInfo& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dependencyFlags", toStringFlags, tabCount, tabSize, ToString(obj.dependencyFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryBarrierCount", toStringFlags, tabCount, tabSize, ToString(obj.memoryBarrierCount, toStringFlags, tabCount, tabSize));
@@ -3693,9 +3693,9 @@ template <> std::string ToString<VkSemaphoreSubmitInfo>(const VkSemaphoreSubmitI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
             FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize, ToString(obj.value, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, ToString(obj.stageMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceIndex", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndex, toStringFlags, tabCount, tabSize));
@@ -3708,9 +3708,9 @@ template <> std::string ToString<VkCommandBufferSubmitInfo>(const VkCommandBuffe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "commandBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.commandBuffer) + '"');
+            FieldToString(strStrm, false, "commandBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.commandBuffer)));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
         }
     );
@@ -3721,7 +3721,7 @@ template <> std::string ToString<VkSubmitInfo2>(const VkSubmitInfo2& obj, ToStri
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "waitSemaphoreInfoCount", toStringFlags, tabCount, tabSize, ToString(obj.waitSemaphoreInfoCount, toStringFlags, tabCount, tabSize));
@@ -3739,7 +3739,7 @@ template <> std::string ToString<VkPhysicalDeviceSynchronization2Features>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "synchronization2", toStringFlags, tabCount, tabSize, ToString(obj.synchronization2, toStringFlags, tabCount, tabSize));
         }
@@ -3751,7 +3751,7 @@ template <> std::string ToString<VkPhysicalDeviceZeroInitializeWorkgroupMemoryFe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderZeroInitializeWorkgroupMemory", toStringFlags, tabCount, tabSize, ToString(obj.shaderZeroInitializeWorkgroupMemory, toStringFlags, tabCount, tabSize));
         }
@@ -3763,7 +3763,7 @@ template <> std::string ToString<VkPhysicalDeviceImageRobustnessFeatures>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "robustImageAccess", toStringFlags, tabCount, tabSize, ToString(obj.robustImageAccess, toStringFlags, tabCount, tabSize));
         }
@@ -3775,7 +3775,7 @@ template <> std::string ToString<VkBufferCopy2>(const VkBufferCopy2& obj, ToStri
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcOffset", toStringFlags, tabCount, tabSize, ToString(obj.srcOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstOffset", toStringFlags, tabCount, tabSize, ToString(obj.dstOffset, toStringFlags, tabCount, tabSize));
@@ -3789,10 +3789,10 @@ template <> std::string ToString<VkCopyBufferInfo2>(const VkCopyBufferInfo2& obj
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.srcBuffer) + '"');
-            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstBuffer) + '"');
+            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.srcBuffer)));
+            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstBuffer)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
         }
@@ -3804,7 +3804,7 @@ template <> std::string ToString<VkImageCopy2>(const VkImageCopy2& obj, ToString
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcSubresource", toStringFlags, tabCount, tabSize, ToString(obj.srcSubresource, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcOffset", toStringFlags, tabCount, tabSize, ToString(obj.srcOffset, toStringFlags, tabCount, tabSize));
@@ -3820,12 +3820,12 @@ template <> std::string ToString<VkCopyImageInfo2>(const VkCopyImageInfo2& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.srcImage) + '"');
-            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstImage) + '"');
-            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.srcImage)));
+            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstImage)));
+            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
         }
@@ -3837,7 +3837,7 @@ template <> std::string ToString<VkBufferImageCopy2>(const VkBufferImageCopy2& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bufferOffset", toStringFlags, tabCount, tabSize, ToString(obj.bufferOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bufferRowLength", toStringFlags, tabCount, tabSize, ToString(obj.bufferRowLength, toStringFlags, tabCount, tabSize));
@@ -3854,11 +3854,11 @@ template <> std::string ToString<VkCopyBufferToImageInfo2>(const VkCopyBufferToI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.srcBuffer) + '"');
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstImage) + '"');
-            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.srcBuffer)));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstImage)));
+            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
         }
@@ -3870,11 +3870,11 @@ template <> std::string ToString<VkCopyImageToBufferInfo2>(const VkCopyImageToBu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.srcImage) + '"');
-            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstBuffer) + '"');
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.srcImage)));
+            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstBuffer)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
         }
@@ -3886,7 +3886,7 @@ template <> std::string ToString<VkImageBlit2>(const VkImageBlit2& obj, ToString
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcSubresource", toStringFlags, tabCount, tabSize, ToString(obj.srcSubresource, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcOffsets", toStringFlags, tabCount, tabSize, ArrayToString(2, obj.srcOffsets, toStringFlags, tabCount, tabSize));
@@ -3901,15 +3901,15 @@ template <> std::string ToString<VkBlitImageInfo2>(const VkBlitImageInfo2& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.srcImage) + '"');
-            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstImage) + '"');
-            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.srcImage)));
+            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstImage)));
+            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "filter", toStringFlags, tabCount, tabSize, '"' + ToString(obj.filter, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "filter", toStringFlags, tabCount, tabSize, Quote(ToString(obj.filter, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -3919,7 +3919,7 @@ template <> std::string ToString<VkImageResolve2>(const VkImageResolve2& obj, To
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcSubresource", toStringFlags, tabCount, tabSize, ToString(obj.srcSubresource, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcOffset", toStringFlags, tabCount, tabSize, ToString(obj.srcOffset, toStringFlags, tabCount, tabSize));
@@ -3935,12 +3935,12 @@ template <> std::string ToString<VkResolveImageInfo2>(const VkResolveImageInfo2&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.srcImage) + '"');
-            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstImage) + '"');
-            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.srcImage)));
+            FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstImage)));
+            FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.regionCount, obj.pRegions, toStringFlags, tabCount, tabSize));
         }
@@ -3952,7 +3952,7 @@ template <> std::string ToString<VkPhysicalDeviceSubgroupSizeControlFeatures>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subgroupSizeControl", toStringFlags, tabCount, tabSize, ToString(obj.subgroupSizeControl, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "computeFullSubgroups", toStringFlags, tabCount, tabSize, ToString(obj.computeFullSubgroups, toStringFlags, tabCount, tabSize));
@@ -3965,7 +3965,7 @@ template <> std::string ToString<VkPhysicalDeviceSubgroupSizeControlProperties>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minSubgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.minSubgroupSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxSubgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.maxSubgroupSize, toStringFlags, tabCount, tabSize));
@@ -3980,7 +3980,7 @@ template <> std::string ToString<VkPipelineShaderStageRequiredSubgroupSizeCreate
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "requiredSubgroupSize", toStringFlags, tabCount, tabSize, ToString(obj.requiredSubgroupSize, toStringFlags, tabCount, tabSize));
         }
@@ -3992,7 +3992,7 @@ template <> std::string ToString<VkPhysicalDeviceInlineUniformBlockFeatures>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "inlineUniformBlock", toStringFlags, tabCount, tabSize, ToString(obj.inlineUniformBlock, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorBindingInlineUniformBlockUpdateAfterBind", toStringFlags, tabCount, tabSize, ToString(obj.descriptorBindingInlineUniformBlockUpdateAfterBind, toStringFlags, tabCount, tabSize));
@@ -4005,7 +4005,7 @@ template <> std::string ToString<VkPhysicalDeviceInlineUniformBlockProperties>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxInlineUniformBlockSize", toStringFlags, tabCount, tabSize, ToString(obj.maxInlineUniformBlockSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxPerStageDescriptorInlineUniformBlocks", toStringFlags, tabCount, tabSize, ToString(obj.maxPerStageDescriptorInlineUniformBlocks, toStringFlags, tabCount, tabSize));
@@ -4021,10 +4021,10 @@ template <> std::string ToString<VkWriteDescriptorSetInlineUniformBlock>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dataSize", toStringFlags, tabCount, tabSize, ToString(obj.dataSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pData) + "\"");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pData)));
         }
     );
 }
@@ -4034,7 +4034,7 @@ template <> std::string ToString<VkDescriptorPoolInlineUniformBlockCreateInfo>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxInlineUniformBlockBindings", toStringFlags, tabCount, tabSize, ToString(obj.maxInlineUniformBlockBindings, toStringFlags, tabCount, tabSize));
         }
@@ -4046,7 +4046,7 @@ template <> std::string ToString<VkPhysicalDeviceTextureCompressionASTCHDRFeatur
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "textureCompressionASTC_HDR", toStringFlags, tabCount, tabSize, ToString(obj.textureCompressionASTC_HDR, toStringFlags, tabCount, tabSize));
         }
@@ -4058,15 +4058,15 @@ template <> std::string ToString<VkRenderingAttachmentInfo>(const VkRenderingAtt
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.imageView) + '"');
-            FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "resolveMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.resolveMode, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "resolveImageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.resolveImageView) + '"');
-            FieldToString(strStrm, false, "resolveImageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.resolveImageLayout, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.loadOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.storeOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.imageView)));
+            FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "resolveMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.resolveMode, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "resolveImageView", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.resolveImageView)));
+            FieldToString(strStrm, false, "resolveImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.resolveImageLayout, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.loadOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.storeOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "clearValue", toStringFlags, tabCount, tabSize, ToString(obj.clearValue, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4077,7 +4077,7 @@ template <> std::string ToString<VkRenderingInfo>(const VkRenderingInfo& obj, To
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "renderArea", toStringFlags, tabCount, tabSize, ToString(obj.renderArea, toStringFlags, tabCount, tabSize));
@@ -4096,13 +4096,13 @@ template <> std::string ToString<VkPipelineRenderingCreateInfo>(const VkPipeline
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewMask", toStringFlags, tabCount, tabSize, ToString(obj.viewMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "colorAttachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.colorAttachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pColorAttachmentFormats", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.colorAttachmentCount, obj.pColorAttachmentFormats, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "depthAttachmentFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.depthAttachmentFormat, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilAttachmentFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilAttachmentFormat, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "depthAttachmentFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.depthAttachmentFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilAttachmentFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilAttachmentFormat, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4112,7 +4112,7 @@ template <> std::string ToString<VkPhysicalDeviceDynamicRenderingFeatures>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dynamicRendering", toStringFlags, tabCount, tabSize, ToString(obj.dynamicRendering, toStringFlags, tabCount, tabSize));
         }
@@ -4124,15 +4124,15 @@ template <> std::string ToString<VkCommandBufferInheritanceRenderingInfo>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewMask", toStringFlags, tabCount, tabSize, ToString(obj.viewMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "colorAttachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.colorAttachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pColorAttachmentFormats", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.colorAttachmentCount, obj.pColorAttachmentFormats, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "depthAttachmentFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.depthAttachmentFormat, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "stencilAttachmentFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stencilAttachmentFormat, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "rasterizationSamples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.rasterizationSamples, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "depthAttachmentFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.depthAttachmentFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "stencilAttachmentFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stencilAttachmentFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "rasterizationSamples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.rasterizationSamples, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4142,7 +4142,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderIntegerDotProductFeatures
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderIntegerDotProduct", toStringFlags, tabCount, tabSize, ToString(obj.shaderIntegerDotProduct, toStringFlags, tabCount, tabSize));
         }
@@ -4154,7 +4154,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderIntegerDotProductProperti
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "integerDotProduct8BitUnsignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct8BitUnsignedAccelerated, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "integerDotProduct8BitSignedAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.integerDotProduct8BitSignedAccelerated, toStringFlags, tabCount, tabSize));
@@ -4195,7 +4195,7 @@ template <> std::string ToString<VkPhysicalDeviceTexelBufferAlignmentProperties>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "storageTexelBufferOffsetAlignmentBytes", toStringFlags, tabCount, tabSize, ToString(obj.storageTexelBufferOffsetAlignmentBytes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "storageTexelBufferOffsetSingleTexelAlignment", toStringFlags, tabCount, tabSize, ToString(obj.storageTexelBufferOffsetSingleTexelAlignment, toStringFlags, tabCount, tabSize));
@@ -4210,7 +4210,7 @@ template <> std::string ToString<VkFormatProperties3>(const VkFormatProperties3&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "linearTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.linearTilingFeatures, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "optimalTilingFeatures", toStringFlags, tabCount, tabSize, ToString(obj.optimalTilingFeatures, toStringFlags, tabCount, tabSize));
@@ -4224,7 +4224,7 @@ template <> std::string ToString<VkPhysicalDeviceMaintenance4Features>(const VkP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maintenance4", toStringFlags, tabCount, tabSize, ToString(obj.maintenance4, toStringFlags, tabCount, tabSize));
         }
@@ -4236,7 +4236,7 @@ template <> std::string ToString<VkPhysicalDeviceMaintenance4Properties>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxBufferSize", toStringFlags, tabCount, tabSize, ToString(obj.maxBufferSize, toStringFlags, tabCount, tabSize));
         }
@@ -4248,7 +4248,7 @@ template <> std::string ToString<VkDeviceBufferMemoryRequirements>(const VkDevic
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, (obj.pCreateInfo ? ToString(*obj.pCreateInfo, toStringFlags, tabCount, tabSize) : "null"));
         }
@@ -4260,10 +4260,10 @@ template <> std::string ToString<VkDeviceImageMemoryRequirements>(const VkDevice
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pCreateInfo", toStringFlags, tabCount, tabSize, (obj.pCreateInfo ? ToString(*obj.pCreateInfo, toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "planeAspect", toStringFlags, tabCount, tabSize, '"' + ToString(obj.planeAspect, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "planeAspect", toStringFlags, tabCount, tabSize, Quote(ToString(obj.planeAspect, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4280,7 +4280,7 @@ template <> std::string ToString<VkSurfaceCapabilitiesKHR>(const VkSurfaceCapabi
             FieldToString(strStrm, false, "maxImageExtent", toStringFlags, tabCount, tabSize, ToString(obj.maxImageExtent, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxImageArrayLayers", toStringFlags, tabCount, tabSize, ToString(obj.maxImageArrayLayers, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedTransforms", toStringFlags, tabCount, tabSize, ToString(obj.supportedTransforms, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "currentTransform", toStringFlags, tabCount, tabSize, '"' + ToString(obj.currentTransform, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "currentTransform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.currentTransform, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "supportedCompositeAlpha", toStringFlags, tabCount, tabSize, ToString(obj.supportedCompositeAlpha, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedUsageFlags", toStringFlags, tabCount, tabSize, ToString(obj.supportedUsageFlags, toStringFlags, tabCount, tabSize));
         }
@@ -4292,8 +4292,8 @@ template <> std::string ToString<VkSurfaceFormatKHR>(const VkSurfaceFormatKHR& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "colorSpace", toStringFlags, tabCount, tabSize, '"' + ToString(obj.colorSpace, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "colorSpace", toStringFlags, tabCount, tabSize, Quote(ToString(obj.colorSpace, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4303,24 +4303,24 @@ template <> std::string ToString<VkSwapchainCreateInfoKHR>(const VkSwapchainCrea
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.surface) + '"');
+            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.surface)));
             FieldToString(strStrm, false, "minImageCount", toStringFlags, tabCount, tabSize, ToString(obj.minImageCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageFormat, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "imageColorSpace", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageColorSpace, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "imageColorSpace", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageColorSpace, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "imageExtent", toStringFlags, tabCount, tabSize, ToString(obj.imageExtent, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageArrayLayers", toStringFlags, tabCount, tabSize, ToString(obj.imageArrayLayers, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageUsage", toStringFlags, tabCount, tabSize, ToString(obj.imageUsage, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageSharingMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageSharingMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageSharingMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageSharingMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "queueFamilyIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pQueueFamilyIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.queueFamilyIndexCount, obj.pQueueFamilyIndices, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "preTransform", toStringFlags, tabCount, tabSize, '"' + ToString(obj.preTransform, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "compositeAlpha", toStringFlags, tabCount, tabSize, '"' + ToString(obj.compositeAlpha, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "presentMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.presentMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "preTransform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.preTransform, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "compositeAlpha", toStringFlags, tabCount, tabSize, Quote(ToString(obj.compositeAlpha, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "presentMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.presentMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "clipped", toStringFlags, tabCount, tabSize, ToString(obj.clipped, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "oldSwapchain", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.oldSwapchain) + '"');
+            FieldToString(strStrm, false, "oldSwapchain", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.oldSwapchain)));
         }
     );
 }
@@ -4330,7 +4330,7 @@ template <> std::string ToString<VkPresentInfoKHR>(const VkPresentInfoKHR& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "waitSemaphoreCount", toStringFlags, tabCount, tabSize, ToString(obj.waitSemaphoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pWaitSemaphores", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.waitSemaphoreCount, obj.pWaitSemaphores, toStringFlags, tabCount, tabSize));
@@ -4347,9 +4347,9 @@ template <> std::string ToString<VkImageSwapchainCreateInfoKHR>(const VkImageSwa
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.swapchain) + '"');
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.swapchain)));
         }
     );
 }
@@ -4359,9 +4359,9 @@ template <> std::string ToString<VkBindImageMemorySwapchainInfoKHR>(const VkBind
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.swapchain) + '"');
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.swapchain)));
             FieldToString(strStrm, false, "imageIndex", toStringFlags, tabCount, tabSize, ToString(obj.imageIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4372,12 +4372,12 @@ template <> std::string ToString<VkAcquireNextImageInfoKHR>(const VkAcquireNextI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.swapchain) + '"');
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.swapchain)));
             FieldToString(strStrm, false, "timeout", toStringFlags, tabCount, tabSize, ToString(obj.timeout, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.fence)));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4388,7 +4388,7 @@ template <> std::string ToString<VkDeviceGroupPresentCapabilitiesKHR>(const VkDe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "presentMask", toStringFlags, tabCount, tabSize, ArrayToString(VK_MAX_DEVICE_GROUP_SIZE, obj.presentMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "modes", toStringFlags, tabCount, tabSize, ToString(obj.modes, toStringFlags, tabCount, tabSize));
@@ -4401,11 +4401,11 @@ template <> std::string ToString<VkDeviceGroupPresentInfoKHR>(const VkDeviceGrou
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(obj.swapchainCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDeviceMasks", toStringFlags, tabCount, tabSize, ArrayToString(obj.swapchainCount, obj.pDeviceMasks, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4415,7 +4415,7 @@ template <> std::string ToString<VkDeviceGroupSwapchainCreateInfoKHR>(const VkDe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "modes", toStringFlags, tabCount, tabSize, ToString(obj.modes, toStringFlags, tabCount, tabSize));
         }
@@ -4438,7 +4438,7 @@ template <> std::string ToString<VkDisplayModeCreateInfoKHR>(const VkDisplayMode
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "parameters", toStringFlags, tabCount, tabSize, ToString(obj.parameters, toStringFlags, tabCount, tabSize));
@@ -4451,7 +4451,7 @@ template <> std::string ToString<VkDisplayModePropertiesKHR>(const VkDisplayMode
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "displayMode", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.displayMode) + '"');
+            FieldToString(strStrm, true, "displayMode", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.displayMode)));
             FieldToString(strStrm, false, "parameters", toStringFlags, tabCount, tabSize, ToString(obj.parameters, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4480,7 +4480,7 @@ template <> std::string ToString<VkDisplayPlanePropertiesKHR>(const VkDisplayPla
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "currentDisplay", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.currentDisplay) + '"');
+            FieldToString(strStrm, true, "currentDisplay", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.currentDisplay)));
             FieldToString(strStrm, false, "currentStackIndex", toStringFlags, tabCount, tabSize, ToString(obj.currentStackIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4491,7 +4491,7 @@ template <> std::string ToString<VkDisplayPropertiesKHR>(const VkDisplayProperti
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "display", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.display) + '"');
+            FieldToString(strStrm, true, "display", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.display)));
             FieldToString(strStrm, false, "displayName", toStringFlags, tabCount, tabSize, CStrToString(obj.displayName));
             FieldToString(strStrm, false, "physicalDimensions", toStringFlags, tabCount, tabSize, ToString(obj.physicalDimensions, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalResolution", toStringFlags, tabCount, tabSize, ToString(obj.physicalResolution, toStringFlags, tabCount, tabSize));
@@ -4507,15 +4507,15 @@ template <> std::string ToString<VkDisplaySurfaceCreateInfoKHR>(const VkDisplayS
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "displayMode", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.displayMode) + '"');
+            FieldToString(strStrm, false, "displayMode", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.displayMode)));
             FieldToString(strStrm, false, "planeIndex", toStringFlags, tabCount, tabSize, ToString(obj.planeIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "planeStackIndex", toStringFlags, tabCount, tabSize, ToString(obj.planeStackIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, '"' + ToString(obj.transform, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.transform, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "globalAlpha", toStringFlags, tabCount, tabSize, ToString(obj.globalAlpha, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "alphaMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.alphaMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "alphaMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.alphaMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "imageExtent", toStringFlags, tabCount, tabSize, ToString(obj.imageExtent, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4526,7 +4526,7 @@ template <> std::string ToString<VkDisplayPresentInfoKHR>(const VkDisplayPresent
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcRect", toStringFlags, tabCount, tabSize, ToString(obj.srcRect, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstRect", toStringFlags, tabCount, tabSize, ToString(obj.dstRect, toStringFlags, tabCount, tabSize));
@@ -4540,10 +4540,10 @@ template <> std::string ToString<VkXlibSurfaceCreateInfoKHR>(const VkXlibSurface
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dpy", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.dpy) + "\"");
+            FieldToString(strStrm, false, "dpy", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.dpy)));
             FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, ToString(obj.window, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4554,10 +4554,10 @@ template <> std::string ToString<VkXcbSurfaceCreateInfoKHR>(const VkXcbSurfaceCr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "connection", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.connection) + "\"");
+            FieldToString(strStrm, false, "connection", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.connection)));
             FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, ToString(obj.window, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4568,11 +4568,11 @@ template <> std::string ToString<VkWaylandSurfaceCreateInfoKHR>(const VkWaylandS
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.display) + "\"");
-            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.surface) + "\"");
+            FieldToString(strStrm, false, "display", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.display)));
+            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.surface)));
         }
     );
 }
@@ -4582,10 +4582,10 @@ template <> std::string ToString<VkAndroidSurfaceCreateInfoKHR>(const VkAndroidS
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.window) + "\"");
+            FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.window)));
         }
     );
 }
@@ -4595,11 +4595,11 @@ template <> std::string ToString<VkWin32SurfaceCreateInfoKHR>(const VkWin32Surfa
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "hinstance", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.hinstance) + "\"");
-            FieldToString(strStrm, false, "hwnd", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.hwnd) + "\"");
+            FieldToString(strStrm, false, "hinstance", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.hinstance)));
+            FieldToString(strStrm, false, "hwnd", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.hwnd)));
         }
     );
 }
@@ -4609,10 +4609,10 @@ template <> std::string ToString<VkRenderingFragmentShadingRateAttachmentInfoKHR
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.imageView) + '"');
-            FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.imageView)));
+            FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "shadingRateAttachmentTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.shadingRateAttachmentTexelSize, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4623,10 +4623,10 @@ template <> std::string ToString<VkRenderingFragmentDensityMapAttachmentInfoEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.imageView) + '"');
-            FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageLayout, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.imageView)));
+            FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageLayout, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4636,11 +4636,11 @@ template <> std::string ToString<VkAttachmentSampleCountInfoAMD>(const VkAttachm
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "colorAttachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.colorAttachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pColorAttachmentSamples", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.colorAttachmentCount, obj.pColorAttachmentSamples, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "depthStencilAttachmentSamples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.depthStencilAttachmentSamples, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "depthStencilAttachmentSamples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.depthStencilAttachmentSamples, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4650,7 +4650,7 @@ template <> std::string ToString<VkMultiviewPerViewAttributesInfoNVX>(const VkMu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "perViewAttributes", toStringFlags, tabCount, tabSize, ToString(obj.perViewAttributes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "perViewAttributesPositionXOnly", toStringFlags, tabCount, tabSize, ToString(obj.perViewAttributesPositionXOnly, toStringFlags, tabCount, tabSize));
@@ -4663,10 +4663,10 @@ template <> std::string ToString<VkImportMemoryWin32HandleInfoKHR>(const VkImpor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.handle) + "\"");
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.handle)));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, (obj.name ? ToString(*obj.name, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
@@ -4677,7 +4677,7 @@ template <> std::string ToString<VkExportMemoryWin32HandleInfoKHR>(const VkExpor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttributes", toStringFlags, tabCount, tabSize, (obj.pAttributes ? ToString(*obj.pAttributes, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "dwAccess", toStringFlags, tabCount, tabSize, ToString(obj.dwAccess, toStringFlags, tabCount, tabSize));
@@ -4691,7 +4691,7 @@ template <> std::string ToString<VkMemoryWin32HandlePropertiesKHR>(const VkMemor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryTypeBits", toStringFlags, tabCount, tabSize, ToString(obj.memoryTypeBits, toStringFlags, tabCount, tabSize));
         }
@@ -4703,10 +4703,10 @@ template <> std::string ToString<VkMemoryGetWin32HandleInfoKHR>(const VkMemoryGe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4716,9 +4716,9 @@ template <> std::string ToString<VkImportMemoryFdInfoKHR>(const VkImportMemoryFd
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "fd", toStringFlags, tabCount, tabSize, ToString(obj.fd, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4729,7 +4729,7 @@ template <> std::string ToString<VkMemoryFdPropertiesKHR>(const VkMemoryFdProper
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryTypeBits", toStringFlags, tabCount, tabSize, ToString(obj.memoryTypeBits, toStringFlags, tabCount, tabSize));
         }
@@ -4741,10 +4741,10 @@ template <> std::string ToString<VkMemoryGetFdInfoKHR>(const VkMemoryGetFdInfoKH
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4754,7 +4754,7 @@ template <> std::string ToString<VkWin32KeyedMutexAcquireReleaseInfoKHR>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "acquireCount", toStringFlags, tabCount, tabSize, ToString(obj.acquireCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAcquireSyncs", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.acquireCount, obj.pAcquireSyncs, toStringFlags, tabCount, tabSize));
@@ -4772,12 +4772,12 @@ template <> std::string ToString<VkImportSemaphoreWin32HandleInfoKHR>(const VkIm
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.handle) + "\"");
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.handle)));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, (obj.name ? ToString(*obj.name, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
@@ -4788,7 +4788,7 @@ template <> std::string ToString<VkExportSemaphoreWin32HandleInfoKHR>(const VkEx
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttributes", toStringFlags, tabCount, tabSize, (obj.pAttributes ? ToString(*obj.pAttributes, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "dwAccess", toStringFlags, tabCount, tabSize, ToString(obj.dwAccess, toStringFlags, tabCount, tabSize));
@@ -4802,7 +4802,7 @@ template <> std::string ToString<VkD3D12FenceSubmitInfoKHR>(const VkD3D12FenceSu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "waitSemaphoreValuesCount", toStringFlags, tabCount, tabSize, ToString(obj.waitSemaphoreValuesCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pWaitSemaphoreValues", toStringFlags, tabCount, tabSize, ArrayToString(obj.waitSemaphoreValuesCount, obj.pWaitSemaphoreValues, toStringFlags, tabCount, tabSize));
@@ -4817,10 +4817,10 @@ template <> std::string ToString<VkSemaphoreGetWin32HandleInfoKHR>(const VkSemap
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4830,11 +4830,11 @@ template <> std::string ToString<VkImportSemaphoreFdInfoKHR>(const VkImportSemap
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "fd", toStringFlags, tabCount, tabSize, ToString(obj.fd, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4845,10 +4845,10 @@ template <> std::string ToString<VkSemaphoreGetFdInfoKHR>(const VkSemaphoreGetFd
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4858,7 +4858,7 @@ template <> std::string ToString<VkPhysicalDevicePushDescriptorPropertiesKHR>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxPushDescriptors", toStringFlags, tabCount, tabSize, ToString(obj.maxPushDescriptors, toStringFlags, tabCount, tabSize));
         }
@@ -4893,7 +4893,7 @@ template <> std::string ToString<VkPresentRegionsKHR>(const VkPresentRegionsKHR&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(obj.swapchainCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, ArrayToString(obj.swapchainCount, obj.pRegions, toStringFlags, tabCount, tabSize));
@@ -4906,7 +4906,7 @@ template <> std::string ToString<VkSharedPresentSurfaceCapabilitiesKHR>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sharedPresentSupportedUsageFlags", toStringFlags, tabCount, tabSize, ToString(obj.sharedPresentSupportedUsageFlags, toStringFlags, tabCount, tabSize));
         }
@@ -4918,12 +4918,12 @@ template <> std::string ToString<VkImportFenceWin32HandleInfoKHR>(const VkImport
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.fence)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.handle) + "\"");
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.handle)));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, (obj.name ? ToString(*obj.name, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
@@ -4934,7 +4934,7 @@ template <> std::string ToString<VkExportFenceWin32HandleInfoKHR>(const VkExport
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttributes", toStringFlags, tabCount, tabSize, (obj.pAttributes ? ToString(*obj.pAttributes, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "dwAccess", toStringFlags, tabCount, tabSize, ToString(obj.dwAccess, toStringFlags, tabCount, tabSize));
@@ -4948,10 +4948,10 @@ template <> std::string ToString<VkFenceGetWin32HandleInfoKHR>(const VkFenceGetW
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.fence)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4961,11 +4961,11 @@ template <> std::string ToString<VkImportFenceFdInfoKHR>(const VkImportFenceFdIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.fence)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "fd", toStringFlags, tabCount, tabSize, ToString(obj.fd, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4976,10 +4976,10 @@ template <> std::string ToString<VkFenceGetFdInfoKHR>(const VkFenceGetFdInfoKHR&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.fence) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.fence)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -4989,7 +4989,7 @@ template <> std::string ToString<VkPhysicalDevicePerformanceQueryFeaturesKHR>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "performanceCounterQueryPools", toStringFlags, tabCount, tabSize, ToString(obj.performanceCounterQueryPools, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "performanceCounterMultipleQueryPools", toStringFlags, tabCount, tabSize, ToString(obj.performanceCounterMultipleQueryPools, toStringFlags, tabCount, tabSize));
@@ -5002,7 +5002,7 @@ template <> std::string ToString<VkPhysicalDevicePerformanceQueryPropertiesKHR>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "allowCommandBufferQueryCopies", toStringFlags, tabCount, tabSize, ToString(obj.allowCommandBufferQueryCopies, toStringFlags, tabCount, tabSize));
         }
@@ -5014,12 +5014,12 @@ template <> std::string ToString<VkPerformanceCounterKHR>(const VkPerformanceCou
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "unit", toStringFlags, tabCount, tabSize, '"' + ToString(obj.unit, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "scope", toStringFlags, tabCount, tabSize, '"' + ToString(obj.scope, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "storage", toStringFlags, tabCount, tabSize, '"' + ToString(obj.storage, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "uuid", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.uuid) + '"');
+            FieldToString(strStrm, false, "unit", toStringFlags, tabCount, tabSize, Quote(ToString(obj.unit, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "scope", toStringFlags, tabCount, tabSize, Quote(ToString(obj.scope, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "storage", toStringFlags, tabCount, tabSize, Quote(ToString(obj.storage, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "uuid", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.uuid)));
         }
     );
 }
@@ -5029,7 +5029,7 @@ template <> std::string ToString<VkPerformanceCounterDescriptionKHR>(const VkPer
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
@@ -5044,7 +5044,7 @@ template <> std::string ToString<VkQueryPoolPerformanceCreateInfoKHR>(const VkQu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "counterIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.counterIndexCount, toStringFlags, tabCount, tabSize));
@@ -5058,7 +5058,7 @@ template <> std::string ToString<VkAcquireProfilingLockInfoKHR>(const VkAcquireP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "timeout", toStringFlags, tabCount, tabSize, ToString(obj.timeout, toStringFlags, tabCount, tabSize));
@@ -5071,7 +5071,7 @@ template <> std::string ToString<VkPerformanceQuerySubmitInfoKHR>(const VkPerfor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "counterPassIndex", toStringFlags, tabCount, tabSize, ToString(obj.counterPassIndex, toStringFlags, tabCount, tabSize));
         }
@@ -5083,9 +5083,9 @@ template <> std::string ToString<VkPhysicalDeviceSurfaceInfo2KHR>(const VkPhysic
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.surface) + '"');
+            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.surface)));
         }
     );
 }
@@ -5095,7 +5095,7 @@ template <> std::string ToString<VkSurfaceCapabilities2KHR>(const VkSurfaceCapab
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "surfaceCapabilities", toStringFlags, tabCount, tabSize, ToString(obj.surfaceCapabilities, toStringFlags, tabCount, tabSize));
         }
@@ -5107,7 +5107,7 @@ template <> std::string ToString<VkSurfaceFormat2KHR>(const VkSurfaceFormat2KHR&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "surfaceFormat", toStringFlags, tabCount, tabSize, ToString(obj.surfaceFormat, toStringFlags, tabCount, tabSize));
         }
@@ -5119,7 +5119,7 @@ template <> std::string ToString<VkDisplayProperties2KHR>(const VkDisplayPropert
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "displayProperties", toStringFlags, tabCount, tabSize, ToString(obj.displayProperties, toStringFlags, tabCount, tabSize));
         }
@@ -5131,7 +5131,7 @@ template <> std::string ToString<VkDisplayPlaneProperties2KHR>(const VkDisplayPl
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "displayPlaneProperties", toStringFlags, tabCount, tabSize, ToString(obj.displayPlaneProperties, toStringFlags, tabCount, tabSize));
         }
@@ -5143,7 +5143,7 @@ template <> std::string ToString<VkDisplayModeProperties2KHR>(const VkDisplayMod
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "displayModeProperties", toStringFlags, tabCount, tabSize, ToString(obj.displayModeProperties, toStringFlags, tabCount, tabSize));
         }
@@ -5155,9 +5155,9 @@ template <> std::string ToString<VkDisplayPlaneInfo2KHR>(const VkDisplayPlaneInf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.mode) + '"');
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.mode)));
             FieldToString(strStrm, false, "planeIndex", toStringFlags, tabCount, tabSize, ToString(obj.planeIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -5168,7 +5168,7 @@ template <> std::string ToString<VkDisplayPlaneCapabilities2KHR>(const VkDisplay
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "capabilities", toStringFlags, tabCount, tabSize, ToString(obj.capabilities, toStringFlags, tabCount, tabSize));
         }
@@ -5180,7 +5180,7 @@ template <> std::string ToString<VkPhysicalDevicePortabilitySubsetFeaturesKHR>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "constantAlphaColorBlendFactors", toStringFlags, tabCount, tabSize, ToString(obj.constantAlphaColorBlendFactors, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "events", toStringFlags, tabCount, tabSize, ToString(obj.events, toStringFlags, tabCount, tabSize));
@@ -5206,7 +5206,7 @@ template <> std::string ToString<VkPhysicalDevicePortabilitySubsetPropertiesKHR>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minVertexInputBindingStrideAlignment", toStringFlags, tabCount, tabSize, ToString(obj.minVertexInputBindingStrideAlignment, toStringFlags, tabCount, tabSize));
         }
@@ -5218,7 +5218,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderClockFeaturesKHR>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSubgroupClock", toStringFlags, tabCount, tabSize, ToString(obj.shaderSubgroupClock, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderDeviceClock", toStringFlags, tabCount, tabSize, ToString(obj.shaderDeviceClock, toStringFlags, tabCount, tabSize));
@@ -5231,9 +5231,9 @@ template <> std::string ToString<VkDeviceQueueGlobalPriorityCreateInfoKHR>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "globalPriority", toStringFlags, tabCount, tabSize, '"' + ToString(obj.globalPriority, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "globalPriority", toStringFlags, tabCount, tabSize, Quote(ToString(obj.globalPriority, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -5243,7 +5243,7 @@ template <> std::string ToString<VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "globalPriorityQuery", toStringFlags, tabCount, tabSize, ToString(obj.globalPriorityQuery, toStringFlags, tabCount, tabSize));
         }
@@ -5255,7 +5255,7 @@ template <> std::string ToString<VkQueueFamilyGlobalPriorityPropertiesKHR>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "priorityCount", toStringFlags, tabCount, tabSize, ToString(obj.priorityCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "priorities", toStringFlags, tabCount, tabSize, ArrayToString(VK_MAX_GLOBAL_PRIORITY_SIZE_KHR, obj.priorities, toStringFlags, tabCount, tabSize));
@@ -5268,7 +5268,7 @@ template <> std::string ToString<VkFragmentShadingRateAttachmentInfoKHR>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pFragmentShadingRateAttachment", toStringFlags, tabCount, tabSize, (obj.pFragmentShadingRateAttachment ? ToString(*obj.pFragmentShadingRateAttachment, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "shadingRateAttachmentTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.shadingRateAttachmentTexelSize, toStringFlags, tabCount, tabSize));
@@ -5281,7 +5281,7 @@ template <> std::string ToString<VkPipelineFragmentShadingRateStateCreateInfoKHR
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentSize", toStringFlags, tabCount, tabSize, ToString(obj.fragmentSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "combinerOps", toStringFlags, tabCount, tabSize, ArrayToString(2, obj.combinerOps, toStringFlags, tabCount, tabSize));
@@ -5294,7 +5294,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShadingRateFeaturesKHR>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineFragmentShadingRate", toStringFlags, tabCount, tabSize, ToString(obj.pipelineFragmentShadingRate, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "primitiveFragmentShadingRate", toStringFlags, tabCount, tabSize, ToString(obj.primitiveFragmentShadingRate, toStringFlags, tabCount, tabSize));
@@ -5308,7 +5308,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShadingRatePropertiesKH
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minFragmentShadingRateAttachmentTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.minFragmentShadingRateAttachmentTexelSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxFragmentShadingRateAttachmentTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.maxFragmentShadingRateAttachmentTexelSize, toStringFlags, tabCount, tabSize));
@@ -5319,7 +5319,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShadingRatePropertiesKH
             FieldToString(strStrm, false, "maxFragmentSize", toStringFlags, tabCount, tabSize, ToString(obj.maxFragmentSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxFragmentSizeAspectRatio", toStringFlags, tabCount, tabSize, ToString(obj.maxFragmentSizeAspectRatio, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxFragmentShadingRateCoverageSamples", toStringFlags, tabCount, tabSize, ToString(obj.maxFragmentShadingRateCoverageSamples, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "maxFragmentShadingRateRasterizationSamples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.maxFragmentShadingRateRasterizationSamples, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "maxFragmentShadingRateRasterizationSamples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.maxFragmentShadingRateRasterizationSamples, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "fragmentShadingRateWithShaderDepthStencilWrites", toStringFlags, tabCount, tabSize, ToString(obj.fragmentShadingRateWithShaderDepthStencilWrites, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentShadingRateWithSampleMask", toStringFlags, tabCount, tabSize, ToString(obj.fragmentShadingRateWithSampleMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentShadingRateWithShaderSampleMask", toStringFlags, tabCount, tabSize, ToString(obj.fragmentShadingRateWithShaderSampleMask, toStringFlags, tabCount, tabSize));
@@ -5336,7 +5336,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShadingRateKHR>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sampleCounts", toStringFlags, tabCount, tabSize, ToString(obj.sampleCounts, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentSize", toStringFlags, tabCount, tabSize, ToString(obj.fragmentSize, toStringFlags, tabCount, tabSize));
@@ -5349,7 +5349,7 @@ template <> std::string ToString<VkSurfaceProtectedCapabilitiesKHR>(const VkSurf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportsProtected", toStringFlags, tabCount, tabSize, ToString(obj.supportsProtected, toStringFlags, tabCount, tabSize));
         }
@@ -5361,7 +5361,7 @@ template <> std::string ToString<VkPhysicalDevicePresentWaitFeaturesKHR>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "presentWait", toStringFlags, tabCount, tabSize, ToString(obj.presentWait, toStringFlags, tabCount, tabSize));
         }
@@ -5373,7 +5373,7 @@ template <> std::string ToString<VkPhysicalDevicePipelineExecutablePropertiesFea
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineExecutableInfo", toStringFlags, tabCount, tabSize, ToString(obj.pipelineExecutableInfo, toStringFlags, tabCount, tabSize));
         }
@@ -5385,9 +5385,9 @@ template <> std::string ToString<VkPipelineInfoKHR>(const VkPipelineInfoKHR& obj
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipeline) + '"');
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.pipeline)));
         }
     );
 }
@@ -5397,7 +5397,7 @@ template <> std::string ToString<VkPipelineExecutablePropertiesKHR>(const VkPipe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stages", toStringFlags, tabCount, tabSize, ToString(obj.stages, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
@@ -5412,9 +5412,9 @@ template <> std::string ToString<VkPipelineExecutableInfoKHR>(const VkPipelineEx
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipeline) + '"');
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.pipeline)));
             FieldToString(strStrm, false, "executableIndex", toStringFlags, tabCount, tabSize, ToString(obj.executableIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -5425,13 +5425,13 @@ template <> std::string ToString<VkPipelineExecutableInternalRepresentationKHR>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, CStrToString(obj.name));
             FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
             FieldToString(strStrm, false, "isText", toStringFlags, tabCount, tabSize, ToString(obj.isText, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dataSize", toStringFlags, tabCount, tabSize, ToString(obj.dataSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pData) + "\"");
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pData)));
         }
     );
 }
@@ -5441,7 +5441,7 @@ template <> std::string ToString<VkPipelineLibraryCreateInfoKHR>(const VkPipelin
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "libraryCount", toStringFlags, tabCount, tabSize, ToString(obj.libraryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pLibraries", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.libraryCount, obj.pLibraries, toStringFlags, tabCount, tabSize));
@@ -5454,7 +5454,7 @@ template <> std::string ToString<VkPresentIdKHR>(const VkPresentIdKHR& obj, ToSt
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(obj.swapchainCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pPresentIds", toStringFlags, tabCount, tabSize, ArrayToString(obj.swapchainCount, obj.pPresentIds, toStringFlags, tabCount, tabSize));
@@ -5467,7 +5467,7 @@ template <> std::string ToString<VkPhysicalDevicePresentIdFeaturesKHR>(const VkP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "presentId", toStringFlags, tabCount, tabSize, ToString(obj.presentId, toStringFlags, tabCount, tabSize));
         }
@@ -5479,7 +5479,7 @@ template <> std::string ToString<VkQueueFamilyCheckpointProperties2NV>(const VkQ
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "checkpointExecutionStageMask", toStringFlags, tabCount, tabSize, ToString(obj.checkpointExecutionStageMask, toStringFlags, tabCount, tabSize));
         }
@@ -5491,10 +5491,10 @@ template <> std::string ToString<VkCheckpointData2NV>(const VkCheckpointData2NV&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(obj.stage, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pCheckpointMarker", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pCheckpointMarker) + "\"");
+            FieldToString(strStrm, false, "pCheckpointMarker", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pCheckpointMarker)));
         }
     );
 }
@@ -5504,7 +5504,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShaderBarycentricFeatur
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentShaderBarycentric", toStringFlags, tabCount, tabSize, ToString(obj.fragmentShaderBarycentric, toStringFlags, tabCount, tabSize));
         }
@@ -5516,7 +5516,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShaderBarycentricProper
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "triStripVertexOrderIndependentOfProvokingVertex", toStringFlags, tabCount, tabSize, ToString(obj.triStripVertexOrderIndependentOfProvokingVertex, toStringFlags, tabCount, tabSize));
         }
@@ -5528,7 +5528,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderSubgroupUniformControlFlo
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSubgroupUniformControlFlow", toStringFlags, tabCount, tabSize, ToString(obj.shaderSubgroupUniformControlFlow, toStringFlags, tabCount, tabSize));
         }
@@ -5540,7 +5540,7 @@ template <> std::string ToString<VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "workgroupMemoryExplicitLayout", toStringFlags, tabCount, tabSize, ToString(obj.workgroupMemoryExplicitLayout, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "workgroupMemoryExplicitLayoutScalarBlockLayout", toStringFlags, tabCount, tabSize, ToString(obj.workgroupMemoryExplicitLayoutScalarBlockLayout, toStringFlags, tabCount, tabSize));
@@ -5555,7 +5555,7 @@ template <> std::string ToString<VkPhysicalDeviceRayTracingMaintenance1FeaturesK
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rayTracingMaintenance1", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingMaintenance1, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rayTracingPipelineTraceRaysIndirect2", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingPipelineTraceRaysIndirect2, toStringFlags, tabCount, tabSize));
@@ -5591,11 +5591,11 @@ template <> std::string ToString<VkDebugReportCallbackCreateInfoEXT>(const VkDeb
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pfnCallback", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnCallback) + "\"");
-            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pUserData) + "\"");
+            FieldToString(strStrm, false, "pfnCallback", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnCallback)));
+            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pUserData)));
         }
     );
 }
@@ -5605,9 +5605,9 @@ template <> std::string ToString<VkPipelineRasterizationStateRasterizationOrderA
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "rasterizationOrder", toStringFlags, tabCount, tabSize, '"' + ToString(obj.rasterizationOrder, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "rasterizationOrder", toStringFlags, tabCount, tabSize, Quote(ToString(obj.rasterizationOrder, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -5617,9 +5617,9 @@ template <> std::string ToString<VkDebugMarkerObjectNameInfoEXT>(const VkDebugMa
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.objectType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize, ToString(obj.object, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, CStrToString(obj.pObjectName));
         }
@@ -5631,13 +5631,13 @@ template <> std::string ToString<VkDebugMarkerObjectTagInfoEXT>(const VkDebugMar
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.objectType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize, ToString(obj.object, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tagName", toStringFlags, tabCount, tabSize, ToString(obj.tagName, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tagSize", toStringFlags, tabCount, tabSize, ToString(obj.tagSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pTag", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pTag) + "\"");
+            FieldToString(strStrm, false, "pTag", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pTag)));
         }
     );
 }
@@ -5647,7 +5647,7 @@ template <> std::string ToString<VkDebugMarkerMarkerInfoEXT>(const VkDebugMarker
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pMarkerName", toStringFlags, tabCount, tabSize, CStrToString(obj.pMarkerName));
             FieldToString(strStrm, false, "color", toStringFlags, tabCount, tabSize, ArrayToString(4, obj.color, toStringFlags, tabCount, tabSize));
@@ -5660,7 +5660,7 @@ template <> std::string ToString<VkDedicatedAllocationImageCreateInfoNV>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dedicatedAllocation", toStringFlags, tabCount, tabSize, ToString(obj.dedicatedAllocation, toStringFlags, tabCount, tabSize));
         }
@@ -5672,7 +5672,7 @@ template <> std::string ToString<VkDedicatedAllocationBufferCreateInfoNV>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dedicatedAllocation", toStringFlags, tabCount, tabSize, ToString(obj.dedicatedAllocation, toStringFlags, tabCount, tabSize));
         }
@@ -5684,10 +5684,10 @@ template <> std::string ToString<VkDedicatedAllocationMemoryAllocateInfoNV>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.image) + '"');
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.image)));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
         }
     );
 }
@@ -5697,7 +5697,7 @@ template <> std::string ToString<VkPhysicalDeviceTransformFeedbackFeaturesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "transformFeedback", toStringFlags, tabCount, tabSize, ToString(obj.transformFeedback, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "geometryStreams", toStringFlags, tabCount, tabSize, ToString(obj.geometryStreams, toStringFlags, tabCount, tabSize));
@@ -5710,7 +5710,7 @@ template <> std::string ToString<VkPhysicalDeviceTransformFeedbackPropertiesEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxTransformFeedbackStreams", toStringFlags, tabCount, tabSize, ToString(obj.maxTransformFeedbackStreams, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxTransformFeedbackBuffers", toStringFlags, tabCount, tabSize, ToString(obj.maxTransformFeedbackBuffers, toStringFlags, tabCount, tabSize));
@@ -5731,7 +5731,7 @@ template <> std::string ToString<VkPipelineRasterizationStateStreamCreateInfoEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rasterizationStream", toStringFlags, tabCount, tabSize, ToString(obj.rasterizationStream, toStringFlags, tabCount, tabSize));
@@ -5744,11 +5744,11 @@ template <> std::string ToString<VkImageViewHandleInfoNVX>(const VkImageViewHand
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.imageView) + '"');
-            FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.descriptorType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "sampler", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.sampler) + '"');
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.imageView)));
+            FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.descriptorType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "sampler", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.sampler)));
         }
     );
 }
@@ -5758,7 +5758,7 @@ template <> std::string ToString<VkImageViewAddressPropertiesNVX>(const VkImageV
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceAddress", toStringFlags, tabCount, tabSize, ToString(obj.deviceAddress, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
@@ -5771,7 +5771,7 @@ template <> std::string ToString<VkTextureLODGatherFormatPropertiesAMD>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportsTextureGatherLODBiasAMD", toStringFlags, tabCount, tabSize, ToString(obj.supportsTextureGatherLODBiasAMD, toStringFlags, tabCount, tabSize));
         }
@@ -5813,7 +5813,7 @@ template <> std::string ToString<VkStreamDescriptorSurfaceCreateInfoGGP>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "streamDescriptor", toStringFlags, tabCount, tabSize, ToString(obj.streamDescriptor, toStringFlags, tabCount, tabSize));
@@ -5826,7 +5826,7 @@ template <> std::string ToString<VkPhysicalDeviceCornerSampledImageFeaturesNV>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "cornerSampledImage", toStringFlags, tabCount, tabSize, ToString(obj.cornerSampledImage, toStringFlags, tabCount, tabSize));
         }
@@ -5851,7 +5851,7 @@ template <> std::string ToString<VkExternalMemoryImageCreateInfoNV>(const VkExte
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleTypes", toStringFlags, tabCount, tabSize, ToString(obj.handleTypes, toStringFlags, tabCount, tabSize));
         }
@@ -5863,7 +5863,7 @@ template <> std::string ToString<VkExportMemoryAllocateInfoNV>(const VkExportMem
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleTypes", toStringFlags, tabCount, tabSize, ToString(obj.handleTypes, toStringFlags, tabCount, tabSize));
         }
@@ -5875,10 +5875,10 @@ template <> std::string ToString<VkImportMemoryWin32HandleInfoNV>(const VkImport
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, ToString(obj.handleType, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.handle) + "\"");
+            FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.handle)));
         }
     );
 }
@@ -5888,7 +5888,7 @@ template <> std::string ToString<VkExportMemoryWin32HandleInfoNV>(const VkExport
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttributes", toStringFlags, tabCount, tabSize, (obj.pAttributes ? ToString(*obj.pAttributes, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "dwAccess", toStringFlags, tabCount, tabSize, ToString(obj.dwAccess, toStringFlags, tabCount, tabSize));
@@ -5901,7 +5901,7 @@ template <> std::string ToString<VkWin32KeyedMutexAcquireReleaseInfoNV>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "acquireCount", toStringFlags, tabCount, tabSize, ToString(obj.acquireCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAcquireSyncs", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.acquireCount, obj.pAcquireSyncs, toStringFlags, tabCount, tabSize));
@@ -5919,7 +5919,7 @@ template <> std::string ToString<VkValidationFlagsEXT>(const VkValidationFlagsEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "disabledValidationCheckCount", toStringFlags, tabCount, tabSize, ToString(obj.disabledValidationCheckCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDisabledValidationChecks", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.disabledValidationCheckCount, obj.pDisabledValidationChecks, toStringFlags, tabCount, tabSize));
@@ -5932,10 +5932,10 @@ template <> std::string ToString<VkViSurfaceCreateInfoNN>(const VkViSurfaceCreat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.window) + "\"");
+            FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.window)));
         }
     );
 }
@@ -5945,9 +5945,9 @@ template <> std::string ToString<VkImageViewASTCDecodeModeEXT>(const VkImageView
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "decodeMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.decodeMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "decodeMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.decodeMode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -5957,7 +5957,7 @@ template <> std::string ToString<VkPhysicalDeviceASTCDecodeFeaturesEXT>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "decodeModeSharedExponent", toStringFlags, tabCount, tabSize, ToString(obj.decodeModeSharedExponent, toStringFlags, tabCount, tabSize));
         }
@@ -5969,7 +5969,7 @@ template <> std::string ToString<VkPhysicalDevicePipelineRobustnessFeaturesEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineRobustness", toStringFlags, tabCount, tabSize, ToString(obj.pipelineRobustness, toStringFlags, tabCount, tabSize));
         }
@@ -5981,12 +5981,12 @@ template <> std::string ToString<VkPhysicalDevicePipelineRobustnessPropertiesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "defaultRobustnessStorageBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessStorageBuffers, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "defaultRobustnessUniformBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessUniformBuffers, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "defaultRobustnessVertexInputs", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessVertexInputs, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "defaultRobustnessImages", toStringFlags, tabCount, tabSize, '"' + ToString(obj.defaultRobustnessImages, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "defaultRobustnessStorageBuffers", toStringFlags, tabCount, tabSize, Quote(ToString(obj.defaultRobustnessStorageBuffers, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "defaultRobustnessUniformBuffers", toStringFlags, tabCount, tabSize, Quote(ToString(obj.defaultRobustnessUniformBuffers, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "defaultRobustnessVertexInputs", toStringFlags, tabCount, tabSize, Quote(ToString(obj.defaultRobustnessVertexInputs, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "defaultRobustnessImages", toStringFlags, tabCount, tabSize, Quote(ToString(obj.defaultRobustnessImages, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -5996,12 +5996,12 @@ template <> std::string ToString<VkPipelineRobustnessCreateInfoEXT>(const VkPipe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "storageBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.storageBuffers, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "uniformBuffers", toStringFlags, tabCount, tabSize, '"' + ToString(obj.uniformBuffers, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "vertexInputs", toStringFlags, tabCount, tabSize, '"' + ToString(obj.vertexInputs, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "images", toStringFlags, tabCount, tabSize, '"' + ToString(obj.images, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "storageBuffers", toStringFlags, tabCount, tabSize, Quote(ToString(obj.storageBuffers, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "uniformBuffers", toStringFlags, tabCount, tabSize, Quote(ToString(obj.uniformBuffers, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "vertexInputs", toStringFlags, tabCount, tabSize, Quote(ToString(obj.vertexInputs, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "images", toStringFlags, tabCount, tabSize, Quote(ToString(obj.images, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6011,9 +6011,9 @@ template <> std::string ToString<VkConditionalRenderingBeginInfoEXT>(const VkCon
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -6025,7 +6025,7 @@ template <> std::string ToString<VkPhysicalDeviceConditionalRenderingFeaturesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "conditionalRendering", toStringFlags, tabCount, tabSize, ToString(obj.conditionalRendering, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "inheritedConditionalRendering", toStringFlags, tabCount, tabSize, ToString(obj.inheritedConditionalRendering, toStringFlags, tabCount, tabSize));
@@ -6038,7 +6038,7 @@ template <> std::string ToString<VkCommandBufferInheritanceConditionalRenderingI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "conditionalRenderingEnable", toStringFlags, tabCount, tabSize, ToString(obj.conditionalRenderingEnable, toStringFlags, tabCount, tabSize));
         }
@@ -6061,7 +6061,7 @@ template <> std::string ToString<VkPipelineViewportWScalingStateCreateInfoNV>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewportWScalingEnable", toStringFlags, tabCount, tabSize, ToString(obj.viewportWScalingEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewportCount", toStringFlags, tabCount, tabSize, ToString(obj.viewportCount, toStringFlags, tabCount, tabSize));
@@ -6075,7 +6075,7 @@ template <> std::string ToString<VkSurfaceCapabilities2EXT>(const VkSurfaceCapab
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minImageCount", toStringFlags, tabCount, tabSize, ToString(obj.minImageCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxImageCount", toStringFlags, tabCount, tabSize, ToString(obj.maxImageCount, toStringFlags, tabCount, tabSize));
@@ -6084,7 +6084,7 @@ template <> std::string ToString<VkSurfaceCapabilities2EXT>(const VkSurfaceCapab
             FieldToString(strStrm, false, "maxImageExtent", toStringFlags, tabCount, tabSize, ToString(obj.maxImageExtent, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxImageArrayLayers", toStringFlags, tabCount, tabSize, ToString(obj.maxImageArrayLayers, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedTransforms", toStringFlags, tabCount, tabSize, ToString(obj.supportedTransforms, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "currentTransform", toStringFlags, tabCount, tabSize, '"' + ToString(obj.currentTransform, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "currentTransform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.currentTransform, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "supportedCompositeAlpha", toStringFlags, tabCount, tabSize, ToString(obj.supportedCompositeAlpha, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedUsageFlags", toStringFlags, tabCount, tabSize, ToString(obj.supportedUsageFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedSurfaceCounters", toStringFlags, tabCount, tabSize, ToString(obj.supportedSurfaceCounters, toStringFlags, tabCount, tabSize));
@@ -6097,9 +6097,9 @@ template <> std::string ToString<VkDisplayPowerInfoEXT>(const VkDisplayPowerInfo
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "powerState", toStringFlags, tabCount, tabSize, '"' + ToString(obj.powerState, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "powerState", toStringFlags, tabCount, tabSize, Quote(ToString(obj.powerState, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6109,9 +6109,9 @@ template <> std::string ToString<VkDeviceEventInfoEXT>(const VkDeviceEventInfoEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "deviceEvent", toStringFlags, tabCount, tabSize, '"' + ToString(obj.deviceEvent, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "deviceEvent", toStringFlags, tabCount, tabSize, Quote(ToString(obj.deviceEvent, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6121,9 +6121,9 @@ template <> std::string ToString<VkDisplayEventInfoEXT>(const VkDisplayEventInfo
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "displayEvent", toStringFlags, tabCount, tabSize, '"' + ToString(obj.displayEvent, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "displayEvent", toStringFlags, tabCount, tabSize, Quote(ToString(obj.displayEvent, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6133,7 +6133,7 @@ template <> std::string ToString<VkSwapchainCounterCreateInfoEXT>(const VkSwapch
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "surfaceCounters", toStringFlags, tabCount, tabSize, ToString(obj.surfaceCounters, toStringFlags, tabCount, tabSize));
         }
@@ -6180,7 +6180,7 @@ template <> std::string ToString<VkPresentTimesInfoGOOGLE>(const VkPresentTimesI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(obj.swapchainCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pTimes", toStringFlags, tabCount, tabSize, ArrayToString(obj.swapchainCount, obj.pTimes, toStringFlags, tabCount, tabSize));
@@ -6193,7 +6193,7 @@ template <> std::string ToString<VkPhysicalDeviceMultiviewPerViewAttributesPrope
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "perViewPositionAllComponents", toStringFlags, tabCount, tabSize, ToString(obj.perViewPositionAllComponents, toStringFlags, tabCount, tabSize));
         }
@@ -6205,10 +6205,10 @@ template <> std::string ToString<VkViewportSwizzleNV>(const VkViewportSwizzleNV&
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "x", toStringFlags, tabCount, tabSize, '"' + ToString(obj.x, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "y", toStringFlags, tabCount, tabSize, '"' + ToString(obj.y, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "z", toStringFlags, tabCount, tabSize, '"' + ToString(obj.z, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "w", toStringFlags, tabCount, tabSize, '"' + ToString(obj.w, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "x", toStringFlags, tabCount, tabSize, Quote(ToString(obj.x, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "y", toStringFlags, tabCount, tabSize, Quote(ToString(obj.y, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "z", toStringFlags, tabCount, tabSize, Quote(ToString(obj.z, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "w", toStringFlags, tabCount, tabSize, Quote(ToString(obj.w, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6218,7 +6218,7 @@ template <> std::string ToString<VkPipelineViewportSwizzleStateCreateInfoNV>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewportCount", toStringFlags, tabCount, tabSize, ToString(obj.viewportCount, toStringFlags, tabCount, tabSize));
@@ -6232,7 +6232,7 @@ template <> std::string ToString<VkPhysicalDeviceDiscardRectanglePropertiesEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxDiscardRectangles", toStringFlags, tabCount, tabSize, ToString(obj.maxDiscardRectangles, toStringFlags, tabCount, tabSize));
         }
@@ -6244,10 +6244,10 @@ template <> std::string ToString<VkPipelineDiscardRectangleStateCreateInfoEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "discardRectangleMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.discardRectangleMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "discardRectangleMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.discardRectangleMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "discardRectangleCount", toStringFlags, tabCount, tabSize, ToString(obj.discardRectangleCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDiscardRectangles", toStringFlags, tabCount, tabSize, ArrayToString(obj.discardRectangleCount, obj.pDiscardRectangles, toStringFlags, tabCount, tabSize));
         }
@@ -6259,7 +6259,7 @@ template <> std::string ToString<VkPhysicalDeviceConservativeRasterizationProper
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "primitiveOverestimationSize", toStringFlags, tabCount, tabSize, ToString(obj.primitiveOverestimationSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxExtraPrimitiveOverestimationSize", toStringFlags, tabCount, tabSize, ToString(obj.maxExtraPrimitiveOverestimationSize, toStringFlags, tabCount, tabSize));
@@ -6279,10 +6279,10 @@ template <> std::string ToString<VkPipelineRasterizationConservativeStateCreateI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "conservativeRasterizationMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.conservativeRasterizationMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "conservativeRasterizationMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.conservativeRasterizationMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "extraPrimitiveOverestimationSize", toStringFlags, tabCount, tabSize, ToString(obj.extraPrimitiveOverestimationSize, toStringFlags, tabCount, tabSize));
         }
     );
@@ -6293,7 +6293,7 @@ template <> std::string ToString<VkPhysicalDeviceDepthClipEnableFeaturesEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthClipEnable", toStringFlags, tabCount, tabSize, ToString(obj.depthClipEnable, toStringFlags, tabCount, tabSize));
         }
@@ -6305,7 +6305,7 @@ template <> std::string ToString<VkPipelineRasterizationDepthClipStateCreateInfo
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthClipEnable", toStringFlags, tabCount, tabSize, ToString(obj.depthClipEnable, toStringFlags, tabCount, tabSize));
@@ -6329,7 +6329,7 @@ template <> std::string ToString<VkHdrMetadataEXT>(const VkHdrMetadataEXT& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "displayPrimaryRed", toStringFlags, tabCount, tabSize, ToString(obj.displayPrimaryRed, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "displayPrimaryGreen", toStringFlags, tabCount, tabSize, ToString(obj.displayPrimaryGreen, toStringFlags, tabCount, tabSize));
@@ -6348,10 +6348,10 @@ template <> std::string ToString<VkIOSSurfaceCreateInfoMVK>(const VkIOSSurfaceCr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pView", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pView) + "\"");
+            FieldToString(strStrm, false, "pView", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pView)));
         }
     );
 }
@@ -6361,10 +6361,10 @@ template <> std::string ToString<VkMacOSSurfaceCreateInfoMVK>(const VkMacOSSurfa
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pView", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pView) + "\"");
+            FieldToString(strStrm, false, "pView", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pView)));
         }
     );
 }
@@ -6374,7 +6374,7 @@ template <> std::string ToString<VkDebugUtilsLabelEXT>(const VkDebugUtilsLabelEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pLabelName", toStringFlags, tabCount, tabSize, CStrToString(obj.pLabelName));
             FieldToString(strStrm, false, "color", toStringFlags, tabCount, tabSize, ArrayToString(4, obj.color, toStringFlags, tabCount, tabSize));
@@ -6387,9 +6387,9 @@ template <> std::string ToString<VkDebugUtilsObjectNameInfoEXT>(const VkDebugUti
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.objectType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, ToString(obj.objectHandle, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, CStrToString(obj.pObjectName));
         }
@@ -6401,7 +6401,7 @@ template <> std::string ToString<VkDebugUtilsMessengerCallbackDataEXT>(const VkD
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pMessageIdName", toStringFlags, tabCount, tabSize, CStrToString(obj.pMessageIdName));
@@ -6422,13 +6422,13 @@ template <> std::string ToString<VkDebugUtilsMessengerCreateInfoEXT>(const VkDeb
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "messageSeverity", toStringFlags, tabCount, tabSize, ToString(obj.messageSeverity, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "messageType", toStringFlags, tabCount, tabSize, ToString(obj.messageType, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnUserCallback) + "\"");
-            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pUserData) + "\"");
+            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnUserCallback)));
+            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pUserData)));
         }
     );
 }
@@ -6438,13 +6438,13 @@ template <> std::string ToString<VkDebugUtilsObjectTagInfoEXT>(const VkDebugUtil
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.objectType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, ToString(obj.objectHandle, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tagName", toStringFlags, tabCount, tabSize, ToString(obj.tagName, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tagSize", toStringFlags, tabCount, tabSize, ToString(obj.tagSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pTag", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pTag) + "\"");
+            FieldToString(strStrm, false, "pTag", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pTag)));
         }
     );
 }
@@ -6454,7 +6454,7 @@ template <> std::string ToString<VkAndroidHardwareBufferUsageANDROID>(const VkAn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "androidHardwareBufferUsage", toStringFlags, tabCount, tabSize, ToString(obj.androidHardwareBufferUsage, toStringFlags, tabCount, tabSize));
         }
@@ -6466,7 +6466,7 @@ template <> std::string ToString<VkAndroidHardwareBufferPropertiesANDROID>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "allocationSize", toStringFlags, tabCount, tabSize, ToString(obj.allocationSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryTypeBits", toStringFlags, tabCount, tabSize, ToString(obj.memoryTypeBits, toStringFlags, tabCount, tabSize));
@@ -6479,16 +6479,16 @@ template <> std::string ToString<VkAndroidHardwareBufferFormatPropertiesANDROID>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "externalFormat", toStringFlags, tabCount, tabSize, ToString(obj.externalFormat, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "formatFeatures", toStringFlags, tabCount, tabSize, ToString(obj.formatFeatures, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "samplerYcbcrConversionComponents", toStringFlags, tabCount, tabSize, ToString(obj.samplerYcbcrConversionComponents, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "suggestedYcbcrModel", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYcbcrModel, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "suggestedYcbcrRange", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYcbcrRange, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "suggestedXChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedXChromaOffset, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "suggestedYChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYChromaOffset, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "suggestedYcbcrModel", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYcbcrModel, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "suggestedYcbcrRange", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYcbcrRange, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "suggestedXChromaOffset", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedXChromaOffset, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "suggestedYChromaOffset", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYChromaOffset, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6498,9 +6498,9 @@ template <> std::string ToString<VkImportAndroidHardwareBufferInfoANDROID>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.buffer) + "\"");
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.buffer)));
         }
     );
 }
@@ -6510,9 +6510,9 @@ template <> std::string ToString<VkMemoryGetAndroidHardwareBufferInfoANDROID>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
         }
     );
 }
@@ -6522,7 +6522,7 @@ template <> std::string ToString<VkExternalFormatANDROID>(const VkExternalFormat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "externalFormat", toStringFlags, tabCount, tabSize, ToString(obj.externalFormat, toStringFlags, tabCount, tabSize));
         }
@@ -6534,16 +6534,16 @@ template <> std::string ToString<VkAndroidHardwareBufferFormatProperties2ANDROID
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "externalFormat", toStringFlags, tabCount, tabSize, ToString(obj.externalFormat, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "formatFeatures", toStringFlags, tabCount, tabSize, ToString(obj.formatFeatures, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "samplerYcbcrConversionComponents", toStringFlags, tabCount, tabSize, ToString(obj.samplerYcbcrConversionComponents, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "suggestedYcbcrModel", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYcbcrModel, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "suggestedYcbcrRange", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYcbcrRange, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "suggestedXChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedXChromaOffset, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "suggestedYChromaOffset", toStringFlags, tabCount, tabSize, '"' + ToString(obj.suggestedYChromaOffset, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "suggestedYcbcrModel", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYcbcrModel, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "suggestedYcbcrRange", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYcbcrRange, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "suggestedXChromaOffset", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedXChromaOffset, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "suggestedYChromaOffset", toStringFlags, tabCount, tabSize, Quote(ToString(obj.suggestedYChromaOffset, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6564,9 +6564,9 @@ template <> std::string ToString<VkSampleLocationsInfoEXT>(const VkSampleLocatio
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sampleLocationsPerPixel", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sampleLocationsPerPixel, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "sampleLocationsPerPixel", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sampleLocationsPerPixel, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "sampleLocationGridSize", toStringFlags, tabCount, tabSize, ToString(obj.sampleLocationGridSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sampleLocationsCount", toStringFlags, tabCount, tabSize, ToString(obj.sampleLocationsCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSampleLocations", toStringFlags, tabCount, tabSize, ArrayToString(obj.sampleLocationsCount, obj.pSampleLocations, toStringFlags, tabCount, tabSize));
@@ -6601,7 +6601,7 @@ template <> std::string ToString<VkRenderPassSampleLocationsBeginInfoEXT>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentInitialSampleLocationsCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentInitialSampleLocationsCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttachmentInitialSampleLocations", toStringFlags, tabCount, tabSize, ArrayToString(obj.attachmentInitialSampleLocationsCount, obj.pAttachmentInitialSampleLocations, toStringFlags, tabCount, tabSize));
@@ -6616,7 +6616,7 @@ template <> std::string ToString<VkPipelineSampleLocationsStateCreateInfoEXT>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sampleLocationsEnable", toStringFlags, tabCount, tabSize, ToString(obj.sampleLocationsEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sampleLocationsInfo", toStringFlags, tabCount, tabSize, ToString(obj.sampleLocationsInfo, toStringFlags, tabCount, tabSize));
@@ -6629,7 +6629,7 @@ template <> std::string ToString<VkPhysicalDeviceSampleLocationsPropertiesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sampleLocationSampleCounts", toStringFlags, tabCount, tabSize, ToString(obj.sampleLocationSampleCounts, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxSampleLocationGridSize", toStringFlags, tabCount, tabSize, ToString(obj.maxSampleLocationGridSize, toStringFlags, tabCount, tabSize));
@@ -6645,7 +6645,7 @@ template <> std::string ToString<VkMultisamplePropertiesEXT>(const VkMultisample
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxSampleLocationGridSize", toStringFlags, tabCount, tabSize, ToString(obj.maxSampleLocationGridSize, toStringFlags, tabCount, tabSize));
         }
@@ -6657,7 +6657,7 @@ template <> std::string ToString<VkPhysicalDeviceBlendOperationAdvancedFeaturesE
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "advancedBlendCoherentOperations", toStringFlags, tabCount, tabSize, ToString(obj.advancedBlendCoherentOperations, toStringFlags, tabCount, tabSize));
         }
@@ -6669,7 +6669,7 @@ template <> std::string ToString<VkPhysicalDeviceBlendOperationAdvancedPropertie
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "advancedBlendMaxColorAttachments", toStringFlags, tabCount, tabSize, ToString(obj.advancedBlendMaxColorAttachments, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "advancedBlendIndependentBlend", toStringFlags, tabCount, tabSize, ToString(obj.advancedBlendIndependentBlend, toStringFlags, tabCount, tabSize));
@@ -6686,11 +6686,11 @@ template <> std::string ToString<VkPipelineColorBlendAdvancedStateCreateInfoEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcPremultiplied", toStringFlags, tabCount, tabSize, ToString(obj.srcPremultiplied, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstPremultiplied", toStringFlags, tabCount, tabSize, ToString(obj.dstPremultiplied, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "blendOverlap", toStringFlags, tabCount, tabSize, '"' + ToString(obj.blendOverlap, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "blendOverlap", toStringFlags, tabCount, tabSize, Quote(ToString(obj.blendOverlap, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -6700,7 +6700,7 @@ template <> std::string ToString<VkPipelineCoverageToColorStateCreateInfoNV>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "coverageToColorEnable", toStringFlags, tabCount, tabSize, ToString(obj.coverageToColorEnable, toStringFlags, tabCount, tabSize));
@@ -6714,10 +6714,10 @@ template <> std::string ToString<VkPipelineCoverageModulationStateCreateInfoNV>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "coverageModulationMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.coverageModulationMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "coverageModulationMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.coverageModulationMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "coverageModulationTableEnable", toStringFlags, tabCount, tabSize, ToString(obj.coverageModulationTableEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "coverageModulationTableCount", toStringFlags, tabCount, tabSize, ToString(obj.coverageModulationTableCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pCoverageModulationTable", toStringFlags, tabCount, tabSize, ArrayToString(obj.coverageModulationTableCount, obj.pCoverageModulationTable, toStringFlags, tabCount, tabSize));
@@ -6730,7 +6730,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSMCount", toStringFlags, tabCount, tabSize, ToString(obj.shaderSMCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderWarpsPerSM", toStringFlags, tabCount, tabSize, ToString(obj.shaderWarpsPerSM, toStringFlags, tabCount, tabSize));
@@ -6743,7 +6743,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderSMBuiltins", toStringFlags, tabCount, tabSize, ToString(obj.shaderSMBuiltins, toStringFlags, tabCount, tabSize));
         }
@@ -6767,7 +6767,7 @@ template <> std::string ToString<VkDrmFormatModifierPropertiesListEXT>(const VkD
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifierCount", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDrmFormatModifierProperties", toStringFlags, tabCount, tabSize, ArrayToString(obj.drmFormatModifierCount, obj.pDrmFormatModifierProperties, toStringFlags, tabCount, tabSize));
@@ -6780,10 +6780,10 @@ template <> std::string ToString<VkPhysicalDeviceImageDrmFormatModifierInfoEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifier", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifier, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sharingMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sharingMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "sharingMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sharingMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "queueFamilyIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.queueFamilyIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pQueueFamilyIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.queueFamilyIndexCount, obj.pQueueFamilyIndices, toStringFlags, tabCount, tabSize));
         }
@@ -6795,7 +6795,7 @@ template <> std::string ToString<VkImageDrmFormatModifierListCreateInfoEXT>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifierCount", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDrmFormatModifiers", toStringFlags, tabCount, tabSize, ArrayToString(obj.drmFormatModifierCount, obj.pDrmFormatModifiers, toStringFlags, tabCount, tabSize));
@@ -6808,7 +6808,7 @@ template <> std::string ToString<VkImageDrmFormatModifierExplicitCreateInfoEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifier", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifier, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifierPlaneCount", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierPlaneCount, toStringFlags, tabCount, tabSize));
@@ -6822,7 +6822,7 @@ template <> std::string ToString<VkImageDrmFormatModifierPropertiesEXT>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifier", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifier, toStringFlags, tabCount, tabSize));
         }
@@ -6846,7 +6846,7 @@ template <> std::string ToString<VkDrmFormatModifierPropertiesList2EXT>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "drmFormatModifierCount", toStringFlags, tabCount, tabSize, ToString(obj.drmFormatModifierCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDrmFormatModifierProperties", toStringFlags, tabCount, tabSize, ArrayToString(obj.drmFormatModifierCount, obj.pDrmFormatModifierProperties, toStringFlags, tabCount, tabSize));
@@ -6859,11 +6859,11 @@ template <> std::string ToString<VkValidationCacheCreateInfoEXT>(const VkValidat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "initialDataSize", toStringFlags, tabCount, tabSize, ToString(obj.initialDataSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pInitialData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pInitialData) + "\"");
+            FieldToString(strStrm, false, "pInitialData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pInitialData)));
         }
     );
 }
@@ -6873,9 +6873,9 @@ template <> std::string ToString<VkShaderModuleValidationCacheCreateInfoEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "validationCache", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.validationCache) + '"');
+            FieldToString(strStrm, false, "validationCache", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.validationCache)));
         }
     );
 }
@@ -6896,7 +6896,7 @@ template <> std::string ToString<VkPipelineViewportShadingRateImageStateCreateIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shadingRateImageEnable", toStringFlags, tabCount, tabSize, ToString(obj.shadingRateImageEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewportCount", toStringFlags, tabCount, tabSize, ToString(obj.viewportCount, toStringFlags, tabCount, tabSize));
@@ -6910,7 +6910,7 @@ template <> std::string ToString<VkPhysicalDeviceShadingRateImageFeaturesNV>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shadingRateImage", toStringFlags, tabCount, tabSize, ToString(obj.shadingRateImage, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shadingRateCoarseSampleOrder", toStringFlags, tabCount, tabSize, ToString(obj.shadingRateCoarseSampleOrder, toStringFlags, tabCount, tabSize));
@@ -6923,7 +6923,7 @@ template <> std::string ToString<VkPhysicalDeviceShadingRateImagePropertiesNV>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shadingRateTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.shadingRateTexelSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shadingRatePaletteSize", toStringFlags, tabCount, tabSize, ToString(obj.shadingRatePaletteSize, toStringFlags, tabCount, tabSize));
@@ -6949,7 +6949,7 @@ template <> std::string ToString<VkCoarseSampleOrderCustomNV>(const VkCoarseSamp
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "shadingRate", toStringFlags, tabCount, tabSize, '"' + ToString(obj.shadingRate, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "shadingRate", toStringFlags, tabCount, tabSize, Quote(ToString(obj.shadingRate, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "sampleCount", toStringFlags, tabCount, tabSize, ToString(obj.sampleCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sampleLocationCount", toStringFlags, tabCount, tabSize, ToString(obj.sampleLocationCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSampleLocations", toStringFlags, tabCount, tabSize, ArrayToString(obj.sampleLocationCount, obj.pSampleLocations, toStringFlags, tabCount, tabSize));
@@ -6962,9 +6962,9 @@ template <> std::string ToString<VkPipelineViewportCoarseSampleOrderStateCreateI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sampleOrderType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sampleOrderType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "sampleOrderType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sampleOrderType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "customSampleOrderCount", toStringFlags, tabCount, tabSize, ToString(obj.customSampleOrderCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pCustomSampleOrders", toStringFlags, tabCount, tabSize, ArrayToString(obj.customSampleOrderCount, obj.pCustomSampleOrders, toStringFlags, tabCount, tabSize));
         }
@@ -6976,9 +6976,9 @@ template <> std::string ToString<VkRayTracingShaderGroupCreateInfoNV>(const VkRa
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "generalShader", toStringFlags, tabCount, tabSize, ToString(obj.generalShader, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "closestHitShader", toStringFlags, tabCount, tabSize, ToString(obj.closestHitShader, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "anyHitShader", toStringFlags, tabCount, tabSize, ToString(obj.anyHitShader, toStringFlags, tabCount, tabSize));
@@ -6992,7 +6992,7 @@ template <> std::string ToString<VkRayTracingPipelineCreateInfoNV>(const VkRayTr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageCount", toStringFlags, tabCount, tabSize, ToString(obj.stageCount, toStringFlags, tabCount, tabSize));
@@ -7000,8 +7000,8 @@ template <> std::string ToString<VkRayTracingPipelineCreateInfoNV>(const VkRayTr
             FieldToString(strStrm, false, "groupCount", toStringFlags, tabCount, tabSize, ToString(obj.groupCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pGroups", toStringFlags, tabCount, tabSize, ArrayToString(obj.groupCount, obj.pGroups, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxRecursionDepth", toStringFlags, tabCount, tabSize, ToString(obj.maxRecursionDepth, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.layout) + '"');
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.layout)));
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.basePipelineHandle)));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -7012,18 +7012,18 @@ template <> std::string ToString<VkGeometryTrianglesNV>(const VkGeometryTriangle
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "vertexData", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.vertexData) + '"');
+            FieldToString(strStrm, false, "vertexData", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.vertexData)));
             FieldToString(strStrm, false, "vertexOffset", toStringFlags, tabCount, tabSize, ToString(obj.vertexOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexCount", toStringFlags, tabCount, tabSize, ToString(obj.vertexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexStride", toStringFlags, tabCount, tabSize, ToString(obj.vertexStride, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "vertexFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.vertexFormat, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "indexData", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.indexData) + '"');
+            FieldToString(strStrm, false, "vertexFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.vertexFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "indexData", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.indexData)));
             FieldToString(strStrm, false, "indexOffset", toStringFlags, tabCount, tabSize, ToString(obj.indexOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "indexCount", toStringFlags, tabCount, tabSize, ToString(obj.indexCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.indexType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "transformData", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.transformData) + '"');
+            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.indexType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "transformData", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.transformData)));
             FieldToString(strStrm, false, "transformOffset", toStringFlags, tabCount, tabSize, ToString(obj.transformOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -7034,9 +7034,9 @@ template <> std::string ToString<VkGeometryAABBNV>(const VkGeometryAABBNV& obj, 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "aabbData", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.aabbData) + '"');
+            FieldToString(strStrm, false, "aabbData", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.aabbData)));
             FieldToString(strStrm, false, "numAABBs", toStringFlags, tabCount, tabSize, ToString(obj.numAABBs, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(obj.stride, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
@@ -7060,9 +7060,9 @@ template <> std::string ToString<VkGeometryNV>(const VkGeometryNV& obj, ToString
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "geometryType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.geometryType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "geometryType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.geometryType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "geometry", toStringFlags, tabCount, tabSize, ToString(obj.geometry, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -7074,9 +7074,9 @@ template <> std::string ToString<VkAccelerationStructureInfoNV>(const VkAccelera
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "instanceCount", toStringFlags, tabCount, tabSize, ToString(obj.instanceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "geometryCount", toStringFlags, tabCount, tabSize, ToString(obj.geometryCount, toStringFlags, tabCount, tabSize));
@@ -7090,7 +7090,7 @@ template <> std::string ToString<VkAccelerationStructureCreateInfoNV>(const VkAc
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "compactedSize", toStringFlags, tabCount, tabSize, ToString(obj.compactedSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "info", toStringFlags, tabCount, tabSize, ToString(obj.info, toStringFlags, tabCount, tabSize));
@@ -7103,10 +7103,10 @@ template <> std::string ToString<VkBindAccelerationStructureMemoryInfoNV>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.accelerationStructure) + '"');
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
+            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.accelerationStructure)));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDeviceIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.deviceIndexCount, obj.pDeviceIndices, toStringFlags, tabCount, tabSize));
@@ -7119,7 +7119,7 @@ template <> std::string ToString<VkWriteDescriptorSetAccelerationStructureNV>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructureCount", toStringFlags, tabCount, tabSize, ToString(obj.accelerationStructureCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAccelerationStructures", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.accelerationStructureCount, obj.pAccelerationStructures, toStringFlags, tabCount, tabSize));
@@ -7132,10 +7132,10 @@ template <> std::string ToString<VkAccelerationStructureMemoryRequirementsInfoNV
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.accelerationStructure) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.accelerationStructure)));
         }
     );
 }
@@ -7145,7 +7145,7 @@ template <> std::string ToString<VkPhysicalDeviceRayTracingPropertiesNV>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderGroupHandleSize", toStringFlags, tabCount, tabSize, ToString(obj.shaderGroupHandleSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxRecursionDepth", toStringFlags, tabCount, tabSize, ToString(obj.maxRecursionDepth, toStringFlags, tabCount, tabSize));
@@ -7194,7 +7194,7 @@ template <> std::string ToString<VkPhysicalDeviceRepresentativeFragmentTestFeatu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "representativeFragmentTest", toStringFlags, tabCount, tabSize, ToString(obj.representativeFragmentTest, toStringFlags, tabCount, tabSize));
         }
@@ -7206,7 +7206,7 @@ template <> std::string ToString<VkPipelineRepresentativeFragmentTestStateCreate
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "representativeFragmentTestEnable", toStringFlags, tabCount, tabSize, ToString(obj.representativeFragmentTestEnable, toStringFlags, tabCount, tabSize));
         }
@@ -7218,9 +7218,9 @@ template <> std::string ToString<VkPhysicalDeviceImageViewImageFormatInfoEXT>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageViewType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageViewType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageViewType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageViewType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7230,7 +7230,7 @@ template <> std::string ToString<VkFilterCubicImageViewImageFormatPropertiesEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "filterCubic", toStringFlags, tabCount, tabSize, ToString(obj.filterCubic, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "filterCubicMinmax", toStringFlags, tabCount, tabSize, ToString(obj.filterCubicMinmax, toStringFlags, tabCount, tabSize));
@@ -7243,10 +7243,10 @@ template <> std::string ToString<VkImportMemoryHostPointerInfoEXT>(const VkImpor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "pHostPointer", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pHostPointer) + "\"");
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pHostPointer", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pHostPointer)));
         }
     );
 }
@@ -7256,7 +7256,7 @@ template <> std::string ToString<VkMemoryHostPointerPropertiesEXT>(const VkMemor
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryTypeBits", toStringFlags, tabCount, tabSize, ToString(obj.memoryTypeBits, toStringFlags, tabCount, tabSize));
         }
@@ -7268,7 +7268,7 @@ template <> std::string ToString<VkPhysicalDeviceExternalMemoryHostPropertiesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minImportedHostPointerAlignment", toStringFlags, tabCount, tabSize, ToString(obj.minImportedHostPointerAlignment, toStringFlags, tabCount, tabSize));
         }
@@ -7280,7 +7280,7 @@ template <> std::string ToString<VkPipelineCompilerControlCreateInfoAMD>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "compilerControlFlags", toStringFlags, tabCount, tabSize, ToString(obj.compilerControlFlags, toStringFlags, tabCount, tabSize));
         }
@@ -7292,9 +7292,9 @@ template <> std::string ToString<VkCalibratedTimestampInfoEXT>(const VkCalibrate
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "timeDomain", toStringFlags, tabCount, tabSize, '"' + ToString(obj.timeDomain, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "timeDomain", toStringFlags, tabCount, tabSize, Quote(ToString(obj.timeDomain, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7304,7 +7304,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderCorePropertiesAMD>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderEngineCount", toStringFlags, tabCount, tabSize, ToString(obj.shaderEngineCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderArraysPerEngineCount", toStringFlags, tabCount, tabSize, ToString(obj.shaderArraysPerEngineCount, toStringFlags, tabCount, tabSize));
@@ -7329,9 +7329,9 @@ template <> std::string ToString<VkDeviceMemoryOverallocationCreateInfoAMD>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "overallocationBehavior", toStringFlags, tabCount, tabSize, '"' + ToString(obj.overallocationBehavior, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "overallocationBehavior", toStringFlags, tabCount, tabSize, Quote(ToString(obj.overallocationBehavior, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7341,7 +7341,7 @@ template <> std::string ToString<VkPhysicalDeviceVertexAttributeDivisorPropertie
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxVertexAttribDivisor", toStringFlags, tabCount, tabSize, ToString(obj.maxVertexAttribDivisor, toStringFlags, tabCount, tabSize));
         }
@@ -7364,7 +7364,7 @@ template <> std::string ToString<VkPipelineVertexInputDivisorStateCreateInfoEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexBindingDivisorCount", toStringFlags, tabCount, tabSize, ToString(obj.vertexBindingDivisorCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pVertexBindingDivisors", toStringFlags, tabCount, tabSize, ArrayToString(obj.vertexBindingDivisorCount, obj.pVertexBindingDivisors, toStringFlags, tabCount, tabSize));
@@ -7377,7 +7377,7 @@ template <> std::string ToString<VkPhysicalDeviceVertexAttributeDivisorFeaturesE
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexAttributeInstanceRateDivisor", toStringFlags, tabCount, tabSize, ToString(obj.vertexAttributeInstanceRateDivisor, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexAttributeInstanceRateZeroDivisor", toStringFlags, tabCount, tabSize, ToString(obj.vertexAttributeInstanceRateZeroDivisor, toStringFlags, tabCount, tabSize));
@@ -7390,7 +7390,7 @@ template <> std::string ToString<VkPresentFrameTokenGGP>(const VkPresentFrameTok
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "frameToken", toStringFlags, tabCount, tabSize, ToString(obj.frameToken, toStringFlags, tabCount, tabSize));
         }
@@ -7402,7 +7402,7 @@ template <> std::string ToString<VkPhysicalDeviceComputeShaderDerivativesFeature
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "computeDerivativeGroupQuads", toStringFlags, tabCount, tabSize, ToString(obj.computeDerivativeGroupQuads, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "computeDerivativeGroupLinear", toStringFlags, tabCount, tabSize, ToString(obj.computeDerivativeGroupLinear, toStringFlags, tabCount, tabSize));
@@ -7415,7 +7415,7 @@ template <> std::string ToString<VkPhysicalDeviceMeshShaderFeaturesNV>(const VkP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "taskShader", toStringFlags, tabCount, tabSize, ToString(obj.taskShader, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "meshShader", toStringFlags, tabCount, tabSize, ToString(obj.meshShader, toStringFlags, tabCount, tabSize));
@@ -7428,7 +7428,7 @@ template <> std::string ToString<VkPhysicalDeviceMeshShaderPropertiesNV>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxDrawMeshTasksCount", toStringFlags, tabCount, tabSize, ToString(obj.maxDrawMeshTasksCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxTaskWorkGroupInvocations", toStringFlags, tabCount, tabSize, ToString(obj.maxTaskWorkGroupInvocations, toStringFlags, tabCount, tabSize));
@@ -7463,7 +7463,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderImageFootprintFeaturesNV>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageFootprint", toStringFlags, tabCount, tabSize, ToString(obj.imageFootprint, toStringFlags, tabCount, tabSize));
         }
@@ -7475,7 +7475,7 @@ template <> std::string ToString<VkPipelineViewportExclusiveScissorStateCreateIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "exclusiveScissorCount", toStringFlags, tabCount, tabSize, ToString(obj.exclusiveScissorCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pExclusiveScissors", toStringFlags, tabCount, tabSize, ArrayToString(obj.exclusiveScissorCount, obj.pExclusiveScissors, toStringFlags, tabCount, tabSize));
@@ -7488,7 +7488,7 @@ template <> std::string ToString<VkPhysicalDeviceExclusiveScissorFeaturesNV>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "exclusiveScissor", toStringFlags, tabCount, tabSize, ToString(obj.exclusiveScissor, toStringFlags, tabCount, tabSize));
         }
@@ -7500,7 +7500,7 @@ template <> std::string ToString<VkQueueFamilyCheckpointPropertiesNV>(const VkQu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "checkpointExecutionStageMask", toStringFlags, tabCount, tabSize, ToString(obj.checkpointExecutionStageMask, toStringFlags, tabCount, tabSize));
         }
@@ -7512,10 +7512,10 @@ template <> std::string ToString<VkCheckpointDataNV>(const VkCheckpointDataNV& o
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, '"' + ToString(obj.stage, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "pCheckpointMarker", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pCheckpointMarker) + "\"");
+            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stage, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pCheckpointMarker", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pCheckpointMarker)));
         }
     );
 }
@@ -7525,7 +7525,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderIntegerFunctions2Features
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderIntegerFunctions2", toStringFlags, tabCount, tabSize, ToString(obj.shaderIntegerFunctions2, toStringFlags, tabCount, tabSize));
         }
@@ -7537,9 +7537,9 @@ template <> std::string ToString<VkInitializePerformanceApiInfoINTEL>(const VkIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pUserData) + "\"");
+            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pUserData)));
         }
     );
 }
@@ -7549,9 +7549,9 @@ template <> std::string ToString<VkQueryPoolPerformanceQueryCreateInfoINTEL>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "performanceCountersSampling", toStringFlags, tabCount, tabSize, '"' + ToString(obj.performanceCountersSampling, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "performanceCountersSampling", toStringFlags, tabCount, tabSize, Quote(ToString(obj.performanceCountersSampling, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7561,7 +7561,7 @@ template <> std::string ToString<VkPerformanceMarkerInfoINTEL>(const VkPerforman
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "marker", toStringFlags, tabCount, tabSize, ToString(obj.marker, toStringFlags, tabCount, tabSize));
         }
@@ -7573,7 +7573,7 @@ template <> std::string ToString<VkPerformanceStreamMarkerInfoINTEL>(const VkPer
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "marker", toStringFlags, tabCount, tabSize, ToString(obj.marker, toStringFlags, tabCount, tabSize));
         }
@@ -7585,9 +7585,9 @@ template <> std::string ToString<VkPerformanceOverrideInfoINTEL>(const VkPerform
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "enable", toStringFlags, tabCount, tabSize, ToString(obj.enable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "parameter", toStringFlags, tabCount, tabSize, ToString(obj.parameter, toStringFlags, tabCount, tabSize));
         }
@@ -7599,9 +7599,9 @@ template <> std::string ToString<VkPerformanceConfigurationAcquireInfoINTEL>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7611,7 +7611,7 @@ template <> std::string ToString<VkPhysicalDevicePCIBusInfoPropertiesEXT>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pciDomain", toStringFlags, tabCount, tabSize, ToString(obj.pciDomain, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pciBus", toStringFlags, tabCount, tabSize, ToString(obj.pciBus, toStringFlags, tabCount, tabSize));
@@ -7626,7 +7626,7 @@ template <> std::string ToString<VkDisplayNativeHdrSurfaceCapabilitiesAMD>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "localDimmingSupport", toStringFlags, tabCount, tabSize, ToString(obj.localDimmingSupport, toStringFlags, tabCount, tabSize));
         }
@@ -7638,7 +7638,7 @@ template <> std::string ToString<VkSwapchainDisplayNativeHdrCreateInfoAMD>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "localDimmingEnable", toStringFlags, tabCount, tabSize, ToString(obj.localDimmingEnable, toStringFlags, tabCount, tabSize));
         }
@@ -7650,7 +7650,7 @@ template <> std::string ToString<VkImagePipeSurfaceCreateInfoFUCHSIA>(const VkIm
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imagePipeHandle", toStringFlags, tabCount, tabSize, ToString(obj.imagePipeHandle, toStringFlags, tabCount, tabSize));
@@ -7663,10 +7663,10 @@ template <> std::string ToString<VkMetalSurfaceCreateInfoEXT>(const VkMetalSurfa
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pLayer", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pLayer) + "\"");
+            FieldToString(strStrm, false, "pLayer", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pLayer)));
         }
     );
 }
@@ -7676,7 +7676,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentDensityMapFeaturesEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentDensityMap", toStringFlags, tabCount, tabSize, ToString(obj.fragmentDensityMap, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentDensityMapDynamic", toStringFlags, tabCount, tabSize, ToString(obj.fragmentDensityMapDynamic, toStringFlags, tabCount, tabSize));
@@ -7690,7 +7690,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentDensityMapPropertiesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minFragmentDensityTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.minFragmentDensityTexelSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxFragmentDensityTexelSize", toStringFlags, tabCount, tabSize, ToString(obj.maxFragmentDensityTexelSize, toStringFlags, tabCount, tabSize));
@@ -7704,7 +7704,7 @@ template <> std::string ToString<VkRenderPassFragmentDensityMapCreateInfoEXT>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentDensityMapAttachment", toStringFlags, tabCount, tabSize, ToString(obj.fragmentDensityMapAttachment, toStringFlags, tabCount, tabSize));
         }
@@ -7716,7 +7716,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderCoreProperties2AMD>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderCoreFeatures", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreFeatures, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "activeComputeUnitCount", toStringFlags, tabCount, tabSize, ToString(obj.activeComputeUnitCount, toStringFlags, tabCount, tabSize));
@@ -7729,7 +7729,7 @@ template <> std::string ToString<VkPhysicalDeviceCoherentMemoryFeaturesAMD>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceCoherentMemory", toStringFlags, tabCount, tabSize, ToString(obj.deviceCoherentMemory, toStringFlags, tabCount, tabSize));
         }
@@ -7741,7 +7741,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderImageAtomicInt64FeaturesE
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderImageInt64Atomics", toStringFlags, tabCount, tabSize, ToString(obj.shaderImageInt64Atomics, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sparseImageInt64Atomics", toStringFlags, tabCount, tabSize, ToString(obj.sparseImageInt64Atomics, toStringFlags, tabCount, tabSize));
@@ -7754,7 +7754,7 @@ template <> std::string ToString<VkPhysicalDeviceMemoryBudgetPropertiesEXT>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "heapBudget", toStringFlags, tabCount, tabSize, ArrayToString(VK_MAX_MEMORY_HEAPS, obj.heapBudget, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "heapUsage", toStringFlags, tabCount, tabSize, ArrayToString(VK_MAX_MEMORY_HEAPS, obj.heapUsage, toStringFlags, tabCount, tabSize));
@@ -7767,7 +7767,7 @@ template <> std::string ToString<VkPhysicalDeviceMemoryPriorityFeaturesEXT>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryPriority", toStringFlags, tabCount, tabSize, ToString(obj.memoryPriority, toStringFlags, tabCount, tabSize));
         }
@@ -7779,7 +7779,7 @@ template <> std::string ToString<VkMemoryPriorityAllocateInfoEXT>(const VkMemory
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "priority", toStringFlags, tabCount, tabSize, ToString(obj.priority, toStringFlags, tabCount, tabSize));
         }
@@ -7791,7 +7791,7 @@ template <> std::string ToString<VkPhysicalDeviceDedicatedAllocationImageAliasin
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dedicatedAllocationImageAliasing", toStringFlags, tabCount, tabSize, ToString(obj.dedicatedAllocationImageAliasing, toStringFlags, tabCount, tabSize));
         }
@@ -7803,7 +7803,7 @@ template <> std::string ToString<VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bufferDeviceAddress", toStringFlags, tabCount, tabSize, ToString(obj.bufferDeviceAddress, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bufferDeviceAddressCaptureReplay", toStringFlags, tabCount, tabSize, ToString(obj.bufferDeviceAddressCaptureReplay, toStringFlags, tabCount, tabSize));
@@ -7817,7 +7817,7 @@ template <> std::string ToString<VkBufferDeviceAddressCreateInfoEXT>(const VkBuf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceAddress", toStringFlags, tabCount, tabSize, ToString(obj.deviceAddress, toStringFlags, tabCount, tabSize));
         }
@@ -7829,7 +7829,7 @@ template <> std::string ToString<VkValidationFeaturesEXT>(const VkValidationFeat
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "enabledValidationFeatureCount", toStringFlags, tabCount, tabSize, ToString(obj.enabledValidationFeatureCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pEnabledValidationFeatures", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.enabledValidationFeatureCount, obj.pEnabledValidationFeatures, toStringFlags, tabCount, tabSize));
@@ -7844,16 +7844,16 @@ template <> std::string ToString<VkCooperativeMatrixPropertiesNV>(const VkCooper
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "MSize", toStringFlags, tabCount, tabSize, ToString(obj.MSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "NSize", toStringFlags, tabCount, tabSize, ToString(obj.NSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "KSize", toStringFlags, tabCount, tabSize, ToString(obj.KSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "AType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.AType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "BType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.BType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "CType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.CType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "DType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.DType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "scope", toStringFlags, tabCount, tabSize, '"' + ToString(obj.scope, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "AType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.AType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "BType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.BType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "CType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.CType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "DType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.DType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "scope", toStringFlags, tabCount, tabSize, Quote(ToString(obj.scope, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7863,7 +7863,7 @@ template <> std::string ToString<VkPhysicalDeviceCooperativeMatrixFeaturesNV>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "cooperativeMatrix", toStringFlags, tabCount, tabSize, ToString(obj.cooperativeMatrix, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "cooperativeMatrixRobustBufferAccess", toStringFlags, tabCount, tabSize, ToString(obj.cooperativeMatrixRobustBufferAccess, toStringFlags, tabCount, tabSize));
@@ -7876,7 +7876,7 @@ template <> std::string ToString<VkPhysicalDeviceCooperativeMatrixPropertiesNV>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "cooperativeMatrixSupportedStages", toStringFlags, tabCount, tabSize, ToString(obj.cooperativeMatrixSupportedStages, toStringFlags, tabCount, tabSize));
         }
@@ -7888,7 +7888,7 @@ template <> std::string ToString<VkPhysicalDeviceCoverageReductionModeFeaturesNV
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "coverageReductionMode", toStringFlags, tabCount, tabSize, ToString(obj.coverageReductionMode, toStringFlags, tabCount, tabSize));
         }
@@ -7900,10 +7900,10 @@ template <> std::string ToString<VkPipelineCoverageReductionStateCreateInfoNV>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "coverageReductionMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.coverageReductionMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "coverageReductionMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.coverageReductionMode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7913,10 +7913,10 @@ template <> std::string ToString<VkFramebufferMixedSamplesCombinationNV>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "coverageReductionMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.coverageReductionMode, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "rasterizationSamples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.rasterizationSamples, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "coverageReductionMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.coverageReductionMode, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "rasterizationSamples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.rasterizationSamples, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "depthStencilSamples", toStringFlags, tabCount, tabSize, ToString(obj.depthStencilSamples, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "colorSamples", toStringFlags, tabCount, tabSize, ToString(obj.colorSamples, toStringFlags, tabCount, tabSize));
         }
@@ -7928,7 +7928,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShaderInterlockFeatures
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentShaderSampleInterlock", toStringFlags, tabCount, tabSize, ToString(obj.fragmentShaderSampleInterlock, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentShaderPixelInterlock", toStringFlags, tabCount, tabSize, ToString(obj.fragmentShaderPixelInterlock, toStringFlags, tabCount, tabSize));
@@ -7942,7 +7942,7 @@ template <> std::string ToString<VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ycbcrImageArrays", toStringFlags, tabCount, tabSize, ToString(obj.ycbcrImageArrays, toStringFlags, tabCount, tabSize));
         }
@@ -7954,7 +7954,7 @@ template <> std::string ToString<VkPhysicalDeviceProvokingVertexFeaturesEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "provokingVertexLast", toStringFlags, tabCount, tabSize, ToString(obj.provokingVertexLast, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "transformFeedbackPreservesProvokingVertex", toStringFlags, tabCount, tabSize, ToString(obj.transformFeedbackPreservesProvokingVertex, toStringFlags, tabCount, tabSize));
@@ -7967,7 +7967,7 @@ template <> std::string ToString<VkPhysicalDeviceProvokingVertexPropertiesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "provokingVertexModePerPipeline", toStringFlags, tabCount, tabSize, ToString(obj.provokingVertexModePerPipeline, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "transformFeedbackPreservesTriangleFanProvokingVertex", toStringFlags, tabCount, tabSize, ToString(obj.transformFeedbackPreservesTriangleFanProvokingVertex, toStringFlags, tabCount, tabSize));
@@ -7980,9 +7980,9 @@ template <> std::string ToString<VkPipelineRasterizationProvokingVertexStateCrea
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "provokingVertexMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.provokingVertexMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "provokingVertexMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.provokingVertexMode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -7992,9 +7992,9 @@ template <> std::string ToString<VkSurfaceFullScreenExclusiveInfoEXT>(const VkSu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fullScreenExclusive", toStringFlags, tabCount, tabSize, '"' + ToString(obj.fullScreenExclusive, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "fullScreenExclusive", toStringFlags, tabCount, tabSize, Quote(ToString(obj.fullScreenExclusive, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -8004,7 +8004,7 @@ template <> std::string ToString<VkSurfaceCapabilitiesFullScreenExclusiveEXT>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fullScreenExclusiveSupported", toStringFlags, tabCount, tabSize, ToString(obj.fullScreenExclusiveSupported, toStringFlags, tabCount, tabSize));
         }
@@ -8016,9 +8016,9 @@ template <> std::string ToString<VkSurfaceFullScreenExclusiveWin32InfoEXT>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "hmonitor", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.hmonitor) + "\"");
+            FieldToString(strStrm, false, "hmonitor", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.hmonitor)));
         }
     );
 }
@@ -8028,7 +8028,7 @@ template <> std::string ToString<VkHeadlessSurfaceCreateInfoEXT>(const VkHeadles
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -8040,7 +8040,7 @@ template <> std::string ToString<VkPhysicalDeviceLineRasterizationFeaturesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rectangularLines", toStringFlags, tabCount, tabSize, ToString(obj.rectangularLines, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "bresenhamLines", toStringFlags, tabCount, tabSize, ToString(obj.bresenhamLines, toStringFlags, tabCount, tabSize));
@@ -8057,7 +8057,7 @@ template <> std::string ToString<VkPhysicalDeviceLineRasterizationPropertiesEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "lineSubPixelPrecisionBits", toStringFlags, tabCount, tabSize, ToString(obj.lineSubPixelPrecisionBits, toStringFlags, tabCount, tabSize));
         }
@@ -8069,9 +8069,9 @@ template <> std::string ToString<VkPipelineRasterizationLineStateCreateInfoEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "lineRasterizationMode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.lineRasterizationMode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "lineRasterizationMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.lineRasterizationMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "stippledLineEnable", toStringFlags, tabCount, tabSize, ToString(obj.stippledLineEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "lineStippleFactor", toStringFlags, tabCount, tabSize, ToString(obj.lineStippleFactor, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "lineStipplePattern", toStringFlags, tabCount, tabSize, ToString(obj.lineStipplePattern, toStringFlags, tabCount, tabSize));
@@ -8084,7 +8084,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderBufferFloat32Atomics", toStringFlags, tabCount, tabSize, ToString(obj.shaderBufferFloat32Atomics, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderBufferFloat32AtomicAdd", toStringFlags, tabCount, tabSize, ToString(obj.shaderBufferFloat32AtomicAdd, toStringFlags, tabCount, tabSize));
@@ -8107,7 +8107,7 @@ template <> std::string ToString<VkPhysicalDeviceIndexTypeUint8FeaturesEXT>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "indexTypeUint8", toStringFlags, tabCount, tabSize, ToString(obj.indexTypeUint8, toStringFlags, tabCount, tabSize));
         }
@@ -8119,7 +8119,7 @@ template <> std::string ToString<VkPhysicalDeviceExtendedDynamicStateFeaturesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "extendedDynamicState", toStringFlags, tabCount, tabSize, ToString(obj.extendedDynamicState, toStringFlags, tabCount, tabSize));
         }
@@ -8131,7 +8131,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderBufferFloat16Atomics", toStringFlags, tabCount, tabSize, ToString(obj.shaderBufferFloat16Atomics, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderBufferFloat16AtomicAdd", toStringFlags, tabCount, tabSize, ToString(obj.shaderBufferFloat16AtomicAdd, toStringFlags, tabCount, tabSize));
@@ -8154,7 +8154,7 @@ template <> std::string ToString<VkPhysicalDeviceDeviceGeneratedCommandsProperti
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxGraphicsShaderGroupCount", toStringFlags, tabCount, tabSize, ToString(obj.maxGraphicsShaderGroupCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxIndirectSequenceCount", toStringFlags, tabCount, tabSize, ToString(obj.maxIndirectSequenceCount, toStringFlags, tabCount, tabSize));
@@ -8174,7 +8174,7 @@ template <> std::string ToString<VkPhysicalDeviceDeviceGeneratedCommandsFeatures
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceGeneratedCommands", toStringFlags, tabCount, tabSize, ToString(obj.deviceGeneratedCommands, toStringFlags, tabCount, tabSize));
         }
@@ -8186,7 +8186,7 @@ template <> std::string ToString<VkGraphicsShaderGroupCreateInfoNV>(const VkGrap
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageCount", toStringFlags, tabCount, tabSize, ToString(obj.stageCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pStages", toStringFlags, tabCount, tabSize, ArrayToString(obj.stageCount, obj.pStages, toStringFlags, tabCount, tabSize));
@@ -8201,7 +8201,7 @@ template <> std::string ToString<VkGraphicsPipelineShaderGroupsCreateInfoNV>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "groupCount", toStringFlags, tabCount, tabSize, ToString(obj.groupCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pGroups", toStringFlags, tabCount, tabSize, ArrayToString(obj.groupCount, obj.pGroups, toStringFlags, tabCount, tabSize));
@@ -8228,7 +8228,7 @@ template <> std::string ToString<VkBindIndexBufferIndirectCommandNV>(const VkBin
         {
             FieldToString(strStrm, true, "bufferAddress", toStringFlags, tabCount, tabSize, ToString(obj.bufferAddress, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.indexType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.indexType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -8260,7 +8260,7 @@ template <> std::string ToString<VkIndirectCommandsStreamNV>(const VkIndirectCom
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -8271,14 +8271,14 @@ template <> std::string ToString<VkIndirectCommandsLayoutTokenNV>(const VkIndire
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "tokenType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.tokenType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "tokenType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.tokenType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "stream", toStringFlags, tabCount, tabSize, ToString(obj.stream, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexBindingUnit", toStringFlags, tabCount, tabSize, ToString(obj.vertexBindingUnit, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexDynamicStride", toStringFlags, tabCount, tabSize, ToString(obj.vertexDynamicStride, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pushconstantPipelineLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pushconstantPipelineLayout) + '"');
+            FieldToString(strStrm, false, "pushconstantPipelineLayout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.pushconstantPipelineLayout)));
             FieldToString(strStrm, false, "pushconstantShaderStageFlags", toStringFlags, tabCount, tabSize, ToString(obj.pushconstantShaderStageFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pushconstantOffset", toStringFlags, tabCount, tabSize, ToString(obj.pushconstantOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pushconstantSize", toStringFlags, tabCount, tabSize, ToString(obj.pushconstantSize, toStringFlags, tabCount, tabSize));
@@ -8295,10 +8295,10 @@ template <> std::string ToString<VkIndirectCommandsLayoutCreateInfoNV>(const VkI
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "tokenCount", toStringFlags, tabCount, tabSize, ToString(obj.tokenCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pTokens", toStringFlags, tabCount, tabSize, ArrayToString(obj.tokenCount, obj.pTokens, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "streamCount", toStringFlags, tabCount, tabSize, ToString(obj.streamCount, toStringFlags, tabCount, tabSize));
@@ -8312,20 +8312,20 @@ template <> std::string ToString<VkGeneratedCommandsInfoNV>(const VkGeneratedCom
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipeline) + '"');
-            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.indirectCommandsLayout) + '"');
+            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.pipeline)));
+            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.indirectCommandsLayout)));
             FieldToString(strStrm, false, "streamCount", toStringFlags, tabCount, tabSize, ToString(obj.streamCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pStreams", toStringFlags, tabCount, tabSize, ArrayToString(obj.streamCount, obj.pStreams, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sequencesCount", toStringFlags, tabCount, tabSize, ToString(obj.sequencesCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "preprocessBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.preprocessBuffer) + '"');
+            FieldToString(strStrm, false, "preprocessBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.preprocessBuffer)));
             FieldToString(strStrm, false, "preprocessOffset", toStringFlags, tabCount, tabSize, ToString(obj.preprocessOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "preprocessSize", toStringFlags, tabCount, tabSize, ToString(obj.preprocessSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sequencesCountBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.sequencesCountBuffer) + '"');
+            FieldToString(strStrm, false, "sequencesCountBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.sequencesCountBuffer)));
             FieldToString(strStrm, false, "sequencesCountOffset", toStringFlags, tabCount, tabSize, ToString(obj.sequencesCountOffset, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sequencesIndexBuffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.sequencesIndexBuffer) + '"');
+            FieldToString(strStrm, false, "sequencesIndexBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.sequencesIndexBuffer)));
             FieldToString(strStrm, false, "sequencesIndexOffset", toStringFlags, tabCount, tabSize, ToString(obj.sequencesIndexOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -8336,11 +8336,11 @@ template <> std::string ToString<VkGeneratedCommandsMemoryRequirementsInfoNV>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, '"' + ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.pipeline) + '"');
-            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.indirectCommandsLayout) + '"');
+            FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.pipeline)));
+            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.indirectCommandsLayout)));
             FieldToString(strStrm, false, "maxSequencesCount", toStringFlags, tabCount, tabSize, ToString(obj.maxSequencesCount, toStringFlags, tabCount, tabSize));
         }
     );
@@ -8351,7 +8351,7 @@ template <> std::string ToString<VkPhysicalDeviceInheritedViewportScissorFeature
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "inheritedViewportScissor2D", toStringFlags, tabCount, tabSize, ToString(obj.inheritedViewportScissor2D, toStringFlags, tabCount, tabSize));
         }
@@ -8363,7 +8363,7 @@ template <> std::string ToString<VkCommandBufferInheritanceViewportScissorInfoNV
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewportScissor2D", toStringFlags, tabCount, tabSize, ToString(obj.viewportScissor2D, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "viewportDepthCount", toStringFlags, tabCount, tabSize, ToString(obj.viewportDepthCount, toStringFlags, tabCount, tabSize));
@@ -8377,7 +8377,7 @@ template <> std::string ToString<VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "texelBufferAlignment", toStringFlags, tabCount, tabSize, ToString(obj.texelBufferAlignment, toStringFlags, tabCount, tabSize));
         }
@@ -8389,9 +8389,9 @@ template <> std::string ToString<VkRenderPassTransformBeginInfoQCOM>(const VkRen
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, '"' + ToString(obj.transform, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.transform, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -8401,9 +8401,9 @@ template <> std::string ToString<VkCommandBufferInheritanceRenderPassTransformIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, '"' + ToString(obj.transform, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.transform, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "renderArea", toStringFlags, tabCount, tabSize, ToString(obj.renderArea, toStringFlags, tabCount, tabSize));
         }
     );
@@ -8414,7 +8414,7 @@ template <> std::string ToString<VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceMemoryReport", toStringFlags, tabCount, tabSize, ToString(obj.deviceMemoryReport, toStringFlags, tabCount, tabSize));
         }
@@ -8426,13 +8426,13 @@ template <> std::string ToString<VkDeviceMemoryReportCallbackDataEXT>(const VkDe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "memoryObjectId", toStringFlags, tabCount, tabSize, ToString(obj.memoryObjectId, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.objectType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, ToString(obj.objectHandle, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "heapIndex", toStringFlags, tabCount, tabSize, ToString(obj.heapIndex, toStringFlags, tabCount, tabSize));
         }
@@ -8444,11 +8444,11 @@ template <> std::string ToString<VkDeviceDeviceMemoryReportCreateInfoEXT>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pfnUserCallback) + "\"");
-            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pUserData) + "\"");
+            FieldToString(strStrm, false, "pfnUserCallback", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnUserCallback)));
+            FieldToString(strStrm, false, "pUserData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pUserData)));
         }
     );
 }
@@ -8458,7 +8458,7 @@ template <> std::string ToString<VkPhysicalDeviceRobustness2FeaturesEXT>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "robustBufferAccess2", toStringFlags, tabCount, tabSize, ToString(obj.robustBufferAccess2, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "robustImageAccess2", toStringFlags, tabCount, tabSize, ToString(obj.robustImageAccess2, toStringFlags, tabCount, tabSize));
@@ -8472,7 +8472,7 @@ template <> std::string ToString<VkPhysicalDeviceRobustness2PropertiesEXT>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "robustStorageBufferAccessSizeAlignment", toStringFlags, tabCount, tabSize, ToString(obj.robustStorageBufferAccessSizeAlignment, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "robustUniformBufferAccessSizeAlignment", toStringFlags, tabCount, tabSize, ToString(obj.robustUniformBufferAccessSizeAlignment, toStringFlags, tabCount, tabSize));
@@ -8485,10 +8485,10 @@ template <> std::string ToString<VkSamplerCustomBorderColorCreateInfoEXT>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "customBorderColor", toStringFlags, tabCount, tabSize, ToString(obj.customBorderColor, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -8498,7 +8498,7 @@ template <> std::string ToString<VkPhysicalDeviceCustomBorderColorPropertiesEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxCustomBorderColorSamplers", toStringFlags, tabCount, tabSize, ToString(obj.maxCustomBorderColorSamplers, toStringFlags, tabCount, tabSize));
         }
@@ -8510,7 +8510,7 @@ template <> std::string ToString<VkPhysicalDeviceCustomBorderColorFeaturesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "customBorderColors", toStringFlags, tabCount, tabSize, ToString(obj.customBorderColors, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "customBorderColorWithoutFormat", toStringFlags, tabCount, tabSize, ToString(obj.customBorderColorWithoutFormat, toStringFlags, tabCount, tabSize));
@@ -8523,7 +8523,7 @@ template <> std::string ToString<VkPhysicalDevicePresentBarrierFeaturesNV>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "presentBarrier", toStringFlags, tabCount, tabSize, ToString(obj.presentBarrier, toStringFlags, tabCount, tabSize));
         }
@@ -8535,7 +8535,7 @@ template <> std::string ToString<VkSurfaceCapabilitiesPresentBarrierNV>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "presentBarrierSupported", toStringFlags, tabCount, tabSize, ToString(obj.presentBarrierSupported, toStringFlags, tabCount, tabSize));
         }
@@ -8547,7 +8547,7 @@ template <> std::string ToString<VkSwapchainPresentBarrierCreateInfoNV>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "presentBarrierEnable", toStringFlags, tabCount, tabSize, ToString(obj.presentBarrierEnable, toStringFlags, tabCount, tabSize));
         }
@@ -8559,7 +8559,7 @@ template <> std::string ToString<VkPhysicalDeviceDiagnosticsConfigFeaturesNV>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "diagnosticsConfig", toStringFlags, tabCount, tabSize, ToString(obj.diagnosticsConfig, toStringFlags, tabCount, tabSize));
         }
@@ -8571,7 +8571,7 @@ template <> std::string ToString<VkDeviceDiagnosticsConfigCreateInfoNV>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -8583,7 +8583,7 @@ template <> std::string ToString<VkPhysicalDeviceGraphicsPipelineLibraryFeatures
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "graphicsPipelineLibrary", toStringFlags, tabCount, tabSize, ToString(obj.graphicsPipelineLibrary, toStringFlags, tabCount, tabSize));
         }
@@ -8595,7 +8595,7 @@ template <> std::string ToString<VkPhysicalDeviceGraphicsPipelineLibraryProperti
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "graphicsPipelineLibraryFastLinking", toStringFlags, tabCount, tabSize, ToString(obj.graphicsPipelineLibraryFastLinking, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "graphicsPipelineLibraryIndependentInterpolationDecoration", toStringFlags, tabCount, tabSize, ToString(obj.graphicsPipelineLibraryIndependentInterpolationDecoration, toStringFlags, tabCount, tabSize));
@@ -8608,7 +8608,7 @@ template <> std::string ToString<VkGraphicsPipelineLibraryCreateInfoEXT>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -8620,7 +8620,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderEarlyAndLateFragmentTests
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderEarlyAndLateFragmentTests", toStringFlags, tabCount, tabSize, ToString(obj.shaderEarlyAndLateFragmentTests, toStringFlags, tabCount, tabSize));
         }
@@ -8632,7 +8632,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShadingRateEnumsFeature
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentShadingRateEnums", toStringFlags, tabCount, tabSize, ToString(obj.fragmentShadingRateEnums, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supersampleFragmentShadingRates", toStringFlags, tabCount, tabSize, ToString(obj.supersampleFragmentShadingRates, toStringFlags, tabCount, tabSize));
@@ -8646,9 +8646,9 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShadingRateEnumsPropert
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "maxFragmentShadingRateInvocationCount", toStringFlags, tabCount, tabSize, '"' + ToString(obj.maxFragmentShadingRateInvocationCount, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "maxFragmentShadingRateInvocationCount", toStringFlags, tabCount, tabSize, Quote(ToString(obj.maxFragmentShadingRateInvocationCount, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -8658,10 +8658,10 @@ template <> std::string ToString<VkPipelineFragmentShadingRateEnumStateCreateInf
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "shadingRateType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.shadingRateType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "shadingRate", toStringFlags, tabCount, tabSize, '"' + ToString(obj.shadingRate, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "shadingRateType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.shadingRateType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "shadingRate", toStringFlags, tabCount, tabSize, Quote(ToString(obj.shadingRate, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "combinerOps", toStringFlags, tabCount, tabSize, ArrayToString(2, obj.combinerOps, toStringFlags, tabCount, tabSize));
         }
     );
@@ -8672,7 +8672,7 @@ template <> std::string ToString<VkAccelerationStructureGeometryMotionTrianglesD
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexData", toStringFlags, tabCount, tabSize, ToString(obj.vertexData, toStringFlags, tabCount, tabSize));
         }
@@ -8684,7 +8684,7 @@ template <> std::string ToString<VkAccelerationStructureMotionInfoNV>(const VkAc
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxInstances", toStringFlags, tabCount, tabSize, ToString(obj.maxInstances, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
@@ -8754,7 +8754,7 @@ template <> std::string ToString<VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rayTracingMotionBlur", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingMotionBlur, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rayTracingMotionBlurPipelineTraceRaysIndirect", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingMotionBlurPipelineTraceRaysIndirect, toStringFlags, tabCount, tabSize));
@@ -8767,7 +8767,7 @@ template <> std::string ToString<VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ycbcr2plane444Formats", toStringFlags, tabCount, tabSize, ToString(obj.ycbcr2plane444Formats, toStringFlags, tabCount, tabSize));
         }
@@ -8779,7 +8779,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentDensityMapDeferred", toStringFlags, tabCount, tabSize, ToString(obj.fragmentDensityMapDeferred, toStringFlags, tabCount, tabSize));
         }
@@ -8791,7 +8791,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentDensityMap2PropertiesEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subsampledLoads", toStringFlags, tabCount, tabSize, ToString(obj.subsampledLoads, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subsampledCoarseReconstructionEarlyAccess", toStringFlags, tabCount, tabSize, ToString(obj.subsampledCoarseReconstructionEarlyAccess, toStringFlags, tabCount, tabSize));
@@ -8806,9 +8806,9 @@ template <> std::string ToString<VkCopyCommandTransformInfoQCOM>(const VkCopyCom
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, '"' + ToString(obj.transform, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.transform, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -8818,7 +8818,7 @@ template <> std::string ToString<VkPhysicalDeviceImageCompressionControlFeatures
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageCompressionControl", toStringFlags, tabCount, tabSize, ToString(obj.imageCompressionControl, toStringFlags, tabCount, tabSize));
         }
@@ -8830,7 +8830,7 @@ template <> std::string ToString<VkImageCompressionControlEXT>(const VkImageComp
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "compressionControlPlaneCount", toStringFlags, tabCount, tabSize, ToString(obj.compressionControlPlaneCount, toStringFlags, tabCount, tabSize));
@@ -8844,7 +8844,7 @@ template <> std::string ToString<VkSubresourceLayout2EXT>(const VkSubresourceLay
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subresourceLayout", toStringFlags, tabCount, tabSize, ToString(obj.subresourceLayout, toStringFlags, tabCount, tabSize));
         }
@@ -8856,7 +8856,7 @@ template <> std::string ToString<VkImageSubresource2EXT>(const VkImageSubresourc
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageSubresource", toStringFlags, tabCount, tabSize, ToString(obj.imageSubresource, toStringFlags, tabCount, tabSize));
         }
@@ -8868,7 +8868,7 @@ template <> std::string ToString<VkImageCompressionPropertiesEXT>(const VkImageC
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageCompressionFlags", toStringFlags, tabCount, tabSize, ToString(obj.imageCompressionFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageCompressionFixedRateFlags", toStringFlags, tabCount, tabSize, ToString(obj.imageCompressionFixedRateFlags, toStringFlags, tabCount, tabSize));
@@ -8881,7 +8881,7 @@ template <> std::string ToString<VkPhysicalDeviceAttachmentFeedbackLoopLayoutFea
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentFeedbackLoopLayout", toStringFlags, tabCount, tabSize, ToString(obj.attachmentFeedbackLoopLayout, toStringFlags, tabCount, tabSize));
         }
@@ -8893,7 +8893,7 @@ template <> std::string ToString<VkPhysicalDevice4444FormatsFeaturesEXT>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "formatA4R4G4B4", toStringFlags, tabCount, tabSize, ToString(obj.formatA4R4G4B4, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "formatA4B4G4R4", toStringFlags, tabCount, tabSize, ToString(obj.formatA4B4G4R4, toStringFlags, tabCount, tabSize));
@@ -8906,7 +8906,7 @@ template <> std::string ToString<VkPhysicalDeviceFaultFeaturesEXT>(const VkPhysi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceFault", toStringFlags, tabCount, tabSize, ToString(obj.deviceFault, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceFaultVendorBinary", toStringFlags, tabCount, tabSize, ToString(obj.deviceFaultVendorBinary, toStringFlags, tabCount, tabSize));
@@ -8919,7 +8919,7 @@ template <> std::string ToString<VkDeviceFaultCountsEXT>(const VkDeviceFaultCoun
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "addressInfoCount", toStringFlags, tabCount, tabSize, ToString(obj.addressInfoCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vendorInfoCount", toStringFlags, tabCount, tabSize, ToString(obj.vendorInfoCount, toStringFlags, tabCount, tabSize));
@@ -8933,7 +8933,7 @@ template <> std::string ToString<VkDeviceFaultAddressInfoEXT>(const VkDeviceFaul
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "addressType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.addressType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "addressType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.addressType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "reportedAddress", toStringFlags, tabCount, tabSize, ToString(obj.reportedAddress, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "addressPrecision", toStringFlags, tabCount, tabSize, ToString(obj.addressPrecision, toStringFlags, tabCount, tabSize));
         }
@@ -8957,12 +8957,12 @@ template <> std::string ToString<VkDeviceFaultInfoEXT>(const VkDeviceFaultInfoEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
             FieldToString(strStrm, false, "pAddressInfos", toStringFlags, tabCount, tabSize, (obj.pAddressInfos ? ToString(*obj.pAddressInfos, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pVendorInfos", toStringFlags, tabCount, tabSize, (obj.pVendorInfos ? ToString(*obj.pVendorInfos, toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "pVendorBinaryData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pVendorBinaryData) + "\"");
+            FieldToString(strStrm, false, "pVendorBinaryData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pVendorBinaryData)));
         }
     );
 }
@@ -8973,11 +8973,11 @@ template <> std::string ToString<VkDeviceFaultVendorBinaryHeaderVersionOneEXT>(c
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "headerSize", toStringFlags, tabCount, tabSize, ToString(obj.headerSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "headerVersion", toStringFlags, tabCount, tabSize, '"' + ToString(obj.headerVersion, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "headerVersion", toStringFlags, tabCount, tabSize, Quote(ToString(obj.headerVersion, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "vendorID", toStringFlags, tabCount, tabSize, ToString(obj.vendorID, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceID", toStringFlags, tabCount, tabSize, ToString(obj.deviceID, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "driverVersion", toStringFlags, tabCount, tabSize, ToString(obj.driverVersion, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipelineCacheUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.pipelineCacheUUID) + '"');
+            FieldToString(strStrm, false, "pipelineCacheUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.pipelineCacheUUID)));
             FieldToString(strStrm, false, "applicationNameOffset", toStringFlags, tabCount, tabSize, ToString(obj.applicationNameOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "applicationVersion", toStringFlags, tabCount, tabSize, ToString(obj.applicationVersion, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "engineNameOffset", toStringFlags, tabCount, tabSize, ToString(obj.engineNameOffset, toStringFlags, tabCount, tabSize));
@@ -8990,7 +8990,7 @@ template <> std::string ToString<VkPhysicalDeviceRasterizationOrderAttachmentAcc
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rasterizationOrderColorAttachmentAccess", toStringFlags, tabCount, tabSize, ToString(obj.rasterizationOrderColorAttachmentAccess, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rasterizationOrderDepthAttachmentAccess", toStringFlags, tabCount, tabSize, ToString(obj.rasterizationOrderDepthAttachmentAccess, toStringFlags, tabCount, tabSize));
@@ -9004,7 +9004,7 @@ template <> std::string ToString<VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "formatRgba10x6WithoutYCbCrSampler", toStringFlags, tabCount, tabSize, ToString(obj.formatRgba10x6WithoutYCbCrSampler, toStringFlags, tabCount, tabSize));
         }
@@ -9016,11 +9016,11 @@ template <> std::string ToString<VkDirectFBSurfaceCreateInfoEXT>(const VkDirectF
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dfb", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.dfb) + "\"");
-            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.surface) + "\"");
+            FieldToString(strStrm, false, "dfb", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.dfb)));
+            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.surface)));
         }
     );
 }
@@ -9030,7 +9030,7 @@ template <> std::string ToString<VkPhysicalDeviceMutableDescriptorTypeFeaturesEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mutableDescriptorType", toStringFlags, tabCount, tabSize, ToString(obj.mutableDescriptorType, toStringFlags, tabCount, tabSize));
         }
@@ -9053,7 +9053,7 @@ template <> std::string ToString<VkMutableDescriptorTypeCreateInfoEXT>(const VkM
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mutableDescriptorTypeListCount", toStringFlags, tabCount, tabSize, ToString(obj.mutableDescriptorTypeListCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pMutableDescriptorTypeLists", toStringFlags, tabCount, tabSize, ArrayToString(obj.mutableDescriptorTypeListCount, obj.pMutableDescriptorTypeLists, toStringFlags, tabCount, tabSize));
@@ -9066,7 +9066,7 @@ template <> std::string ToString<VkPhysicalDeviceVertexInputDynamicStateFeatures
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexInputDynamicState", toStringFlags, tabCount, tabSize, ToString(obj.vertexInputDynamicState, toStringFlags, tabCount, tabSize));
         }
@@ -9078,11 +9078,11 @@ template <> std::string ToString<VkVertexInputBindingDescription2EXT>(const VkVe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(obj.stride, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "inputRate", toStringFlags, tabCount, tabSize, '"' + ToString(obj.inputRate, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "inputRate", toStringFlags, tabCount, tabSize, Quote(ToString(obj.inputRate, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "divisor", toStringFlags, tabCount, tabSize, ToString(obj.divisor, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9093,11 +9093,11 @@ template <> std::string ToString<VkVertexInputAttributeDescription2EXT>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "location", toStringFlags, tabCount, tabSize, ToString(obj.location, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9108,7 +9108,7 @@ template <> std::string ToString<VkPhysicalDeviceDrmPropertiesEXT>(const VkPhysi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "hasPrimary", toStringFlags, tabCount, tabSize, ToString(obj.hasPrimary, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "hasRender", toStringFlags, tabCount, tabSize, ToString(obj.hasRender, toStringFlags, tabCount, tabSize));
@@ -9125,7 +9125,7 @@ template <> std::string ToString<VkPhysicalDeviceAddressBindingReportFeaturesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "reportAddressBinding", toStringFlags, tabCount, tabSize, ToString(obj.reportAddressBinding, toStringFlags, tabCount, tabSize));
         }
@@ -9137,12 +9137,12 @@ template <> std::string ToString<VkDeviceAddressBindingCallbackDataEXT>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "baseAddress", toStringFlags, tabCount, tabSize, ToString(obj.baseAddress, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "bindingType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.bindingType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "bindingType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.bindingType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9152,7 +9152,7 @@ template <> std::string ToString<VkPhysicalDeviceDepthClipControlFeaturesEXT>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthClipControl", toStringFlags, tabCount, tabSize, ToString(obj.depthClipControl, toStringFlags, tabCount, tabSize));
         }
@@ -9164,7 +9164,7 @@ template <> std::string ToString<VkPipelineViewportDepthClipControlCreateInfoEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "negativeOneToOne", toStringFlags, tabCount, tabSize, ToString(obj.negativeOneToOne, toStringFlags, tabCount, tabSize));
         }
@@ -9176,7 +9176,7 @@ template <> std::string ToString<VkPhysicalDevicePrimitiveTopologyListRestartFea
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "primitiveTopologyListRestart", toStringFlags, tabCount, tabSize, ToString(obj.primitiveTopologyListRestart, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "primitiveTopologyPatchListRestart", toStringFlags, tabCount, tabSize, ToString(obj.primitiveTopologyPatchListRestart, toStringFlags, tabCount, tabSize));
@@ -9189,9 +9189,9 @@ template <> std::string ToString<VkImportMemoryZirconHandleInfoFUCHSIA>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, ToString(obj.handle, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9202,7 +9202,7 @@ template <> std::string ToString<VkMemoryZirconHandlePropertiesFUCHSIA>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "memoryTypeBits", toStringFlags, tabCount, tabSize, ToString(obj.memoryTypeBits, toStringFlags, tabCount, tabSize));
         }
@@ -9214,10 +9214,10 @@ template <> std::string ToString<VkMemoryGetZirconHandleInfoFUCHSIA>(const VkMem
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9227,11 +9227,11 @@ template <> std::string ToString<VkImportSemaphoreZirconHandleInfoFUCHSIA>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "zirconHandle", toStringFlags, tabCount, tabSize, ToString(obj.zirconHandle, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9242,10 +9242,10 @@ template <> std::string ToString<VkSemaphoreGetZirconHandleInfoFUCHSIA>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.semaphore) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.semaphore)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9255,7 +9255,7 @@ template <> std::string ToString<VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "invocationMask", toStringFlags, tabCount, tabSize, ToString(obj.invocationMask, toStringFlags, tabCount, tabSize));
         }
@@ -9267,10 +9267,10 @@ template <> std::string ToString<VkMemoryGetRemoteAddressInfoNV>(const VkMemoryG
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.memory) + '"');
-            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.handleType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.memory)));
+            FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9280,7 +9280,7 @@ template <> std::string ToString<VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "externalMemoryRDMA", toStringFlags, tabCount, tabSize, ToString(obj.externalMemoryRDMA, toStringFlags, tabCount, tabSize));
         }
@@ -9292,7 +9292,7 @@ template <> std::string ToString<VkPhysicalDeviceMultisampledRenderToSingleSampl
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "multisampledRenderToSingleSampled", toStringFlags, tabCount, tabSize, ToString(obj.multisampledRenderToSingleSampled, toStringFlags, tabCount, tabSize));
         }
@@ -9304,7 +9304,7 @@ template <> std::string ToString<VkSubpassResolvePerformanceQueryEXT>(const VkSu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "optimal", toStringFlags, tabCount, tabSize, ToString(obj.optimal, toStringFlags, tabCount, tabSize));
         }
@@ -9316,10 +9316,10 @@ template <> std::string ToString<VkMultisampledRenderToSingleSampledInfoEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "multisampledRenderToSingleSampledEnable", toStringFlags, tabCount, tabSize, ToString(obj.multisampledRenderToSingleSampledEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "rasterizationSamples", toStringFlags, tabCount, tabSize, '"' + ToString(obj.rasterizationSamples, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "rasterizationSamples", toStringFlags, tabCount, tabSize, Quote(ToString(obj.rasterizationSamples, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9329,7 +9329,7 @@ template <> std::string ToString<VkPhysicalDeviceExtendedDynamicState2FeaturesEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "extendedDynamicState2", toStringFlags, tabCount, tabSize, ToString(obj.extendedDynamicState2, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "extendedDynamicState2LogicOp", toStringFlags, tabCount, tabSize, ToString(obj.extendedDynamicState2LogicOp, toStringFlags, tabCount, tabSize));
@@ -9343,11 +9343,11 @@ template <> std::string ToString<VkScreenSurfaceCreateInfoQNX>(const VkScreenSur
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "context", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.context) + "\"");
-            FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.window) + "\"");
+            FieldToString(strStrm, false, "context", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.context)));
+            FieldToString(strStrm, false, "window", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.window)));
         }
     );
 }
@@ -9357,7 +9357,7 @@ template <> std::string ToString<VkPhysicalDeviceColorWriteEnableFeaturesEXT>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "colorWriteEnable", toStringFlags, tabCount, tabSize, ToString(obj.colorWriteEnable, toStringFlags, tabCount, tabSize));
         }
@@ -9369,7 +9369,7 @@ template <> std::string ToString<VkPipelineColorWriteCreateInfoEXT>(const VkPipe
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pColorWriteEnables", toStringFlags, tabCount, tabSize, ArrayToString(obj.attachmentCount, obj.pColorWriteEnables, toStringFlags, tabCount, tabSize));
@@ -9382,7 +9382,7 @@ template <> std::string ToString<VkPhysicalDevicePrimitivesGeneratedQueryFeature
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "primitivesGeneratedQuery", toStringFlags, tabCount, tabSize, ToString(obj.primitivesGeneratedQuery, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "primitivesGeneratedQueryWithRasterizerDiscard", toStringFlags, tabCount, tabSize, ToString(obj.primitivesGeneratedQueryWithRasterizerDiscard, toStringFlags, tabCount, tabSize));
@@ -9396,7 +9396,7 @@ template <> std::string ToString<VkPhysicalDeviceImageViewMinLodFeaturesEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minLod", toStringFlags, tabCount, tabSize, ToString(obj.minLod, toStringFlags, tabCount, tabSize));
         }
@@ -9408,7 +9408,7 @@ template <> std::string ToString<VkImageViewMinLodCreateInfoEXT>(const VkImageVi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "minLod", toStringFlags, tabCount, tabSize, ToString(obj.minLod, toStringFlags, tabCount, tabSize));
         }
@@ -9420,7 +9420,7 @@ template <> std::string ToString<VkPhysicalDeviceMultiDrawFeaturesEXT>(const VkP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "multiDraw", toStringFlags, tabCount, tabSize, ToString(obj.multiDraw, toStringFlags, tabCount, tabSize));
         }
@@ -9432,7 +9432,7 @@ template <> std::string ToString<VkPhysicalDeviceMultiDrawPropertiesEXT>(const V
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxMultiDrawCount", toStringFlags, tabCount, tabSize, ToString(obj.maxMultiDrawCount, toStringFlags, tabCount, tabSize));
         }
@@ -9467,7 +9467,7 @@ template <> std::string ToString<VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "image2DViewOf3D", toStringFlags, tabCount, tabSize, ToString(obj.image2DViewOf3D, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sampler2DViewOf3D", toStringFlags, tabCount, tabSize, ToString(obj.sampler2DViewOf3D, toStringFlags, tabCount, tabSize));
@@ -9492,12 +9492,12 @@ template <> std::string ToString<VkMicromapBuildInfoEXT>(const VkMicromapBuildIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstMicromap", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dstMicromap) + '"');
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstMicromap", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstMicromap)));
             FieldToString(strStrm, false, "usageCountsCount", toStringFlags, tabCount, tabSize, ToString(obj.usageCountsCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pUsageCounts", toStringFlags, tabCount, tabSize, ArrayToString(obj.usageCountsCount, obj.pUsageCounts, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ppUsageCounts", toStringFlags, tabCount, tabSize, Array2DToString(obj.usageCountsCount, 1, obj.ppUsageCounts, toStringFlags, tabCount, tabSize));
@@ -9514,13 +9514,13 @@ template <> std::string ToString<VkMicromapCreateInfoEXT>(const VkMicromapCreate
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "createFlags", toStringFlags, tabCount, tabSize, ToString(obj.createFlags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "deviceAddress", toStringFlags, tabCount, tabSize, ToString(obj.deviceAddress, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9531,7 +9531,7 @@ template <> std::string ToString<VkPhysicalDeviceOpacityMicromapFeaturesEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "micromap", toStringFlags, tabCount, tabSize, ToString(obj.micromap, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "micromapCaptureReplay", toStringFlags, tabCount, tabSize, ToString(obj.micromapCaptureReplay, toStringFlags, tabCount, tabSize));
@@ -9545,7 +9545,7 @@ template <> std::string ToString<VkPhysicalDeviceOpacityMicromapPropertiesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxOpacity2StateSubdivisionLevel", toStringFlags, tabCount, tabSize, ToString(obj.maxOpacity2StateSubdivisionLevel, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxOpacity4StateSubdivisionLevel", toStringFlags, tabCount, tabSize, ToString(obj.maxOpacity4StateSubdivisionLevel, toStringFlags, tabCount, tabSize));
@@ -9558,7 +9558,7 @@ template <> std::string ToString<VkMicromapVersionInfoEXT>(const VkMicromapVersi
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pVersionData", toStringFlags, tabCount, tabSize, ArrayToString(2*VK_UUID_SIZE, obj.pVersionData, toStringFlags, tabCount, tabSize));
         }
@@ -9570,11 +9570,11 @@ template <> std::string ToString<VkCopyMicromapToMemoryInfoEXT>(const VkCopyMicr
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.src) + '"');
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.src)));
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, ToString(obj.dst, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9584,11 +9584,11 @@ template <> std::string ToString<VkCopyMemoryToMicromapInfoEXT>(const VkCopyMemo
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, ToString(obj.src, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dst) + '"');
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dst)));
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9598,11 +9598,11 @@ template <> std::string ToString<VkCopyMicromapInfoEXT>(const VkCopyMicromapInfo
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.src) + '"');
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dst) + '"');
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.src)));
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dst)));
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9612,7 +9612,7 @@ template <> std::string ToString<VkMicromapBuildSizesInfoEXT>(const VkMicromapBu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "micromapSize", toStringFlags, tabCount, tabSize, ToString(obj.micromapSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "buildScratchSize", toStringFlags, tabCount, tabSize, ToString(obj.buildScratchSize, toStringFlags, tabCount, tabSize));
@@ -9626,16 +9626,16 @@ template <> std::string ToString<VkAccelerationStructureTrianglesOpacityMicromap
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.indexType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.indexType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "indexBuffer", toStringFlags, tabCount, tabSize, ToString(obj.indexBuffer, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "indexStride", toStringFlags, tabCount, tabSize, ToString(obj.indexStride, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "baseTriangle", toStringFlags, tabCount, tabSize, ToString(obj.baseTriangle, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "usageCountsCount", toStringFlags, tabCount, tabSize, ToString(obj.usageCountsCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pUsageCounts", toStringFlags, tabCount, tabSize, ArrayToString(obj.usageCountsCount, obj.pUsageCounts, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ppUsageCounts", toStringFlags, tabCount, tabSize, Array2DToString(obj.usageCountsCount, 1, obj.ppUsageCounts, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "micromap", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.micromap) + '"');
+            FieldToString(strStrm, false, "micromap", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.micromap)));
         }
     );
 }
@@ -9657,7 +9657,7 @@ template <> std::string ToString<VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "borderColorSwizzle", toStringFlags, tabCount, tabSize, ToString(obj.borderColorSwizzle, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "borderColorSwizzleFromImage", toStringFlags, tabCount, tabSize, ToString(obj.borderColorSwizzleFromImage, toStringFlags, tabCount, tabSize));
@@ -9670,7 +9670,7 @@ template <> std::string ToString<VkSamplerBorderColorComponentMappingCreateInfoE
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "components", toStringFlags, tabCount, tabSize, ToString(obj.components, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srgb", toStringFlags, tabCount, tabSize, ToString(obj.srgb, toStringFlags, tabCount, tabSize));
@@ -9683,7 +9683,7 @@ template <> std::string ToString<VkPhysicalDevicePageableDeviceLocalMemoryFeatur
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pageableDeviceLocalMemory", toStringFlags, tabCount, tabSize, ToString(obj.pageableDeviceLocalMemory, toStringFlags, tabCount, tabSize));
         }
@@ -9695,7 +9695,7 @@ template <> std::string ToString<VkPhysicalDeviceDescriptorSetHostMappingFeature
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorSetHostMapping", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSetHostMapping, toStringFlags, tabCount, tabSize));
         }
@@ -9707,9 +9707,9 @@ template <> std::string ToString<VkDescriptorSetBindingReferenceVALVE>(const VkD
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.descriptorSetLayout) + '"');
+            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.descriptorSetLayout)));
             FieldToString(strStrm, false, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9720,7 +9720,7 @@ template <> std::string ToString<VkDescriptorSetLayoutHostMappingInfoVALVE>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorOffset", toStringFlags, tabCount, tabSize, ToString(obj.descriptorOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorSize", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSize, toStringFlags, tabCount, tabSize));
@@ -9733,7 +9733,7 @@ template <> std::string ToString<VkPhysicalDeviceDepthClampZeroOneFeaturesEXT>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "depthClampZeroOne", toStringFlags, tabCount, tabSize, ToString(obj.depthClampZeroOne, toStringFlags, tabCount, tabSize));
         }
@@ -9745,7 +9745,7 @@ template <> std::string ToString<VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "nonSeamlessCubeMap", toStringFlags, tabCount, tabSize, ToString(obj.nonSeamlessCubeMap, toStringFlags, tabCount, tabSize));
         }
@@ -9757,7 +9757,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentDensityMapOffsetFeature
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentDensityMapOffset", toStringFlags, tabCount, tabSize, ToString(obj.fragmentDensityMapOffset, toStringFlags, tabCount, tabSize));
         }
@@ -9769,7 +9769,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentDensityMapOffsetPropert
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentDensityOffsetGranularity", toStringFlags, tabCount, tabSize, ToString(obj.fragmentDensityOffsetGranularity, toStringFlags, tabCount, tabSize));
         }
@@ -9781,7 +9781,7 @@ template <> std::string ToString<VkSubpassFragmentDensityMapOffsetEndInfoQCOM>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "fragmentDensityOffsetCount", toStringFlags, tabCount, tabSize, ToString(obj.fragmentDensityOffsetCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pFragmentDensityOffsets", toStringFlags, tabCount, tabSize, ArrayToString(obj.fragmentDensityOffsetCount, obj.pFragmentDensityOffsets, toStringFlags, tabCount, tabSize));
@@ -9794,7 +9794,7 @@ template <> std::string ToString<VkPhysicalDeviceLinearColorAttachmentFeaturesNV
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "linearColorAttachment", toStringFlags, tabCount, tabSize, ToString(obj.linearColorAttachment, toStringFlags, tabCount, tabSize));
         }
@@ -9806,7 +9806,7 @@ template <> std::string ToString<VkPhysicalDeviceImageCompressionControlSwapchai
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageCompressionControlSwapchain", toStringFlags, tabCount, tabSize, ToString(obj.imageCompressionControlSwapchain, toStringFlags, tabCount, tabSize));
         }
@@ -9818,7 +9818,7 @@ template <> std::string ToString<VkImageViewSampleWeightCreateInfoQCOM>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "filterCenter", toStringFlags, tabCount, tabSize, ToString(obj.filterCenter, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "filterSize", toStringFlags, tabCount, tabSize, ToString(obj.filterSize, toStringFlags, tabCount, tabSize));
@@ -9832,7 +9832,7 @@ template <> std::string ToString<VkPhysicalDeviceImageProcessingFeaturesQCOM>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "textureSampleWeighted", toStringFlags, tabCount, tabSize, ToString(obj.textureSampleWeighted, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "textureBoxFilter", toStringFlags, tabCount, tabSize, ToString(obj.textureBoxFilter, toStringFlags, tabCount, tabSize));
@@ -9846,7 +9846,7 @@ template <> std::string ToString<VkPhysicalDeviceImageProcessingPropertiesQCOM>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxWeightFilterPhases", toStringFlags, tabCount, tabSize, ToString(obj.maxWeightFilterPhases, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxWeightFilterDimension", toStringFlags, tabCount, tabSize, ToString(obj.maxWeightFilterDimension, toStringFlags, tabCount, tabSize));
@@ -9861,7 +9861,7 @@ template <> std::string ToString<VkPhysicalDeviceExtendedDynamicState3FeaturesEX
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "extendedDynamicState3TessellationDomainOrigin", toStringFlags, tabCount, tabSize, ToString(obj.extendedDynamicState3TessellationDomainOrigin, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "extendedDynamicState3DepthClampEnable", toStringFlags, tabCount, tabSize, ToString(obj.extendedDynamicState3DepthClampEnable, toStringFlags, tabCount, tabSize));
@@ -9903,7 +9903,7 @@ template <> std::string ToString<VkPhysicalDeviceExtendedDynamicState3Properties
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dynamicPrimitiveTopologyUnrestricted", toStringFlags, tabCount, tabSize, ToString(obj.dynamicPrimitiveTopologyUnrestricted, toStringFlags, tabCount, tabSize));
         }
@@ -9915,12 +9915,12 @@ template <> std::string ToString<VkColorBlendEquationEXT>(const VkColorBlendEqua
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "srcColorBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcColorBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstColorBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstColorBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "colorBlendOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.colorBlendOp, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "srcAlphaBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.srcAlphaBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "dstAlphaBlendFactor", toStringFlags, tabCount, tabSize, '"' + ToString(obj.dstAlphaBlendFactor, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "alphaBlendOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.alphaBlendOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "srcColorBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcColorBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstColorBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstColorBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "colorBlendOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.colorBlendOp, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "srcAlphaBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcAlphaBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "dstAlphaBlendFactor", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstAlphaBlendFactor, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "alphaBlendOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.alphaBlendOp, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -9930,10 +9930,10 @@ template <> std::string ToString<VkColorBlendAdvancedEXT>(const VkColorBlendAdva
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "advancedBlendOp", toStringFlags, tabCount, tabSize, '"' + ToString(obj.advancedBlendOp, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "advancedBlendOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.advancedBlendOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "srcPremultiplied", toStringFlags, tabCount, tabSize, ToString(obj.srcPremultiplied, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstPremultiplied", toStringFlags, tabCount, tabSize, ToString(obj.dstPremultiplied, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "blendOverlap", toStringFlags, tabCount, tabSize, '"' + ToString(obj.blendOverlap, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "blendOverlap", toStringFlags, tabCount, tabSize, Quote(ToString(obj.blendOverlap, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "clampResults", toStringFlags, tabCount, tabSize, ToString(obj.clampResults, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9944,7 +9944,7 @@ template <> std::string ToString<VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subpassMergeFeedback", toStringFlags, tabCount, tabSize, ToString(obj.subpassMergeFeedback, toStringFlags, tabCount, tabSize));
         }
@@ -9956,7 +9956,7 @@ template <> std::string ToString<VkRenderPassCreationControlEXT>(const VkRenderP
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "disallowMerging", toStringFlags, tabCount, tabSize, ToString(obj.disallowMerging, toStringFlags, tabCount, tabSize));
         }
@@ -9978,7 +9978,7 @@ template <> std::string ToString<VkRenderPassCreationFeedbackCreateInfoEXT>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRenderPassFeedback", toStringFlags, tabCount, tabSize, (obj.pRenderPassFeedback ? ToString(*obj.pRenderPassFeedback, toStringFlags, tabCount, tabSize) : "null"));
         }
@@ -9990,7 +9990,7 @@ template <> std::string ToString<VkRenderPassSubpassFeedbackInfoEXT>(const VkRen
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "subpassMergeStatus", toStringFlags, tabCount, tabSize, '"' + ToString(obj.subpassMergeStatus, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "subpassMergeStatus", toStringFlags, tabCount, tabSize, Quote(ToString(obj.subpassMergeStatus, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, CStrToString(obj.description));
             FieldToString(strStrm, false, "postMergeIndex", toStringFlags, tabCount, tabSize, ToString(obj.postMergeIndex, toStringFlags, tabCount, tabSize));
         }
@@ -10002,7 +10002,7 @@ template <> std::string ToString<VkRenderPassSubpassFeedbackCreateInfoEXT>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSubpassFeedback", toStringFlags, tabCount, tabSize, (obj.pSubpassFeedback ? ToString(*obj.pSubpassFeedback, toStringFlags, tabCount, tabSize) : "null"));
         }
@@ -10014,7 +10014,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderModuleIdentifierFeaturesE
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderModuleIdentifier", toStringFlags, tabCount, tabSize, ToString(obj.shaderModuleIdentifier, toStringFlags, tabCount, tabSize));
         }
@@ -10026,9 +10026,9 @@ template <> std::string ToString<VkPhysicalDeviceShaderModuleIdentifierPropertie
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "shaderModuleIdentifierAlgorithmUUID", toStringFlags, tabCount, tabSize, '"' + UIDToString(VK_UUID_SIZE, obj.shaderModuleIdentifierAlgorithmUUID) + '"');
+            FieldToString(strStrm, false, "shaderModuleIdentifierAlgorithmUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.shaderModuleIdentifierAlgorithmUUID)));
         }
     );
 }
@@ -10038,7 +10038,7 @@ template <> std::string ToString<VkPipelineShaderStageModuleIdentifierCreateInfo
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "identifierSize", toStringFlags, tabCount, tabSize, ToString(obj.identifierSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pIdentifier", toStringFlags, tabCount, tabSize, ArrayToString(obj.identifierSize, obj.pIdentifier, toStringFlags, tabCount, tabSize));
@@ -10051,7 +10051,7 @@ template <> std::string ToString<VkShaderModuleIdentifierEXT>(const VkShaderModu
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "identifierSize", toStringFlags, tabCount, tabSize, ToString(obj.identifierSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "identifier", toStringFlags, tabCount, tabSize, ArrayToString(VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, obj.identifier, toStringFlags, tabCount, tabSize));
@@ -10064,7 +10064,7 @@ template <> std::string ToString<VkPhysicalDeviceOpticalFlowFeaturesNV>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "opticalFlow", toStringFlags, tabCount, tabSize, ToString(obj.opticalFlow, toStringFlags, tabCount, tabSize));
         }
@@ -10076,7 +10076,7 @@ template <> std::string ToString<VkPhysicalDeviceOpticalFlowPropertiesNV>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedOutputGridSizes", toStringFlags, tabCount, tabSize, ToString(obj.supportedOutputGridSizes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "supportedHintGridSizes", toStringFlags, tabCount, tabSize, ToString(obj.supportedHintGridSizes, toStringFlags, tabCount, tabSize));
@@ -10098,7 +10098,7 @@ template <> std::string ToString<VkOpticalFlowImageFormatInfoNV>(const VkOptical
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "usage", toStringFlags, tabCount, tabSize, ToString(obj.usage, toStringFlags, tabCount, tabSize));
         }
@@ -10110,9 +10110,9 @@ template <> std::string ToString<VkOpticalFlowImageFormatPropertiesNV>(const VkO
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -10122,16 +10122,16 @@ template <> std::string ToString<VkOpticalFlowSessionCreateInfoNV>(const VkOptic
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "width", toStringFlags, tabCount, tabSize, ToString(obj.width, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "height", toStringFlags, tabCount, tabSize, ToString(obj.height, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.imageFormat, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "flowVectorFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.flowVectorFormat, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "costFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.costFormat, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "imageFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "flowVectorFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.flowVectorFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "costFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.costFormat, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "outputGridSize", toStringFlags, tabCount, tabSize, ToString(obj.outputGridSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "hintGridSize", toStringFlags, tabCount, tabSize, ToString(obj.hintGridSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "performanceLevel", toStringFlags, tabCount, tabSize, '"' + ToString(obj.performanceLevel, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "performanceLevel", toStringFlags, tabCount, tabSize, Quote(ToString(obj.performanceLevel, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
     );
@@ -10142,11 +10142,11 @@ template <> std::string ToString<VkOpticalFlowSessionCreatePrivateDataInfoNV>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "id", toStringFlags, tabCount, tabSize, ToString(obj.id, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pPrivateData", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pPrivateData) + "\"");
+            FieldToString(strStrm, false, "pPrivateData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pPrivateData)));
         }
     );
 }
@@ -10156,7 +10156,7 @@ template <> std::string ToString<VkOpticalFlowExecuteInfoNV>(const VkOpticalFlow
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
@@ -10170,7 +10170,7 @@ template <> std::string ToString<VkPhysicalDeviceLegacyDitheringFeaturesEXT>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "legacyDithering", toStringFlags, tabCount, tabSize, ToString(obj.legacyDithering, toStringFlags, tabCount, tabSize));
         }
@@ -10182,7 +10182,7 @@ template <> std::string ToString<VkPhysicalDevicePipelineProtectedAccessFeatures
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineProtectedAccess", toStringFlags, tabCount, tabSize, ToString(obj.pipelineProtectedAccess, toStringFlags, tabCount, tabSize));
         }
@@ -10194,7 +10194,7 @@ template <> std::string ToString<VkPhysicalDeviceTilePropertiesFeaturesQCOM>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tileProperties", toStringFlags, tabCount, tabSize, ToString(obj.tileProperties, toStringFlags, tabCount, tabSize));
         }
@@ -10206,7 +10206,7 @@ template <> std::string ToString<VkTilePropertiesQCOM>(const VkTilePropertiesQCO
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tileSize", toStringFlags, tabCount, tabSize, ToString(obj.tileSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "apronSize", toStringFlags, tabCount, tabSize, ToString(obj.apronSize, toStringFlags, tabCount, tabSize));
@@ -10220,7 +10220,7 @@ template <> std::string ToString<VkPhysicalDeviceAmigoProfilingFeaturesSEC>(cons
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "amigoProfiling", toStringFlags, tabCount, tabSize, ToString(obj.amigoProfiling, toStringFlags, tabCount, tabSize));
         }
@@ -10232,7 +10232,7 @@ template <> std::string ToString<VkAmigoProfilingSubmitInfoSEC>(const VkAmigoPro
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "firstDrawTimestamp", toStringFlags, tabCount, tabSize, ToString(obj.firstDrawTimestamp, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "swapBufferTimestamp", toStringFlags, tabCount, tabSize, ToString(obj.swapBufferTimestamp, toStringFlags, tabCount, tabSize));
@@ -10245,7 +10245,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderCoreBuiltins", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreBuiltins, toStringFlags, tabCount, tabSize));
         }
@@ -10257,7 +10257,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderCoreCount", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderWarpsPerCore", toStringFlags, tabCount, tabSize, ToString(obj.shaderWarpsPerCore, toStringFlags, tabCount, tabSize));
@@ -10283,13 +10283,13 @@ template <> std::string ToString<VkAccelerationStructureGeometryTrianglesDataKHR
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "vertexFormat", toStringFlags, tabCount, tabSize, '"' + ToString(obj.vertexFormat, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "vertexFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.vertexFormat, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "vertexData", toStringFlags, tabCount, tabSize, ToString(obj.vertexData, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexStride", toStringFlags, tabCount, tabSize, ToString(obj.vertexStride, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxVertex", toStringFlags, tabCount, tabSize, ToString(obj.maxVertex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.indexType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.indexType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "indexData", toStringFlags, tabCount, tabSize, ToString(obj.indexData, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "transformData", toStringFlags, tabCount, tabSize, ToString(obj.transformData, toStringFlags, tabCount, tabSize));
         }
@@ -10301,7 +10301,7 @@ template <> std::string ToString<VkAccelerationStructureGeometryAabbsDataKHR>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "data", toStringFlags, tabCount, tabSize, ToString(obj.data, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(obj.stride, toStringFlags, tabCount, tabSize));
@@ -10314,7 +10314,7 @@ template <> std::string ToString<VkAccelerationStructureGeometryInstancesDataKHR
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "arrayOfPointers", toStringFlags, tabCount, tabSize, ToString(obj.arrayOfPointers, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "data", toStringFlags, tabCount, tabSize, ToString(obj.data, toStringFlags, tabCount, tabSize));
@@ -10327,13 +10327,13 @@ template <> std::string ToString<VkAccelerationStructureCreateInfoKHR>(const VkA
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "createFlags", toStringFlags, tabCount, tabSize, ToString(obj.createFlags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.buffer) + '"');
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.buffer)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "deviceAddress", toStringFlags, tabCount, tabSize, ToString(obj.deviceAddress, toStringFlags, tabCount, tabSize));
         }
     );
@@ -10344,7 +10344,7 @@ template <> std::string ToString<VkWriteDescriptorSetAccelerationStructureKHR>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructureCount", toStringFlags, tabCount, tabSize, ToString(obj.accelerationStructureCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAccelerationStructures", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.accelerationStructureCount, obj.pAccelerationStructures, toStringFlags, tabCount, tabSize));
@@ -10357,7 +10357,7 @@ template <> std::string ToString<VkPhysicalDeviceAccelerationStructureFeaturesKH
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, ToString(obj.accelerationStructure, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructureCaptureReplay", toStringFlags, tabCount, tabSize, ToString(obj.accelerationStructureCaptureReplay, toStringFlags, tabCount, tabSize));
@@ -10373,7 +10373,7 @@ template <> std::string ToString<VkPhysicalDeviceAccelerationStructureProperties
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxGeometryCount", toStringFlags, tabCount, tabSize, ToString(obj.maxGeometryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxInstanceCount", toStringFlags, tabCount, tabSize, ToString(obj.maxInstanceCount, toStringFlags, tabCount, tabSize));
@@ -10392,9 +10392,9 @@ template <> std::string ToString<VkAccelerationStructureDeviceAddressInfoKHR>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.accelerationStructure) + '"');
+            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.accelerationStructure)));
         }
     );
 }
@@ -10404,11 +10404,11 @@ template <> std::string ToString<VkCopyAccelerationStructureToMemoryInfoKHR>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.src) + '"');
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.src)));
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, ToString(obj.dst, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -10418,11 +10418,11 @@ template <> std::string ToString<VkCopyMemoryToAccelerationStructureInfoKHR>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, ToString(obj.src, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dst) + '"');
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dst)));
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -10432,11 +10432,11 @@ template <> std::string ToString<VkCopyAccelerationStructureInfoKHR>(const VkCop
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.src) + '"');
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.dst) + '"');
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, '"' + ToString(obj.mode, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.src)));
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dst)));
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -10446,7 +10446,7 @@ template <> std::string ToString<VkAccelerationStructureBuildSizesInfoKHR>(const
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "accelerationStructureSize", toStringFlags, tabCount, tabSize, ToString(obj.accelerationStructureSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "updateScratchSize", toStringFlags, tabCount, tabSize, ToString(obj.updateScratchSize, toStringFlags, tabCount, tabSize));
@@ -10460,14 +10460,14 @@ template <> std::string ToString<VkRayTracingShaderGroupCreateInfoKHR>(const VkR
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "generalShader", toStringFlags, tabCount, tabSize, ToString(obj.generalShader, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "closestHitShader", toStringFlags, tabCount, tabSize, ToString(obj.closestHitShader, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "anyHitShader", toStringFlags, tabCount, tabSize, ToString(obj.anyHitShader, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "intersectionShader", toStringFlags, tabCount, tabSize, ToString(obj.intersectionShader, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pShaderGroupCaptureReplayHandle", toStringFlags, tabCount, tabSize, "\"" + PtrToString(obj.pShaderGroupCaptureReplayHandle) + "\"");
+            FieldToString(strStrm, false, "pShaderGroupCaptureReplayHandle", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pShaderGroupCaptureReplayHandle)));
         }
     );
 }
@@ -10477,7 +10477,7 @@ template <> std::string ToString<VkRayTracingPipelineInterfaceCreateInfoKHR>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxPipelineRayPayloadSize", toStringFlags, tabCount, tabSize, ToString(obj.maxPipelineRayPayloadSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxPipelineRayHitAttributeSize", toStringFlags, tabCount, tabSize, ToString(obj.maxPipelineRayHitAttributeSize, toStringFlags, tabCount, tabSize));
@@ -10490,7 +10490,7 @@ template <> std::string ToString<VkRayTracingPipelineCreateInfoKHR>(const VkRayT
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageCount", toStringFlags, tabCount, tabSize, ToString(obj.stageCount, toStringFlags, tabCount, tabSize));
@@ -10501,8 +10501,8 @@ template <> std::string ToString<VkRayTracingPipelineCreateInfoKHR>(const VkRayT
             FieldToString(strStrm, false, "pLibraryInfo", toStringFlags, tabCount, tabSize, (obj.pLibraryInfo ? ToString(*obj.pLibraryInfo, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pLibraryInterface", toStringFlags, tabCount, tabSize, (obj.pLibraryInterface ? ToString(*obj.pLibraryInterface, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pDynamicState", toStringFlags, tabCount, tabSize, (obj.pDynamicState ? ToString(*obj.pDynamicState, toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.layout) + '"');
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, '"' + VkHandleToString(obj.basePipelineHandle) + '"');
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.layout)));
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.basePipelineHandle)));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -10513,7 +10513,7 @@ template <> std::string ToString<VkPhysicalDeviceRayTracingPipelineFeaturesKHR>(
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rayTracingPipeline", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingPipeline, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rayTracingPipelineShaderGroupHandleCaptureReplay", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingPipelineShaderGroupHandleCaptureReplay, toStringFlags, tabCount, tabSize));
@@ -10529,7 +10529,7 @@ template <> std::string ToString<VkPhysicalDeviceRayTracingPipelinePropertiesKHR
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderGroupHandleSize", toStringFlags, tabCount, tabSize, ToString(obj.shaderGroupHandleSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxRayRecursionDepth", toStringFlags, tabCount, tabSize, ToString(obj.maxRayRecursionDepth, toStringFlags, tabCount, tabSize));
@@ -10572,7 +10572,7 @@ template <> std::string ToString<VkPhysicalDeviceRayQueryFeaturesKHR>(const VkPh
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rayQuery", toStringFlags, tabCount, tabSize, ToString(obj.rayQuery, toStringFlags, tabCount, tabSize));
         }
@@ -10584,7 +10584,7 @@ template <> std::string ToString<VkPhysicalDeviceMeshShaderFeaturesEXT>(const Vk
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "taskShader", toStringFlags, tabCount, tabSize, ToString(obj.taskShader, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "meshShader", toStringFlags, tabCount, tabSize, ToString(obj.meshShader, toStringFlags, tabCount, tabSize));
@@ -10600,7 +10600,7 @@ template <> std::string ToString<VkPhysicalDeviceMeshShaderPropertiesEXT>(const 
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxTaskWorkGroupTotalCount", toStringFlags, tabCount, tabSize, ToString(obj.maxTaskWorkGroupTotalCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxTaskWorkGroupCount", toStringFlags, tabCount, tabSize, ArrayToString(3, obj.maxTaskWorkGroupCount, toStringFlags, tabCount, tabSize));

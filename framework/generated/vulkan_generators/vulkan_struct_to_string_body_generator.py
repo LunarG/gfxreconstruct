@@ -158,7 +158,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
 
             # Function pointers and void data pointers simply write the address
             elif 'pfn' in value.name or 'void' in value.full_type:
-                toString = '"\\"" + PtrToString(obj.{0}) + "\\""'
+                toString = 'Quote(PtrToString(obj.{0}))'
 
             # C strings require custom handling
             elif 'const char*' in value.full_type:
@@ -212,16 +212,16 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                     elif 'char' in value.base_type:
                         toString = 'CStrToString(obj.{0})'
                     elif 'UUID' in value.array_length or 'LUID' in value.array_length:
-                        toString = '\'"\' + UIDToString({1}, obj.{0}) + \'"\''
+                        toString = 'Quote(UIDToString({1}, obj.{0}))'
                     else:
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     if self.is_handle(value.base_type):
-                        toString = '\'"\' + VkHandleToString(obj.{0}) + \'"\''
+                        toString = 'Quote(VkHandleToString(obj.{0}))'
                     elif self.is_struct(value.base_type):
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
-                        toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
+                        toString = 'Quote(ToString(obj.{0}, toStringFlags, tabCount, tabSize))'
                     else:
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 

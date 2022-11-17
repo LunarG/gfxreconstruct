@@ -304,6 +304,27 @@ inline std::string CStrArrayToString(size_t             count,
         [&](uint32_t i) { return CStrToString(ppStrs[i]); });
 }
 
+/// @brief Make a copy of the input string with double quotes at start and end.
+inline std::string Quote(const std::string& str)
+{
+    std::string quoted{ '"' };
+    quoted += str;
+    quoted += '"';
+    return quoted;
+}
+
+/// @brief Make a copy of the input string with double quotes at start and end.
+inline std::string Quote(const char* const str)
+{
+    std::string quoted{ '"' };
+    if (str != nullptr)
+    {
+        quoted += str;
+    }
+    quoted += '"';
+    return quoted;
+}
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
