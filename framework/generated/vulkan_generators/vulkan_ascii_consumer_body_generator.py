@@ -224,7 +224,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         # @note This never happens, as we don't pass structs into Vulkan by value.
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
-                        toString = '\'"\' + ToString({0}, toStringFlags, tabCount, tabSize) + \'"\''
+                        toString = 'Quote(ToString({0}, toStringFlags, tabCount, tabSize))'
                     else:
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
 

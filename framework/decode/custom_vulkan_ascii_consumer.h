@@ -71,7 +71,7 @@ template <typename VkEnumType>
 inline std::string EnumPointerDecoderToString(PointerDecoder<VkEnumType>* pObj)
 {
     auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
-    return pDecodedObj ? ('"' + util::ToString(*pDecodedObj) + '"') : "null";
+    return pDecodedObj ? (util::Quote(util::ToString(*pDecodedObj))) : "null";
 }
 
 /// Convert pointers to unknown types coming through as uint64_t.
@@ -93,8 +93,7 @@ inline std::string EnumPointerDecoderToString(PointerDecoder<VkEnumType>* pObj)
 /// The uint64_t is treated as an address in each case.
 inline std::string DataPointerDecoderToString(const uint64_t buffer)
 {
-    std::string str{ "\"" + util::PtrToString(buffer) + "\"" };
-    return str;
+    return util::Quote(util::PtrToString(buffer));
 }
 
 /// Pointer overload for when the value of interest is passed indirectly.
@@ -103,8 +102,7 @@ inline std::string DataPointerDecoderToString(const uint64_t* pBuffer)
     GFXRECON_ASSERT(nullptr != pBuffer &&
                     "This should only ever come through as a pointer through an unavoidable weaknesses in "
                     "the code gen: it should never be null.");
-    std::string str{ "\"" + util::PtrToString(*pBuffer) + "\"" };
-    return str;
+    return util::Quote(util::PtrToString(*pBuffer));
 }
 
 /// Convert pointers to arrays of void pointers to a string of the captured address.
@@ -113,8 +111,7 @@ inline std::string DataPointerDecoderToString(const PointerDecoder<T, U>* pDecod
 {
     GFXRECON_ASSERT(nullptr != pDecoder &&
                     "This pointer can never be null, even if the pointer from the capture encoded within it is null.");
-    std::string str{ "\"" + util::PtrToString(pDecoder->GetAddress()) + "\"" };
-    return str;
+    return util::Quote(util::PtrToString(pDecoder->GetAddress()));
 }
 
 /// Template which unwraps the decoder type for a pointer to the underlying
@@ -323,7 +320,9 @@ inline std::string EnumPointerDecoderArrayToString(const CountType&    countObj,
         tabCount,
         tabSize,
         [&]() { return pObjs && !pObjs->IsNull(); },
-        [&](uint32_t i) { return '"' + ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
+        [&](uint32_t i) {
+            return util::Quote(ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize));
+        });
 }
 
 GFXRECON_END_NAMESPACE(decode)

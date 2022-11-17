@@ -108,6 +108,23 @@ TEST_CASE("JSONEscape", "[to_string]")
     gfxrecon::util::Log::Release();
 }
 
+TEST_CASE("Quote", "[to_string]")
+{
+    using namespace gfxrecon::util;
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+
+    REQUIRE(gfxrecon::util::Quote(nullptr) == "\"\"");
+    REQUIRE(gfxrecon::util::Quote("") == "\"\"");
+    REQUIRE(gfxrecon::util::Quote(std::string("")) == "\"\"");
+
+    REQUIRE(gfxrecon::util::Quote("VK_STENCIL_FACE_FRONT_BIT") == "\"VK_STENCIL_FACE_FRONT_BIT\"");
+    REQUIRE(gfxrecon::util::Quote(std::string("VK_STENCIL_FACE_FRONT_BIT")) == "\"VK_STENCIL_FACE_FRONT_BIT\"");
+
+    REQUIRE(gfxrecon::util::Quote("\"VK_STENCIL_FACE_FRONT_BIT\"") == "\"\"VK_STENCIL_FACE_FRONT_BIT\"\"");
+
+    gfxrecon::util::Log::Release();
+}
+
 TEST_CASE("TabRight", "[strings]")
 {
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
