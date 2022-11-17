@@ -225,11 +225,19 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = 'Quote(ToString({0}, toStringFlags, tabCount, tabSize))'
+                    
+                    # Some simple scalar data like an int or a float, or a 32 bit or 64 bit flag set typedef:
                     else:
-                        toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
+                        # Check whether we have a set of 64 bit flags:
+                        if self.is_64bit_flags(value.base_type):
+                            # Synthesize the name of the function to call for this set of flags:
+                            toString = 'Quote({2}ToString({0}))'
+                        # ToDo: if self.is_32bit_flags(enum): dispatch the correct call to fix Issue #620
+                        else:
+                            toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            toString = toString.format(value.name, value.array_length)
+            toString = toString.format(value.name, value.array_length, value.base_type)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable
