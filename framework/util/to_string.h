@@ -27,7 +27,6 @@
 #define GFXRECON_TO_STRING_H
 
 #include "util/defines.h"
-#include "util/logging.h"
 
 #include <sstream>
 #include <string>
@@ -59,10 +58,12 @@ ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t
 
 /// @brief A template that exists only to allow the ToStrings for 32 bit sets of
 /// flags to be template specializations.
-/// We certainly wouldn't want to call it since it always returns a zero.
+/// It is never called and its return value of "0" is a meaningless placeholder
+/// to allow compilation to succeed.
 /// @note There seems to be no reason for those ToStrings to be template
 /// function specializations since a caller has to explicitly spell out a type
-/// to call one of them and there is no deduction going on.
+/// to call one of them and there is no function resolution based on argument
+/// types going on.
 template <typename T>
 inline std::string ToString(uint32_t      apiFlags,
                             ToStringFlags toStringFlags = kToString_Default,
@@ -73,9 +74,7 @@ inline std::string ToString(uint32_t      apiFlags,
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
-    GFXRECON_LOG_ERROR("std::string ToString(uint32_t apiFlags,..) should never be called see: " __FILE__ ", line %d ",
-                       __LINE__);
-    GFXRECON_ASSERT(nullptr == "Shutting down to make the error impossible to ignore.");
+
     return "0";
 }
 
