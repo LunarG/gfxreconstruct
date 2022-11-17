@@ -263,7 +263,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                         # Check whether we have a set of 64 bit flags:
                         if self.is_64bit_flags(value.base_type):
                             # Synthesize the name of the function to call for this set of flags:
-                            toString = '{2}ToString(obj.{0})'
+                            toString = 'Quote({2}ToString(obj.{0}))'
                         # ToDo: if self.is_32bit_flags(enum): dispatch the correct call to fix Issue #620
                         else:
                             toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
