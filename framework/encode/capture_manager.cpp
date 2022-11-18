@@ -464,8 +464,7 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
         if (trim_ranges_[trim_current_range_].total == 0)
         {
             // Stop recording and close file.
-            capture_mode_ &= ~kModeWrite;
-            file_stream_ = nullptr;
+            DeactivateTrimming();
             GFXRECON_LOG_INFO("Finished recording graphics API capture");
 
             // Advance to next range
@@ -500,8 +499,7 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
     else if (IsTrimHotkeyPressed())
     {
         // Stop recording and close file.
-        capture_mode_ &= ~kModeWrite;
-        file_stream_ = nullptr;
+        DeactivateTrimming();
         GFXRECON_LOG_INFO("Finished recording graphics API capture");
     }
 }
@@ -588,6 +586,8 @@ std::string CaptureManager::CreateTrimFilename(const std::string&               
 
 bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 {
+    auto state_lock = AcquireUniqueStateLock();
+
     bool        success          = true;
     std::string capture_filename = base_filename;
 
@@ -622,6 +622,14 @@ void CaptureManager::ActivateTrimming()
     assert(thread_data != nullptr);
 
     WriteTrackedState(file_stream_.get(), thread_data->thread_id_);
+}
+
+void CaptureManager::DeactivateTrimming()
+{
+    auto state_lock = AcquireUniqueStateLock();
+
+    capture_mode_ &= ~kModeWrite;
+    file_stream_ = nullptr;
 }
 
 void CaptureManager::WriteFileHeader()
