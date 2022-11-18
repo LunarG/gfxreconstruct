@@ -3820,6 +3820,744 @@ size_t VulkanDecoder::Decode_vkGetDeviceMemoryOpaqueCaptureAddress(const ApiCall
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetPhysicalDeviceToolProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    PointerDecoder<uint32_t> pToolCount;
+    StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties> pToolProperties;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += pToolCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pToolProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPhysicalDeviceToolProperties(call_info, return_value, physicalDevice, &pToolCount, &pToolProperties);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCreatePrivateDataSlot(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfo> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkPrivateDataSlot> pPrivateDataSlot;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPrivateDataSlot.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreatePrivateDataSlot(call_info, return_value, device, &pCreateInfo, &pAllocator, &pPrivateDataSlot);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkDestroyPrivateDataSlot(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId privateDataSlot;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &privateDataSlot);
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, &pAllocator);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkSetPrivateData(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    VkObjectType objectType;
+    uint64_t objectHandle;
+    format::HandleId privateDataSlot;
+    uint64_t data;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectType);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectHandle);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &privateDataSlot);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &data);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkSetPrivateData(call_info, return_value, device, objectType, objectHandle, privateDataSlot, data);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetPrivateData(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    VkObjectType objectType;
+    uint64_t objectHandle;
+    format::HandleId privateDataSlot;
+    PointerDecoder<uint64_t> pData;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectType);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectHandle);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &privateDataSlot);
+    bytes_read += pData.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPrivateData(call_info, device, objectType, objectHandle, privateDataSlot, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetEvent2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId event;
+    StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &event);
+    bytes_read += pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetEvent2(call_info, commandBuffer, event, &pDependencyInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdResetEvent2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId event;
+    VkPipelineStageFlags2 stageMask;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &event);
+    bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stageMask);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdResetEvent2(call_info, commandBuffer, event, stageMask);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdWaitEvents2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t eventCount;
+    HandlePointerDecoder<VkEvent> pEvents;
+    StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfos;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &eventCount);
+    bytes_read += pEvents.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDependencyInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdWaitEvents2(call_info, commandBuffer, eventCount, &pEvents, &pDependencyInfos);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdPipelineBarrier2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdPipelineBarrier2(call_info, commandBuffer, &pDependencyInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdWriteTimestamp2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkPipelineStageFlags2 stage;
+    format::HandleId queryPool;
+    uint32_t query;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stage);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryPool);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &query);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdWriteTimestamp2(call_info, commandBuffer, stage, queryPool, query);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkQueueSubmit2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId queue;
+    uint32_t submitCount;
+    StructPointerDecoder<Decoded_VkSubmitInfo2> pSubmits;
+    format::HandleId fence;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &submitCount);
+    bytes_read += pSubmits.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &fence);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkQueueSubmit2(call_info, return_value, queue, submitCount, &pSubmits, fence);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyBuffer2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2> pCopyBufferInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyBuffer2(call_info, commandBuffer, &pCopyBufferInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyImage2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyImageInfo2> pCopyImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyImage2(call_info, commandBuffer, &pCopyImageInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyBufferToImage2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2> pCopyBufferToImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyBufferToImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyBufferToImage2(call_info, commandBuffer, &pCopyBufferToImageInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyImageToBuffer2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2> pCopyImageToBufferInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyImageToBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyImageToBuffer2(call_info, commandBuffer, &pCopyImageToBufferInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBlitImage2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkBlitImageInfo2> pBlitImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pBlitImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBlitImage2(call_info, commandBuffer, &pBlitImageInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdResolveImage2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkResolveImageInfo2> pResolveImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pResolveImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdResolveImage2(call_info, commandBuffer, &pResolveImageInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBeginRendering(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkRenderingInfo> pRenderingInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pRenderingInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBeginRendering(call_info, commandBuffer, &pRenderingInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdEndRendering(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdEndRendering(call_info, commandBuffer);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetCullMode(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkCullModeFlags cullMode;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &cullMode);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetCullMode(call_info, commandBuffer, cullMode);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetFrontFace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkFrontFace frontFace;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &frontFace);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetFrontFace(call_info, commandBuffer, frontFace);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetPrimitiveTopology(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkPrimitiveTopology primitiveTopology;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &primitiveTopology);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetPrimitiveTopology(call_info, commandBuffer, primitiveTopology);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetViewportWithCount(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t viewportCount;
+    StructPointerDecoder<Decoded_VkViewport> pViewports;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewportCount);
+    bytes_read += pViewports.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetViewportWithCount(call_info, commandBuffer, viewportCount, &pViewports);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetScissorWithCount(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t scissorCount;
+    StructPointerDecoder<Decoded_VkRect2D> pScissors;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &scissorCount);
+    bytes_read += pScissors.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetScissorWithCount(call_info, commandBuffer, scissorCount, &pScissors);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBindVertexBuffers2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t firstBinding;
+    uint32_t bindingCount;
+    HandlePointerDecoder<VkBuffer> pBuffers;
+    PointerDecoder<VkDeviceSize> pOffsets;
+    PointerDecoder<VkDeviceSize> pSizes;
+    PointerDecoder<VkDeviceSize> pStrides;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstBinding);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindingCount);
+    bytes_read += pBuffers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pOffsets.DecodeVkDeviceSize((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSizes.DecodeVkDeviceSize((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pStrides.DecodeVkDeviceSize((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindVertexBuffers2(call_info, commandBuffer, firstBinding, bindingCount, &pBuffers, &pOffsets, &pSizes, &pStrides);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDepthTestEnable(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 depthTestEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &depthTestEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDepthTestEnable(call_info, commandBuffer, depthTestEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDepthWriteEnable(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 depthWriteEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &depthWriteEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDepthWriteEnable(call_info, commandBuffer, depthWriteEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDepthCompareOp(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkCompareOp depthCompareOp;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &depthCompareOp);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDepthCompareOp(call_info, commandBuffer, depthCompareOp);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDepthBoundsTestEnable(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 depthBoundsTestEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &depthBoundsTestEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDepthBoundsTestEnable(call_info, commandBuffer, depthBoundsTestEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetStencilTestEnable(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 stencilTestEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stencilTestEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetStencilTestEnable(call_info, commandBuffer, stencilTestEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetStencilOp(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkStencilFaceFlags faceMask;
+    VkStencilOp failOp;
+    VkStencilOp passOp;
+    VkStencilOp depthFailOp;
+    VkCompareOp compareOp;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &faceMask);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &failOp);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &passOp);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &depthFailOp);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &compareOp);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetStencilOp(call_info, commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetRasterizerDiscardEnable(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 rasterizerDiscardEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rasterizerDiscardEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetRasterizerDiscardEnable(call_info, commandBuffer, rasterizerDiscardEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDepthBiasEnable(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 depthBiasEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &depthBiasEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDepthBiasEnable(call_info, commandBuffer, depthBiasEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetPrimitiveRestartEnable(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 primitiveRestartEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &primitiveRestartEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetPrimitiveRestartEnable(call_info, commandBuffer, primitiveRestartEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceBufferMemoryRequirements(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceBufferMemoryRequirements(call_info, device, &pInfo, &pMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceImageMemoryRequirements(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceImageMemoryRequirements(call_info, device, &pInfo, &pMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceImageSparseMemoryRequirements(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
+    PointerDecoder<uint32_t> pSparseMemoryRequirementCount;
+    StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2> pSparseMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSparseMemoryRequirementCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSparseMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceImageSparseMemoryRequirements(call_info, device, &pInfo, &pSparseMemoryRequirementCount, &pSparseMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkDestroySurfaceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4545,7 +5283,7 @@ size_t VulkanDecoder::Decode_vkCmdBeginRenderingKHR(const ApiCallInfo& call_info
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkRenderingInfoKHR> pRenderingInfo;
+    StructPointerDecoder<Decoded_VkRenderingInfo> pRenderingInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pRenderingInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6130,7 +6868,7 @@ size_t VulkanDecoder::Decode_vkCmdSetEvent2KHR(const ApiCallInfo& call_info, con
 
     format::HandleId commandBuffer;
     format::HandleId event;
-    StructPointerDecoder<Decoded_VkDependencyInfoKHR> pDependencyInfo;
+    StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &event);
@@ -6150,7 +6888,7 @@ size_t VulkanDecoder::Decode_vkCmdResetEvent2KHR(const ApiCallInfo& call_info, c
 
     format::HandleId commandBuffer;
     format::HandleId event;
-    VkPipelineStageFlags2KHR stageMask;
+    VkPipelineStageFlags2 stageMask;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &event);
@@ -6171,7 +6909,7 @@ size_t VulkanDecoder::Decode_vkCmdWaitEvents2KHR(const ApiCallInfo& call_info, c
     format::HandleId commandBuffer;
     uint32_t eventCount;
     HandlePointerDecoder<VkEvent> pEvents;
-    StructPointerDecoder<Decoded_VkDependencyInfoKHR> pDependencyInfos;
+    StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfos;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &eventCount);
@@ -6191,7 +6929,7 @@ size_t VulkanDecoder::Decode_vkCmdPipelineBarrier2KHR(const ApiCallInfo& call_in
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkDependencyInfoKHR> pDependencyInfo;
+    StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6209,7 +6947,7 @@ size_t VulkanDecoder::Decode_vkCmdWriteTimestamp2KHR(const ApiCallInfo& call_inf
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    VkPipelineStageFlags2KHR stage;
+    VkPipelineStageFlags2 stage;
     format::HandleId queryPool;
     uint32_t query;
 
@@ -6232,7 +6970,7 @@ size_t VulkanDecoder::Decode_vkQueueSubmit2KHR(const ApiCallInfo& call_info, con
 
     format::HandleId queue;
     uint32_t submitCount;
-    StructPointerDecoder<Decoded_VkSubmitInfo2KHR> pSubmits;
+    StructPointerDecoder<Decoded_VkSubmitInfo2> pSubmits;
     format::HandleId fence;
     VkResult return_value;
 
@@ -6255,7 +6993,7 @@ size_t VulkanDecoder::Decode_vkCmdWriteBufferMarker2AMD(const ApiCallInfo& call_
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    VkPipelineStageFlags2KHR stage;
+    VkPipelineStageFlags2 stage;
     format::HandleId dstBuffer;
     VkDeviceSize dstOffset;
     uint32_t marker;
@@ -6299,7 +7037,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyBuffer2KHR(const ApiCallInfo& call_info, c
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR> pCopyBufferInfo;
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2> pCopyBufferInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pCopyBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6317,7 +7055,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyImage2KHR(const ApiCallInfo& call_info, co
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkCopyImageInfo2KHR> pCopyImageInfo;
+    StructPointerDecoder<Decoded_VkCopyImageInfo2> pCopyImageInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pCopyImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6335,7 +7073,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyBufferToImage2KHR(const ApiCallInfo& call_
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR> pCopyBufferToImageInfo;
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2> pCopyBufferToImageInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pCopyBufferToImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6353,7 +7091,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyImageToBuffer2KHR(const ApiCallInfo& call_
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR> pCopyImageToBufferInfo;
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2> pCopyImageToBufferInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pCopyImageToBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6371,7 +7109,7 @@ size_t VulkanDecoder::Decode_vkCmdBlitImage2KHR(const ApiCallInfo& call_info, co
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkBlitImageInfo2KHR> pBlitImageInfo;
+    StructPointerDecoder<Decoded_VkBlitImageInfo2> pBlitImageInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pBlitImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6389,7 +7127,7 @@ size_t VulkanDecoder::Decode_vkCmdResolveImage2KHR(const ApiCallInfo& call_info,
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkResolveImageInfo2KHR> pResolveImageInfo;
+    StructPointerDecoder<Decoded_VkResolveImageInfo2> pResolveImageInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += pResolveImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6407,7 +7145,7 @@ size_t VulkanDecoder::Decode_vkGetDeviceBufferMemoryRequirementsKHR(const ApiCal
     size_t bytes_read = 0;
 
     format::HandleId device;
-    StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirementsKHR> pInfo;
+    StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements> pInfo;
     StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
@@ -6427,7 +7165,7 @@ size_t VulkanDecoder::Decode_vkGetDeviceImageMemoryRequirementsKHR(const ApiCall
     size_t bytes_read = 0;
 
     format::HandleId device;
-    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR> pInfo;
+    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
     StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
@@ -6447,7 +7185,7 @@ size_t VulkanDecoder::Decode_vkGetDeviceImageSparseMemoryRequirementsKHR(const A
     size_t bytes_read = 0;
 
     format::HandleId device;
-    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirementsKHR> pInfo;
+    StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
     PointerDecoder<uint32_t> pSparseMemoryRequirementCount;
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2> pSparseMemoryRequirements;
 
@@ -8698,7 +9436,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceToolPropertiesEXT(const ApiCallI
 
     format::HandleId physicalDevice;
     PointerDecoder<uint32_t> pToolCount;
-    StructPointerDecoder<Decoded_VkPhysicalDeviceToolPropertiesEXT> pToolProperties;
+    StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties> pToolProperties;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
@@ -9323,9 +10061,9 @@ size_t VulkanDecoder::Decode_vkCreatePrivateDataSlotEXT(const ApiCallInfo& call_
     size_t bytes_read = 0;
 
     format::HandleId device;
-    StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfoEXT> pCreateInfo;
+    StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfo> pCreateInfo;
     StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
-    HandlePointerDecoder<VkPrivateDataSlotEXT> pPrivateDataSlot;
+    HandlePointerDecoder<VkPrivateDataSlot> pPrivateDataSlot;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
@@ -10889,6 +11627,117 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress:
         Decode_vkGetDeviceMemoryOpaqueCaptureAddress(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolProperties:
+        Decode_vkGetPhysicalDeviceToolProperties(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCreatePrivateDataSlot:
+        Decode_vkCreatePrivateDataSlot(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkDestroyPrivateDataSlot:
+        Decode_vkDestroyPrivateDataSlot(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkSetPrivateData:
+        Decode_vkSetPrivateData(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPrivateData:
+        Decode_vkGetPrivateData(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetEvent2:
+        Decode_vkCmdSetEvent2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdResetEvent2:
+        Decode_vkCmdResetEvent2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdWaitEvents2:
+        Decode_vkCmdWaitEvents2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdPipelineBarrier2:
+        Decode_vkCmdPipelineBarrier2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdWriteTimestamp2:
+        Decode_vkCmdWriteTimestamp2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkQueueSubmit2:
+        Decode_vkQueueSubmit2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyBuffer2:
+        Decode_vkCmdCopyBuffer2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyImage2:
+        Decode_vkCmdCopyImage2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2:
+        Decode_vkCmdCopyBufferToImage2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2:
+        Decode_vkCmdCopyImageToBuffer2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBlitImage2:
+        Decode_vkCmdBlitImage2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdResolveImage2:
+        Decode_vkCmdResolveImage2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBeginRendering:
+        Decode_vkCmdBeginRendering(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdEndRendering:
+        Decode_vkCmdEndRendering(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetCullMode:
+        Decode_vkCmdSetCullMode(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetFrontFace:
+        Decode_vkCmdSetFrontFace(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopology:
+        Decode_vkCmdSetPrimitiveTopology(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetViewportWithCount:
+        Decode_vkCmdSetViewportWithCount(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetScissorWithCount:
+        Decode_vkCmdSetScissorWithCount(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2:
+        Decode_vkCmdBindVertexBuffers2(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDepthTestEnable:
+        Decode_vkCmdSetDepthTestEnable(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnable:
+        Decode_vkCmdSetDepthWriteEnable(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDepthCompareOp:
+        Decode_vkCmdSetDepthCompareOp(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnable:
+        Decode_vkCmdSetDepthBoundsTestEnable(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetStencilTestEnable:
+        Decode_vkCmdSetStencilTestEnable(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetStencilOp:
+        Decode_vkCmdSetStencilOp(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetRasterizerDiscardEnable:
+        Decode_vkCmdSetRasterizerDiscardEnable(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDepthBiasEnable:
+        Decode_vkCmdSetDepthBiasEnable(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartEnable:
+        Decode_vkCmdSetPrimitiveRestartEnable(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirements:
+        Decode_vkGetDeviceBufferMemoryRequirements(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirements:
+        Decode_vkGetDeviceImageMemoryRequirements(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirements:
+        Decode_vkGetDeviceImageSparseMemoryRequirements(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkDestroySurfaceKHR:
         Decode_vkDestroySurfaceKHR(call_info, parameter_buffer, buffer_size);

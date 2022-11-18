@@ -49,6 +49,8 @@ class WsiContext
 
     decode::WindowFactory* GetWindowFactory() { return window_factory_.get(); }
 
+    const std::vector<decode::Window*>& GetWindows() const { return windows_; }
+
     bool RegisterWindow(decode::Window* window);
 
     bool UnregisterWindow(decode::Window* window);

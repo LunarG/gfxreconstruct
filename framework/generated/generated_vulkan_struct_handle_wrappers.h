@@ -134,6 +134,38 @@ void UnwrapStructHandles(VkBufferDeviceAddressInfo* value, HandleUnwrapMemory* u
 
 void UnwrapStructHandles(VkDeviceMemoryOpaqueCaptureAddressInfo* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkBufferMemoryBarrier2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageMemoryBarrier2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDependencyInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSemaphoreSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCommandBufferSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSubmitInfo2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyBufferInfo2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyBufferToImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyImageToBufferInfo2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkBlitImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkResolveImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkRenderingAttachmentInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkRenderingInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDeviceBufferMemoryRequirements* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDeviceImageMemoryRequirements* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkSwapchainCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPresentInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
@@ -151,10 +183,6 @@ void UnwrapStructHandles(VkDisplayPlanePropertiesKHR* value, HandleUnwrapMemory*
 void UnwrapStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDisplaySurfaceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkRenderingAttachmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkRenderingInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkRenderingFragmentShadingRateAttachmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -197,34 +225,6 @@ void UnwrapStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_me
 void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkBufferMemoryBarrier2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkImageMemoryBarrier2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDependencyInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSemaphoreSubmitInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCommandBufferSubmitInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSubmitInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyBufferInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyBufferToImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyImageToBufferInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkBlitImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkResolveImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDeviceBufferMemoryRequirementsKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDeviceImageMemoryRequirementsKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -303,6 +303,8 @@ void UnwrapStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, Hand
 void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);
 
 const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 

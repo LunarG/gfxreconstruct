@@ -104,6 +104,11 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         """Method override."""
         self.newline()
         write(
+            'VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);',
+            file=self.outFile
+        )
+        self.newline()
+        write(
             'const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);',
             file=self.outFile
         )

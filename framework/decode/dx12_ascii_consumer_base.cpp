@@ -34,19 +34,13 @@ Dx12AsciiConsumerBase::~Dx12AsciiConsumerBase()
     Destroy();
 }
 
-void Dx12AsciiConsumerBase::Initialize(const std::string&            filename,
-                                       FILE*                         file,
-                                       gfxrecon::util::ToStringFlags toStringFlags)
+void Dx12AsciiConsumerBase::Initialize(FILE* file, gfxrecon::util::ToStringFlags toStringFlags)
 {
-    filename_        = filename;
-    file_            = file;
-    to_string_flags_ = toStringFlags;
-    if (file_)
+    assert(file);
+    file_ = file;
+    if (to_string_flags_ & gfxrecon::util::kToString_Formatted)
     {
-        if (to_string_flags_ & gfxrecon::util::kToString_Formatted)
-        {
-            fprintf(file_, "{\n\"apiCalls\":[");
-        }
+        fprintf(file_, "{\n\"apiCalls\":[");
     }
 }
 

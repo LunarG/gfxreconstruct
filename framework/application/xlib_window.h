@@ -60,6 +60,8 @@ class XlibWindow : public decode::Window
 
     virtual bool GetNativeHandle(HandleType type, void** handle) override;
 
+    virtual std::string GetWsiExtension() const override;
+
     virtual VkResult CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
                                    VkFlags                      flags,

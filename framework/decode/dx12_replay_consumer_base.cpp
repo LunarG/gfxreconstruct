@@ -611,7 +611,7 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
     auto    desc_pointer   = desc->GetPointer();
     HRESULT result         = E_FAIL;
     Window* window         = nullptr;
-    auto    wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto    wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
     auto    window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
 
     if (window_factory != nullptr && desc_pointer != nullptr)
@@ -1851,7 +1851,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     auto    desc_pointer   = desc->GetPointer();
     HRESULT result         = E_FAIL;
     Window* window         = nullptr;
-    auto    wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto    wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
     auto    window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
 
     if (window_factory != nullptr && desc_pointer != nullptr)
@@ -2085,7 +2085,7 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
             {
                 ReleaseSwapchainImages(swapchain_info);
             }
-            auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+            auto wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
             auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
             if (window_factory)
             {
@@ -2123,7 +2123,7 @@ void Dx12ReplayConsumerBase::DestroyActiveObjects()
 
 void Dx12ReplayConsumerBase::DestroyActiveWindows()
 {
-    auto wsi_context    = application_ ? application_->GetWsiContext() : nullptr;
+    auto wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
     if (window_factory)
     {

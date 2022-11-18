@@ -1174,7 +1174,7 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If the value was not specified by the XML element, process the struct type to create it.
                     stype = re.sub('([a-z0-9])([A-Z])', r'\1_\2', typename)
-                    stype = stype.replace('D3__d12', 'D3D12')
+                    stype = stype.replace('D3_D12', 'D3D12')
                     stype = stype.replace('Device_IDProp', 'Device_ID_Prop')
                     stype = stype.upper()
                     return re.sub('VK_', 'VK_STRUCTURE_TYPE_', stype)
