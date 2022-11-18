@@ -10756,11 +10756,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
             RootParameterIndex,
             BaseDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
-
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->SetComputeRootDescriptorTable(
             RootParameterIndex,
-            *UnwrapStructPtrObjects(&BaseDescriptor, unwrap_memory));
+            BaseDescriptor);
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
             this,
@@ -10800,11 +10798,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
             RootParameterIndex,
             BaseDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
-
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->SetGraphicsRootDescriptorTable(
             RootParameterIndex,
-            *UnwrapStructPtrObjects(&BaseDescriptor, unwrap_memory));
+            BaseDescriptor);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
             this,
@@ -11623,7 +11619,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearUnorderedAccessViewUint(
-            *UnwrapStructPtrObjects(&ViewGPUHandleInCurrentHeap, unwrap_memory),
+            ViewGPUHandleInCurrentHeap,
             *UnwrapStructPtrObjects(&ViewCPUHandle, unwrap_memory),
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             Values,
@@ -11691,7 +11687,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearUnorderedAccessViewFloat(
-            *UnwrapStructPtrObjects(&ViewGPUHandleInCurrentHeap, unwrap_memory),
+            ViewGPUHandleInCurrentHeap,
             *UnwrapStructPtrObjects(&ViewCPUHandle, unwrap_memory),
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             Values,
@@ -13551,7 +13547,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
             pFeatureSupportData,
             FeatureSupportDataSize);
 
-        result = GetWrappedObjectAs<ID3D12Device>()->CheckFeatureSupport(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device_CheckFeatureSupport(
+            this,
             Feature,
             pFeatureSupportData,
             FeatureSupportDataSize);

@@ -29,6 +29,28 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(object_mapping)
 
+void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle, const Dx12DescriptorMap& descriptor_map)
+{
+    if (handle.ptr != Dx12DescriptorMap::kNullGpuAddress)
+    {
+        descriptor_map.GetGpuAddress(handle);
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Skipping GPU descriptor handle mapping for address with value of 0");
+    }
+}
+
+void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles,
+                             size_t                       handles_len,
+                             const Dx12DescriptorMap&     descriptor_map)
+{
+    for (size_t i = 0; i < handles_len; ++i)
+    {
+        MapGpuDescriptorHandle(handles[i], descriptor_map);
+    }
+}
+
 void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address, const graphics::Dx12GpuVaMap& gpu_va_map)
 {
     address = gpu_va_map.Map(address);

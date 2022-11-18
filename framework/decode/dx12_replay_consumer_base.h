@@ -97,6 +97,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                            UINT             feature_data_size) override;
 
   protected:
+    void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
+
+    void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
+
     void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address);
 
     void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len);
@@ -214,6 +218,38 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* desc,
                                          Decoded_GUID                                              riid,
                                          HandlePointerDecoder<void*>*                              heap);
+
+    HRESULT OverrideCreateCommittedResource(DxObjectInfo*                                        replay_object_info,
+                                            HRESULT                                              original_result,
+                                            StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+                                            D3D12_HEAP_FLAGS                                     HeapFlags,
+                                            StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>*   pDesc,
+                                            D3D12_RESOURCE_STATES                                InitialResourceState,
+                                            StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+                                            Decoded_GUID                                         riid,
+                                            HandlePointerDecoder<void*>*                         resource);
+
+    HRESULT OverrideCreateCommittedResource1(DxObjectInfo*                                        replay_object_info,
+                                             HRESULT                                              original_result,
+                                             StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+                                             D3D12_HEAP_FLAGS                                     HeapFlags,
+                                             StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>*   pDesc,
+                                             D3D12_RESOURCE_STATES                                InitialResourceState,
+                                             StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+                                             DxObjectInfo*                protected_session_object_info,
+                                             Decoded_GUID                 riid,
+                                             HandlePointerDecoder<void*>* resource);
+
+    HRESULT OverrideCreateCommittedResource2(DxObjectInfo*                                        replay_object_info,
+                                             HRESULT                                              original_result,
+                                             StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+                                             D3D12_HEAP_FLAGS                                     HeapFlags,
+                                             StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*  pDesc,
+                                             D3D12_RESOURCE_STATES                                InitialResourceState,
+                                             StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+                                             DxObjectInfo*                protected_session_object_info,
+                                             Decoded_GUID                 riid,
+                                             HandlePointerDecoder<void*>* resource);
 
     HRESULT OverrideCreateFence(DxObjectInfo*                replay_object_info,
                                 HRESULT                      original_result,
@@ -362,7 +398,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void OverrideEnableDebugLayer(DxObjectInfo* replay_object_info);
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
-    
+
     void PostPresent(IDXGISwapChain* swapchain);
 
     void OverrideSetAutoBreadcrumbsEnablement(DxObjectInfo* replay_object_info, D3D12_DRED_ENABLEMENT enablement);
@@ -380,6 +416,34 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetPageFaultEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
                                 D3D12_DRED_ENABLEMENT                     enablement);
 
+    HRESULT OverrideCreateReservedResource(DxObjectInfo*                                      device_object_info,
+                                           HRESULT                                            original_result,
+                                           StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+                                           D3D12_RESOURCE_STATES                              initial_state,
+                                           StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+                                           Decoded_GUID                                       riid,
+                                           HandlePointerDecoder<void*>*                       resource);
+
+    HRESULT OverrideCreateReservedResource1(DxObjectInfo*                                      device_object_info,
+                                            HRESULT                                            original_result,
+                                            StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+                                            D3D12_RESOURCE_STATES                              initial_state,
+                                            StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+                                            DxObjectInfo*                protected_session_object_info,
+                                            Decoded_GUID                 riid,
+                                            HandlePointerDecoder<void*>* resource);
+
+    HRESULT OverrideCreateGraphicsPipelineState(DxObjectInfo* device_object_info,
+                                                HRESULT       original_result,
+                                                StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
+                                                Decoded_GUID                                                      riid,
+                                                HandlePointerDecoder<void*>* pipelineState);
+
+    HRESULT OverrideCreateComputePipelineState(DxObjectInfo* device_object_info,
+                                               HRESULT       original_result,
+                                               StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
+                                               Decoded_GUID                                                     riid,
+                                               HandlePointerDecoder<void*>* pipelineState);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
@@ -395,6 +459,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
         return nullptr;
     }
+
+    const Dx12DescriptorMap& GetDescriptorMap() const { return descriptor_map_; }
+
+    Dx12DescriptorMap& GetDescriptorMap() { return descriptor_map_; }
 
     const graphics::Dx12GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
 
@@ -475,6 +543,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, void*>          heap_allocations_;
     std::unordered_map<uint64_t, HANDLE>         event_objects_;
     std::function<void(const char*)>             fatal_error_handler_;
+    Dx12DescriptorMap                            descriptor_map_;
     graphics::Dx12GpuVaMap                       gpu_va_map_;
     graphics::Dx12ShaderIdMap                    shader_id_map_;
     std::unique_ptr<uint8_t[]>                   debug_message_;
@@ -490,6 +559,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     struct ResourceInitInfo
     {
         ID3D12Resource*                                resource{ nullptr };
+        bool                                           try_map_and_copy{ true };
         std::vector<uint8_t>                           data;
         std::vector<uint64_t>                          subresource_offsets;
         std::vector<uint64_t>                          subresource_sizes;
@@ -499,7 +569,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         // Prefer Reset over creating new ResourceInitInfos in order to reuse the vectors' heap allocations.
         void Reset()
         {
-            resource = nullptr;
+            resource         = nullptr;
+            try_map_and_copy = true;
             data.clear();
             subresource_offsets.clear();
             subresource_sizes.clear();

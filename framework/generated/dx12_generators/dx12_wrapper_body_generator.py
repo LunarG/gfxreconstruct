@@ -72,8 +72,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         # A list of structures with object members that need to be unwrapped.
         self.structs_with_objects = {
             **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
-            ['ptr'],
-            'D3D12_GPU_DESCRIPTOR_HANDLE': ['ptr']
+            ['ptr']
         }
         # Unique set of names of all defined classes.
         self.class_names = []
@@ -810,7 +809,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                             else:
                                 name = 'UnwrapStructPtrObjects({}'.format(name)
                         else:
-                            name = '*UnwrapStructPtrObjects(&{}'.format(name)
+                            if value.array_length:
+                                name = 'UnwrapStructArrayObjects({}, {}'.format(
+                                    name, value.array_length
+                                )
+                            else:
+                                name = '*UnwrapStructPtrObjects(&{}'.format(name)
 
                         name += ', unwrap_memory)'
 

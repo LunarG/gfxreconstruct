@@ -66,7 +66,7 @@ class Dx12CommandListUtilBodyGenerator(Dx12CommandListUtilHeaderGenerator):
             code_list.append(
                 self.INDENT * indent
                 + 'info->command_objects[D3D12GraphicsCommandObjectType::'
-                + value.base_type + 'Object].insert(GetWrappedId('
+                + value.base_type + 'Object].insert(GetDx12WrappedId('
                 + param_name3 + '));\n'
             )
         elif value.base_type == 'D3D12_CPU_DESCRIPTOR_HANDLE':

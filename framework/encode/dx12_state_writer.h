@@ -25,6 +25,7 @@
 
 #include "encode/parameter_encoder.h"
 #include "format/format.h"
+#include "graphics/dx12_gpu_va_map.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "util/compressor.h"
 #include "util/defines.h"
@@ -73,12 +74,23 @@ class Dx12StateWriter
             auto wrapper_info = wrapper->GetObjectInfo();
             if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
             {
-                StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
-                WriteAddRefAndReleaseCommands(wrapper);
-                WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+                StandardCreateWrite(wrapper);
                 processed.insert(wrapper_info->create_parameters.get());
             }
         });
+    }
+
+    template <typename Wrapper>
+    void StandardCreateWrite(const Wrapper& wrapper)
+    {
+        assert(wrapper != nullptr);
+        assert(wrapper->GetObjectInfo() != nullptr);
+        assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+        StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
+        WriteAddRefAndReleaseCommands(wrapper);
+        WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
     }
 
     void StandardCreateWrite(format::HandleId object_id, const DxWrapperInfo& wrapper_info);
@@ -100,6 +112,8 @@ class Dx12StateWriter
     void WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper);
 
     void WritePrivateData(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
+
+    void WriteResidencyPriority(const Dx12StateTable& state_table);
 
     void WriteAddRefCommand(format::HandleId handle_id, unsigned long result_ref_count);
 
@@ -137,6 +151,8 @@ class Dx12StateWriter
                                         format::HandleId               handle_id,
                                         const Dx12StateTable&          state_table);
 
+    bool CheckGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address);
+
     bool CheckDescriptorObjects(const DxDescriptorInfo& descriptor_info, const Dx12StateTable& state_table);
 
     void WriteSwapChainState(const Dx12StateTable& state_table);
@@ -152,6 +168,7 @@ class Dx12StateWriter
     format::ThreadId         thread_id_;
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
+    graphics::Dx12GpuVaMap   gpu_va_map_;
 
 #if GFXRECON_DEBUG_WRITTEN_OBJECTS
     // Track the list of objects that have been written in WriteState.

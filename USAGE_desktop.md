@@ -349,7 +349,8 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--api <api>] [--no-debug-popup] <file>
+                        [--api <api>] [--no-debug-popup]
+                        [--discard-cached-psos | --dcp] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -419,6 +420,11 @@ Optional arguments:
   --debug-device-lost   Enables automatic injection of breadcrumbs into command buffers
                         and page fault reporting.
                         Used to debug Direct3D 12 device removed problems.
+                        Not currently supported for Vulkan.
+  --dcp                 Discard (force to null) CachedPSO data to in Direct3D calls that
+                        create a graphics or compute pipeline state or load a graphics
+                        or compute pipeline.  (May allow replay of some captures on a
+                        different GPU. Same as --discard-cached-psos).
                         Not currently supported for Vulkan.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's

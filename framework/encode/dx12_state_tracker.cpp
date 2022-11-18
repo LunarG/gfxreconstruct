@@ -240,7 +240,6 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
     // Store creation data with descriptor info struct.
     descriptor_info->create_object_id = create_object_wrapper->GetCaptureId();
     descriptor_info->create_call_id   = call_id;
-
     if (descriptor_info->create_parameters == nullptr)
     {
         descriptor_info->create_parameters =
@@ -251,7 +250,9 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
         descriptor_info->create_parameters->Reset();
         descriptor_info->create_parameters->Write(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
     }
-    descriptor_info->is_copy = false;
+    descriptor_info->is_copy         = false;
+    descriptor_info->resource_ids    = { format::kNullHandleId, format::kNullHandleId };
+    descriptor_info->resource_gpu_va = 0;
 }
 
 void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descriptors,
@@ -266,10 +267,14 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
         auto src = &src_descriptor_infos[i];
         auto dst = &dest_descriptor_infos[i];
 
-        GFXRECON_ASSERT(src->create_parameters != nullptr);
-        GFXRECON_ASSERT(dst->create_parameters != src->create_parameters)
+        // Copy tracked descriptor state values.
+        dst->create_object_id = src->create_object_id;
+        dst->create_call_id   = src->create_call_id;
+        dst->is_copy          = true;
+        dst->resource_ids     = src->resource_ids;
+        dst->resource_gpu_va  = src->resource_gpu_va;
 
-        // Create or reset the destination descriptors create_parameters buffer.
+        // Create or reset the destination descriptor's create_parameters buffer.
         if (dst->create_parameters == nullptr)
         {
             dst->create_parameters = std::make_unique<util::MemoryOutputStream>();
@@ -279,46 +284,49 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
             dst->create_parameters->Reset();
         }
 
-        // Compute copy size.
-        size_t heap_and_index_size = 0;
-        if (!src->is_copy)
+        // Copy the source descriptor's creation parameters to destination.
+        if ((src->create_parameters != nullptr) && (src->create_parameters->GetDataSize() != 0))
         {
-            heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
-        }
-        size_t src_size  = src->create_parameters->GetDataSize();
-        size_t copy_size = src_size - heap_and_index_size;
+            // Compute copy size.
+            size_t heap_and_index_size = 0;
+            if (!src->is_copy)
+            {
+                heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
+            }
+            size_t src_size  = src->create_parameters->GetDataSize();
+            size_t copy_size = src_size - heap_and_index_size;
 
-        // If the source descriptor is modified asynchronously in another thread, its parameter_data may be invalid.
-        // This behavior is not supported by DX12--descriptor creations and copies are free-threaded. Log a warning and
-        // prevent the copy from crashing if an unexpected copy size is encountered.
-        if ((copy_size == 0) || (copy_size > src_size))
-        {
-            GFXRECON_LOG_WARNING("The state of the source descriptor (0x%zx) in CopyDescriptors has an unexpected "
-                                 "size. Skipping copy to destination descriptor (0x%zx).",
-                                 src->cpu_address,
-                                 dst->cpu_address);
+            // If the source descriptor is modified asynchronously in another thread, its create_parameters may be
+            // invalid. This behavior is not supported by DX12--descriptor creations and copies are free-threaded. Log a
+            // warning and prevent the copy from crashing if an unexpected copy size is encountered.
+            if ((copy_size == 0) || (copy_size > src_size))
+            {
+                GFXRECON_LOG_WARNING("The state of the source descriptor (0x%zx) in CopyDescriptors has an unexpected "
+                                     "size. Skipping copy to destination descriptor (0x%zx).",
+                                     src->cpu_address,
+                                     dst->cpu_address);
+            }
+            else
+            {
+                dst->create_parameters->Write(src->create_parameters->GetData(), copy_size);
+
+                // Additonal check to detect potential errors in the copy due to asynchronous changes to the source
+                // descriptor.
+                if ((src->create_parameters->GetDataSize() - heap_and_index_size) !=
+                    dst->create_parameters->GetDataSize())
+                {
+                    GFXRECON_LOG_WARNING(
+                        "The state of the source descriptor (0x%zx) may have changed during CopyDescriptors. The state "
+                        "of the destination descriptor (0x%zx) may be invalid.",
+                        src->cpu_address,
+                        dst->cpu_address);
+                }
+            }
         }
         else
         {
-            // Copy source creation parameters to destination.
-            dst->create_parameters->Write(src->create_parameters->GetData(), copy_size);
-
-            // Additonal check to detect potential errors in the copy due to asynchronous changes to the source
-            // descriptor.
-            if ((src->create_parameters->GetDataSize() - heap_and_index_size) != dst->create_parameters->GetDataSize())
-            {
-                GFXRECON_LOG_WARNING(
-                    "The state of the source descriptor (0x%zx) may have changed during CopyDescriptors. The state "
-                    "of the destination descriptor (0x%zx) may be invalid.",
-                    src->cpu_address,
-                    dst->cpu_address);
-            }
-
-            // Copy remaining state.
-            dst->create_object_id = src->create_object_id;
-            dst->create_call_id   = src->create_call_id;
-            dst->is_copy          = true;
-            dst->resource_ids     = src->resource_ids;
+            GFXRECON_LOG_WARNING_ONCE("CopyDescriptors was called with a source descriptor that may not have been "
+                                      "initialized (created or copied to).");
         }
     }
 }
@@ -328,8 +336,14 @@ void Dx12StateTracker::TrackDescriptorResources(SIZE_T          descriptor_cpu_a
                                                 ID3D12Resource* resource2)
 {
     auto* descriptor_info            = GetDescriptorInfo(descriptor_cpu_address);
-    descriptor_info->resource_ids[0] = GetWrappedId<ID3D12Resource>(resource1);
-    descriptor_info->resource_ids[1] = GetWrappedId<ID3D12Resource>(resource2);
+    descriptor_info->resource_ids[0] = GetDx12WrappedId<ID3D12Resource>(resource1);
+    descriptor_info->resource_ids[1] = GetDx12WrappedId<ID3D12Resource>(resource2);
+}
+
+void Dx12StateTracker::TrackDescriptorGpuVa(SIZE_T descriptor_cpu_address, D3D12_GPU_VIRTUAL_ADDRESS address)
+{
+    auto* descriptor_info            = GetDescriptorInfo(descriptor_cpu_address);
+    descriptor_info->resource_gpu_va = address;
 }
 
 void Dx12StateTracker::TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
@@ -416,6 +430,43 @@ void Dx12StateTracker::TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name,
         std::vector<uint8_t> private_data(data_size);
         memcpy(private_data.data(), data, data_size);
         info->private_datas[name] = std::move(private_data);
+    }
+}
+
+void Dx12StateTracker::TrackResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
+                                              UINT                            num_objects,
+                                              ID3D12Pageable* const*          objects,
+                                              const D3D12_RESIDENCY_PRIORITY* priorities)
+{
+    GFXRECON_ASSERT(device_wrapper != nullptr);
+    GFXRECON_ASSERT(device_wrapper->GetObjectInfo() != nullptr);
+    GFXRECON_ASSERT(objects != nullptr);
+    GFXRECON_ASSERT(priorities != nullptr);
+
+    auto                         device_info = device_wrapper->GetObjectInfo();
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
+    for (UINT i = 0; i < num_objects; ++i)
+    {
+        GFXRECON_ASSERT(objects[i] != nullptr);
+        auto handle_id                               = GetDx12WrappedId<ID3D12Pageable>(objects[i]);
+        device_info->residency_priorities[handle_id] = priorities[i];
+    }
+}
+
+void Dx12StateTracker::TrackRelease(IUnknown_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto* info = GetWrapperInfo(wrapper);
+    if (info && info->create_object_id != format::kNullHandleId)
+    {
+        auto* device_wrapper = state_table_.GetID3D12Device_Wrapper(info->create_object_id);
+        if (device_wrapper)
+        {
+            auto device_info = device_wrapper->GetObjectInfo();
+            GFXRECON_ASSERT(device_info != nullptr);
+            std::unique_lock<std::mutex> lock(state_table_mutex_);
+            device_info->residency_priorities.erase(wrapper->GetCaptureId());
+        }
     }
 }
 

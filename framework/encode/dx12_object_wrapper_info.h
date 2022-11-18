@@ -120,8 +120,9 @@ struct DxDescriptorInfo
     std::unique_ptr<util::MemoryOutputStream> create_parameters;
     bool is_copy{ false }; // True if the descriptor was created as a copy with CopyDescriptors
 
-    // Descriptors can be created with up to 2 resource dependencies.
+    // Descriptors can be created with up to 2 resource dependencies or a GPU VA.
     std::array<format::HandleId, 2> resource_ids{ format::kNullHandleId, format::kNullHandleId };
+    D3D12_GPU_VIRTUAL_ADDRESS       resource_gpu_va{ 0 };
 };
 
 struct DxTransitionBarrier
@@ -237,6 +238,7 @@ struct ID3D12DescriptorHeapInfo : public DxWrapperInfo
 
     SIZE_T cpu_start{ 0 };
     UINT64 gpu_start{ 0 };
+    UINT32 descriptor_increment;
 };
 
 struct ID3D12QueryHeapInfo : public DxWrapperInfo
@@ -284,7 +286,9 @@ struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 {};
 
 struct ID3D12DeviceInfo : public DxWrapperInfo
-{};
+{
+    std::unordered_map<format::HandleId, D3D12_RESIDENCY_PRIORITY> residency_priorities; // ID3D12Pageable
+};
 
 struct ID3D12ResourceInfo : public DxWrapperInfo
 {
@@ -347,13 +351,14 @@ struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
     bool                                 is_closed{ false };
     util::MemoryOutputStream             command_data;
     std::vector<DxTransitionBarrier>     transition_barriers;
-    std::unordered_set<format::HandleId> command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];
-    std::unordered_set<SIZE_T>           command_cpu_descriptor_handles;
+
+    // Track command list dependencies.
+    std::unordered_set<format::HandleId>          command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];
+    std::unordered_set<SIZE_T>                    command_cpu_descriptor_handles;
+    std::unordered_set<D3D12_GPU_VIRTUAL_ADDRESS> command_gpu_virtual_addresses;
 
     // Record for future. It's not used for now.
     std::unordered_set<UINT64> command_gpu_descriptor_handles;
-    // Record for future. It's not used for now.
-    std::unordered_set<D3D12_GPU_VIRTUAL_ADDRESS> command_gpu_virtual_addresses;
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo

@@ -39,7 +39,7 @@ class Dx12GpuVaMap
 
     void Remove(format::HandleId resource_id, uint64_t old_start_address);
 
-    uint64_t Map(uint64_t old_address) const;
+    uint64_t Map(uint64_t old_address, bool* found = nullptr) const;
 
   private:
     struct GpuVaInfo

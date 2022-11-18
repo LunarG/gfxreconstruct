@@ -68,6 +68,8 @@ const char kPausedOption[]                     = "--paused";
 const char kPauseFrameArgument[]               = "--pause-frame";
 const char kSkipFailedAllocationShortOption[]  = "--sfa";
 const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
+const char kDiscardCachedPsosShortOption[]     = "--dcp";
+const char kDiscardCachedPsosLongOption[]      = "--discard-cached-psos";
 const char kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 const char kWsiArgument[]                      = "--wsi";
@@ -78,6 +80,7 @@ const char kSyncOption[]                       = "--sync";
 const char kRemoveUnsupportedOption[]          = "--remove-unsupported";
 const char kValidateOption[]                   = "--validate";
 const char kDebugDeviceLostOption[]            = "--debug-device-lost";
+const char kCreateDummyAllocationsOption[]     = "--create-dummy-allocations";
 const char kDeniedMessages[]                   = "--denied-messages";
 const char kAllowedMessages[]                  = "--allowed-messages";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
@@ -526,6 +529,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     {
         options.sync_queue_submissions = true;
     }
+
+    if (arg_parser.IsOptionSet(kCreateDummyAllocationsOption))
+    {
+        options.create_dummy_allocations = true;
+    }
 }
 
 static gfxrecon::decode::VulkanReplayOptions
@@ -598,6 +606,10 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         replay_options.enable_d3d12_two_pass_replay = true;
     }
 
+    if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))
+    {
+        replay_options.discard_cached_psos = true;
+    }
 
     replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);

@@ -65,15 +65,6 @@ void MapStructObjects(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper,
     });
 }
 
-void MapStructObjects(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper,
-                      const Dx12ObjectInfoTable&           object_info_table,
-                      const graphics::Dx12GpuVaMap&        gpu_va_map)
-{
-    MapDescriptorStructObjects(wrapper, object_info_table, gpu_va_map, [](const D3D12DescriptorHeapInfo* info) {
-        return info->replay_gpu_addr_begin;
-    });
-}
-
 void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper,
                       const Dx12ObjectInfoTable&      object_info_table,
                       const graphics::Dx12GpuVaMap&   gpu_va_map)

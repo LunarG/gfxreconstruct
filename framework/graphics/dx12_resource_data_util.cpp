@@ -323,6 +323,7 @@ dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::GetStagingBuffer(CopyType type,
 }
 
 HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                             target_resource,
+                                               bool                                        try_map_and_copy,
                                                const std::vector<dx12::ResourceStateInfo>& before_states,
                                                const std::vector<dx12::ResourceStateInfo>& after_states,
                                                std::vector<uint8_t>&                       data,
@@ -348,14 +349,14 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
     data.resize(static_cast<size_t>(required_data_size));
 
     // If the resource can be mapped, map it, copy the data, and return success.
-    if (CopyMappableResource(target_resource,
-                             before_states,
-                             after_states,
-                             kCopyTypeRead,
-                             &data,
-                             nullptr,
-                             subresource_offsets,
-                             subresource_sizes))
+    if (try_map_and_copy && CopyMappableResource(target_resource,
+                                                 before_states,
+                                                 after_states,
+                                                 kCopyTypeRead,
+                                                 &data,
+                                                 nullptr,
+                                                 subresource_offsets,
+                                                 subresource_sizes))
     {
         return S_OK;
     }
@@ -377,6 +378,7 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
 }
 
 HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                             target_resource,
+                                              bool                                        try_map_and_copy,
                                               const std::vector<dx12::ResourceStateInfo>& before_states,
                                               const std::vector<dx12::ResourceStateInfo>& after_states,
                                               const std::vector<uint8_t>&                 data,
@@ -400,14 +402,14 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
                         required_data_size);
 
     // If the resource can be mapped, map it, copy the data, and return success.
-    if (CopyMappableResource(target_resource,
-                             before_states,
-                             after_states,
-                             kCopyTypeWrite,
-                             nullptr,
-                             &data,
-                             subresource_offsets,
-                             subresource_sizes))
+    if (try_map_and_copy && CopyMappableResource(target_resource,
+                                                 before_states,
+                                                 after_states,
+                                                 kCopyTypeWrite,
+                                                 nullptr,
+                                                 &data,
+                                                 subresource_offsets,
+                                                 subresource_sizes))
     {
         return S_OK;
     }
@@ -544,7 +546,7 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
     ID3D12Pageable* const pageable = target_resource;
     if (!SUCCEEDED(device_->MakeResident(1, &pageable)))
     {
-        GFXRECON_LOG_WARNING("Failed to make resource resident for writing data to resource");
+        GFXRECON_LOG_ERROR("Failed to make resource resident for copying resource data.");
         return E_FAIL;
     }
 
@@ -633,6 +635,12 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
     if (FAILED(result))
     {
         GFXRECON_LOG_ERROR("Error executing command list to copy resource data. (error = %lx)", result);
+    }
+
+    // MakeResident and Evict are ref-counted. Remove the ref count added by MakeResident above.
+    if (!SUCCEEDED(device_->Evict(1, &pageable)))
+    {
+        GFXRECON_LOG_WARNING("Failed to evict resource after copying resource data.");
     }
 
     return result;

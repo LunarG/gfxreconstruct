@@ -38,6 +38,7 @@ struct DxReplayOptions : public ReplayOptions
 {
     bool                 enable_d3d12{ true };
     bool                 enable_d3d12_two_pass_replay{ false };
+    bool                 discard_cached_psos{ false };
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
 
@@ -46,7 +47,6 @@ struct DxReplayOptions : public ReplayOptions
     std::string                  screenshot_dir;
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
     std::string                  replace_dir;
-
 };
 
 GFXRECON_END_NAMESPACE(decode)

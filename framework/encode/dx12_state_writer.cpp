@@ -137,6 +137,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     // Command lists
     StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
+    WriteResidencyPriority(state_table);
     WriteGraphicsCommandListState(state_table);
 
     marker.marker_type = format::kEndMarker;
@@ -338,11 +339,7 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
         }
 
         // TODO (GH #83): Add D3D12 trimming support, handle custom state for other heap types
-
-        WriteMethodCall(
-            wrapper_info->create_call_id, wrapper_info->create_object_id, wrapper_info->create_parameters.get());
-
-        WriteAddRefAndReleaseCommands(wrapper);
+        StandardCreateWrite(wrapper);
     });
 }
 
@@ -385,9 +382,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         const auto& heap_desc = heap->GetDesc();
 
         // Write heap creation call.
-        WriteMethodCall(heap_info->create_call_id, heap_info->create_object_id, heap_info->create_parameters.get());
-
-        WriteAddRefAndReleaseCommands(heap_wrapper);
+        StandardCreateWrite(heap_wrapper);
 
         // Write GetCPUDescriptorHandleForHeapStart call.
         if (heap_info->cpu_start != 0)
@@ -415,13 +410,13 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
 
         // Write call to query the device for heap increment size.
         encoder_.EncodeEnumValue(heap_desc.Type);
-        encoder_.EncodeUInt32Value(S_OK);
+        encoder_.EncodeUInt32Value(heap_info->descriptor_increment);
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
                         heap_info->create_object_id,
                         &parameter_stream_);
         parameter_stream_.Reset();
 
-        // Write descriptor creation calls.
+        // Write descriptor creation calls, not use StandardCreateWrite.
         for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)
         {
             const DxDescriptorInfo& descriptor_info = heap_info->descriptor_info[i];
@@ -543,9 +538,7 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
         assert(resource_info->create_object_id != format::kNullHandleId);
 
         // Write the resource creation call to capture file.
-        WriteMethodCall(
-            resource_info->create_call_id, resource_info->create_object_id, resource_info->create_parameters.get());
-        WriteAddRefAndReleaseCommands(resource_wrapper);
+        StandardCreateWrite(resource_wrapper);
 
         // Write call to get GPU address for buffers.
         if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
@@ -556,6 +549,11 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
                             resource_wrapper->GetCaptureId(),
                             &parameter_stream_);
             parameter_stream_.Reset();
+
+            // Track the GPU VAs for buffers written to the trim state block. This map is used to determine if a given
+            // GPU VA references a buffer that was written to the trim state block. Addresses do not need to be mapped,
+            // so the "new_start_address" parameter won't be used.
+            gpu_va_map_.Add(resource_wrapper->GetCaptureId(), gpu_address, resource_desc.Width, gpu_address);
         }
 
         // Get resource sizes and list of currently mapped subresources.
@@ -719,8 +717,12 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
     temp_subresource_sizes_.clear();
     temp_subresource_offsets_.clear();
 
+    bool try_map_and_copy = (resource_info->create_call_id != format::ApiCall_ID3D12Device_CreateReservedResource) &&
+                            (resource_info->create_call_id != format::ApiCall_ID3D12Device4_CreateReservedResource1);
+
     // Read the data from the resource.
     HRESULT result = resource_data_util->ReadFromResource(resource,
+                                                          try_map_and_copy,
                                                           resource_info->subresource_transitions,
                                                           resource_info->subresource_transitions,
                                                           temp_subresource_data_,
@@ -842,8 +844,7 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
         assert(fence_info->create_object_id != format::kNullHandleId);
 
         // Write call to create the fence.
-        WriteMethodCall(fence_info->create_call_id, fence_info->create_object_id, fence_info->create_parameters.get());
-        WriteAddRefAndReleaseCommands(fence_wrapper);
+        StandardCreateWrite(fence_wrapper);
 
         UINT64 completed_fence_value = fence->GetCompletedValue();
 
@@ -878,6 +879,34 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
         encoder_.EncodeInt32Value(S_OK);
         WriteMethodCall(
             format::ApiCallId::ApiCall_ID3D12Fence_Signal, fence_wrapper->GetCaptureId(), &parameter_stream_);
+        parameter_stream_.Reset();
+    });
+}
+
+void Dx12StateWriter::WriteResidencyPriority(const Dx12StateTable& state_table)
+{
+    state_table.VisitWrappers([&](ID3D12Device_Wrapper* device_wrapper) {
+        GFXRECON_ASSERT(device_wrapper != nullptr);
+        GFXRECON_ASSERT(device_wrapper->GetObjectInfo() != nullptr);
+
+        auto     device_info = device_wrapper->GetObjectInfo();
+        auto     handle_id   = device_wrapper->GetCaptureId();
+        uint32_t num_objects = static_cast<uint32_t>(device_info->residency_priorities.size());
+
+        std::vector<format::HandleId>         handles;
+        std::vector<D3D12_RESIDENCY_PRIORITY> priorities;
+
+        for (auto& entry : device_info->residency_priorities)
+        {
+            handles.emplace_back(entry.first);
+            priorities.emplace_back(entry.second);
+        }
+
+        encoder_.EncodeUInt32Value(num_objects);
+        encoder_.EncodeHandleIdArray(handles.data(), num_objects);
+        encoder_.EncodeEnumArray(priorities.data(), num_objects);
+        encoder_.EncodeInt32Value(S_OK);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority, handle_id, &parameter_stream_);
         parameter_stream_.Reset();
     });
 }
@@ -1010,9 +1039,9 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12GraphicsCommandList_W
 void Dx12StateWriter::WriteCommandListCreation(const ID3D12GraphicsCommandList_Wrapper* list_wrapper)
 {
     // Write call to create the command list.
+    StandardCreateWrite(list_wrapper);
     auto list_info = list_wrapper->GetObjectInfo();
-    WriteMethodCall(list_info->create_call_id, list_info->create_object_id, list_info->create_parameters.get());
-    WriteAddRefAndReleaseCommands(list_wrapper);
+
 
     // If the command list was created open and reset since creation, write a command to close it. This frees up the
     // command allocator used in creation. This list's command_data will contain a reset, possibly with a different
@@ -1060,6 +1089,15 @@ bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsComman
             return false;
         }
     }
+
+    for (auto gpu_va : list_info->command_gpu_virtual_addresses)
+    {
+        if (!CheckGpuVa(gpu_va))
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -1099,6 +1137,17 @@ bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectT
     }
 }
 
+bool Dx12StateWriter::CheckGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address)
+{
+    if (address != 0)
+    {
+        bool found = false;
+        gpu_va_map_.Map(address, &found);
+        return found;
+    }
+    return true;
+}
+
 bool Dx12StateWriter::CheckDescriptorObjects(const DxDescriptorInfo& descriptor_info, const Dx12StateTable& state_table)
 {
     // Ignore descriptors that reference destroyed resource object.
@@ -1109,6 +1158,12 @@ bool Dx12StateWriter::CheckDescriptorObjects(const DxDescriptorInfo& descriptor_
         {
             return false;
         }
+    }
+
+    // Ignore descriptors that reference GPU VAs that are no longer valid.
+    if (!CheckGpuVa(descriptor_info.resource_gpu_va))
+    {
+        return false;
     }
 
     return true;
@@ -1125,8 +1180,7 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         auto swapchain_info = swapchain_wrapper->GetObjectInfo();
 
         // Write swapchain creation call.
-        StandardCreateWrite(swapchain_wrapper->GetCaptureId(), *swapchain_info.get());
-        WriteAddRefAndReleaseCommands(swapchain_wrapper);
+        StandardCreateWrite(swapchain_wrapper);
 
         // Write call to resize the swapchain buffers.
         if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)

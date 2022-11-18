@@ -61,17 +61,17 @@ void Dx12GpuVaMap::Remove(format::HandleId resource_id, uint64_t old_start_addre
     }
 }
 
-uint64_t Dx12GpuVaMap::Map(uint64_t address) const
+uint64_t Dx12GpuVaMap::Map(uint64_t address, bool* found) const
 {
+    bool local_found = false;
+
     if (address != kNullAddress)
     {
-        bool found = false;
-
         auto va_entry = gpu_va_map_.lower_bound(address);
         if (va_entry != gpu_va_map_.end())
         {
             // Check for a match in the aliased resource list.
-            found = FindMatch(va_entry->second, va_entry->first, address);
+            local_found = FindMatch(va_entry->second, va_entry->first, address);
 
             // The addresses did not fall within the address range of the resource(s) at the start address returned
             // by the lower_bound search.  These resources may be aliased with a larger resource that contains them.
@@ -85,16 +85,21 @@ uint64_t Dx12GpuVaMap::Map(uint64_t address) const
             // remove, if none of the remaining aliased resources share the start address that is used for the key to
             // the entry, the entry would need to be removed and re-added with the smallest address of the remaining
             // aliased resources as the key.
-            while (!found && ++va_entry != gpu_va_map_.end())
+            while (!local_found && ++va_entry != gpu_va_map_.end())
             {
-                found = FindMatch(va_entry->second, va_entry->first, address);
+                local_found = FindMatch(va_entry->second, va_entry->first, address);
             }
         }
 
-        if (!found)
+        if (!local_found && (found == nullptr))
         {
             GFXRECON_LOG_WARNING("No matching replay address found for capture address 0x%" PRIx64, address);
         }
+    }
+
+    if (found != nullptr)
+    {
+        (*found) = local_found;
     }
 
     return address;

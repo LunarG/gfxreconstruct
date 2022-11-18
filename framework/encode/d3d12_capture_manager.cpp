@@ -132,7 +132,7 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
         assert(info != nullptr);
         if (command_queue != nullptr)
         {
-            info->command_queue_id = GetWrappedId<IUnknown>(command_queue);
+            info->command_queue_id = GetDx12WrappedId<IUnknown>(command_queue);
         }
 
         if (info->child_images.empty())
@@ -601,8 +601,9 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         auto descriptor_heap = heap_wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
         auto num_descriptors = desc->NumDescriptors;
 
-        info->descriptor_memory = std::make_unique<uint8_t[]>(static_cast<size_t>(num_descriptors) * increment);
-        info->descriptor_info   = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
+        info->descriptor_memory    = std::make_unique<uint8_t[]>(static_cast<size_t>(num_descriptors) * increment);
+        info->descriptor_info      = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
+        info->descriptor_increment = increment;
 
         size_t offset    = 0;
         auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
@@ -1256,8 +1257,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_Ge
 
     auto result = heap->GetGPUDescriptorHandleForHeapStart();
 
-    result.ptr = reinterpret_cast<uint64_t>(info->descriptor_memory.get());
-
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         info->gpu_start = result.ptr;
@@ -1578,6 +1577,26 @@ HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid,
     return result;
 }
 
+HRESULT D3D12CaptureManager::OverrideID3D12Device_CheckFeatureSupport(ID3D12Device_Wrapper* device_wrapper,
+                                                                      D3D12_FEATURE         feature,
+                                                                      void*                 feature_support_data,
+                                                                      UINT                  feature_support_data_size)
+{
+    auto device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+
+    if (GetDisableDxrSetting() && (feature == D3D12_FEATURE_D3D12_OPTIONS5))
+    {
+        auto    features         = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS5*>(feature_support_data);
+        HRESULT result           = device->CheckFeatureSupport(feature, features, feature_support_data_size);
+        features->RaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+        return result;
+    }
+    else
+    {
+        return device->CheckFeatureSupport(feature, feature_support_data, feature_support_data_size);
+    }
+}
+
 void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
                                                        D3D_FEATURE_LEVEL MinimumFeatureLevel,
                                                        REFIID            riid,
@@ -1838,6 +1857,17 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDepthStencilView(ID3D12
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateConstantBufferView(
+    ID3D12Device_Wrapper*                  device_wrapper,
+    const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackDescriptorGpuVa(DestDescriptor.ptr, pDesc->BufferLocation);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
     ID3D12Device_Wrapper*       device_wrapper,
     ID3D12Resource*             pTargetedResource,
@@ -1918,6 +1948,18 @@ void D3D12CaptureManager::PostProcess_SetPrivateData(
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         state_tracker_->TrackPrivateData(wrapper, Name, DataSize, pData);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device1_SetResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
+                                                                         HRESULT                         result,
+                                                                         UINT                            NumObjects,
+                                                                         ID3D12Pageable* const*          ppObjects,
+                                                                         const D3D12_RESIDENCY_PRIORITY* pPriorities)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackResidencyPriority(device_wrapper, NumObjects, ppObjects, pPriorities);
     }
 }
 

@@ -64,22 +64,23 @@ class CaptureSettings
 
     struct TraceSettings
     {
-        std::string            capture_file{ kDefaultCaptureFileName };
-        format::EnabledOptions capture_file_options;
-        bool                   time_stamp_file{ true };
-        bool                   force_flush{ false };
-        MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
+        std::string                   capture_file{ kDefaultCaptureFileName };
+        format::EnabledOptions        capture_file_options;
+        bool                          time_stamp_file{ true };
+        bool                          force_flush{ false };
+        MemoryTrackingMode            memory_tracking_mode{ kPageGuard };
         std::string                   screenshot_dir;
         std::vector<util::FrameRange> screenshot_ranges;
-        std::vector<TrimRange> trim_ranges;
-        std::string            trim_key;
-        bool                   page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
-        bool                   page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
-        bool                   page_guard_persistent_memory{ false };
-        bool                   page_guard_align_buffer_sizes{ false };
-        bool                   page_guard_track_ahb_memory{ false };
-        bool                   debug_layer{ false };
-        bool                   debug_device_lost{ false };
+        std::vector<TrimRange>        trim_ranges;
+        std::string                   trim_key;
+        bool                          page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
+        bool                          page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
+        bool                          page_guard_persistent_memory{ false };
+        bool                          page_guard_align_buffer_sizes{ false };
+        bool                          page_guard_track_ahb_memory{ false };
+        bool                          debug_layer{ false };
+        bool                          debug_device_lost{ false };
+        bool                          disable_dxr{ false };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

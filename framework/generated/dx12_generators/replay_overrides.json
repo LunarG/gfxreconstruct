@@ -21,8 +21,12 @@
     "ID3D12Device": {
       "CreateCommandQueue": "OverrideCreateCommandQueue",
       "CreateDescriptorHeap": "OverrideCreateDescriptorHeap",
+      "CreateCommittedResource": "OverrideCreateCommittedResource",
       "CreateFence": "OverrideCreateFence",
-      "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize"
+      "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize",
+      "CreateReservedResource": "OverrideCreateReservedResource",
+      "CreateGraphicsPipelineState": "OverrideCreateGraphicsPipelineState",
+      "CreateComputePipelineState": "OverrideCreateComputePipelineState"
     },
     "ID3D12Device1": {
       "CreatePipelineLibrary": "OverrideCreatePipelineLibrary"
@@ -30,6 +34,13 @@
     "ID3D12Device3": {
       "EnqueueMakeResident": "OverrideEnqueueMakeResident",
       "OpenExistingHeapFromAddress": "OverrideOpenExistingHeapFromAddress"
+    },
+    "ID3D12Device4": {
+      "CreateReservedResource1": "OverrideCreateReservedResource1",
+      "CreateCreateCommittedResource1": "OverrideCreateCommittedResource1"
+    },
+    "ID3D12Device8": {
+      "CreateCreateCommittedResource2": "OverrideCreateCommittedResource2"
     },
     "ID3D12DescriptorHeap": {
       "GetCPUDescriptorHandleForHeapStart": "OverrideGetCPUDescriptorHandleForHeapStart",

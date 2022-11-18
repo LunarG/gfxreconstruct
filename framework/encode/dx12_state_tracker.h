@@ -169,6 +169,8 @@ class Dx12StateTracker
                                   ID3D12Resource* resource1,
                                   ID3D12Resource* resource2 = nullptr);
 
+    void TrackDescriptorGpuVa(SIZE_T descriptor_cpu_address, D3D12_GPU_VIRTUAL_ADDRESS address);
+
     void TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
                                  format::HandleId                queue_id,
                                  format::HandleId                heap_id,
@@ -179,6 +181,13 @@ class Dx12StateTracker
                             const util::MemoryOutputStream* parameter_buffer);
 
     void TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name, UINT data_size, const void* data);
+
+    void TrackResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
+                                UINT                            num_objects,
+                                ID3D12Pageable* const*          objects,
+                                const D3D12_RESIDENCY_PRIORITY* priorities);
+
+    void TrackRelease(IUnknown_Wrapper* wrapper);
 
   private:
     template <typename Wrapper>

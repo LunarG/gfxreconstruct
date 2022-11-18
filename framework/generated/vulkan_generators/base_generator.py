@@ -271,6 +271,10 @@ class BaseGenerator(OutputGenerator):
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
     MAP_STRUCT_TYPE = {
+        'D3D12_GPU_DESCRIPTOR_HANDLE': [
+            'MapGpuDescriptorHandle', 'MapGpuDescriptorHandles',
+            'descriptor_map'
+        ],
         'D3D12_GPU_VIRTUAL_ADDRESS':
         ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
     }
@@ -1188,9 +1192,14 @@ class BaseGenerator(OutputGenerator):
                 handle_type_name += self.get_generic_cmd_handle_type_value(
                     name, value.name
                 )
-            arg_name = 'GetWrappedId({}, {})'.format(
-                arg_name, handle_type_name
-            )
+            if self.is_dx12_class():
+                arg_name = 'GetDx12WrappedId({}, {})'.format(
+                    arg_name, handle_type_name
+                )
+            else:
+                arg_name = 'GetWrappedId({}, {})'.format(
+                    arg_name, handle_type_name
+                )
 
         args = [arg_name]
 

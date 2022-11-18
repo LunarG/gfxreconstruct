@@ -49,11 +49,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CPU
     return DecodeDescriptorStruct(buffer, buffer_size, wrapper);
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper)
-{
-    return DecodeDescriptorStruct(buffer, buffer_size, wrapper);
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CLEAR_VALUE* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

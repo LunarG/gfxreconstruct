@@ -127,7 +127,7 @@ const IUnknown* GetWrappedObject<IUnknown>(const IUnknown* wrapped_object);
 ///         format::kNullHandleId if #wrapped_object was null.
 //----------------------------------------------------------------------------
 template <typename Object>
-format::HandleId GetWrappedId(const Object* wrapped_object)
+format::HandleId GetDx12WrappedId(const Object* wrapped_object)
 {
     return (wrapped_object != nullptr) ? reinterpret_cast<const IUnknown_Wrapper*>(wrapped_object)->GetCaptureId()
                                        : format::kNullHandleId;
@@ -150,7 +150,7 @@ format::HandleId GetWrappedId(const Object* wrapped_object)
 ///         not a valid object wrapper.
 //----------------------------------------------------------------------------
 template <>
-format::HandleId GetWrappedId<IUnknown>(const IUnknown* wrapped_object);
+format::HandleId GetDx12WrappedId<IUnknown>(const IUnknown* wrapped_object);
 
 //----------------------------------------------------------------------------
 /// \brief Unwraps an array of handles.

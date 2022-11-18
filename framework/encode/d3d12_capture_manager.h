@@ -174,6 +174,7 @@ class D3D12CaptureManager : public CaptureManager
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
             state_tracker_->RemoveEntry(wrapper);
+            state_tracker_->TrackRelease(wrapper);
         }
     }
 
@@ -462,6 +463,10 @@ class D3D12CaptureManager : public CaptureManager
                                                          const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
                                                          D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
 
+    void PostProcess_ID3D12Device_CreateConstantBufferView(ID3D12Device_Wrapper*                  device_wrapper,
+                                                           const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
+                                                           D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor);
+
     void PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(ID3D12Device_Wrapper* device_wrapper,
                                                                             ID3D12Resource*       pTargetedResource,
                                                                             ID3D12Resource*       pFeedbackResource,
@@ -482,6 +487,12 @@ class D3D12CaptureManager : public CaptureManager
 
     void PostProcess_SetPrivateData(
         IUnknown_Wrapper* wrapper, HRESULT result, REFGUID Name, UINT DataSize, const void* pData);
+
+    void PostProcess_ID3D12Device1_SetResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
+                                                        HRESULT                         result,
+                                                        UINT                            NumObjects,
+                                                        ID3D12Pageable* const*          ppObjects,
+                                                        const D3D12_RESIDENCY_PRIORITY* pPriorities);
 
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
@@ -551,6 +562,11 @@ class D3D12CaptureManager : public CaptureManager
                                                         void**                                  pipeline_state);
 
     HRESULT OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory);
+
+    HRESULT OverrideID3D12Device_CheckFeatureSupport(ID3D12Device_Wrapper* device_wrapper,
+                                                     D3D12_FEATURE         feature,
+                                                     void*                 feature_support_data,
+                                                     UINT                  feature_support_data_size);
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 

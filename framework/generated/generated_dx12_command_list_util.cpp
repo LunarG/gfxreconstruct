@@ -41,11 +41,11 @@ void Track_ID3D12GraphicsCommandList_Reset(ID3D12GraphicsCommandList_Wrapper* wr
     GFXRECON_ASSERT(info != nullptr);
     if(pAllocator != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12CommandAllocatorObject].insert(GetWrappedId(pAllocator));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12CommandAllocatorObject].insert(GetDx12WrappedId(pAllocator));
     }
     if(pInitialState != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject].insert(GetWrappedId(pInitialState));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject].insert(GetDx12WrappedId(pInitialState));
     }
 }
 
@@ -57,7 +57,7 @@ void Track_ID3D12GraphicsCommandList_ClearState(ID3D12GraphicsCommandList_Wrappe
     GFXRECON_ASSERT(info != nullptr);
     if(pPipelineState != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject].insert(GetWrappedId(pPipelineState));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject].insert(GetDx12WrappedId(pPipelineState));
     }
 }
 
@@ -69,11 +69,11 @@ void Track_ID3D12GraphicsCommandList_CopyBufferRegion(ID3D12GraphicsCommandList_
     GFXRECON_ASSERT(info != nullptr);
     if(pDstBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDstBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDstBuffer));
     }
     if(pSrcBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pSrcBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pSrcBuffer));
     }
 }
 
@@ -87,14 +87,14 @@ void Track_ID3D12GraphicsCommandList_CopyTextureRegion(ID3D12GraphicsCommandList
     {
         if(pDst->pResource != nullptr)
         {
-            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDst->pResource));
+            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDst->pResource));
         }
     }
     if(pSrc != nullptr)
     {
         if(pSrc->pResource != nullptr)
         {
-            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pSrc->pResource));
+            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pSrc->pResource));
         }
     }
 }
@@ -107,11 +107,11 @@ void Track_ID3D12GraphicsCommandList_CopyResource(ID3D12GraphicsCommandList_Wrap
     GFXRECON_ASSERT(info != nullptr);
     if(pDstResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDstResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDstResource));
     }
     if(pSrcResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pSrcResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pSrcResource));
     }
 }
 
@@ -123,11 +123,11 @@ void Track_ID3D12GraphicsCommandList_CopyTiles(ID3D12GraphicsCommandList_Wrapper
     GFXRECON_ASSERT(info != nullptr);
     if(pTiledResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pTiledResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pTiledResource));
     }
     if(pBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pBuffer));
     }
 }
 
@@ -139,11 +139,11 @@ void Track_ID3D12GraphicsCommandList_ResolveSubresource(ID3D12GraphicsCommandLis
     GFXRECON_ASSERT(info != nullptr);
     if(pDstResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDstResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDstResource));
     }
     if(pSrcResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pSrcResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pSrcResource));
     }
 }
 
@@ -155,7 +155,7 @@ void Track_ID3D12GraphicsCommandList_SetPipelineState(ID3D12GraphicsCommandList_
     GFXRECON_ASSERT(info != nullptr);
     if(pPipelineState != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject].insert(GetWrappedId(pPipelineState));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject].insert(GetDx12WrappedId(pPipelineState));
     }
 }
 
@@ -167,7 +167,7 @@ void Track_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wra
     GFXRECON_ASSERT(info != nullptr);
     if(pCommandList != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12GraphicsCommandListObject].insert(GetWrappedId(pCommandList));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12GraphicsCommandListObject].insert(GetDx12WrappedId(pCommandList));
     }
 }
 
@@ -181,7 +181,7 @@ void Track_ID3D12GraphicsCommandList_SetDescriptorHeaps(ID3D12GraphicsCommandLis
     {
         for (UINT i = 0; i < NumDescriptorHeaps; ++i)
         {
-            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12DescriptorHeapObject].insert(GetWrappedId(ppDescriptorHeaps[i]));
+            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12DescriptorHeapObject].insert(GetDx12WrappedId(ppDescriptorHeaps[i]));
         }
     }
 }
@@ -194,7 +194,7 @@ void Track_ID3D12GraphicsCommandList_SetComputeRootSignature(ID3D12GraphicsComma
     GFXRECON_ASSERT(info != nullptr);
     if(pRootSignature != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12RootSignatureObject].insert(GetWrappedId(pRootSignature));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12RootSignatureObject].insert(GetDx12WrappedId(pRootSignature));
     }
 }
 
@@ -206,7 +206,7 @@ void Track_ID3D12GraphicsCommandList_SetGraphicsRootSignature(ID3D12GraphicsComm
     GFXRECON_ASSERT(info != nullptr);
     if(pRootSignature != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12RootSignatureObject].insert(GetWrappedId(pRootSignature));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12RootSignatureObject].insert(GetDx12WrappedId(pRootSignature));
     }
 }
 
@@ -376,7 +376,7 @@ void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(ID3D12Graphics
     info->command_cpu_descriptor_handles.insert(ViewCPUHandle.ptr);
     if(pResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pResource));
     }
 }
 
@@ -390,7 +390,7 @@ void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(ID3D12Graphic
     info->command_cpu_descriptor_handles.insert(ViewCPUHandle.ptr);
     if(pResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pResource));
     }
 }
 
@@ -402,7 +402,7 @@ void Track_ID3D12GraphicsCommandList_DiscardResource(ID3D12GraphicsCommandList_W
     GFXRECON_ASSERT(info != nullptr);
     if(pResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pResource));
     }
 }
 
@@ -414,7 +414,7 @@ void Track_ID3D12GraphicsCommandList_BeginQuery(ID3D12GraphicsCommandList_Wrappe
     GFXRECON_ASSERT(info != nullptr);
     if(pQueryHeap != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12QueryHeapObject].insert(GetWrappedId(pQueryHeap));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12QueryHeapObject].insert(GetDx12WrappedId(pQueryHeap));
     }
 }
 
@@ -426,7 +426,7 @@ void Track_ID3D12GraphicsCommandList_EndQuery(ID3D12GraphicsCommandList_Wrapper*
     GFXRECON_ASSERT(info != nullptr);
     if(pQueryHeap != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12QueryHeapObject].insert(GetWrappedId(pQueryHeap));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12QueryHeapObject].insert(GetDx12WrappedId(pQueryHeap));
     }
 }
 
@@ -438,11 +438,11 @@ void Track_ID3D12GraphicsCommandList_ResolveQueryData(ID3D12GraphicsCommandList_
     GFXRECON_ASSERT(info != nullptr);
     if(pQueryHeap != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12QueryHeapObject].insert(GetWrappedId(pQueryHeap));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12QueryHeapObject].insert(GetDx12WrappedId(pQueryHeap));
     }
     if(pDestinationBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDestinationBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDestinationBuffer));
     }
 }
 
@@ -454,7 +454,7 @@ void Track_ID3D12GraphicsCommandList_SetPredication(ID3D12GraphicsCommandList_Wr
     GFXRECON_ASSERT(info != nullptr);
     if(pBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pBuffer));
     }
 }
 
@@ -466,15 +466,15 @@ void Track_ID3D12GraphicsCommandList_ExecuteIndirect(ID3D12GraphicsCommandList_W
     GFXRECON_ASSERT(info != nullptr);
     if(pCommandSignature != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12CommandSignatureObject].insert(GetWrappedId(pCommandSignature));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12CommandSignatureObject].insert(GetDx12WrappedId(pCommandSignature));
     }
     if(pArgumentBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pArgumentBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pArgumentBuffer));
     }
     if(pCountBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pCountBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pCountBuffer));
     }
 }
 
@@ -486,17 +486,17 @@ void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(ID3D12GraphicsCommand
     GFXRECON_ASSERT(info != nullptr);
     if(pDstBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDstBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDstBuffer));
     }
     if(pSrcBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pSrcBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pSrcBuffer));
     }
     if(ppDependentResources != nullptr)
     {
         for (UINT i = 0; i < Dependencies; ++i)
         {
-            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(ppDependentResources[i]));
+            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(ppDependentResources[i]));
         }
     }
 }
@@ -509,17 +509,17 @@ void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(ID3D12GraphicsComma
     GFXRECON_ASSERT(info != nullptr);
     if(pDstBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDstBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDstBuffer));
     }
     if(pSrcBuffer != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pSrcBuffer));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pSrcBuffer));
     }
     if(ppDependentResources != nullptr)
     {
         for (UINT i = 0; i < Dependencies; ++i)
         {
-            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(ppDependentResources[i]));
+            info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(ppDependentResources[i]));
         }
     }
 }
@@ -532,11 +532,11 @@ void Track_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(ID3D12GraphicsCom
     GFXRECON_ASSERT(info != nullptr);
     if(pDstResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pDstResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pDstResource));
     }
     if(pSrcResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pSrcResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pSrcResource));
     }
 }
 
@@ -563,7 +563,7 @@ void Track_ID3D12GraphicsCommandList3_SetProtectedResourceSession(ID3D12Graphics
     GFXRECON_ASSERT(info != nullptr);
     if(pProtectedResourceSession != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ProtectedResourceSessionObject].insert(GetWrappedId(pProtectedResourceSession));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ProtectedResourceSessionObject].insert(GetDx12WrappedId(pProtectedResourceSession));
     }
 }
 
@@ -575,7 +575,7 @@ void Track_ID3D12GraphicsCommandList4_InitializeMetaCommand(ID3D12GraphicsComman
     GFXRECON_ASSERT(info != nullptr);
     if(pMetaCommand != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12MetaCommandObject].insert(GetWrappedId(pMetaCommand));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12MetaCommandObject].insert(GetDx12WrappedId(pMetaCommand));
     }
 }
 
@@ -587,7 +587,7 @@ void Track_ID3D12GraphicsCommandList4_ExecuteMetaCommand(ID3D12GraphicsCommandLi
     GFXRECON_ASSERT(info != nullptr);
     if(pMetaCommand != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12MetaCommandObject].insert(GetWrappedId(pMetaCommand));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12MetaCommandObject].insert(GetDx12WrappedId(pMetaCommand));
     }
 }
 
@@ -628,7 +628,7 @@ void Track_ID3D12GraphicsCommandList4_SetPipelineState1(ID3D12GraphicsCommandLis
     GFXRECON_ASSERT(info != nullptr);
     if(pStateObject != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12StateObjectObject].insert(GetWrappedId(pStateObject));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12StateObjectObject].insert(GetDx12WrappedId(pStateObject));
     }
 }
 
@@ -655,7 +655,7 @@ void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12GraphicsComman
     GFXRECON_ASSERT(info != nullptr);
     if(shadingRateImage != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(shadingRateImage));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(shadingRateImage));
     }
 }
 
@@ -667,7 +667,7 @@ void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12GraphicsCommandList
     GFXRECON_ASSERT(info != nullptr);
     if(pResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pResource));
     }
 }
 
@@ -679,7 +679,7 @@ void Track_ID3D12DebugCommandList_AssertResourceState(ID3D12GraphicsCommandList_
     GFXRECON_ASSERT(info != nullptr);
     if(pResource != nullptr)
     {
-        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetWrappedId(pResource));
+        info->command_objects[D3D12GraphicsCommandObjectType::ID3D12ResourceObject].insert(GetDx12WrappedId(pResource));
     }
 }
 

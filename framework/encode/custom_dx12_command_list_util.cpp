@@ -35,7 +35,7 @@ void TrackObjectForCommandList(ID3D12GraphicsCommandListInfo* info,
 {
     if (object)
     {
-        info->command_objects[type].insert(GetWrappedId<T>(object));
+        info->command_objects[type].insert(GetDx12WrappedId<T>(object));
     }
 }
 

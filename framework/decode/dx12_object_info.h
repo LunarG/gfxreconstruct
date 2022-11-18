@@ -27,6 +27,7 @@
 #include "format/format.h"
 #include "graphics/dx12_util.h"
 #include "util/defines.h"
+#include "decode/dx12_descriptor_map.h"
 
 #include <d3d12.h>
 
@@ -136,6 +137,7 @@ struct D3D12DeviceInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D12Device";
     D3D12DeviceInfo() : DxObjectExtraInfo(kType) {}
 
+    std::shared_ptr<DescriptorIncrements> capture_increments{ std::make_shared<DescriptorIncrements>() };
     std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };
 };
 
@@ -145,8 +147,11 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D12DescriptorHeap";
     D3D12DescriptorHeapInfo() : DxObjectExtraInfo(kType) {}
 
+    std::shared_ptr<DescriptorIncrements> capture_increments;
     std::shared_ptr<DescriptorIncrements> replay_increments;
     D3D12_DESCRIPTOR_HEAP_TYPE            descriptor_type{};
+    uint32_t                              descriptor_count{};
+    uint64_t                              capture_gpu_addr_begin{ kNullGpuAddress };
     size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 };
@@ -179,6 +184,8 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
     std::unordered_map<uint32_t, MappedMemoryInfo> mapped_memory_info; ///< Map subresource index to mapped memory info.
     uint64_t                                       capture_address_{ 0 }; ///< Capture GPU VA.
     uint64_t                                       replay_address_{ 0 };  ///< Replay GPU VA.
+
+    bool is_reserved_resource{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

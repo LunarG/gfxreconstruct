@@ -73,8 +73,7 @@ class Dx12ReplayConsumerBodyGenerator(
         )
         self.structs_with_handles = {
             **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
-            ['ptr'],
-            'D3D12_GPU_DESCRIPTOR_HANDLE': ['ptr']
+            ['ptr']
         }
         self.structs_with_handle_ptrs = []
         self.structs_with_map_data = dict()
@@ -326,9 +325,14 @@ class Dx12ReplayConsumerBodyGenerator(
                     else:
                         arg_list.append(value.name + '->GetPointer()')
                 else:
-                    code += '    MapStructObjects(&{}, GetObjectInfoTable(), GetGpuVaTable());\n'.format(
-                        value.name
-                    )
+                    if value.is_array:
+                        code += '    MapStructArrayObjects(&{}, {}->GetLength(), GetObjectInfoTable(), GetGpuVaTable());\n'.format(
+                            value.name
+                        )
+                    else:
+                        code += '    MapStructObjects(&{}, GetObjectInfoTable(), GetGpuVaTable());\n'.format(
+                            value.name
+                        )
                     arg_list.append('*{}.decoded_value'.format(value.name))
             else:
                 if not is_output:
