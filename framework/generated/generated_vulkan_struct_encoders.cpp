@@ -5613,6 +5613,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDiagnosticsConfigCrea
     encoder->EncodeFlagsValue(value.flags);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.graphicsPipelineLibrary);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.graphicsPipelineLibraryFastLinking);
+    encoder->EncodeVkBool32Value(value.graphicsPipelineLibraryIndependentInterpolationDecoration);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGraphicsPipelineLibraryCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5945,6 +5967,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorWriteCreateInf
     encoder->EncodeVkBool32Array(value.pColorWriteEnables, value.attachmentCount);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.primitivesGeneratedQuery);
+    encoder->EncodeVkBool32Value(value.primitivesGeneratedQueryWithRasterizerDiscard);
+    encoder->EncodeVkBool32Value(value.primitivesGeneratedQueryWithNonZeroStreams);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageViewMinLodFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5986,6 +6017,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawIndexedInfoEXT& va
     encoder->EncodeInt32Value(value.vertexOffset);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.image2DViewOf3D);
+    encoder->EncodeVkBool32Value(value.sampler2DViewOf3D);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6007,6 +6046,29 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePageableDevic
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.pageableDeviceLocalMemory);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.descriptorSetHostMapping);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetBindingReferenceVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.descriptorSetLayout);
+    encoder->EncodeUInt32Value(value.binding);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutHostMappingInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeSizeTValue(value.descriptorOffset);
+    encoder->EncodeUInt32Value(value.descriptorSize);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& value)

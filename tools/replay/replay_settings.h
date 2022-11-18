@@ -28,7 +28,7 @@
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
-    "screenshot-all,--dcp,--discard-cached-psos";
+    "screenshot-all,--dcp,--discard-cached-psos,--onhb|--omit-null-hardware-buffers";
 const char kArguments[] = "--log-level,--log-file,--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--"
                           "replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
                           "screenshot-dir,--screenshot-prefix,--fw|--force-windowed";
@@ -53,6 +53,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dcp | --discard-cached-psos] [--surface-index <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
 #if defined(WIN32)
@@ -148,7 +149,6 @@ static void PrintUsage(const char* exe_name)
 #else
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
 #endif
-    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");

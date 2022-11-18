@@ -51,6 +51,7 @@ def usage_message():
         '                          [-f capture_frames]',
         '                          [--no-file-timestamp]',
         '                          [--trigger {F1-F12,TAB,CTRL}]',
+        '                          [--trigger-frames frame_count]',
         '                          [--compression-type {LZ4,ZLIB,ZSTD,NONE}]',
         '                          [--file-flush]',
         '                          [--log-level {debug,info,warn,error,fatal}]',
@@ -137,6 +138,8 @@ def create_argument_parser():
     parser.add_argument(
         '--trigger', dest='trigger', choices=TRIGGER_KEY_CHOICES,
         help='Specify a hotkey to start/stop capture')
+    parser.add_argument('--trigger-frames', dest='trigger_frames', metavar='<frame_count>',
+        help='Specify a limit on the number of frames captured via hotkey')
     parser.add_argument(
         '--compression-type', dest='compression_type', choices=COMPRESSION_CHOICES,
         help='Specify the type of compression to use in the capture file, default is LZ4')
@@ -189,6 +192,7 @@ def print_args(args):
     print('capture-frames', args.capture_frames)
     print('no-file-timestamp', args.file_timestamp)
     print('trigger', args.trigger)
+    print('trigger-frames', args.trigger_frames)
     print('compression-type', args.compression_type)
     print('file-flush', args.file_flush)
     print('log-level', args.log_level)
@@ -268,6 +272,7 @@ def set_env_vars(args):
     set_env_var('GFXRECON_CAPTURE_FRAMES', args.capture_frames)
     set_env_var('GFXRECON_CAPTURE_FILE_TIMESTAMP', args.file_timestamp)
     set_env_var('GFXRECON_CAPTURE_TRIGGER', args.trigger)
+    set_env_var('GFXRECON_CAPTURE_TRIGGER_FRAMES', args.trigger_frames)
     set_env_var('GFXRECON_CAPTURE_COMPRESSION_TYPE', args.compression_type)
     set_env_var('GFXRECON_CAPTURE_FILE_FLUSH', args.file_flush)
     set_env_var('GFXRECON_LOG_LEVEL', args.log_level)

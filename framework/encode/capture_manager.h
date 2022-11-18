@@ -288,6 +288,8 @@ class CaptureManager
     bool                                    trim_enabled_;
     std::vector<CaptureSettings::TrimRange> trim_ranges_;
     std::string                             trim_key_;
+    uint32_t                                trim_key_frames_;
+    uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
     uint32_t                                current_frame_;
     CaptureMode                             capture_mode_;

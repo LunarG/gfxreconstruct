@@ -81,6 +81,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_FRAMES_UPPER                "CAPTURE_FRAMES"
 #define CAPTURE_TRIGGER_LOWER               "capture_trigger"
 #define CAPTURE_TRIGGER_UPPER               "CAPTURE_TRIGGER"
+#define CAPTURE_TRIGGER_FRAMES_LOWER        "capture_trigger_frames"
+#define CAPTURE_TRIGGER_FRAMES_UPPER        "CAPTURE_TRIGGER_FRAMES"
 #define PAGE_GUARD_COPY_ON_MAP_LOWER        "page_guard_copy_on_map"
 #define PAGE_GUARD_COPY_ON_MAP_UPPER        "PAGE_GUARD_COPY_ON_MAP"
 #define PAGE_GUARD_SEPARATE_READ_LOWER      "page_guard_separate_read"
@@ -129,6 +131,7 @@ const char kScreenshotDirEnvVar[]             = GFXRECON_ENV_VAR_PREFIX SCREENSH
 const char kScreenshotFramesEnvVar[]          = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FRAMES_LOWER;
 const char kCaptureFramesEnvVar[]             = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
 const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_LOWER;
+const char kCaptureTriggerFramesEnvVar[]      = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_LOWER;
 const char kPageGuardCopyOnMapEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
 const char kPageGuardSeparateReadEnvVar[]     = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
 const char kPageGuardPersistentMemoryEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_LOWER;
@@ -172,6 +175,7 @@ const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_UPPER;
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
 const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
+const char kCaptureTriggerFramesEnvVar[]      = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_UPPER;
 const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
 const char kDebugDeviceLostEnvVar[]           = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_UPPER;
 const char kDisableDxrEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_UPPER;
@@ -202,6 +206,7 @@ const std::string kOptionKeyScreenshotDir             = std::string(kSettingsFil
 const std::string kOptionKeyScreenshotFrames          = std::string(kSettingsFilter) + std::string(SCREENSHOT_FRAMES_LOWER);
 const std::string kOptionKeyCaptureFrames             = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureTrigger            = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_LOWER);
+const std::string kOptionKeyCaptureTriggerFrames      = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_FRAMES_LOWER);
 const std::string kOptionKeyPageGuardCopyOnMap        = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
 const std::string kOptionKeyPageGuardSeparateRead     = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
 const std::string kOptionKeyPageGuardPersistentMemory = std::string(kSettingsFilter) + std::string(PAGE_GUARD_PERSISTENT_MEMORY_LOWER);
@@ -307,6 +312,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     // Trimming environment variables
     LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
     LoadSingleOptionEnvVar(options, kCaptureTriggerEnvVar, kOptionKeyCaptureTrigger);
+    LoadSingleOptionEnvVar(options, kCaptureTriggerFramesEnvVar, kOptionKeyCaptureTriggerFrames);
 
     // Page guard environment variables
     LoadSingleOptionEnvVar(options, kPageGuardCopyOnMapEnvVar, kOptionKeyPageGuardCopyOnMap);
@@ -375,12 +381,17 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // with trim key will be parsed only
     // if trim ranges is empty, else it will be ignored
     ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
-    std::string trim_key_option = FindOption(options, kOptionKeyCaptureTrigger);
+    std::string trim_key_option        = FindOption(options, kOptionKeyCaptureTrigger);
+    std::string trim_key_frames_option = FindOption(options, kOptionKeyCaptureTriggerFrames);
     if (!trim_key_option.empty())
     {
         if (settings->trace_settings_.trim_ranges.empty())
         {
             settings->trace_settings_.trim_key = ParseTrimKeyString(trim_key_option);
+            if (!trim_key_frames_option.empty())
+            {
+                settings->trace_settings_.trim_key_frames = ParseTrimKeyFramesString(trim_key_frames_option);
+            }
         }
         else
         {
@@ -715,6 +726,27 @@ std::string CaptureSettings::ParseTrimKeyString(const std::string& value_string)
         GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid trim trigger key \"%s\"", trim_key.c_str());
     }
     return trim_key;
+}
+
+uint32_t CaptureSettings::ParseTrimKeyFramesString(const std::string& value_string)
+{
+    uint32_t frames = 0;
+    size_t   digits = std::count_if(value_string.begin(), value_string.end(), ::isdigit);
+    bool     valid  = false;
+    if (digits == value_string.length())
+    {
+        int value = std::stoi(value_string);
+        if (value > 0)
+        {
+            frames = static_cast<uint32_t>(value);
+            valid  = true;
+        }
+    }
+    if (!valid)
+    {
+        GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid trim trigger key frames \"%s\"", value_string.c_str());
+    }
+    return frames;
 }
 
 GFXRECON_END_NAMESPACE(encode)

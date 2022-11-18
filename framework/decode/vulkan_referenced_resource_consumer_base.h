@@ -63,6 +63,13 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                        StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
                                        format::HandleId                            fence) override;
 
+    virtual void Process_vkQueueSubmit2(const ApiCallInfo&                           call_info,
+                                        VkResult                                     returnValue,
+                                        format::HandleId                             queue,
+                                        uint32_t                                     submitCount,
+                                        StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                        format::HandleId                             fence) override;
+
     virtual void Process_vkCreateBuffer(const ApiCallInfo&                                   call_info,
                                         VkResult                                             returnValue,
                                         format::HandleId                                     device,

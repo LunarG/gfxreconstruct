@@ -213,6 +213,14 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         window_factory->Destroy(window);
     }
 
+    // Finally destroy vkInstances
+    object_cleanup::FreeAllLiveInstances(
+        &object_info_table_,
+        false,
+        true,
+        [this](const void* handle) { return GetInstanceTable(handle); },
+        [this](const void* handle) { return GetDeviceTable(handle); });
+
     if (loader_handle_ != nullptr)
     {
         graphics::ReleaseLoader(loader_handle_);
@@ -1921,7 +1929,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
                 if (entry.second.properties == nullptr)
                 {
                     entry.second.properties = std::make_unique<VkPhysicalDeviceProperties>();
-                    table->GetPhysicalDeviceProperties(physical_device_info->handle, entry.second.properties.get());
+                    table->GetPhysicalDeviceProperties(entry.first, entry.second.properties.get());
                 }
 
                 replay_properties = entry.second.properties.get();
@@ -3341,6 +3349,141 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
+                                                        VkResult           original_result,
+                                                        const QueueInfo*   queue_info,
+                                                        uint32_t           submitCount,
+                                                        const StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                                        const FenceInfo*                                   fence_info)
+{
+    assert((queue_info != nullptr) && (pSubmits != nullptr));
+
+    VkResult             result       = VK_SUCCESS;
+    const VkSubmitInfo2* submit_infos = pSubmits->GetPointer();
+    assert(submitCount == 0 || submit_infos != nullptr);
+    auto    submit_info_data = pSubmits->GetMetaStructPointer();
+    VkFence fence            = VK_NULL_HANDLE;
+
+    if (fence_info != nullptr)
+    {
+        fence = fence_info->handle;
+    }
+
+    // Only attempt to filter imported semaphores if we know at least one has been imported.
+    // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
+    // tracked.
+    if ((!have_imported_semaphores_) && (options_.surface_index == -1))
+    {
+        result = func(queue_info->handle, submitCount, submit_infos, fence);
+    }
+    else
+    {
+        // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
+        // imported semaphore info structures.
+        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> altered_submits;
+        std::vector<const SemaphoreInfo*>                               removed_semaphores;
+
+        if (submit_info_data != nullptr)
+        {
+            for (uint32_t i = 0; i < submitCount; i++)
+            {
+                GetImportedSemaphores(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
+                GetShadowSemaphores(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
+
+                // If rendering is restricted to a specific surface, need to track forward progress for semaphores that
+                // have been submitted with a null-swapchain.
+                TrackSemaphoreForwardProgress(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
+
+                // Remove non-forward progress of signal semaphores.
+                GetNonForwardProgress(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
+
+                if (!removed_semaphores.empty())
+                {
+                    altered_submits[i].swap(removed_semaphores);
+                    assert(removed_semaphores.empty());
+                }
+            }
+        }
+
+        if (altered_submits.empty())
+        {
+            result = func(queue_info->handle, submitCount, submit_infos, fence);
+        }
+        else
+        {
+            // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
+            // original semaphore array with the imported semaphores omitted.
+            std::vector<VkSubmitInfo2> modified_submit_infos(submit_infos, std::next(submit_infos, submitCount));
+            std::vector<std::vector<VkSemaphore>> semaphore_memory(altered_submits.size());
+
+            std::vector<VkSemaphoreSubmitInfo> wait_semaphore_infos;
+            std::vector<VkSemaphoreSubmitInfo> signal_semaphore_infos;
+
+            for (const auto& submit_iter : altered_submits)
+            {
+                // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
+                VkSubmitInfo2& modified_submit_info = modified_submit_infos[submit_iter.first];
+                auto           semaphore_iter       = submit_iter.second.begin();
+
+                for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreInfoCount; ++i)
+                {
+                    VkSemaphore semaphore = modified_submit_info.pWaitSemaphoreInfos[i].semaphore;
+
+                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                    {
+                        VkSemaphoreSubmitInfo info{};
+                        info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                        info.semaphore = semaphore;
+
+                        wait_semaphore_infos.emplace_back(info);
+                    }
+                    else
+                    {
+                        // Omit the ignored semaphore from the current submission.
+                        ++semaphore_iter;
+                    }
+                }
+
+                for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreInfoCount; ++i)
+                {
+                    VkSemaphore semaphore = modified_submit_info.pSignalSemaphoreInfos[i].semaphore;
+
+                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                    {
+                        VkSemaphoreSubmitInfo info{};
+                        info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                        info.semaphore = semaphore;
+
+                        signal_semaphore_infos.emplace_back(info);
+                    }
+                    else
+                    {
+                        // Omit the ignored semaphore from the current submission.
+                        ++semaphore_iter;
+                    }
+                }
+
+                modified_submit_info.waitSemaphoreInfoCount   = static_cast<uint32_t>(wait_semaphore_infos.size());
+                modified_submit_info.pWaitSemaphoreInfos      = wait_semaphore_infos.data();
+                modified_submit_info.signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphore_infos.size());
+                modified_submit_info.pSignalSemaphoreInfos    = signal_semaphore_infos.data();
+            }
+
+            result = func(queue_info->handle,
+                          static_cast<uint32_t>(modified_submit_infos.size()),
+                          modified_submit_infos.data(),
+                          fence);
+        }
+    }
+
+    if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
+    {
+        GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+    }
+
+    return result;
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
                                                   VkResult                                              original_result,
@@ -4509,8 +4652,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     std::unique_ptr<char[]> file_code;
     const uint32_t*         orig_code = original_info->pCode;
     size_t                  orig_size = original_info->codeSize;
-    uint32_t                check_sum = util::hash::CheckSum(orig_code, orig_size);
-    std::string             file_name = "sh" + std::to_string(check_sum);
+    uint64_t                handle_id = *pShaderModule->GetPointer();
+    std::string             file_name = "sh" + std::to_string(handle_id);
     std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);
 
     FILE*   fp     = nullptr;
@@ -5932,6 +6075,40 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     return func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesANDROID(
+    PFN_vkGetAndroidHardwareBufferPropertiesANDROID                         func,
+    VkResult                                                                original_result,
+    const DeviceInfo*                                                       device_info,
+    const struct AHardwareBuffer*                                           hardware_buffer,
+    StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
+{
+    assert((device_info != nullptr) && (pProperties != nullptr) && (pProperties->GetOutputPointer() != nullptr));
+
+    if ((hardware_buffer == nullptr) && options_.omit_null_hardware_buffers)
+    {
+
+        GFXRECON_LOG_INFO_ONCE("A call to vkGetAndroidHardwareBufferPropertiesANDROID with a NULL "
+                               "AHardwareBuffer* was omitted during replay.");
+        return original_result;
+    }
+    else
+    {
+
+        if (hardware_buffer == nullptr)
+        {
+            GFXRECON_LOG_WARNING_ONCE("The captured application used vkGetAndroidHardwareBufferPropertiesANDROID but "
+                                      "replay has no way of mapping the captured AHardwareBuffer*; replay may fail. "
+                                      "If replay of this call appears to fail, try the replay option "
+                                      "\"--omit-null-hardware-buffers\".");
+        }
+
+        VkDevice device            = device_info->handle;
+        auto*    output_properties = pProperties->GetOutputPointer();
+
+        return func(device, hardware_buffer, output_properties);
+    }
+}
+
 void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
     const DescriptorUpdateTemplateInfo* update_template_info, DescriptorUpdateTemplateDecoder* decoder)
 {
@@ -6034,6 +6211,28 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(const HandlePointerDecoder<
     }
 }
 
+void VulkanReplayConsumerBase::GetImportedSemaphores(
+    const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+    std::vector<const SemaphoreInfo*>*                         imported_semaphores)
+{
+    assert(imported_semaphores != nullptr);
+
+    const Decoded_VkSemaphoreSubmitInfo* semaphore_infos = semaphore_info_data->GetMetaStructPointer();
+    if (semaphore_infos != nullptr)
+    {
+        size_t count = semaphore_info_data->GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            const SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
+            if ((semaphore_info != nullptr) && semaphore_info->is_external)
+            {
+                imported_semaphores->push_back(semaphore_info);
+            }
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                                    std::vector<const SemaphoreInfo*>*       shadow_semaphores)
 {
@@ -6047,6 +6246,31 @@ void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<Vk
         for (uint32_t i = 0; i < count; ++i)
         {
             SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            if ((semaphore_info != nullptr) && (semaphore_info->shadow_signaled == true))
+            {
+                // If found, unsignal the semaphore to represent it being used.
+                shadow_semaphores->push_back(semaphore_info);
+                semaphore_info->shadow_signaled = false;
+                shadow_semaphores_.erase(semaphore_info->handle);
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::GetShadowSemaphores(
+    const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+    std::vector<const SemaphoreInfo*>*                         shadow_semaphores)
+{
+    assert(shadow_semaphores != nullptr);
+
+    const Decoded_VkSemaphoreSubmitInfo* semaphore_infos = semaphore_info_data->GetMetaStructPointer();
+    if (semaphore_infos != nullptr)
+    {
+        size_t count = semaphore_info_data->GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
             if ((semaphore_info != nullptr) && (semaphore_info->shadow_signaled == true))
             {
                 // If found, unsignal the semaphore to represent it being used.
@@ -6096,6 +6320,45 @@ void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(const HandlePointer
     }
 }
 
+void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(
+    const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+    std::vector<const SemaphoreInfo*>*                         removed_semaphores)
+{
+    assert(removed_semaphores != nullptr);
+
+    const Decoded_VkSemaphoreSubmitInfo* semaphore_infos = semaphore_info_data->GetMetaStructPointer();
+    if (semaphore_infos != nullptr)
+    {
+        size_t count = semaphore_info_data->GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
+            if (semaphore_info != nullptr)
+            {
+                VkSemaphore semaphore = semaphore_info->handle;
+                // Need to ignore if removed.
+                bool removed = false;
+                for (const SemaphoreInfo* remove_semaphore : *removed_semaphores)
+                {
+                    if (semaphore == remove_semaphore->handle)
+                    {
+                        removed                          = true;
+                        semaphore_info->forward_progress = false;
+                        break;
+                    }
+                }
+
+                // If not removed, mark as forward progress.
+                if (removed == false)
+                {
+                    semaphore_info->forward_progress = true;
+                }
+            }
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::GetNonForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                                      std::vector<const SemaphoreInfo*>* non_forward_progress_semaphores)
 {
@@ -6109,6 +6372,28 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(const HandlePointerDecoder<
         for (uint32_t i = 0; i < count; ++i)
         {
             const SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            if ((semaphore_info != nullptr) && (semaphore_info->forward_progress == false))
+            {
+                non_forward_progress_semaphores->push_back(semaphore_info);
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::GetNonForwardProgress(
+    const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
+    std::vector<const SemaphoreInfo*>*                         non_forward_progress_semaphores)
+{
+    assert(non_forward_progress_semaphores != nullptr);
+
+    const Decoded_VkSemaphoreSubmitInfo* semaphore_infos = semaphore_info_data->GetMetaStructPointer();
+    if (semaphore_infos != nullptr)
+    {
+        size_t count = semaphore_info_data->GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            const SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
             if ((semaphore_info != nullptr) && (semaphore_info->forward_progress == false))
             {
                 non_forward_progress_semaphores->push_back(semaphore_info);

@@ -328,6 +328,8 @@ class VulkanStateTracker
 
     void TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits);
 
+    void TrackCommandBufferSubmissions2(uint32_t submit_count, const VkSubmitInfo2* submits);
+
     void TrackUpdateDescriptorSets(uint32_t                    write_count,
                                    const VkWriteDescriptorSet* writes,
                                    uint32_t                    copy_count,
@@ -356,6 +358,11 @@ class VulkanStateTracker
                                    const VkSemaphore* waits,
                                    uint32_t           signal_count,
                                    const VkSemaphore* signals);
+
+    void TrackSemaphoreInfoSignalState(uint32_t                     wait_count,
+                                       const VkSemaphoreSubmitInfo* wait_infos,
+                                       uint32_t                     signal_count,
+                                       const VkSemaphoreSubmitInfo* signal_infos);
 
     void TrackAcquireImage(
         uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t deviceMask);
@@ -439,6 +446,8 @@ class VulkanStateTracker
     void DestroyState(SwapchainKHRWrapper* wrapper);
 
   private:
+    void TrackQuerySubmissions(CommandBufferWrapper* command_wrapper);
+
     std::mutex       state_table_mutex_;
     VulkanStateTable state_table_;
 };

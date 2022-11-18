@@ -7,7 +7,7 @@
 [1]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [2]: https://creativecommons.org/licenses/by-nd/4.0/
 
-Copyright &copy; 2018-2020 LunarG, Inc.
+Copyright &copy; 2018-2022 LunarG, Inc.
 
 # GFXReconstruct API Capture and Replay
 
@@ -31,7 +31,6 @@ Vulkan API calls on Desktop systems.
     2. [Capture File Compression](#capture-file-compression)
     3. [Shader Extraction](#shader-extraction)
     4. [Trimmed File Optimizer](#trimmed-file-optimizer)
-    5. [To ASCII](#to-ascii)
     6. [Command Launcher](#command-launcher)
 
 ## Capturing API calls
@@ -156,6 +155,7 @@ Option | Environment Variable | Type | Description
 Capture File Name | GFXRECON_CAPTURE_FILE | STRING | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`
 Capture Specific Frames | GFXRECON_CAPTURE_FRAMES | STRING | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).
 Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER | STRING | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).
+Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER_FRAMES | STRING | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)
 Capture File Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
 Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
 Capture File Flush After Write | GFXRECON_CAPTURE_FILE_FLUSH | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
@@ -569,27 +569,6 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
-```
-
-### To ASCII
-
-The `gfxrecon-toascii.exe` converts GFXReconstruct capture files to text.
-The text output is formatted as JSON and written by default to a .txt file in the directory of the specified GFXReconstruct capture file. Use `--output` to override the default filename for the output.
-
-```text
-gfxrecon-toascii.exe - A tool to convert GFXReconstruct capture files to text.
-
-Usage:
-  gfxrecon-toascii.exe [-h | --help] [--version] [--output filename] <file>
-
-Required arguments:
-  <file>                Path to the GFXReconstruct capture file to be converted
-                        to text.
-
-Optional arguments:
-  -h                    Print usage information and exit (same as --help).
-  --version             Print version information and exit.
-  --output filename     Write output to the provided filename.
 ```
 
 ### Command Launcher

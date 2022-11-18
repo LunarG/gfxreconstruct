@@ -56,21 +56,24 @@ util::Compressor* CreateCompressor(CompressionType type)
 #if defined(ENABLE_LZ4_COMPRESSION)
             compressor = new util::Lz4Compressor();
 #else
-            GFXRECON_LOG_ERROR("Failed to initialize compression module: LZ4 compression is disabled.");
+            GFXRECON_LOG_ERROR(
+                "Failed to initialize compression module: Application was built with LZ4 compression disabled.");
 #endif // ENABLE_LZ4_COMPRESSION
             break;
         case kZlib:
 #if defined(ENABLE_ZLIB_COMPRESSION)
             compressor = new util::ZlibCompressor();
 #else
-            GFXRECON_LOG_ERROR("Failed to initialize compression module: zlib compression is disabled.");
+            GFXRECON_LOG_ERROR(
+                "Failed to initialize compression module: Application was built with zlib compression disabled.");
 #endif // ENABLE_ZLIB_COMPRESSION
             break;
         case kZstd:
 #if defined(ENABLE_ZSTD_COMPRESSION)
             compressor = new util::ZstdCompressor();
 #else
-            GFXRECON_LOG_ERROR("Failed to initialize compression module: Zstandard compression is disabled.");
+            GFXRECON_LOG_ERROR(
+                "Failed to initialize compression module: Application was built with Zstandard compression disabled.");
 #endif // ENABLE_ZSTD_COMPRESSION
             break;
         case kNone:

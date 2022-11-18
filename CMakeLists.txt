@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2022 LunarG, Inc.
 # Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -40,7 +40,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 9)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 11)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 12)
 
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
 

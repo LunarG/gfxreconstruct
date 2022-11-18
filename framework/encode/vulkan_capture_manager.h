@@ -678,6 +678,25 @@ class VulkanCaptureManager : public CaptureManager
         }
     }
 
+    void PostProcess_vkQueueSubmit2(
+        VkResult result, VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence)
+    {
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert((state_tracker_ != nullptr) && ((submitCount == 0) || (pSubmits != nullptr)));
+
+            state_tracker_->TrackCommandBufferSubmissions2(submitCount, pSubmits);
+
+            for (uint32_t i = 0; i < submitCount; ++i)
+            {
+                state_tracker_->TrackSemaphoreInfoSignalState(pSubmits[i].waitSemaphoreInfoCount,
+                                                              pSubmits[i].pWaitSemaphoreInfos,
+                                                              pSubmits[i].signalSemaphoreInfoCount,
+                                                              pSubmits[i].pSignalSemaphoreInfos);
+            }
+        }
+    }
+
     void PostProcess_vkUpdateDescriptorSets(VkDevice,
                                             uint32_t                    descriptorWriteCount,
                                             const VkWriteDescriptorSet* pDescriptorWrites,
@@ -792,6 +811,18 @@ class VulkanCaptureManager : public CaptureManager
         }
     }
 
+    void PostProcess_vkCmdWriteTimestamp2(VkCommandBuffer          commandBuffer,
+                                          VkPipelineStageFlagBits2 pipelineStage,
+                                          VkQueryPool              queryPool,
+                                          uint32_t                 query)
+    {
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, 0, QueryInfo::kInvalidIndex);
+        }
+    }
+
     void
     PostProcess_vkCmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer commandBuffer,
                                                              uint32_t        accelerationStructureCount,
@@ -874,6 +905,8 @@ class VulkanCaptureManager : public CaptureManager
     void PostProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
     void PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
+
+    void PreProcess_vkQueueSubmit2(VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence);
 
     void PreProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
                                                      VkDevice                                    device,
@@ -964,6 +997,8 @@ class VulkanCaptureManager : public CaptureManager
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
 
   private:
+    void QueueSubmitWriteFillMemoryCmd();
+
     static VulkanCaptureManager*        instance_;
     static LayerTable                   layer_table_;
     std::set<DeviceMemoryWrapper*>      mapped_memory_; // Track mapped memory for unassisted tracking mode.

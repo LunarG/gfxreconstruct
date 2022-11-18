@@ -321,9 +321,9 @@ void VulkanCaptureManager::WriteSetDeviceMemoryPropertiesCommand(
         // populate thread_data's scratch_buffer_ then write to file.
         auto& scratch_buffer = thread_data->GetScratchBuffer();
         scratch_buffer.clear();
-        scratch_buffer.insert(scratch_buffer.end(),
-                              reinterpret_cast<uint8_t*>(&memory_properties_cmd),
-                              reinterpret_cast<uint8_t*>(&memory_properties_cmd) + sizeof(memory_properties_cmd));
+        std::copy(reinterpret_cast<uint8_t*>(&memory_properties_cmd),
+                  reinterpret_cast<uint8_t*>(&memory_properties_cmd) + sizeof(memory_properties_cmd),
+                  std::back_inserter(scratch_buffer));
 
         format::DeviceMemoryType type;
         for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
@@ -1914,6 +1914,24 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
+    QueueSubmitWriteFillMemoryCmd();
+}
+
+void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
+                                                     uint32_t             submitCount,
+                                                     const VkSubmitInfo2* pSubmits,
+                                                     VkFence              fence)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(queue);
+    GFXRECON_UNREFERENCED_PARAMETER(submitCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
+    GFXRECON_UNREFERENCED_PARAMETER(fence);
+
+    QueueSubmitWriteFillMemoryCmd();
+}
+
+void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
+{
     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();

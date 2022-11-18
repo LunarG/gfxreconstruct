@@ -56,43 +56,45 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
-const char kHelpShortOption[]                  = "-h";
-const char kHelpLongOption[]                   = "--help";
-const char kVersionOption[]                    = "--version";
-const char kLogLevelArgument[]                 = "--log-level";
-const char kLogFileArgument[]                  = "--log-file";
-const char kLogDebugView[]                     = "--log-debugview";
-const char kNoDebugPopup[]                     = "--no-debug-popup";
-const char kOverrideGpuArgument[]              = "--gpu";
-const char kPausedOption[]                     = "--paused";
-const char kPauseFrameArgument[]               = "--pause-frame";
-const char kSkipFailedAllocationShortOption[]  = "--sfa";
-const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
-const char kDiscardCachedPsosShortOption[]     = "--dcp";
-const char kDiscardCachedPsosLongOption[]      = "--discard-cached-psos";
-const char kOmitPipelineCacheDataShortOption[] = "--opcd";
-const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
-const char kWsiArgument[]                      = "--wsi";
-const char kSurfaceIndexArgument[]             = "--surface-index";
-const char kMemoryPortabilityShortOption[]     = "-m";
-const char kMemoryPortabilityLongOption[]      = "--memory-translation";
-const char kSyncOption[]                       = "--sync";
-const char kRemoveUnsupportedOption[]          = "--remove-unsupported";
-const char kValidateOption[]                   = "--validate";
-const char kDebugDeviceLostOption[]            = "--debug-device-lost";
-const char kCreateDummyAllocationsOption[]     = "--create-dummy-allocations";
-const char kDeniedMessages[]                   = "--denied-messages";
-const char kAllowedMessages[]                  = "--allowed-messages";
-const char kShaderReplaceArgument[]            = "--replace-shaders";
-const char kScreenshotAllOption[]              = "--screenshot-all";
-const char kScreenshotRangeArgument[]          = "--screenshots";
-const char kScreenshotFormatArgument[]         = "--screenshot-format";
-const char kScreenshotDirArgument[]            = "--screenshot-dir";
-const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
-const char kForceWindowedShortArgument[]       = "--fw";
-const char kForceWindowedLongArgument[]        = "--force-windowed";
-const char kJsonObjectArgument[]               = "--json-object";
-const char kOutput[]                           = "--output";
+const char kHelpShortOption[]                    = "-h";
+const char kHelpLongOption[]                     = "--help";
+const char kVersionOption[]                      = "--version";
+const char kLogLevelArgument[]                   = "--log-level";
+const char kLogFileArgument[]                    = "--log-file";
+const char kLogDebugView[]                       = "--log-debugview";
+const char kNoDebugPopup[]                       = "--no-debug-popup";
+const char kOverrideGpuArgument[]                = "--gpu";
+const char kPausedOption[]                       = "--paused";
+const char kPauseFrameArgument[]                 = "--pause-frame";
+const char kSkipFailedAllocationShortOption[]    = "--sfa";
+const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
+const char kDiscardCachedPsosShortOption[]       = "--dcp";
+const char kDiscardCachedPsosLongOption[]        = "--discard-cached-psos";
+const char kOmitPipelineCacheDataShortOption[]   = "--opcd";
+const char kOmitPipelineCacheDataLongOption[]    = "--omit-pipeline-cache-data";
+const char kWsiArgument[]                        = "--wsi";
+const char kSurfaceIndexArgument[]               = "--surface-index";
+const char kMemoryPortabilityShortOption[]       = "-m";
+const char kMemoryPortabilityLongOption[]        = "--memory-translation";
+const char kSyncOption[]                         = "--sync";
+const char kRemoveUnsupportedOption[]            = "--remove-unsupported";
+const char kValidateOption[]                     = "--validate";
+const char kDebugDeviceLostOption[]              = "--debug-device-lost";
+const char kCreateDummyAllocationsOption[]       = "--create-dummy-allocations";
+const char kOmitNullHardwareBuffersLongOption[]  = "--omit-null-hardware-buffers";
+const char kOmitNullHardwareBuffersShortOption[] = "--onhb";
+const char kDeniedMessages[]                     = "--denied-messages";
+const char kAllowedMessages[]                    = "--allowed-messages";
+const char kShaderReplaceArgument[]              = "--replace-shaders";
+const char kScreenshotAllOption[]                = "--screenshot-all";
+const char kScreenshotRangeArgument[]            = "--screenshots";
+const char kScreenshotFormatArgument[]           = "--screenshot-format";
+const char kScreenshotDirArgument[]              = "--screenshot-dir";
+const char kScreenshotFilePrefixArgument[]       = "--screenshot-prefix";
+const char kForceWindowedShortArgument[]         = "--fw";
+const char kForceWindowedLongArgument[]          = "--force-windowed";
+const char kJsonObjectArgument[]                 = "--json-object";
+const char kOutput[]                             = "--output";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 const char kDxTwoPassReplay[] = "--dx12-two-pass-replay";
@@ -617,6 +619,12 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     if (arg_parser.IsOptionSet(kCreateDummyAllocationsOption))
     {
         options.create_dummy_allocations = true;
+    }
+
+    if (arg_parser.IsOptionSet(kOmitNullHardwareBuffersLongOption) ||
+        arg_parser.IsOptionSet(kOmitNullHardwareBuffersShortOption))
+    {
+        options.omit_null_hardware_buffers = true;
     }
 
     IsForceWindowed(options, arg_parser);

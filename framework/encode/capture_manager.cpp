@@ -106,6 +106,7 @@ bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstance
 {
     bool                        success = true;
     std::lock_guard<std::mutex> instance_lock(instance_lock_);
+
     if (instance_count_ == 0)
     {
         assert(GetInstanceFunc() == nullptr);
@@ -228,6 +229,7 @@ std::string PrepScreenshotPrefix(const std::string& dir)
 bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
 {
     bool success = true;
+
     base_filename_        = base_filename;
     file_options_         = trace_settings.capture_file_options;
     timestamp_filename_   = trace_settings.time_stamp_file;
@@ -312,11 +314,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         else if (!trace_settings.trim_key.empty())
         {
             trim_key_ = trace_settings.trim_key;
+            trim_key_frames_ = trace_settings.trim_key_frames;
 
             // Enable state tracking when hotkey pressed
             if (IsTrimHotkeyPressed())
             {
                 capture_mode_ = kModeWriteAndTrack;
+                trim_key_first_frame_ = current_frame_;
 
                 success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
             }
@@ -550,7 +554,8 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
             }
         }
     }
-    else if (IsTrimHotkeyPressed())
+    else if (IsTrimHotkeyPressed() ||
+             ((trim_key_frames_ > 0) && (current_frame_ >= (trim_key_first_frame_ + trim_key_frames_))))
     {
         // Stop recording and close file.
         DeactivateTrimming();
@@ -583,6 +588,8 @@ void CaptureManager::CheckStartCaptureForTrackMode()
         bool success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
         if (success)
         {
+
+            trim_key_first_frame_ = current_frame_;
             ActivateTrimming();
         }
         else

@@ -73,6 +73,7 @@ class CaptureSettings
         std::vector<util::FrameRange> screenshot_ranges;
         std::vector<TrimRange>        trim_ranges;
         std::string                   trim_key;
+        uint32_t                      trim_key_frames{ 0 };
         bool                          page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                          page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
         bool                          page_guard_persistent_memory{ false };
@@ -137,6 +138,8 @@ class CaptureSettings
     static void ParseTrimRangeString(const std::string& value_string, std::vector<CaptureSettings::TrimRange>* ranges);
 
     static std::string ParseTrimKeyString(const std::string& value_string);
+
+    static uint32_t ParseTrimKeyFramesString(const std::string& value_string);
 
   private:
     TraceSettings       trace_settings_;

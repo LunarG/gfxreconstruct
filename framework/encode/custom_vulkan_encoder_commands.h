@@ -421,6 +421,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier2KHR
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdPipelineBarrier2KHR(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>
 {
     template <typename... Args>
@@ -507,6 +517,46 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>
     static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkQueueSubmit(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkQueueSubmit2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkQueueSubmit2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkQueueSubmit2(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkQueueSubmit2(result, args...);
     }
 };
 
@@ -627,6 +677,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PostProcess_vkCmdWriteTimestamp(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdWriteTimestamp2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdWriteTimestamp2(args...);
     }
 };
 

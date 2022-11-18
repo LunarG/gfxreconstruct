@@ -591,6 +591,8 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDeviceBufferMemoryRequirements                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x126f),
     ApiCall_vkGetDeviceImageMemoryRequirements                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1270),
     ApiCall_vkGetDeviceImageSparseMemoryRequirements                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1271),
+    ApiCall_vkGetDescriptorSetLayoutHostMappingInfoVALVE                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1272),
+    ApiCall_vkGetDescriptorSetHostMappingVALVE                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1273),
 
     ApiCall_VulkanLast,
 
