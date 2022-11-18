@@ -131,6 +131,7 @@ bool XlibWindow::Destroy()
         SetFullscreen(false);
         SetVisibility(false);
 
+        xlib.Flush(display_); // Potential workaround for #903
         xlib.DestroyWindow(display_, window_);
         xlib.Sync(display_, true);
 
