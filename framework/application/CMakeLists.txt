@@ -32,6 +32,10 @@ target_sources(gfxrecon_application
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/application.h
                     ${CMAKE_CURRENT_LIST_DIR}/application.cpp
+                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_application.h>
+                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.h>
+                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_application.cpp>
+                    $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_application.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_window.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_application.cpp>
@@ -56,6 +60,7 @@ target_include_directories(gfxrecon_application
 
 target_link_libraries(gfxrecon_application
                       gfxrecon_decode
+                      gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
                       vulkan_registry

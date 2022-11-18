@@ -223,6 +223,18 @@ void CaptureSettings::LoadSettings(CaptureSettings* settings)
     }
 }
 
+void CaptureSettings::LoadLogSettings(CaptureSettings* settings)
+{
+    if (settings != nullptr)
+    {
+        OptionsMap capture_settings;
+
+        LoadOptionsFile(&capture_settings);
+        LoadOptionsEnvVar(&capture_settings);
+        ProcessLogOptions(&capture_settings, settings);
+    }
+}
+
 void CaptureSettings::LoadSingleOptionEnvVar(OptionsMap*        options,
                                              const std::string& environment_variable,
                                              const std::string& option_key)
@@ -358,6 +370,11 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.debug_layer =
         ParseBoolString(FindOption(options, kDebugLayer), settings->trace_settings_.debug_layer);
 
+    ProcessLogOptions(options, settings);
+}
+
+void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
+{
     // Log options
     settings->log_settings_.use_indent =
         ParseBoolString(FindOption(options, kOptionKeyLogAllowIndents), settings->log_settings_.use_indent);
@@ -473,30 +490,11 @@ format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::s
 util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  value_string,
                                                          util::Log::Severity default_value)
 {
-    util::Log::Severity result = default_value;
+    util::Log::Severity result;
 
-    if (util::platform::StringCompareNoCase("debug", value_string.c_str()) == 0)
+    if (!util::Log::StringToSeverity(value_string, result))
     {
-        result = util::Log::Severity::kDebugSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("info", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kInfoSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("warning", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kWarningSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("error", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kErrorSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("fatal", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kFatalSeverity;
-    }
-    else
-    {
+        result = default_value;
         if (!value_string.empty())
         {
             GFXRECON_LOG_WARNING("Settings Loader: Ignoring unrecognized log level option value \"%s\"",

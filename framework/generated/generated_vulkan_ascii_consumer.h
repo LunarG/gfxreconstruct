@@ -1695,6 +1695,51 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         PointerDecoder<uint32_t>*                   pInternalRepresentationCount,
         StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>* pInternalRepresentations) override;
 
+    virtual void Process_vkCmdSetEvent2KHR(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            event,
+        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo) override;
+
+    virtual void Process_vkCmdResetEvent2KHR(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            event,
+        VkPipelineStageFlags2KHR                    stageMask) override;
+
+    virtual void Process_vkCmdWaitEvents2KHR(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    eventCount,
+        HandlePointerDecoder<VkEvent>*              pEvents,
+        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfos) override;
+
+    virtual void Process_vkCmdPipelineBarrier2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo) override;
+
+    virtual void Process_vkCmdWriteTimestamp2KHR(
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlags2KHR                    stage,
+        format::HandleId                            queryPool,
+        uint32_t                                    query) override;
+
+    virtual void Process_vkQueueSubmit2KHR(
+        VkResult                                    returnValue,
+        format::HandleId                            queue,
+        uint32_t                                    submitCount,
+        StructPointerDecoder<Decoded_VkSubmitInfo2KHR>* pSubmits,
+        format::HandleId                            fence) override;
+
+    virtual void Process_vkCmdWriteBufferMarker2AMD(
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlags2KHR                    stage,
+        format::HandleId                            dstBuffer,
+        VkDeviceSize                                dstOffset,
+        uint32_t                                    marker) override;
+
+    virtual void Process_vkGetQueueCheckpointData2NV(
+        format::HandleId                            queue,
+        PointerDecoder<uint32_t>*                   pCheckpointDataCount,
+        StructPointerDecoder<Decoded_VkCheckpointData2NV>* pCheckpointData) override;
+
     virtual void Process_vkCmdCopyBuffer2KHR(
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo) override;
@@ -2520,6 +2565,17 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         VkFragmentShadingRateNV                     shadingRate,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) override;
 
+    virtual void Process_vkAcquireWinrtDisplayNV(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            display) override;
+
+    virtual void Process_vkGetWinrtDisplayNV(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    deviceRelativeId,
+        HandlePointerDecoder<VkDisplayKHR>*         pDisplay) override;
+
     virtual void Process_vkCreateDirectFBSurfaceEXT(
         VkResult                                    returnValue,
         format::HandleId                            instance,
@@ -2532,6 +2588,75 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    dfb) override;
+
+    virtual void Process_vkCmdSetVertexInputEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    vertexBindingDescriptionCount,
+        StructPointerDecoder<Decoded_VkVertexInputBindingDescription2EXT>* pVertexBindingDescriptions,
+        uint32_t                                    vertexAttributeDescriptionCount,
+        StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions) override;
+
+    virtual void Process_vkGetMemoryZirconHandleFUCHSIA(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMemoryGetZirconHandleInfoFUCHSIA>* pGetZirconHandleInfo,
+        PointerDecoder<uint32_t>*                   pZirconHandle) override;
+
+    virtual void Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        VkExternalMemoryHandleTypeFlagBits          handleType,
+        uint32_t                                    zirconHandle,
+        StructPointerDecoder<Decoded_VkMemoryZirconHandlePropertiesFUCHSIA>* pMemoryZirconHandleProperties) override;
+
+    virtual void Process_vkImportSemaphoreZirconHandleFUCHSIA(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA>* pImportSemaphoreZirconHandleInfo) override;
+
+    virtual void Process_vkGetSemaphoreZirconHandleFUCHSIA(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA>* pGetZirconHandleInfo,
+        PointerDecoder<uint32_t>*                   pZirconHandle) override;
+
+    virtual void Process_vkCmdSetPatchControlPointsEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    patchControlPoints) override;
+
+    virtual void Process_vkCmdSetRasterizerDiscardEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    rasterizerDiscardEnable) override;
+
+    virtual void Process_vkCmdSetDepthBiasEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthBiasEnable) override;
+
+    virtual void Process_vkCmdSetLogicOpEXT(
+        format::HandleId                            commandBuffer,
+        VkLogicOp                                   logicOp) override;
+
+    virtual void Process_vkCmdSetPrimitiveRestartEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    primitiveRestartEnable) override;
+
+    virtual void Process_vkCreateScreenSurfaceQNX(
+        VkResult                                    returnValue,
+        format::HandleId                            instance,
+        StructPointerDecoder<Decoded_VkScreenSurfaceCreateInfoQNX>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
+
+    virtual void Process_vkGetPhysicalDeviceScreenPresentationSupportQNX(
+        VkBool32                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    queueFamilyIndex,
+        uint64_t                                    window) override;
+
+    virtual void Process_vkCmdSetColorWriteEnableEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    attachmentCount,
+        PointerDecoder<VkBool32>*                   pColorWriteEnables) override;
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         VkResult                                    returnValue,
@@ -2558,20 +2683,6 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
         PointerDecoder<uint32_t>*                   pIndirectStrides,
         PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts) override;
-
-    virtual void Process_vkBuildAccelerationStructuresKHR(
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            deferredOperation,
-        uint32_t                                    infoCount,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos) override;
-
-    virtual void Process_vkCopyAccelerationStructureKHR(
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            deferredOperation,
-        StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo) override;
 
     virtual void Process_vkCopyAccelerationStructureToMemoryKHR(
         VkResult                                    returnValue,

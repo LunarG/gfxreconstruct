@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_VULKAN_STATE_TRACKER_INITIALIZERS_H
 #define GFXRECON_ENCODE_VULKAN_STATE_TRACKER_INITIALIZERS_H
 
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_table.h"
 #include "format/format.h"
@@ -241,6 +242,17 @@ inline void InitializeState<VkDevice, SemaphoreWrapper, VkSemaphoreCreateInfo>(V
     wrapper->create_parameters = std::move(create_parameters);
 
     wrapper->device = reinterpret_cast<DeviceWrapper*>(parent_handle);
+
+    auto next = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
+    while (next)
+    {
+        if (next->sType == VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO)
+        {
+            auto semaphore_type = reinterpret_cast<const VkSemaphoreTypeCreateInfo*>(next);
+            wrapper->type       = semaphore_type->semaphoreType;
+        }
+        next = next->pNext;
+    }
 }
 
 template <>
@@ -403,6 +415,50 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     const VkRayTracingPipelineCreateInfoNV* create_info,
     format::ApiCallId                       create_call_id,
     CreateParameters                        create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert((create_info != nullptr) && (create_info->pStages != nullptr));
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    // TODO: Track pipeline cache dependency.
+    GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    for (uint32_t i = 0; i < create_info->stageCount; ++i)
+    {
+        auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->pStages[i].module);
+        assert(shader_wrapper != nullptr);
+
+        CreateDependencyInfo info;
+        info.handle_id         = shader_wrapper->handle_id;
+        info.create_call_id    = shader_wrapper->create_call_id;
+        info.create_parameters = shader_wrapper->create_parameters;
+
+        wrapper->shader_module_dependencies.emplace_back(std::move(info));
+    }
+
+    auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
+    assert(layout_wrapper != nullptr);
+
+    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+}
+
+template <>
+inline void
+InitializeGroupObjectState<VkDevice, VkDeferredOperationKHR, PipelineWrapper, VkRayTracingPipelineCreateInfoKHR>(
+    VkDevice                                 parent_handle,
+    VkDeferredOperationKHR                   secondary_handle,
+    PipelineWrapper*                         wrapper,
+    const VkRayTracingPipelineCreateInfoKHR* create_info,
+    format::ApiCallId                        create_call_id,
+    CreateParameters                         create_parameters)
 {
     assert(wrapper != nullptr);
     assert((create_info != nullptr) && (create_info->pStages != nullptr));
@@ -649,6 +705,11 @@ inline void InitializeState<VkDevice, DescriptorSetLayoutWrapper, VkDescriptorSe
             binding_info.count         = binding->descriptorCount;
             binding_info.type          = binding->descriptorType;
 
+            binding_info.immutable_samplers =
+                ((binding->pImmutableSamplers != nullptr) &&
+                 ((binding->descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) ||
+                  (binding->descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)));
+
             wrapper->binding_info.emplace_back(std::move(binding_info));
         }
     }
@@ -697,9 +758,10 @@ inline void InitializePoolObjectState(VkDevice                           parent_
     for (const auto& binding_info : layout_wrapper->binding_info)
     {
         DescriptorInfo descriptor_info;
-        descriptor_info.type    = binding_info.type;
-        descriptor_info.count   = binding_info.count;
-        descriptor_info.written = std::make_unique<bool[]>(binding_info.count);
+        descriptor_info.type               = binding_info.type;
+        descriptor_info.count              = binding_info.count;
+        descriptor_info.immutable_samplers = binding_info.immutable_samplers;
+        descriptor_info.written            = std::make_unique<bool[]>(binding_info.count);
 
         std::fill(descriptor_info.written.get(), descriptor_info.written.get() + binding_info.count, false);
 
@@ -730,6 +792,22 @@ inline void InitializePoolObjectState(VkDevice                           parent_
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO
+                break;
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                descriptor_info.acceleration_structures =
+                    std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
+                break;
+            case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
+                descriptor_info.sampler_ids        = std::make_unique<format::HandleId[]>(binding_info.count);
+                descriptor_info.images             = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.buffers            = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.acceleration_structures =
+                    std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
+                descriptor_info.mutable_type = std::make_unique<VkDescriptorType[]>(binding_info.count);
+                std::fill(descriptor_info.mutable_type.get(),
+                          descriptor_info.mutable_type.get() + binding_info.count,
+                          VK_DESCRIPTOR_TYPE_MUTABLE_VALVE);
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");

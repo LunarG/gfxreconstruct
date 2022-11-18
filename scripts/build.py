@@ -41,7 +41,7 @@ def is_windows():
     return 'windows' == platform.system().lower()
 
 
-ARCHITECTURES = ['x64', 'x86']
+ARCHITECTURES = ['x64', 'x86', 'arm', 'arm64']
 DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
@@ -225,7 +225,14 @@ def cmake_generate_build_files(args):
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
         if 'x86' == args.architecture:
-            cmake_generate_args.extend(['-DCMAKE_CXX_FLAGS=-m32', '-DCMAKE_SHARED_LINKER_FLAGS=-m32'])
+            toolchain_path = os.path.join(BUILD_ROOT, "cmake", "toolchain", "linux_x86_32.cmake")
+            cmake_generate_args.append('-DCMAKE_TOOLCHAIN_FILE={}'.format(toolchain_path))
+        elif 'arm' == args.architecture:
+            toolchain_path = os.path.join(BUILD_ROOT, "cmake", "toolchain", "linux_arm.cmake")
+            cmake_generate_args.append('-DCMAKE_TOOLCHAIN_FILE={}'.format(toolchain_path))
+        elif 'arm64' == args.architecture:
+            toolchain_path = os.path.join(BUILD_ROOT, "cmake", "toolchain", "linux_arm64.cmake")
+            cmake_generate_args.append('-DCMAKE_TOOLCHAIN_FILE={}'.format(toolchain_path))
     cmake_generate_args.append('-DPYTHON={0}'.format(sys.executable))
     cmake_generate_args.extend(cmake_generate_options(args))
     work_dir = BUILD_ROOT

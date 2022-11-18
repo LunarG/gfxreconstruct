@@ -50,8 +50,6 @@ class ParameterEncoder
 
     ~ParameterEncoder() {}
 
-    void Reset() { output_stream_->Reset(); }
-
     // clang-format off
 
     // Values
@@ -83,6 +81,8 @@ class ParameterEncoder
     void EncodeEnumValue(T value)                                                                                     { EncodeValue(static_cast<format::EnumEncodeType>(value)); }
     template<typename T>
     void EncodeFlagsValue(T value)                                                                                    { EncodeValue(static_cast<format::FlagsEncodeType>(value)); }
+    template<typename T>
+    void EncodeFlags64Value(T value)                                                                                  { EncodeValue(static_cast<format::Flags64EncodeType>(value)); }
 
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
@@ -113,6 +113,8 @@ class ParameterEncoder
     void EncodeEnumPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                  { EncodePointerConverted<format::EnumEncodeType>(ptr, omit_data, omit_addr); }
     template<typename T>
     void EncodeFlagsPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                 { EncodePointerConverted<format::FlagsEncodeType>(ptr, omit_data, omit_addr); }
+    template<typename T>
+    void EncodeFlags64Ptr(const T* ptr, bool omit_data = false, bool omit_addr = false)                               { EncodePointerConverted<format::Flags64EncodeType>(ptr, omit_data, omit_addr); }
 
     // Arrays
     void EncodeInt16Array(const int16_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
@@ -139,6 +141,8 @@ class ParameterEncoder
     void EncodeEnumArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                    { EncodeArrayConverted<format::EnumEncodeType>(arr, len, omit_data, omit_addr); }
     template<typename T>
     void EncodeFlagsArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                   { EncodeArrayConverted<format::FlagsEncodeType>(arr, len, omit_data, omit_addr); }
+    template<typename T>
+    void EncodeFlags64Array(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArrayConverted<format::Flags64EncodeType>(arr, len, omit_data, omit_addr); }
 
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
     void EncodeWString(const wchar_t* str, bool omit_data = false, bool omit_addr = false)                            { EncodeBasicString<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, omit_data, omit_addr); }

@@ -60,7 +60,14 @@ def _make_re_string(list, default=None):
 # From Khronos genvk.py
 _default_extensions = 'vulkan'
 _extensions = _features = []
-_remove_extensions = _emit_extensions = []
+_emit_extensions = []
+
+# Exclude beta video extensions
+_remove_extensions = [
+    "VK_KHR_video_queue", "VK_KHR_video_decode_queue",
+    "VK_KHR_video_encode_queue", "VK_EXT_video_encode_h264",
+    "VK_EXT_video_decode_h264", "VK_EXT_video_decode_h265"
+]
 
 # Turn lists of names/patterns into matching regular expressions.
 # From Khronos genvk.py
@@ -293,7 +300,8 @@ class BaseGenerator(OutputGenerator):
         # Typenames
         self.struct_names = set()  # Set of Vulkan struct typenames
         self.handle_names = set()  # Set of Vulkan handle typenames
-        self.flags_names = set()  # Set of bitmask (flags) typenames
+        self.flags_types = dict(
+        )  # Map of flags types to base flag type (VkFlags or VkFlags64)
         self.enum_names = set()  # Set of Vulkan enumeration typenames
 
         # Type processing options
@@ -413,7 +421,14 @@ class BaseGenerator(OutputGenerator):
         elif (category == 'handle'):
             self.handle_names.add(name)
         elif (category == 'bitmask'):
-            self.flags_names.add(name)
+            # Flags can have either VkFlags or VkFlags64 base type
+            alias = type_elem.get('alias')
+            if alias:
+                # Use same base type as the alias if one exists
+                self.flags_types[name] = self.flags_types[alias]
+            else:
+                # Otherwise, look for base type inside type declaration
+                self.flags_types[name] = type_elem.find('type').text
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override.
@@ -580,7 +595,7 @@ class BaseGenerator(OutputGenerator):
 
     def is_flags(self, base_type):
         """Check for flags (bitmask) type."""
-        if base_type in self.flags_names:
+        if base_type in self.flags_types:
             return True
         return False
 
@@ -689,7 +704,7 @@ class BaseGenerator(OutputGenerator):
         """Determines if a method call with the specified typename is blacklisted."""
         combined_name = class_name
         if method_name:
-            combined_name +=  '_' + method_name
+            combined_name += '_' + method_name
         if combined_name in self.METHODCALL_BLACKLIST:
             return True
         return False
@@ -905,6 +920,14 @@ class BaseGenerator(OutputGenerator):
         prefix = ' ' * spaces
         return '\n'.join([prefix + v if v else v for v in value.split('\n')])
 
+    def make_unique_list(self, in_list):
+        """Return a copy of in_list with duplicates removed, preserving order."""
+        out_list = []
+        for value in in_list:
+            if value not in out_list:
+                out_list.append(value)
+        return out_list
+
     def make_arg_list(self, values):
         """Create a string containing a comma separated argument list from a list of ValueInfo values.
         values - List of ValueInfo objects providing the parameter names for the argument list.
@@ -935,7 +958,8 @@ class BaseGenerator(OutputGenerator):
         elif self.is_handle(base_type):
             return 'Handle'
         elif self.is_flags(base_type):
-            return 'Flags'
+            # Strip 'Vk' from base flag type
+            return self.flags_types[base_type][2:]
         elif self.is_enum(base_type):
             return 'Enum'
         elif base_type == 'wchar_t':
@@ -1238,7 +1262,8 @@ class BaseGenerator(OutputGenerator):
             'xlib': 'VK_USE_PLATFORM_XLIB_KHR',
             'xlib_xrandr': 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
             'ggp': 'VK_USE_PLATFORM_GGP',
-            'directfb': 'VK_USE_PLATFORM_DIRECTFB_EXT'
+            'directfb': 'VK_USE_PLATFORM_DIRECTFB_EXT',
+            'headless': 'VK_USE_PLATFORM_HEADLESS'
         }
 
         platform = interface.get('platform')
@@ -1253,7 +1278,9 @@ class BaseGenerator(OutputGenerator):
         if 'classmethods' in lists:
             for class_name, method_list in lists['classmethods'].items():
                 for method_name in method_list:
-                    self.METHODCALL_BLACKLIST.append(class_name + '_' + method_name)
+                    self.METHODCALL_BLACKLIST.append(
+                        class_name + '_' + method_name
+                    )
 
     def __load_platform_types(self, filename):
         platforms = json.loads(open(filename, 'r').read())

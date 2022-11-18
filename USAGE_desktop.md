@@ -287,8 +287,8 @@ optional arguments:
                         capture file
   --log-level {debug,info,warn,error,fatal}
                         Specify highest level message to log, default is info
-  --log-file logFile    Name of the log file (disable logging with empty
-                        string), default is stdout/stderr
+  --log-file <logFile>  Write log messages to a file at the specified path.
+                        Default is: Empty string (file logging disabled)
   --memory-tracking-mode {page_guard,assisted,unassisted}
                         Method to use to track changes to memory mapped objects:
                            page_guard: use guard pages to track changes (default)
@@ -336,6 +336,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
+                        [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--api <api>] [--no-debug-popup] <file>
 
 Required arguments:
@@ -344,6 +345,11 @@ Required arguments:
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
+  --log-level <level>   Specify highest level message to log. Options are:
+                        debug, info, warning, error, and fatal. Default is info.
+  --log-file <file>     Write log messages to a file at the specified path.
+                        Default is: Empty string (file logging disabled).
+  --log-debugview       Log messages with OutputDebugStringA. Windows only.
   --gpu <index>         Use the specified device for replay, where index
                         is the zero-based index to the array of physical devices
                         returned by vkEnumeratePhysicalDevices.  Replay may fail

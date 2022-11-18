@@ -40,10 +40,18 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 9)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 5)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 8)
 
 set(GFXRECON_PROJECT_VERSION_DESIGNATION "-unknown")
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
+
+if (NOT DEFINED NO_XCB)
+    set(NO_XCB FALSE)
+endif()
+
+if (NOT DEFINED HEADLESS)
+    set(HEADLESS TRUE)
+endif()
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
@@ -115,10 +123,24 @@ if(MSVC)
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
 
+    # Enable LARGEADDRESSAWARE to increase memory address space for 32-bit executables
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
+
     # Add option to enable/disable D3D12 support.
     option(BUILD_D3D12 "Build with Direct3D 12 support enabled" ON)
 else(MSVC)
+    # Turn off D3D12 support for non MSVC builds.
     option(BUILD_D3D12 "Build with Direct3D 12 support enabled" OFF)
+
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+        set(CMAKE_PREFIX_PATH
+            ${CMAKE_PREFIX_PATH}
+        "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
+    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+        set(CMAKE_PREFIX_PATH
+            ${CMAKE_PREFIX_PATH}
+        "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm")
+    endif()
 endif(MSVC)
 
 # GFXReconstruct provided find modules
@@ -126,7 +148,11 @@ find_package(Detours)
 find_package(LZ4)
 find_package(ZSTD)
 if(UNIX)
-    find_package(XCB)
+    if (NOT ${NO_XCB})
+        find_package(XCB)
+    else()
+        set(XCB_FOUND FALSE)
+    endif()
     find_package(WAYLAND)
 endif(UNIX)
 
@@ -141,6 +167,7 @@ target_compile_definitions(windows_specific INTERFACE
     WIN32_LEAN_AND_MEAN
     NOMINMAX
     VK_USE_PLATFORM_WIN32_KHR
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>
     "GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\""
     "GFXR_D3D12_CAPTURE_PATH=\"$<TARGET_FILE:d3d12_capture>\""
     "GFXR_D3D12_PATH=\"$<TARGET_FILE:d3d12>\""
@@ -151,7 +178,8 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
-    $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>)
+    $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE

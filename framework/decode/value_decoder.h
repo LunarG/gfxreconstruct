@@ -87,6 +87,8 @@ class ValueDecoder
     static size_t DecodeEnumValue(const uint8_t* buffer, size_t buffer_size, T* value)                              { return DecodeValueFrom<format::EnumEncodeType>(buffer, buffer_size, value); }
     template<typename T>
     static size_t DecodeFlagsValue(const uint8_t* buffer, size_t buffer_size, T* value)                             { return DecodeValueFrom<format::FlagsEncodeType>(buffer, buffer_size, value); }
+    template<typename T>
+    static size_t DecodeFlags64Value(const uint8_t* buffer, size_t buffer_size, T* value)                           { return DecodeValueFrom<format::Flags64EncodeType>(buffer, buffer_size, value); }
 
     // Arrays
     static size_t DecodeInt32Array(const uint8_t* buffer, size_t buffer_size, int32_t* arr, size_t len)             { return DecodeArray(buffer, buffer_size, arr, len); }
@@ -109,6 +111,8 @@ class ValueDecoder
     static size_t DecodeEnumArray(const uint8_t* buffer, size_t buffer_size, T* arr, size_t len)                    { return DecodeArrayFrom<format::EnumEncodeType>(buffer, buffer_size, arr, len); }
     template<typename T>
     static size_t DecodeFlagsArray(const uint8_t* buffer, size_t buffer_size, T* arr, size_t len)                   { return DecodeArrayFrom<format::FlagsEncodeType>(buffer, buffer_size, arr, len); }
+    template<typename T>
+    static size_t DecodeFlags64Array(const uint8_t* buffer, size_t buffer_size, T* arr, size_t len)                 { return DecodeArrayFrom<format::Flags64EncodeType>(buffer, buffer_size, arr, len); }
 
     // clang-format on
 

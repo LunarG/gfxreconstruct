@@ -147,6 +147,40 @@ class Log
         }
     }
 
+    // Returns true if Severity was successfully parsed into parsed_severity. Returns false if the string could not be
+    // parsed as a Severity and parsed_severity is not modified.
+    static bool StringToSeverity(const std::string& value_string, Severity& parsed_severity)
+    {
+        bool parse_success = true;
+
+        if (platform::StringCompareNoCase("debug", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kDebugSeverity;
+        }
+        else if (platform::StringCompareNoCase("info", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kInfoSeverity;
+        }
+        else if (platform::StringCompareNoCase("warning", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kWarningSeverity;
+        }
+        else if (platform::StringCompareNoCase("error", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kErrorSeverity;
+        }
+        else if (util::platform::StringCompareNoCase("fatal", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kFatalSeverity;
+        }
+        else
+        {
+            parse_success = false;
+        }
+
+        return parse_success;
+    }
+
   private:
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);
 
@@ -245,6 +279,25 @@ GFXRECON_END_NAMESPACE(gfxrecon)
                                         message,                                     \
                                         ##__VA_ARGS__);                              \
     }
+
+#define GFXRECON_LOG_ONCE(X)         \
+    {                                \
+        static bool log_once = true; \
+        if (log_once)                \
+        {                            \
+            X;                       \
+            log_once = false;        \
+        }                            \
+    }
+
+// clang-format off
+#define GFXRECON_WRITE_CONSOLE_ONCE(message, ...) GFXRECON_LOG_ONCE(GFXRECON_WRITE_CONSOLE(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_FATAL_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_FATAL(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_ERROR_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_ERROR(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_WARNING_ONCE(message, ...)   GFXRECON_LOG_ONCE(GFXRECON_LOG_WARNING(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_INFO_ONCE(message, ...)      GFXRECON_LOG_ONCE(GFXRECON_LOG_INFO(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_DEBUG_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_DEBUG(message, ##__VA_ARGS__))
+// clang-format on
 
 #ifdef GFXRECON_ENABLE_COMMAND_TRACE
 

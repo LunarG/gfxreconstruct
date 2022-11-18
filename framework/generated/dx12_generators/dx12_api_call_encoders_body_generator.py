@@ -240,6 +240,10 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         """Methond override."""
         body = '\n'\
                '{\n'
+
+        body += '    auto state_lock = D3D12CaptureManager::Get()->AcquireSharedStateLock();\n'
+        body += '\n'
+
         if class_name:
             body += (
                 '    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_{}_{}, wrapper_id);\n'
@@ -275,9 +279,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             body += '        {}\n'.format(encode)
 
         if class_name:
-            body += '        D3D12CaptureManager::Get()->EndMethodCallCapture(encoder);\n'
+            body += '        D3D12CaptureManager::Get()->EndMethodCallCapture();\n'
         else:
-            body += '        D3D12CaptureManager::Get()->EndApiCallCapture(encoder);\n'
+            body += '        D3D12CaptureManager::Get()->EndApiCallCapture();\n'
 
         body += '    }\n}'
         return body

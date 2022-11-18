@@ -183,6 +183,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeomet
         case VK_GEOMETRY_TYPE_INSTANCES_KHR:
             EncodeStruct(encoder, value.geometry.instances);
             break;
+        default:
+            break;
     }
     encoder->EncodeFlagsValue(value.flags);
 }

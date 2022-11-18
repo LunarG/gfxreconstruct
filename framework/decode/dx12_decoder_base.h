@@ -127,10 +127,16 @@ class Dx12DecoderBase : public ApiDecoder
                                              const std::vector<format::DeviceMemoryType>& memory_types,
                                              const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
 
-    virtual void DispatchSetBufferAddressCommand(format::ThreadId thread_id,
+    virtual void DispatchSetOpaqueAddressCommand(format::ThreadId thread_id,
                                                  format::HandleId device_id,
-                                                 format::HandleId buffer_id,
+                                                 format::HandleId object_id,
                                                  uint64_t         address) override;
+
+    virtual void DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
+                                                                format::HandleId device_id,
+                                                                format::HandleId pipeline_id,
+                                                                size_t           data_size,
+                                                                const uint8_t*   data) override;
 
     virtual void
     DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,

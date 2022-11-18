@@ -132,10 +132,9 @@ uint64_t MapHandle(uint64_t object, VkObjectType object_type, const VulkanObject
         case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
             return format::ToHandleId(MapHandle<DebugUtilsMessengerEXTInfo>(
                 object, object_info_table, &VulkanObjectInfoTable::GetDebugUtilsMessengerEXTInfo));
-        // TODO: Handle acceleration structure handles separately.
-        // case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
-        //    return format::ToHandleId(MapHandle<AccelerationStructureKHRInfo>(
-        //        object, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo));
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
+            return format::ToHandleId(MapHandle<AccelerationStructureKHRInfo>(
+                object, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo));
         case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT:
             return format::ToHandleId(MapHandle<ValidationCacheEXTInfo>(
                 object, object_info_table, &VulkanObjectInfoTable::GetValidationCacheEXTInfo));
@@ -269,10 +268,9 @@ MapHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type, const VulkanO
         case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT:
             return format::ToHandleId(MapHandle<DescriptorUpdateTemplateInfo>(
                 object, object_info_table, &VulkanObjectInfoTable::GetDescriptorUpdateTemplateInfo));
-        // TODO: Handle acceleration structure handles separately.
-        // case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT:
-        //    return format::ToHandleId(MapHandle<AccelerationStructureKHRInfo>(
-        //        object, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT:
+            return format::ToHandleId(MapHandle<AccelerationStructureKHRInfo>(
+                object, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo));
         case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT:
             return format::ToHandleId(MapHandle<AccelerationStructureNVInfo>(
                 object, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo));

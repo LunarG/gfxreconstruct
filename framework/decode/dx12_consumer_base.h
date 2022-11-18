@@ -82,7 +82,13 @@ class Dx12ConsumerBase
     {}
 
     virtual void
-    ProcessSetBufferAddressCommand(format::HandleId device_id, format::HandleId buffer_id, uint64_t address)
+    ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address)
+    {}
+
+    virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                               format::HandleId pipeline_id,
+                                                               size_t           data_size,
+                                                               const uint8_t*   data)
     {}
 
     virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,

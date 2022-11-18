@@ -56,7 +56,7 @@ class VulkanStateTracker
     {
         if (writer != nullptr)
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            std::unique_lock<std::mutex> lock(state_table_mutex_);
             writer->WriteState(state_table_, frame_number);
         }
     }
@@ -75,20 +75,17 @@ class VulkanStateTracker
         {
             auto wrapper = reinterpret_cast<Wrapper*>(*new_handle);
 
+            // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
+            std::unique_lock<std::mutex> lock(state_table_mutex_);
+            if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
             {
-                std::unique_lock<std::mutex> lock(mutex_);
-
-                // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
-                if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
-                {
-                    vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, CreateInfo>(
-                        parent_handle,
-                        wrapper,
-                        create_info,
-                        create_call_id,
-                        std::make_shared<util::MemoryOutputStream>(create_parameter_buffer->GetData(),
-                                                                   create_parameter_buffer->GetDataSize()));
-                }
+                vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, CreateInfo>(
+                    parent_handle,
+                    wrapper,
+                    create_info,
+                    create_call_id,
+                    std::make_shared<util::MemoryOutputStream>(create_parameter_buffer->GetData(),
+                                                               create_parameter_buffer->GetDataSize()));
             }
         }
     }
@@ -107,21 +104,18 @@ class VulkanStateTracker
         CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
             create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
 
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        for (uint32_t i = 0; i < count; ++i)
         {
-            std::unique_lock<std::mutex> lock(mutex_);
-
-            for (uint32_t i = 0; i < count; ++i)
+            if (new_handles[i] != VK_NULL_HANDLE)
             {
-                if (new_handles[i] != VK_NULL_HANDLE)
-                {
-                    auto wrapper = reinterpret_cast<Wrapper*>(new_handles[i]);
+                auto wrapper = reinterpret_cast<Wrapper*>(new_handles[i]);
 
-                    // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
-                    if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
-                    {
-                        vulkan_state_tracker::InitializePoolObjectState(
-                            parent_handle, wrapper, i, alloc_info, create_call_id, create_parameters);
-                    }
+                // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
+                if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
+                {
+                    vulkan_state_tracker::InitializePoolObjectState(
+                        parent_handle, wrapper, i, alloc_info, create_call_id, create_parameters);
                 }
             }
         }
@@ -142,8 +136,6 @@ class VulkanStateTracker
             create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
 
         {
-            std::unique_lock<std::mutex> lock(mutex_);
-
             AddGroupHandles<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
                 parent_handle, secondary_handle, count, new_handles, create_infos, create_call_id, create_parameters);
         }
@@ -164,19 +156,16 @@ class VulkanStateTracker
         CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
             create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
 
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        for (uint32_t i = 0; i < count; ++i)
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            auto wrapper = unwrap_struct_handle(&handle_structs[i]);
 
-            for (uint32_t i = 0; i < count; ++i)
+            // VkDisplayPlaneProperties::currentDisplay can be a null wrapper.
+            if ((wrapper != nullptr) && (state_table_.InsertWrapper(wrapper->handle_id, wrapper)))
             {
-                auto wrapper = unwrap_struct_handle(&handle_structs[i]);
-
-                // VkDisplayPlaneProperties::currentDisplay can be a null wrapper.
-                if ((wrapper != nullptr) && (state_table_.InsertWrapper(wrapper->handle_id, wrapper)))
-                {
-                    vulkan_state_tracker::InitializeGroupObjectState<ParentHandle, void*, Wrapper, void>(
-                        parent_handle, nullptr, wrapper, nullptr, create_call_id, create_parameters);
-                }
+                vulkan_state_tracker::InitializeGroupObjectState<ParentHandle, void*, Wrapper, void>(
+                    parent_handle, nullptr, wrapper, nullptr, create_call_id, create_parameters);
             }
         }
     }
@@ -197,19 +186,15 @@ class VulkanStateTracker
         CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
             create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
 
+        for (uint32_t i = 0; i < count; ++i)
         {
-            std::unique_lock<std::mutex> lock(mutex_);
-
-            for (uint32_t i = 0; i < count; ++i)
-            {
-                AddGroupHandles<VkInstance, void*, PhysicalDeviceWrapper, void>(parent_handle,
-                                                                                nullptr,
-                                                                                handle_structs[i].physicalDeviceCount,
-                                                                                handle_structs[i].physicalDevices,
-                                                                                nullptr,
-                                                                                create_call_id,
-                                                                                create_parameters);
-            }
+            AddGroupHandles<VkInstance, void*, PhysicalDeviceWrapper, void>(parent_handle,
+                                                                            nullptr,
+                                                                            handle_structs[i].physicalDeviceCount,
+                                                                            handle_structs[i].physicalDevices,
+                                                                            nullptr,
+                                                                            create_call_id,
+                                                                            create_parameters);
         }
     }
 
@@ -220,12 +205,15 @@ class VulkanStateTracker
         {
             auto wrapper = reinterpret_cast<Wrapper*>(handle);
 
-            std::unique_lock<std::mutex> lock(mutex_);
-
-            if (!state_table_.RemoveWrapper(wrapper))
+            // Scope the state table mutex lock because DestroyState also modifies the state table and will attempt to
+            // lock the mutex.
             {
-                GFXRECON_LOG_WARNING(
-                    "Attempting to remove entry from state tracker for object that is not being tracked");
+                std::unique_lock<std::mutex> lock(state_table_mutex_);
+                if (!state_table_.RemoveWrapper(wrapper))
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Attempting to remove entry from state tracker for object that is not being tracked");
+                }
             }
 
             DestroyState(wrapper);
@@ -240,7 +228,6 @@ class VulkanStateTracker
         {
             auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
 
-            std::unique_lock<std::mutex> lock(mutex_);
             TrackCommandExecution(wrapper, call_id, parameter_buffer);
         }
     }
@@ -256,7 +243,6 @@ class VulkanStateTracker
         {
             auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
 
-            std::unique_lock<std::mutex> lock(mutex_);
             TrackCommandExecution(wrapper, call_id, parameter_buffer);
             func(wrapper, args...);
         }
@@ -320,6 +306,10 @@ class VulkanStateTracker
                             uint32_t                    image_barrier_count,
                             const VkImageMemoryBarrier* image_barriers);
 
+    void TrackImageBarriers2KHR(VkCommandBuffer                 command_buffer,
+                                uint32_t                        image_barrier_count,
+                                const VkImageMemoryBarrier2KHR* image_barriers);
+
     void TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits);
 
     void TrackUpdateDescriptorSets(uint32_t                    write_count,
@@ -359,6 +349,14 @@ class VulkanStateTracker
                               const uint32_t*       image_indices,
                               VkQueue               queue);
 
+    void TrackAccelerationStructureKHRDeviceAddress(VkDevice                   device,
+                                                    VkAccelerationStructureKHR accel_struct,
+                                                    VkDeviceAddress            address);
+
+    void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
+
+    void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                  parent_handle,
@@ -372,6 +370,7 @@ class VulkanStateTracker
         assert(new_handles != nullptr);
         assert(create_parameters != nullptr);
 
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
         for (uint32_t i = 0; i < count; ++i)
         {
             if (new_handles[i] != VK_NULL_HANDLE)
@@ -420,7 +419,7 @@ class VulkanStateTracker
     void DestroyState(SwapchainKHRWrapper* wrapper);
 
   private:
-    std::mutex       mutex_;
+    std::mutex       state_table_mutex_;
     VulkanStateTable state_table_;
 };
 

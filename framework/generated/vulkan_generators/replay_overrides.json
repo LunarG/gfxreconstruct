@@ -4,6 +4,8 @@
     "vkCreateDevice": "OverrideCreateDevice",
     "vkDestroyDevice": "OverrideDestroyDevice",
     "vkEnumeratePhysicalDevices": "OverrideEnumeratePhysicalDevices",
+    "vkEnumeratePhysicalDeviceGroups": "OverrideEnumeratePhysicalDeviceGroups",
+    "vkEnumeratePhysicalDeviceGroupsKHR": "OverrideEnumeratePhysicalDeviceGroups",
     "vkGetPhysicalDeviceProperties": "OverrideGetPhysicalDeviceProperties",
     "vkGetPhysicalDeviceProperties2": "OverrideGetPhysicalDeviceProperties2",
     "vkGetPhysicalDeviceProperties2KHR": "OverrideGetPhysicalDeviceProperties2",
@@ -66,6 +68,13 @@
     "vkGetPhysicalDeviceXlibPresentationSupportKHR": "OverrideGetPhysicalDeviceXlibPresentationSupportKHR",
     "vkCreateWaylandSurfaceKHR": "OverrideCreateWaylandSurfaceKHR",
     "vkGetPhysicalDeviceWaylandPresentationSupportKHR": "OverrideGetPhysicalDeviceWaylandPresentationSupportKHR",
-    "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR"
+    "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR",
+    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
+    "vkGetRandROutputDisplayEXT": "OverrideGetRandROutputDisplayEXT",
+    "vkCreateRayTracingPipelinesKHR": "OverrideCreateRayTracingPipelinesKHR",
+    "vkGetBufferDeviceAddress": "OverrideGetBufferDeviceAddress",
+    "vkGetBufferDeviceAddressKHR": "OverrideGetBufferDeviceAddress",
+    "vkGetAccelerationStructureDeviceAddressKHR": "OverrideGetAccelerationStructureDeviceAddressKHR",
+    "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR"
   }
 }

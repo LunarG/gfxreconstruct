@@ -32,7 +32,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
                                 const uint8_t*        uncompressed_data,
-                                std::vector<uint8_t>* compressed_data)
+                                std::vector<uint8_t>* compressed_data,
+                                size_t                compressed_data_offset)
 {
     size_t copy_size = 0;
 
@@ -41,9 +42,9 @@ size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
         return 0;
     }
 
-    if (compressed_data->size() < uncompressed_size)
+    if (compressed_data->size() < (compressed_data_offset + uncompressed_size))
     {
-        compressed_data->resize(uncompressed_size);
+        compressed_data->resize(compressed_data_offset + uncompressed_size);
     }
 
     z_stream compress_stream = {};
@@ -57,7 +58,7 @@ size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
 
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, compressed_data->size());
     compress_stream.avail_out = static_cast<uInt>(compressed_data->size());
-    compress_stream.next_out  = compressed_data->data();
+    compress_stream.next_out  = compressed_data->data() + compressed_data_offset;
 
     // Perform the compression (deflate the data).
     deflateInit(&compress_stream, Z_BEST_COMPRESSION);

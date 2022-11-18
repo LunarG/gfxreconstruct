@@ -128,6 +128,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
     if (result == VK_SUCCESS)
     {
         auto&   copy_resource = copy_resource_entry->second;
+        auto    copy_format   = GetConversionFormat(format);
         VkQueue queue         = VK_NULL_HANDLE;
 
         // Get a queue.
@@ -139,9 +140,9 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
 
         // If the copy resource is not initialized, or the image properties have changed, recompute the copy size.
         if ((buffer_size == 0) || (copy_resource.width != width) || (copy_resource.height != height) ||
-            (copy_resource.format != format))
+            (copy_resource.format != copy_format))
         {
-            buffer_size     = GetCopyBufferSize(device, device_table, format, width, height);
+            buffer_size     = GetCopyBufferSize(device, device_table, copy_format, width, height);
             create_resource = true;
         }
 
@@ -150,16 +151,15 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
             // Need to create/recreate resource.
             DestroyCopyResource(device, &copy_resource);
 
-            result = CreateCopyResource(
-                device, device_table, memory_properties, buffer_size, format, width, height, &copy_resource);
-            if (result == VK_SUCCESS)
-            {
-                // Resource creation succeeded,
-                copy_resource.buffer_size = buffer_size;
-                copy_resource.format      = format;
-                copy_resource.width       = width;
-                copy_resource.height      = height;
-            }
+            result = CreateCopyResource(device,
+                                        device_table,
+                                        memory_properties,
+                                        buffer_size,
+                                        format,
+                                        copy_format,
+                                        width,
+                                        height,
+                                        &copy_resource);
         }
         else if (buffer_size == 0)
         {
@@ -545,6 +545,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
                                                const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                VkDeviceSize                            buffer_size,
                                                VkFormat                                image_format,
+                                               VkFormat                                screenshot_format,
                                                uint32_t                                width,
                                                uint32_t                                height,
                                                CopyResource*                           copy_resource) const
@@ -556,8 +557,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    auto allocator         = copy_resource->allocator;
-    auto screenshot_format = GetConversionFormat(image_format);
+    auto allocator = copy_resource->allocator;
 
     VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -580,6 +580,15 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
             GetMemoryTypeIndex(memory_properties,
                                memory_requirements.memoryTypeBits,
                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+
+        if (memory_type_index == std::numeric_limits<uint32_t>::max())
+        {
+            /* fallback to coherent */
+            memory_type_index =
+                GetMemoryTypeIndex(memory_properties,
+                                   memory_requirements.memoryTypeBits,
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        }
 
         assert(memory_type_index != std::numeric_limits<uint32_t>::max());
 
@@ -659,7 +668,15 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         }
     }
 
-    if (result != VK_SUCCESS)
+    if (result == VK_SUCCESS)
+    {
+        // Resource creation succeeded.
+        copy_resource->buffer_size = buffer_size;
+        copy_resource->format      = screenshot_format;
+        copy_resource->width       = width;
+        copy_resource->height      = height;
+    }
+    else
     {
         DestroyCopyResource(device, copy_resource);
     }

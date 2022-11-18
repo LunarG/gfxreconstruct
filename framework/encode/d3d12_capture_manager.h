@@ -361,7 +361,7 @@ class D3D12CaptureManager : public CaptureManager
     // TODO (GH #83): Add D3D12 trimming support
     virtual void CreateStateTracker() override {}
     virtual void DestroyStateTracker() override {}
-    virtual void WriteTrackedState(format::ThreadId) override {}
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override {}
 
     void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper, uint32_t image_count, DXGI_SWAP_EFFECT swap_effect);
 

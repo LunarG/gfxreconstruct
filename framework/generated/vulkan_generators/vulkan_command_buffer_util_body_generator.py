@@ -168,7 +168,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             if value.array_length:
                 args.append('uint32_t {}'.format(value.array_length))
             args.append('{} {}'.format(value.full_type, value.name))
-        return ', '.join(args)
+        return ', '.join(self.make_unique_list(args))
 
     def insert_command_handle(self, index, value, value_prefix='', indent=''):
         body = ''

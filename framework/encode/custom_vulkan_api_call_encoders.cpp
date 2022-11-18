@@ -91,6 +91,19 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
             }
         }
 
+        // Process VkAccelerationStructureKHR
+        for (const auto& entry_info : info->acceleration_structure_khr)
+        {
+            for (size_t i = 0; i < entry_info.count; ++i)
+            {
+                size_t offset          = entry_info.offset + (entry_info.stride * i);
+                auto   unwrapped_entry = reinterpret_cast<VkAccelerationStructureKHR*>(unwrapped_data + offset);
+                auto   entry           = reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
+
+                *unwrapped_entry = GetWrappedHandle<VkAccelerationStructureKHR>(*entry);
+            }
+        }
+
         return unwrapped_data;
     }
 
@@ -110,9 +123,11 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
         encoder->EncodeStructPtrPreamble(data);
 
         // The update template data will be written as tightly packed arrays of VkDescriptorImageInfo,
-        // VkDescriptorBufferInfo, and VkBufferView types.  There will be one array per descriptor update entry.  We
-        // will write the total number of entries of each type before we write the entries, so that the decoder will
-        // know up front how much memory it needs to allocate for decoding.
+        // VkDescriptorBufferInfo, VkBufferView, and VkAccelerationStructureKHR types.  There will be one array per
+        // descriptor update entry.  For the required entries, we will write the total number of entries of each type
+        // before we write the entries, so that the decoder will know up front how much memory it needs to allocate for
+        // decoding. Optional entries must be encoded after the required entries, and must encode the number of elements
+        // in the array as well as VkDescriptorType.
         encoder->EncodeSizeTValue(info->image_info_count);
         encoder->EncodeSizeTValue(info->buffer_info_count);
         encoder->EncodeSizeTValue(info->texel_buffer_view_count);
@@ -151,6 +166,24 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
                 encoder->EncodeHandleValue(*entry);
             }
         }
+
+        // Process VkAccelerationStructureKHR. This data is optional in the capture file, and must come after the
+        // required entries. Data is only written to the capture file if info->acceleration_structure_khr_count > 0.
+        if (info->acceleration_structure_khr_count > 0)
+        {
+            encoder->EncodeSizeTValue(info->acceleration_structure_khr_count);
+            encoder->EncodeEnumValue(VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR);
+            for (const auto& entry_info : info->acceleration_structure_khr)
+            {
+                for (size_t i = 0; i < entry_info.count; ++i)
+                {
+                    size_t                            offset = entry_info.offset + (entry_info.stride * i);
+                    const VkAccelerationStructureKHR* entry =
+                        reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
+                    encoder->EncodeHandleValue(*entry);
+                }
+            }
+        }
     }
     else
     {
@@ -165,6 +198,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
+
+    auto state_lock = manager->AcquireSharedStateLock();
 
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
@@ -184,7 +219,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
-        manager->EndApiCallCapture(encoder);
+        manager->EndApiCallCapture();
     }
 
     auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
@@ -209,6 +244,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
+    auto state_lock = manager->AcquireSharedStateLock();
+
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
     {
@@ -228,7 +265,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
-        manager->EndApiCallCapture(encoder);
+        manager->EndApiCallCapture();
     }
 
     auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
@@ -253,6 +290,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
+    auto state_lock = manager->AcquireSharedStateLock();
+
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
     {
@@ -271,7 +310,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
-        manager->EndApiCallCapture(encoder);
+        manager->EndApiCallCapture();
     }
 
     auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
@@ -285,6 +324,28 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+BuildAccelerationStructuresKHR(VkDevice                                               device,
+                               VkDeferredOperationKHR                                 deferredOperation,
+                               uint32_t                                               infoCount,
+                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("BuildAccelerationStructuresKHR encoding is not supported");
+    return GetDeviceTable(device)->BuildAccelerationStructuresKHR(
+        device, deferredOperation, infoCount, pInfos, ppRangeInfos);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice                                  device,
+                                                            VkDeferredOperationKHR                    deferredOperation,
+                                                            const VkCopyAccelerationStructureInfoKHR* pInfo)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("CopyAccelerationStructureKHR encoding is not supported");
+    return GetDeviceTable(device)->CopyAccelerationStructureKHR(device, deferredOperation, pInfo);
 }
 
 GFXRECON_END_NAMESPACE(encode)

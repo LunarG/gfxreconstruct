@@ -40,6 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(format)
 // Types to define encoding sizes.
 typedef uint32_t EnumEncodeType;
 typedef uint32_t FlagsEncodeType;
+typedef uint64_t Flags64EncodeType;
 typedef uint32_t SampleMaskEncodeType;
 typedef uint64_t HandleEncodeType;
 typedef uint64_t DeviceSizeEncodeType;
@@ -70,7 +71,8 @@ enum BlockType : uint32_t
     kStateMarkerBlock            = 2, // Marker to denote state snapshot status, such as the start or end of a state snapshot.
     kMetaDataBlock               = 3,
     kFunctionCallBlock           = 4,
-    kMethodCallBlock             = 5,
+    kAnnotation                  = 5,
+    kMethodCallBlock             = 6,
     kCompressedMetaDataBlock     = MakeCompressedBlockType(kMetaDataBlock),
     kCompressedFunctionCallBlock = MakeCompressedBlockType(kFunctionCallBlock),
     kCompressedMethodCallBlock   = MakeCompressedBlockType(kMethodCallBlock),
@@ -81,6 +83,14 @@ enum MarkerType : uint32_t
     kUnknownMarker = 0,
     kBeginMarker   = 1,
     kEndMarker     = 2
+};
+
+enum AnnotationType : uint32_t
+{
+    kUnknown = 0,
+    kText    = 1,
+    kJson    = 2,
+    kXml     = 3
 };
 
 enum class MetaDataType : uint16_t
@@ -99,7 +109,7 @@ enum class MetaDataType : uint16_t
     kSetDevicePropertiesCommand             = 11,
     kSetDeviceMemoryPropertiesCommand       = 12,
     kResizeWindowCommand2                   = 13,
-    kSetBufferAddressCommand                = 14,
+    kSetOpaqueAddressCommand                = 14,
     kSetRayTracingShaderGroupHandlesCommand = 15,
     kCreateHeapAllocationCommand            = 16
 };
@@ -231,6 +241,14 @@ struct CompressedMethodCallHeader
     format::HandleId object_id;
     format::ThreadId thread_id;
     uint64_t         uncompressed_size;
+};
+
+struct AnnotationHeader
+{
+    BlockHeader    block_header;
+    AnnotationType annotation_type;
+    uint32_t       label_length;
+    uint32_t       data_length;
 };
 
 // Metadata block headers and data types.
@@ -409,13 +427,22 @@ struct SetDevicePropertiesCommand
     uint32_t         device_name_len;
 };
 
-struct SetBufferAddressCommand
+struct SetOpaqueAddressCommand
 {
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
     format::HandleId device_id;
-    format::HandleId buffer_id;
+    format::HandleId object_id;
     uint64_t         address;
+};
+
+struct SetRayTracingShaderGroupHandlesCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId pipeline_id;
+    size_t           data_size;
 };
 
 struct CreateHeapAllocationCommand

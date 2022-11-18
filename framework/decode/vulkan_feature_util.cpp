@@ -21,7 +21,9 @@
 */
 
 #include "decode/vulkan_feature_util.h"
+
 #include "util/logging.h"
+#include "util/platform.h"
 
 #include <cassert>
 #include <vector>
@@ -118,7 +120,7 @@ bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, 
 
     for (const auto& property : properties)
     {
-        if (strcmp(property.extensionName, extension) == 0)
+        if (util::platform::StringCompare(property.extensionName, extension) == 0)
         {
             return true;
         }

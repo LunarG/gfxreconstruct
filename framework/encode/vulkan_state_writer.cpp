@@ -334,7 +334,31 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
         // Write semaphore creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
-        if (wrapper->signaled)
+        if (wrapper->type == VK_SEMAPHORE_TYPE_TIMELINE)
+        {
+            const DeviceWrapper* device_wrapper = wrapper->device;
+            assert(device_wrapper != nullptr);
+
+            // Query current semaphore value
+            uint64_t          semaphore_value;
+            format::ApiCallId signal_call_id;
+            if (device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0))
+            {
+                device_wrapper->layer_table.GetSemaphoreCounterValue(
+                    device_wrapper->handle, wrapper->handle, &semaphore_value);
+                signal_call_id = format::ApiCallId::ApiCall_vkSignalSemaphore;
+            }
+            else
+            {
+                device_wrapper->layer_table.GetSemaphoreCounterValueKHR(
+                    device_wrapper->handle, wrapper->handle, &semaphore_value);
+                signal_call_id = format::ApiCallId::ApiCall_vkSignalSemaphoreKHR;
+            }
+
+            // Write command to set semaphore value on replay
+            WriteSignalSemaphoreValue(signal_call_id, device_wrapper->handle_id, wrapper->handle_id, semaphore_value);
+        }
+        else if (wrapper->signaled)
         {
             signaled[wrapper->device].push_back(wrapper->handle_id);
         }
@@ -471,10 +495,12 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     // pipelines than it should, resulting in object leaks or the overwriting of recycled handles.
     std::set<util::MemoryOutputStream*>    processed_graphics_pipelines;
     std::set<util::MemoryOutputStream*>    processed_compute_pipelines;
-    std::set<util::MemoryOutputStream*>    processed_ray_tracing_pipelines;
+    std::set<util::MemoryOutputStream*>    processed_ray_tracing_pipelines_nv;
+    std::set<util::MemoryOutputStream*>    processed_ray_tracing_pipelines_khr;
     std::vector<util::MemoryOutputStream*> graphics_pipelines;
     std::vector<util::MemoryOutputStream*> compute_pipelines;
-    std::vector<util::MemoryOutputStream*> ray_tracing_pipelines;
+    std::vector<util::MemoryOutputStream*> ray_tracing_pipelines_nv;
+    std::vector<util::MemoryOutputStream*> ray_tracing_pipelines_khr;
 
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_shaders;
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
@@ -522,11 +548,28 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         }
         else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesNV)
         {
-            if (processed_ray_tracing_pipelines.find(wrapper->create_parameters.get()) ==
-                processed_ray_tracing_pipelines.end())
+            if (processed_ray_tracing_pipelines_nv.find(wrapper->create_parameters.get()) ==
+                processed_ray_tracing_pipelines_nv.end())
             {
-                ray_tracing_pipelines.push_back(wrapper->create_parameters.get());
-                processed_ray_tracing_pipelines.insert(wrapper->create_parameters.get());
+                ray_tracing_pipelines_nv.push_back(wrapper->create_parameters.get());
+                processed_ray_tracing_pipelines_nv.insert(wrapper->create_parameters.get());
+            }
+        }
+        else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesKHR)
+        {
+            if (wrapper->device_id != format::kNullHandleId)
+            {
+                WriteSetRayTracingShaderGroupHandlesCommand(wrapper->device_id,
+                                                            wrapper->handle_id,
+                                                            wrapper->shader_group_handle_data.size(),
+                                                            wrapper->shader_group_handle_data.data());
+            }
+
+            if (processed_ray_tracing_pipelines_khr.find(wrapper->create_parameters.get()) ==
+                processed_ray_tracing_pipelines_khr.end())
+            {
+                ray_tracing_pipelines_khr.push_back(wrapper->create_parameters.get());
+                processed_ray_tracing_pipelines_khr.insert(wrapper->create_parameters.get());
             }
         }
 
@@ -595,9 +638,14 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         WriteFunctionCall(format::ApiCall_vkCreateComputePipelines, entry);
     }
 
-    for (const auto& entry : ray_tracing_pipelines)
+    for (const auto& entry : ray_tracing_pipelines_nv)
     {
         WriteFunctionCall(format::ApiCall_vkCreateRayTracingPipelinesNV, entry);
+    }
+
+    for (const auto& entry : ray_tracing_pipelines_khr)
+    {
+        WriteFunctionCall(format::ApiCall_vkCreateRayTracingPipelinesKHR, entry);
     }
 
     // Temporary object destruction.
@@ -674,12 +722,12 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             const DescriptorInfo* binding = &binding_entry.second;
             bool                  active  = false;
 
-            write.dstBinding     = binding_entry.first;
-            write.descriptorType = binding->type;
+            write.dstBinding = binding_entry.first;
 
             for (uint32_t i = 0; i < binding->count; ++i)
             {
-                bool write_descriptor = CheckDescriptorStatus(binding, i, state_table);
+                VkDescriptorType descriptor_type;
+                bool             write_descriptor = CheckDescriptorStatus(binding, i, state_table, &descriptor_type);
 
                 if (active != write_descriptor)
                 {
@@ -688,6 +736,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                         // Start of an active descriptor write range.
                         active                = true;
                         write.dstArrayElement = i;
+                        write.descriptorType  = descriptor_type;
                     }
                     else
                     {
@@ -696,6 +745,16 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                         write.descriptorCount = i - write.dstArrayElement;
                         WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
                     }
+                }
+                else if (active && (descriptor_type != write.descriptorType))
+                {
+                    // Mutable descriptor type change within an active write range
+                    // End current range
+                    write.descriptorCount = i - write.dstArrayElement;
+                    WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                    // Start new range
+                    write.descriptorType  = descriptor_type;
+                    write.dstArrayElement = i;
                 }
             }
 
@@ -865,6 +924,12 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     // Write device memory allocation calls.
     state_table.VisitWrappers([&](const DeviceMemoryWrapper* wrapper) {
         assert(wrapper != nullptr);
+
+        if (wrapper->device_id != format::kNullHandleId)
+        {
+            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+        }
+
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }
@@ -876,10 +941,27 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 
         if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
         {
-            // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
+            // If the buffer has a device address, write the 'set opaque address' command before writing the API call to
             // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
             // list.
-            WriteSetBufferAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+        }
+
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+    });
+}
+
+void VulkanStateWriter::WriteAccelerationStructureKHRState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const AccelerationStructureKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        {
+            // If the acceleration struct has a device address, write the 'set opaque address' command before writing
+            // the API call to create the acceleration struct.  The address will need to be passed to
+            // vkCreateAccelerationStructKHR through the VkAccelerationStructureCreateInfoKHR::deviceAddress.
+            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -1059,7 +1141,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
 
             if (compressor_ != nullptr)
             {
-                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_);
+                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
 
                 if ((compressed_size > 0) && (compressed_size < data_size))
                 {
@@ -1342,7 +1424,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
 
             if (compressor_ != nullptr)
             {
-                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_);
+                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
 
                 if ((compressed_size > 0) && (compressed_size < data_size))
                 {
@@ -2128,7 +2210,11 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
 
     const VkCopyDescriptorSet* copy = nullptr;
 
-    switch (binding->type)
+    // write_accel_struct may be used in the pNext chain of the VkWriteDescriptorSet and needs to stay in scope until
+    // after VkWriteDescriptorSet is encoded.
+    VkWriteDescriptorSetAccelerationStructureKHR write_accel_struct;
+
+    switch (write->descriptorType)
     {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -2138,6 +2224,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = &binding->images[write->dstArrayElement];
             write->pTexelBufferView = nullptr;
+            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
@@ -2146,12 +2233,14 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             write->pBufferInfo      = &binding->buffers[write->dstArrayElement];
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = nullptr;
+            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = &binding->texel_buffer_views[write->dstArrayElement];
+            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
             // TODO
@@ -2159,6 +2248,19 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             // TODO
             break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+        {
+            write_accel_struct.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+            write_accel_struct.pNext = nullptr;
+            write_accel_struct.accelerationStructureCount = write->descriptorCount;
+            write_accel_struct.pAccelerationStructures    = &binding->acceleration_structures[write->dstArrayElement];
+
+            write->pBufferInfo      = nullptr;
+            write->pImageInfo       = nullptr;
+            write->pTexelBufferView = nullptr;
+            write->pNext            = &write_accel_struct;
+        }
+        break;
         default:
             GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");
             break;
@@ -2246,6 +2348,14 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
         else if (query_entry.type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV)
         {
             // TODO
+            GFXRECON_LOG_ERROR("Use of VkQueryType::VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV is not "
+                               "currently supported when trimming is enabled.");
+        }
+        else if (query_entry.type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR)
+        {
+            // TODO
+            GFXRECON_LOG_ERROR("Use of VkQueryType::VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR is not "
+                               "currently supported when trimming is enabled.");
         }
         else
         {
@@ -2310,6 +2420,29 @@ void VulkanStateWriter::WriteSetEvent(format::HandleId device_id, format::Handle
     parameter_stream_.Reset();
 }
 
+void VulkanStateWriter::WriteSignalSemaphoreValue(format::ApiCallId api_call_id,
+                                                  format::HandleId  device_id,
+                                                  format::HandleId  semaphore_id,
+                                                  uint64_t          value)
+{
+    const VkResult result = VK_SUCCESS;
+
+    VkSemaphoreSignalInfo signal_info = { VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO };
+
+    encoder_.EncodeHandleIdValue(device_id);
+
+    encoder_.EncodeStructPtrPreamble(&signal_info);
+    encoder_.EncodeEnumValue(signal_info.sType);
+    EncodePNextStruct(&encoder_, nullptr);
+    encoder_.EncodeHandleIdValue(semaphore_id);
+    encoder_.EncodeUInt64Value(value);
+
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(api_call_id, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
 void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                                  format::HandleId             device_id,
                                                  format::HandleId             object_id,
@@ -2358,7 +2491,7 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
     {
         size_t packet_size = 0;
         size_t compressed_size =
-            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_);
+            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_, 0);
 
         if ((0 < compressed_size) && (compressed_size < uncompressed_size))
         {
@@ -2427,7 +2560,7 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
 
     if (compressor_ != nullptr)
     {
-        size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_parameter_buffer_);
+        size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_parameter_buffer_, 0);
 
         if ((compressed_size > 0) && (compressed_size < write_size))
         {
@@ -2629,22 +2762,42 @@ void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId p
     }
 }
 
-void VulkanStateWriter::WriteSetBufferAddressCommand(format::HandleId device_id,
-                                                     format::HandleId buffer_id,
+void VulkanStateWriter::WriteSetOpaqueAddressCommand(format::HandleId device_id,
+                                                     format::HandleId object_id,
                                                      uint64_t         address)
 {
-    format::SetBufferAddressCommand buffer_address_cmd;
+    format::SetOpaqueAddressCommand opaque_address_cmd;
 
-    buffer_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    buffer_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(buffer_address_cmd);
-    buffer_address_cmd.meta_header.meta_data_id =
-        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetBufferAddressCommand);
-    buffer_address_cmd.thread_id = thread_id_;
-    buffer_address_cmd.device_id = device_id;
-    buffer_address_cmd.buffer_id = buffer_id;
-    buffer_address_cmd.address   = address;
+    opaque_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    opaque_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(opaque_address_cmd);
+    opaque_address_cmd.meta_header.meta_data_id =
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetOpaqueAddressCommand);
+    opaque_address_cmd.thread_id = thread_id_;
+    opaque_address_cmd.device_id = device_id;
+    opaque_address_cmd.object_id = object_id;
+    opaque_address_cmd.address   = address;
 
-    output_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
+    output_stream_->Write(&opaque_address_cmd, sizeof(opaque_address_cmd));
+}
+
+void VulkanStateWriter::WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                                    format::HandleId pipeline_id,
+                                                                    size_t           data_size,
+                                                                    const void*      data)
+{
+    format::SetRayTracingShaderGroupHandlesCommandHeader set_handles_cmd;
+
+    set_handles_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    set_handles_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(set_handles_cmd) + data_size;
+    set_handles_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+        format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetRayTracingShaderGroupHandlesCommand);
+    set_handles_cmd.thread_id   = thread_id_;
+    set_handles_cmd.device_id   = device_id;
+    set_handles_cmd.pipeline_id = pipeline_id;
+    set_handles_cmd.data_size   = data_size;
+
+    output_stream_->Write(&set_handles_cmd, sizeof(set_handles_cmd));
+    output_stream_->Write(data, data_size);
 }
 
 VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper*       device_wrapper,
@@ -2859,6 +3012,16 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
                                          &memory_type_index,
                                          memory_property_flags,
                                          state_table);
+        if (!found)
+        {
+            // If we are here it is likely that we lack support for HOST_CACHED, fallback to COHERENT
+            found = FindMemoryTypeIndex(device_wrapper,
+                                        memory_requirements.memoryTypeBits,
+                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                        &memory_type_index,
+                                        memory_property_flags,
+                                        state_table);
+        }
 
         if (found)
         {
@@ -2880,8 +3043,8 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached properties for resource "
-                               "memory snapshot staging buffer creation");
+            GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached or coherent "
+                               "properties for resource memory snapshot staging buffer creation");
             result = VK_ERROR_INITIALIZATION_FAILED;
         }
     }
@@ -3135,12 +3298,16 @@ VkImageAspectFlags VulkanStateWriter::GetFormatAspectMask(VkFormat format)
             return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
             return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT;
         default:
             return VK_IMAGE_ASPECT_COLOR_BIT;
@@ -3190,12 +3357,16 @@ void VulkanStateWriter::GetFormatAspects(VkFormat                            for
             break;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
             aspects->push_back(VK_IMAGE_ASPECT_PLANE_0_BIT);
             aspects->push_back(VK_IMAGE_ASPECT_PLANE_1_BIT);
             break;
@@ -3250,6 +3421,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R8_UNORM;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R8_UNORM;
@@ -3266,6 +3438,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R10X6_UNORM_PACK16;
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R10X6_UNORM_PACK16;
@@ -3282,6 +3455,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R12X4_UNORM_PACK16;
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R12X4_UNORM_PACK16;
@@ -3298,6 +3472,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R16_UNORM;
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R16_UNORM;
@@ -3441,15 +3616,25 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
 
 bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor,
                                               uint32_t                index,
-                                              const VulkanStateTable& state_table)
+                                              const VulkanStateTable& state_table,
+                                              VkDescriptorType*       descriptor_type)
 {
     bool valid = false;
+
+    if (descriptor->type == VK_DESCRIPTOR_TYPE_MUTABLE_VALVE)
+    {
+        *descriptor_type = descriptor->mutable_type[index];
+    }
+    else
+    {
+        *descriptor_type = descriptor->type;
+    }
 
     if (descriptor->written[index])
     {
         // Check for handles that may no longer exist, which indicates that this descriptor is stale and should
         // be ignored, as there is no valid handle to write into it.
-        switch (descriptor->type)
+        switch (*descriptor_type)
         {
             case VK_DESCRIPTOR_TYPE_SAMPLER:
                 if (state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr)
@@ -3458,9 +3643,8 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 }
                 break;
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                // TODO: Sampler handle does not need to be valid if descriptor set was allocated from a layout
-                // with immutable samplers.
-                if ((state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr) &&
+                if ((descriptor->immutable_samplers ||
+                     (state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr)) &&
                     IsImageViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
@@ -3496,7 +3680,16 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO
-                GFXRECON_LOG_WARNING("Descriptor type acceleration structure is not currently supported");
+                GFXRECON_LOG_WARNING("Descriptor type acceleration structure NV is not currently supported");
+                break;
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                if (state_table.GetAccelerationStructureKHRWrapper(descriptor->handle_ids[index]) != nullptr)
+                {
+                    valid = true;
+                }
+                break;
+            case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
+                // Mutable descriptor still in initial state
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to check descriptor write status for unrecognized descriptor type");

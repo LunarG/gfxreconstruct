@@ -129,6 +129,8 @@ class VulkanStateWriter
 
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
+    void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
+
     void
     ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
 
@@ -237,6 +239,11 @@ class VulkanStateWriter
 
     void WriteSetEvent(format::HandleId device_id, format::HandleId event_id);
 
+    void WriteSignalSemaphoreValue(format::ApiCallId api_call_id,
+                                   format::HandleId  device_id,
+                                   format::HandleId  semaphore,
+                                   uint64_t          value);
+
     void WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                   format::HandleId             device_id,
                                   format::HandleId             object_id,
@@ -267,7 +274,12 @@ class VulkanStateWriter
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
 
-    void WriteSetBufferAddressCommand(format::HandleId device_id, format::HandleId buffer_id, VkDeviceAddress address);
+    void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, VkDeviceAddress address);
+
+    void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                     format::HandleId pipeline_id,
+                                                     size_t           data_size,
+                                                     const void*      data);
 
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
@@ -338,7 +350,10 @@ class VulkanStateWriter
     bool
     CheckCommandHandle(CommandHandleType handle_type, format::HandleId handle, const VulkanStateTable& state_table);
 
-    bool CheckDescriptorStatus(const DescriptorInfo* descriptor, uint32_t index, const VulkanStateTable& state_table);
+    bool CheckDescriptorStatus(const DescriptorInfo*   descriptor,
+                               uint32_t                index,
+                               const VulkanStateTable& state_table,
+                               VkDescriptorType*       descriptor_type);
 
     bool IsBufferValid(format::HandleId buffer_id, const VulkanStateTable& state_table);
 

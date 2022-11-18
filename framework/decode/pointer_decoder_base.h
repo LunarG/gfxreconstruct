@@ -75,6 +75,7 @@ class PointerDecoderBase
             }
 
             if (((attrib_ & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ||
+                ((attrib_ & format::PointerAttributes::kIsArray2D) == format::PointerAttributes::kIsArray2D) ||
                 ((attrib_ & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString) ||
                 ((attrib_ & format::PointerAttributes::kIsWString) == format::PointerAttributes::kIsWString))
             {

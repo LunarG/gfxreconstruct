@@ -95,9 +95,8 @@ uint64_t GetWrappedHandle(uint64_t object, VkObjectType object_type)
             return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkDebugReportCallbackEXT>(object)));
         case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
             return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkDebugUtilsMessengerEXT>(object)));
-        // TODO: Handle acceleration structure handles separately.
-        // case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
-        //    return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkAccelerationStructureKHR>(object)));
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
+            return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkAccelerationStructureKHR>(object)));
         case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT:
             return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkValidationCacheEXT>(object)));
         case VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL:
@@ -191,9 +190,8 @@ uint64_t GetWrappedHandle(uint64_t object, VkDebugReportObjectTypeEXT object_typ
             return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkSamplerYcbcrConversion>(object)));
         case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT:
             return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkDescriptorUpdateTemplate>(object)));
-        // TODO: Handle acceleration structure handles separately.
-        // case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT:
-        //    return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkAccelerationStructureKHR>(object)));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT:
+            return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkAccelerationStructureKHR>(object)));
         case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT:
             return format::ToHandleId(GetWrappedHandle(format::FromHandleId<VkAccelerationStructureNV>(object)));
         case VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT:
@@ -277,9 +275,8 @@ uint64_t GetWrappedId(uint64_t object, VkObjectType object_type)
             return GetWrappedId(format::FromHandleId<VkDebugReportCallbackEXT>(object));
         case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
             return GetWrappedId(format::FromHandleId<VkDebugUtilsMessengerEXT>(object));
-        // TODO: Handle acceleration structure handles separately.
-        // case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
-        //    return GetWrappedId(format::FromHandleId<VkAccelerationStructureKHR>(object));
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
+            return GetWrappedId(format::FromHandleId<VkAccelerationStructureKHR>(object));
         case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT:
             return GetWrappedId(format::FromHandleId<VkValidationCacheEXT>(object));
         case VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL:
@@ -373,9 +370,8 @@ uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type)
             return GetWrappedId(format::FromHandleId<VkSamplerYcbcrConversion>(object));
         case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT:
             return GetWrappedId(format::FromHandleId<VkDescriptorUpdateTemplate>(object));
-        // TODO: Handle acceleration structure handles separately.
-        // case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT:
-        //    return GetWrappedId(format::FromHandleId<VkAccelerationStructureKHR>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT:
+            return GetWrappedId(format::FromHandleId<VkAccelerationStructureKHR>(object));
         case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT:
             return GetWrappedId(format::FromHandleId<VkAccelerationStructureNV>(object));
         case VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT:

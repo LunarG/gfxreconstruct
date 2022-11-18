@@ -29,8 +29,8 @@
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "graphics/fps_info.h"
 #include "util/argument_parser.h"
-#include "util/date_time.h"
 #include "util/logging.h"
 
 #if defined(WIN32)
@@ -64,13 +64,42 @@
 #endif
 #endif
 
+#if defined(VK_USE_PLATFORM_HEADLESS)
+#include "application/headless_application.h"
+#include "application/headless_window.h"
+#endif
+
+#if defined(WIN32)
+#include <conio.h>
+void WaitForExit()
+{
+    DWORD process_list[2];
+    DWORD result = GetConsoleProcessList(process_list, ARRAYSIZE(process_list));
+
+    // If the process list contains a single entry, we assume that the console was created when the gfxrecon-replay.exe
+    // process started, and will be destroyed when it exits.  In this case, we will wait on user input before exiting
+    // and closing the console window to give the user a chance to read any console output.
+    if (result <= 1)
+    {
+        GFXRECON_WRITE_CONSOLE("\nPress any key to close this window . . .");
+        while (!_kbhit())
+        {
+            Sleep(250);
+        }
+    }
+}
+#else
+void WaitForExit() {}
+#endif
+
 const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
 
 int main(int argc, const char** argv)
 {
     int return_code = 0;
 
-    gfxrecon::util::Log::Init();
+    // Default initialize logging to report issues while loading settings.
+    gfxrecon::util::Log::Init(gfxrecon::decode::kDefaultLogLevel);
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
@@ -89,6 +118,12 @@ int main(int argc, const char** argv)
     {
         ProcessDisableDebugPopup(arg_parser);
     }
+
+    // Reinitialize logging with values retrieved from command line arguments
+    gfxrecon::util::Log::Settings log_settings;
+    GetLogSettings(arg_parser, log_settings);
+    gfxrecon::util::Log::Release();
+    gfxrecon::util::Log::Init(log_settings);
 
     try
     {
@@ -158,6 +193,19 @@ int main(int argc, const char** argv)
             }
 #endif
 #endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+            if (wsi_platform == WsiPlatform::kHeadless || (wsi_platform == WsiPlatform::kAuto && !application))
+            {
+                auto headless_application =
+                    std::make_unique<gfxrecon::application::HeadlessApplication>(kApplicationName);
+                if (headless_application->Initialize(&file_processor))
+                {
+                    window_factory =
+                        std::make_unique<gfxrecon::application::HeadlessWindowFactory>(headless_application.get());
+                    application = std::move(headless_application);
+                }
+            }
+#endif
 
             if (!window_factory || !application)
             {
@@ -168,6 +216,8 @@ int main(int argc, const char** argv)
             }
             else
             {
+                gfxrecon::graphics::FpsInfo fps_info;
+
                 // Initialize Vulkan API decoder and consumer(s).
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
@@ -181,6 +231,7 @@ int main(int argc, const char** argv)
                 {
                     vulkan_replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
+                    vulkan_replay_consumer.SetFpsInfo(&fps_info);
 
                     vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
                     file_processor.AddDecoder(&vulkan_decoder);
@@ -197,6 +248,8 @@ int main(int argc, const char** argv)
                 {
                     dx12_replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
+                    // TODO (GH #83): Add D3D12 trimming support, account for state load time in FPS
+                    // dx12_replay_consumer.SetFpsInfo(&fps_info);
 
                     dx12_decoder.AddConsumer(&dx12_replay_consumer);
                     file_processor.AddDecoder(&dx12_decoder);
@@ -208,29 +261,14 @@ int main(int argc, const char** argv)
                 // Warn if the capture layer is active.
                 CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
 
-                // Grab the start frame/time information for the FPS result.
-                uint32_t start_frame = 1;
-                int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
+                fps_info.Begin();
 
                 application->Run();
 
                 if ((file_processor.GetCurrentFrameNumber() > 0) &&
                     (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    // Grab the end frame/time information and calculate FPS.
-                    int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
-                    double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
-                        gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
-                    uint32_t end_frame    = file_processor.GetCurrentFrameNumber();
-                    uint32_t total_frames = (end_frame - start_frame) + 1;
-                    double   fps          = static_cast<double>(total_frames) / diff_time_sec;
-                    GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",
-                                           fps,
-                                           diff_time_sec,
-                                           total_frames,
-                                           total_frames > 1 ? "s" : "",
-                                           start_frame,
-                                           end_frame);
+                    fps_info.EndAndLog(file_processor.GetCurrentFrameNumber());
                 }
                 else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
                 {
@@ -254,6 +292,8 @@ int main(int argc, const char** argv)
         GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
         return_code = -1;
     }
+
+    WaitForExit();
 
     gfxrecon::util::Log::Release();
 

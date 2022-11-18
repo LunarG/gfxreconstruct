@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
@@ -27,6 +27,7 @@
 
 #include "encode/capture_settings.h"
 #include "encode/handle_unwrap_memory.h"
+#include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
@@ -35,11 +36,12 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/keyboard.h"
-#include "util/memory_output_stream.h"
+#include "util/shared_mutex.h"
 
 #include <atomic>
 #include <cassert>
 #include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -51,6 +53,16 @@ class CaptureManager
 {
   public:
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+
+    std::shared_lock<util::SharedMutex> AcquireSharedStateLock()
+    {
+        return std::shared_lock<util::SharedMutex>(state_mutex_);
+    }
+
+    std::unique_lock<util::SharedMutex> AcquireUniqueStateLock()
+    {
+        return std::move(std::unique_lock<util::SharedMutex>(state_mutex_));
+    }
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -90,9 +102,9 @@ class CaptureManager
         return nullptr;
     }
 
-    void EndApiCallCapture(ParameterEncoder* encoder);
+    void EndApiCallCapture();
 
-    void EndMethodCallCapture(ParameterEncoder* encoder);
+    void EndMethodCallCapture();
 
     void EndFrame();
 
@@ -130,14 +142,16 @@ class CaptureManager
 
         ~ThreadData() {}
 
+        std::vector<uint8_t>& GetScratchBuffer() { return scratch_buffer_; }
+
       public:
-        const format::ThreadId                    thread_id_;
-        format::ApiCallId                         call_id_;
-        format::HandleId                          object_id_;
-        std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
-        std::unique_ptr<ParameterEncoder>         parameter_encoder_;
-        std::vector<uint8_t>                      compressed_buffer_;
-        HandleUnwrapMemory                        handle_unwrap_memory_;
+        const format::ThreadId                   thread_id_;
+        format::ApiCallId                        call_id_;
+        format::HandleId                         object_id_;
+        std::unique_ptr<encode::ParameterBuffer> parameter_buffer_;
+        std::unique_ptr<ParameterEncoder>        parameter_encoder_;
+        std::vector<uint8_t>                     compressed_buffer_;
+        HandleUnwrapMemory                       handle_unwrap_memory_;
 
       private:
         static format::ThreadId GetThreadId();
@@ -146,6 +160,10 @@ class CaptureManager
         static std::mutex                                     count_lock_;
         static format::ThreadId                               thread_count_;
         static std::unordered_map<uint64_t, format::ThreadId> id_map_;
+
+      private:
+        // Used for combining multiple buffers for a single file write.
+        std::vector<uint8_t> scratch_buffer_;
     };
 
   protected:
@@ -160,9 +178,9 @@ class CaptureManager
 
     bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
-    virtual void CreateStateTracker()                          = 0;
-    virtual void DestroyStateTracker()                         = 0;
-    virtual void WriteTrackedState(format::ThreadId thread_id) = 0;
+    virtual void CreateStateTracker()                                                               = 0;
+    virtual void DestroyStateTracker()                                                              = 0;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) = 0;
 
     ThreadData* GetThreadData()
     {
@@ -202,20 +220,40 @@ class CaptureManager
     void WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size);
 
   protected:
-    std::unique_ptr<util::FileOutputStream> file_stream_;
-    std::mutex                              file_lock_;
-    std::unique_ptr<util::Compressor>       compressor_;
-    std::mutex                              mapped_memory_lock_;
-    util::Keyboard                          keyboard_;
+    std::unique_ptr<util::Compressor> compressor_;
+    std::mutex                        mapped_memory_lock_;
+    util::Keyboard                    keyboard_;
+
+    void WriteToFile(const void* data, size_t size);
+
+    template <size_t N>
+    void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
+    {
+        static_assert(N != 1, "Use WriteToFile(void*, size) when writing a single buffer.");
+
+        // Combine buffers for a single write.
+        std::vector<uint8_t>& scratch_buffer = GetThreadData()->GetScratchBuffer();
+        scratch_buffer.clear();
+        for (size_t i = 0; i < N; ++i)
+        {
+            const uint8_t* const data = reinterpret_cast<const uint8_t*>(buffers[i].first);
+            const size_t         size = buffers[i].second;
+            scratch_buffer.insert(scratch_buffer.end(), data, data + size);
+        }
+
+        WriteToFile(scratch_buffer.data(), scratch_buffer.size());
+    }
 
   private:
     static uint32_t                                 instance_count_;
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static std::atomic<format::HandleId>            unique_id_counter_;
+    static util::SharedMutex                        state_mutex_;
 
     const format::ApiFamilyId api_family_;
 
+    std::unique_ptr<util::FileOutputStream> file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
     bool                                    timestamp_filename_;

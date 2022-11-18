@@ -45,6 +45,8 @@ VkResult GetDeviceExtensions(VkPhysicalDevice                         physical_d
                              PFN_vkEnumerateDeviceExtensionProperties device_extension_proc,
                              std::vector<VkExtensionProperties>*      properties);
 
+bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, const char* extension);
+
 void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& properties,
                                  std::vector<const char*>*                 extensions);
 

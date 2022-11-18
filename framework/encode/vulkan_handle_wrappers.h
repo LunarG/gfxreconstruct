@@ -27,6 +27,7 @@
 #include "encode/vulkan_state_info.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_device_util.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
@@ -134,6 +135,9 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     DeviceTable                layer_table;
     PhysicalDeviceWrapper*     physical_device{ nullptr };
     std::vector<QueueWrapper*> child_queues;
+
+    // Physical device property & feature state at device creation
+    graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
@@ -162,6 +166,10 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     AHardwareBuffer* hardware_buffer{ nullptr };
     format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
+
+    // State tracking info for memory with device addresses.
+    format::HandleId device_id{ format::kNullHandleId };
+    VkDeviceAddress  address{ 0 };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
@@ -223,8 +231,9 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
     // AcquireNextImageKHR, or AcquireNextImage2KHR as a signal semaphore. State is not signaled when a semaphore is
     // submitted to QueueSubmit, QueueBindSparse, or QueuePresentKHR as a wait semaphore. Initial state after creation
     // is not signaled.
-    bool           signaled{ false };
-    DeviceWrapper* device{ nullptr };
+    bool            signaled{ false };
+    VkSemaphoreType type{ VK_SEMAPHORE_TYPE_BINARY_KHR };
+    DeviceWrapper*  device{ nullptr };
 };
 
 struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
@@ -287,6 +296,10 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     CreateDependencyInfo                        render_pass_dependency;
     CreateDependencyInfo                        layout_dependency;
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies; // Shared with PipelineLayoutWrapper
+
+    // Ray tracing pipeline's shader group handle data
+    format::HandleId     device_id{ format::kNullHandleId };
+    std::vector<uint8_t> shader_group_handle_data;
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
@@ -369,7 +382,9 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
-    // TODO: Determine what additional state tracking is needed.
+    // State tracking info for buffers with device addresses.
+    format::HandleId device_id{ format::kNullHandleId };
+    VkDeviceAddress  address{ 0 };
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>

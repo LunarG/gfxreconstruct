@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
@@ -29,6 +29,7 @@
 
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
+#include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
@@ -87,8 +88,7 @@ class VulkanCaptureManager : public CaptureManager
     void EndCreateApiCallCapture(VkResult                      result,
                                  ParentHandle                  parent_handle,
                                  typename Wrapper::HandleType* handle,
-                                 const CreateInfo*             create_info,
-                                 ParameterEncoder*             encoder)
+                                 const CreateInfo*             create_info)
     {
         if (((GetCaptureMode() & kModeTrack) == kModeTrack) && result == VK_SUCCESS)
         {
@@ -101,7 +101,7 @@ class VulkanCaptureManager : public CaptureManager
                 parent_handle, handle, create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
     // Pool allocation.
@@ -110,8 +110,7 @@ class VulkanCaptureManager : public CaptureManager
                                      ParentHandle                  parent_handle,
                                      uint32_t                      count,
                                      typename Wrapper::HandleType* handles,
-                                     const AllocateInfo*           alloc_info,
-                                     ParameterEncoder*             encoder)
+                                     const AllocateInfo*           alloc_info)
     {
         if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
         {
@@ -124,7 +123,7 @@ class VulkanCaptureManager : public CaptureManager
                 parent_handle, count, handles, alloc_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
     // Multiple object creation.
@@ -134,8 +133,7 @@ class VulkanCaptureManager : public CaptureManager
                                       SecondaryHandle               secondary_handle,
                                       uint32_t                      count,
                                       typename Wrapper::HandleType* handles,
-                                      const CreateInfo*             create_infos,
-                                      ParameterEncoder*             encoder)
+                                      const CreateInfo*             create_infos)
     {
         if (((GetCaptureMode() & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
             (handles != nullptr))
@@ -155,7 +153,7 @@ class VulkanCaptureManager : public CaptureManager
                 thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
     // Multiple implicit object creation inside output struct.
@@ -164,8 +162,7 @@ class VulkanCaptureManager : public CaptureManager
                                             ParentHandle                           parent_handle,
                                             uint32_t                               count,
                                             HandleStruct*                          handle_structs,
-                                            std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle,
-                                            ParameterEncoder*                      encoder)
+                                            std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle)
     {
         if (((GetCaptureMode() & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
             (handle_structs != nullptr))
@@ -183,12 +180,12 @@ class VulkanCaptureManager : public CaptureManager
                                                 thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
     // Single object destruction.
     template <typename Wrapper>
-    void EndDestroyApiCallCapture(typename Wrapper::HandleType handle, ParameterEncoder* encoder)
+    void EndDestroyApiCallCapture(typename Wrapper::HandleType handle)
     {
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
@@ -196,13 +193,12 @@ class VulkanCaptureManager : public CaptureManager
             state_tracker_->RemoveEntry<Wrapper>(handle);
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
     // Multiple object destruction.
     template <typename Wrapper>
-    void
-    EndDestroyApiCallCapture(uint32_t count, const typename Wrapper::HandleType* handles, ParameterEncoder* encoder)
+    void EndDestroyApiCallCapture(uint32_t count, const typename Wrapper::HandleType* handles)
     {
         if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (handles != nullptr))
         {
@@ -214,10 +210,10 @@ class VulkanCaptureManager : public CaptureManager
             }
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
-    void EndCommandApiCallCapture(VkCommandBuffer command_buffer, ParameterEncoder* encoder)
+    void EndCommandApiCallCapture(VkCommandBuffer command_buffer)
     {
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
@@ -229,14 +225,11 @@ class VulkanCaptureManager : public CaptureManager
             state_tracker_->TrackCommand(command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
-    void EndCommandApiCallCapture(VkCommandBuffer   command_buffer,
-                                  ParameterEncoder* encoder,
-                                  GetHandlesFunc    func,
-                                  GetHandlesArgs... args)
+    void EndCommandApiCallCapture(VkCommandBuffer command_buffer, GetHandlesFunc func, GetHandlesArgs... args)
     {
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
@@ -249,7 +242,7 @@ class VulkanCaptureManager : public CaptureManager
                 command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get(), func, args...);
         }
 
-        EndApiCallCapture(encoder);
+        EndApiCallCapture();
     }
 
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
@@ -269,6 +262,11 @@ class VulkanCaptureManager : public CaptureManager
                                   const VkAllocationCallbacks* pAllocator,
                                   VkBuffer*                    pBuffer);
 
+    VkResult OverrideCreateAccelerationStructureKHR(VkDevice                                    device,
+                                                    const VkAccelerationStructureCreateInfoKHR* pCreateInfo,
+                                                    const VkAllocationCallbacks*                pAllocator,
+                                                    VkAccelerationStructureKHR* pAccelerationStructureKHR);
+
     VkResult OverrideAllocateMemory(VkDevice                     device,
                                     const VkMemoryAllocateInfo*  pAllocateInfo,
                                     const VkAllocationCallbacks* pAllocator,
@@ -278,10 +276,23 @@ class VulkanCaptureManager : public CaptureManager
                                                         uint32_t*                          pToolCount,
                                                         VkPhysicalDeviceToolPropertiesEXT* pToolProperties);
 
+    VkResult OverrideCreateRayTracingPipelinesKHR(VkDevice                                 device,
+                                                  VkDeferredOperationKHR                   deferredOperation,
+                                                  VkPipelineCache                          pipelineCache,
+                                                  uint32_t                                 createInfoCount,
+                                                  const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                  const VkAllocationCallbacks*             pAllocator,
+                                                  VkPipeline*                              pPipelines);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
                                                 VkPhysicalDevice* pPhysicalDevices);
+
+    void PostProcess_vkEnumeratePhysicalDeviceGroups(VkResult                         result,
+                                                     VkInstance                       instance,
+                                                     uint32_t*                        pPhysicalDeviceGroupCount,
+                                                     VkPhysicalDeviceGroupProperties* pPhysicalDeviceGroupProperties);
 
     void PostProcess_vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice         physicalDevice,
                                                               uint32_t*                pQueueFamilyPropertyCount,
@@ -615,6 +626,16 @@ class VulkanCaptureManager : public CaptureManager
         }
     }
 
+    void PostProcess_vkCmdPipelineBarrier2KHR(VkCommandBuffer commandBuffer, const VkDependencyInfoKHR* pDependencyInfo)
+    {
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackImageBarriers2KHR(
+                commandBuffer, pDependencyInfo->imageMemoryBarrierCount, pDependencyInfo->pImageMemoryBarriers);
+        }
+    }
+
     void PostProcess_vkCmdExecuteCommands(VkCommandBuffer        commandBuffer,
                                           uint32_t               commandBufferCount,
                                           const VkCommandBuffer* pCommandBuffers)
@@ -838,6 +859,15 @@ class VulkanCaptureManager : public CaptureManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
+    void PreProcess_vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
+
+    void
+    PreProcess_vkGetAccelerationStructureDeviceAddressKHR(VkDevice                                           device,
+                                                          const VkAccelerationStructureDeviceAddressInfoKHR* pInfo);
+
+    void PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
+        VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
@@ -851,7 +881,7 @@ class VulkanCaptureManager : public CaptureManager
 
     virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
-    virtual void WriteTrackedState(format::ThreadId thread_id) override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
   private:
     struct HardwareBufferInfo
@@ -875,7 +905,12 @@ class VulkanCaptureManager : public CaptureManager
                                          const VkPhysicalDeviceProperties& properties);
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
-    void WriteSetBufferAddressCommand(format::HandleId device_id, format::HandleId buffer_id, uint64_t address);
+    void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
+
+    void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                     format::HandleId pipeline_id,
+                                                     size_t           data_size,
+                                                     const void*      data);
 
     void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                          const VkDescriptorUpdateTemplateCreateInfo* create_info);
@@ -883,6 +918,9 @@ class VulkanCaptureManager : public CaptureManager
     void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
                                               VkDescriptorUpdateTemplate update_templat,
                                               const void*                data);
+
+    void
+    ProcessEnumeratePhysicalDevices(VkResult result, VkInstance instance, uint32_t count, VkPhysicalDevice* devices);
 
     VkMemoryPropertyFlags GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index);
 

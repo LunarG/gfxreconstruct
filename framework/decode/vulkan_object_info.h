@@ -28,6 +28,7 @@
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_device_util.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -91,7 +92,8 @@ enum DeviceArrayIndices : uint32_t
 
 enum QueueArrayIndices : uint32_t
 {
-    kQueueArrayGetQueueCheckpointDataNV = 0
+    kQueueArrayGetQueueCheckpointDataNV  = 0,
+    kQueueArrayGetQueueCheckpointData2NV = 1
 };
 
 enum ImageArrayIndices : uint32_t
@@ -241,11 +243,17 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     std::unique_ptr<VulkanResourceAllocator> allocator;
     std::unordered_map<uint32_t, size_t>     array_counts;
 
-    std::unordered_map<format::HandleId, uint64_t> buffer_addresses;
+    std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
+
+    // Map pipeline ID to ray tracing shader group handle capture replay data.
+    std::unordered_map<format::HandleId, const std::vector<uint8_t>> shader_group_handles;
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;
+
+    // Physical device property & feature state at device creation
+    graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>

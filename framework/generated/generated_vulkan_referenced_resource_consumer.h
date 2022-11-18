@@ -268,6 +268,28 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
 
+    virtual void Process_vkCmdSetEvent2KHR(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            event,
+        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo) override;
+
+    virtual void Process_vkCmdWaitEvents2KHR(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    eventCount,
+        HandlePointerDecoder<VkEvent>*              pEvents,
+        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfos) override;
+
+    virtual void Process_vkCmdPipelineBarrier2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo) override;
+
+    virtual void Process_vkCmdWriteBufferMarker2AMD(
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlags2KHR                    stage,
+        format::HandleId                            dstBuffer,
+        VkDeviceSize                                dstOffset,
+        uint32_t                                    marker) override;
+
     virtual void Process_vkCmdCopyBuffer2KHR(
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo) override;

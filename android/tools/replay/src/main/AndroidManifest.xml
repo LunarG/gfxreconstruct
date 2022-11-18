@@ -13,6 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         android:supportsRtl="true"
+        android:extractNativeLibs="true"
         android:hasCode="false">
         <activity android:name="android.app.NativeActivity"
                   android:configChanges="orientation|screenSize|keyboard|keyboardHidden"

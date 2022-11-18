@@ -9,7 +9,9 @@
     "vkEnumerateInstanceVersion",
     "vkUpdateDescriptorSetWithTemplate",
     "vkUpdateDescriptorSetWithTemplateKHR",
-    "vkCmdPushDescriptorSetWithTemplateKHR"
+    "vkCmdPushDescriptorSetWithTemplateKHR",
+    "vkBuildAccelerationStructuresKHR",
+    "vkCopyAccelerationStructureKHR"
   ],
   "structures": [
     "VkBaseOutStructure",
