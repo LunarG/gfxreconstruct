@@ -145,14 +145,28 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
                 body += '}}\n'
                 if 'Bits' in enum:
                     if self.is_flags_enum_64bit(enum):
-                        # body += '\nstd::string {0}ToString(VkFlags64 vkFlags, ToStringFlags, uint32_t, uint32_t)\n'
                         body += '\nstd::string {1}ToString(VkFlags64 vkFlags)\n'
                         body += '{{\n'
-                        # We need to generate same code as inside BitMaskToString right here in
-                        # Python while we know the pseudo-enum type and all the enumerants.
-                        # We can't dispatch based on the enum's type since there is no distinct type.
-                        body += '    // return BitmaskToString<{0}>(vkFlags);\n'
-                        body += '    return "Unimplemented";\n'
+                        body += '    std::string   str;\n'
+                        body += '    VkFlags64     index = 0U;\n'
+                        body += '    while (vkFlags)\n'
+                        body += '    {{\n'
+                        body += '        if (vkFlags & 1U)\n'
+                        body += '        {{\n'
+                        body += '            if (!str.empty())\n'
+                        body += '            {{\n'
+                        body += '                str += \'|\';\n'
+                        body += '            }}\n'
+                        body += '            str.append({0}ToString(static_cast<{0}>(1U) << index));\n'
+                        body += '        }}\n'
+                        body += '        ++index;\n'
+                        body += '        vkFlags >>= 1U;\n'
+                        body += '    }}\n'
+                        body += '    if (str.empty())\n'
+                        body += '    {{\n'
+                        body += '        str.append({0}ToString(0U));\n'
+                        body += '    }}\n'
+                        body += '    return str;\n'
                         body += '}}\n'
                     else:
                         # Original version(these are never actually being called which is part of issue #620):
