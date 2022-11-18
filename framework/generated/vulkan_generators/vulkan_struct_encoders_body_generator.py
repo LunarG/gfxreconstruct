@@ -133,8 +133,18 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
         for value in values:
             # pNext fields require special treatment and are not processed by typename
             if 'pNext' in value.name:
+                # Only try to encode pNext fields when it's legal to have one.
+                # Even though the Vulkan spec requires these to be NULL, such
+                # errors tend to be overlooked because drivers often just
+                # ignore pNext fields where values are not expected.
+                #
+                # Even if a spec update adds extension to a struct, it's
+                # unlikely that the extension struct is known to us, so just
+                # skip encoding pNext if we don't expect one.
+                has_pnext = name in self.registry.validextensionstructs or self.registry.typedict[
+                    name].elem.get('structextends')
                 body += '    EncodePNextStruct(encoder, {});\n'.format(
-                    prefix + value.name
+                    prefix + value.name if has_pnext else 'nullptr'
                 )
             else:
                 method_call = self.make_encoder_method_call(
