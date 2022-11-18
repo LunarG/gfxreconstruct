@@ -90,6 +90,27 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR
     encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value)
+{
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeFlagsValue(value.flags);
+
+    switch (value.type)
+    {
+        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV:
+            EncodeStruct(encoder, value.data.staticInstance);
+            break;
+        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV:
+            EncodeStruct(encoder, value.data.matrixMotionInstance);
+            break;
+        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV:
+            EncodeStruct(encoder, value.data.srtMotionInstance);
+            break;
+        default:
+            break;
+    }
+}
+
 // Encodes both VkWriteDescriptorSet and VkDescriptorImageInfo based on descriptor type.
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
 {

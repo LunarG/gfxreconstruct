@@ -22,6 +22,7 @@
 */
 
 #include "application/win32_window.h"
+#include "application/application.h"
 #include "util/logging.h"
 
 #include <cassert>
@@ -35,12 +36,12 @@ GFXRECON_BEGIN_NAMESPACE(application)
 const uint32_t kWindowedStyle   = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 const uint32_t kFullscreenStyle = WS_POPUP;
 
-Win32Window::Win32Window(Win32Application* application) :
-    hwnd_(nullptr), win32_application_(application), width_(0), height_(0),
+Win32Window::Win32Window(Win32Context* win32_context) :
+    hwnd_(nullptr), win32_context_(win32_context), width_(0), height_(0),
     screen_width_(std::numeric_limits<uint32_t>::max()), screen_height_(std::numeric_limits<uint32_t>::max()),
     fullscreen_(false), hinstance_(nullptr)
 {
-    assert(application != nullptr);
+    assert(win32_context_ != nullptr);
 }
 
 Win32Window::~Win32Window()
@@ -67,7 +68,7 @@ bool Win32Window::Create(
     WNDCLASSEX wcex    = {};
     wcex.cbSize        = sizeof(WNDCLASSEX);
     wcex.style         = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc   = Win32Application::WindowProc;
+    wcex.lpfnWndProc   = Win32Context::WindowProc;
     wcex.cbClsExtra    = 0;
     wcex.cbWndExtra    = 0;
     wcex.hInstance     = hinstance_;
@@ -129,11 +130,11 @@ bool Win32Window::Create(
                          nullptr,
                          nullptr,
                          wcex.hInstance,
-                         win32_application_);
+                         win32_context_);
 
     if (hwnd_)
     {
-        win32_application_->RegisterWindow(this);
+        win32_context_->RegisterWindow(this);
 
         width_  = width;
         height_ = height;
@@ -155,7 +156,7 @@ bool Win32Window::Destroy()
     if (hwnd_ != nullptr)
     {
         DestroyWindow(hwnd_);
-        win32_application_->UnregisterWindow(this);
+        win32_context_->UnregisterWindow(this);
         hwnd_ = nullptr;
         return true;
     }
@@ -284,16 +285,19 @@ void Win32Window::DestroySurface(const encode::InstanceTable* table, VkInstance 
     }
 }
 
-Win32WindowFactory::Win32WindowFactory(Win32Application* application) : win32_application_(application)
+Win32WindowFactory::Win32WindowFactory(Win32Context* win32_context) : win32_context_(win32_context)
 {
-    assert(application != nullptr);
+    assert(win32_context_);
 }
 
 decode::Window*
 Win32WindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    decode::Window* window = new Win32Window(win32_application_);
-    window->Create(win32_application_->GetName(), x, y, width, height);
+    assert(win32_context_);
+    decode::Window* window      = new Win32Window(win32_context_);
+    auto            application = win32_context_->GetApplication();
+    assert(application);
+    window->Create(application->GetName(), x, y, width, height);
     return window;
 }
 

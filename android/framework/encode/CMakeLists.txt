@@ -3,13 +3,13 @@ add_library(gfxrecon_encode STATIC "")
 target_sources(gfxrecon_encode
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp               
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_encoder_commands.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_array_size_2d.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_encoder_commands.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_handle_wrappers.h
@@ -25,7 +25,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrapper_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrapper_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_info.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_table_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_writer.h
@@ -40,6 +40,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
               )
 
 target_include_directories(gfxrecon_encode

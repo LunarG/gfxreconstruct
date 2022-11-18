@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -3812,6 +3812,21 @@ void VulkanReplayConsumer::Process_vkCmdSetFragmentShadingRateKHR(
     GetDeviceTable(in_commandBuffer)->CmdSetFragmentShadingRateKHR(in_commandBuffer, in_pFragmentSize, in_combinerOps);
 }
 
+void VulkanReplayConsumer::Process_vkWaitForPresentKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    uint64_t                                    presentId,
+    uint64_t                                    timeout)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkSwapchainKHR in_swapchain = MapHandle<SwapchainKHRInfo>(swapchain, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+    if (GetObjectInfoTable().GetSwapchainKHRInfo(swapchain)->surface == VK_NULL_HANDLE) { return; }
+
+    VkResult replay_result = GetDeviceTable(in_device)->WaitForPresentKHR(in_device, in_swapchain, presentId, timeout);
+    CheckResult("vkWaitForPresentKHR", returnValue, replay_result);
+}
+
 void VulkanReplayConsumer::Process_vkGetBufferDeviceAddressKHR(
     VkDeviceAddress                             returnValue,
     format::HandleId                            device,
@@ -5910,6 +5925,36 @@ void VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     RemoveHandle(indirectCommandsLayout, &VulkanObjectInfoTable::RemoveIndirectCommandsLayoutNVInfo);
 }
 
+void VulkanReplayConsumer::Process_vkAcquireDrmDisplayEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    int32_t                                     drmFd,
+    format::HandleId                            display)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    VkDisplayKHR in_display = MapHandle<DisplayKHRInfo>(display, &VulkanObjectInfoTable::GetDisplayKHRInfo);
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->AcquireDrmDisplayEXT(in_physicalDevice, drmFd, in_display);
+    CheckResult("vkAcquireDrmDisplayEXT", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkGetDrmDisplayEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    int32_t                                     drmFd,
+    uint32_t                                    connectorId,
+    HandlePointerDecoder<VkDisplayKHR>*         display)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    if (!display->IsNull()) { display->SetHandleLength(1); }
+    VkDisplayKHR* out_display = display->GetHandlePointer();
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetDrmDisplayEXT(in_physicalDevice, drmFd, connectorId, out_display);
+    CheckResult("vkGetDrmDisplayEXT", returnValue, replay_result);
+
+    AddHandle<DisplayKHRInfo>(physicalDevice, display->GetPointer(), out_display, &VulkanObjectInfoTable::AddDisplayKHRInfo);
+}
+
 void VulkanReplayConsumer::Process_vkCreatePrivateDataSlotEXT(
     VkResult                                    returnValue,
     format::HandleId                            device,
@@ -6114,6 +6159,34 @@ void VulkanReplayConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
     CheckResult("vkGetSemaphoreZirconHandleFUCHSIA", returnValue, replay_result);
 }
 
+void VulkanReplayConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            imageView,
+    VkImageLayout                               imageLayout)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    VkImageView in_imageView = MapHandle<ImageViewInfo>(imageView, &VulkanObjectInfoTable::GetImageViewInfo);
+
+    GetDeviceTable(in_commandBuffer)->CmdBindInvocationMaskHUAWEI(in_commandBuffer, in_imageView, imageLayout);
+}
+
+void VulkanReplayConsumer::Process_vkGetMemoryRemoteAddressNV(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
+    PointerDecoder<uint64_t, void*>*            pAddress)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    const VkMemoryGetRemoteAddressInfoNV* in_pMemoryGetRemoteAddressInfo = pMemoryGetRemoteAddressInfo->GetPointer();
+    MapStructHandles(pMemoryGetRemoteAddressInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    VkRemoteAddressNV* out_pAddress = pAddress->IsNull() ? nullptr : reinterpret_cast<VkRemoteAddressNV*>(pAddress->AllocateOutputData(1));
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetMemoryRemoteAddressNV(in_device, in_pMemoryGetRemoteAddressInfo, out_pAddress);
+    CheckResult("vkGetMemoryRemoteAddressNV", returnValue, replay_result);
+
+    PostProcessExternalObject(replay_result, (*pAddress->GetPointer()), static_cast<void*>(*out_pAddress), format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV, "vkGetMemoryRemoteAddressNV");
+}
+
 void VulkanReplayConsumer::Process_vkCmdSetPatchControlPointsEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    patchControlPoints)
@@ -6199,6 +6272,36 @@ void VulkanReplayConsumer::Process_vkCmdSetColorWriteEnableEXT(
     const VkBool32* in_pColorWriteEnables = pColorWriteEnables->GetPointer();
 
     GetDeviceTable(in_commandBuffer)->CmdSetColorWriteEnableEXT(in_commandBuffer, attachmentCount, in_pColorWriteEnables);
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawMultiEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    drawCount,
+    StructPointerDecoder<Decoded_VkMultiDrawInfoEXT>* pVertexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkMultiDrawInfoEXT* in_pVertexInfo = pVertexInfo->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawMultiEXT(in_commandBuffer, drawCount, in_pVertexInfo, instanceCount, firstInstance, stride);
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawMultiIndexedEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    drawCount,
+    StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT>* pIndexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride,
+    PointerDecoder<int32_t>*                    pVertexOffset)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkMultiDrawIndexedInfoEXT* in_pIndexInfo = pIndexInfo->GetPointer();
+    const int32_t* in_pVertexOffset = pVertexOffset->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawMultiIndexedEXT(in_commandBuffer, drawCount, in_pIndexInfo, instanceCount, firstInstance, stride, in_pVertexOffset);
 }
 
 void VulkanReplayConsumer::Process_vkCreateAccelerationStructureKHR(

@@ -36,11 +36,19 @@ class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefix_text='',
         protect_file=False,
-        protect_feature=True
+        protect_feature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
+            self,
+            blacklists,
+            platform_types,
+            filename,
+            directory,
+            prefix_text,
+            protect_file,
+            protect_feature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 
@@ -71,7 +79,7 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(gen_opts)
         self.newline()
         write('#include <cstdint>', file=self.outFile)
         self.newline()

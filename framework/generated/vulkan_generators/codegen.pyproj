@@ -30,7 +30,10 @@
     <Compile Include="vulkan_api_call_encoders_body_generator.py" />
     <Compile Include="vulkan_api_call_encoders_header_generator.py" />
     <Compile Include="vulkan_dispatch_table_generator.py" />
+    <Compile Include="vulkan_enum_to_string_body_generator.py" />
+    <Compile Include="vulkan_enum_to_string_header_generator.py" />
     <Compile Include="vulkan_feature_util_body_generator.py" />
+    <Compile Include="vulkan_pnext_to_string_body_generator.py" />
     <Compile Include="vulkan_referenced_resource_consumer_body_generator.py" />
     <Compile Include="vulkan_referenced_resource_consumer_header_generator.py" />
     <Compile Include="vulkan_replay_consumer_body_generator.py" />
@@ -48,6 +51,8 @@
     <Compile Include="vulkan_struct_handle_mappers_header_generator.py" />
     <Compile Include="vulkan_struct_handle_wrappers_body_generator.py" />
     <Compile Include="vulkan_struct_handle_wrappers_header_generator.py" />
+    <Compile Include="vulkan_struct_to_string_body_generator.py" />
+    <Compile Include="vulkan_struct_to_string_header_generator.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

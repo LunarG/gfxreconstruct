@@ -372,6 +372,8 @@ adb shell am force-stop com.lunarg.gfxreconstruct.replay
 adb shell am start -n "com.lunarg.gfxreconstruct.replay/android.app.NativeActivity" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER --es "args" "<arg-list>"
 ```
 
+If `gfxrecon-replay` was built with Vulkan Validation Layer support, `VK_LAYER_KHRONOS_validation` can be enabled and disabled in the same manner as `VK_LAYER_LUNARG_gfxreconstruct`
+
 #### Touch Controls
 
 The `gfxrecon-replay` tool for Android supports the following touch controls:

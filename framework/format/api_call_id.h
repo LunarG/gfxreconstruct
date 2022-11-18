@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -541,6 +541,13 @@ enum ApiCallId : uint32_t
     ApiCall_vkCreateScreenSurfaceQNX                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x123d),
     ApiCall_vkGetPhysicalDeviceScreenPresentationSupportQNX                                       = MakeApiCallId(ApiFamily_Vulkan, 0x123e),
     ApiCall_vkCmdSetColorWriteEnableEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x123f),
+    ApiCall_vkAcquireDrmDisplayEXT                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1240),
+    ApiCall_vkGetDrmDisplayEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1241),
+    ApiCall_vkCmdDrawMultiEXT                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1242),
+    ApiCall_vkCmdDrawMultiIndexedEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1243),
+    ApiCall_vkWaitForPresentKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1244),
+    ApiCall_vkCmdBindInvocationMaskHUAWEI                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1245),
+    ApiCall_vkGetMemoryRemoteAddressNV                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1246),
 
     ApiCall_VulkanLast,
 

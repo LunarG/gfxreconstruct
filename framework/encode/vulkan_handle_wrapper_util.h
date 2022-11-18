@@ -31,6 +31,7 @@
 #include "util/defines.h"
 
 #include <algorithm>
+#include <iterator>
 #include <cassert>
 #include <vector>
 

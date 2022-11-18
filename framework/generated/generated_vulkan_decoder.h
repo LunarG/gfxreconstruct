@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -572,6 +572,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdSetFragmentShadingRateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkWaitForPresentKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetBufferDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetBufferOpaqueCaptureAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -876,6 +878,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkDestroyIndirectCommandsLayoutNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkAcquireDrmDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDrmDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreatePrivateDataSlotEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyPrivateDataSlotEXT(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -904,6 +910,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetSemaphoreZirconHandleFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdBindInvocationMaskHUAWEI(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetMemoryRemoteAddressNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdSetPatchControlPointsEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdSetRasterizerDiscardEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -919,6 +929,10 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkGetPhysicalDeviceScreenPresentationSupportQNX(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdSetColorWriteEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMultiEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMultiIndexedEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 

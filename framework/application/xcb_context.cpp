@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,9 +21,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "application/xcb_context.h"
+#include "application/application.h"
 #include "application/xcb_window.h"
-
-#include "application/xcb_application.h"
 #include "util/logging.h"
 
 #include <cstdlib>
@@ -31,22 +31,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-XcbApplication::XcbApplication(const std::string& name) : Application(name), connection_(nullptr), screen_(nullptr) {}
-
-XcbApplication::~XcbApplication()
+XcbContext::XcbContext(Application* application) : WsiContext(application)
 {
-    if (connection_ != nullptr)
-    {
-        auto& xcb = xcb_loader_.GetFunctionTable();
-        xcb.disconnect(connection_);
-    }
-}
-
-bool XcbApplication::Initialize(decode::FileProcessor* file_processor)
-{
+    xcb_loader_.Initialize();
     if (!xcb_loader_.Initialize())
     {
-        return false;
+        GFXRECON_LOG_DEBUG("Failed to initialize XCB loader");
+        return;
     }
 
     auto& xcb          = xcb_loader_.GetFunctionTable();
@@ -56,7 +47,7 @@ bool XcbApplication::Initialize(decode::FileProcessor* file_processor)
     if (xcb.connection_has_error(connection_))
     {
         GFXRECON_LOG_DEBUG("Failed to connect to an X server");
-        return false;
+        return;
     }
 
     const xcb_setup_t*    setup = xcb.get_setup(connection_);
@@ -67,16 +58,22 @@ bool XcbApplication::Initialize(decode::FileProcessor* file_processor)
         xcb.screen_next(&iter);
     }
 
-    screen_ = iter.data;
-
-    SetFileProcessor(file_processor);
-
-    return true;
+    screen_         = iter.data;
+    window_factory_ = std::make_unique<XcbWindowFactory>(this);
 }
 
-bool XcbApplication::RegisterXcbWindow(XcbWindow* window)
+XcbContext::~XcbContext()
 {
-    bool success = Application::RegisterWindow(window);
+    if (connection_ != nullptr)
+    {
+        auto& xcb = xcb_loader_.GetFunctionTable();
+        xcb.disconnect(connection_);
+    }
+}
+
+bool XcbContext::RegisterXcbWindow(XcbWindow* window)
+{
+    bool success = WsiContext::RegisterWindow(window);
 
     if (success)
     {
@@ -91,9 +88,9 @@ bool XcbApplication::RegisterXcbWindow(XcbWindow* window)
     return success;
 }
 
-bool XcbApplication::UnregisterXcbWindow(XcbWindow* window)
+bool XcbContext::UnregisterXcbWindow(XcbWindow* window)
 {
-    bool success = Application::UnregisterWindow(window);
+    bool success = WsiContext::UnregisterWindow(window);
 
     if (success)
     {
@@ -103,9 +100,10 @@ bool XcbApplication::UnregisterXcbWindow(XcbWindow* window)
     return success;
 }
 
-void XcbApplication::ProcessEvents(bool wait_for_input)
+void XcbContext::ProcessEvents(bool wait_for_input)
 {
-    while (IsRunning())
+    assert(application_);
+    while (application_->IsRunning())
     {
         xcb_generic_event_t* event = nullptr;
         const auto&          xcb   = xcb_loader_.GetFunctionTable();
@@ -155,7 +153,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
 
                         if (message_event->data.data32[0] == atom)
                         {
-                            StopRunning();
+                            application_->StopRunning();
                         }
                     }
 
@@ -169,11 +167,11 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                     switch (key->detail)
                     {
                         case 0x9: // Escape
-                            StopRunning();
+                            application_->StopRunning();
                             break;
                         case 0x21: // p
                         case 0x41: // Space
-                            SetPaused(!GetPaused());
+                            application_->SetPaused(!application_->GetPaused());
                             break;
                         default:
                             break;
@@ -191,9 +189,9 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                         // Using XCB_KEY_PRESS for repeat when key is held down.
                         case 0x72: // Right arrow
                         case 0x39: // n
-                            if (GetPaused())
+                            if (application_->GetPaused())
                             {
-                                PlaySingleFrame();
+                                application_->PlaySingleFrame();
                             }
                             break;
                         default:

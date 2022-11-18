@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -5832,6 +5832,30 @@ size_t VulkanDecoder::Decode_vkCmdSetFragmentShadingRateKHR(const uint8_t* param
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkWaitForPresentKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId swapchain;
+    uint64_t presentId;
+    uint64_t timeout;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &presentId);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &timeout);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkWaitForPresentKHR(return_value, device, swapchain, presentId, timeout);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetBufferDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9152,6 +9176,52 @@ size_t VulkanDecoder::Decode_vkDestroyIndirectCommandsLayoutNV(const uint8_t* pa
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkAcquireDrmDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    int32_t drmFd;
+    format::HandleId display;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &drmFd);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &display);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkAcquireDrmDisplayEXT(return_value, physicalDevice, drmFd, display);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDrmDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    int32_t drmFd;
+    uint32_t connectorId;
+    HandlePointerDecoder<VkDisplayKHR> display;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &drmFd);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &connectorId);
+    bytes_read += display.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDrmDisplayEXT(return_value, physicalDevice, drmFd, connectorId, &display);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCreatePrivateDataSlotEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9466,6 +9536,48 @@ size_t VulkanDecoder::Decode_vkGetSemaphoreZirconHandleFUCHSIA(const uint8_t* pa
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdBindInvocationMaskHUAWEI(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId imageView;
+    VkImageLayout imageLayout;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageView);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageLayout);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindInvocationMaskHUAWEI(commandBuffer, imageView, imageLayout);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetMemoryRemoteAddressNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV> pMemoryGetRemoteAddressInfo;
+    PointerDecoder<uint64_t, void*> pAddress;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pMemoryGetRemoteAddressInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAddress.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetMemoryRemoteAddressNV(return_value, device, &pMemoryGetRemoteAddressInfo, &pAddress);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdSetPatchControlPointsEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9617,6 +9729,60 @@ size_t VulkanDecoder::Decode_vkCmdSetColorWriteEnableEXT(const uint8_t* paramete
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetColorWriteEnableEXT(commandBuffer, attachmentCount, &pColorWriteEnables);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdDrawMultiEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t drawCount;
+    StructPointerDecoder<Decoded_VkMultiDrawInfoEXT> pVertexInfo;
+    uint32_t instanceCount;
+    uint32_t firstInstance;
+    uint32_t stride;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &drawCount);
+    bytes_read += pVertexInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instanceCount);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstInstance);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stride);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdDrawMultiEXT(commandBuffer, drawCount, &pVertexInfo, instanceCount, firstInstance, stride);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdDrawMultiIndexedEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t drawCount;
+    StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT> pIndexInfo;
+    uint32_t instanceCount;
+    uint32_t firstInstance;
+    uint32_t stride;
+    PointerDecoder<int32_t> pVertexOffset;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &drawCount);
+    bytes_read += pIndexInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instanceCount);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstInstance);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stride);
+    bytes_read += pVertexOffset.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdDrawMultiIndexedEXT(commandBuffer, drawCount, &pIndexInfo, instanceCount, firstInstance, stride, &pVertexOffset);
     }
 
     return bytes_read;
@@ -10881,6 +11047,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR:
         Decode_vkCmdSetFragmentShadingRateKHR(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkWaitForPresentKHR:
+        Decode_vkWaitForPresentKHR(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR:
         Decode_vkGetBufferDeviceAddressKHR(parameter_buffer, buffer_size);
         break;
@@ -11337,6 +11506,12 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV:
         Decode_vkDestroyIndirectCommandsLayoutNV(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT:
+        Decode_vkAcquireDrmDisplayEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDrmDisplayEXT:
+        Decode_vkGetDrmDisplayEXT(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT:
         Decode_vkCreatePrivateDataSlotEXT(parameter_buffer, buffer_size);
         break;
@@ -11379,6 +11554,12 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkGetSemaphoreZirconHandleFUCHSIA:
         Decode_vkGetSemaphoreZirconHandleFUCHSIA(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI:
+        Decode_vkCmdBindInvocationMaskHUAWEI(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV:
+        Decode_vkGetMemoryRemoteAddressNV(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkCmdSetPatchControlPointsEXT:
         Decode_vkCmdSetPatchControlPointsEXT(parameter_buffer, buffer_size);
         break;
@@ -11402,6 +11583,12 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdSetColorWriteEnableEXT:
         Decode_vkCmdSetColorWriteEnableEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdDrawMultiEXT:
+        Decode_vkCmdDrawMultiEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT:
+        Decode_vkCmdDrawMultiIndexedEXT(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR:
         Decode_vkCreateAccelerationStructureKHR(parameter_buffer, buffer_size);

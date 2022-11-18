@@ -34,7 +34,8 @@ class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefix_text='',
         protect_file=False,
-        protect_feature=True
+        protect_feature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -43,7 +44,8 @@ class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
             directory=directory,
             prefix_text=prefix_text,
             protect_file=protect_file,
-            protect_feature=protect_feature
+            protect_feature=protect_feature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 

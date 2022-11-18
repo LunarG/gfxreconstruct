@@ -24,7 +24,7 @@
 #ifndef GFXRECON_APPLICATION_ANDROID_WINDOW_H
 #define GFXRECON_APPLICATION_ANDROID_WINDOW_H
 
-#include "application/android_application.h"
+#include "application/android_context.h"
 #include "decode/window.h"
 #include "util/defines.h"
 #include "util/platform.h"
@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class AndroidWindow : public decode::Window
 {
   public:
-    AndroidWindow(AndroidApplication* application, ANativeWindow* window);
+    AndroidWindow(AndroidContext* android_context, ANativeWindow* window);
 
     virtual ~AndroidWindow() override {}
 
@@ -71,17 +71,17 @@ class AndroidWindow : public decode::Window
     virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
-    AndroidApplication* android_application_;
-    ANativeWindow*      window_;
-    uint32_t            width_;
-    uint32_t            height_;
-    uint32_t            pre_transform_;
+    AndroidContext* android_context_;
+    ANativeWindow*  window_;
+    uint32_t        width_;
+    uint32_t        height_;
+    uint32_t        pre_transform_;
 };
 
 class AndroidWindowFactory : public decode::WindowFactory
 {
   public:
-    AndroidWindowFactory(AndroidApplication* application);
+    AndroidWindowFactory(AndroidContext* android_context);
 
     virtual ~AndroidWindowFactory();
 
@@ -97,7 +97,7 @@ class AndroidWindowFactory : public decode::WindowFactory
                                                           uint32_t                     queue_family_index) override;
 
   private:
-    AndroidApplication* android_application_;
+    AndroidContext* android_context_;
 };
 
 GFXRECON_END_NAMESPACE(application)

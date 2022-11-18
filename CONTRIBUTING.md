@@ -113,6 +113,21 @@ ClangFormat style.
 The build script also has an option to apply `clang-format` to project files
 before build.  Run the script with the `-h` option for additional usage
 information.
+### **Python code style**
+
+- Changes to the GFXReconstruct project's Python code should conform to the
+  coding style defined by [PEP 8](https://www.python.org/dev/peps/pep-0008/)
+  - Python code formatting may be automatically applied with
+    [yapf](https://github.com/google/yapf), based on the rules specified in
+    the repository's .style.yapf file, using the following command:
+
+```bash
+# Apply formatting to files in place.
+$ yapf -i <files>
+
+# Apply formatting to all python files in this path.
+$ yapf -i -r <path>
+```
 
 ### **Python code style**
 

@@ -255,8 +255,8 @@ struct AnnotationHeader
 // Metadata block headers and data types.
 struct MetaDataHeader
 {
-    BlockHeader  block_header;
-    MetaDataId   meta_data_id; // Encodes ApiFamilyId in upper 2 bytes and MetaDataType in lower 2 bytes.
+    BlockHeader block_header;
+    MetaDataId  meta_data_id; // Encodes ApiFamilyId in upper 2 bytes and MetaDataType in lower 2 bytes.
 };
 
 struct FillMemoryCommandHeader

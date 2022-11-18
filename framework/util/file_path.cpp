@@ -162,7 +162,6 @@ std::string GenerateTimestampedFilename(const std::string& filename, bool use_gm
     return InsertFilenamePostfix(filename, timestamp);
 }
 
-
 bool GetWindowsSystemLibrariesPath(std::string& base_path)
 {
 #if defined(WIN32)
@@ -172,7 +171,7 @@ bool GetWindowsSystemLibrariesPath(std::string& base_path)
     GetModuleFileNameA(nullptr, module_name, MAX_PATH);
 
     DWORD bin_type = 0;
-    bool success = GetBinaryTypeA(module_name, &bin_type);
+    bool  success  = GetBinaryTypeA(module_name, &bin_type);
 
     if (success == true)
     {

@@ -39,11 +39,19 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefix_text='',
         protect_file=False,
-        protect_feature=True
+        protect_feature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
+            self,
+            blacklists,
+            platform_types,
+            filename,
+            directory,
+            prefix_text,
+            protect_file,
+            protect_feature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
         self.replay_overrides = replay_overrides
 

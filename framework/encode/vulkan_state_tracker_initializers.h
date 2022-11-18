@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,7 +25,7 @@
 
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "encode/vulkan_state_table.h"
+#include "generated/generated_vulkan_state_table.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "util/defines.h"

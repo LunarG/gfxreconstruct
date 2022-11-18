@@ -21,7 +21,7 @@
 */
 
 #include "application/xlib_window.h"
-
+#include "application/application.h"
 #include "util/logging.h"
 
 #include "X11/Xatom.h"
@@ -34,12 +34,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-XlibWindow::XlibWindow(XlibApplication* application) :
-    xlib_application_(application), display_(nullptr), window_(0), width_(0), height_(0),
+XlibWindow::XlibWindow(XlibContext* xlib_context) :
+    xlib_context_(xlib_context), display_(nullptr), window_(0), width_(0), height_(0),
     screen_width_(std::numeric_limits<uint32_t>::max()), screen_height_(std::numeric_limits<uint32_t>::max()),
     visible_(false), fullscreen_(false)
 {
-    assert(application != nullptr);
+    assert(xlib_context_ != nullptr);
 }
 
 XlibWindow::~XlibWindow() {}
@@ -47,13 +47,13 @@ XlibWindow::~XlibWindow() {}
 bool XlibWindow::Create(
     const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
-    display_ = xlib_application_->OpenDisplay();
+    display_ = xlib_context_->OpenDisplay();
 
-    const auto xlib   = xlib_application_->GetXlibFunctionTable();
+    const auto xlib   = xlib_context_->GetXlibFunctionTable();
     const auto screen = DefaultScreen(display_);
     const auto root   = RootWindow(display_, screen);
 
-    xlib_application_->RegisterXlibWindow(this);
+    xlib_context_->RegisterXlibWindow(this);
 
     // Get screen size
     XWindowAttributes root_attributes;
@@ -126,7 +126,7 @@ bool XlibWindow::Destroy()
 {
     if (window_ != 0)
     {
-        const auto xlib = xlib_application_->GetXlibFunctionTable();
+        const auto xlib = xlib_context_->GetXlibFunctionTable();
 
         SetFullscreen(false);
         SetVisibility(false);
@@ -134,10 +134,10 @@ bool XlibWindow::Destroy()
         xlib.DestroyWindow(display_, window_);
         xlib.Sync(display_, true);
 
-        xlib_application_->CloseDisplay(display_);
+        xlib_context_->CloseDisplay(display_);
         display_ = nullptr;
 
-        xlib_application_->UnregisterXlibWindow(this);
+        xlib_context_->UnregisterXlibWindow(this);
         window_ = 0;
 
         return true;
@@ -148,13 +148,13 @@ bool XlibWindow::Destroy()
 
 void XlibWindow::SetTitle(const std::string& title)
 {
-    const auto xlib = xlib_application_->GetXlibFunctionTable();
+    const auto xlib = xlib_context_->GetXlibFunctionTable();
     xlib.StoreName(display_, window_, title.c_str());
 }
 
 void XlibWindow::SetPosition(const int32_t x, const int32_t y)
 {
-    const auto xlib = xlib_application_->GetXlibFunctionTable();
+    const auto xlib = xlib_context_->GetXlibFunctionTable();
     xlib.MoveWindow(display_, window_, x, y);
 }
 
@@ -180,7 +180,7 @@ void XlibWindow::SetSize(const uint32_t width, const uint32_t height)
             }
 
             SetFullscreen(false);
-            const auto xlib = xlib_application_->GetXlibFunctionTable();
+            const auto xlib = xlib_context_->GetXlibFunctionTable();
             xlib.ResizeWindow(display_, window_, width, height);
             xlib.Sync(display_, true);
         }
@@ -199,7 +199,7 @@ void XlibWindow::SetFullscreen(bool fullscreen)
 {
     if (fullscreen != fullscreen_)
     {
-        const auto xlib   = xlib_application_->GetXlibFunctionTable();
+        const auto xlib   = xlib_context_->GetXlibFunctionTable();
         const auto screen = DefaultScreen(display_);
         const auto root   = RootWindow(display_, screen);
 
@@ -239,7 +239,7 @@ void XlibWindow::SetVisibility(bool show)
 {
     if (show != visible_)
     {
-        const auto xlib = xlib_application_->GetXlibFunctionTable();
+        const auto xlib = xlib_context_->GetXlibFunctionTable();
         if (show)
         {
             xlib.MapWindow(display_, window_);
@@ -255,7 +255,7 @@ void XlibWindow::SetVisibility(bool show)
 
 void XlibWindow::SetForeground()
 {
-    const auto xlib   = xlib_application_->GetXlibFunctionTable();
+    const auto xlib   = xlib_context_->GetXlibFunctionTable();
     const auto screen = DefaultScreen(display_);
     const auto root   = RootWindow(display_, screen);
 
@@ -313,15 +313,18 @@ void XlibWindow::DestroySurface(const encode::InstanceTable* table, VkInstance i
     }
 }
 
-XlibWindowFactory::XlibWindowFactory(XlibApplication* application) : xlib_application_(application)
+XlibWindowFactory::XlibWindowFactory(XlibContext* context) : xlib_context_(context)
 {
-    assert(application != nullptr);
+    assert(xlib_context_ != nullptr);
 }
 
 decode::Window* XlibWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    const auto window = new XlibWindow(xlib_application_);
-    window->Create(xlib_application_->GetName(), x, y, width, height);
+    assert(xlib_context_);
+    decode::Window* window      = new XlibWindow(xlib_context_);
+    auto            application = xlib_context_->GetApplication();
+    assert(application);
+    window->Create(application->GetName(), x, y, width, height);
     return window;
 }
 
@@ -338,8 +341,8 @@ VkBool32 XlibWindowFactory::GetPhysicalDevicePresentationSupport(const encode::I
                                                                  VkPhysicalDevice             physical_device,
                                                                  uint32_t                     queue_family_index)
 {
-    const auto display = xlib_application_->OpenDisplay();
-    const auto xlib    = xlib_application_->GetXlibFunctionTable();
+    const auto display = xlib_context_->OpenDisplay();
+    const auto xlib    = xlib_context_->GetXlibFunctionTable();
 
     // Get visual ID which will be inherited from parent at window creation
     XWindowAttributes root_attributes;
@@ -349,7 +352,7 @@ VkBool32 XlibWindowFactory::GetPhysicalDevicePresentationSupport(const encode::I
     const auto result =
         table->GetPhysicalDeviceXlibPresentationSupportKHR(physical_device, queue_family_index, display, visual_id);
 
-    xlib_application_->CloseDisplay(display);
+    xlib_context_->CloseDisplay(display);
     return result;
 }
 

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -440,6 +440,11 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            commandBuffer,
         VkBool32                                    isPreprocessed,
         StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
+
+    virtual void Process_vkCmdBindInvocationMaskHUAWEI(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            imageView,
+        VkImageLayout                               imageLayout) override;
 };
 
 GFXRECON_END_NAMESPACE(decode)

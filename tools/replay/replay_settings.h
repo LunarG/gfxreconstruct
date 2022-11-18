@@ -147,6 +147,7 @@ static void PrintUsage(const char* exe_name)
 #else
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
 #endif
+    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");

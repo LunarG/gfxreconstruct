@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,31 +21,62 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_WIN32_APPLICATION_H
-#define GFXRECON_APPLICATION_WIN32_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_XCB_CONTEXT_H
+#define GFXRECON_APPLICATION_XCB_CONTEXT_H
 
-#include "application/application.h"
+#include "application/wsi_context.h"
 #include "util/defines.h"
-#include "util/platform.h"
+#include "util/xcb_loader.h"
+
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class Win32Application : public Application
+class Application;
+class XcbWindow;
+
+class XcbContext : public WsiContext
 {
   public:
-    Win32Application(const std::string& name, bool dpi_aware = true);
+    XcbContext(Application* application);
 
-    virtual ~Win32Application() override {}
+    virtual ~XcbContext() override;
 
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
+    const util::XcbLoader::FunctionTable& GetXcbFunctionTable() const { return xcb_loader_.GetFunctionTable(); }
+
+    xcb_connection_t* GetConnection() const { return connection_; }
+
+    xcb_screen_t* GetScreen() const { return screen_; }
+
+    uint32_t GetLastErrorSequence() const { return last_error_sequence_; }
+
+    uint8_t GetLastErrorCode() const { return last_error_code_; }
+
+    bool RegisterXcbWindow(XcbWindow* window);
+
+    bool UnregisterXcbWindow(XcbWindow* window);
+
+    void ClearLastError()
+    {
+        last_error_sequence_ = 0;
+        last_error_code_     = 0;
+    }
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
-    static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
+  private:
+    typedef std::unordered_map<xcb_window_t, XcbWindow*> XcbWindowMap;
+
+    xcb_connection_t* connection_{};
+    xcb_screen_t*     screen_{};
+    uint32_t          last_error_sequence_{};
+    uint8_t           last_error_code_{};
+    XcbWindowMap      xcb_windows_{};
+    util::XcbLoader   xcb_loader_{};
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_WIN32_APPLICATION_H
+#endif // GFXRECON_APPLICATION_XCB_CONTEXT_H

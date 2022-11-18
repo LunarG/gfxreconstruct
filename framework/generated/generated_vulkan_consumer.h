@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1633,6 +1633,13 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) {}
 
+    virtual void Process_vkWaitForPresentKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
+        uint64_t                                    presentId,
+        uint64_t                                    timeout) {}
+
     virtual void Process_vkGetBufferDeviceAddressKHR(
         VkDeviceAddress                             returnValue,
         format::HandleId                            device,
@@ -2533,6 +2540,19 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            indirectCommandsLayout,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
 
+    virtual void Process_vkAcquireDrmDisplayEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        int32_t                                     drmFd,
+        format::HandleId                            display) {}
+
+    virtual void Process_vkGetDrmDisplayEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        int32_t                                     drmFd,
+        uint32_t                                    connectorId,
+        HandlePointerDecoder<VkDisplayKHR>*         display) {}
+
     virtual void Process_vkCreatePrivateDataSlotEXT(
         VkResult                                    returnValue,
         format::HandleId                            device,
@@ -2620,6 +2640,17 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA>* pGetZirconHandleInfo,
         PointerDecoder<uint32_t>*                   pZirconHandle) {}
 
+    virtual void Process_vkCmdBindInvocationMaskHUAWEI(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            imageView,
+        VkImageLayout                               imageLayout) {}
+
+    virtual void Process_vkGetMemoryRemoteAddressNV(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
+        PointerDecoder<uint64_t, void*>*            pAddress) {}
+
     virtual void Process_vkCmdSetPatchControlPointsEXT(
         format::HandleId                            commandBuffer,
         uint32_t                                    patchControlPoints) {}
@@ -2657,6 +2688,23 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            commandBuffer,
         uint32_t                                    attachmentCount,
         PointerDecoder<VkBool32>*                   pColorWriteEnables) {}
+
+    virtual void Process_vkCmdDrawMultiEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    drawCount,
+        StructPointerDecoder<Decoded_VkMultiDrawInfoEXT>* pVertexInfo,
+        uint32_t                                    instanceCount,
+        uint32_t                                    firstInstance,
+        uint32_t                                    stride) {}
+
+    virtual void Process_vkCmdDrawMultiIndexedEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    drawCount,
+        StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT>* pIndexInfo,
+        uint32_t                                    instanceCount,
+        uint32_t                                    firstInstance,
+        uint32_t                                    stride,
+        PointerDecoder<int32_t>*                    pVertexOffset) {}
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         VkResult                                    returnValue,

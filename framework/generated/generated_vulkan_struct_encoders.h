@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -54,6 +54,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDrawIndirectCommand& value)
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresourceRange& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheHeaderVersionOne& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAllocationCallbacks& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkApplicationInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkFormatProperties& value);
@@ -366,6 +367,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShadi
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceProtectedCapabilitiesKHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentWaitFeaturesKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutablePropertiesKHR& value);
@@ -374,6 +377,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatistic
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInternalRepresentationKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKHR& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentIdKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentIdFeaturesKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier2KHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier2KHR& value);
@@ -385,6 +391,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo2KHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSynchronization2FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointProperties2NV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCheckpointData2NV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR& value);
 
@@ -665,6 +673,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShade
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProvokingVertexFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProvokingVertexPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceFullScreenExclusiveInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesFullScreenExclusiveEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceFullScreenExclusiveWin32InfoEXT& value);
@@ -680,6 +692,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicF
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT& value);
 
@@ -730,6 +744,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShadi
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineFragmentShadingRateEnumStateCreateInfoNV& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryMotionTrianglesDataNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMatrixMotionInstanceNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSRTDataNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureSRTMotionInstanceNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT& value);
@@ -751,6 +772,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVertexInputDy
 void EncodeStruct(ParameterEncoder* encoder, const VkVertexInputBindingDescription2EXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVertexInputAttributeDescription2EXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDrmPropertiesEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryZirconHandleInfoFUCHSIA& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryZirconHandlePropertiesFUCHSIA& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetZirconHandleInfoFUCHSIA& value);
@@ -758,12 +781,25 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetZirconHandleInfoFU
 void EncodeStruct(ParameterEncoder* encoder, const VkImportSemaphoreZirconHandleInfoFUCHSIA& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreGetZirconHandleInfoFUCHSIA& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetRemoteAddressInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkScreenSurfaceCreateInfoQNX& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceColorWriteEnableFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorWriteCreateInfoEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyGlobalPriorityPropertiesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiDrawFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiDrawPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawIndexedInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);

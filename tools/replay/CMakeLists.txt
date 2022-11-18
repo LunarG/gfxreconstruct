@@ -47,6 +47,13 @@ target_link_libraries(gfxrecon-replay
                           $<$<BOOL:${BUILD_D3D12}>:d3d12.lib>
                           $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
 
+# A multithreaded Vulkan driver loaded through dlopen() mechanism
+# won't work if libstdc++ has started in a single-threaded mode.
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads REQUIRED)
+target_link_libraries(gfxrecon-replay Threads::Threads)
+
 common_build_directives(gfxrecon-replay)
 
 install(TARGETS gfxrecon-replay RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

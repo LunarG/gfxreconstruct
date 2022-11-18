@@ -22,15 +22,16 @@
 */
 
 #include "application/headless_window.h"
+#include "application/application.h"
 
 #include <cassert>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-HeadlessWindow::HeadlessWindow(HeadlessApplication* application) : headless_application_(application)
+HeadlessWindow::HeadlessWindow(HeadlessContext* headless_context) : headless_context_(headless_context)
 {
-    assert(application != nullptr);
+    assert(headless_context_ != nullptr);
 }
 
 HeadlessWindow::~HeadlessWindow() {}
@@ -115,16 +116,19 @@ void HeadlessWindow::DestroySurface(const encode::InstanceTable* table, VkInstan
     }
 }
 
-HeadlessWindowFactory::HeadlessWindowFactory(HeadlessApplication* application) : headless_application_(application)
+HeadlessWindowFactory::HeadlessWindowFactory(HeadlessContext* headless_context) : headless_context_(headless_context)
 {
-    assert(application != nullptr);
+    assert(headless_context_ != nullptr);
 }
 
 decode::Window*
 HeadlessWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    auto window = new HeadlessWindow(headless_application_);
-    window->Create(headless_application_->GetName(), x, y, width, height);
+    assert(headless_context_);
+    decode::Window* window      = new HeadlessWindow(headless_context_);
+    auto            application = headless_context_->GetApplication();
+    assert(application);
+    window->Create(application->GetName(), x, y, width, height);
     return window;
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018-2020 Valve Corporation
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2021 Valve Corporation
+# Copyright (c) 2018-2021 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -66,7 +66,8 @@ _emit_extensions = []
 _remove_extensions = [
     "VK_KHR_video_queue", "VK_KHR_video_decode_queue",
     "VK_KHR_video_encode_queue", "VK_EXT_video_encode_h264",
-    "VK_EXT_video_decode_h264", "VK_EXT_video_decode_h265"
+    "VK_EXT_video_decode_h264", "VK_EXT_video_decode_h265",
+    "VK_NVX_binary_import", "VK_HUAWEI_subpass_shading"
 ]
 
 # Turn lists of names/patterns into matching regular expressions.
@@ -187,7 +188,8 @@ class BaseGeneratorOptions(GeneratorOptions):
         default_extensions=_default_extensions,
         add_extensions=_add_extensions_pat,
         remove_extensions=_remove_extensions_pat,
-        emit_extensions=_emit_extensions_pat
+        emit_extensions=_emit_extensions_pat,
+        extraVulkanHeaders=[]
     ):
         GeneratorOptions.__init__(
             self,
@@ -216,6 +218,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.indent_func_proto = indent_func_proto
         self.align_func_param = align_func_param
         self.code_generator = True
+        self.extraVulkanHeaders = extraVulkanHeaders
 
 
 class BaseGenerator(OutputGenerator):
@@ -267,6 +270,13 @@ class BaseGenerator(OutputGenerator):
         }
     }
 
+    VULKAN_REPLACE_TYPE = {
+        "VkRemoteAddressNV": {
+            "baseType": "void",
+            "replaceWith": "void*"
+        }
+    }
+
     # These types represent pointers to non-Vulkan or non-Dx12 objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
@@ -283,6 +293,10 @@ class BaseGenerator(OutputGenerator):
     DISPATCHABLE_HANDLE_TYPES = [
         'VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue',
         'VkCommandBuffer'
+    ]
+
+    DUPLICATE_HANDLE_TYPES = [
+        'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR'
     ]
 
     # Default C++ code indentation size.
@@ -305,6 +319,8 @@ class BaseGenerator(OutputGenerator):
         self.flags_types = dict(
         )  # Map of flags types to base flag type (VkFlags or VkFlags64)
         self.enum_names = set()  # Set of Vulkan enumeration typenames
+        self.enumAliases = dict()  # Map of enum names to aliases
+        self.enumEnumerants = dict()  # Map of enum names to enumerants
 
         # Type processing options
         self.process_cmds = process_cmds  # Populate the feature_cmd_params map
@@ -355,11 +371,19 @@ class BaseGenerator(OutputGenerator):
         # Multiple inclusion protection & C++ wrappers.
         if (gen_opts.protect_file and self.genOpts.filename):
             header_sym = 'GFXRECON_' + re.sub(
-                r'\.h', '_h', os.path.basename(self.genOpts.filename)
+                '\.h', '_H', os.path.basename(self.genOpts.filename)
             ).upper()
             write('#ifndef ', header_sym, file=self.outFile)
             write('#define ', header_sym, file=self.outFile)
             self.newline()
+
+    def includeVulkanHeaders(self, gen_opts):
+        """Write Vulkan header include statements
+        """
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        for extra_vulkan_header in gen_opts.extraVulkanHeaders:
+            header_include_path = re.sub(r'\\', '/', extra_vulkan_header)
+            write(f'#include "{header_include_path}"', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -458,6 +482,17 @@ class BaseGenerator(OutputGenerator):
         """
         OutputGenerator.genGroup(self, groupinfo, group_name, alias)
         self.enum_names.add(group_name)
+        if not alias:
+            enumerants = dict()
+            for elem in groupinfo.elem:
+                supported = elem.get('supported')
+                if not supported or not 'disabled' in supported:
+                    name = elem.get('name')
+                    if name and not elem.get('alias'):
+                        enumerants[name] = elem.get('value')
+            self.enumEnumerants[group_name] = enumerants
+        else:
+            self.enumAliases[group_name] = alias
 
     def genEnum(self, enuminfo, name, alias):
         """Method override.
@@ -593,6 +628,9 @@ class BaseGenerator(OutputGenerator):
         """Check for enum type."""
         if base_type in self.enum_names:
             return True
+        return False
+
+    def is_union(self, value):
         return False
 
     def is_flags(self, base_type):
@@ -744,6 +782,7 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If a pre-existing result was not found, check the XML registry for the struct
                     has_handles = False
+                    hasHandlePtrs = False
                     type_info = self.registry.lookupElementInfo(
                         struct_name, self.registry.typedict
                     )
@@ -767,12 +806,15 @@ class BaseGenerator(OutputGenerator):
                                     ):
                                         self.extension_structs_with_handle_ptrs[
                                             struct_name] = True
+                                        hasHandlePtrs = True
                                     else:
                                         self.extension_structs_with_handle_ptrs[
                                             struct_name] = False
 
                     if has_handles:
                         found_handles = True
+                        if hasHandlePtrs:
+                            found_handle_ptrs = True
                     else:
                         self.extension_structs_with_handles[struct_name
                                                             ] = False
@@ -998,7 +1040,10 @@ class BaseGenerator(OutputGenerator):
             count = value.pointer_count
 
             if self.is_struct(type_name):
-                if value.array_dimension and value.array_dimension == 1:
+                if (
+                    self.is_dx12_class() and
+                    (value.array_dimension and value.array_dimension == 1)
+                ) or (not self.is_dx12_class() and count > 1):
                     type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
                         type_name
                     )
@@ -1079,11 +1124,6 @@ class BaseGenerator(OutputGenerator):
                     rtn_type1, 'return_value', self.INDENT_SIZE,
                     self.genOpts.align_func_param
                 )
-            elif self.is_dx12_class():
-                param_decl = self.make_aligned_param_decl(
-                    return_type, 'return_value', self.INDENT_SIZE,
-                    self.genOpts.align_func_param
-                )
             else:
                 param_decl = self.make_aligned_param_decl(
                     return_type, 'returnValue', self.INDENT_SIZE,
@@ -1155,7 +1195,7 @@ class BaseGenerator(OutputGenerator):
 
         return length_expr
 
-    def make_array2_d_length_expression(self, value, values, prefix=''):
+    def make_array2d_length_expression(self, value, values, prefix=''):
         length_exprs = value.array_length.split(',')
         if len(length_exprs) == value.pointer_count:
             # All dimensions are provided in the xml
@@ -1229,9 +1269,7 @@ class BaseGenerator(OutputGenerator):
             if value.pointer_count > 1:
                 method_call += 'Array{}D'.format(value.pointer_count)
                 args.extend(
-                    self.make_array2_d_length_expression(
-                        value, values, prefix
-                    )
+                    self.make_array2d_length_expression(value, values, prefix)
                 )
             elif ',' in value.array_length:
                 method_call += '{}DMatrix'.format(
@@ -1272,7 +1310,7 @@ class BaseGenerator(OutputGenerator):
             'mir': 'VK_USE_PLATFORM_MIR_KHR',
             'vi': 'VK_USE_PLATFORM_VI_NN',
             'wayland': 'VK_USE_PLATFORM_WAYLAND_KHR',
-            'win32': 'VK_USE_PLATFORM_WIN32__k_h_r',
+            'win32': 'VK_USE_PLATFORM_WIN32_KHR',
             'xcb': 'VK_USE_PLATFORM_XCB_KHR',
             'xlib': 'VK_USE_PLATFORM_XLIB_KHR',
             'xlib_xrandr': 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
@@ -1302,6 +1340,7 @@ class BaseGenerator(OutputGenerator):
         for platform_name in platforms:
             platform = platforms[platform_name]
             platform_types = platform['types']
+            platform_types.update(self.VULKAN_REPLACE_TYPE)
 
             for type in platform_types:
                 self.PLATFORM_TYPES[type] = platform_types[type]

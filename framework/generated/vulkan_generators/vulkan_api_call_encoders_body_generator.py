@@ -37,11 +37,19 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefix_text='',
         protect_file=False,
-        protect_feature=True
+        protect_feature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
+            self,
+            blacklists,
+            platform_types,
+            filename,
+            directory,
+            prefix_text,
+            protect_file,
+            protect_feature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
         self.capture_overrides = capture_overrides
 
@@ -114,7 +122,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
@@ -518,9 +526,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     values[0].name, get_handles_expr
                 )
             else:
-                decl += 'EndCommandApiCallCapture({})'.format(
-                    values[0].name
-                )
+                decl += 'EndCommandApiCallCapture({})'.format(values[0].name)
         else:
             decl += 'EndApiCallCapture()'
 

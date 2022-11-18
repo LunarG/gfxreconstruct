@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -8290,6 +8290,37 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pFragmentSize, combinerOps);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL WaitForPresentKHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    uint64_t                                    presentId,
+    uint64_t                                    timeout)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForPresentKHR>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, presentId, timeout);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
+
+    VkResult result = GetDeviceTable(device)->WaitForPresentKHR(device_unwrapped, swapchain_unwrapped, presentId, timeout);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkWaitForPresentKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeUInt64Value(presentId);
+        encoder->EncodeUInt64Value(timeout);
+        encoder->EncodeEnumValue(result);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForPresentKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain, presentId, timeout);
+
+    return result;
+}
+
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
@@ -12963,6 +12994,76 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
     DestroyWrappedHandle<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL AcquireDrmDisplayEXT(
+    VkPhysicalDevice                            physicalDevice,
+    int32_t                                     drmFd,
+    VkDisplayKHR                                display)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, drmFd, display);
+
+    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+    VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
+
+    VkResult result = GetInstanceTable(physicalDevice)->AcquireDrmDisplayEXT(physicalDevice_unwrapped, drmFd, display_unwrapped);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeInt32Value(drmFd);
+        encoder->EncodeHandleValue(display);
+        encoder->EncodeEnumValue(result);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, drmFd, display);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDrmDisplayEXT(
+    VkPhysicalDevice                            physicalDevice,
+    int32_t                                     drmFd,
+    uint32_t                                    connectorId,
+    VkDisplayKHR*                               display)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDrmDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, drmFd, connectorId, display);
+
+    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+
+    VkResult result = GetInstanceTable(physicalDevice)->GetDrmDisplayEXT(physicalDevice_unwrapped, drmFd, connectorId, display);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, display, VulkanCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkGetDrmDisplayEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeInt32Value(drmFd);
+        encoder->EncodeUInt32Value(connectorId);
+        encoder->EncodeHandlePtr(display, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        VulkanCaptureManager::Get()->EndCreateApiCallCapture<VkPhysicalDevice, DisplayKHRWrapper, void>(result, physicalDevice, display, nullptr);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDrmDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, drmFd, connectorId, display);
+
+    return result;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
     VkDevice                                    device,
     const VkPrivateDataSlotCreateInfoEXT*       pCreateInfo,
@@ -13422,6 +13523,68 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreZirconHandleFUCHSIA(
     return result;
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdBindInvocationMaskHUAWEI(
+    VkCommandBuffer                             commandBuffer,
+    VkImageView                                 imageView,
+    VkImageLayout                               imageLayout)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, imageView, imageLayout);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleValue(imageView);
+        encoder->EncodeEnumValue(imageLayout);
+        VulkanCaptureManager::Get()->EndCommandApiCallCapture(commandBuffer, TrackCmdBindInvocationMaskHUAWEIHandles, imageView);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    VkImageView imageView_unwrapped = GetWrappedHandle<VkImageView>(imageView);
+
+    GetDeviceTable(commandBuffer)->CmdBindInvocationMaskHUAWEI(commandBuffer_unwrapped, imageView_unwrapped, imageLayout);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, imageView, imageLayout);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetMemoryRemoteAddressNV(
+    VkDevice                                    device,
+    const VkMemoryGetRemoteAddressInfoNV*       pMemoryGetRemoteAddressInfo,
+    VkRemoteAddressNV*                          pAddress)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV>::Dispatch(VulkanCaptureManager::Get(), device, pMemoryGetRemoteAddressInfo, pAddress);
+
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkMemoryGetRemoteAddressInfoNV* pMemoryGetRemoteAddressInfo_unwrapped = UnwrapStructPtrHandles(pMemoryGetRemoteAddressInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->GetMemoryRemoteAddressNV(device_unwrapped, pMemoryGetRemoteAddressInfo_unwrapped, pAddress);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pMemoryGetRemoteAddressInfo);
+        encoder->EncodeVoidPtrPtr(pAddress, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV>::Dispatch(VulkanCaptureManager::Get(), result, device, pMemoryGetRemoteAddressInfo, pAddress);
+
+    return result;
+}
+
 VKAPI_ATTR void VKAPI_CALL CmdSetPatchControlPointsEXT(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    patchControlPoints)
@@ -13629,6 +13792,70 @@ VKAPI_ATTR void                                    VKAPI_CALL CmdSetColorWriteEn
     GetDeviceTable(commandBuffer)->CmdSetColorWriteEnableEXT(commandBuffer_unwrapped, attachmentCount, pColorWriteEnables);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetColorWriteEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, attachmentCount, pColorWriteEnables);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdDrawMultiEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    drawCount,
+    const VkMultiDrawInfoEXT*                   pVertexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMultiEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdDrawMultiEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeUInt32Value(drawCount);
+        EncodeStructArray(encoder, pVertexInfo, drawCount);
+        encoder->EncodeUInt32Value(instanceCount);
+        encoder->EncodeUInt32Value(firstInstance);
+        encoder->EncodeUInt32Value(stride);
+        VulkanCaptureManager::Get()->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdDrawMultiEXT(commandBuffer_unwrapped, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMultiEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdDrawMultiIndexedEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    drawCount,
+    const VkMultiDrawIndexedInfoEXT*            pIndexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride,
+    const int32_t*                              pVertexOffset)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeUInt32Value(drawCount);
+        EncodeStructArray(encoder, pIndexInfo, drawCount);
+        encoder->EncodeUInt32Value(instanceCount);
+        encoder->EncodeUInt32Value(firstInstance);
+        encoder->EncodeUInt32Value(stride);
+        encoder->EncodeInt32Ptr(pVertexOffset);
+        VulkanCaptureManager::Get()->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdDrawMultiIndexedEXT(commandBuffer_unwrapped, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
