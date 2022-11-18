@@ -87,6 +87,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
+
         write(
             '#include "decode/{}"'.format(gen_opts.base_class_header),
             file=self.outFile

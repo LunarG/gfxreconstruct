@@ -352,11 +352,12 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     }
 
     auto render_pass_wrapper = reinterpret_cast<RenderPassWrapper*>(create_info->renderPass);
-    assert(render_pass_wrapper != nullptr);
-
-    wrapper->render_pass_dependency.handle_id         = render_pass_wrapper->handle_id;
-    wrapper->render_pass_dependency.create_call_id    = render_pass_wrapper->create_call_id;
-    wrapper->render_pass_dependency.create_parameters = render_pass_wrapper->create_parameters;
+    if (render_pass_wrapper)
+    {
+        wrapper->render_pass_dependency.handle_id         = render_pass_wrapper->handle_id;
+        wrapper->render_pass_dependency.create_call_id    = render_pass_wrapper->create_call_id;
+        wrapper->render_pass_dependency.create_parameters = render_pass_wrapper->create_parameters;
+    }
 
     auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);

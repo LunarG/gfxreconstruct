@@ -165,7 +165,11 @@ inline std::string BitmaskToString(VkFlags vkFlags)
             {
                 str.append("|");
             }
+#if defined(WIN32)
+            str.append(ToString(static_cast<VkBitmaskType>(1i64 << index)));
+#else
             str.append(ToString(static_cast<VkBitmaskType>(1 << index)));
+#endif
         }
         ++index;
         vkFlags >>= 1;

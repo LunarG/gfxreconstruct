@@ -521,20 +521,22 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
                 graphics_pipelines.push_back(wrapper->create_parameters.get());
                 processed_graphics_pipelines.insert(wrapper->create_parameters.get());
             }
-
-            // Check for graphics-specific creation dependencies that no longer exist.
-            auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_dependency.handle_id);
-            if (render_pass_wrapper == nullptr)
+            if (wrapper->render_pass_dependency.create_call_id != format::ApiCallId::ApiCall_Unknown)
             {
-                // The object no longer exists, so a temporary object must be created.
-                auto        create_parameters = wrapper->render_pass_dependency.create_parameters.get();
-                const auto& inserted          = temp_render_passes.insert(
-                    std::make_pair(wrapper->render_pass_dependency.handle_id, create_parameters));
-
-                // Create a temporary object on first encounter.
-                if (inserted.second)
+                // Check for graphics-specific creation dependencies that no longer exist.
+                auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_dependency.handle_id);
+                if (render_pass_wrapper == nullptr)
                 {
-                    WriteFunctionCall(wrapper->render_pass_dependency.create_call_id, create_parameters);
+                    // The object no longer exists, so a temporary object must be created.
+                    auto        create_parameters = wrapper->render_pass_dependency.create_parameters.get();
+                    const auto& inserted          = temp_render_passes.insert(
+                        std::make_pair(wrapper->render_pass_dependency.handle_id, create_parameters));
+
+                    // Create a temporary object on first encounter.
+                    if (inserted.second)
+                    {
+                        WriteFunctionCall(wrapper->render_pass_dependency.create_call_id, create_parameters);
+                    }
                 }
             }
         }

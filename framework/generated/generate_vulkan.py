@@ -40,8 +40,6 @@ VK_HEADERS_DIR = os.path.join(
     SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers'
 )
 
-base_generator_path = './base_generators'
-
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
     'generated_encode_pnext_struct.cpp', 'generated_vulkan_struct_encoders.h',

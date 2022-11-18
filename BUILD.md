@@ -207,6 +207,12 @@ sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-de
         libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev
 ```
 
+For 32-bit builds (DXVK might require 32-bit):
+```bash
+sudo apt-get install g++-multilib libx11-xcb-dev:i386 libxcb-keysyms1-dev:i386 \
+        libwayland-dev:i386 libxrandr-dev:i386 zlib1g-dev:i386 liblz4-dev:i386 libzstd-dev:i386
+```
+
 For arm64 builds (cross compilation):
 
 ```bash

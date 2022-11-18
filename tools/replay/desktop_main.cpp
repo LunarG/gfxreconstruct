@@ -163,6 +163,17 @@ int main(int argc, const char** argv)
                 }
             }
 #endif
+#if defined(VK_USE_PLATFORM_DISPLAY_KHR)
+            if (wsi_platform == WsiPlatform::kDisplay)
+            {
+                application->InitializeWsiContext(VK_KHR_DISPLAY_EXTENSION_NAME);
+                if (!application->GetWsiContext())
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to initialize command line selected Direct Display context");
+                    return_code = -1;
+                }
+            }
+#endif
 #endif
 #if defined(VK_USE_PLATFORM_HEADLESS)
             if (wsi_platform == WsiPlatform::kHeadless)

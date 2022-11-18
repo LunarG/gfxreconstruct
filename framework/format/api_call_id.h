@@ -548,6 +548,12 @@ enum ApiCallId : uint32_t
     ApiCall_vkWaitForPresentKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1244),
     ApiCall_vkCmdBindInvocationMaskHUAWEI                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1245),
     ApiCall_vkGetMemoryRemoteAddressNV                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1246),
+    ApiCall_vkGetDeviceBufferMemoryRequirementsKHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1247),
+    ApiCall_vkGetDeviceImageMemoryRequirementsKHR                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1248),
+    ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1249),
+    ApiCall_vkSetDeviceMemoryPriorityEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x124a),
+    ApiCall_vkCmdBeginRenderingKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x124b),
+    ApiCall_vkCmdEndRenderingKHR                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x124c),
 
     ApiCall_VulkanLast,
 
