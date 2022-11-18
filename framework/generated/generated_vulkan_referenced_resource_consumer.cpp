@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1680,6 +1680,40 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     GFXRECON_UNREFERENCED_PARAMETER(imageLayout);
 
     GetTable().AddResourceToUser(commandBuffer, imageView);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    uint32_t                                    drawCount,
+    uint32_t                                    stride)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
+    GFXRECON_UNREFERENCED_PARAMETER(stride);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    format::HandleId                            countBuffer,
+    VkDeviceSize                                countBufferOffset,
+    uint32_t                                    maxDrawCount,
+    uint32_t                                    stride)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(countBufferOffset);
+    GFXRECON_UNREFERENCED_PARAMETER(maxDrawCount);
+    GFXRECON_UNREFERENCED_PARAMETER(stride);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+    GetTable().AddResourceToUser(commandBuffer, countBuffer);
 }
 
 GFXRECON_END_NAMESPACE(decode)

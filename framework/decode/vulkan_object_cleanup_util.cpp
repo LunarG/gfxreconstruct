@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2020-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -155,7 +155,8 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                         bool                                                     remove_entries,
                         bool                                                     report_leaks,
                         std::function<const encode::InstanceTable*(const void*)> get_instance_table,
-                        std::function<const encode::DeviceTable*(const void*)>   get_device_table)
+                        std::function<const encode::DeviceTable*(const void*)>   get_device_table,
+                        VulkanSwapchain*                                         swapchain)
 {
     FreeChildObjects<DeviceInfo, EventInfo>(
         table,
@@ -547,19 +548,19 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                 ->DestroyDeferredOperationKHR(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, PrivateDataSlotEXTInfo>(
+    FreeChildObjects<DeviceInfo, PrivateDataSlotInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkPrivateDataSlotEXT),
         remove_entries,
         report_leaks,
         &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitPrivateDataSlotEXTInfo,
-        &VulkanObjectInfoTable::RemovePrivateDataSlotEXTInfo,
-        [&](const DeviceInfo* parent_info, const PrivateDataSlotEXTInfo* object_info) {
+        &VulkanObjectInfoTable::VisitPrivateDataSlotInfo,
+        &VulkanObjectInfoTable::RemovePrivateDataSlotInfo,
+        [&](const DeviceInfo* parent_info, const PrivateDataSlotInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
-                ->DestroyPrivateDataSlotEXT(parent_info->handle, object_info->handle, nullptr);
+                ->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
         });
 
     FreeChildObjects<InstanceInfo, DebugReportCallbackEXTInfo>(
@@ -631,8 +632,8 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             assert((parent_info != nullptr) && (object_info != nullptr));
             if (object_info->surface != VK_NULL_HANDLE)
             {
-                get_device_table(parent_info->handle)
-                    ->DestroySwapchainKHR(parent_info->handle, object_info->handle, nullptr);
+                swapchain->DestroySwapchainKHR(
+                    get_device_table(parent_info->handle)->DestroySwapchainKHR, parent_info, object_info, nullptr);
             }
             else
             {

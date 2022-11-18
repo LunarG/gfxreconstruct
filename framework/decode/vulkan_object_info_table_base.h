@@ -68,6 +68,48 @@ class VulkanObjectInfoTableBase
         }
     }
 
+    // Specialization template for SurfaceKHRInfo.
+    //
+    // Currently there is a workaround applied for Android apps that create more than 1 surface. For those apps there is
+    // a command line option (--surface-index) with which the user can choose which of the surface to use, while the
+    // rest simply will not be created at all. For those surfaces that are not created we still need the SurfaceKHRInfo
+    // to be inserted in the map in order to be able to tell the difference whether the surface was not created because
+    // of the said workaround or the user is passing a VK_NULL_HANDLE as a surface on purpose
+    // (VK_GOOGLE_surfaceless_query).
+    //
+    // Once support for multiple Android surfaces is implemented and the workaround is
+    // removed, this function should also be removed.
+    //
+    // Note: the "dummy" template parameter is here for the sole purpose of working around a gcc issue which does
+    // not allow full specialization in non-namespace scope (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85282)
+    template <typename dummy>
+    void AddObjectInfo(SurfaceKHRInfo&& info, std::unordered_map<format::HandleId, SurfaceKHRInfo>* map)
+    {
+        assert(map != nullptr);
+
+        if (info.capture_id != 0)
+        {
+            auto result = map->emplace(info.capture_id, std::forward<SurfaceKHRInfo>(info));
+
+            if (!result.second)
+            {
+                // There are two expected cases where a capture ID would already be in the map. The first case is for
+                // handles that are retrieved, such as VkPhysicalDevice, which can be processed more than once. For
+                // this case we a have a duplicate info structure with the same ID and handle value, and do not need
+                // to update the map entry. The existing entry may even contain additional info that would be lost if
+                // replaced with this newly created, default initialized, info structure. The second case is for
+                // temporary objects created during the trimmed file state setup. IDs may be reused when creating these
+                // temporary objects, creating a case where we have a new handle that is not a duplicate of the existing
+                // map entry. In this case, the map entry needs to be updated with the new object's info.
+                auto iter = result.first;
+                if (iter->second.handle != info.handle)
+                {
+                    iter->second = std::forward<SurfaceKHRInfo>(info);
+                }
+            }
+        }
+    }
+
     template <typename T>
     const T* GetObjectInfo(format::HandleId id, const std::unordered_map<format::HandleId, T>* map) const
     {

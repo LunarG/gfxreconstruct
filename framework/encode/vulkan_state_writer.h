@@ -101,6 +101,10 @@ class VulkanStateWriter
 
     void WriteCommandBufferState(const VulkanStateTable& state_table);
 
+    void WriteTrimCommandPool(const VulkanStateTable& state_table);
+
+    void WritePrivateDataSlotState(const VulkanStateTable& state_table);
+
     void WriteFenceState(const VulkanStateTable& state_table);
 
     void WriteEventState(const VulkanStateTable& state_table);
@@ -189,10 +193,10 @@ class VulkanStateWriter
                                                    const SurfaceCapabilities& capabilities,
                                                    const VulkanStateTable&    state_table);
 
-    void WriteGetPhysicalDeviceSurfaceFormats(format::HandleId          physical_device_id,
-                                              format::HandleId          surface_id,
-                                              uint32_t                  format_count,
-                                              const VkSurfaceFormatKHR* formats);
+    void WriteGetPhysicalDeviceSurfaceFormats(format::HandleId        physical_device_id,
+                                              format::HandleId        surface_id,
+                                              const SurfaceFormats&   formats,
+                                              const VulkanStateTable& state_table);
 
     void WriteGetPhysicalDeviceSurfacePresentModes(format::HandleId           physical_device_id,
                                                    format::HandleId           surface_id,

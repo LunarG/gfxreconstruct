@@ -50,7 +50,7 @@ organized with the following file structure:
 | | extract | Tool to extract SPIR-V binaries from GFXR capture files. |
 | | info | Tool to print information describing GFXR capture files. |
 | | replay | Tool to replay GFXR capture files. |
-| | toascii | Tool to convert GFXR capture files to an ASCII listing of API calls. |
+| | convert | Tool to convert GFXR capture files to a JSON Lines listing of API calls. |
 
 ## Repository Set-Up
 
@@ -105,6 +105,17 @@ can be run with the following options to disable the developer build steps:
 python scripts/build.py --skip-check-code-style --skip-tests
 ```
 
+The above invocation will run on a single core.
+To speed up the build with parallel processes,
+the standard CMake environment variable
+[`CMAKE_BUILD_PARALLEL_LEVEL`](https://cmake.org/cmake/help/latest/envvar/CMAKE_BUILD_PARALLEL_LEVEL.html)
+may be used.
+For example, to use eight processes from within Bash:
+
+```bash
+CMAKE_BUILD_PARALLEL_LEVEL=8 python scripts/build.py --skip-check-code-style --skip-tests
+```
+
 Run the script with the `-h` option for additional usage information.
 
 ## Building for Windows
@@ -113,9 +124,9 @@ Run the script with the `-h` option for additional usage information.
 
 - Microsoft [Visual Studio](https://www.visualstudio.com/)
   - Supported Versions
-    - [2019](https://www.visualstudio.com/vs/downloads/)
+    - [2022](https://www.visualstudio.com/vs/downloads/)
+    - [2019](https://www.visualstudio.com/vs/older-downloads/)
     - [2017](https://www.visualstudio.com/vs/older-downloads/)
-    - [2015](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
 - [CMake](http://www.cmake.org/download/) (Version 3.1 or better)
   - The build instructions assume that CMake has been added to the system PATH
@@ -149,16 +160,12 @@ cmake -H. -Bbuild -G "Visual Studio 15 Win64"
 ```
 
 The following commands can be used to generate project files for different
-variations of the Visual Studio 2015 and 2017 WIN32 and x64 build
-configurations:
+variations of the Visual Studio 2017 WIN32 and x64 build configurations:
 
-- 64-bit for VS 2015: cmake -H. -Bbuild -G "Visual Studio 14 Win64"
+- 64-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15 Win64"
 - 32-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15"
-- 32-bit for VS 2015: cmake -H. -Bbuild -G "Visual Studio 14"
 
-**Note: the build uses Windows 10 SDK 10.0.20348.0. Windows 11 SDK 10.0.22000.194 is not compatible at the present time. If you need to specify a Windows 10 SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0` .**
-
-Running any of the above commands will create a Windows solution file named
+Running either of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
 
 At this point, you can build the solution from the command line or open the
@@ -226,7 +233,7 @@ command:
 
 ```bash
 sudo dnf install git cmake libxcb-devel libX11-devel xcb-util-keysyms-devel \
-        libXrandr-devel wayland-devel zlib-devel lz4-devel libzstd-devel
+        libXrandr-devel wayland-devel zlib-devel lz4-devel libzstd-devel g++
 ```
 
 For arm64 builds (cross compilation):

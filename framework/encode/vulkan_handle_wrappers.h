@@ -78,8 +78,9 @@ struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsM
 struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
 struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
 struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct DeferredOperationKHRWrapper          : public HandleWrapper<VkDeferredOperationKHR> {};
-struct PrivateDataSlotEXTWrapper            : public HandleWrapper<VkPrivateDataSlotEXT> {};
+struct MicromapEXTWrapper                   : public HandleWrapper<VkMicromapEXT> {};
+struct OpticalFlowSessionNVWrapper          : public HandleWrapper<VkOpticalFlowSessionNV> {};
+
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
@@ -138,7 +139,8 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     std::vector<QueueWrapper*> child_queues;
 
     // Physical device property & feature state at device creation
-    graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
+    graphics::VulkanDevicePropertyFeatureInfo              property_feature_info;
+    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
@@ -297,9 +299,6 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
 };
 
-struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
-{};
-
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
@@ -311,9 +310,20 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // Ray tracing pipeline's shader group handle data
     format::HandleId     device_id{ format::kNullHandleId };
     std::vector<uint8_t> shader_group_handle_data;
+    CreateDependencyInfo deferred_operation;
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
+};
+
+struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
+{
+    // Record CreateRayTracingPipelinesKHR parameters for safety.
+    HandleUnwrapMemory                             handle_unwrap_memory;
+    std::vector<VkRayTracingPipelineCreateInfoKHR> create_infos;
+    VkAllocationCallbacks                          allocator{};
+    VkAllocationCallbacks*                         p_allocator{ nullptr };
+    std::vector<VkPipeline>                        pipelines;
 };
 
 struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>
@@ -361,16 +371,29 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 
     // Members for trimming state tracking.
     uint32_t queue_family_index{ 0 };
+
+    DeviceWrapper* device{ nullptr };
+    bool           trim_command_pool{ false };
 };
 
 // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
 struct SurfaceCapabilities
 {
-    VkSurfaceCapabilitiesKHR capabilities{};
-    const void*              surface_info_pnext{ nullptr };
-    HandleUnwrapMemory       surface_info_pnext_memory;
-    const void*              capabilities_pnext{ nullptr };
-    HandleUnwrapMemory       capabilities_pnext_memory;
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info;
+    HandleUnwrapMemory              surface_info_pnext_memory;
+
+    VkSurfaceCapabilities2KHR surface_capabilities;
+    HandleUnwrapMemory        surface_capabilities_pnext_memory;
+};
+
+// For vkGetPhysicalDeviceSurfaceFormatsKHR
+struct SurfaceFormats
+{
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info;
+    HandleUnwrapMemory              surface_info_pnext_memory;
+
+    std::vector<VkSurfaceFormat2KHR> surface_formats;
+    std::vector<HandleUnwrapMemory>  surface_formats_pnext_memory;
 };
 
 // For vkGetPhysicalDeviceSurfacePresentModesKHR
@@ -396,7 +419,7 @@ struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
     // Keys are the VkPhysicalDevice handle ID.
     std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>> surface_support;
     std::unordered_map<format::HandleId, SurfaceCapabilities>                    surface_capabilities;
-    std::unordered_map<format::HandleId, std::vector<VkSurfaceFormatKHR>>        surface_formats;
+    std::unordered_map<format::HandleId, SurfaceFormats>                         surface_formats;
     std::unordered_map<format::HandleId, SurfacePresentModes>                    surface_present_modes;
 
     // Keys are the VkDevice handle ID.
@@ -420,6 +443,8 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     std::vector<ImageAcquiredInfo> image_acquired_info;
     bool                           acquire_full_screen_exclusive_mode{ false };
     bool                           release_full_screen_exclusive_mode{ false };
+    bool                           using_local_dimming_AMD{ false };
+    VkBool32                       local_dimming_enable_AMD{ false };
 };
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
@@ -434,9 +459,18 @@ struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStruc
     // TODO: Determine what additional state tracking is needed.
 };
 
+struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
+{
+    DeviceWrapper* device{ nullptr };
+    VkObjectType   object_type{ VK_OBJECT_TYPE_UNKNOWN };
+    uint64_t       object_handle{ 0 };
+    uint64_t       data{ 0 };
+};
+
 // Handle alias types for extension handle types that have been promoted to core types.
 typedef SamplerYcbcrConversionWrapper   SamplerYcbcrConversionKHRWrapper;
 typedef DescriptorUpdateTemplateWrapper DescriptorUpdateTemplateKHRWrapper;
+typedef PrivateDataSlotWrapper          PrivateDataSlotEXTWrapper;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

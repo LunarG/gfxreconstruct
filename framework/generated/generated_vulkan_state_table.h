@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -65,13 +65,14 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, ImageViewWrapper* wrapper) { return InsertEntry(id, wrapper, imageView_map_); }
     bool InsertWrapper(format::HandleId id, IndirectCommandsLayoutNVWrapper* wrapper) { return InsertEntry(id, wrapper, indirectCommandsLayoutNV_map_); }
     bool InsertWrapper(format::HandleId id, InstanceWrapper* wrapper) { return InsertEntry(id, wrapper, instance_map_); }
+    bool InsertWrapper(format::HandleId id, MicromapEXTWrapper* wrapper) { return InsertEntry(id, wrapper, micromapEXT_map_); }
+    bool InsertWrapper(format::HandleId id, OpticalFlowSessionNVWrapper* wrapper) { return InsertEntry(id, wrapper, opticalFlowSessionNV_map_); }
     bool InsertWrapper(format::HandleId id, PerformanceConfigurationINTELWrapper* wrapper) { return InsertEntry(id, wrapper, performanceConfigurationINTEL_map_); }
     bool InsertWrapper(format::HandleId id, PhysicalDeviceWrapper* wrapper) { return InsertEntry(id, wrapper, physicalDevice_map_); }
     bool InsertWrapper(format::HandleId id, PipelineWrapper* wrapper) { return InsertEntry(id, wrapper, pipeline_map_); }
     bool InsertWrapper(format::HandleId id, PipelineCacheWrapper* wrapper) { return InsertEntry(id, wrapper, pipelineCache_map_); }
     bool InsertWrapper(format::HandleId id, PipelineLayoutWrapper* wrapper) { return InsertEntry(id, wrapper, pipelineLayout_map_); }
     bool InsertWrapper(format::HandleId id, PrivateDataSlotWrapper* wrapper) { return InsertEntry(id, wrapper, privateDataSlot_map_); }
-    bool InsertWrapper(format::HandleId id, PrivateDataSlotEXTWrapper* wrapper) { return InsertEntry(id, wrapper, privateDataSlotEXT_map_); }
     bool InsertWrapper(format::HandleId id, QueryPoolWrapper* wrapper) { return InsertEntry(id, wrapper, queryPool_map_); }
     bool InsertWrapper(format::HandleId id, QueueWrapper* wrapper) { return InsertEntry(id, wrapper, queue_map_); }
     bool InsertWrapper(format::HandleId id, RenderPassWrapper* wrapper) { return InsertEntry(id, wrapper, renderPass_map_); }
@@ -107,13 +108,14 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const ImageViewWrapper* wrapper) { return RemoveEntry(wrapper, imageView_map_); }
     bool RemoveWrapper(const IndirectCommandsLayoutNVWrapper* wrapper) { return RemoveEntry(wrapper, indirectCommandsLayoutNV_map_); }
     bool RemoveWrapper(const InstanceWrapper* wrapper) { return RemoveEntry(wrapper, instance_map_); }
+    bool RemoveWrapper(const MicromapEXTWrapper* wrapper) { return RemoveEntry(wrapper, micromapEXT_map_); }
+    bool RemoveWrapper(const OpticalFlowSessionNVWrapper* wrapper) { return RemoveEntry(wrapper, opticalFlowSessionNV_map_); }
     bool RemoveWrapper(const PerformanceConfigurationINTELWrapper* wrapper) { return RemoveEntry(wrapper, performanceConfigurationINTEL_map_); }
     bool RemoveWrapper(const PhysicalDeviceWrapper* wrapper) { return RemoveEntry(wrapper, physicalDevice_map_); }
     bool RemoveWrapper(const PipelineWrapper* wrapper) { return RemoveEntry(wrapper, pipeline_map_); }
     bool RemoveWrapper(const PipelineCacheWrapper* wrapper) { return RemoveEntry(wrapper, pipelineCache_map_); }
     bool RemoveWrapper(const PipelineLayoutWrapper* wrapper) { return RemoveEntry(wrapper, pipelineLayout_map_); }
     bool RemoveWrapper(const PrivateDataSlotWrapper* wrapper) { return RemoveEntry(wrapper, privateDataSlot_map_); }
-    bool RemoveWrapper(const PrivateDataSlotEXTWrapper* wrapper) { return RemoveEntry(wrapper, privateDataSlotEXT_map_); }
     bool RemoveWrapper(const QueryPoolWrapper* wrapper) { return RemoveEntry(wrapper, queryPool_map_); }
     bool RemoveWrapper(const QueueWrapper* wrapper) { return RemoveEntry(wrapper, queue_map_); }
     bool RemoveWrapper(const RenderPassWrapper* wrapper) { return RemoveEntry(wrapper, renderPass_map_); }
@@ -149,13 +151,14 @@ class VulkanStateTable : VulkanStateTableBase
     const ImageViewWrapper* GetImageViewWrapper(format::HandleId id) const { return GetWrapper<ImageViewWrapper>(id, imageView_map_); }
     const IndirectCommandsLayoutNVWrapper* GetIndirectCommandsLayoutNVWrapper(format::HandleId id) const { return GetWrapper<IndirectCommandsLayoutNVWrapper>(id, indirectCommandsLayoutNV_map_); }
     const InstanceWrapper* GetInstanceWrapper(format::HandleId id) const { return GetWrapper<InstanceWrapper>(id, instance_map_); }
+    const MicromapEXTWrapper* GetMicromapEXTWrapper(format::HandleId id) const { return GetWrapper<MicromapEXTWrapper>(id, micromapEXT_map_); }
+    const OpticalFlowSessionNVWrapper* GetOpticalFlowSessionNVWrapper(format::HandleId id) const { return GetWrapper<OpticalFlowSessionNVWrapper>(id, opticalFlowSessionNV_map_); }
     const PerformanceConfigurationINTELWrapper* GetPerformanceConfigurationINTELWrapper(format::HandleId id) const { return GetWrapper<PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
     const PhysicalDeviceWrapper* GetPhysicalDeviceWrapper(format::HandleId id) const { return GetWrapper<PhysicalDeviceWrapper>(id, physicalDevice_map_); }
     const PipelineWrapper* GetPipelineWrapper(format::HandleId id) const { return GetWrapper<PipelineWrapper>(id, pipeline_map_); }
     const PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) const { return GetWrapper<PipelineCacheWrapper>(id, pipelineCache_map_); }
     const PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const { return GetWrapper<PipelineLayoutWrapper>(id, pipelineLayout_map_); }
     const PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) const { return GetWrapper<PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
-    const PrivateDataSlotEXTWrapper* GetPrivateDataSlotEXTWrapper(format::HandleId id) const { return GetWrapper<PrivateDataSlotEXTWrapper>(id, privateDataSlotEXT_map_); }
     const QueryPoolWrapper* GetQueryPoolWrapper(format::HandleId id) const { return GetWrapper<QueryPoolWrapper>(id, queryPool_map_); }
     const QueueWrapper* GetQueueWrapper(format::HandleId id) const { return GetWrapper<QueueWrapper>(id, queue_map_); }
     const RenderPassWrapper* GetRenderPassWrapper(format::HandleId id) const { return GetWrapper<RenderPassWrapper>(id, renderPass_map_); }
@@ -191,13 +194,14 @@ class VulkanStateTable : VulkanStateTableBase
     ImageViewWrapper* GetImageViewWrapper(format::HandleId id) { return GetWrapper<ImageViewWrapper>(id, imageView_map_); }
     IndirectCommandsLayoutNVWrapper* GetIndirectCommandsLayoutNVWrapper(format::HandleId id) { return GetWrapper<IndirectCommandsLayoutNVWrapper>(id, indirectCommandsLayoutNV_map_); }
     InstanceWrapper* GetInstanceWrapper(format::HandleId id) { return GetWrapper<InstanceWrapper>(id, instance_map_); }
+    MicromapEXTWrapper* GetMicromapEXTWrapper(format::HandleId id) { return GetWrapper<MicromapEXTWrapper>(id, micromapEXT_map_); }
+    OpticalFlowSessionNVWrapper* GetOpticalFlowSessionNVWrapper(format::HandleId id) { return GetWrapper<OpticalFlowSessionNVWrapper>(id, opticalFlowSessionNV_map_); }
     PerformanceConfigurationINTELWrapper* GetPerformanceConfigurationINTELWrapper(format::HandleId id) { return GetWrapper<PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
     PhysicalDeviceWrapper* GetPhysicalDeviceWrapper(format::HandleId id) { return GetWrapper<PhysicalDeviceWrapper>(id, physicalDevice_map_); }
     PipelineWrapper* GetPipelineWrapper(format::HandleId id) { return GetWrapper<PipelineWrapper>(id, pipeline_map_); }
     PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) { return GetWrapper<PipelineCacheWrapper>(id, pipelineCache_map_); }
     PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) { return GetWrapper<PipelineLayoutWrapper>(id, pipelineLayout_map_); }
     PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) { return GetWrapper<PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
-    PrivateDataSlotEXTWrapper* GetPrivateDataSlotEXTWrapper(format::HandleId id) { return GetWrapper<PrivateDataSlotEXTWrapper>(id, privateDataSlotEXT_map_); }
     QueryPoolWrapper* GetQueryPoolWrapper(format::HandleId id) { return GetWrapper<QueryPoolWrapper>(id, queryPool_map_); }
     QueueWrapper* GetQueueWrapper(format::HandleId id) { return GetWrapper<QueueWrapper>(id, queue_map_); }
     RenderPassWrapper* GetRenderPassWrapper(format::HandleId id) { return GetWrapper<RenderPassWrapper>(id, renderPass_map_); }
@@ -233,13 +237,14 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(ImageViewWrapper*)> visitor) const { for (auto entry : imageView_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(IndirectCommandsLayoutNVWrapper*)> visitor) const { for (auto entry : indirectCommandsLayoutNV_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(InstanceWrapper*)> visitor) const { for (auto entry : instance_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(MicromapEXTWrapper*)> visitor) const { for (auto entry : micromapEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(OpticalFlowSessionNVWrapper*)> visitor) const { for (auto entry : opticalFlowSessionNV_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PerformanceConfigurationINTELWrapper*)> visitor) const { for (auto entry : performanceConfigurationINTEL_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PhysicalDeviceWrapper*)> visitor) const { for (auto entry : physicalDevice_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PipelineWrapper*)> visitor) const { for (auto entry : pipeline_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PipelineCacheWrapper*)> visitor) const { for (auto entry : pipelineCache_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PipelineLayoutWrapper*)> visitor) const { for (auto entry : pipelineLayout_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(PrivateDataSlotWrapper*)> visitor) const { for (auto entry : privateDataSlot_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(PrivateDataSlotEXTWrapper*)> visitor) const { for (auto entry : privateDataSlotEXT_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(QueryPoolWrapper*)> visitor) const { for (auto entry : queryPool_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(QueueWrapper*)> visitor) const { for (auto entry : queue_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(RenderPassWrapper*)> visitor) const { for (auto entry : renderPass_map_) { visitor(entry.second); } }
@@ -276,13 +281,14 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, ImageViewWrapper*> imageView_map_;
     std::map<format::HandleId, IndirectCommandsLayoutNVWrapper*> indirectCommandsLayoutNV_map_;
     std::map<format::HandleId, InstanceWrapper*> instance_map_;
+    std::map<format::HandleId, MicromapEXTWrapper*> micromapEXT_map_;
+    std::map<format::HandleId, OpticalFlowSessionNVWrapper*> opticalFlowSessionNV_map_;
     std::map<format::HandleId, PerformanceConfigurationINTELWrapper*> performanceConfigurationINTEL_map_;
     std::map<format::HandleId, PhysicalDeviceWrapper*> physicalDevice_map_;
     std::map<format::HandleId, PipelineWrapper*> pipeline_map_;
     std::map<format::HandleId, PipelineCacheWrapper*> pipelineCache_map_;
     std::map<format::HandleId, PipelineLayoutWrapper*> pipelineLayout_map_;
     std::map<format::HandleId, PrivateDataSlotWrapper*> privateDataSlot_map_;
-    std::map<format::HandleId, PrivateDataSlotEXTWrapper*> privateDataSlotEXT_map_;
     std::map<format::HandleId, QueryPoolWrapper*> queryPool_map_;
     std::map<format::HandleId, QueueWrapper*> queue_map_;
     std::map<format::HandleId, RenderPassWrapper*> renderPass_map_;

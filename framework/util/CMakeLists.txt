@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2018-2022 Advanced Micro Devices, Inc. All rights reserved
+# Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,8 +37,6 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/defines.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/driver_info.h
-                    ${CMAKE_CURRENT_LIST_DIR}/driver_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hash.h
@@ -66,30 +64,18 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/platform.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/options.h
-                    ${CMAKE_CURRENT_LIST_DIR}/options.cpp
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/real_and_mine_hook.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.h>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.cpp>
-                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.h>
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.h
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/options.h
                     ${CMAKE_CURRENT_LIST_DIR}/options.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_to_string.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
@@ -100,15 +86,22 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
 )
 
+target_include_directories(gfxrecon_util
+                           PUBLIC
+                               ${CMAKE_SOURCE_DIR}/framework)
 
-target_include_directories(gfxrecon_util PUBLIC ${CMAKE_SOURCE_DIR}/framework)
-target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
-target_link_libraries(gfxrecon_util $<$<BOOL:${BUILD_D3D12}>:version.lib>)
+target_link_libraries(gfxrecon_util platform_specific vulkan_registry ${CMAKE_DL_LIBS})
+
+if (MSVC)
+    # These files may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+endif()
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc
     include(CheckLibraryExists)
     check_library_exists(c clock_gettime "" HAVE_GETTIME)
+    target_link_libraries(gfxrecon_util pthread)
     if (NOT HAVE_GETTIME)
         # If not in libc, check librt
         check_library_exists(rt clock_gettime "" HAVE_GETTIME)
@@ -140,16 +133,6 @@ if (WAYLAND_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "WAYLAND_LIBRARY=\"${WAYLAND_LIBRARY}\"")
 endif()
 
-if (TARGET AGS::AGS)
-    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_AGS)
-    target_link_libraries(gfxrecon_util AGS::AGS)
-endif()
-
-if (TARGET Detours::Detours)
-    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_DETOURS)
-    target_link_libraries(gfxrecon_util Detours::Detours)
-endif()
-
 if (TARGET LZ4::LZ4)
     target_compile_definitions(gfxrecon_util PUBLIC ENABLE_LZ4_COMPRESSION)
     target_link_libraries(gfxrecon_util LZ4::LZ4)
@@ -173,18 +156,8 @@ common_build_directives(gfxrecon_util)
 if (${RUN_TESTS})
     add_executable(gfxrecon_util_test "")
     target_sources(gfxrecon_util_test PRIVATE
-            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/gpu_va_map_tests.cpp>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/getwritewatch_tests.cpp>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.h>
-            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dxgi_pointers.h>)
-    target_link_libraries(gfxrecon_util_test
-                        PRIVATE
-                            gfxrecon_util
-                            $<$<BOOL:${BUILD_D3D12}>:d3d12.lib>
-                            $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
+            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
+    target_link_libraries(gfxrecon_util_test PRIVATE gfxrecon_util)
     common_build_directives(gfxrecon_util_test)
     common_test_directives(gfxrecon_util_test)
 endif()

@@ -12,6 +12,7 @@ Copyright &copy; 2018-2021 LunarG, Inc.
 ## **Index**
 
 1. [Introduction](#introduction)
+1. [Repository Dependencies](#repository-dependencies)
 2. [Submitting Changes](#submitting-changes)
     1. [Coding Conventions and Formatting](#coding-conventions-and-formatting)
     2. [Verifying Changes with the Build Script](#verifying-changes-with-the-build-script)
@@ -41,6 +42,25 @@ Repository Issue labels:
 
 If you would like to work on an issue that is already assigned, please coordinate
 with the current assignee.
+
+## Repository Dependencies
+
+As mentioned in the [build guide](./BUILD.md), submodules are updated as the
+GFXReconstruct project is updated to support new Vulkan API releases.
+If a submodule update like the one below pulls in a new version of the
+Vulkan headers at `external/Vulkan-Headers` and your in-flight branch has
+touched Python files related to code generation, you may need to run the
+Python 3 code generator.
+
+```bash
+git submodule update
+```
+
+To do that, `cd` to `framework/generated` and run:
+
+```bash
+python3 generate_vulkan.py 
+```
 
 ## **Submitting Changes**
 

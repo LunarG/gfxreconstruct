@@ -53,6 +53,30 @@ const VkLayerProperties kLayerProps = {
 
 const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
 
+/// An alphabetical list of device extensions which we do not report upstream if
+/// other layers or ICDs expose them to us.
+const char* const kUnsupportedDeviceExtensions[] = {
+    // Supporting the CPU moving around descriptor set data directly has too many
+    // perf/robustness tradeoffs to be worth it.
+    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
+    VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
+};
+
+static void remove_extensions(std::vector<VkExtensionProperties>& extensionProps,
+                              const char* const                   screenedExtensions[],
+                              const size_t                        screenedCount)
+{
+    auto new_end = std::remove_if(
+        extensionProps.begin(),
+        extensionProps.end(),
+        [&screenedExtensions, screenedCount](const VkExtensionProperties& extension) {
+            return std::find_if(screenedExtensions, &screenedExtensions[screenedCount], [&extension](auto screened) {
+                       return strncmp(extension.extensionName, screened, VK_MAX_EXTENSION_NAME_SIZE) == 0;
+                   }) != &screenedExtensions[screenedCount];
+        });
+    extensionProps.resize(new_end - extensionProps.begin());
+}
+
 static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo,
                                                                 VkLayerFunction             func)
 {
@@ -98,6 +122,31 @@ static VkInstance get_instance_handle(const void* handle)
     return (entry != instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 
+// The GetPhysicalDeviceProcAddr of the next layer in the chain.
+// Retrieved during instance creation and forwarded to by this layer's
+// GetPhysicalDeviceProcAddr() after unwrapping its VkInstance parameter.
+static std::mutex                                                    gpdpa_lock;
+static std::unordered_map<VkInstance, PFN_GetPhysicalDeviceProcAddr> next_gpdpa;
+
+static void set_instance_next_gpdpa(const VkInstance instance, PFN_GetPhysicalDeviceProcAddr p_next_gpdpa)
+{
+    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
+    std::lock_guard<std::mutex> lock(gpdpa_lock);
+    next_gpdpa[instance] = p_next_gpdpa;
+}
+
+static PFN_GetPhysicalDeviceProcAddr get_instance_next_gpdpa(const VkInstance instance)
+{
+    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
+    std::lock_guard<std::mutex> lock(gpdpa_lock);
+    auto                        it_gpdpa = next_gpdpa.find(instance);
+    if (it_gpdpa == next_gpdpa.end())
+    {
+        return nullptr;
+    }
+    return it_gpdpa->second;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                                        const VkAllocationCallbacks* pAllocator,
                                                        VkInstance*                  pInstance)
@@ -119,6 +168,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
             if (fpCreateInstance)
             {
                 // Advance the link info for the next element on the chain
+                auto pLayerInfo          = chain_info->u.pLayerInfo;
                 chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
                 result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
@@ -126,10 +176,17 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
                 if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
                 {
                     add_instance_handle(*pInstance);
+                    VkInstance unwrapped_instance = *pInstance;
 
                     encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
                     manager->InitVkInstance(pInstance, fpGetInstanceProcAddr);
+
+                    // Register the next layer's GetPhysicalDeviceProcAddr func only after *pInstance
+                    // has been updated to our wrapper in manager->InitVkInstance() above:
+                    auto fpNextGetPhysicalDeviceProcAddr = reinterpret_cast<PFN_GetPhysicalDeviceProcAddr>(
+                        fpGetInstanceProcAddr(unwrapped_instance, "vk_layerGetPhysicalDeviceProcAddr"));
+                    set_instance_next_gpdpa(*pInstance, fpNextGetPhysicalDeviceProcAddr);
                 }
             }
         }
@@ -241,6 +298,29 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
     return result;
 }
 
+/**
+ * We don't actually need to do anything for this function,
+ * but we do need to unwrap the instance before the downstream layer
+ * sees it.
+ */
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName)
+{
+    PFN_vkVoidFunction result = nullptr;
+
+    if (ourInstanceWrapper != VK_NULL_HANDLE)
+    {
+        const VkInstance nextLayersInstance = encode::GetWrappedHandle<VkInstance>(ourInstanceWrapper);
+
+        PFN_GetPhysicalDeviceProcAddr next_gpdpa = get_instance_next_gpdpa(ourInstanceWrapper);
+        if (next_gpdpa != nullptr)
+        {
+            result = next_gpdpa(nextLayersInstance, pName);
+        }
+    }
+
+    return result;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
                                                                   const char*            pLayerName,
                                                                   uint32_t*              pPropertyCount,
@@ -281,9 +361,45 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     {
         // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
         // provided extensions.
-        result = encode::GetInstanceTable(physicalDevice)
-                     ->EnumerateDeviceExtensionProperties(
-                         encode::GetWrappedHandle(physicalDevice), pLayerName, pPropertyCount, pProperties);
+        // In order to screen out unsupported extensions, we always query the chain
+        // twice, and remove those that are present from the count.
+        auto     instance_table            = encode::GetInstanceTable(physicalDevice);
+        auto     wrapped_device            = encode::GetWrappedHandle(physicalDevice);
+        uint32_t downstream_property_count = 0;
+
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            wrapped_device, pLayerName, &downstream_property_count, nullptr);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        std::vector<VkExtensionProperties> downstream_properties(downstream_property_count);
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            wrapped_device, pLayerName, &downstream_property_count, &downstream_properties[0]);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        remove_extensions(downstream_properties,
+                          kUnsupportedDeviceExtensions,
+                          std::end(kUnsupportedDeviceExtensions) - std::begin(kUnsupportedDeviceExtensions));
+
+        // Output the reduced count or the reduced extension list:
+        if (pProperties == nullptr)
+        {
+            *pPropertyCount = static_cast<uint32_t>(downstream_properties.size());
+        }
+        else
+        {
+            if (*pPropertyCount < static_cast<uint32_t>(downstream_properties.size()))
+            {
+                result = VK_INCOMPLETE;
+            }
+            *pPropertyCount = std::min(*pPropertyCount, static_cast<uint32_t>(downstream_properties.size()));
+            std::copy(downstream_properties.begin(), downstream_properties.begin() + *pPropertyCount, pProperties);
+        }
     }
 
     return result;
@@ -364,7 +480,7 @@ extern "C"
         {
             pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::GetInstanceProcAddr;
             pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::GetDeviceProcAddr;
-            pVersionStruct->pfnGetPhysicalDeviceProcAddr = nullptr;
+            pVersionStruct->pfnGetPhysicalDeviceProcAddr = gfxrecon::GetPhysicalDeviceProcAddr;
         }
 
         if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
@@ -375,7 +491,7 @@ extern "C"
         return VK_SUCCESS;
     }
 
-    // The following three functions are not directly invoked by the desktop loader, which instead uses the function
+    // The following two functions are not directly invoked by the desktop loader, which instead uses the function
     // pointers returned by the negotiate function.
     VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance  instance,
                                                                                    const char* pName)

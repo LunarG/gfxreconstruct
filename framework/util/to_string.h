@@ -1,5 +1,6 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2022 Valve Corporation
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -19,15 +20,13 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file Facilities for the conversion of types to strings.
 
 #ifndef GFXRECON_TO_STRING_H
 #define GFXRECON_TO_STRING_H
 
-#include "format/format.h"
 #include "util/defines.h"
 
-#include <codecvt>
-#include <locale>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -37,10 +36,9 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 enum ToStringFlagBits
 {
-    kToString_Unformatted  = 0,
-    kToString_Formatted    = 1,
-    kToString_Concatenated = 2,
-    kToString_Default      = kToString_Concatenated,
+    kToString_Unformatted = 0,
+    kToString_Formatted   = 1,
+    kToString_Default     = kToString_Unformatted,
 };
 
 typedef uint32_t ToStringFlags;
@@ -66,62 +64,6 @@ inline std::string ToString(uint32_t      apiFlags,
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
     return "0";
-}
-
-template <typename HandleIdType>
-inline std::string HandleIdToString(HandleIdType handleId)
-{
-    std::stringstream strStrm;
-    if (handleId)
-    {
-        strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
-    }
-    else
-    {
-        strStrm << "\"NULL\"";
-    }
-    return strStrm.str();
-}
-
-template <>
-inline std::string HandleIdToString(format::HandleId handleId)
-{
-    return std::to_string(handleId);
-}
-
-inline std::string WCharArrayToString(const wchar_t* pStr)
-{
-    auto str = pStr ? std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(pStr) : std::string();
-    for (auto i = str.find('\\'); i != std::string::npos; i = str.find('\\'))
-    {
-        str = str.replace(i, 1, "-");
-    }
-    return str;
-}
-
-template <typename BitmaskType, typename FlagsType>
-inline std::string BitmaskToString(FlagsType flags)
-{
-    std::string str;
-    FlagsType   index = 0;
-    while (flags)
-    {
-        if (flags & 1)
-        {
-            if (!str.empty())
-            {
-                str.append("|");
-            }
-            str.append(ToString(static_cast<BitmaskType>(1 << index)));
-        }
-        ++index;
-        flags >>= 1;
-    }
-    if (str.empty())
-    {
-        str.append(ToString(static_cast<BitmaskType>(0)));
-    }
-    return str;
 }
 
 template <typename PtrType>
@@ -160,12 +102,13 @@ inline std::string
 ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
 {
     std::stringstream strStrm;
+    const auto        nl = GetNewlineString(toStringFlags);
     strStrm << '{';
-    strStrm << GetNewlineString(toStringFlags);
+    strStrm << nl;
     ++tabCount;
     toStringFunction(strStrm);
     --tabCount;
-    strStrm << GetNewlineString(toStringFlags);
+    strStrm << nl;
     strStrm << GetTabString(toStringFlags, tabCount, tabSize);
     strStrm << '}';
     return strStrm.str();
@@ -198,21 +141,23 @@ inline std::string ArrayToString(size_t                    count,
                                  ValidateArrayFunctionType validateArrayFunction,
                                  ToStringFunctionType      toStringFunction)
 {
+    if (!(count && validateArrayFunction()))
+    {
+        return "null";
+    }
+
     std::stringstream strStrm;
     strStrm << '[';
-    if (count && validateArrayFunction())
+    strStrm << GetNewlineString(toStringFlags);
+    for (uint32_t i = 0; i < count; ++i)
     {
-        strStrm << GetNewlineString(toStringFlags);
-        for (size_t i = 0; i < count; ++i)
+        if (i)
         {
-            if (i)
-            {
-                strStrm << ',' << GetNewlineString(toStringFlags);
-            }
-            strStrm << GetTabString(toStringFlags, tabCount + 1, tabSize) << toStringFunction(static_cast<uint32_t>(i));
+            strStrm << ',' << GetNewlineString(toStringFlags);
         }
-        strStrm << GetNewlineString(toStringFlags) << GetTabString(toStringFlags, tabCount, tabSize);
+        strStrm << GetTabString(toStringFlags, tabCount + 1, tabSize) << toStringFunction(i);
     }
+    strStrm << GetNewlineString(toStringFlags) << GetTabString(toStringFlags, tabCount, tabSize);
     strStrm << ']';
     return strStrm.str();
 }
@@ -231,9 +176,96 @@ inline std::string ArrayToString(size_t        count,
         tabCount,
         tabSize,
         [&]() { return pObjs != nullptr; },
-        [&](size_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
+        [&](uint32_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
+template <typename T>
+inline std::string Array2DToString(size_t          m,
+                                   size_t          n,
+                                   const T* const* pObjs,
+                                   ToStringFlags   toStringFlags = kToString_Default,
+                                   uint32_t        tabCount      = 0,
+                                   uint32_t        tabSize       = 4)
+{
+    std::stringstream strStrm;
+    for (size_t i = 0; i < m; ++i)
+    {
+        strStrm << ArrayToString(n, pObjs[i], toStringFlags, tabCount, tabSize);
+    }
+    return strStrm.str();
+}
+
+/// Replace special characters with their escaped versions.
+/// @note forward slash / solidus is not escaped as that is optional and leads
+/// to ugliness such as dates with escaped solidus separators.
+/// @note Slashes for explicit unicode code points will be erroneously escaped
+/// but Vulkan-derived C-strings should not have those embedded.
+inline void JSONEscape(const char c, std::string& out)
+{
+    char out_c = c;
+    switch (c)
+    {
+        case '\"':
+        case '\\':
+            out.push_back('\\');
+            break;
+        case '\b':
+            out.push_back('\\');
+            out_c = 'b';
+            break;
+        case '\f':
+            out.push_back('\\');
+            out_c = 'f';
+            break;
+        case '\n':
+            out.push_back('\\');
+            out_c = 'n';
+            break;
+        case '\r':
+            out.push_back('\\');
+            out_c = 'r';
+            break;
+        case '\t':
+            out.push_back('\\');
+            out_c = 't';
+            break;
+    }
+    out.push_back(out_c);
+}
+
+/// Replace special characters in strings with their escaped versions.
+/// <https://www.json.org/json-en.html>
+inline void JSONEscape(const char* cstr, std::string& escaped)
+{
+    if (cstr)
+    {
+        while (char c = *cstr++)
+        {
+            JSONEscape(c, escaped);
+        }
+    }
+}
+
+/// @brief  A single point for the conversion of C-style strings to the JSON
+/// string type or null.
+inline std::string CStrToString(const char* const cstr)
+{
+    std::string str;
+    if (cstr != nullptr)
+    {
+        str.push_back('"');
+        JSONEscape(cstr, str);
+        str.push_back('"');
+    }
+    else
+    {
+        str.assign("null");
+    }
+    return str;
+}
+
+/// @brief  Convert an array of c-style string pointers into a JSON array of
+/// JSON strings or nulls.
 inline std::string CStrArrayToString(size_t             count,
                                      const char* const* ppStrs,
                                      ToStringFlags      toStringFlags = kToString_Default,
@@ -247,25 +279,7 @@ inline std::string CStrArrayToString(size_t             count,
         tabCount,
         tabSize,
         [&]() { return ppStrs != nullptr; },
-        [&](size_t i) { return ppStrs[i] ? ('"' + std::string(ppStrs[i]) + '"') : "null"; });
-}
-
-template <typename EnumType>
-inline std::string EnumArrayToString(size_t              count,
-                                     const EnumType*     pObjs,
-                                     util::ToStringFlags toStringFlags = util::kToString_Default,
-                                     uint32_t            tabCount      = 0,
-                                     uint32_t            tabSize       = 4)
-{
-    using namespace util;
-    return ArrayToString(
-        count,
-        pObjs,
-        toStringFlags,
-        tabCount,
-        tabSize,
-        [&]() { return pObjs != nullptr; },
-        [&](size_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
+        [&](uint32_t i) { return CStrToString(ppStrs[i]); });
 }
 
 GFXRECON_END_NAMESPACE(util)

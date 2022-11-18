@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,6 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file A consumer of capture decode which converts the calls into JSON Lines.
 
 #include "decode/vulkan_ascii_consumer_base.h"
 #include "decode/custom_vulkan_ascii_consumer.h"
@@ -28,6 +29,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+/// The version of the JSON file format which will be produced.
+/// Inc the minor number when anything is added.
+#define GFXRECON_CONVERT_JSON_VERSION "0.8.0"
+
 VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : file_(nullptr) {}
 
 VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
@@ -35,20 +40,31 @@ VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
     Destroy();
 }
 
-void VulkanAsciiConsumerBase::Initialize(FILE* file, gfxrecon::util::ToStringFlags toStringFlags)
+void VulkanAsciiConsumerBase::Initialize(FILE*      file,
+                                         const char gfxrVersion[],
+                                         const char vulkanVersion[],
+                                         const char inputFilepath[])
 {
-    // TODO : The formatting logic for Vulkan and D3D12 need a separate PR to refactor them together...
-    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     assert(file);
     file_ = file;
+    if (file != nullptr)
+    {
+        // Emit the header object as the first line of the file:
+        fprintf(file_,
+                "{\"header\":{\"source-path\":\"%s\",\"json-version\":"
+                "\"" GFXRECON_CONVERT_JSON_VERSION "\",\"gfxrecon-version\":\"%s\",\"vulkan-version\":\"%s\"}}\n",
+                inputFilepath,
+                gfxrVersion,
+                vulkanVersion);
+        fflush(file_);
+    }
 }
 
 void VulkanAsciiConsumerBase::Destroy()
 {
-    if (file_ != nullptr)
-    {
-        file_ = nullptr;
-    }
+    // The file is owned elsewhere and was passed to Initialize() so don't close:
+    file_ = nullptr;
+    strStrm_.str(std::string{});
 }
 
 // clang-format off
@@ -72,17 +88,16 @@ void VulkanAsciiConsumerBase::Process_vkAllocateCommandBuffers(
     uint32_t tabSize            = 4;
 
     auto createString = [&](std::stringstream& strStrm) {
-        FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-        FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
         FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
 
         auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
         auto commandBufferCount   = pDecodedAllocateInfo ? pDecodedAllocateInfo->commandBufferCount : 0;
 
-        FieldToString(strStrm, false, "[out]pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pCommandBuffers", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(commandBufferCount, pCommandBuffers, toStringFlags, tabCount, tabSize));
     };
-
-    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString);
+    const auto return_val = ToString(returnValue, toStringFlags, tabCount, tabSize);
+    WriteApiCallToFile(call_info, "vkAllocateCommandBuffers", toStringFlags, tabCount, tabSize, createString, return_val);
 }
 
 void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
@@ -100,17 +115,16 @@ void VulkanAsciiConsumerBase::Process_vkAllocateDescriptorSets(
     uint32_t tabSize            = 4;
 
     auto createString = [&](std::stringstream& strStrm) {
-        FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, '"' + ToString(returnValue, toStringFlags, tabCount, tabSize) + '"');
-        FieldToString(strStrm, false, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+        FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
         FieldToString(strStrm, false, "pAllocateInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocateInfo, toStringFlags, tabCount, tabSize));
 
         auto pDecodedAllocateInfo = pAllocateInfo ? pAllocateInfo->GetPointer() : nullptr;
         auto descriptorSetCount   = pDecodedAllocateInfo ? pDecodedAllocateInfo->descriptorSetCount : 0;
 
-        FieldToString(strStrm, false, "[out]pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pDescriptorSets", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(descriptorSetCount, pDescriptorSets, toStringFlags, tabCount, tabSize));
     };
-
-    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString);
+    const auto return_val = ToString(returnValue, toStringFlags, tabCount, tabSize);
+    WriteApiCallToFile(call_info, "vkAllocateDescriptorSets", toStringFlags, tabCount, tabSize, createString, return_val);
 }
 
 void VulkanAsciiConsumerBase::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
@@ -219,7 +233,7 @@ void VulkanAsciiConsumerBase::Process_vkGetAccelerationStructureBuildSizesKHR(
         auto pDecodedMaxPrimitiveCounts = pMaxPrimitiveCounts ? pMaxPrimitiveCounts -> GetPointer() : nullptr;
 
         FieldToString(strStrm, false, "pMaxPrimitiveCounts", toStringFlags, tabCount, tabSize, ArrayToString(geometryCount, pDecodedMaxPrimitiveCounts, toStringFlags, tabCount, tabSize));
-        FieldToString(strStrm, false, "[out]pSizeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSizeInfo, toStringFlags, tabCount, tabSize));
+        FieldToString(strStrm, false, "pSizeInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pSizeInfo, toStringFlags, tabCount, tabSize));
     };
 
     WriteApiCallToFile(call_info, "vkGetAccelerationStructureBuildSizesKHR", toStringFlags, tabCount, tabSize, createString);

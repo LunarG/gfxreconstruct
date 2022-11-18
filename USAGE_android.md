@@ -27,6 +27,9 @@ Vulkan API calls on Android devices.
     1. [Launch Script](#launch-script)
     2. [Install APK Command](#install-apk-command)
     3. [Replay Command](#replay-command)
+    2. [Touch Controls](#touch-controls)
+    2. [Key Controls](#key-controls)
+    3. [Virtual Swapchain](#virtual-swapchain)
 
 ## Capturing API Calls
 
@@ -157,12 +160,19 @@ Log Break on Error | debug.gfxrecon.log_break_on_error | BOOL | Trigger a debug 
 Log File Create New | debug.gfxrecon.log_file_create_new | BOOL | Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false. Default is: `true`
 Log File Flush After Write | debug.gfxrecon.log_file_flush_after_write | BOOL | Flush the log file to disk after each write when true. Default is: `false`
 Log File Keep Open | debug.gfxrecon.log_file_keep_open | BOOL | Keep the log file open between log messages when true, or close and reopen the log file for each message when false. Default is: `true`
-Memory Tracking Mode | debug.gfxrecon.memory_tracking_mode | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `assisted`, and `unassisted`. Default is `page_guard` <ul><li>`page_guard` tracks modifications to individual memory pages, which are written to the capture file on calls to `vkFlushMappedMemoryRanges`, `vkUnmapMemory`, and `vkQueueSubmit`. Tracking modifications requires allocating shadow memory for all mapped memory.</li><li>`assisted` expects the application to call `vkFlushMappedMemoryRanges` after memory is modified; the memory ranges specified to the `vkFlushMappedMemoryRanges` call will be written to the capture file during the call.</li><li>`unassisted` writes the full content of mapped memory to the capture file on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient and may be unusable with real-world applications that map large amounts of memory.</li></ul>
+Memory Tracking Mode | debug.gfxrecon.memory_tracking_mode | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `assisted`, and `unassisted`. Default is `page_guard` <ul><li>`page_guard` tracks modifications to individual memory pages, which are written to the capture file on calls to `vkFlushMappedMemoryRanges`, `vkUnmapMemory`, and `vkQueueSubmit`. Tracking modifications requires allocating shadow memory for all mapped memory and that the `SIGSEGV` signal is enabled in the thread's signal mask.</li><li>`assisted` expects the application to call `vkFlushMappedMemoryRanges` after memory is modified; the memory ranges specified to the `vkFlushMappedMemoryRanges` call will be written to the capture file during the call.</li><li>`unassisted` writes the full content of mapped memory to the capture file on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient and may be unusable with real-world applications that map large amounts of memory.</li></ul>
 Page Guard Copy on Map | debug.gfxrecon.page_guard_copy_on_map | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped. Default is: `true`
 Page Guard Separate Read Tracking | debug.gfxrecon.page_guard_separate_read | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page. Default is: `true`
 Page Guard Persistent Memory | debug.gfxrecon.page_guard_persistent_memory | BOOL | When the `page_guard` memory tracking mode is enabled, this option changes the way that the shadow memory used to detect modifications to mapped memory is allocated. The default behavior is to allocate and copy the mapped memory range on map and free the allocation on unmap. When this option is enabled, an allocation with a size equal to that of the object being mapped is made once on the first map and is not freed until the object is destroyed.  This option is intended to be used with applications that frequently map and unmap large memory ranges, to avoid frequent allocation and copy operations that can have a negative impact on performance.  This option is ignored when GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY is enabled. Default is `false`
 Page Guard Align Buffer Sizes | debug.gfxrecon.page_guard_align_buffer_sizes | BOOL | When the `page_guard` memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size.  This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the `page_guard` shadow allocation to the real allocation.  This data loss can result in visible corruption during capture.  Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page.  This option is only available for the Vulkan API.  Default is `false`
 Omit calls with NULL AHardwareBuffer* | debug.gfxrecon.omit_null_hardware_buffers | BOOL | Some GFXReconstruct capture files may replay with a NULL AHardwareBuffer* parameter, for example, vkGetAndroidHardwareBufferPropertiesANDROID.  Although this is invalid Vulkan usage, some drivers may ignore these calls and some may not. This option causes replay to omit Vulkan calls for which the AHardwareBuffer* would be NULL. Default is `false`
+Page guard unblock SIGSEGV | debug.gfxrecon.page_guard_unblock_sigsegv | BOOL | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask. Default is `false`
+Page guard signal handler watcher | debug.gfxrecon.page_guard_signal_handler_watcher | BOOL | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`
+
+#### Memory Tracking Known Issues
+
+There is a known issue with the page guard memory tracking method. The logic behind that method is to apply a memory protection to the guarded/shadowed regions so that accesses made by the user to trigger a segmentation fault which is handled by GFXReconstruct.
+If the access is made by a system call (like `fread()`) then there won't be a segmentation fault generated and the function will fail. As a result the mapped region will not be updated.
 
 #### Settings File
 
@@ -299,7 +309,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--pause-frame N]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
-                          [--validate] [-m MODE]
+                          [-m MODE] [--use-captured-swapchain-indices]
                           [file]
 
 Launch the replay tool.
@@ -356,8 +366,6 @@ optional arguments:
   --remove-unsupported  Remove unsupported extensions and features from
                         instance and device creation parameters (forwarded to
                         replay tool)
-  --validate            Enables the Khronos Vulkan validation layer (forwarded
-                        to replay tool)
   -m MODE, --memory-translation MODE
                         Enable memory translation for replay on GPUs with
                         memory types that are not compatible with the capture
@@ -366,6 +374,11 @@ optional arguments:
   --onhb, --omit-null-hardware-buffers
                         Omit Vulkan API calls which would pass a NULL
                         AHardwareBuffer*.  (forwarded to replay tool)
+  --use-captured-swapchain-indices
+                        Use the swapchain indices stored in the capture directly on the swapchain 
+                        setup for replay. The default without this option is to use a Virtual Swapchain
+                        of images which match the swapchain in effect at capture time and which are 
+                        copied to the underlying swapchain of the implementation being replayed on.
 ```
 
 The command will force-stop an active replay process before starting the replay
@@ -378,7 +391,7 @@ adb shell am start -n "com.lunarg.gfxreconstruct.replay/android.app.NativeActivi
 
 If `gfxrecon-replay` was built with Vulkan Validation Layer support, `VK_LAYER_KHRONOS_validation` can be enabled and disabled in the same manner as `VK_LAYER_LUNARG_gfxreconstruct`
 
-#### Touch Controls
+### Touch Controls
 
 The `gfxrecon-replay` tool for Android supports the following touch controls:
 
@@ -387,7 +400,7 @@ Key(s) | Action
 Tap | Toggle pause/play.
 Swipe left | Advance to the next frame when paused.
 
-#### Key Controls
+### Key Controls
 
 The `gfxrecon-replay` tool for Android supports the following key controls. Key
 events can be simulated through `adb` with the
@@ -397,3 +410,9 @@ Key(s) | Key code(s) | Action
 -------|-------------|-------
 Space, p | Space = 62, p = 44 |Toggle pause/play.
 D-pad right, n | D-pad right = 22, n = 42 | Advance to the next frame when paused.
+
+### Virtual Swapchain
+
+During replay, swapchain indices for present can be different from captured indices. Causes for this can include the swapchain image count differing between capture and replay, and `vkAcquireNextImageKHR` returning a different `pImageIndex` at replay to the one that was captured. These issues can cause unexpected rendering or even crashes.
+
+Virtual Swapchain insulates higher layers in the Vulkan stack from these problems by creating a set of images, exactly matching the swapchain configuration at capture time, which it exposes for them to render into.  Before a present, it copies the virtual image to a target swapchain image for display. Since this issue can happen in many situations, virtual swapchain is the default setup. If the user wants to bypass the feature and use the captured indices to present directly on the swapchain of the replay implementation, they should add the `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.

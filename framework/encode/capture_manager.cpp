@@ -31,7 +31,6 @@
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
-#include "util/driver_info.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -88,10 +87,10 @@ format::ThreadId CaptureManager::ThreadData::GetThreadId()
 CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
-    page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
-    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
-    debug_layer_(false), debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false),
-    global_frame_count_(0), disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false)
+    page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
+    page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
+    current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false), debug_layer_(false),
+    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0)
 {}
 
 CaptureManager::~CaptureManager()
@@ -241,14 +240,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     screenshots_enabled_  = !trace_settings.screenshot_ranges.empty();
     screenshot_indices_   = CalcScreenshotIndices(trace_settings.screenshot_ranges);
     screenshot_prefix_    = PrepScreenshotPrefix(trace_settings.screenshot_dir);
-    disable_dxr_          = trace_settings.disable_dxr;
-    accel_struct_padding_ = trace_settings.accel_struct_padding;
-    iunknown_wrapping_    = trace_settings.iunknown_wrapping;
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
-        page_guard_align_buffer_sizes_ = trace_settings.page_guard_align_buffer_sizes;
-        page_guard_track_ahb_memory_   = trace_settings.page_guard_track_ahb_memory;
+        page_guard_align_buffer_sizes_     = trace_settings.page_guard_align_buffer_sizes;
+        page_guard_track_ahb_memory_       = trace_settings.page_guard_track_ahb_memory;
+        page_guard_unblock_sigsegv_        = trace_settings.page_guard_unblock_sigsegv;
+        page_guard_signal_handler_watcher_ = trace_settings.page_guard_signal_handler_watcher;
 
         bool use_external_memory = trace_settings.page_guard_external_memory;
 
@@ -315,13 +313,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         // Check if trim is enabled by hot-key trigger at the first frame
         else if (!trace_settings.trim_key.empty())
         {
-            trim_key_ = trace_settings.trim_key;
+            trim_key_        = trace_settings.trim_key;
             trim_key_frames_ = trace_settings.trim_key_frames;
 
             // Enable state tracking when hotkey pressed
             if (IsTrimHotkeyPressed())
             {
-                capture_mode_ = kModeWriteAndTrack;
+                capture_mode_         = kModeWriteAndTrack;
                 trim_key_first_frame_ = current_frame_;
 
                 success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
@@ -352,7 +350,9 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         {
             util::PageGuardManager::Create(trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_separate_read,
-                                           util::PageGuardManager::kDefaultEnableReadWriteSamePage);
+                                           util::PageGuardManager::kDefaultEnableReadWriteSamePage,
+                                           trace_settings.page_guard_unblock_sigsegv,
+                                           trace_settings.page_guard_signal_handler_watcher);
         }
 
         if ((capture_mode_ & kModeTrack) == kModeTrack)
@@ -440,66 +440,6 @@ void CaptureManager::EndApiCallCapture()
             uncompressed_header->thread_id         = thread_data->thread_id_;
             uncompressed_header->block_header.size =
                 sizeof(uncompressed_header->api_call_id) + sizeof(uncompressed_header->thread_id) + uncompressed_size;
-
-            WriteToFile(parameter_buffer->GetHeaderData(),
-                        parameter_buffer->GetHeaderDataSize() + parameter_buffer->GetDataSize());
-        }
-    }
-}
-
-void CaptureManager::EndMethodCallCapture()
-{
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
-    {
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
-
-        auto parameter_buffer = thread_data->parameter_buffer_.get();
-        assert((parameter_buffer != nullptr) && (thread_data->parameter_encoder_ != nullptr));
-
-        bool   not_compressed    = true;
-        size_t uncompressed_size = parameter_buffer->GetDataSize();
-
-        if (compressor_ != nullptr)
-        {
-            size_t header_size     = sizeof(format::CompressedMethodCallHeader);
-            size_t compressed_size = compressor_->Compress(
-                uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_, header_size);
-
-            if ((compressed_size > 0) && (compressed_size < uncompressed_size))
-            {
-                auto compressed_header =
-                    reinterpret_cast<format::CompressedMethodCallHeader*>(thread_data->compressed_buffer_.data());
-                compressed_header->block_header.type = format::BlockType::kCompressedMethodCallBlock;
-                compressed_header->api_call_id       = thread_data->call_id_;
-                compressed_header->object_id         = thread_data->object_id_;
-                compressed_header->thread_id         = thread_data->thread_id_;
-                compressed_header->uncompressed_size = uncompressed_size;
-                compressed_header->block_header.size = sizeof(compressed_header->api_call_id) +
-                                                       sizeof(compressed_header->object_id) +
-                                                       sizeof(compressed_header->uncompressed_size) +
-                                                       sizeof(compressed_header->thread_id) + compressed_size;
-
-                WriteToFile(thread_data->compressed_buffer_.data(), header_size + compressed_size);
-
-                not_compressed = false;
-            }
-        }
-
-        if (not_compressed)
-        {
-            uint8_t* header_data = parameter_buffer->GetHeaderData();
-            assert((header_data != nullptr) &&
-                   (parameter_buffer->GetHeaderDataSize() == sizeof(format::MethodCallHeader)));
-
-            auto uncompressed_header               = reinterpret_cast<format::MethodCallHeader*>(header_data);
-            uncompressed_header->block_header.type = format::BlockType::kMethodCallBlock;
-            uncompressed_header->api_call_id       = thread_data->call_id_;
-            uncompressed_header->object_id         = thread_data->object_id_;
-            uncompressed_header->thread_id         = thread_data->thread_id_;
-            uncompressed_header->block_header.size = sizeof(uncompressed_header->api_call_id) +
-                                                     sizeof(uncompressed_header->object_id) +
-                                                     sizeof(uncompressed_header->thread_id) + uncompressed_size;
 
             WriteToFile(parameter_buffer->GetHeaderData(),
                         parameter_buffer->GetHeaderDataSize() + parameter_buffer->GetDataSize());
@@ -613,7 +553,7 @@ bool CaptureManager::ShouldTriggerScreenshot()
         uint32_t target_frame = screenshot_indices_.back();
 
         // If this is a frame of interest, take a screenshot
-        if (target_frame == (global_frame_count_ + 1))
+        if (target_frame == global_frame_count_)
         {
             triger_screenshot = true;
 
@@ -679,8 +619,6 @@ std::string CaptureManager::CreateTrimFilename(const std::string&               
 
 bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 {
-    auto state_lock = AcquireUniqueStateLock();
-
     bool        success          = true;
     std::string capture_filename = base_filename;
 
@@ -695,9 +633,6 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
     {
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
-        gfxrecon::util::filepath::FileInfo info{};
-        gfxrecon::util::filepath::GetApplicationInfo(info);
-        WriteExeFileInfo(info);
     }
     else
     {
@@ -710,8 +645,6 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 
 void CaptureManager::ActivateTrimming()
 {
-    auto state_lock = AcquireUniqueStateLock();
-
     capture_mode_ |= kModeWrite;
 
     auto thread_data = GetThreadData();
@@ -722,8 +655,6 @@ void CaptureManager::ActivateTrimming()
 
 void CaptureManager::DeactivateTrimming()
 {
-    auto state_lock = AcquireUniqueStateLock();
-
     capture_mode_ &= ~kModeWrite;
     file_stream_ = nullptr;
 }
@@ -767,21 +698,6 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
     }
-}
-
-void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
-{
-    size_t                   info_length      = sizeof(format::ExeFileInfoBlock);
-    format::ExeFileInfoBlock exe_info_header  = {};
-    exe_info_header.info_record               = info;
-
-    exe_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
-    exe_info_header.meta_header.meta_data_id =
-        format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfoCommand);
-    exe_info_header.thread_id                = GetThreadData()->thread_id_;
-
-    WriteToFile(&exe_info_header, sizeof(exe_info_header));
 }
 
 void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)

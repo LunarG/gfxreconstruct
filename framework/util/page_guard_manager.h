@@ -27,6 +27,7 @@
 
 #include "util/defines.h"
 #include "util/page_status_tracker.h"
+#include "util/platform.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -36,15 +37,21 @@
 #include <unordered_map>
 #include <vector>
 
+#if !defined(WIN32)
+#include <pthread.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
 class PageGuardManager
 {
   public:
-    static const bool kDefaultEnableCopyOnMap         = true;
-    static const bool kDefaultEnableSeparateRead      = true;
-    static const bool kDefaultEnableReadWriteSamePage = true;
+    static const bool kDefaultEnableCopyOnMap            = true;
+    static const bool kDefaultEnableSeparateRead         = true;
+    static const bool kDefaultEnableReadWriteSamePage    = true;
+    static const bool kDefaultUnblockSIGSEGV             = false;
+    static const bool kDefaultEnableSignalHandlerWatcher = false;
 
     static const uintptr_t kNullShadowHandle = 0;
 
@@ -55,7 +62,11 @@ class PageGuardManager
     typedef std::function<void(uint64_t, void*, size_t, size_t)> ModifiedMemoryFunc;
 
   public:
-    static void Create(bool enable_copy_on_map, bool enable_separate_read, bool expect_read_write_same_page);
+    static void Create(bool enable_copy_on_map,
+                       bool enable_separate_read,
+                       bool expect_read_write_same_page,
+                       bool unblock_SIGSEGV,
+                       bool enable_signal_handler_watcher);
 
     static void Destroy();
 
@@ -107,7 +118,11 @@ class PageGuardManager
   protected:
     PageGuardManager();
 
-    PageGuardManager(bool enable_copy_on_map, bool enable_separate_read, bool expect_read_write_same_page);
+    PageGuardManager(bool enable_copy_on_map,
+                     bool enable_separate_read,
+                     bool expect_read_write_same_page,
+                     bool unblock_SIGSEGV,
+                     bool enable_signal_handler_watcher);
 
     ~PageGuardManager();
 
@@ -179,7 +194,6 @@ class PageGuardManager
     typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
 
   private:
-    size_t GetSystemPageSize() const;
     size_t GetSystemPagePotShift() const;
     void   InitializeSystemExceptionContext();
 
@@ -213,15 +227,31 @@ class PageGuardManager
     static PageGuardManager* instance_;
     MemoryInfoMap            memory_info_;
     std::mutex               tracked_memory_lock_;
+    std::mutex               signal_handler_lock_;
     void*                    exception_handler_;
     uint32_t                 exception_handler_count_;
     const size_t             system_page_size_;
     const size_t             system_page_pot_shift_;
     const bool               enable_copy_on_map_;
     const bool               enable_separate_read_;
+    const bool               unblock_sigsegv_;
+    bool                     enable_signal_handler_watcher_;
 
     // Only applies to WIN32 builds and Linux/Android builds with PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION defined.
     const bool enable_read_write_same_page_;
+
+#if !defined(WIN32)
+    pthread_t signal_handler_watcher_thread_;
+
+    static void* SignalHandlerWatcher(void*);
+    static bool  CheckSignalHandler();
+    void         MarkAllTrackedMemoryAsDirty();
+
+    // Configures how many times the signal handler watcher thread will fix the signal handler.
+    // Then the thread will terminate
+    static constexpr uint32_t signal_handler_watcher_max_restores_{ 1 };
+    static uint32_t           signal_handler_watcher_restores_;
+#endif
 };
 
 GFXRECON_END_NAMESPACE(util)

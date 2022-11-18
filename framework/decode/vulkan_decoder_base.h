@@ -30,12 +30,12 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
-#include "decoder_util.h"
 
 #include "vulkan/vulkan.h"
 
 #include <algorithm>
 #include <vector>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -54,10 +54,7 @@ class VulkanDecoderBase : public ApiDecoder
         consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer));
     }
 
-    virtual bool IsComplete(uint64_t block_index)
-    {
-        return decode::IsComplete<VulkanConsumer*>(consumers_, block_index);
-    }
+    virtual void WaitIdle() override;
 
     virtual bool SupportsApiCall(format::ApiCallId call_id) override
     {
@@ -85,10 +82,6 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
-    virtual void
-    DispatchFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
-                                           const uint8_t*                                      data) override;
-
     virtual void DispatchResizeWindowCommand(format::ThreadId thread_id,
                                              format::HandleId surface_id,
                                              uint32_t         width,
@@ -108,15 +101,11 @@ class VulkanDecoderBase : public ApiDecoder
                                         uint32_t                                            width,
                                         uint32_t                                            height,
                                         uint32_t                                            stride,
-                                        uint32_t                                            usage,
+                                        uint64_t                                            usage,
                                         uint32_t                                            layers,
                                         const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
 
     virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) override;
-
-    virtual void DispatchCreateHeapAllocationCommand(format::ThreadId thread_id,
-                                                     uint64_t         allocation_id,
-                                                     uint64_t         allocation_size) override;
 
     virtual void DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
                                                     format::HandleId   physical_device_id,
@@ -174,19 +163,6 @@ class VulkanDecoderBase : public ApiDecoder
                                           const std::vector<uint64_t>& level_sizes,
                                           const uint8_t*               data) override;
 
-    virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
-                                                const uint8_t*                              data) override;
-
-    virtual void DispatchInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data) override
-    {}
-
-    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) {}
-
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) {}
-
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 
@@ -203,8 +179,24 @@ class VulkanDecoderBase : public ApiDecoder
                                                        const uint8_t*     parameter_buffer,
                                                        size_t             buffer_size);
 
+    size_t Decode_vkCreateRayTracingPipelinesKHR(const ApiCallInfo& call_info,
+                                                 const uint8_t*     parameter_buffer,
+                                                 size_t             buffer_size);
+
+    size_t Decode_vkDeferredOperationJoinKHR(const ApiCallInfo& call_info,
+                                             const uint8_t*     parameter_buffer,
+                                             size_t             buffer_size);
+
   private:
     std::vector<VulkanConsumer*> consumers_;
+
+    struct DeferredOperationFunctionCallData
+    {
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR> pCreateInfos;
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>             pAllocator;
+        HandlePointerDecoder<VkPipeline>                                pPipelines;
+    };
+    std::unordered_map<format::HandleId, DeferredOperationFunctionCallData> record_deferred_operation_function_call;
 };
 
 GFXRECON_END_NAMESPACE(decode)

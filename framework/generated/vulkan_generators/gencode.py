@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Copyright (c) 2018-2021 Valve Corporation
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2022 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -87,6 +87,9 @@ from vulkan_enum_to_string_header_generator import VulkanEnumToStringHeaderGener
 from vulkan_struct_to_string_body_generator import VulkanStructToStringBodyGenerator, VulkanStructToStringBodyGeneratorOptions
 from vulkan_pnext_to_string_body_generator import VulkanPNextToStringBodyGenerator, VulkanPNextToStringBodyGeneratorOptions
 from vulkan_struct_to_string_header_generator import VulkanStructToStringHeaderGenerator, VulkanStructToStringHeaderGeneratorOptions
+from vulkan_struct_decoders_to_string_header_generator import VulkanStructDecodersToStringHeaderGenerator, VulkanStructDecodersToStringHeaderGeneratorOptions
+from vulkan_struct_decoders_to_string_body_generator import VulkanStructDecodersToStringBodyGenerator, VulkanStructDecodersToStringBodyGeneratorOptions
+from vulkan_pnext_decoders_to_string_body_generator import VulkanPNextDecodersToStringBodyGenerator, VulkanPNextDecodersToStringBodyGeneratorOptions
 
 from vulkan_object_info_table_base2_header_generator import VulkanObjectInfoTableBase2HeaderGenerator, VulkanObjectInfoTableBase2HeaderGeneratorOptions
 from vulkan_state_table_header_generator import VulkanStateTableHeaderGenerator, VulkanStateTableHeaderGeneratorOptions
@@ -164,7 +167,7 @@ def make_gen_opts(args):
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
         '/*', '** Copyright (c) 2018-2021 Valve Corporation',
-        '** Copyright (c) 2018-2021 LunarG, Inc.', '**',
+        '** Copyright (c) 2018-2022 LunarG, Inc.', '**',
         '** Permission is hereby granted, free of charge, to any person obtaining a',
         '** copy of this software and associated documentation files (the "Software"),',
         '** to deal in the Software without restriction, including without limitation',
@@ -653,6 +656,49 @@ def make_gen_opts(args):
             extraVulkanHeaders=extraVulkanHeaders
         )
     ]
+
+    gen_opts['generated_vulkan_struct_decoders_to_string.h'] = [
+        VulkanStructDecodersToStringHeaderGenerator,
+        VulkanStructDecodersToStringHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_decoders_to_string.h',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=True,
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_decoders_to_string.cpp'] = [
+        VulkanStructDecodersToStringBodyGenerator,
+        VulkanStructDecodersToStringBodyGeneratorOptions(
+            filename='generated_vulkan_struct_decoders_to_string.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=False,
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_pnext_decoders_to_string.cpp'] = [
+        VulkanPNextDecodersToStringBodyGenerator,
+        VulkanPNextDecodersToStringBodyGeneratorOptions(
+            filename='generated_vulkan_pnext_decoders_to_string.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=False,
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
 
     gen_opts['generated_vulkan_object_info_table_base2.h'] = [
         VulkanObjectInfoTableBase2HeaderGenerator,

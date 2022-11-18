@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2019-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -73,12 +73,14 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR   = 14,
     kPhysicalDeviceArrayGetPhysicalDeviceToolProperties                                 = 15,
     kPhysicalDeviceArrayGetPhysicalDeviceFragmentShadingRatesKHR                        = 16,
+    kFramebufferArrayGetFramebufferTilePropertiesQCOM                                   = 17,
+    kPhysicalDeviceArrayGetPhysicalDeviceOpticalFlowImageFormatsNV                      = 18,
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2,
     kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2,
-    kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT = kPhysicalDeviceArrayGetPhysicalDeviceToolProperties
+    kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT = kPhysicalDeviceArrayGetPhysicalDeviceToolProperties,
 };
 
 enum DeviceArrayIndices : uint32_t
@@ -189,7 +191,6 @@ typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
 typedef VulkanPoolObjectInfo<VkDescriptorSet>             DescriptorSetInfo;
-typedef VulkanObjectInfo<VkFramebuffer>                   FramebufferInfo;
 typedef VulkanPoolInfo<VkCommandPool>                     CommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
@@ -199,8 +200,8 @@ typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXT
 typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureKHRInfo;
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
-typedef VulkanObjectInfo<VkDeferredOperationKHR>          DeferredOperationKHRInfo;
-typedef VulkanObjectInfo<VkPrivateDataSlotEXT>            PrivateDataSlotEXTInfo;
+typedef VulkanObjectInfo<VkMicromapEXT>                   MicromapEXTInfo;
+typedef VulkanObjectInfo<VkOpticalFlowSessionNV>          OpticalFlowSessionNVInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.
@@ -258,6 +259,10 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
+
+    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+
+    std::vector<VkPhysicalDevice> replay_device_group;
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
@@ -360,39 +365,75 @@ struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 {
     Window*                              window{ nullptr };
     std::unordered_map<uint32_t, size_t> array_counts;
+    bool                                 surface_creation_skipped{ false };
 
     std::unordered_map<VkPhysicalDevice, VkSurfaceCapabilitiesKHR> surface_capabilities;
 };
 
 struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
-    VkSurfaceKHR                         surface{ VK_NULL_HANDLE };
-    format::HandleId                     surface_id{ format::kNullHandleId };
-    DeviceInfo*                          device_info{ nullptr };
-    uint32_t                             width{ 0 };
-    uint32_t                             height{ 0 };
-    VkFormat                             format{ VK_FORMAT_UNDEFINED };
-    std::vector<VkImage>                 images;
-    std::vector<uint32_t>                acquired_indices;
+    VkSurfaceKHR         surface{ VK_NULL_HANDLE };
+    format::HandleId     surface_id{ format::kNullHandleId };
+    DeviceInfo*          device_info{ nullptr };
+    uint32_t             width{ 0 };
+    uint32_t             height{ 0 };
+    VkFormat             format{ VK_FORMAT_UNDEFINED };
+    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirutalSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 
+    // TODO: The acquired_indices value and the remapping performed with it can be removed in favor of the new virtual
+    // swapchain mode.
+    std::vector<uint32_t> acquired_indices;
+
     // The following values are only used when loading the initial state for trimmed files.
-    uint32_t queue_family_index{ 0 };
+    std::vector<uint32_t> queue_family_indices{ 0 };
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
     std::vector<ImageInfo>    image_infos;
-    VkSwapchainCreateFlagsKHR image_flags;
-    VkFormat                  image_format;
-    VkExtent2D                image_extent;
-    uint32_t                  image_array_layers;
-    VkImageUsageFlags         image_usage;
-    VkSharingMode             image_sharing_mode;
+    VkSwapchainCreateFlagsKHR image_flags{ 0 };
+    VkFormat                  image_format{ VK_FORMAT_UNDEFINED };
+    uint32_t                  image_array_layers{ 0 };
+    VkImageUsageFlags         image_usage{ 0 };
+    VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
+
+    // TODO: These values are used by the virtual swapchain.  They should be replaced with an opaque handle, similar to
+    // DeviceMemoryInfo::allocator_data, which is really a pointer to a struct that contains the virtual swapchain's
+    // internal info.  The memory for the struct referenced by the opaque handle would be managed by the virtual
+    // swapchain class, similar to the way that the VulkanRebindAllocator works.
+    struct VirtualImage
+    {
+        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
+        VkImage                               image{ VK_NULL_HANDLE };
+        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
+        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
+    };
+    uint32_t                     replay_image_count{ 0 };
+    std::vector<VirtualImage>    virtual_images; // Images created by replay, returned in place of the swapchain images.
+    std::vector<VkImage>         swapchain_images; // The real swapchain images.
+    VkQueue                      blit_queue{ VK_NULL_HANDLE };
+    VkCommandPool                blit_command_pool{ VK_NULL_HANDLE };
+    std::vector<VkCommandBuffer> blit_command_buffers;
+    std::vector<VkSemaphore>     blit_semaphores;
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
+{
+    std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>
+{
+    VkResult join_state{ VK_NOT_READY };
+
+    // Record CreateRayTracingPipelinesKHR parameters for safety.
+    std::vector<VkRayTracingPipelineCreateInfoKHR>                 record_modified_create_infos;
+    std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> record_modified_pgroups;
 };
 
 //
@@ -401,6 +442,7 @@ struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
 
 typedef SamplerYcbcrConversionInfo   SamplerYcbcrConversionKHRInfo;
 typedef DescriptorUpdateTemplateInfo DescriptorUpdateTemplateKHRInfo;
+typedef PrivateDataSlotInfo          PrivateDataSlotEXTInfo;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

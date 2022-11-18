@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2021-2022 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -85,7 +85,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
         body = inspect.cleandoc('''
-            #include "decode/custom_vulkan_to_string.h"
+            #include "util/custom_vulkan_to_string.h"
             #include "generated_vulkan_struct_to_string.h"
             #include "generated_vulkan_enum_to_string.h"
 
@@ -146,6 +146,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     def makeStructBody(self, name, values):
         body = ''
         for value in values:
+            length_expr = ''
 
             # Start with a static_assert() so that if any values make it through the logic
             #   below without being handled the generated code will fail to compile
@@ -162,9 +163,9 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             # C strings require custom handling
             elif 'const char*' in value.full_type:
                 if 'const char* const*' in value.full_type:
-                    toString = 'CStrArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                    toString = 'CStrArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
-                    toString = '(obj.{0} ? ("\\"" + std::string(obj.{0}) + "\\"") : "null")'
+                    toString = 'CStrToString(obj.{0})'
 
             # There's some repeated code in this if/else block...for instance, arrays of
             #   structs, enums, and primitives all route through ArrayToString()...It's
@@ -172,13 +173,25 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             elif value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
-                        toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'VkHandleArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
-                        toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        if value.pointer_count > 1:
+                            toString = 'Array{}DToString'.format(value.pointer_count)
+                            toString += '({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                            length_list = self.make_array2d_length_expression(value, values, 'obj.')
+                            first = True
+                            for len in length_list:
+                                if first == False:
+                                    length_expr += ', '
+                                else:
+                                    first = False
+                                length_expr += len
+                        else:
+                            toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
-                        toString = 'VkEnumArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'VkEnumArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     else:
-                        toString = 'ArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     if self.is_handle(value.base_type):
                         toString = 'static_assert(false, "Unhandled pointer to VkHandle in `vulkan_struct_to_string_body_generator.py`")'
@@ -191,13 +204,13 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             else:
                 if value.is_array:
                     if self.is_handle(value.base_type):
-                        toString = 'VkHandleArrayToString(obj.{1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'VkHandleArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif 'char' in value.base_type:
-                        toString = '\'"\' + std::string(obj.{0}) + \'"\''
+                        toString = 'CStrToString(obj.{0})'
                     elif 'UUID' in value.array_length or 'LUID' in value.array_length:
                         toString = '\'"\' + UIDToString({1}, obj.{0}) + \'"\''
                     else:
@@ -213,7 +226,13 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            toString = toString.format(value.name, value.array_length)
+
+            if length_expr == '':
+                length_expr = self.make_array_length_expression(value, 'obj.')
+            if length_expr and ('value' in length_expr):
+                length_expr.replace('value', 'obj')
+            
+            toString = toString.format(value.name, length_expr)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable

@@ -100,7 +100,6 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
 #else
 #include <errno.h>
 #include <signal.h>
-#include <sys/mman.h>
 #include <unistd.h>
 
 const uint32_t kGuardReadWriteProtect = PROT_NONE;
@@ -201,20 +200,26 @@ void PageGuardManager::InitializeSystemExceptionContext(void)
 }
 
 PageGuardManager::PageGuardManager() :
-    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
+    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
-    enable_separate_read_(kDefaultEnableSeparateRead), enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
+    enable_separate_read_(kDefaultEnableSeparateRead), unblock_sigsegv_(kDefaultUnblockSIGSEGV),
+    enable_signal_handler_watcher_(kDefaultEnableSignalHandlerWatcher),
+    enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {
     InitializeSystemExceptionContext();
 }
 
 PageGuardManager::PageGuardManager(bool enable_copy_on_map,
                                    bool enable_separate_read,
-                                   bool expect_read_write_same_page) :
+                                   bool expect_read_write_same_page,
+                                   bool unblock_SIGSEGV,
+                                   bool enable_signal_handler_watcher) :
     exception_handler_(nullptr),
-    exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
+    exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
-    enable_separate_read_(enable_separate_read), enable_read_write_same_page_(expect_read_write_same_page)
+    enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
+    enable_signal_handler_watcher_(enable_signal_handler_watcher),
+    enable_read_write_same_page_(expect_read_write_same_page)
 {
     InitializeSystemExceptionContext();
 }
@@ -227,11 +232,106 @@ PageGuardManager::~PageGuardManager()
     }
 }
 
-void PageGuardManager::Create(bool enable_copy_on_map, bool enable_separate_read, bool expect_read_write_same_page)
+#if !defined(WIN32)
+constexpr uint32_t PageGuardManager::signal_handler_watcher_max_restores_;
+uint32_t           PageGuardManager::signal_handler_watcher_restores_ = 0;
+
+void PageGuardManager::MarkAllTrackedMemoryAsDirty()
+{
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    for (auto& entry : memory_info_)
+    {
+        auto memory_info = &entry.second;
+
+        memory_info->is_modified = true;
+        memory_info->status_tracker.SetAllBlocksActiveWrite();
+        SetMemoryProtection(memory_info->shadow_memory, memory_info->shadow_range, kGuardNoProtect);
+    }
+}
+
+bool PageGuardManager::CheckSignalHandler()
+{
+    assert(instance_);
+
+    instance_->signal_handler_lock_.lock();
+
+    if (instance_->exception_handler_)
+    {
+        assert(instance_->exception_handler_count_);
+
+        struct sigaction current_handler;
+        int              result = sigaction(SIGSEGV, nullptr, &current_handler);
+
+        if (result != -1)
+        {
+            if (current_handler.sa_sigaction != PageGuardExceptionHandler)
+            {
+                GFXRECON_LOG_WARNING("PageGuardManager: Signal handler has been removed. Re-installing.")
+
+                instance_->exception_handler_       = nullptr;
+                instance_->exception_handler_count_ = 0;
+                instance_->signal_handler_lock_.unlock();
+
+                instance_->AddExceptionHandler();
+
+                // Potentially we lost information. Assume everything is dirty
+                instance_->MarkAllTrackedMemoryAsDirty();
+
+                return true;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("sigaction failed (%s)", strerror(errno));
+        }
+    }
+
+    instance_->signal_handler_lock_.unlock();
+
+    return false;
+}
+
+void* PageGuardManager::SignalHandlerWatcher(void* args)
+{
+    while (instance_->enable_signal_handler_watcher_ &&
+           signal_handler_watcher_restores_ < signal_handler_watcher_max_restores_)
+    {
+        if (CheckSignalHandler())
+        {
+            ++signal_handler_watcher_restores_;
+        }
+    }
+
+    return NULL;
+}
+#endif // !defined(WIN32)
+
+void PageGuardManager::Create(bool enable_copy_on_map,
+                              bool enable_separate_read,
+                              bool expect_read_write_same_page,
+                              bool unblock_SIGSEGV,
+                              bool enable_signal_handler_watcher)
 {
     if (instance_ == nullptr)
     {
-        instance_ = new PageGuardManager(enable_copy_on_map, enable_separate_read, expect_read_write_same_page);
+        instance_ = new PageGuardManager(enable_copy_on_map,
+                                         enable_separate_read,
+                                         expect_read_write_same_page,
+                                         unblock_SIGSEGV,
+                                         enable_signal_handler_watcher);
+
+#if !defined(WIN32)
+        if (enable_signal_handler_watcher && signal_handler_watcher_restores_ < signal_handler_watcher_max_restores_)
+        {
+            int ret =
+                pthread_create(&instance_->signal_handler_watcher_thread_, nullptr, SignalHandlerWatcher, nullptr);
+            if (ret)
+            {
+                GFXRECON_LOG_ERROR("Page guard manager failed spawning thread (%s)", strerror(ret));
+            }
+        }
+#endif
     }
     else
     {
@@ -243,26 +343,27 @@ void PageGuardManager::Destroy()
 {
     if (instance_ != nullptr)
     {
+#if !defined(WIN32)
+        if (instance_->enable_signal_handler_watcher_)
+        {
+            instance_->enable_signal_handler_watcher_ = false;
+
+            int ret = pthread_join(instance_->signal_handler_watcher_thread_, nullptr);
+            if (ret)
+            {
+                GFXRECON_LOG_ERROR("Page guard signal watcher thread failed terminating (%s)", strerror(ret));
+            }
+        }
+#endif
         delete instance_;
         instance_ = nullptr;
     }
 }
 
-size_t PageGuardManager::GetSystemPageSize() const
-{
-#if defined(WIN32)
-    SYSTEM_INFO sSysInfo;
-    GetSystemInfo(&sSysInfo);
-    return sSysInfo.dwPageSize;
-#else
-    return getpagesize();
-#endif
-}
-
 size_t PageGuardManager::GetSystemPagePotShift() const
 {
     size_t pot_shift = 0;
-    size_t page_size = GetSystemPageSize();
+    size_t page_size = util::platform::GetSystemPageSize();
 
     if (page_size != 0)
     {
@@ -279,66 +380,54 @@ size_t PageGuardManager::GetSystemPagePotShift() const
 
 size_t PageGuardManager::GetAlignedSize(size_t size) const
 {
-    size_t extra = size & (system_page_size_ - 1); // size % system_page_size_
-    if (extra != 0)
-    {
-        // Adjust the size to be a multiple of the system page size.
-        size = size - extra + system_page_size_;
-    }
-
-    return size;
+    return util::platform::GetAlignedSize(size, system_page_size_);
 }
 
 void* PageGuardManager::AllocateMemory(size_t aligned_size, bool use_write_watch)
 {
     assert(aligned_size > 0);
 
-    void* memory = nullptr;
-
     if (aligned_size > 0)
     {
-#if defined(WIN32)
-        DWORD flags = MEM_RESERVE | MEM_COMMIT;
-
-        if (use_write_watch)
-        {
-            flags |= MEM_WRITE_WATCH;
-        }
-
-        memory = VirtualAlloc(nullptr, aligned_size, flags, PAGE_READWRITE);
-#else
+#ifndef WIN32
         if (use_write_watch)
         {
             GFXRECON_LOG_ERROR("PageGuardManager::AllocateMemory() ignored use_write_watch=true due to lack of support "
                                "from the current platform.");
         }
-
-        memory = mmap(nullptr, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
-    }
+        void* memory = util::platform::AllocateRawMemory(aligned_size, use_write_watch);
 
-    if (memory == nullptr)
+        if (memory == nullptr)
+        {
+            GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with size = %" PRIuPTR
+                               " with error code: %u",
+                               aligned_size,
+                               util::platform::GetSystemLastErrorCode());
+        }
+
+        return memory;
+    }
+    else
     {
-        GFXRECON_LOG_ERROR("PageGuardManager failed to allocate memory with size = %" PRIuPTR, aligned_size);
-    }
+        GFXRECON_LOG_ERROR("PageGuardManager::AllocateMemory(): aligned_size must be greater than 0.");
 
-    return memory;
+        return nullptr;
+    }
 }
 
 void PageGuardManager::FreeMemory(void* memory, size_t aligned_size)
 {
     assert(memory != nullptr);
 
-#if defined(WIN32)
-    GFXRECON_UNREFERENCED_PARAMETER(aligned_size);
-    VirtualFree(memory, 0, MEM_RELEASE);
-#else
-    munmap(memory, aligned_size);
-#endif
+    util::platform::FreeRawMemory(memory, aligned_size);
 }
 
 void PageGuardManager::AddExceptionHandler()
 {
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.lock();
+
     if (exception_handler_ == nullptr)
     {
         assert(exception_handler_count_ == 0);
@@ -399,10 +488,16 @@ void PageGuardManager::AddExceptionHandler()
     {
         ++exception_handler_count_;
     }
+
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.unlock();
 }
 
 void PageGuardManager::RemoveExceptionHandler()
 {
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.lock();
+
     if (exception_handler_ != nullptr)
     {
         assert(exception_handler_count_ > 0);
@@ -415,6 +510,9 @@ void PageGuardManager::RemoveExceptionHandler()
             exception_handler_ = nullptr;
         }
     }
+
+    if (enable_signal_handler_watcher_)
+        signal_handler_lock_.unlock();
 }
 
 void PageGuardManager::ClearExceptionHandler(void* exception_handler)
@@ -503,8 +601,41 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
             protect_size,
             errno);
     }
-#endif
 
+    if (protect_mask ^ kGuardNoProtect)
+    {
+        sigset_t x;
+        sigemptyset(&x);
+        sigprocmask(SIG_SETMASK, nullptr, &x);
+
+        // Check if SIGSEGV is blocked
+        int ret = sigismember(&x, SIGSEGV);
+        if (ret == 1)
+        {
+            if (!unblock_sigsegv_)
+            {
+                GFXRECON_LOG_WARNING("SIGSEGV is blocked while page guard manager expects the signal to be handled. "
+                                     "Things might fail and/or crash with segmentation fault. To force-enable SIGSEGV "
+                                     "try setting GFXRECON_PAGE_GUARD_UNBLOCK_SIGSEGV environment variable to 1.\n");
+            }
+            else
+            {
+                // Unblock SIGSEGV
+                sigemptyset(&x);
+                sigaddset(&x, SIGSEGV);
+                if (sigprocmask(SIG_UNBLOCK, &x, nullptr))
+                {
+                    GFXRECON_LOG_ERROR(
+                        "sigprocmask failed to unblock SIGSEGV on thread %d (errno: %d)", syscall(__NR_gettid), errno);
+                }
+            }
+        }
+        else if (ret == -1)
+        {
+            GFXRECON_LOG_ERROR("sigismember() failed (errno: %d)\n", errno);
+        }
+    }
+#endif
     return success;
 }
 

@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_resource_initializer.h"
+#include "decode/vulkan_object_info.h"
 
 #include "decode/copy_shaders.h"
 #include "util/platform.h"
@@ -32,20 +33,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanResourceInitializer::VulkanResourceInitializer(VkDevice                                device,
+VulkanResourceInitializer::VulkanResourceInitializer(const DeviceInfo*                       device_info,
                                                      VkDeviceSize                            max_copy_size,
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                      bool                                    have_shader_stencil_write,
                                                      VulkanResourceAllocator*                resource_allocator,
                                                      const encode::DeviceTable*              device_table) :
-    device_(device),
+    device_(device_info->handle),
     staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
     draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),
     draw_set_(VK_NULL_HANDLE), max_copy_size_(max_copy_size), have_shader_stencil_write_(have_shader_stencil_write),
-    resource_allocator_(resource_allocator), device_table_(device_table)
+    resource_allocator_(resource_allocator), device_table_(device_table), device_info_(device_info)
 {
-    assert((device != VK_NULL_HANDLE) && (memory_properties.memoryTypeCount > 0) &&
-           (memory_properties.memoryHeapCount > 0) && (resource_allocator != nullptr) && (device_table != nullptr));
+    assert((device_info != nullptr) && (device_info->handle != VK_NULL_HANDLE) &&
+           (memory_properties.memoryTypeCount > 0) && (memory_properties.memoryHeapCount > 0) &&
+           (resource_allocator != nullptr) && (device_table != nullptr));
 
     size_t type_size = memory_properties.memoryTypeCount * sizeof(memory_properties.memoryTypes[0]);
     size_t heap_size = memory_properties.memoryHeapCount * sizeof(memory_properties.memoryHeaps[0]);
@@ -316,7 +318,21 @@ VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t         queue
 
             if (result == VK_SUCCESS)
             {
-                device_table_->GetDeviceQueue(device_, queue_family_index, 0, queue);
+                const auto queue_family_flags = device_info_->queue_family_creation_flags.find(queue_family_index);
+                assert(queue_family_flags != device_info_->queue_family_creation_flags.end());
+                if (queue_family_flags->second != 0)
+                {
+                    const VkDeviceQueueInfo2 queue_info = { VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+                                                            nullptr,
+                                                            queue_family_flags->second,
+                                                            queue_family_index,
+                                                            0 };
+                    device_table_->GetDeviceQueue2(device_, &queue_info, queue);
+                }
+                else
+                {
+                    device_table_->GetDeviceQueue(device_, queue_family_index, 0, queue);
+                }
 
                 command_exec_objects_.emplace(queue_family_index,
                                               CommandExecObjects{ *queue, command_pool, *command_buffer });

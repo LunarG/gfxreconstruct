@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2022 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -89,7 +89,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             '''
             #include "generated/generated_vulkan_ascii_consumer.h"
             #include "decode/custom_vulkan_ascii_consumer.h"
-            #include "decode/custom_vulkan_to_string.h"
+            #include "util/custom_vulkan_to_string.h"
             #include "generated/generated_vulkan_enum_to_string.h"
             #include "generated/generated_vulkan_struct_to_string.h"
             #include "util/defines.h"
@@ -137,6 +137,9 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 cmddef += self.make_consumer_func_decl(
                     return_type, 'VulkanAsciiConsumer::Process_' + cmd, values
                 ) + '\n'
+                return_val = ""
+                if not 'void' in return_type:
+                    return_val = ', ToString(returnValue, toStringFlags, tabCount, tabSize)'
                 cmddef += inspect.cleandoc(
                     '''
                     {{
@@ -155,10 +158,10 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 )
                 cmddef += inspect.cleandoc(
                     '''
-                            }
+                            }}{0}
                         );
-                    }
-                    '''
+                    }}
+                    '''.format(return_val)
                 )
                 write(cmddef, file=self.outFile)
                 first = False
@@ -167,10 +170,6 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
     def make_consumer_func_body(self, return_type, name, values):
         """Return VulkanAsciiConsumer class member function definition."""
         body = ''
-
-        # Handle function return value
-        if not 'void' in return_type:
-            body = '            FieldToString(strStrm, true, "return", toStringFlags, tabCount, tabSize, \'"\' + ToString(returnValue, toStringFlags, tabCount, tabSize) + \'"\');\n'
 
         # Handle function arguments
         for value in values:
@@ -188,13 +187,13 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 toString = 'StringDecoderToString({0})'
 
             # There's some repeated code in this if/else block...It's easier (imo) to reason
-            #   about each case when they're all listed explictly
+            # about each case when they're all listed explictly
             elif value.is_pointer:
                 if value.is_array:
                     if self.is_handle(value.base_type):
                         toString = 'HandlePointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
-                        toString = 'PointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'PointerDecoderArrayToString(*{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = 'EnumPointerDecoderArrayToString({1}, {0}, toStringFlags, tabCount, tabSize)'
                     else:
@@ -222,6 +221,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                     if self.is_handle(value.base_type):
                         toString = 'HandleIdToString({0})'
                     elif self.is_struct(value.base_type):
+                        # @note This never happens, as we don't pass structs into Vulkan by value.
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         toString = '\'"\' + ToString({0}, toStringFlags, tabCount, tabSize) + \'"\''
@@ -229,8 +229,7 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            valueName = ('[out]' if self.is_output_parameter(value) else '') + value.name
             toString = toString.format(value.name, value.array_length)
-            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, valueName, toString)
+            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable

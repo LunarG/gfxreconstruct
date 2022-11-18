@@ -406,7 +406,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
-                    const auto image_info = meta_writes->pImageInfo;
+                    const auto image_info = meta_writes[i].pImageInfo;
                     assert(image_info != nullptr);
 
                     if (!image_info->IsNull() && image_info->HasData())
@@ -425,7 +425,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 {
-                    const auto buffer_info = meta_writes->pBufferInfo;
+                    const auto buffer_info = meta_writes[i].pBufferInfo;
                     assert(buffer_info != nullptr);
 
                     if (!buffer_info->IsNull() && buffer_info->HasData())
@@ -442,7 +442,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 {
-                    const auto& views = meta_writes->pTexelBufferView;
+                    const auto& views = meta_writes[i].pTexelBufferView;
 
                     if (!views.IsNull() && views.HasData())
                     {

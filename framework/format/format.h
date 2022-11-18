@@ -27,8 +27,6 @@
 #include "format/api_call_id.h"
 #include "util/compressor.h"
 #include "util/defines.h"
-#include "util/file_path.h"
-#include "util/driver_info.h"
 
 #include <cinttypes>
 #include <type_traits>
@@ -59,7 +57,6 @@ const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
 const HandleId kNullHandleId              = 0;
-const size_t   kAdapterDescriptionSize    = 128;
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {
@@ -96,13 +93,6 @@ enum AnnotationType : uint32_t
     kXml     = 3
 };
 
-enum AdapterType : uint32_t
-{
-    kUnknownAdapter  = 0,
-    kSoftwareAdapter = 1,
-    kHardwareAdapter = 2
-};
-
 enum class MetaDataType : uint16_t
 {
     kUnknownMetaDataType                    = 0,
@@ -114,7 +104,7 @@ enum class MetaDataType : uint16_t
     kEndResourceInitCommand                 = 6,
     kInitBufferCommand                      = 7,
     kInitImageCommand                       = 8,
-    kCreateHardwareBufferCommand            = 9,
+    kCreateHardwareBufferCommand_deprecated = 9,
     kDestroyHardwareBufferCommand           = 10,
     kSetDevicePropertiesCommand             = 11,
     kSetDeviceMemoryPropertiesCommand       = 12,
@@ -123,11 +113,15 @@ enum class MetaDataType : uint16_t
     kSetRayTracingShaderGroupHandlesCommand = 15,
     kCreateHeapAllocationCommand            = 16,
     kInitSubresourceCommand                 = 17,
-    kExeFileInfoCommand                     = 18,
-    kInitDx12AccelerationStructureCommand   = 19,
-    kFillMemoryResourceValueCommand         = 20,
-    kDxgiAdapterInfoCommand                 = 21,
-    kDriverInfoCommand                      = 22
+    kReserved18                             = 18,
+    kReserved19                             = 19,
+    kReserved20                             = 20,
+    kReserved21                             = 21,
+    kReserved22                             = 22,
+    kReserved23                             = 23,
+    kCreateHardwareBufferCommand            = 24,
+    kReserved25                             = 25,
+    kReserved26                             = 26,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -197,18 +191,12 @@ struct EnabledOptions
     CompressionType compression_type{ CompressionType::kNone };
 };
 
-// Resource values are values contained in resource data that may require special handling (e.g., mapping for replay).
-enum class ResourceValueType : uint8_t
-{
-    kUnknown                      = 0,
-    kGpuVirtualAddress            = 1,
-    kGpuDescriptorHandle          = 2,
-    kShaderIdentifier             = 3,
-    kIndirectArgumentDispatchRays = 4
-};
-
 #pragma pack(push)
 #pragma pack(4)
+
+// Prevent size_t from being used in data structs that will be written to the capture file.
+#define size_t \
+    static_assert(false, "Capture file data types must be constant size across all platforms. size_t is not allowed.");
 
 struct FileOptionPair
 {
@@ -295,17 +283,6 @@ struct FillMemoryCommandHeader
     uint64_t memory_size;   // Uncompressed size of the data encoded after the header.
 };
 
-struct FillMemoryResourceValueCommandHeader
-{
-    MetaDataHeader   meta_header;
-    format::ThreadId thread_id; // thread_id is here as a placeholder. Currently always set to 0.
-    uint64_t         resource_value_count;
-
-    // The data for MapAndFillMemoryCommand will be organized as:
-    // map_value_count * ResourceValueType // type of value to map
-    // map_value_count * uint64_t          // offset of value to map
-};
-
 struct DisplayMessageCommandHeader
 {
     MetaDataHeader   meta_header;
@@ -313,20 +290,6 @@ struct DisplayMessageCommandHeader
     // NOTE: Message size is determined by subtracting the sizeof(MetaDataId) + sizeof(ThreadId) from
     // BlockHeader::size.  This computed size is the length of the ASCII message string, not including the null
     // terminator.
-};
-
-struct DriverInfoBlock
-{
-    MetaDataHeader   meta_header;
-    format::ThreadId thread_id;
-    char             driver_record[util::filepath::kMaxDriverInfoSize];
-};
-
-struct ExeFileInfoBlock
-{
-    MetaDataHeader              meta_header;
-    format::ThreadId            thread_id;
-    util::filepath::FileInfo    info_record;
 };
 
 // Not a header because this command does not include a variable length data payload.
@@ -352,7 +315,9 @@ struct ResizeWindowCommand2
     uint32_t         pre_transform;
 };
 
-struct CreateHardwareBufferCommandHeader
+// This command header's "usage" member is sized incorrectly.  Existing decoding must remain in place in order to
+// process captures that already exist.  Do not use this command header in any new code.
+struct CreateHardwareBufferCommandHeader_deprecated
 {
     MetaDataHeader meta_header;
     ThreadId       thread_id;
@@ -363,6 +328,22 @@ struct CreateHardwareBufferCommandHeader
     uint32_t       height;
     uint32_t       stride; // Size of a row in pixels.
     uint32_t       usage;
+    uint32_t       layers;
+    uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
+                           // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.
+};
+
+struct CreateHardwareBufferCommandHeader
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    HandleId       memory_id; // Globally unique ID assigned to the buffer for tracking memory modifications.
+    uint64_t       buffer_id; // Address of the buffer object.
+    uint32_t       format;
+    uint32_t       width;
+    uint32_t       height;
+    uint32_t       stride; // Size of a row in pixels.
+    uint64_t       usage;
     uint32_t       layers;
     uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
                            // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.
@@ -506,7 +487,7 @@ struct SetRayTracingShaderGroupHandlesCommandHeader
     format::ThreadId thread_id;
     format::HandleId device_id;
     format::HandleId pipeline_id;
-    size_t           data_size;
+    uint64_t         data_size;
 };
 
 struct CreateHeapAllocationCommand
@@ -517,60 +498,8 @@ struct CreateHeapAllocationCommand
     uint64_t         allocation_size;
 };
 
-struct InitDx12AccelerationStructureCommandHeader
-{
-    MetaDataHeader meta_header{};
-    ThreadId       thread_id;
-    uint64_t       dest_acceleration_structure_data{ 0 };
-    uint64_t       copy_source_gpu_va{ 0 };
-    uint32_t       copy_mode{ 0 };
-    uint32_t       inputs_type{ 0 };
-    uint32_t       inputs_flags{ 0 };
-    uint32_t       inputs_num_instance_descs{ 0 }; ///< NumDescs for TLAS
-    uint32_t       inputs_num_geometry_descs{ 0 }; ///< NumDescs for BLAS
-    uint64_t       inputs_data_size{ 0 };
-
-    // In the capture file, accel struct data is written in the following order:
-    // InitDx12AccelerationStructureCommandHeader
-    // inputs_num_geometry_descs * InitDx12AccelerationStructureGeometryDesc
-    // build inputs data
-};
-
-struct InitDx12AccelerationStructureGeometryDesc
-{
-    uint32_t geometry_type{ 0 };
-    uint32_t geometry_flags{ 0 };
-    uint64_t aabbs_count{ 0 };
-    uint64_t aabbs_stride{ 0 };
-    uint32_t triangles_has_transform{ false };
-    uint32_t triangles_index_format{ 0 };
-    uint32_t triangles_vertex_format{ 0 };
-    uint32_t triangles_index_count{ 0 }; // 0 if no index buffer
-    uint32_t triangles_vertex_count{ 0 };
-    uint64_t triangles_vertex_stride{ 0 };
-};
-
-struct DxgiAdapterDesc
-{
-    wchar_t     Description[kAdapterDescriptionSize];
-    uint32_t    VendorId;
-    uint32_t    DeviceId;
-    uint32_t    SubSysId;
-    uint32_t    Revision;
-    uint64_t    DedicatedVideoMemory;
-    uint64_t    DedicatedSystemMemory;
-    uint64_t    SharedSystemMemory;
-    uint32_t    LuidLowPart;
-    int32_t     LuidHighPart;
-    AdapterType type;
-};
-
-struct DxgiAdapterInfoCommandHeader
-{
-    MetaDataHeader  meta_header;
-    ThreadId        thread_id;
-    DxgiAdapterDesc adapter_desc;
-};
+// Restore size_t to normal behavior.
+#undef size_t
 
 #pragma pack(pop)
 

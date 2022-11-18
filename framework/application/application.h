@@ -28,12 +28,15 @@
 #include "decode/file_processor.h"
 #include "decode/window.h"
 #include "util/defines.h"
+#include "util/date_time.h"
+#include "graphics/fps_info.h"
 
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -59,8 +62,6 @@ class Application final
 
     void Run();
 
-    void StopRunning() { running_ = false; }
-
     bool GetPaused() const { return paused_; }
 
     void SetPaused(bool paused);
@@ -71,11 +72,11 @@ class Application final
 
     void ProcessEvents(bool wait_for_input);
 
+    void SetFpsInfo(graphics::FpsInfo* fps_info);
+
     void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
-#if defined(WIN32)
-    void InitializeDx12WsiContext();
-#endif
+    void StopRunning() { running_ = false; }
 
   private:
     // clang-format off
@@ -86,6 +87,8 @@ class Application final
     uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
     std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
+    graphics::FpsInfo*           fps_info_;                 ///< A optional FPS info object that logs the FPS across a configured framerange.
+                                                            ///< capture file data.
     // clang-format on
 };
 

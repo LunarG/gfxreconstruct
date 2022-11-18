@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -44,7 +44,13 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     virtual ~VulkanAsciiConsumerBase() override;
 
-    void Initialize(FILE* file, gfxrecon::util::ToStringFlags toStringFlags);
+    /// @brief  Initialize the consumer for writing to the file passed in.
+    /// @param file A file to output to. The caller retains ownership. Do not close this.
+    /// @param gfxrVersion The version of the GFXReconstruct project the convert tool was built from,
+    /// including the branch and git commit in the case of a development build.
+    /// @param vulkanVersion The version of Vulkan Headers that is being built against.
+    /// @param inputFilepath The path to the source file as passed to the application.
+    void Initialize(FILE* file, const char gfxrVersion[], const char vulkanVersion[], const char inputFilepath[]);
 
     void Destroy();
 
@@ -109,24 +115,54 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
   protected:
     template <typename ToStringFunctionType>
-    inline void WriteApiCallToFile(const ApiCallInfo&   call_info,
-                                   const std::string&   functionName,
-                                   util::ToStringFlags  toStringFlags,
-                                   uint32_t&            tabCount,
-                                   uint32_t             tabSize,
-                                   ToStringFunctionType toStringFunction)
+    inline void WriteApiCallToFile(const ApiCallInfo& call_info,
+                                   const std::string& functionName,
+                                   /// @todo Remove toStringFlags, tabCount, tabSize
+                                   util::ToStringFlags        toStringFlags,
+                                   const uint32_t&            tabCount,
+                                   const uint32_t             tabSize,
+                                   const ToStringFunctionType toStringFunction,
+                                   /// The formatted return string value excluding trailing comma
+                                   const std::string& return_val = std::string())
     {
-        // TODO : The formatting logic for Vulkan and D3D12 need a separate PR to refactor them together...
-        GFXRECON_UNREFERENCED_PARAMETER(call_info);
-        using namespace util;
-        fprintf(file_, "%s\n", (call_info.index ? "," : ""));
-        fprintf(file_, "\"[%s]%s\":", std::to_string(call_info.index).c_str(), functionName.c_str());
-        fprintf(file_, "%s", GetWhitespaceString(toStringFlags).c_str());
-        fprintf(file_, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+        // Output the start of a function call line, up to the arguments:
+        if (return_val.empty())
+        {
+            fprintf(file_,
+                    "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"args\":{",
+                    (long long unsigned int)call_info.index,
+                    functionName.c_str());
+        }
+        else
+        {
+            fprintf(file_,
+                    "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":\"%s\",\"args\":{",
+                    (long long unsigned int)call_info.index,
+                    functionName.c_str(),
+                    return_val.c_str());
+        }
+
+        // Reset the per-call reusable stringstream and use it to capture the full tree of
+        // the function arguments including pNexts and struct pointers:
+        strStrm_.str(std::string{});
+        toStringFunction(strStrm_);
+
+        // Dump the captured argument string into the file and close the argument,
+        // nested, and top-level braces:
+        fputs(strStrm_.str().c_str(), file_);
+        fputs("}}}\n", file_);
+
+        // Push out the whole line to the next tool in any pipeline we may be chained
+        // into so it can start processing it or to file:
+        fflush(file_);
     }
 
   private:
+    /// File to write textual representation of capture out to.
+    /// @note This is passed to us in Initialize() and owned elsewhere.
     FILE* file_{ nullptr };
+    /// Reusable string stream for formatting top-level objects like vkFuncs into.
+    std::stringstream strStrm_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

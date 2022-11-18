@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1234,6 +1234,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(next);
+                VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->fragmentShaderBarycentric == VK_TRUE) && (query.fragmentShaderBarycentric == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature fragmentShaderBarycentric, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(currentNext)->fragmentShaderBarycentric = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
             {
                 const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(next);
@@ -1272,6 +1285,24 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature workgroupMemoryExplicitLayout16BitAccess, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(currentNext)->workgroupMemoryExplicitLayout16BitAccess = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(next);
+                VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->rayTracingMaintenance1 == VK_TRUE) && (query.rayTracingMaintenance1 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature rayTracingMaintenance1, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(currentNext)->rayTracingMaintenance1 = VK_FALSE;
+                }
+                if ((currentNext->rayTracingPipelineTraceRaysIndirect2 == VK_TRUE) && (query.rayTracingPipelineTraceRaysIndirect2 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature rayTracingPipelineTraceRaysIndirect2, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(currentNext)->rayTracingPipelineTraceRaysIndirect2 = VK_FALSE;
                 }
                 break;
              }
@@ -1316,6 +1347,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature decodeModeSharedExponent, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceASTCDecodeFeaturesEXT*>(currentNext)->decodeModeSharedExponent = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES_EXT:
+            {
+                const VkPhysicalDevicePipelineRobustnessFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineRobustnessFeaturesEXT*>(next);
+                VkPhysicalDevicePipelineRobustnessFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->pipelineRobustness == VK_TRUE) && (query.pipelineRobustness == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineRobustness, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDevicePipelineRobustnessFeaturesEXT*>(currentNext)->pipelineRobustness = VK_FALSE;
                 }
                 break;
              }
@@ -1458,19 +1502,6 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature meshShader, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceMeshShaderFeaturesNV*>(currentNext)->meshShader = VK_FALSE;
-                }
-                break;
-             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV:
-            {
-                const VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV*>(next);
-                VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->fragmentShaderBarycentric == VK_TRUE) && (query.fragmentShaderBarycentric == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature fragmentShaderBarycentric, which is not supported by the replay device, will not be enabled");
-                    const_cast<VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV*>(currentNext)->fragmentShaderBarycentric = VK_FALSE;
                 }
                 break;
              }
@@ -1994,6 +2025,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
+            {
+                const VkPhysicalDevicePresentBarrierFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDevicePresentBarrierFeaturesNV*>(next);
+                VkPhysicalDevicePresentBarrierFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->presentBarrier == VK_TRUE) && (query.presentBarrier == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature presentBarrier, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDevicePresentBarrierFeaturesNV*>(currentNext)->presentBarrier = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
             {
                 const VkPhysicalDeviceDiagnosticsConfigFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(next);
@@ -2017,6 +2061,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature graphicsPipelineLibrary, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(currentNext)->graphicsPipelineLibrary = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
+            {
+                const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(next);
+                VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderEarlyAndLateFragmentTests == VK_TRUE) && (query.shaderEarlyAndLateFragmentTests == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderEarlyAndLateFragmentTests, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(currentNext)->shaderEarlyAndLateFragmentTests = VK_FALSE;
                 }
                 break;
              }
@@ -2087,6 +2144,32 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceImageCompressionControlFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(next);
+                VkPhysicalDeviceImageCompressionControlFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->imageCompressionControl == VK_TRUE) && (query.imageCompressionControl == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature imageCompressionControl, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(currentNext)->imageCompressionControl = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(next);
+                VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->attachmentFeedbackLoopLayout == VK_TRUE) && (query.attachmentFeedbackLoopLayout == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature attachmentFeedbackLoopLayout, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(currentNext)->attachmentFeedbackLoopLayout = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
             {
                 const VkPhysicalDevice4444FormatsFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(next);
@@ -2105,26 +2188,44 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
             {
-                const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM*>(next);
-                VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM, nullptr };
+                const VkPhysicalDeviceFaultFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(next);
+                VkPhysicalDeviceFaultFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->deviceFault == VK_TRUE) && (query.deviceFault == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature deviceFault, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceFaultFeaturesEXT*>(currentNext)->deviceFault = VK_FALSE;
+                }
+                if ((currentNext->deviceFaultVendorBinary == VK_TRUE) && (query.deviceFaultVendorBinary == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature deviceFaultVendorBinary, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceFaultFeaturesEXT*>(currentNext)->deviceFaultVendorBinary = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(next);
+                VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT, nullptr };
                 physicalDeviceFeatures2.pNext = &query;
                 GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
                 if ((currentNext->rasterizationOrderColorAttachmentAccess == VK_TRUE) && (query.rasterizationOrderColorAttachmentAccess == VK_FALSE))
                 {
                     GFXRECON_LOG_WARNING("Feature rasterizationOrderColorAttachmentAccess, which is not supported by the replay device, will not be enabled");
-                    const_cast<VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM*>(currentNext)->rasterizationOrderColorAttachmentAccess = VK_FALSE;
+                    const_cast<VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(currentNext)->rasterizationOrderColorAttachmentAccess = VK_FALSE;
                 }
                 if ((currentNext->rasterizationOrderDepthAttachmentAccess == VK_TRUE) && (query.rasterizationOrderDepthAttachmentAccess == VK_FALSE))
                 {
                     GFXRECON_LOG_WARNING("Feature rasterizationOrderDepthAttachmentAccess, which is not supported by the replay device, will not be enabled");
-                    const_cast<VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM*>(currentNext)->rasterizationOrderDepthAttachmentAccess = VK_FALSE;
+                    const_cast<VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(currentNext)->rasterizationOrderDepthAttachmentAccess = VK_FALSE;
                 }
                 if ((currentNext->rasterizationOrderStencilAttachmentAccess == VK_TRUE) && (query.rasterizationOrderStencilAttachmentAccess == VK_FALSE))
                 {
                     GFXRECON_LOG_WARNING("Feature rasterizationOrderStencilAttachmentAccess, which is not supported by the replay device, will not be enabled");
-                    const_cast<VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM*>(currentNext)->rasterizationOrderStencilAttachmentAccess = VK_FALSE;
+                    const_cast<VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(currentNext)->rasterizationOrderStencilAttachmentAccess = VK_FALSE;
                 }
                 break;
              }
@@ -2141,16 +2242,16 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
             {
-                const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE* currentNext = reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(next);
-                VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE, nullptr };
+                const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(next);
+                VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT, nullptr };
                 physicalDeviceFeatures2.pNext = &query;
                 GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
                 if ((currentNext->mutableDescriptorType == VK_TRUE) && (query.mutableDescriptorType == VK_FALSE))
                 {
                     GFXRECON_LOG_WARNING("Feature mutableDescriptorType, which is not supported by the replay device, will not be enabled");
-                    const_cast<VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(currentNext)->mutableDescriptorType = VK_FALSE;
+                    const_cast<VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(currentNext)->mutableDescriptorType = VK_FALSE;
                 }
                 break;
              }
@@ -2164,6 +2265,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature vertexInputDynamicState, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(currentNext)->vertexInputDynamicState = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceAddressBindingReportFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(next);
+                VkPhysicalDeviceAddressBindingReportFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->reportAddressBinding == VK_TRUE) && (query.reportAddressBinding == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature reportAddressBinding, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(currentNext)->reportAddressBinding = VK_FALSE;
                 }
                 break;
              }
@@ -2221,6 +2335,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature externalMemoryRDMA, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(currentNext)->externalMemoryRDMA = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(next);
+                VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->multisampledRenderToSingleSampled == VK_TRUE) && (query.multisampledRenderToSingleSampled == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature multisampledRenderToSingleSampled, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(currentNext)->multisampledRenderToSingleSampled = VK_FALSE;
                 }
                 break;
              }
@@ -2327,6 +2454,29 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceOpacityMicromapFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(next);
+                VkPhysicalDeviceOpacityMicromapFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->micromap == VK_TRUE) && (query.micromap == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature micromap, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(currentNext)->micromap = VK_FALSE;
+                }
+                if ((currentNext->micromapCaptureReplay == VK_TRUE) && (query.micromapCaptureReplay == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature micromapCaptureReplay, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(currentNext)->micromapCaptureReplay = VK_FALSE;
+                }
+                if ((currentNext->micromapHostCommands == VK_TRUE) && (query.micromapHostCommands == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature micromapHostCommands, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(currentNext)->micromapHostCommands = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             {
                 const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(next);
@@ -2371,6 +2521,32 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(next);
+                VkPhysicalDeviceDepthClampZeroOneFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->depthClampZeroOne == VK_TRUE) && (query.depthClampZeroOne == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature depthClampZeroOne, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(currentNext)->depthClampZeroOne = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(next);
+                VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->nonSeamlessCubeMap == VK_TRUE) && (query.nonSeamlessCubeMap == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature nonSeamlessCubeMap, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(currentNext)->nonSeamlessCubeMap = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
             {
                 const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* currentNext = reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(next);
@@ -2394,6 +2570,309 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature linearColorAttachment, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(currentNext)->linearColorAttachment = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(next);
+                VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->imageCompressionControlSwapchain == VK_TRUE) && (query.imageCompressionControlSwapchain == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature imageCompressionControlSwapchain, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(currentNext)->imageCompressionControlSwapchain = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM:
+            {
+                const VkPhysicalDeviceImageProcessingFeaturesQCOM* currentNext = reinterpret_cast<const VkPhysicalDeviceImageProcessingFeaturesQCOM*>(next);
+                VkPhysicalDeviceImageProcessingFeaturesQCOM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->textureSampleWeighted == VK_TRUE) && (query.textureSampleWeighted == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature textureSampleWeighted, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImageProcessingFeaturesQCOM*>(currentNext)->textureSampleWeighted = VK_FALSE;
+                }
+                if ((currentNext->textureBoxFilter == VK_TRUE) && (query.textureBoxFilter == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature textureBoxFilter, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImageProcessingFeaturesQCOM*>(currentNext)->textureBoxFilter = VK_FALSE;
+                }
+                if ((currentNext->textureBlockMatch == VK_TRUE) && (query.textureBlockMatch == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature textureBlockMatch, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImageProcessingFeaturesQCOM*>(currentNext)->textureBlockMatch = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(next);
+                VkPhysicalDeviceExtendedDynamicState3FeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->extendedDynamicState3TessellationDomainOrigin == VK_TRUE) && (query.extendedDynamicState3TessellationDomainOrigin == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3TessellationDomainOrigin, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3TessellationDomainOrigin = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3DepthClampEnable == VK_TRUE) && (query.extendedDynamicState3DepthClampEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3DepthClampEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3DepthClampEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3PolygonMode == VK_TRUE) && (query.extendedDynamicState3PolygonMode == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3PolygonMode, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3PolygonMode = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3RasterizationSamples == VK_TRUE) && (query.extendedDynamicState3RasterizationSamples == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3RasterizationSamples, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3RasterizationSamples = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3SampleMask == VK_TRUE) && (query.extendedDynamicState3SampleMask == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3SampleMask, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3SampleMask = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3AlphaToCoverageEnable == VK_TRUE) && (query.extendedDynamicState3AlphaToCoverageEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3AlphaToCoverageEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3AlphaToCoverageEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3AlphaToOneEnable == VK_TRUE) && (query.extendedDynamicState3AlphaToOneEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3AlphaToOneEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3AlphaToOneEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3LogicOpEnable == VK_TRUE) && (query.extendedDynamicState3LogicOpEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3LogicOpEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3LogicOpEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ColorBlendEnable == VK_TRUE) && (query.extendedDynamicState3ColorBlendEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ColorBlendEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ColorBlendEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ColorBlendEquation == VK_TRUE) && (query.extendedDynamicState3ColorBlendEquation == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ColorBlendEquation, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ColorBlendEquation = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ColorWriteMask == VK_TRUE) && (query.extendedDynamicState3ColorWriteMask == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ColorWriteMask, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ColorWriteMask = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3RasterizationStream == VK_TRUE) && (query.extendedDynamicState3RasterizationStream == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3RasterizationStream, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3RasterizationStream = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ConservativeRasterizationMode == VK_TRUE) && (query.extendedDynamicState3ConservativeRasterizationMode == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ConservativeRasterizationMode, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ConservativeRasterizationMode = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ExtraPrimitiveOverestimationSize == VK_TRUE) && (query.extendedDynamicState3ExtraPrimitiveOverestimationSize == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ExtraPrimitiveOverestimationSize, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ExtraPrimitiveOverestimationSize = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3DepthClipEnable == VK_TRUE) && (query.extendedDynamicState3DepthClipEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3DepthClipEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3DepthClipEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3SampleLocationsEnable == VK_TRUE) && (query.extendedDynamicState3SampleLocationsEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3SampleLocationsEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3SampleLocationsEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ColorBlendAdvanced == VK_TRUE) && (query.extendedDynamicState3ColorBlendAdvanced == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ColorBlendAdvanced, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ColorBlendAdvanced = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ProvokingVertexMode == VK_TRUE) && (query.extendedDynamicState3ProvokingVertexMode == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ProvokingVertexMode, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ProvokingVertexMode = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3LineRasterizationMode == VK_TRUE) && (query.extendedDynamicState3LineRasterizationMode == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3LineRasterizationMode, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3LineRasterizationMode = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3LineStippleEnable == VK_TRUE) && (query.extendedDynamicState3LineStippleEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3LineStippleEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3LineStippleEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3DepthClipNegativeOneToOne == VK_TRUE) && (query.extendedDynamicState3DepthClipNegativeOneToOne == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3DepthClipNegativeOneToOne, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3DepthClipNegativeOneToOne = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ViewportWScalingEnable == VK_TRUE) && (query.extendedDynamicState3ViewportWScalingEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ViewportWScalingEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ViewportWScalingEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ViewportSwizzle == VK_TRUE) && (query.extendedDynamicState3ViewportSwizzle == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ViewportSwizzle, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ViewportSwizzle = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3CoverageToColorEnable == VK_TRUE) && (query.extendedDynamicState3CoverageToColorEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3CoverageToColorEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3CoverageToColorEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3CoverageToColorLocation == VK_TRUE) && (query.extendedDynamicState3CoverageToColorLocation == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3CoverageToColorLocation, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3CoverageToColorLocation = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3CoverageModulationMode == VK_TRUE) && (query.extendedDynamicState3CoverageModulationMode == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3CoverageModulationMode, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3CoverageModulationMode = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3CoverageModulationTableEnable == VK_TRUE) && (query.extendedDynamicState3CoverageModulationTableEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3CoverageModulationTableEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3CoverageModulationTableEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3CoverageModulationTable == VK_TRUE) && (query.extendedDynamicState3CoverageModulationTable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3CoverageModulationTable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3CoverageModulationTable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3CoverageReductionMode == VK_TRUE) && (query.extendedDynamicState3CoverageReductionMode == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3CoverageReductionMode, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3CoverageReductionMode = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3RepresentativeFragmentTestEnable == VK_TRUE) && (query.extendedDynamicState3RepresentativeFragmentTestEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3RepresentativeFragmentTestEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3RepresentativeFragmentTestEnable = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState3ShadingRateImageEnable == VK_TRUE) && (query.extendedDynamicState3ShadingRateImageEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState3ShadingRateImageEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(currentNext)->extendedDynamicState3ShadingRateImageEnable = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(next);
+                VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->subpassMergeFeedback == VK_TRUE) && (query.subpassMergeFeedback == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature subpassMergeFeedback, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(currentNext)->subpassMergeFeedback = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(next);
+                VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderModuleIdentifier == VK_TRUE) && (query.shaderModuleIdentifier == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderModuleIdentifier, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(currentNext)->shaderModuleIdentifier = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
+            {
+                const VkPhysicalDeviceOpticalFlowFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceOpticalFlowFeaturesNV*>(next);
+                VkPhysicalDeviceOpticalFlowFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->opticalFlow == VK_TRUE) && (query.opticalFlow == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature opticalFlow, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceOpticalFlowFeaturesNV*>(currentNext)->opticalFlow = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceLegacyDitheringFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(next);
+                VkPhysicalDeviceLegacyDitheringFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->legacyDithering == VK_TRUE) && (query.legacyDithering == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature legacyDithering, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(currentNext)->legacyDithering = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
+            {
+                const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(next);
+                VkPhysicalDevicePipelineProtectedAccessFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->pipelineProtectedAccess == VK_TRUE) && (query.pipelineProtectedAccess == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineProtectedAccess, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(currentNext)->pipelineProtectedAccess = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
+            {
+                const VkPhysicalDeviceTilePropertiesFeaturesQCOM* currentNext = reinterpret_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(next);
+                VkPhysicalDeviceTilePropertiesFeaturesQCOM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->tileProperties == VK_TRUE) && (query.tileProperties == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature tileProperties, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(currentNext)->tileProperties = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
+            {
+                const VkPhysicalDeviceAmigoProfilingFeaturesSEC* currentNext = reinterpret_cast<const VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(next);
+                VkPhysicalDeviceAmigoProfilingFeaturesSEC query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->amigoProfiling == VK_TRUE) && (query.amigoProfiling == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature amigoProfiling, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(currentNext)->amigoProfiling = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
+            {
+                const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(next);
+                VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderCoreBuiltins == VK_TRUE) && (query.shaderCoreBuiltins == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderCoreBuiltins, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(currentNext)->shaderCoreBuiltins = VK_FALSE;
                 }
                 break;
              }
@@ -2473,6 +2952,39 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature rayQuery, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceRayQueryFeaturesKHR*>(currentNext)->rayQuery = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceMeshShaderFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(next);
+                VkPhysicalDeviceMeshShaderFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->taskShader == VK_TRUE) && (query.taskShader == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature taskShader, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMeshShaderFeaturesEXT*>(currentNext)->taskShader = VK_FALSE;
+                }
+                if ((currentNext->meshShader == VK_TRUE) && (query.meshShader == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature meshShader, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMeshShaderFeaturesEXT*>(currentNext)->meshShader = VK_FALSE;
+                }
+                if ((currentNext->multiviewMeshShader == VK_TRUE) && (query.multiviewMeshShader == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature multiviewMeshShader, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMeshShaderFeaturesEXT*>(currentNext)->multiviewMeshShader = VK_FALSE;
+                }
+                if ((currentNext->primitiveFragmentShadingRateMeshShader == VK_TRUE) && (query.primitiveFragmentShadingRateMeshShader == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature primitiveFragmentShadingRateMeshShader, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMeshShaderFeaturesEXT*>(currentNext)->primitiveFragmentShadingRateMeshShader = VK_FALSE;
+                }
+                if ((currentNext->meshShaderQueries == VK_TRUE) && (query.meshShaderQueries == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature meshShaderQueries, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMeshShaderFeaturesEXT*>(currentNext)->meshShaderQueries = VK_FALSE;
                 }
                 break;
              }

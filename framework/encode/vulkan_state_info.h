@@ -68,6 +68,7 @@ struct DescriptorInfo
     VkDescriptorType                              type;
     const void*                                   write_pnext{ nullptr };
     HandleUnwrapMemory                            write_pnext_memory;
+    std::vector<VkAccelerationStructureKHR>       record_write_set_accel_structs;
     uint32_t                                      count{ 0 };
     bool                                          immutable_samplers{ 0 };
     std::unique_ptr<bool[]>                       written;
@@ -123,6 +124,8 @@ enum CommandHandleType : uint32_t
     AccelerationStructureNVHandle,
     IndirectCommandsLayoutNVHandle,
     DeferredOperationKHRHandle,
+    MicromapEXTHandle,
+    OpticalFlowSessionNVHandle,
     NumHandleTypes
 };
 

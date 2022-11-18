@@ -44,6 +44,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
@@ -106,11 +107,21 @@ void android_main(struct android_app* app)
                 application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                    application, GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                gfxrecon::decode::VulkanDecoder decoder;
+                gfxrecon::decode::VulkanReplayOptions          replay_options =
+                    GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+                gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
+                gfxrecon::decode::VulkanDecoder        decoder;
+                uint32_t                               start_frame, end_frame;
+                bool has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
+
+                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
+                                                     static_cast<uint64_t>(end_frame),
+                                                     has_mfr,
+                                                     replay_options.quit_after_measurement_frame_range,
+                                                     replay_options.flush_measurement_frame_range);
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+                replay_consumer.SetFpsInfo(&fps_info);
 
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);
@@ -124,12 +135,48 @@ void android_main(struct android_app* app)
                 application->SetPaused(true);
 
                 app->userData = application.get();
+                application->SetFpsInfo(&fps_info);
+
+                fps_info.BeginFile();
+
                 application->Run();
+
+                // Add one so that it matches the trim range frame number semantic
+                fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);
+
+                if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                {
+                    if (file_processor.GetCurrentFrameNumber() < start_frame)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
+                            "Measurements were never started, cannot calculate measurement range FPS.",
+                            start_frame,
+                            file_processor.GetCurrentFrameNumber());
+                    }
+                    else
+                    {
+                        fps_info.LogToConsole();
+                    }
+                }
+                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                {
+                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
+                }
+                else
+                {
+                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+                }
             }
         }
         catch (std::runtime_error error)
         {
             GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
+        }
+        catch (const std::exception& error)
+        {
+            GFXRECON_WRITE_CONSOLE("Replay has encountered a fatal error and cannot continue: %s", error.what());
         }
         catch (...)
         {
@@ -209,7 +256,8 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
         {
             case APP_CMD_INIT_WINDOW:
             {
-                auto android_context = reinterpret_cast<AndroidContext*>(application->GetWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME));
+                auto android_context = reinterpret_cast<AndroidContext*>(
+                    application->GetWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME));
                 assert(android_context);
                 android_context->InitWindow();
                 break;

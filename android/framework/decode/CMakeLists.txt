@@ -46,6 +46,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_enum_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_feature_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_feature_util.cpp
@@ -72,10 +74,13 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_swapchain.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info_table.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_virtual_swapchain.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_virtual_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
@@ -93,8 +98,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
               )
 

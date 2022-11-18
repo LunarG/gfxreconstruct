@@ -68,7 +68,8 @@ _remove_extensions = [
     "VK_KHR_video_encode_queue", "VK_EXT_video_encode_h264",
     "VK_EXT_video_decode_h264", "VK_EXT_video_decode_h265",
     "VK_EXT_video_encode_h265", "VK_FUCHSIA_buffer_collection",
-    "VK_NVX_binary_import", "VK_HUAWEI_subpass_shading"
+    "VK_NVX_binary_import", "VK_HUAWEI_subpass_shading",
+    "VK_EXT_pipeline_properties", "VK_EXT_metal_objects"
 ]
 
 # Turn lists of names/patterns into matching regular expressions.
@@ -232,6 +233,8 @@ class BaseGenerator(OutputGenerator):
     # These API calls should not be processed by the code generator.  They require special implementations.
     APICALL_BLACKLIST = []
 
+    APICALL_DECODER_BLACKLIST = []
+
     # These method calls should not be processed by the code generator.  They require special implementations.
     METHODCALL_BLACKLIST = []
 
@@ -252,6 +255,12 @@ class BaseGenerator(OutputGenerator):
             'objectHandle': 'objectType'
         },
         'vkGetPrivateDataEXT': {
+            'objectHandle': 'objectType'
+        },
+        'vkSetPrivateData': {
+            'objectHandle': 'objectType'
+        },
+        'vkGetPrivateData': {
             'objectHandle': 'objectType'
         }
     }
@@ -297,7 +306,7 @@ class BaseGenerator(OutputGenerator):
     ]
 
     DUPLICATE_HANDLE_TYPES = [
-        'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR'
+        'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR', 'VkPrivateDataSlotEXT'
     ]
 
     # Default C++ code indentation size.
@@ -738,6 +747,8 @@ class BaseGenerator(OutputGenerator):
     def is_cmd_black_listed(self, name):
         """Determines if a function with the specified typename is blacklisted."""
         if name in self.APICALL_BLACKLIST:
+            return True
+        if 'Decoder' in self.__class__.__name__ and name in self.APICALL_DECODER_BLACKLIST:
             return True
         return False
 
@@ -1184,7 +1195,7 @@ class BaseGenerator(OutputGenerator):
         """Generate an expression for the length of a given array value."""
         length_expr = value.array_length
         length_value = value.array_length_value
-
+    
         if length_value:
             if length_value.is_pointer:
                 # Add implicit dereference when length expr == pointer name
@@ -1201,7 +1212,6 @@ class BaseGenerator(OutputGenerator):
             length_expr = length_expr.replace(
                 length_value.name, prefix + length_value.name
             )
-
         return length_expr
 
     def make_array2d_length_expression(self, value, values, prefix=''):
@@ -1336,6 +1346,7 @@ class BaseGenerator(OutputGenerator):
     def __load_blacklists(self, filename):
         lists = json.loads(open(filename, 'r').read())
         self.APICALL_BLACKLIST += lists['functions']
+        self.APICALL_DECODER_BLACKLIST += lists['functions-decoder']
         self.STRUCT_BLACKLIST += lists['structures']
         if 'classmethods' in lists:
             for class_name, method_list in lists['classmethods'].items():
