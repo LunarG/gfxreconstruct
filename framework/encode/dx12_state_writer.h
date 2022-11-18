@@ -146,21 +146,19 @@ class Dx12StateWriter
 
     void WriteFenceState(const Dx12StateTable& state_table);
 
-    void WriteGraphicsCommandListState(const Dx12StateTable& state_table);
+    void WriteCommandListState(const Dx12StateTable& state_table);
 
-    void WriteCommandListCreation(const ID3D12GraphicsCommandList_Wrapper* list_wrapper);
+    void WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper);
 
-    void WriteCommandListCommands(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                  const Dx12StateTable&                    state_table);
+    void WriteCommandListCommands(const ID3D12CommandList_Wrapper* list_wrapper, const Dx12StateTable& state_table);
 
-    void WriteCommandListClose(const ID3D12GraphicsCommandList_Wrapper* list_wrapper);
+    void WriteCommandListClose(const ID3D12CommandList_Wrapper* list_wrapper);
 
-    bool CheckGraphicsCommandListObjects(const ID3D12GraphicsCommandListInfo* list_info,
-                                         const Dx12StateTable&                state_table);
+    bool CheckCommandListObjects(const ID3D12CommandListInfo* list_info, const Dx12StateTable& state_table);
 
-    bool CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectType object_type,
-                                        format::HandleId               handle_id,
-                                        const Dx12StateTable&          state_table);
+    bool CheckCommandListObject(D3D12GraphicsCommandObjectType object_type,
+                                format::HandleId               handle_id,
+                                const Dx12StateTable&          state_table);
 
     bool CheckGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address);
 

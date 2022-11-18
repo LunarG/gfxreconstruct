@@ -43,21 +43,21 @@ const char kPathSep      = '/';
 const char kPathSepStr[] = "/";
 #endif
 
-static constexpr uint32_t kMaxDriverInfoSize  = 1024;
-static constexpr uint32_t kMaxExePropertySize = 256;
-static constexpr uint8_t  kAppVersionSize     = 4;
+static constexpr uint32_t kMaxDriverInfoSize   = 1024;
+static constexpr uint32_t kMaxFilePropertySize = 256;
+static constexpr uint8_t  kFileVersionSize     = 4;
 
 struct FileInfo
 {
-    char     ProductVersion[kMaxExePropertySize]   = {};
-    char     FileVersion[kMaxExePropertySize]      = {};
-    uint32_t AppVersion[kAppVersionSize]           = {};
-    char     AppName[kMaxExePropertySize]          = {};
-    char     CompanyName[kMaxExePropertySize]      = {};
-    char     FileDescription[kMaxExePropertySize]  = {};
-    char     InternalName[kMaxExePropertySize]     = {};
-    char     OriginalFilename[kMaxExePropertySize] = {};
-    char     ProductName[kMaxExePropertySize]      = {};
+    char     ProductVersion[kMaxFilePropertySize]   = {};
+    char     FileVersion[kMaxFilePropertySize]      = {};
+    uint32_t AppVersion[kFileVersionSize]           = {};
+    char     AppName[kMaxFilePropertySize]          = {};
+    char     CompanyName[kMaxFilePropertySize]      = {};
+    char     FileDescription[kMaxFilePropertySize]  = {};
+    char     InternalName[kMaxFilePropertySize]     = {};
+    char     OriginalFilename[kMaxFilePropertySize] = {};
+    char     ProductName[kMaxFilePropertySize]      = {};
 };
 
 enum ExeInfoMember
@@ -92,11 +92,15 @@ bool QueryStringFileInfo(
 
 void UpdateExeFileInfo(ExeInfoMember member, const std::string& value, FileInfo& info);
 
-void GetApplicationFileExeVersion(FileInfo& exe_info, const std::string& file_path);
+void GetFileInfo(FileInfo& exe_info, const std::string& file_path);
 
 void GetApplicationInfo(FileInfo& file_info);
 
 void CheckReplayerName(const std::string& exe_info_name);
+
+bool EqualStr(const std::string& str1, const std::string& str2, bool case_sensitive);
+
+std::string FindModulePath(const std::string& target_module, bool case_sensitive);
 
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)

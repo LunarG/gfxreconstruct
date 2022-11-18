@@ -304,6 +304,14 @@ void Dx12DecoderBase::DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCo
     }
 }
 
+void Dx12DecoderBase::DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& dx12_runtime_info_header)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessDx12RuntimeInfo(dx12_runtime_info_header);
+    }
+}
+
 void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)

@@ -800,18 +800,19 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
 
         success =
-            success && ReadBytes(&header.info_record.ProductVersion, gfxrecon::util::filepath::kMaxExePropertySize);
-        success = success && ReadBytes(&header.info_record.FileVersion, gfxrecon::util::filepath::kMaxExePropertySize);
+            success && ReadBytes(&header.info_record.ProductVersion, gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && ReadBytes(&header.info_record.FileVersion, gfxrecon::util::filepath::kMaxFilePropertySize);
         success = success && ReadBytes(&header.info_record.AppVersion,
-                                       sizeof(uint32_t) * gfxrecon::util::filepath::kAppVersionSize);
-        success = success && ReadBytes(&header.info_record.AppName, gfxrecon::util::filepath::kMaxExePropertySize);
-        success = success && ReadBytes(&header.info_record.CompanyName, gfxrecon::util::filepath::kMaxExePropertySize);
+                                       sizeof(uint32_t) * gfxrecon::util::filepath::kFileVersionSize);
+        success = success && ReadBytes(&header.info_record.AppName, gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && ReadBytes(&header.info_record.CompanyName, gfxrecon::util::filepath::kMaxFilePropertySize);
         success =
-            success && ReadBytes(&header.info_record.FileDescription, gfxrecon::util::filepath::kMaxExePropertySize);
-        success = success && ReadBytes(&header.info_record.InternalName, gfxrecon::util::filepath::kMaxExePropertySize);
+            success && ReadBytes(&header.info_record.FileDescription, gfxrecon::util::filepath::kMaxFilePropertySize);
         success =
-            success && ReadBytes(&header.info_record.OriginalFilename, gfxrecon::util::filepath::kMaxExePropertySize);
-        success = success && ReadBytes(&header.info_record.ProductName, gfxrecon::util::filepath::kMaxExePropertySize);
+            success && ReadBytes(&header.info_record.InternalName, gfxrecon::util::filepath::kMaxFilePropertySize);
+        success =
+            success && ReadBytes(&header.info_record.OriginalFilename, gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && ReadBytes(&header.info_record.ProductName, gfxrecon::util::filepath::kMaxFilePropertySize);
 
         if (success)
         {
@@ -1680,7 +1681,32 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         }
         else
         {
-            HandleBlockReadError(kErrorReadingBlockData, "Failed to read get GPU description meta-data block");
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read adapter info meta-data block");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kDx12RuntimeInfoCommand)
+    {
+        format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
+        memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
+
+        success = ReadBytes(&dx12_runtime_info_header.thread_id, sizeof(dx12_runtime_info_header.thread_id));
+
+        success = success && ReadBytes(&dx12_runtime_info_header.runtime_info.version,
+                                       sizeof(dx12_runtime_info_header.runtime_info.version));
+
+        success = success && ReadBytes(&dx12_runtime_info_header.runtime_info.src,
+                                       sizeof(dx12_runtime_info_header.runtime_info.src));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchGetDx12RuntimeInfo(dx12_runtime_info_header);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read runtime info meta-data block");
         }
     }
     else

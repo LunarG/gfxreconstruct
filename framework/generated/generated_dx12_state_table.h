@@ -78,7 +78,7 @@ class Dx12StateTable : public Dx12StateTableBase
     bool InsertWrapper(format::HandleId id, ID3D12Device_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12Device_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12Tools_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12Tools_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12SDKConfiguration_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12SDKConfiguration_Wrapper_map_); }
-    bool InsertWrapper(format::HandleId id, ID3D12GraphicsCommandList_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12GraphicsCommandList_Wrapper_map_); }
+    bool InsertWrapper(format::HandleId id, ID3D12CommandList_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12CommandList_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D10Blob_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D10Blob_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3DDestructionNotifier_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3DDestructionNotifier_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12Debug1_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12Debug1_Wrapper_map_); }
@@ -131,7 +131,7 @@ class Dx12StateTable : public Dx12StateTableBase
     bool RemoveWrapper(const ID3D12Device_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12Device_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12Tools_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12Tools_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12SDKConfiguration_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12SDKConfiguration_Wrapper_map_); }
-    bool RemoveWrapper(const ID3D12GraphicsCommandList_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12GraphicsCommandList_Wrapper_map_); }
+    bool RemoveWrapper(const ID3D12CommandList_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12CommandList_Wrapper_map_); }
     bool RemoveWrapper(const ID3D10Blob_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D10Blob_Wrapper_map_); }
     bool RemoveWrapper(const ID3DDestructionNotifier_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3DDestructionNotifier_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12Debug1_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12Debug1_Wrapper_map_); }
@@ -184,7 +184,7 @@ class Dx12StateTable : public Dx12StateTableBase
     void VisitWrappers(std::function<void(ID3D12Device_Wrapper*)> visitor) const { for (auto entry : ID3D12Device_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12Tools_Wrapper*)> visitor) const { for (auto entry : ID3D12Tools_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12SDKConfiguration_Wrapper*)> visitor) const { for (auto entry : ID3D12SDKConfiguration_Wrapper_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(ID3D12GraphicsCommandList_Wrapper*)> visitor) const { for (auto entry : ID3D12GraphicsCommandList_Wrapper_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12CommandList_Wrapper*)> visitor) const { for (auto entry : ID3D12CommandList_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D10Blob_Wrapper*)> visitor) const { for (auto entry : ID3D10Blob_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3DDestructionNotifier_Wrapper*)> visitor) const { for (auto entry : ID3DDestructionNotifier_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12Debug1_Wrapper*)> visitor) const { for (auto entry : ID3D12Debug1_Wrapper_map_) { visitor(entry.second); } }
@@ -318,9 +318,9 @@ class Dx12StateTable : public Dx12StateTableBase
 
     ID3D12SDKConfiguration_Wrapper* GetID3D12SDKConfiguration_Wrapper(format::HandleId id) { return GetWrapper<ID3D12SDKConfiguration_Wrapper>(id, ID3D12SDKConfiguration_Wrapper_map_); }
     const ID3D12SDKConfiguration_Wrapper* GetID3D12SDKConfiguration_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12SDKConfiguration_Wrapper>(id, ID3D12SDKConfiguration_Wrapper_map_); }
-
-    ID3D12GraphicsCommandList_Wrapper* GetID3D12GraphicsCommandList_Wrapper(format::HandleId id) { return GetWrapper<ID3D12GraphicsCommandList_Wrapper>(id, ID3D12GraphicsCommandList_Wrapper_map_); }
-    const ID3D12GraphicsCommandList_Wrapper* GetID3D12GraphicsCommandList_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12GraphicsCommandList_Wrapper>(id, ID3D12GraphicsCommandList_Wrapper_map_); }
+    
+    ID3D12CommandList_Wrapper* GetID3D12CommandList_Wrapper(format::HandleId id) { return GetWrapper<ID3D12CommandList_Wrapper>(id, ID3D12CommandList_Wrapper_map_); }
+    const ID3D12CommandList_Wrapper* GetID3D12CommandList_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12CommandList_Wrapper>(id, ID3D12CommandList_Wrapper_map_); }
 
     ID3D10Blob_Wrapper* GetID3D10Blob_Wrapper(format::HandleId id) { return GetWrapper<ID3D10Blob_Wrapper>(id, ID3D10Blob_Wrapper_map_); }
     const ID3D10Blob_Wrapper* GetID3D10Blob_Wrapper(format::HandleId id) const { return GetWrapper<ID3D10Blob_Wrapper>(id, ID3D10Blob_Wrapper_map_); }
@@ -399,7 +399,7 @@ class Dx12StateTable : public Dx12StateTableBase
     std::map<format::HandleId, ID3D12Device_Wrapper*> ID3D12Device_Wrapper_map_;
     std::map<format::HandleId, ID3D12Tools_Wrapper*> ID3D12Tools_Wrapper_map_;
     std::map<format::HandleId, ID3D12SDKConfiguration_Wrapper*> ID3D12SDKConfiguration_Wrapper_map_;
-    std::map<format::HandleId, ID3D12GraphicsCommandList_Wrapper*> ID3D12GraphicsCommandList_Wrapper_map_;
+    std::map<format::HandleId, ID3D12CommandList_Wrapper*> ID3D12CommandList_Wrapper_map_;
     std::map<format::HandleId, ID3D10Blob_Wrapper*> ID3D10Blob_Wrapper_map_;
     std::map<format::HandleId, ID3DDestructionNotifier_Wrapper*> ID3DDestructionNotifier_Wrapper_map_;
     std::map<format::HandleId, ID3D12Debug1_Wrapper*> ID3D12Debug1_Wrapper_map_;

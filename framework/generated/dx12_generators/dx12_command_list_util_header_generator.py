@@ -88,7 +88,7 @@ class Dx12CommandListUtilHeaderGenerator(Dx12BaseGenerator):
         ) in self.SKIP_COMMAND_METHODS:
             return
 
-        parameters = 'ID3D12GraphicsCommandList_Wrapper* wrapper'
+        parameters = 'ID3D12CommandList_Wrapper* wrapper'
         required = False
 
         for p in method_info['parameters']:

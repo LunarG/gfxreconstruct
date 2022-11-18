@@ -172,7 +172,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     final_number = final_class_name[i + 1:]
                     break
 
-        class_family_names = [base_name]
+        class_family_names = []
+        if base_name in self.FAMILY_CLASSES_EXECPTION:
+            class_family_names.append(self.FAMILY_CLASSES_EXECPTION[base_name])
+        class_family_names.append(base_name)
         if final_number:
             # Generate with class numbers in ascending order, from 1 to n.
             for i in range(1, int(final_number) + 1):

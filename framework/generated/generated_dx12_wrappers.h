@@ -1603,22 +1603,29 @@ class ID3D12CommandList_Wrapper : public ID3D12DeviceChild_Wrapper
   public:
     ID3D12CommandList_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandList_Wrapper*>(u); });
 
+    ~ID3D12CommandList_Wrapper();
+
+    static ID3D12CommandList_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12CommandListInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12CommandListInfo> GetObjectInfo() { return info_; }
+
     virtual D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE GetType();
 
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12CommandList_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12CommandListInfo> info_;
 };
 
 class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
 {
   public:
     ID3D12GraphicsCommandList_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(u); });
-
-    ~ID3D12GraphicsCommandList_Wrapper();
-
-    static ID3D12GraphicsCommandList_Wrapper* GetExistingWrapper(IUnknown* object);
-
-    std::shared_ptr<const ID3D12GraphicsCommandListInfo> GetObjectInfo() const { return info_; }
-
-    std::shared_ptr<ID3D12GraphicsCommandListInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE Close();
 
@@ -1868,13 +1875,6 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
         ID3D12Resource* pCountBuffer,
         UINT64 CountBufferOffset);
 
-  private:
-    // Map to prevent creation of more than one interface wrapper per object.
-    typedef std::unordered_map<IUnknown*, ID3D12GraphicsCommandList_Wrapper*> ObjectMap;
-    static ObjectMap  object_map_;
-    static std::mutex object_map_lock_;
-
-    std::shared_ptr<ID3D12GraphicsCommandListInfo> info_;
 };
 
 class ID3D12GraphicsCommandList1_Wrapper : public ID3D12GraphicsCommandList_Wrapper

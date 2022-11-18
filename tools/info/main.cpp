@@ -368,6 +368,104 @@ void GatherVulkanStats(const std::string& input_filename, const gfxrecon::decode
 }
 
 #if defined(WIN32)
+void PrintDx12RuntimeInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+{
+    GFXRECON_WRITE_CONSOLE("D3D12 runtime info:");
+
+    gfxrecon::format::Dx12RuntimeInfo runtime_info = dx12_consumer.GetDx12RuntimeInfo();
+
+    std::string runtime_src = runtime_info.src;
+    std::string runtime_ver = "";
+
+    if (runtime_src.empty() == false)
+    {
+        runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
+                      std::to_string(runtime_info.version[2]) + "." + std::to_string(runtime_info.version[3]);
+        GFXRECON_WRITE_CONSOLE("\tVersion: %s", runtime_ver.c_str());
+        GFXRECON_WRITE_CONSOLE("\tSource: %s", runtime_src.c_str());
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("\tVersion: N/A");
+        GFXRECON_WRITE_CONSOLE("\tSource: N/A");
+    }
+
+    GFXRECON_WRITE_CONSOLE("");
+}
+
+void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+{
+    GFXRECON_WRITE_CONSOLE("D3D12 adapter info:");
+
+    const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
+
+    if (adapters.empty() == false)
+    {
+        for (const auto& adapter : adapters)
+        {
+            GFXRECON_WRITE_CONSOLE("\tDescription: %s",
+                                   gfxrecon::util::WCharArrayToString(adapter.Description).c_str());
+            GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", adapter.VendorId);
+            GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", adapter.DeviceId);
+            GFXRECON_WRITE_CONSOLE("\tSubsys ID: 0x%x", adapter.SubSysId);
+            GFXRECON_WRITE_CONSOLE("\tRevision: %u", adapter.Revision);
+            GFXRECON_WRITE_CONSOLE("\tDedicated Video Memory: %" PRIu64, adapter.DedicatedVideoMemory);
+            GFXRECON_WRITE_CONSOLE("\tDedicated System Memory: %" PRIu64, adapter.DedicatedSystemMemory);
+            GFXRECON_WRITE_CONSOLE("\tShared System Memory: %" PRIu64, adapter.SharedSystemMemory);
+            GFXRECON_WRITE_CONSOLE("\tLUID LowPart: 0x%x", adapter.LuidLowPart);
+            GFXRECON_WRITE_CONSOLE("\tLUID HighPart: 0x%x", adapter.LuidHighPart);
+
+            std::string type = AdapterTypeToString(adapter.type);
+            GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", type.c_str());
+            GFXRECON_WRITE_CONSOLE("");
+        }
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("\tAdapter info not available.");
+        GFXRECON_WRITE_CONSOLE("");
+    }
+}
+
+void PrintDx12SwapchainInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+{
+    GFXRECON_WRITE_CONSOLE("D3D12 swapchain info:");
+
+    if (dx12_consumer.FoundSwapchainInfo())
+    {
+        GFXRECON_WRITE_CONSOLE("\tDimensions: %s", dx12_consumer.GetSwapchainDimensions().c_str());
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("\tDimensions not available.");
+    }
+
+    GFXRECON_WRITE_CONSOLE("");
+}
+
+void PrintDxrInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+{
+    if (dx12_consumer.ContainsDxrWorkload())
+    {
+        GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
+
+        GFXRECON_WRITE_CONSOLE("");
+
+        if (dx12_consumer.ContainsDXROptFillMem())
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: yes");
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: no");
+        }
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
+    }
+}
+
 void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
                      const ApiAgnosticStats&               api_agnostic_stats,
                      gfxrecon::decode::DriverInfoConsumer& driver_info_consumer)
@@ -408,69 +506,13 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
 
         PrintDriverInfo(driver_info_consumer);
 
-        GFXRECON_WRITE_CONSOLE("D3D12 adapter info:");
+        PrintDx12RuntimeInfo(dx12_consumer);
 
-        const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
+        PrintDx12AdapterInfo(dx12_consumer);
 
-        if (adapters.empty() == false)
-        {
-            for (const auto& adapter : adapters)
-            {
-                GFXRECON_WRITE_CONSOLE("\tDescription: %s",
-                                       gfxrecon::util::WCharArrayToString(adapter.Description).c_str());
-                GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", adapter.VendorId);
-                GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", adapter.DeviceId);
-                GFXRECON_WRITE_CONSOLE("\tSubsys ID: 0x%x", adapter.SubSysId);
-                GFXRECON_WRITE_CONSOLE("\tRevision: %u", adapter.Revision);
-                GFXRECON_WRITE_CONSOLE("\tDedicated Video Memory: %" PRIu64, adapter.DedicatedVideoMemory);
-                GFXRECON_WRITE_CONSOLE("\tDedicated System Memory: %" PRIu64, adapter.DedicatedSystemMemory);
-                GFXRECON_WRITE_CONSOLE("\tShared System Memory: %" PRIu64, adapter.SharedSystemMemory);
-                GFXRECON_WRITE_CONSOLE("\tLUID LowPart: 0x%x", adapter.LuidLowPart);
-                GFXRECON_WRITE_CONSOLE("\tLUID HighPart: 0x%x", adapter.LuidHighPart);
+        PrintDx12SwapchainInfo(dx12_consumer);
 
-                std::string type = AdapterTypeToString(adapter.type);
-                GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", type.c_str());
-                GFXRECON_WRITE_CONSOLE("");
-            }
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("\tAdapter info not available.");
-            GFXRECON_WRITE_CONSOLE("");
-        }
-
-        GFXRECON_WRITE_CONSOLE("D3D12 swapchain info:");
-
-        if (dx12_consumer.FoundSwapchainInfo())
-        {
-            GFXRECON_WRITE_CONSOLE("\tDimensions: %s", dx12_consumer.GetSwapchainDimensions().c_str());
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("\tDimensions not available.");
-        }
-
-        GFXRECON_WRITE_CONSOLE("");
-
-        if (dx12_consumer.ContainsDxrWorkload())
-        {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
-
-            GFXRECON_WRITE_CONSOLE("");
-
-            if (dx12_consumer.ContainsDXROptFillMem())
-            {
-                GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: yes");
-            }
-            else
-            {
-                GFXRECON_WRITE_CONSOLE("D3D12 DXR optimized: no");
-            }
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
-        }
+        PrintDxrInfo(dx12_consumer);
     }
     else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
     {

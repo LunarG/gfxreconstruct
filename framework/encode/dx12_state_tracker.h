@@ -117,15 +117,15 @@ class Dx12StateTracker
 
     void TrackFenceSignal(ID3D12Fence_Wrapper* fence, UINT64 value);
 
-    void TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                      format::ApiCallId                  call_id,
-                      const util::MemoryOutputStream*    parameter_buffer);
+    void TrackCommand(ID3D12CommandList_Wrapper*      list_wrapper,
+                      format::ApiCallId               call_id,
+                      const util::MemoryOutputStream* parameter_buffer);
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
-    void TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                      format::ApiCallId                  call_id,
-                      const util::MemoryOutputStream*    parameter_buffer,
-                      GetHandlesFunc                     func,
+    void TrackCommand(ID3D12CommandList_Wrapper*      list_wrapper,
+                      format::ApiCallId               call_id,
+                      const util::MemoryOutputStream* parameter_buffer,
+                      GetHandlesFunc                  func,
                       GetHandlesArgs... args)
     {
         if (list_wrapper != nullptr)
@@ -135,9 +135,9 @@ class Dx12StateTracker
         }
     }
 
-    void TrackResourceBarriers(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                               UINT                               num_barriers,
-                               const D3D12_RESOURCE_BARRIER*      barriers);
+    void TrackResourceBarriers(ID3D12CommandList_Wrapper*    list_wrapper,
+                               UINT                          num_barriers,
+                               const D3D12_RESOURCE_BARRIER* barriers);
 
     void TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queue_wrapper,
                                   UINT                        num_lists,
@@ -149,9 +149,9 @@ class Dx12StateTracker
 
     void TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapper, D3D12_GPU_VIRTUAL_ADDRESS address);
 
-    void TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                  bool                               created_closed,
-                                  D3D12_COMMAND_LIST_TYPE            command_list_type);
+    void TrackCommandListCreation(ID3D12CommandList_Wrapper* list_wrapper,
+                                  bool                       created_closed,
+                                  D3D12_COMMAND_LIST_TYPE    command_list_type);
 
     void TrackAcquireImage(UINT image_index, IDXGISwapChain_Wrapper* wrapper);
 
@@ -231,9 +231,9 @@ class Dx12StateTracker
                                            const DxTransitionBarrier& transition,
                                            UINT                       subresource);
 
-    void TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                               format::ApiCallId                  call_id,
-                               const util::MemoryOutputStream*    parameter_buffer);
+    void TrackCommandExecution(ID3D12CommandList_Wrapper*      list_wrapper,
+                               format::ApiCallId               call_id,
+                               const util::MemoryOutputStream* parameter_buffer);
 
     ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va);
 

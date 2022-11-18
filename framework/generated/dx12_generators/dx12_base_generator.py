@@ -131,6 +131,12 @@ class Dx12BaseGenerator(BaseGenerator):
         'ID3D12DebugCommandList1'
     ]
 
+    # ID3D23CommandList is top parent class for all ID3D12GraphicsCommandList[n]
+    FAMILY_CLASSES_EXECPTION = {
+        'ID3D12GraphicsCommandList':
+        'ID3D12CommandList'
+    }
+
     def __init__(
         self,
         source_dict,

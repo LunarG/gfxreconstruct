@@ -33,6 +33,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+static constexpr char kDx12RuntimeName[] = "D3D12Core.dll";
+
 D3D12CaptureManager*  D3D12CaptureManager::instance_   = nullptr;
 thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 
@@ -97,7 +99,7 @@ void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIP
     EndMethodCallCapture();
 }
 
-void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper)
+void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12CommandList_Wrapper* list_wrapper)
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
@@ -1844,6 +1846,8 @@ void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
         }
 
         WriteDx12DriverInfo();
+
+        WriteDx12RuntimeInfo();
     }
 }
 
@@ -1886,8 +1890,9 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_Signal(ID3D12CommandQue
     }
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
-    ID3D12GraphicsCommandList_Wrapper* list_wrapper, UINT num_barriers, const D3D12_RESOURCE_BARRIER* barriers)
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12CommandList_Wrapper* list_wrapper,
+                                                                                UINT                       num_barriers,
+                                                                                const D3D12_RESOURCE_BARRIER* barriers)
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
@@ -1934,7 +1939,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Devic
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
+        auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
         state_tracker_->TrackCommandListCreation(list_wrapper, false, type);
     }
 }
@@ -1949,7 +1954,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Dev
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
+        auto list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(*ppCommandList);
         state_tracker_->TrackCommandListCreation(list_wrapper, true, type);
     }
 }
@@ -2345,7 +2350,6 @@ void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
 {
     if (((GetCaptureMode() & kModeWrite) == kModeWrite))
     {
-        size_t                  info_length        = sizeof(format::DriverInfoBlock);
         format::DriverInfoBlock driver_info_header = {};
 
         strncpy_s(driver_info_header.driver_record,
@@ -2360,6 +2364,80 @@ void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
         driver_info_header.thread_id = GetThreadData()->thread_id_;
 
         WriteToFile(&driver_info_header, sizeof(driver_info_header));
+    }
+}
+
+void D3D12CaptureManager::WriteDx12RuntimeInfo()
+{
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    {
+        static bool wrote_dx12_runtime_info = false;
+
+        if (wrote_dx12_runtime_info == false)
+        {
+            std::string runtime_path = util::filepath::FindModulePath(kDx12RuntimeName, false);
+
+            if (runtime_path.empty() == false)
+            {
+                char working_dir[MAX_PATH] = {};
+                if (GetCurrentDirectory(MAX_PATH, working_dir))
+                {
+                    // Assume it is the in-box runtime
+                    std::string runtime_desc = "System";
+
+                    // If D3D12Core is found within app folder, it should be from Agility SDK
+                    if (runtime_path.find(working_dir) != std::string::npos)
+                    {
+                        runtime_desc = "Agility SDK";
+                    }
+
+                    util::filepath::FileInfo file_info = {};
+                    GetFileInfo(file_info, runtime_path);
+
+                    format::Dx12RuntimeInfo runtime_info = {};
+
+                    util::platform::MemoryCopy(runtime_info.version,
+                                               sizeof(runtime_info.version),
+                                               file_info.AppVersion,
+                                               sizeof(runtime_info.version));
+
+                    strncpy_s(runtime_info.src,
+                              util::filepath::kMaxFilePropertySize,
+                              runtime_desc.c_str(),
+                              util::filepath::kMaxFilePropertySize);
+
+                    WriteDx2RuntimeInfoCommand(runtime_info);
+
+                    wrote_dx12_runtime_info = true;
+                }
+            }
+        }
+    }
+}
+
+void D3D12CaptureManager::WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeInfo& runtime_info)
+{
+    if (((GetCaptureMode() & kModeWrite) == kModeWrite))
+    {
+        format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
+        memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
+
+        auto thread_data = GetThreadData();
+        GFXRECON_ASSERT(thread_data != nullptr);
+
+        dx12_runtime_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        dx12_runtime_info_header.meta_header.block_header.size =
+            format::GetMetaDataBlockBaseSize(dx12_runtime_info_header);
+        dx12_runtime_info_header.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kDx12RuntimeInfoCommand);
+        dx12_runtime_info_header.thread_id = thread_data->thread_id_;
+
+        util::platform::MemoryCopy(&dx12_runtime_info_header.runtime_info,
+                                   sizeof(dx12_runtime_info_header.runtime_info),
+                                   &runtime_info,
+                                   sizeof(runtime_info));
+
+        WriteToFile(&dx12_runtime_info_header, sizeof(dx12_runtime_info_header));
     }
 }
 
