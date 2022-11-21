@@ -363,6 +363,24 @@ inline std::string CStrArrayToString(size_t             count,
         [&](uint32_t i) { return CStrToString(ppStrs[i]); });
 }
 
+template <typename EnumType>
+inline std::string EnumArrayToString(size_t              count,
+                                     const EnumType*     pObjs,
+                                     util::ToStringFlags toStringFlags = util::kToString_Default,
+                                     uint32_t            tabCount      = 0,
+                                     uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    return ArrayToString(
+        count,
+        pObjs,
+        toStringFlags,
+        tabCount,
+        tabSize,
+        [&]() { return pObjs != nullptr; },
+        [&](size_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
+}
+
 /// @brief Make a copy of the input string with double quotes at start and end.
 inline std::string Quote(const std::string& str)
 {

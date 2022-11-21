@@ -450,6 +450,14 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
+  --api <api>           Use the specified API for replay (Windows only).
+                        Available values are:
+                            vulkan      Replay with the Vulkan API enabled.
+                            d3d12       Replay with the Direct3D API enabled.
+                            all         Replay with both the Vulkan and Direct3D 12 APIs
+                                        enabled. This is the default.
+  --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
+                        displayed when abort() is called (Windows debug only).
   --use-captured-swapchain-indices
                         Use the swapchain indices stored in the capture directly on the swapchain
                         setup for replay. The default without this option is to use a Virtual Swapchain

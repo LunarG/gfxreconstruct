@@ -85,6 +85,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_TRIGGER_FRAMES_UPPER                         "CAPTURE_TRIGGER_FRAMES"
 #define CAPTURE_ANDROID_TRIGGER_LOWER                        "capture_android_trigger"
 #define CAPTURE_ANDROID_TRIGGER_UPPER                        "CAPTURE_ANDROID_TRIGGER"
+#define CAPTURE_IUNKNOWN_WRAPPING_LOWER                      "capture_iunknown_wrapping"
+#define CAPTURE_IUNKNOWN_WRAPPING_UPPER                      "CAPTURE_IUNKNOWN_WRAPPING"
 #define PAGE_GUARD_COPY_ON_MAP_LOWER                         "page_guard_copy_on_map"
 #define PAGE_GUARD_COPY_ON_MAP_UPPER                         "PAGE_GUARD_COPY_ON_MAP"
 #define PAGE_GUARD_SEPARATE_READ_LOWER                       "page_guard_separate_read"
@@ -107,6 +109,10 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define DEBUG_LAYER_UPPER                                    "DEBUG_LAYER"
 #define DEBUG_DEVICE_LOST_LOWER                              "debug_device_lost"
 #define DEBUG_DEVICE_LOST_UPPER                              "DEBUG_DEVICE_LOST"
+#define DISABLE_DXR_LOWER                                    "disable_dxr"
+#define DISABLE_DXR_UPPER                                    "DISABLE_DXR"
+#define ACCEL_STRUCT_PADDING_LOWER                           "accel_struct_padding"
+#define ACCEL_STRUCT_PADDING_UPPER                           "ACCEL_STRUCT_PADDING"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -121,7 +127,7 @@ const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_
 const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_LOWER;
 const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_LOWER;
 const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_LOWER;
-const char kLogErrorsToStdoutEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDOUT_LOWER;
+const char kLogErrorsToStderrEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_LOWER;
 const char kLogFileNameEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_LOWER;
 const char kLogFileCreateNewEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_LOWER;
 const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_LOWER;
@@ -135,6 +141,7 @@ const char kScreenshotFramesEnvVar[]                         = GFXRECON_ENV_VAR_
 const char kCaptureFramesEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
 const char kCaptureTriggerEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_LOWER;
 const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_LOWER;
+const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_IUNKNOWN_WRAPPING_LOWER;
 const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
 const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
 const char kPageGuardPersistentMemoryEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_LOWER;
@@ -144,9 +151,11 @@ const char kPageGuardExternalMemoryEnvVar[]                  = GFXRECON_ENV_VAR_
 const char kPageGuardUnblockSIGSEGVEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER;
 const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER;
 const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER;
+const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER;
 const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
-const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_LOWER;
+const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
+const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
 
 #else
 // Desktop environment settings
@@ -184,8 +193,11 @@ const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_
 const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_UPPER;
 const char kCaptureTriggerEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
 const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_UPPER;
+const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_IUNKNOWN_WRAPPING_UPPER;
 const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_UPPER;
+const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_UPPER;
+const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -212,6 +224,7 @@ const std::string kOptionKeyScreenshotFrames                         = std::stri
 const std::string kOptionKeyCaptureFrames                            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureTrigger                           = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_LOWER);
 const std::string kOptionKeyCaptureTriggerFrames                     = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_FRAMES_LOWER);
+const std::string kOptionKeyCaptureIUnknownWrapping                  = std::string(kSettingsFilter) + std::string(CAPTURE_IUNKNOWN_WRAPPING_LOWER);
 const std::string kOptionKeyPageGuardCopyOnMap                       = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
 const std::string kOptionKeyPageGuardSeparateRead                    = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
 const std::string kOptionKeyPageGuardPersistentMemory                = std::string(kSettingsFilter) + std::string(PAGE_GUARD_PERSISTENT_MEMORY_LOWER);
@@ -223,6 +236,8 @@ const std::string kOptionKeyPageGuardSignalHandlerWatcher            = std::stri
 const std::string kOptionKeyPageGuardSignalHandlerWatcherMaxRestores = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER);
 const std::string kDebugLayer                                        = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                                   = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
+const std::string kOptionDisableDxr                                  = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
+const std::string kOptionAccelStructPadding                          = std::string(kSettingsFilter) + std::string(ACCEL_STRUCT_PADDING_LOWER);
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;

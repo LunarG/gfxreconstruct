@@ -101,12 +101,6 @@ std::string ToString<VkWriteDescriptorSet>(const VkWriteDescriptorSet& obj,
                                            uint32_t                    tabCount,
                                            uint32_t                    tabSize);
 
-template <>
-std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj,
-                                          ToStringFlags              toStringFlags,
-                                          uint32_t                   tabCount,
-                                          uint32_t                   tabSize);
-
 template <typename VkHandleType>
 inline std::string VkHandleToString(VkHandleType vkHandle)
 {

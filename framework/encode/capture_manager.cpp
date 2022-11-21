@@ -32,6 +32,7 @@
 #include "util/compressor.h"
 #include "util/file_path.h"
 #include "util/date_time.h"
+#include "util/driver_info.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -92,7 +93,8 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
     current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0)
+    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0),
+    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -738,6 +740,11 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
     {
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
+
+        gfxrecon::util::filepath::FileInfo info{};
+        gfxrecon::util::filepath::GetApplicationInfo(info);
+        WriteExeFileInfo(info);
+
         // Save parameters of the capture in an annotation.
         std::string operation_annotation = "{\n"
                                            "    \"tool\": \"capture\",\n"
@@ -819,6 +826,21 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
     }
+}
+
+void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
+{
+    size_t                   info_length     = sizeof(format::ExeFileInfoBlock);
+    format::ExeFileInfoBlock exe_info_header = {};
+    exe_info_header.info_record              = info;
+
+    exe_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
+    exe_info_header.meta_header.meta_data_id =
+        format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfoCommand);
+    exe_info_header.thread_id = GetThreadData()->thread_id_;
+
+    WriteToFile(&exe_info_header, sizeof(exe_info_header));
 }
 
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)

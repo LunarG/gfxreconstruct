@@ -247,27 +247,7 @@ bool FileProcessor::ProcessBlocks()
 
             for (auto decoder : decoders_)
             {
-                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                if (success)
-                {
-                    success = ProcessFunctionCall(block_header, api_call_id);
-
-                    // Break from loop on frame delimiter.
-                    if (IsFrameDelimiter(api_call_id))
-                    {
-                        // Make sure to increment the frame number on the way out.
-                        ++current_frame_number_;
-                        ++block_index_;
-                        break;
-                    }
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                }
+                decoder->SetCurrentBlockIndex(block_index_);
             }
 
             if (success)
@@ -387,25 +367,17 @@ bool FileProcessor::ProcessBlocks()
             }
             else
             {
-                // Unrecognized block type.
-                GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                success = SkipBytes(static_cast<size_t>(block_header.size));
+                if (!feof(file_descriptor_))
+                {
+                    // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
+                    // assumes that the block header has been successfully read and will print an incomplete block at
+                    // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
+                    // we print nothing at EOF, or print an error message and set the error code directly when not at
+                    // EOF.
+                    GFXRECON_LOG_ERROR("Failed to read block header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
             }
-        }
-        else
-        {
-            if (!feof(file_descriptor_))
-            {
-                // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
-                // assumes that the block header has been successfully read and will print an incomplete block at end
-                // of file warning when the file is at EOF without an error. For this case (the normal EOF case) we
-                // print nothing at EOF, or print an error message and set the error code directly when not at EOF.
-                GFXRECON_LOG_ERROR("Failed to read block header");
-                error_state_ = kErrorReadingBlockHeader;
-            }
-
-            ++block_index_;
         }
         ++block_index_;
     }

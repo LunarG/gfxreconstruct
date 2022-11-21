@@ -36,7 +36,7 @@ std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj, ToStri
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "nLength", toStringFlags, tabCount, tabSize, ToString(obj.nLength, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "lpSecurityDescriptor", toStringFlags, tabCount, tabSize, HandleIdToString(obj.lpSecurityDescriptor));
+            FieldToString(strStrm, false, "lpSecurityDescriptor", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.lpSecurityDescriptor)));
             FieldToString(strStrm, false, "bInheritHandle", toStringFlags, tabCount, tabSize, ToString(obj.bInheritHandle, toStringFlags, tabCount, tabSize));
         }
     );
