@@ -179,6 +179,7 @@ Page Guard Persistent Memory | GFXRECON_PAGE_GUARD_PERSISTENT_MEMORY | BOOL | Wh
 Page Guard Align Buffer Sizes | GFXRECON_PAGE_GUARD_ALIGN_BUFFER_SIZES | BOOL | When the `page_guard` memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size.  This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the `page_guard` shadow allocation to the real allocation.  This data loss can result in visible corruption during capture.  Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page.  This option is only available for the Vulkan API.  Default is `false`
 Page guard unblock SIGSEGV | GFXRECON_PAGE_GUARD_UNBLOCK_SIGSEGV | BOOL | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask. Default is `false`
 Page guard signal handler watcher | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER | BOOL | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`
+Page guard signal handler watcher max restores | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative will make the watcher thread run indefinitely. Default is `1`
 
 #### Memory Tracking Known Issues
 
@@ -449,18 +450,10 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
-  --api <api>           Use the specified API for replay (Windows only).
-                        Available values are:
-                            vulkan      Replay with the Vulkan API enabled.
-                            d3d12       Replay with the Direct3D API enabled.
-                            all         Replay with both the Vulkan and Direct3D 12 APIs
-                                        enabled. This is the default.
-  --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
-                        displayed when abort() is called (Windows debug only).
-  --use-captured-swapchain-indices 
-                        Use the swapchain indices stored in the capture directly on the swapchain 
+  --use-captured-swapchain-indices
+                        Use the swapchain indices stored in the capture directly on the swapchain
                         setup for replay. The default without this option is to use a Virtual Swapchain
-                        of images which match the swapchain in effect at capture time and which are 
+                        of images which match the swapchain in effect at capture time and which are
                         copied to the underlying swapchain of the implementation being replayed on.
 ```
 

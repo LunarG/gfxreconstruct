@@ -20,7 +20,8 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-/// @file Facilities for the conversion of types to strings.
+/// @file Facilities for the conversion of types to strings, oriented  towards
+/// JSON Lines output.
 
 #ifndef GFXRECON_TO_STRING_H
 #define GFXRECON_TO_STRING_H
@@ -46,6 +47,8 @@ enum ToStringFlagBits
 
 typedef uint32_t ToStringFlags;
 
+/// @brief  A template ToString to take care of simple POD cases like the many
+/// types of integers and the 32 bit and 64 bit floating point types.
 template <typename T>
 inline std::string
 ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
@@ -56,6 +59,14 @@ ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t
     return std::to_string(obj);
 }
 
+/// @brief A template that exists only to allow the ToStrings for 32 bit sets of
+/// flags to be template specializations.
+/// It is never called and its return value of "0" is a meaningless placeholder
+/// to allow compilation to succeed.
+/// @note There seems to be no reason for those ToStrings to be template
+/// function specializations since a caller has to explicitly spell out a type
+/// to call one of them and there is no function resolution based on argument
+/// types going on.
 template <typename T>
 inline std::string ToString(uint32_t      apiFlags,
                             ToStringFlags toStringFlags = kToString_Default,
@@ -66,6 +77,7 @@ inline std::string ToString(uint32_t      apiFlags,
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+
     return "0";
 }
 
@@ -175,7 +187,7 @@ ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize
 
 inline void FieldToString(std::stringstream& strStrm,
                           bool               firstField,
-                          const std::string& fieldName,
+                          const char*        fieldName,
                           ToStringFlags      toStringFlags,
                           uint32_t           tabCount,
                           uint32_t           tabSize,
@@ -305,6 +317,16 @@ inline void JSONEscape(const char* cstr, std::string& escaped)
     }
 }
 
+inline std::string JSONEscape(const std::string& str)
+{
+    std::string escaped;
+    for (const auto c : str)
+    {
+        JSONEscape(c, escaped);
+    }
+    return escaped;
+}
+
 /// @brief  A single point for the conversion of C-style strings to the JSON
 /// string type or null.
 inline std::string CStrToString(const char* const cstr)
@@ -341,22 +363,25 @@ inline std::string CStrArrayToString(size_t             count,
         [&](uint32_t i) { return CStrToString(ppStrs[i]); });
 }
 
-template <typename EnumType>
-inline std::string EnumArrayToString(size_t              count,
-                                     const EnumType*     pObjs,
-                                     util::ToStringFlags toStringFlags = util::kToString_Default,
-                                     uint32_t            tabCount      = 0,
-                                     uint32_t            tabSize       = 4)
+/// @brief Make a copy of the input string with double quotes at start and end.
+inline std::string Quote(const std::string& str)
 {
-    using namespace util;
-    return ArrayToString(
-        count,
-        pObjs,
-        toStringFlags,
-        tabCount,
-        tabSize,
-        [&]() { return pObjs != nullptr; },
-        [&](size_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
+    std::string quoted{ '"' };
+    quoted += str;
+    quoted += '"';
+    return quoted;
+}
+
+/// @brief Make a copy of the input string with double quotes at start and end.
+inline std::string Quote(const char* const str)
+{
+    std::string quoted{ '"' };
+    if (str != nullptr)
+    {
+        quoted += str;
+    }
+    quoted += '"';
+    return quoted;
 }
 
 GFXRECON_END_NAMESPACE(util)

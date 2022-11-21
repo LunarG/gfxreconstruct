@@ -6,6 +6,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/date_time.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/defines.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.cpp
@@ -34,6 +35,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/platform.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/strings.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/strings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/shared_mutex.h

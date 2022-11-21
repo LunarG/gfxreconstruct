@@ -243,7 +243,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                     elif 'char' in value.base_type:
                         toString = 'CStrToString(obj.{0})'
                     elif 'UUID' in value.array_length or 'LUID' in value.array_length:
-                        toString = '\'"\' + UIDToString({1}, obj.{0}) + \'"\''
+                        toString = 'Quote(UIDToString({1}, obj.{0}))'
                     else:
                         # Embedded array of misc other stuff (ints, masks, floats, etc.):
                         toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
@@ -254,7 +254,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                     elif self.is_struct(value.base_type):
                         toString = 'ToString(*(decoded_obj.{0}), toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
-                        toString = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
+                        toString = 'Quote(ToString(obj.{0}, toStringFlags, tabCount, tabSize))'
                     else:
                         toString = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 

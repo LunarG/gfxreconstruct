@@ -99,6 +99,8 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         vma_functions_.vkBindBufferMemory2KHR                  = functions_.bind_buffer_memory2;
         vma_functions_.vkBindImageMemory2KHR                   = functions_.bind_image_memory2;
         vma_functions_.vkGetPhysicalDeviceMemoryProperties2KHR = functions_.get_physical_device_memory_properties2;
+        vma_functions_.vkGetInstanceProcAddr                   = functions_.get_instance_proc_addr;
+        vma_functions_.vkGetDeviceProcAddr                     = functions_.get_device_proc_addr;
 
         VmaAllocatorCreateInfo create_info = {};
 
@@ -1031,7 +1033,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
     ResourceAllocInfo* resource_alloc_info,
     VkDeviceSize       oiriginal_start,
     VkDeviceSize       original_end,
-    void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult     result     = VK_SUCCESS;
     VkDeviceSize src_offset = 0;
@@ -1048,7 +1050,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
 
         if (result == VK_SUCCESS)
         {
-            update_func(allocator_, resource_alloc_info->allocation, dst_offset, data_size);
+            result = update_func(allocator_, resource_alloc_info->allocation, dst_offset, data_size);
         }
     }
 
@@ -1059,7 +1061,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
     uint32_t                   memory_range_count,
     const VkMappedMemoryRange* memory_ranges,
     const MemoryData*          allocator_datas,
-    void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult result = VK_SUCCESS;
 

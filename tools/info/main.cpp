@@ -44,6 +44,7 @@
 #include "graphics/dx12_util.h"
 #endif
 #include "util/argument_parser.h"
+#include "util/strings.h"
 #include "util/logging.h"
 #include "util/to_string.h"
 
@@ -161,11 +162,24 @@ static std::string GetVersionString(uint32_t api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
-void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
-                            gfxrecon::decode::FileProcessor& file_processor,
-                            gfxrecon::decode::StatConsumer&  stat_consumer)
+class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxrecon::decode::AnnotationHandler
 {
-    api_agnostic_stats.error_state = file_processor.GetErrorState();
+  public:
+    uint32_t                        GetTrimmedStartFrame() const { return trimmed_frame_; }
+    const std::string&              GetAppName() const { return app_name_; }
+    uint32_t                        GetAppVersion() const { return app_version_; }
+    const std::string&              GetEngineName() const { return engine_name_; }
+    uint32_t                        GetEngineVersion() const { return engine_version_; }
+    uint32_t                        GetApiVersion() const { return api_version_; }
+    uint64_t                        GetGraphicsPipelineCount() const { return graphics_pipelines_; }
+    uint64_t                        GetComputePipelineCount() const { return compute_pipelines_; }
+    uint64_t                        GetDrawCount() const { return draw_count_; }
+    uint64_t                        GetDispatchCount() const { return dispatch_count_; }
+    uint64_t                        GetAllocationCount() const { return allocation_count_; }
+    uint64_t                        GetMinAllocationSize() const { return min_allocation_size_; }
+    uint64_t                        GetMaxAllocationSize() const { return max_allocation_size_; }
+    uint64_t                        GetAnnotationCount() const { return annotation_count_; }
+    const std::vector<std::string>& GetOperationAnnotationDatas() const { return operation_annotation_datas_; }
 
     // File options.
     gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
@@ -184,26 +198,27 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
 }
 
 
-void PrintDriverInfo(const gfxrecon::decode::DriverInfoConsumer& driver_info_consumer)
-{
-    GFXRECON_WRITE_CONSOLE("");
-    GFXRECON_WRITE_CONSOLE("Driver info:");
-    GFXRECON_WRITE_CONSOLE("\t%s", driver_info_consumer.GetDriverDesc());
-}
+    /// @brief Count all annotations and save the operation ones which contain data
+    /// such as build versions from the tools that have processed the file.
+    virtual void ProcessAnnotation(uint64_t                         block_index,
+                                   gfxrecon::format::AnnotationType type,
+                                   const std::string&               label,
+                                   const std::string&               data) override
+    {
+        ++annotation_count_;
+        if (type == gfxrecon::format::AnnotationType::kJson &&
+            label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
+        {
+            operation_annotation_datas_.push_back(data);
+        }
+    }
 
-void PrintExeInfo(const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
-{
-    GFXRECON_WRITE_CONSOLE("Exe info:");
-    GFXRECON_WRITE_CONSOLE("\tApplication exe name: %s", exe_info_consumer.GetAppExeName().c_str());
-
-    auto exe_version = exe_info_consumer.GetAppVersion();
-    GFXRECON_WRITE_CONSOLE(
-        "\tApplication version: %d.%d.%d.%d", exe_version[0], exe_version[1], exe_version[2], exe_version[3]);
-    GFXRECON_WRITE_CONSOLE("\tApplication Company name: %s", exe_info_consumer.GetCompanyName());
-
-    // we are combining file description and product name and presenting both only if they are not same
-    std::string app_data = exe_info_consumer.GetFileDescription();
-    if (strcmp(exe_info_consumer.GetProductName(), "N/A") != 0)
+    virtual void Process_vkCreateInstance(
+        const gfxrecon::decode::ApiCallInfo&                                                    call_info,
+        VkResult                                                                                returnValue,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkInstanceCreateInfo>* pCreateInfo,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
+        gfxrecon::decode::HandlePointerDecoder<VkInstance>*) override
     {
         if (strcmp(exe_info_consumer.GetProductName(), exe_info_consumer.GetFileDescription()) != 0)
         {
@@ -427,212 +442,15 @@ void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     }
 }
 
-void PrintDx12SwapchainInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
-{
-    GFXRECON_WRITE_CONSOLE("D3D12 swapchain info:");
+    // Memory allocation info.
+    uint64_t allocation_count_{ 0 };
+    uint64_t min_allocation_size_{ std::numeric_limits<uint64_t>::max() };
+    uint64_t max_allocation_size_{ 0 };
 
-    if (dx12_consumer.FoundSwapchainInfo())
-    {
-        GFXRECON_WRITE_CONSOLE("\tDimensions: %s", dx12_consumer.GetSwapchainDimensions().c_str());
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("\tDimensions not available.");
-    }
-
-    GFXRECON_WRITE_CONSOLE("");
-}
-
-void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
-{
-    if (dx12_consumer.ContainsEiWorkload())
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 EI workload: yes");
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 EI workload: no");
-    }
-
-    GFXRECON_WRITE_CONSOLE("");
-
-    if (dx12_consumer.ContainsDxrWorkload())
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
-    }
-
-    GFXRECON_WRITE_CONSOLE("");
-
-    if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
-    {
-        if (dx12_consumer.ContainsOptFillMem())
-        {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: yes");
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: no");
-        }
-    }
-}
-
-void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
-                     const ApiAgnosticStats&               api_agnostic_stats,
-                     gfxrecon::decode::DriverInfoConsumer& driver_info_consumer)
-{
-
-    if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
-    {
-        GFXRECON_WRITE_CONSOLE("");
-        GFXRECON_WRITE_CONSOLE("File info:");
-
-        // Compression type.
-        std::string compression_type_name =
-            gfxrecon::format::GetCompressionTypeName(api_agnostic_stats.compression_type);
-        if (!compression_type_name.empty())
-        {
-            GFXRECON_WRITE_CONSOLE("\tCompression format: %s", compression_type_name.c_str());
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("\tCompression format: %s", kUnrecognizedFormatString);
-        }
-
-        if (api_agnostic_stats.trim_start_frame == 0)
-        {
-            // Not a trimmed file.
-            GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", api_agnostic_stats.frame_count);
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("\tBlank frames: %u", dx12_consumer.GetDummyFrameCount());
-            GFXRECON_WRITE_CONSOLE("\tCaptured frames: %u", api_agnostic_stats.frame_count);
-            GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", dx12_consumer.GetDummyFrameCount() + api_agnostic_stats.frame_count);
-
-            GFXRECON_WRITE_CONSOLE("\tApplication frame range: %u-%u",
-                                   api_agnostic_stats.trim_start_frame,
-                                   api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
-        }
-
-        PrintDriverInfo(driver_info_consumer);
-
-        PrintDx12RuntimeInfo(dx12_consumer);
-
-        PrintDx12AdapterInfo(dx12_consumer);
-
-        PrintDx12SwapchainInfo(dx12_consumer);
-
-        PrintDxrEiInfo(dx12_consumer);
-    }
-    else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
-    {
-        GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
-        gfxrecon::util::Log::Release();
-        exit(-1);
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-    }
-}
-
-static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kEnumGpuIndices))
-    {
-        IDXGIFactory1* factory1 = nullptr;
-
-        HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
-
-        if (SUCCEEDED(result))
-        {
-            gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
-            gfxrecon::graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters);
-
-            GFXRECON_WRITE_CONSOLE("GPU index\tGPU name");
-            for (size_t index = 0; index < adapters.size(); ++index)
-            {
-                for (auto adapter : adapters)
-                {
-                    if (index == adapter.second.adapter_idx)
-                    {
-                        std::string replay_adapter_str =
-                            gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
-
-                        GFXRECON_WRITE_CONSOLE("%-9x\t%s", adapter.second.adapter_idx, replay_adapter_str.c_str());
-                        adapter.second.adapter->Release();
-                        break;
-                    }
-                }
-            }
-            factory1->Release();
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Failed to enumerate GPU indices");
-        }
-
-        return true;
-    }
-
-    return false;
-}
-#endif
-
-void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
-{
-#if defined(D3D12_SUPPORT)
-    gfxrecon::decode::FileProcessor file_processor;
-
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::DriverInfoConsumer    driver_info_consumer;
-        gfxrecon::decode::DriverInfoDecoderBase driver_info_decoder;
-        driver_info_decoder.AddConsumer(&driver_info_consumer);
-        file_processor.AddDecoder(&driver_info_decoder);
-
-        gfxrecon::decode::Dx12StatsConsumer dx12_consumer;
-        gfxrecon::decode::StatDecoderBase   stat_decoder;
-        gfxrecon::decode::StatConsumer      stat_consumer;
-        gfxrecon::decode::Dx12Decoder       dx12_decoder;
-
-        stat_decoder.AddConsumer(&stat_consumer);
-        file_processor.AddDecoder(&stat_decoder);
-        dx12_decoder.AddConsumer(&dx12_consumer);
-        file_processor.AddDecoder(&dx12_decoder);
-
-        file_processor.ProcessAllFrames();
-        if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
-        {
-            ApiAgnosticStats api_agnostic_stats = {};
-            GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
-
-            PrintExeInfo(exe_info_consumer);
-            PrintD3D12Stats(dx12_consumer, api_agnostic_stats, driver_info_consumer);
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("Encountered error while reading capture. Stats unavailable.");
-        }
-    }
-#endif
-}
-
-void GatherExeInfo(const std::string& input_filename, gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::ExeInfoDecoderBase exe_info_decoder;
-        exe_info_decoder.AddConsumer(&exe_info_consumer);
-        file_processor.AddDecoder(&exe_info_decoder);
-        file_processor.ProcessAllFrames();
-    }
-}
+    // Annotation info.
+    std::vector<std::string> operation_annotation_datas_;
+    uint64_t                 annotation_count_{ 0 };
+};
 
 int main(int argc, const char** argv)
 {
@@ -677,9 +495,16 @@ int main(int argc, const char** argv)
 
     if (exe_info_only == false)
     {
-        bool detected_d3d12  = false;
-        bool detected_vulkan = false;
-        if (gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan))
+        gfxrecon::decode::VulkanDecoder decoder;
+        VulkanStatsConsumer             stats_consumer;
+
+        decoder.AddConsumer(&stats_consumer);
+
+        file_processor.AddDecoder(&decoder);
+        file_processor.SetAnnotationProcessor(&stats_consumer);
+        file_processor.ProcessAllFrames();
+
+        if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
         {
             if (detected_d3d12)
             {
@@ -687,7 +512,107 @@ int main(int argc, const char** argv)
             }
             if (detected_vulkan)
             {
-                GatherVulkanStats(input_filename, exe_info_consumer);
+                GFXRECON_WRITE_CONSOLE("\tCompression format: %s", compression_type_name.c_str());
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("\tCompression format: %s", kUnrecognizedFormatString);
+            }
+
+            // Frame counts.
+            uint32_t trim_start_frame = stats_consumer.GetTrimmedStartFrame();
+            uint32_t frame_count      = file_processor.GetCurrentFrameNumber();
+
+            if (trim_start_frame == 0)
+            {
+                // Not a trimmed file.
+                GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", frame_count);
+            }
+            else
+            {
+                // Include the frame range for trimmed files.
+                GFXRECON_WRITE_CONSOLE("\tTotal frames: %u (trimmed frame range %u-%u)",
+                                       frame_count,
+                                       trim_start_frame,
+                                       trim_start_frame + frame_count - 1);
+            }
+
+            // Application info.
+            uint32_t api_version = stats_consumer.GetApiVersion();
+            GFXRECON_WRITE_CONSOLE("\nApplication info:");
+            GFXRECON_WRITE_CONSOLE("\tApplication name: %s", stats_consumer.GetAppName().c_str());
+            GFXRECON_WRITE_CONSOLE("\tApplication version: %u", stats_consumer.GetAppVersion());
+            GFXRECON_WRITE_CONSOLE("\tEngine name: %s", stats_consumer.GetEngineName().c_str());
+            GFXRECON_WRITE_CONSOLE("\tEngine version: %u", stats_consumer.GetEngineVersion());
+            GFXRECON_WRITE_CONSOLE("\tTarget API version: %u (%s)", api_version, GetVersionString(api_version).c_str());
+
+            // Properties for physical devices used to create logical devices.
+            std::vector<const VkPhysicalDeviceProperties*> used_device_properties;
+            auto                                           used_devices = stats_consumer.GetInstantiatedDevices();
+            for (auto entry : used_devices)
+            {
+                auto properties = stats_consumer.GetDeviceProperties(entry);
+                if (properties != nullptr)
+                {
+                    used_device_properties.push_back(properties);
+                }
+            }
+
+            // Don't print anything if no queries were made for VkPhysicalDeviceProperties.
+            if (!used_device_properties.empty())
+            {
+                for (auto entry : used_device_properties)
+                {
+                    GFXRECON_WRITE_CONSOLE("\nPhysical device info:");
+                    GFXRECON_WRITE_CONSOLE("\tDevice name: %s", entry->deviceName);
+                    GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", entry->deviceID);
+                    GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", entry->vendorID);
+                    GFXRECON_WRITE_CONSOLE("\tDriver version: %u (0x%x)", entry->driverVersion, entry->driverVersion);
+                    GFXRECON_WRITE_CONSOLE(
+                        "\tAPI version: %u (%s)", entry->apiVersion, GetVersionString(entry->apiVersion).c_str());
+                }
+            }
+
+            auto alocation_count = stats_consumer.GetAllocationCount();
+            GFXRECON_WRITE_CONSOLE("\nDevice memory allocation info:");
+            GFXRECON_WRITE_CONSOLE("\tTotal allocations: %" PRIu64, alocation_count);
+
+            if (alocation_count > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("\tMin allocation size: %" PRIu64, stats_consumer.GetMinAllocationSize());
+                GFXRECON_WRITE_CONSOLE("\tMax allocation size: %" PRIu64, stats_consumer.GetMaxAllocationSize());
+            }
+
+            GFXRECON_WRITE_CONSOLE("\nPipeline info:");
+            GFXRECON_WRITE_CONSOLE("\tTotal graphics pipelines: %" PRIu64, stats_consumer.GetGraphicsPipelineCount());
+            GFXRECON_WRITE_CONSOLE("\tTotal compute pipelines: %" PRIu64, stats_consumer.GetComputePipelineCount());
+
+            const auto annotation_count = stats_consumer.GetAnnotationCount();
+            if (annotation_count > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("\nAnnotation info:");
+                GFXRECON_WRITE_CONSOLE("\tTotal annotations: %" PRIu64, annotation_count);
+                auto& operation_annotation_datas = stats_consumer.GetOperationAnnotationDatas();
+                if (operation_annotation_datas.size() > 0)
+                {
+                    GFXRECON_WRITE_CONSOLE("\tOperation annotations: %" PRIu64 "\n", operation_annotation_datas.size());
+                    for (const auto& operation : operation_annotation_datas)
+                    {
+                        auto tabbed = gfxrecon::util::strings::TabRight(operation);
+                        GFXRECON_WRITE_CONSOLE(tabbed.c_str());
+                    }
+                }
+            }
+
+            // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls
+            // executed when recorded once to a command buffer that is submitted/replayed more than once.
+            // GFXRECON_WRITE_CONSOLE("\nDraw/dispatch call info:");
+            // GFXRECON_WRITE_CONSOLE("\tTotal draw calls: %" PRIu64, stats_consumer.GetDrawCount());
+            // GFXRECON_WRITE_CONSOLE("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetDispatchCount());
+
+            if (file_processor.GetCurrentFrameNumber() == 0)
+            {
+                GFXRECON_WRITE_CONSOLE("\nFile did not contain any frames");
             }
         }
     }

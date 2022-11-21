@@ -47,11 +47,12 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageGuardManager
 {
   public:
-    static const bool kDefaultEnableCopyOnMap            = true;
-    static const bool kDefaultEnableSeparateRead         = true;
-    static const bool kDefaultEnableReadWriteSamePage    = true;
-    static const bool kDefaultUnblockSIGSEGV             = false;
-    static const bool kDefaultEnableSignalHandlerWatcher = false;
+    static const bool kDefaultEnableCopyOnMap                 = true;
+    static const bool kDefaultEnableSeparateRead              = true;
+    static const bool kDefaultEnableReadWriteSamePage         = true;
+    static const bool kDefaultUnblockSIGSEGV                  = false;
+    static const bool kDefaultEnableSignalHandlerWatcher      = false;
+    static const int  kDefaultSignalHandlerWatcherMaxRestores = 1;
 
     static const uintptr_t kNullShadowHandle = 0;
 
@@ -66,7 +67,8 @@ class PageGuardManager
                        bool enable_separate_read,
                        bool expect_read_write_same_page,
                        bool unblock_SIGSEGV,
-                       bool enable_signal_handler_watcher);
+                       bool enable_signal_handler_watcher,
+                       int  signal_handler_watcher_max_restores);
 
     static void Destroy();
 
@@ -122,7 +124,8 @@ class PageGuardManager
                      bool enable_separate_read,
                      bool expect_read_write_same_page,
                      bool unblock_SIGSEGV,
-                     bool enable_signal_handler_watcher);
+                     bool enable_signal_handler_watcher,
+                     int  signal_handler_watcher_max_restores);
 
     ~PageGuardManager();
 
@@ -236,6 +239,7 @@ class PageGuardManager
     const bool               enable_separate_read_;
     const bool               unblock_sigsegv_;
     bool                     enable_signal_handler_watcher_;
+    int                      signal_handler_watcher_max_restores_;
 
     // Only applies to WIN32 builds and Linux/Android builds with PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION defined.
     const bool enable_read_write_same_page_;
@@ -247,10 +251,7 @@ class PageGuardManager
     static bool  CheckSignalHandler();
     void         MarkAllTrackedMemoryAsDirty();
 
-    // Configures how many times the signal handler watcher thread will fix the signal handler.
-    // Then the thread will terminate
-    static constexpr uint32_t signal_handler_watcher_max_restores_{ 1 };
-    static uint32_t           signal_handler_watcher_restores_;
+    static uint32_t signal_handler_watcher_restores_;
 #endif
 };
 

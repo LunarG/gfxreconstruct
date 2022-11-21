@@ -28,6 +28,7 @@
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "generated/generated_vulkan_wrapper_handle_list.h"
 #include "util/defines.h"
 
 #include <algorithm>
@@ -113,6 +114,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
     if ((*handle) != VK_NULL_HANDLE)
     {
         Wrapper* wrapper      = new Wrapper;
+        wrapper->active       = true;
         wrapper->dispatch_key = *reinterpret_cast<void**>(*handle);
         wrapper->handle       = (*handle);
         wrapper->handle_id    = get_id();
@@ -128,6 +130,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
         }
 
         (*handle) = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
+        VulkanWrapperHandleList::Get()->AddWrapperHandle(wrapper);
     }
 }
 
@@ -138,9 +141,11 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
     if ((*handle) != VK_NULL_HANDLE)
     {
         Wrapper* wrapper   = new Wrapper;
+        wrapper->active    = true;
         wrapper->handle    = (*handle);
         wrapper->handle_id = get_id();
         (*handle)          = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
+        VulkanWrapperHandleList::Get()->AddWrapperHandle(wrapper);
     }
 }
 
@@ -426,7 +431,7 @@ void DestroyWrappedHandle(typename Wrapper::HandleType handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
-        delete reinterpret_cast<Wrapper*>(handle);
+        reinterpret_cast<Wrapper*>(handle)->active = false;
     }
 }
 
@@ -444,16 +449,16 @@ inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
             {
                 for (auto display_mode_wrapper : display_wrapper->child_display_modes)
                 {
-                    delete display_mode_wrapper;
+                    display_mode_wrapper->active = false;
                 }
 
-                delete display_wrapper;
+                display_wrapper->active = false;
             }
 
-            delete physical_device_wrapper;
+            physical_device_wrapper->active = false;
         }
 
-        delete wrapper;
+        wrapper->active = false;
     }
 }
 
@@ -467,10 +472,10 @@ inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
 
         for (auto queue_wrapper : wrapper->child_queues)
         {
-            delete queue_wrapper;
+            queue_wrapper->active = false;
         }
 
-        delete wrapper;
+        wrapper->active = false;
     }
 }
 
@@ -483,7 +488,7 @@ inline void DestroyWrappedHandle<CommandBufferWrapper>(VkCommandBuffer handle)
         auto wrapper = reinterpret_cast<CommandBufferWrapper*>(handle);
         wrapper->parent_pool->child_buffers.erase(wrapper->handle_id);
 
-        delete wrapper;
+        wrapper->active = false;
     }
 }
 
@@ -497,10 +502,10 @@ inline void DestroyWrappedHandle<CommandPoolWrapper>(VkCommandPool handle)
 
         for (const auto& buffer_wrapper : wrapper->child_buffers)
         {
-            delete buffer_wrapper.second;
+            buffer_wrapper.second->active = false;
         }
 
-        delete wrapper;
+        wrapper->active = false;
     }
 }
 
@@ -513,7 +518,7 @@ inline void DestroyWrappedHandle<DescriptorSetWrapper>(VkDescriptorSet handle)
         auto wrapper = reinterpret_cast<DescriptorSetWrapper*>(handle);
         wrapper->parent_pool->child_sets.erase(wrapper->handle_id);
 
-        delete wrapper;
+        wrapper->active = false;
     }
 }
 
@@ -527,10 +532,10 @@ inline void DestroyWrappedHandle<DescriptorPoolWrapper>(VkDescriptorPool handle)
 
         for (const auto& set_wrapper : wrapper->child_sets)
         {
-            delete set_wrapper.second;
+            set_wrapper.second->active = false;
         }
 
-        delete wrapper;
+        wrapper->active = false;
     }
 }
 
@@ -544,10 +549,10 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
 
         for (auto image_wrapper : wrapper->child_images)
         {
-            delete image_wrapper;
+            image_wrapper->active = false;
         }
 
-        delete wrapper;
+        wrapper->active = false;
     }
 }
 
@@ -571,7 +576,7 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
     auto wrapper = reinterpret_cast<DescriptorPoolWrapper*>(handle);
     for (const auto& set_wrapper : wrapper->child_sets)
     {
-        delete set_wrapper.second;
+        set_wrapper.second->active = false;
     }
     wrapper->child_sets.clear();
 }

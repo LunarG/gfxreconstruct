@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2020,2022 Valve Corporation
+** Copyright (c) 2018-2020,2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -247,7 +247,27 @@ bool FileProcessor::ProcessBlocks()
 
             for (auto decoder : decoders_)
             {
-                decoder->SetCurrentBlockIndex(block_index_);
+                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
+
+                success = ReadBytes(&api_call_id, sizeof(api_call_id));
+
+                if (success)
+                {
+                    success = ProcessFunctionCall(block_header, api_call_id);
+
+                    // Break from loop on frame delimiter.
+                    if (IsFrameDelimiter(api_call_id))
+                    {
+                        // Make sure to increment the frame number on the way out.
+                        ++current_frame_number_;
+                        ++block_index_;
+                        break;
+                    }
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
+                }
             }
 
             if (success)
@@ -367,20 +387,27 @@ bool FileProcessor::ProcessBlocks()
             }
             else
             {
-                if (!feof(file_descriptor_))
-                {
-                    // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
-                    // assumes that the block header has been successfully read and will print an incomplete block at
-                    // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
-                    // we print nothing at EOF, or print an error message and set the error code directly when not at
-                    // EOF.
-                    GFXRECON_LOG_ERROR("Failed to read block header");
-                    error_state_ = kErrorReadingBlockHeader;
-                }
+                // Unrecognized block type.
+                GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                success = SkipBytes(static_cast<size_t>(block_header.size));
+            }
+        }
+        else
+        {
+            if (!feof(file_descriptor_))
+            {
+                // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
+                // assumes that the block header has been successfully read and will print an incomplete block at end
+                // of file warning when the file is at EOF without an error. For this case (the normal EOF case) we
+                // print nothing at EOF, or print an error message and set the error code directly when not at EOF.
+                GFXRECON_LOG_ERROR("Failed to read block header");
+                error_state_ = kErrorReadingBlockHeader;
             }
 
             ++block_index_;
         }
+        ++block_index_;
     }
 
     return success;
@@ -1764,8 +1791,8 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
 bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
 {
     bool     success      = false;
-    uint32_t label_length = 0;
-    uint32_t data_length  = 0;
+    decltype(format::AnnotationHeader::label_length) label_length = 0;
+    decltype(format::AnnotationHeader::data_length)  data_length  = 0;
 
     success = ReadBytes(&label_length, sizeof(label_length));
     success = success && ReadBytes(&data_length, sizeof(data_length));
@@ -1775,7 +1802,9 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
         {
             std::string label;
             std::string data;
-            auto        total_length = label_length + data_length;
+            const auto  size_sum = label_length + data_length;
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size_sum);
+            const size_t total_length = static_cast<size_t>(size_sum);
 
             success = ReadParameterBuffer(total_length);
             if (success)
@@ -1789,11 +1818,12 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
                 if (data_length > 0)
                 {
                     auto data_start = std::next(parameter_buffer_.begin(), label_length);
-                    data.assign(data_start, std::next(data_start, data_length));
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
+                    data.assign(data_start, std::next(data_start, static_cast<size_t>(data_length)));
                 }
 
                 assert(annotation_handler_ != nullptr);
-                annotation_handler_->ProcessAnnotation(annotation_type, label, data);
+                annotation_handler_->ProcessAnnotation(block_index_, annotation_type, label, data);
             }
             else
             {

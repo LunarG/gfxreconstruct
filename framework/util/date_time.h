@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018, 2022 Valve Corporation
+** Copyright (c) 2018, 2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,6 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file Helpers for working with dates and times.
 
 #ifndef GFXRECON_UTIL_DATE_TIME_H
 #define GFXRECON_UTIL_DATE_TIME_H
@@ -44,7 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(datetime)
 
 #if defined(WIN32)
 
-// Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
+///@ Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
 inline uint64_t GetTimestamp()
 {
     LARGE_INTEGER StartingTime;
@@ -62,7 +63,7 @@ inline uint64_t GetTimestamp()
 
 #else // !defined(WIN32)
 
-// Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
+///@ Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
 inline int64_t GetTimestamp()
 {
 #if defined(CLOCK_MONOTONIC_RAW)
@@ -98,46 +99,19 @@ inline double ConvertTimestampToSeconds(int64_t timestamp)
     return static_cast<double>(timestamp) / 1000000000.0;
 }
 
-inline std::string GetDateTimeString(bool use_gmt)
-{
-    tm          now;
-    time_t      timer  = time(nullptr);
-    int32_t     result = 0;
-    std::string datetime;
+/// @brief Generate a compact representation of the current time.
+/// @param use_gmt Use a location-independent time zone if true, else the local
+/// one.
+std::string GetDateTimeString(bool use_gmt);
 
-    if (use_gmt)
-    {
-        result = platform::GMTime(&now, &timer);
-    }
-    else
-    {
-        result = platform::LocalTime(&now, &timer);
-    }
+/// @brief A moment in time to a rfc3339 UTC time as a string, to second
+/// resolution.
+/// rfc3339 looks like `1970-00-01T00:00:00Z`.
+std::string UtcString(const time_t seconds_since_epoch);
 
-    if (result == 0)
-    {
-        char time_char_buffer[17] = { 0 };
-        strftime(time_char_buffer, 17, "%Y%m%dT%H%M%S", &now);
-
-        if (use_gmt)
-        {
-            time_char_buffer[15] = 'Z';
-            time_char_buffer[16] = '\0';
-        }
-        else
-        {
-            time_char_buffer[15] = '\0';
-        }
-
-        datetime = time_char_buffer;
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("GetDateTimeString failed to retrieve localtime/gmtime");
-    }
-
-    return datetime;
-}
+/// @brief The current moment in UTC to the second as a string formatted to
+/// rfc3339.
+std::string UtcNowString();
 
 GFXRECON_END_NAMESPACE(datetime)
 GFXRECON_END_NAMESPACE(util)

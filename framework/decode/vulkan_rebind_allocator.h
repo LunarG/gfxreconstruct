@@ -322,12 +322,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VkResult UpdateMappedMemoryRange(ResourceAllocInfo* resource_alloc_info,
                                      VkDeviceSize       oiriginal_start,
                                      VkDeviceSize       original_end,
-                                     void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
+                                     VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
 
     VkResult UpdateMappedMemoryRanges(uint32_t                   memory_range_count,
                                       const VkMappedMemoryRange* memory_ranges,
                                       const MemoryData*          allocator_datas,
-                                      void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
+                                      VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
 
     VmaMemoryUsage GetBufferMemoryUsage(VkBufferUsageFlags          buffer_usage,
                                         VkMemoryPropertyFlags       capture_properties,

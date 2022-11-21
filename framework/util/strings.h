@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2021-2022 LunarG, Inc.
 ** Copyright (c) 2022 Valve Corporation
+** Copyright (c) 2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,30 +20,25 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file Helper functions for working with strings.
 
-#ifndef GFXRECON_ANNOTATION_HANDLER_DECODER_H
-#define GFXRECON_ANNOTATION_HANDLER_DECODER_H
+#ifndef GFXRECON_UTIL_STRINGS_H
+#define GFXRECON_UTIL_STRINGS_H
 
-#include "format/format.h"
 #include "util/defines.h"
 
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(strings)
 
-class AnnotationHandler
-{
-  public:
-    virtual ~AnnotationHandler() {}
+/// Return a a string with a tab added at the start of each new line.
+/// A string is considered to start at a new line, even an empty string.
+std::string TabRight(const std::string& str);
 
-    virtual void ProcessAnnotation(uint64_t               block_index,
-                                   format::AnnotationType type,
-                                   const std::string&     label,
-                                   const std::string&     data) = 0;
-};
-
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(strings)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ANNOTATION_HANDLER_DECODER_H
+#endif // GFXRECON_UTIL_STRINGS_H

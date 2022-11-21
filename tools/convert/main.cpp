@@ -119,38 +119,18 @@ void Convert(gfxrecon::util::ArgumentParser& arg_parser,
 
         if (output_file)
         {
-            gfxrecon::decode::VulkanAsciiConsumer vulkan_ascii_consumer;
-            gfxrecon::decode::VulkanDecoder       vulkan_decoder;
-
-            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-            auto vulkan_replay_options = GetVulkanReplayOptions(arg_parser, input_filename, &tracked_object_info_table);
-            if (vulkan_replay_options.enable_vulkan)
-            {
-                vulkan_ascii_consumer.Initialize(output_file,
-                                                 GFXRECON_PROJECT_VERSION_STRING,
-                                                 (std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                                  std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                                  std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)))
-                                                     .c_str(),
-                                                 input_filename.c_str());
-                vulkan_decoder.AddConsumer(&vulkan_ascii_consumer);
-                file_processor.AddDecoder(&vulkan_decoder);
-            }
-
-// If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
-#ifdef CONVERT_EXPERIMENTAL_D3D12
-            gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
-            gfxrecon::decode::Dx12Decoder       dx12_decoder;
-
-            auto dx_replay_options = GetDxReplayOptions(arg_parser);
-            if (dx_replay_options.enable_d3d12)
-            {
-                dx12_ascii_consumer.Initialize(output_file, gfxrecon::util::kToString_Default);
-                dx12_decoder.AddConsumer(&dx12_ascii_consumer);
-                file_processor.AddDecoder(&dx12_decoder);
-            }
-#endif
-
+            gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
+            ascii_consumer.Initialize(output_file,
+                                      GFXRECON_PROJECT_VERSION_STRING,
+                                      (std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                       std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                       std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)))
+                                          .c_str(),
+                                      input_filename.c_str());
+            gfxrecon::decode::VulkanDecoder decoder;
+            decoder.AddConsumer(&ascii_consumer);
+            file_processor.AddDecoder(&decoder);
+            file_processor.SetAnnotationProcessor(&ascii_consumer);
             file_processor.ProcessAllFrames();
 
             if (vulkan_replay_options.enable_vulkan)

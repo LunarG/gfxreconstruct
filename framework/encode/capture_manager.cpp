@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2022 LunarG, Inc.
 ** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,7 +31,7 @@
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
-#include "util/driver_info.h"
+#include "util/date_time.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -90,9 +90,9 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
-    current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0),
-    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false)
+    current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
+    previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
+    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0)
 {}
 
 CaptureManager::~CaptureManager()
@@ -122,7 +122,7 @@ bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstance
         // Initialize logging to report only errors (to stderr).
         util::Log::Settings stderr_only_log_settings;
         stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
-        stderr_only_log_settings.output_errors_to_stderr = true;
+        stderr_only_log_settings.output_errors_to_stdout = false;
         util::Log::Init(stderr_only_log_settings);
 
         // Get capture settings which can be different per capture manager.
@@ -285,7 +285,8 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         page_guard_memory_mode_        = kMemoryModeDisabled;
     }
 
-    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty())
+    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty() &&
+        trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kNotUsed)
     {
         // Use default kModeWrite capture mode.
         success = CreateCaptureFile(base_filename_);
@@ -316,13 +317,16 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
             }
         }
         // Check if trim is enabled by hot-key trigger at the first frame
-        else if (!trace_settings.trim_key.empty())
+        else if (!trace_settings.trim_key.empty() ||
+                 trace_settings.runtime_capture_trigger != CaptureSettings::RuntimeTriggerState::kNotUsed)
         {
-            trim_key_        = trace_settings.trim_key;
-            trim_key_frames_ = trace_settings.trim_key_frames;
+            trim_key_                       = trace_settings.trim_key;
+            trim_key_frames_                = trace_settings.trim_key_frames;
+            previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
 
             // Enable state tracking when hotkey pressed
-            if (IsTrimHotkeyPressed())
+            if (IsTrimHotkeyPressed() ||
+                trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled)
             {
                 capture_mode_         = kModeWriteAndTrack;
                 trim_key_first_frame_ = current_frame_;
@@ -357,7 +361,8 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage,
                                            trace_settings.page_guard_unblock_sigsegv,
-                                           trace_settings.page_guard_signal_handler_watcher);
+                                           trace_settings.page_guard_signal_handler_watcher,
+                                           trace_settings.page_guard_signal_handler_watcher_max_restores);
         }
 
         if ((capture_mode_ & kModeTrack) == kModeTrack)
@@ -521,6 +526,40 @@ bool CaptureManager::IsTrimHotkeyPressed()
     return hotkey_pressed;
 }
 
+CaptureSettings::RuntimeTriggerState CaptureManager::GetRuntimeTriggerState()
+{
+    CaptureSettings settings;
+    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
+
+    return settings.GetTraceSettings().runtime_capture_trigger;
+}
+
+bool CaptureManager::RuntimeTriggerEnabled()
+{
+    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+
+    bool result = (state == CaptureSettings::RuntimeTriggerState::kEnabled &&
+                   (previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kDisabled ||
+                    previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kNotUsed));
+
+    previous_runtime_trigger_state_ = state;
+
+    return result;
+}
+
+bool CaptureManager::RuntimeTriggerDisabled()
+{
+    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+
+    bool result = ((state == CaptureSettings::RuntimeTriggerState::kDisabled ||
+                    state == CaptureSettings::RuntimeTriggerState::kNotUsed) &&
+                   previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kEnabled);
+
+    previous_runtime_trigger_state_ = state;
+
+    return result;
+}
+
 void CaptureManager::CheckContinueCaptureForWriteMode()
 {
     if (!trim_ranges_.empty())
@@ -562,7 +601,8 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
         }
     }
     else if (IsTrimHotkeyPressed() ||
-             ((trim_key_frames_ > 0) && (current_frame_ >= (trim_key_first_frame_ + trim_key_frames_))))
+             ((trim_key_frames_ > 0) && (current_frame_ >= (trim_key_first_frame_ + trim_key_frames_))) ||
+             RuntimeTriggerDisabled())
     {
         // Stop recording and close file.
         DeactivateTrimming();
@@ -590,7 +630,7 @@ void CaptureManager::CheckStartCaptureForTrackMode()
             }
         }
     }
-    else if (IsTrimHotkeyPressed())
+    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled())
     {
         bool success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
         if (success)
@@ -698,9 +738,22 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
     {
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
-        gfxrecon::util::filepath::FileInfo info{};
-        gfxrecon::util::filepath::GetApplicationInfo(info);
-        WriteExeFileInfo(info);
+        // Save parameters of the capture in an annotation.
+        std::string operation_annotation = "{\n"
+                                           "    \"tool\": \"capture\",\n"
+                                           "    \"timestamp\": \"";
+        operation_annotation += util::datetime::UtcNowString();
+        operation_annotation += "\",\n";
+        operation_annotation += "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
+                                "    \"vulkan-version\": \"";
+        operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += '.';
+        operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += '.';
+        operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += "\"\n}";
+
+        WriteAnnotation(format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
     }
     else
     {
@@ -768,19 +821,23 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
     }
 }
 
-void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
+void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
-    size_t                   info_length      = sizeof(format::ExeFileInfoBlock);
-    format::ExeFileInfoBlock exe_info_header  = {};
-    exe_info_header.info_record               = info;
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        const auto label_length = util::platform::StringLength(label);
+        const auto data_length  = util::platform::StringLength(data);
 
-    exe_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
-    exe_info_header.meta_header.meta_data_id =
-        format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfoCommand);
-    exe_info_header.thread_id                = GetThreadData()->thread_id_;
+        format::AnnotationHeader annotation;
+        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+        annotation.block_header.type = format::BlockType::kAnnotation;
+        annotation.annotation_type   = type;
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, label_length);
+        annotation.label_length = static_cast<uint32_t>(label_length);
+        annotation.data_length  = data_length;
 
-    WriteToFile(&exe_info_header, sizeof(exe_info_header));
+        CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
+    }
 }
 
 void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
