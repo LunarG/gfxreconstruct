@@ -101,6 +101,13 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             '''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
+
+            namespace {
+                using namespace gfxrecon::util;
+                const ToStringFlags toStringFlags = kToString_Default;
+                const uint32_t tabCount = 0;
+                const uint32_t tabSize = 4;
+            }
             '''
         )
         write(namespace, file=self.outFile)
@@ -137,25 +144,35 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 cmddef += self.make_consumer_func_decl(
                     return_type, 'VulkanAsciiConsumer::Process_' + cmd, values
                 ) + '\n'
+                # Generate the code to output the return value if any:
                 return_val = ""
                 if not 'void' in return_type:
-                    return_val = ', ToString(returnValue, toStringFlags, tabCount, tabSize)'
+                    if 'VkResult' == return_type:
+                        # Dispatch to specialization for VkResult and let WriteApiCallToFile add quotes:
+                        return_val = ', ToString(returnValue)'
+                    elif 'VkDeviceAddress' == return_type or ("Get" in cmd and "Address" in cmd):
+                        # Output as hex, and let WriteApiCallToFile add quotes:
+                        return_val = ', PtrToString(returnValue)'
+                    elif 'VkBool32' == return_type:
+                        # Output as json true/false without quotes:
+                        return_val = ', Bool32ToString(returnValue), false'
+                    else:
+                        # Ints use the template ToString and are not quoted:
+                        return_val = ', ToString(returnValue), false'
+                # Generate the top of the function body:
                 cmddef += inspect.cleandoc(
                     '''
                     {{
-                        using namespace gfxrecon::util;
-                        ToStringFlags toStringFlags = kToString_Default;
-                        uint32_t tabCount = 0;
-                        uint32_t tabSize = 4;
-                        WriteApiCallToFile(call_info, "{0}", toStringFlags, tabCount, tabSize,
-                            [&](std::stringstream& strStrm)
+                        WriteApiCallToFile(call_info, "{0}", [&](std::stringstream& strStrm)
                             {{
                     '''.format(cmd)
                 )
+                # Generate FieldToString() lines for each function argument:
                 cmddef += '\n'
                 cmddef += self.make_consumer_func_body(
                     return_type, cmd, values
                 )
+                # Paste the return value if any onto the end of the WriteApiCallToFile() call:
                 cmddef += inspect.cleandoc(
                     '''
                             }}{0}
@@ -163,6 +180,8 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                     }}
                     '''.format(return_val)
                 )
+
+                # Output the completed function body:
                 write(cmddef, file=self.outFile)
                 first = False
 
