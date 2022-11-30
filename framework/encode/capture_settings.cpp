@@ -127,7 +127,7 @@ const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_
 const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_LOWER;
 const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_LOWER;
 const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_LOWER;
-const char kLogErrorsToStderrEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_LOWER;
+const char kLogErrorsToStdoutEnvVar[]                        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDOUT_LOWER;
 const char kLogFileNameEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_LOWER;
 const char kLogFileCreateNewEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_LOWER;
 const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_LOWER;
@@ -151,11 +151,12 @@ const char kPageGuardExternalMemoryEnvVar[]                  = GFXRECON_ENV_VAR_
 const char kPageGuardUnblockSIGSEGVEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER;
 const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER;
 const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER;
-const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER;
 const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
+const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_LOWER;
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
+
 
 #else
 // Desktop environment settings
