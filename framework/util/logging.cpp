@@ -142,9 +142,8 @@ void Log::Release()
 void Log::LogMessage(
     Log::Severity severity, const char* file, const char* function, const char* line, const char* message, ...)
 {
-    bool  opened_file      = false;
-    bool  write_indent     = settings_.use_indent && (settings_.indent > 0);
-    bool  output_to_stderr = false;
+    bool  opened_file  = false;
+    bool  write_indent = settings_.use_indent && (settings_.indent > 0);
     FILE* log_file_ptr;
 
     // Log message prefix
@@ -153,13 +152,6 @@ void Log::LogMessage(
 
     if (severity != kAlwaysOutputSeverity)
     {
-        // If the severity is any diagnostic information other than command logging, send to stderr unless the
-        // user has indicated all diagnostic output should be squashed to stdout.
-        if ((severity >= kDebugSeverity) && settings_.write_to_console && !settings_.output_errors_to_stdout)
-        {
-            output_to_stderr = true;
-        }
-
         // Only add a string prefix if this isn't a string that always outputs.
         prefix += "[";
         prefix += process_tag;
@@ -203,13 +195,16 @@ void Log::LogMessage(
                 // Never add prefixes or indents for the Android console logging.
                 write_prefix_and_indents = false;
 #else  // !__ANDROID__
-                if (output_to_stderr)
+       // If the severity is any diagnostic information other than command logging, send to stderr unless the
+       // user has indicated all diagnostic output should be squashed to stdout.
+                if ((severity == kAlwaysOutputSeverity) || (severity == kCommandSeverity) ||
+                    settings_.output_errors_to_stdout)
                 {
-                    log_file_ptr = stderr;
+                    log_file_ptr = stdout;
                 }
                 else
                 {
-                    log_file_ptr = stdout;
+                    log_file_ptr = stderr;
                 }
 #endif // !__ANDROID__
                 break;

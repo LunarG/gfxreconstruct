@@ -77,7 +77,7 @@ class Log
                      bool        break_on_error            = false,
                      bool        output_detailed_log_info  = false,
                      bool        write_to_console          = true,
-                     bool        errors_to_stdout          = true,
+                     bool        errors_to_stdout          = false,
                      bool        output_to_os_debug_string = false,
                      bool        use_indent                = false);
 
@@ -111,9 +111,9 @@ class Log
         {
             Severity min_acceptable = settings_.min_severity;
             // If we're to output errors to the console, we'll also accept errors
-            if (!settings_.output_errors_to_stdout && settings_.write_to_console && min_acceptable > kDebugSeverity)
+            if (!settings_.output_errors_to_stdout && settings_.write_to_console && min_acceptable > kErrorSeverity)
             {
-                min_acceptable = kDebugSeverity;
+                min_acceptable = kErrorSeverity;
             }
             if (severity < min_acceptable)
             {
