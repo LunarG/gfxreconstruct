@@ -9,6 +9,8 @@
 
 Copyright &copy; 2018-2022 LunarG, Inc.
 
+Copyright &copy; 2022 Advanced Micro Devices, Inc.
+
 # GFXReconstruct API Capture and Replay - Vulkan
 
 ## **Desktop Version**
@@ -243,8 +245,7 @@ the [Layer Options](#layer-options) section.
 
 #### Timestamps
 
-When capture file timestamps are enabled, a timestamp with an
-[ISO 8601-based](https://en.wikipedia.org/wiki/ISO_8601)
+When capture file timestamps are enabled, a timestamp with an ISO 8601-based
 format will be added to the name of every file created by the layer. The
 timestamp is generated when the capture file is created by the layer's
 `vkCreateInstance` function and is added to the base filename specified

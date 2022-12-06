@@ -131,7 +131,7 @@ The capture file's save location can be specified by setting the`GFXRECON_CAPTUR
 
 #### Timestamps
 
-When capture file timestamps are enabled, a timestamp with an [ISO 8601-based](https://en.wikipedia.org/wiki/ISO_8601)
+When capture file timestamps are enabled, a timestamp with an ISO 8601-based
 format will be added to the name of every file created by the layer. The timestamp is generated when the capture file is created and is added to the base filename specified through the `GFXRECON_CAPTURE_FILE` environment variable. Timestamps have
 the form:
 
