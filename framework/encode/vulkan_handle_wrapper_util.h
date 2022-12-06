@@ -28,7 +28,6 @@
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "generated/generated_vulkan_wrapper_handle_list.h"
 #include "util/defines.h"
 
 #include <algorithm>
@@ -130,7 +129,6 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
         }
 
         (*handle) = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
-        VulkanWrapperHandleList::Get()->AddWrapperHandle(wrapper);
     }
 }
 
@@ -145,7 +143,6 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
         wrapper->handle    = (*handle);
         wrapper->handle_id = get_id();
         (*handle)          = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
-        VulkanWrapperHandleList::Get()->AddWrapperHandle(wrapper);
     }
 }
 

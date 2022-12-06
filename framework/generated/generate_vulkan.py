@@ -50,6 +50,7 @@ generate_targets = [
     'generated_vulkan_api_call_encoders.h',
     'generated_vulkan_api_call_encoders.cpp',
     'generated_vulkan_command_buffer_util.h',
+    'generated_vulkan_object_info_table_base2.h',
     'generated_vulkan_command_buffer_util.cpp',
     'generated_vulkan_dispatch_table.h',
     'generated_layer_func_table.h',
@@ -78,8 +79,7 @@ generate_targets = [
     'generated_vulkan_struct_decoders_to_string.cpp',
     'generated_vulkan_pnext_decoders_to_string.cpp',
     'generated_vulkan_object_info_table_base2.h',
-    'generated_vulkan_state_table.h',
-    'generated_vulkan_wrapper_handle_list.h',
+    'generated_vulkan_state_table.h'
 ]
 
 if __name__ == '__main__':
