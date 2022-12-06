@@ -778,6 +778,8 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkRenderPassCreationFeedbackCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkDirectDriverLoadingListLUNARG*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT:
@@ -802,6 +804,12 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
             return ToString(*reinterpret_cast<const decode::Decoded_VkAmigoProfilingSubmitInfoSEC*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:

@@ -7105,6 +7105,26 @@ struct Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT
     StructPointerDecoder<Decoded_VkRenderPassSubpassFeedbackInfoEXT>* pSubpassFeedback{ nullptr };
 };
 
+struct Decoded_VkDirectDriverLoadingInfoLUNARG
+{
+    using struct_type = VkDirectDriverLoadingInfoLUNARG;
+
+    VkDirectDriverLoadingInfoLUNARG* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t pfnGetInstanceProcAddr{ 0 };
+};
+
+struct Decoded_VkDirectDriverLoadingListLUNARG
+{
+    using struct_type = VkDirectDriverLoadingListLUNARG;
+
+    VkDirectDriverLoadingListLUNARG* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkDirectDriverLoadingInfoLUNARG>* pDrivers{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT;
@@ -7262,6 +7282,33 @@ struct Decoded_VkAmigoProfilingSubmitInfoSEC
     using struct_type = VkAmigoProfilingSubmitInfoSEC;
 
     VkAmigoProfilingSubmitInfoSEC* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM;
+
+    VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV
+{
+    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV;
+
+    VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV;
+
+    VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
