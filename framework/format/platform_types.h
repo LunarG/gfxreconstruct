@@ -780,6 +780,10 @@ extern "C"
                                                               VkDeviceMemory                    memory,
                                                               VkExternalMemoryHandleTypeFlagsNV handleType,
                                                               HANDLE*                           pHandle);
+    typedef VkResult(VKAPI_PTR* PFN_vkAcquireWinrtDisplayNV)(VkPhysicalDevice physicalDevice, VkDisplayKHR display);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetWinrtDisplayNV)(VkPhysicalDevice physicalDevice,
+                                                         uint32_t         deviceRelativeId,
+                                                         VkDisplayKHR*    pDisplay);
 
     static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance,
                                                                   const VkWin32SurfaceCreateInfoKHR*,
@@ -878,6 +882,20 @@ extern "C"
                                                                    HANDLE*)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleNV");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireWinrtDisplayNV(VkPhysicalDevice physicalDevice, VkDisplayKHR display)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkAcquireWinrtDisplayNV");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetWinrtDisplayNV(VkPhysicalDevice physicalDevice,
+                                                              uint32_t         deviceRelativeId,
+                                                              VkDisplayKHR*    pDisplay)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetWinrtDisplayNV");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 }

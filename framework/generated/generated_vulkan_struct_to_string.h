@@ -732,6 +732,8 @@ template <> std::string ToString<VkRenderPassCreationFeedbackInfoEXT>(const VkRe
 template <> std::string ToString<VkRenderPassCreationFeedbackCreateInfoEXT>(const VkRenderPassCreationFeedbackCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkRenderPassSubpassFeedbackInfoEXT>(const VkRenderPassSubpassFeedbackInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkRenderPassSubpassFeedbackCreateInfoEXT>(const VkRenderPassSubpassFeedbackCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkDirectDriverLoadingInfoLUNARG>(const VkDirectDriverLoadingInfoLUNARG& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkDirectDriverLoadingListLUNARG>(const VkDirectDriverLoadingListLUNARG& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>(const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineShaderStageModuleIdentifierCreateInfoEXT>(const VkPipelineShaderStageModuleIdentifierCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -749,6 +751,9 @@ template <> std::string ToString<VkPhysicalDeviceTilePropertiesFeaturesQCOM>(con
 template <> std::string ToString<VkTilePropertiesQCOM>(const VkTilePropertiesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceAmigoProfilingFeaturesSEC>(const VkPhysicalDeviceAmigoProfilingFeaturesSEC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAmigoProfilingSubmitInfoSEC>(const VkAmigoProfilingSubmitInfoSEC& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>(const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>(const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>(const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureBuildRangeInfoKHR>(const VkAccelerationStructureBuildRangeInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);

@@ -10009,6 +10009,33 @@ template <> std::string ToString<VkRenderPassSubpassFeedbackCreateInfoEXT>(const
     );
 }
 
+template <> std::string ToString<VkDirectDriverLoadingInfoLUNARG>(const VkDirectDriverLoadingInfoLUNARG& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pfnGetInstanceProcAddr", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pfnGetInstanceProcAddr)));
+        }
+    );
+}
+
+template <> std::string ToString<VkDirectDriverLoadingListLUNARG>(const VkDirectDriverLoadingListLUNARG& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "driverCount", toStringFlags, tabCount, tabSize, ToString(obj.driverCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pDrivers", toStringFlags, tabCount, tabSize, ArrayToString(obj.driverCount, obj.pDrivers, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10240,6 +10267,42 @@ template <> std::string ToString<VkAmigoProfilingSubmitInfoSEC>(const VkAmigoPro
     );
 }
 
+template <> std::string ToString<VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>(const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "multiviewPerViewViewports", toStringFlags, tabCount, tabSize, ToString(obj.multiviewPerViewViewports, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>(const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "rayTracingInvocationReorderReorderingHint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.rayTracingInvocationReorderReorderingHint, toStringFlags, tabCount, tabSize)));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "rayTracingInvocationReorder", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingInvocationReorder, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -10259,6 +10322,7 @@ template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderCoreMask", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderCoreCount", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderWarpsPerCore", toStringFlags, tabCount, tabSize, ToString(obj.shaderWarpsPerCore, toStringFlags, tabCount, tabSize));
         }

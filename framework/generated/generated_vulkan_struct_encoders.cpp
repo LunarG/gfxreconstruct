@@ -6595,6 +6595,23 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassSubpassFeedbackCr
     EncodeStructPtr(encoder, value.pSubpassFeedback);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkDirectDriverLoadingInfoLUNARG& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeFunctionPtr(value.pfnGetInstanceProcAddr);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDirectDriverLoadingListLUNARG& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.mode);
+    encoder->EncodeUInt32Value(value.driverCount);
+    EncodeStructArray(encoder, value.pDrivers, value.driverCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6741,6 +6758,27 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAmigoProfilingSubmitInfoSEC
     encoder->EncodeUInt64Value(value.swapBufferTimestamp);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.multiviewPerViewViewports);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.rayTracingInvocationReorderReorderingHint);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.rayTracingInvocationReorder);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6752,6 +6790,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBui
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.shaderCoreMask);
     encoder->EncodeUInt32Value(value.shaderCoreCount);
     encoder->EncodeUInt32Value(value.shaderWarpsPerCore);
 }

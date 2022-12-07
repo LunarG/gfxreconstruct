@@ -62,14 +62,23 @@ _default_extensions = 'vulkan'
 _extensions = _features = []
 _emit_extensions = []
 
-# Exclude beta video extensions
+# Exclude extensions from code generation.
+# Note, this doesn't hide them from the  application, but lets them bypass our
+# layer during capture, meaning we will not call any of their functions at
+# replay.
+# To screen an extension out from the list reported to the application it should
+# be added to the list kUnsupportedDeviceExtensions in trace_layer.cpp.
 _remove_extensions = [
     "VK_KHR_video_queue", "VK_KHR_video_decode_queue",
     "VK_KHR_video_encode_queue", "VK_EXT_video_encode_h264",
     "VK_EXT_video_decode_h264", "VK_EXT_video_decode_h265",
     "VK_EXT_video_encode_h265", "VK_FUCHSIA_buffer_collection",
     "VK_NVX_binary_import", "VK_HUAWEI_subpass_shading",
-    "VK_EXT_pipeline_properties", "VK_EXT_metal_objects"
+    "VK_EXT_pipeline_properties", "VK_EXT_metal_objects",
+    # @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
+    "VK_EXT_descriptor_buffer",
+    "VK_NV_copy_memory_indirect",
+    "VK_NV_memory_decompression"
 ]
 
 # Turn lists of names/patterns into matching regular expressions.

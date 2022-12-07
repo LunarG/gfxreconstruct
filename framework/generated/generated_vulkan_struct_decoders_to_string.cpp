@@ -13476,6 +13476,43 @@ template <> std::string ToString<decode::Decoded_VkRenderPassSubpassFeedbackCrea
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkDirectDriverLoadingInfoLUNARG>(const decode::Decoded_VkDirectDriverLoadingInfoLUNARG& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkDirectDriverLoadingInfoLUNARG& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pfnGetInstanceProcAddr", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.pfnGetInstanceProcAddr));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkDirectDriverLoadingListLUNARG>(const decode::Decoded_VkDirectDriverLoadingListLUNARG& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkDirectDriverLoadingListLUNARG& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "driverCount", toStringFlags, tabCount, tabSize, ToString(obj.driverCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pDrivers", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pDrivers, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     if(decoded_obj.decoded_value == nullptr)
@@ -13792,6 +13829,57 @@ template <> std::string ToString<decode::Decoded_VkAmigoProfilingSubmitInfoSEC>(
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>(const decode::Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "multiviewPerViewViewports", toStringFlags, tabCount, tabSize, ToString(obj.multiviewPerViewViewports, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>(const decode::Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "rayTracingInvocationReorderReorderingHint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.rayTracingInvocationReorderReorderingHint, toStringFlags, tabCount, tabSize)));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(const decode::Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "rayTracingInvocationReorder", toStringFlags, tabCount, tabSize, ToString(obj.rayTracingInvocationReorder, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(const decode::Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     if(decoded_obj.decoded_value == nullptr)
@@ -13821,6 +13909,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderCoreBuilt
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderCoreMask", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderCoreCount", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderWarpsPerCore", toStringFlags, tabCount, tabSize, ToString(obj.shaderWarpsPerCore, toStringFlags, tabCount, tabSize));
         }
