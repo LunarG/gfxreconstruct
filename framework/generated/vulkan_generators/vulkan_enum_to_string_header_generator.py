@@ -56,12 +56,6 @@ class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
 class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
 
-    # TODO: VkFlags64's enum need a diffferent way to print
-    SKIP_ENUM = [
-        "VkFormatFeatureFlagBits2", "VkAccessFlagBits2",
-        "VkPipelineStageFlagBits2"
-    ]
-
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
@@ -130,11 +124,16 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     # yapf: disable
     def generate_feature(self):
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
+            if not enum in self.processedEnums:
                 self.processedEnums.add(enum)
                 if not enum in self.enumAliases:
-                    body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    if 'Bits' in enum:
-                        body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    write(body.format(enum), file=self.outFile)
+                    if self.is_flags_enum_64bit(enum):
+                        body = 'std::string {0}ToString(const {0} value);'
+                        body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
+                    else:
+                        body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                        if 'Bits' in enum:
+                            body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                    write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
+                          file=self.outFile)
     # yapf: enable

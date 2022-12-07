@@ -89,6 +89,23 @@ _emit_extensions_pat = _make_re_string(_emit_extensions, '.*')
 _features_pat = _make_re_string(_features, '.*')
 
 
+# Strip the "Bit" ending or near-ending from an enum representing a group of
+# flag bits to give the name of the type (typedef of Flags or Flags64) used to
+# hold a disjoint set of them.
+# It works for true enums and the 64 bit collections of static const variables
+# which are tied together only with a naming convention in the C header.
+def BitsEnumToFlagsTypedef(enum):
+    # if enum.endswith
+    flags = enum.removesuffix('Bits')
+    if flags != enum:
+        flags = flags + 's'
+        return flags
+    flags = enum.removesuffix('Bits2')
+    if flags != enum:
+        flags = flags + 's2'
+    # Gods preserve us from Bits 3, 4, 5, etc.
+    return flags
+
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
     Contains information descripting Vulkan API call parameters and struct members.
@@ -1374,3 +1391,19 @@ class BaseGenerator(OutputGenerator):
             platform_structs = platform['structs']
             if platform_structs:
                 self.PLATFORM_STRUCTS += platform_structs
+
+    # Return true if the type passed in is used to hold a set of bitwise flags
+    # that is 64 bits wide.
+    def is_64bit_flags(self, flag_type):
+        if flag_type in self.flags_types:
+            if self.flags_types[flag_type] == 'VkFlags64':
+                return True
+        return False
+
+    # Return true if the enum or 64 bit pseudo enum passed-in represents a set
+    # of bitwise flags.
+    # Note, all 64 bit pseudo-enums represent flags since the only reason to go to
+    # 64 bits is to allow more than 32 flags to be represented.
+    def is_flags_enum_64bit(self, enum):
+        flag_type = BitsEnumToFlagsTypedef(enum)
+        return self.is_64bit_flags(flag_type)

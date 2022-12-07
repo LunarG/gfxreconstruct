@@ -3855,7 +3855,7 @@ void VulkanAsciiConsumer::Process_vkCmdResetEvent2(
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
-            FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, ToString(stageMask, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, Quote(VkPipelineStageFlags2ToString(stageMask)));
         }
     );
 }
@@ -3915,7 +3915,7 @@ void VulkanAsciiConsumer::Process_vkCmdWriteTimestamp2(
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
-            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(stage, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, Quote(VkPipelineStageFlags2ToString(stage)));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
             FieldToString(strStrm, false, "query", toStringFlags, tabCount, tabSize, ToString(query, toStringFlags, tabCount, tabSize));
         }
@@ -6708,7 +6708,7 @@ void VulkanAsciiConsumer::Process_vkCmdResetEvent2KHR(
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "event", toStringFlags, tabCount, tabSize, HandleIdToString(event));
-            FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, ToString(stageMask, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, Quote(VkPipelineStageFlags2ToString(stageMask)));
         }
     );
 }
@@ -6768,7 +6768,7 @@ void VulkanAsciiConsumer::Process_vkCmdWriteTimestamp2KHR(
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
-            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(stage, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, Quote(VkPipelineStageFlags2ToString(stage)));
             FieldToString(strStrm, false, "queryPool", toStringFlags, tabCount, tabSize, HandleIdToString(queryPool));
             FieldToString(strStrm, false, "query", toStringFlags, tabCount, tabSize, ToString(query, toStringFlags, tabCount, tabSize));
         }
@@ -6814,7 +6814,7 @@ void VulkanAsciiConsumer::Process_vkCmdWriteBufferMarker2AMD(
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
-            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(stage, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, Quote(VkPipelineStageFlags2ToString(stage)));
             FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(dstBuffer));
             FieldToString(strStrm, false, "dstOffset", toStringFlags, tabCount, tabSize, ToString(dstOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "marker", toStringFlags, tabCount, tabSize, ToString(marker, toStringFlags, tabCount, tabSize));
