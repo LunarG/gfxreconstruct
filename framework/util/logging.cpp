@@ -68,7 +68,7 @@ void Log::Init(Severity    min_severity,
                bool        break_on_error,
                bool        output_detailed_log_info,
                bool        write_to_console,
-               bool        errors_to_stdout,
+               bool        errors_to_stderr,
                bool        output_to_os_debug_string,
                bool        use_indent)
 {
@@ -99,7 +99,7 @@ void Log::Init(Severity    min_severity,
     settings_.break_on_error            = break_on_error;
     settings_.output_detailed_log_info  = output_detailed_log_info;
     settings_.write_to_console          = write_to_console;
-    settings_.output_errors_to_stdout   = errors_to_stdout;
+    settings_.output_errors_to_stderr   = errors_to_stderr;
     settings_.output_to_os_debug_string = output_to_os_debug_string;
     settings_.use_indent                = use_indent;
 }
@@ -153,9 +153,9 @@ void Log::LogMessage(
 
     if (severity != kAlwaysOutputSeverity)
     {
-        // If the severity is any diagnostic information other than command logging, send to stderr unless the
-        // user has indicated all diagnostic output should be squashed to stdout.
-        if ((severity >= kDebugSeverity) && settings_.write_to_console && !settings_.output_errors_to_stdout)
+        // If the severity is an error (or worse) we always want to output it to stderr at least if the
+        // user has enabled that in the settings.
+        if ((severity >= kErrorSeverity) && settings_.write_to_console && settings_.output_errors_to_stderr)
         {
             output_to_stderr = true;
         }
