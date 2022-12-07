@@ -195,8 +195,9 @@ void Log::LogMessage(
                 // Never add prefixes or indents for the Android console logging.
                 write_prefix_and_indents = false;
 #else  // !__ANDROID__
-       // If the severity is any diagnostic information other than command logging, send to stderr unless the
-       // user has indicated all diagnostic output should be squashed to stdout.
+       // If the severity is Always severity or command logging or the user has
+       // indicated all diagnostic output should be sent to stdout, send it to
+       // stdout.  Otherwise send to stderr.
                 if ((severity == kAlwaysOutputSeverity) || (severity == kCommandSeverity) ||
                     settings_.output_errors_to_stdout)
                 {
