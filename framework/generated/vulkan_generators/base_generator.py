@@ -88,6 +88,12 @@ _remove_extensions_pat = _make_re_string(_remove_extensions)
 _emit_extensions_pat = _make_re_string(_emit_extensions, '.*')
 _features_pat = _make_re_string(_features, '.*')
 
+def removesuffix(self: str, suffix: str, /) -> str:
+    # suffix='' should not call self[:-0].
+    if suffix and self.endswith(suffix):
+        return self[:-len(suffix)]
+    else:
+        return self[:]
 
 # Strip the "Bit" ending or near-ending from an enum representing a group of
 # flag bits to give the name of the type (typedef of Flags or Flags64) used to
@@ -96,11 +102,11 @@ _features_pat = _make_re_string(_features, '.*')
 # which are tied together only with a naming convention in the C header.
 def BitsEnumToFlagsTypedef(enum):
     # if enum.endswith
-    flags = enum.removesuffix('Bits')
+    flags = removesuffix(enum, 'Bits')
     if flags != enum:
         flags = flags + 's'
         return flags
-    flags = enum.removesuffix('Bits2')
+    flags = removesuffix(enum, 'Bits2')
     if flags != enum:
         flags = flags + 's2'
     # Gods preserve us from Bits 3, 4, 5, etc.
