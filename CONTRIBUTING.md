@@ -50,7 +50,7 @@ GFXReconstruct project is updated to support new Vulkan API releases.
 If a submodule update like the one below pulls in a new version of the
 Vulkan headers at `external/Vulkan-Headers` and your in-flight branch has
 touched Python files related to code generation, you may need to run the
-Python 3 code generator.
+Python 3 code generator.  The minimum required Python version is 3.8.
 
 ```bash
 git submodule update
