@@ -123,6 +123,8 @@ class VulkanAsciiConsumerBase : public VulkanConsumer, public AnnotationHandler
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
   protected:
+    /// @deprecated Prefer the shorter function signature without toStringFlags,
+    /// tabCount, tabSize in new code.
     template <typename ToStringFunctionType>
     inline void WriteApiCallToFile(const ApiCallInfo& call_info,
                                    const std::string& functionName,
@@ -132,7 +134,9 @@ class VulkanAsciiConsumerBase : public VulkanConsumer, public AnnotationHandler
                                    const uint32_t             tabSize,
                                    const ToStringFunctionType toStringFunction,
                                    /// The formatted return string value excluding trailing comma
-                                   const std::string& return_val = std::string())
+                                   const std::string& return_val = std::string(),
+                                   // Set to false for bools and ints but leave true for enums, pointers, strings.
+                                   const bool quoteReturn = true)
     {
         // Output the start of a function call line, up to the arguments:
         if (return_val.empty())
@@ -144,11 +148,24 @@ class VulkanAsciiConsumerBase : public VulkanConsumer, public AnnotationHandler
         }
         else
         {
-            fprintf(file_,
-                    "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":\"%s\",\"args\":{",
-                    (long long unsigned int)call_info.index,
-                    functionName.c_str(),
-                    return_val.c_str());
+            if (quoteReturn == true)
+            {
+                fprintf(file_,
+                        "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":\"%s\",\"args\":{",
+                        (long long unsigned int)call_info.index,
+                        functionName.c_str(),
+                        return_val.c_str());
+            }
+            // Ugly to duplicate this but more efficient than adding conditionals above or
+            // having the caller quote with std::string manipulations.
+            else
+            {
+                fprintf(file_,
+                        "{\"index\":%llu,\"vkFunc\":{\"name\":\"%s\",\"return\":%s,\"args\":{",
+                        (long long unsigned int)call_info.index,
+                        functionName.c_str(),
+                        return_val.c_str());
+            }
         }
 
         // Reset the per-call reusable stringstream and use it to capture the full tree of
@@ -164,6 +181,21 @@ class VulkanAsciiConsumerBase : public VulkanConsumer, public AnnotationHandler
         // Push out the whole line to the next tool in any pipeline we may be chained
         // into so it can start processing it or to file:
         fflush(file_);
+    }
+
+    /// @brief  Allow callers to be incrementally refactored away from the explicit
+    /// formatting using toStringFlags, tabCount, tabSize.
+    template <typename ToStringFunctionType>
+    inline void WriteApiCallToFile(const ApiCallInfo&         call_info,
+                                   const std::string&         functionName,
+                                   const ToStringFunctionType toStringFunction,
+                                   /// The formatted return string value excluding trailing comma
+                                   const std::string& return_val = std::string(),
+                                   // Set to false for bools and ints but leave true for enums, pointers, strings.
+                                   const bool quoteReturn = true)
+    {
+        WriteApiCallToFile(
+            call_info, functionName, util::kToString_Unformatted, 0, 0, toStringFunction, return_val, quoteReturn);
     }
 
   private:

@@ -78,6 +78,11 @@ inline std::string ToString(uint32_t      apiFlags,
     return "0";
 }
 
+inline std::string Bool32ToString(const /* Don't take the header dependency for one typedef: VkBool32*/ uint32_t b)
+{
+    return b ? "true" : "false";
+}
+
 template <typename PtrType>
 inline std::string PtrToString(PtrType* ptr)
 {
