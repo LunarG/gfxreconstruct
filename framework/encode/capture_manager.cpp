@@ -124,7 +124,7 @@ bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstance
         // Initialize logging to report only errors (to stderr).
         util::Log::Settings stderr_only_log_settings;
         stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
-        stderr_only_log_settings.output_errors_to_stdout = false;
+        stderr_only_log_settings.output_errors_to_stderr = true;
         util::Log::Init(stderr_only_log_settings);
 
         // Get capture settings which can be different per capture manager.

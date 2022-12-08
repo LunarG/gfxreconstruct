@@ -1788,6 +1788,12 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassSubpassFeedbackInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT* wrapper);
 
+struct Decoded_VkDirectDriverLoadingInfoLUNARG;
+struct Decoded_VkDirectDriverLoadingListLUNARG;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDirectDriverLoadingInfoLUNARG* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDirectDriverLoadingListLUNARG* wrapper);
+
 struct Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT;
 struct Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT;
 struct Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT;
@@ -1833,6 +1839,16 @@ struct Decoded_VkAmigoProfilingSubmitInfoSEC;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAmigoProfilingSubmitInfoSEC* wrapper);
+
+struct Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM* wrapper);
+
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV;
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* wrapper);
 
 struct Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM;
 struct Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM;

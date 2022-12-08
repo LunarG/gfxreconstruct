@@ -2863,6 +2863,32 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
+            {
+                const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM* currentNext = reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(next);
+                VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->multiviewPerViewViewports == VK_TRUE) && (query.multiviewPerViewViewports == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature multiviewPerViewViewports, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(currentNext)->multiviewPerViewViewports = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
+            {
+                const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(next);
+                VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->rayTracingInvocationReorder == VK_TRUE) && (query.rayTracingInvocationReorder == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature rayTracingInvocationReorder, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(currentNext)->rayTracingInvocationReorder = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
             {
                 const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(next);

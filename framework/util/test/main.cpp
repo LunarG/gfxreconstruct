@@ -31,6 +31,7 @@
 #include "util/strings.h"
 #include "util/date_time.h"
 #include "util/logging.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 
 using namespace gfxrecon::util::strings;
 using namespace gfxrecon::util::datetime;
@@ -122,6 +123,67 @@ TEST_CASE("Quote", "[to_string]")
 
     REQUIRE(gfxrecon::util::Quote("\"VK_STENCIL_FACE_FRONT_BIT\"") == "\"\"VK_STENCIL_FACE_FRONT_BIT\"\"");
 
+    gfxrecon::util::Log::Release();
+}
+
+/// Light test of generated code for converting 64 bit enums and 64bit bitflags
+/// composed of them into strings.
+TEST_CASE("Enum64ToString", "[to_string]")
+{
+    using namespace gfxrecon::util;
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+
+    REQUIRE(VkAccessFlagBits2ToString(VK_ACCESS_2_NONE) == "VK_ACCESS_2_NONE");
+    REQUIRE(VkAccessFlagBits2ToString(VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV) ==
+            "VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV");
+
+    REQUIRE(VkAccessFlags2ToString(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT) ==
+            "VK_ACCESS_2_SHADER_READ_BIT|VK_ACCESS_2_MEMORY_WRITE_BIT");
+    REQUIRE(
+        VkAccessFlags2ToString(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT |
+                               VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT) ==
+        "VK_ACCESS_2_SHADER_READ_BIT|VK_ACCESS_2_MEMORY_WRITE_BIT|VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT");
+    REQUIRE(VkAccessFlags2ToString(VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT |
+                                   VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR |
+                                   VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT |
+                                   VK_ACCESS_2_MICROMAP_READ_BIT_EXT) ==
+            "VK_ACCESS_2_SHADER_READ_BIT|VK_ACCESS_2_MEMORY_WRITE_BIT|VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR|"
+            "VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_"
+            "EXT|VK_ACCESS_2_MICROMAP_READ_BIT_EXT");
+
+    REQUIRE(VkFormatFeatureFlagBits2ToString(VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT) ==
+            "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT");
+    // Note KHR suffix is stripped as the two consts have the same value:
+    REQUIRE(VkFormatFeatureFlagBits2ToString(VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT_KHR) ==
+            "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT");
+    REQUIRE(VkFormatFeatureFlagBits2ToString(VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV) ==
+            "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV");
+    REQUIRE(VkFormatFeatureFlags2ToString(
+                VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT | VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT |
+                VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT |
+                VK_FORMAT_FEATURE_2_DISJOINT_BIT | VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR |
+                VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT |
+                VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR |
+                VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM) ==
+            "VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT|VK_FORMAT_FEATURE_2_UNIFORM_TEXEL_BUFFER_BIT|VK_FORMAT_FEATURE_2_"
+            "SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT|"
+            "VK_FORMAT_FEATURE_2_DISJOINT_BIT|"
+            "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR|"
+            "VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR|"
+            "VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT|"
+            "VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM");
+
+    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_NONE) == "VK_PIPELINE_STAGE_2_NONE");
+    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT_KHR) ==
+            "VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT");
+    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT) ==
+            "VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT");
+    REQUIRE(VkPipelineStageFlagBits2ToString(VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT) ==
+            "VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_EXT");
+    REQUIRE(VkPipelineStageFlags2ToString(
+                VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT_KHR | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT |
+                VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT) == "VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT|VK_PIPELINE_STAGE_2_"
+                                                         "VERTEX_SHADER_BIT|VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT");
     gfxrecon::util::Log::Release();
 }
 
