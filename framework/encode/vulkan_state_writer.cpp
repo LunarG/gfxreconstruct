@@ -408,7 +408,11 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
             }
 
             // Write command to set semaphore value on replay
-            WriteSignalSemaphoreValue(signal_call_id, device_wrapper->handle_id, wrapper->handle_id, semaphore_value);
+            if (semaphore_value != 0)
+            {
+                WriteSignalSemaphoreValue(
+                    signal_call_id, device_wrapper->handle_id, wrapper->handle_id, semaphore_value);
+            }
         }
         else if (wrapper->signaled)
         {
