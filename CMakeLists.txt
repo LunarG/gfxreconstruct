@@ -119,11 +119,28 @@ if(${GFXRECON_ENABLE_RELEASE_ASSERTS})
 endif()
 
 if(MSVC)
+
+    # The host toolchain architecture (i.e. are the compiler and other tools compiled to ARM/Intel 32bit/64bit binaries):
+    message("CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE: " ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE})
+    # The platform name (architecture), we want to build our project for:
+    # e.g. passed through the commandline -A option: cmake -G "Visual Studio 17 2022" -A ARM64
+    message("CMAKE_GENERATOR_PLATFORM: " ${CMAKE_GENERATOR_PLATFORM})
+
+    set(GFXR_ARM_WINDOWS_BUILD FALSE)
+    if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+        set(GFXR_ARM_WINDOWS_BUILD TRUE)
+    endif()
+
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
     set (PRECOMPILED_ARCH "64")
     if(NOT CMAKE_CL_64)
         set (PRECOMPILED_ARCH "32")
     endif(NOT CMAKE_CL_64)
+
+    if(GFXR_ARM_WINDOWS_BUILD)
+        set (PRECOMPILED_ARCH "64-arm")
+    endif()
+
     set(CMAKE_PREFIX_PATH
         ${CMAKE_PREFIX_PATH}
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
