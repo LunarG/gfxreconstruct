@@ -625,11 +625,8 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                                              ID3D12Resource*                                        staging_buffer,
                                              bool                                                   batching)
 {
-    const dx12::ResourceStateInfo kReadState  = { D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE };
-    const dx12::ResourceStateInfo kWriteState = { D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE };
-
     // The resource state required to copy data to the target resource.
-    const dx12::ResourceStateInfo copy_state = (copy_type == kCopyTypeRead) ? kReadState : kWriteState;
+    const dx12::ResourceStateInfo copy_state = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_BARRIER_FLAG_NONE };
 
     uint64_t subresource_count = subresource_layouts.size();
 
