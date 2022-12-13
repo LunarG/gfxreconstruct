@@ -745,7 +745,9 @@ void Dx12StateWriter::WriteResourceSnapshots(
 
                 uint64_t size_in_bytes = resource_info.get()->size_in_bytes;
                 auto     device_info   = device_wrapper->GetObjectInfo();
-                if (!graphics::dx12::IsMemoryAvailable(size_in_bytes, device_info.get()->adapter3))
+
+                const double max_cpu_mem_usage = 7.0 / 8.0;
+                if (!graphics::dx12::IsMemoryAvailable(size_in_bytes, device_info.get()->adapter3, max_cpu_mem_usage))
                 {
                     // If neither system memory or GPU memory are able to accommodate next resource,
                     // execute the existing Copy() calls and release temp buffer to free memory

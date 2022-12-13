@@ -191,11 +191,12 @@ IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int3
 // The input is current adapter which created current device.
 uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter);
 
-// This function is used to get available CPU virtual memory.
-uint64_t GetAvailableCpuVirtualMemory();
+// This function is used to get available CPU memory.
+uint64_t GetAvailableCpuMemory(double max_usage);
 
-// Give require memory size to check if there are enough CPU&GPU memory to allocate the resource
-bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter);
+// Give require memory size to check if there are enough CPU&GPU memory to allocate the resource. If max_cpu_mem_usage
+// > 1.0, the result is not limited by available physical memory.
+bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter, double max_cpu_mem_usage);
 
 // Get GPU memory usage by resource desc
 uint64_t GetResourceSizeInBytes(ID3D12Device* device, const D3D12_RESOURCE_DESC* desc);
