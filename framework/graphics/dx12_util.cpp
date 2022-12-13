@@ -848,7 +848,7 @@ uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter)
     return available_mem;
 }
 
-uint64_t GetAvailableCpuVirtualMemory()
+uint64_t GetAvailableCpuMemory(double max_usage)
 {
     MEMORYSTATUSEX mem_info = {};
     mem_info.dwLength       = sizeof(MEMORYSTATUSEX);
@@ -856,10 +856,20 @@ uint64_t GetAvailableCpuVirtualMemory()
     {
         GFXRECON_LOG_ERROR("Failed to get available virtual memory");
     }
-    return mem_info.ullAvailVirtual;
+
+    // Only limit by available physical memory if max_usage <= 1.0.
+    uint64_t avail_phys = std::numeric_limits<uint64_t>::max();
+    if (max_usage <= 1.0)
+    {
+        double reserved_phys = mem_info.ullTotalPhys * (1.0 - max_usage);
+        avail_phys           = static_cast<uint64_t>(std::max(0.0, mem_info.ullAvailPhys - reserved_phys));
+    }
+
+    // Always limit by available virtual memory.
+    return std::min(avail_phys, mem_info.ullAvailVirtual);
 }
 
-bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter)
+bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter, double max_cpu_mem_usage)
 {
     bool available = false;
 #ifdef _WIN64
@@ -867,10 +877,10 @@ bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter)
     if (adapter != nullptr)
     {
         uint64_t total_available_gpu_adapter_memory = GetAvailableGpuAdapterMemory(adapter);
-        uint64_t total_available_cpu_virtual_memory = GetAvailableCpuVirtualMemory();
+        uint64_t total_available_cpu_memory         = GetAvailableCpuMemory(max_cpu_mem_usage);
         uint64_t total_required_memory              = static_cast<uint64_t>(required_memory * kMemoryTolerance);
         if ((total_required_memory < total_available_gpu_adapter_memory) &&
-            (total_required_memory < total_available_cpu_virtual_memory))
+            (total_required_memory < total_available_cpu_memory))
         {
             available = true;
         }
