@@ -233,6 +233,8 @@ def cmake_generate_build_files(args):
             cmake_generate_args.extend(['-A', 'x64'])
         elif 'x86' == args.architecture:
             cmake_generate_args.extend(['-A', 'Win32'])
+        elif 'arm64' == args.architecture:
+            cmake_generate_args.extend(['-A', 'ARM64'])
     else:
         if 'debug' == args.configuration:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
