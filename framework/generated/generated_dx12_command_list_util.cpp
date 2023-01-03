@@ -333,13 +333,9 @@ void Track_ID3D12GraphicsCommandList_OMSetRenderTargets(ID3D12CommandList_Wrappe
     GFXRECON_ASSERT(info != nullptr);
     if(pRenderTargetDescriptors != nullptr)
     {
-        if( NumRenderTargetDescriptors > 0 )
+        for (UINT i = 0; i < (NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0); ++i)
         {
-            auto array_length = RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors;
-            for (UINT i = 0; i < array_length; ++i)
-            {
-                info->command_cpu_descriptor_handles.insert(pRenderTargetDescriptors[i].ptr);
-            }
+            info->command_cpu_descriptor_handles.insert(pRenderTargetDescriptors[i].ptr);
         }
     }
     if(pDepthStencilDescriptor != nullptr)
