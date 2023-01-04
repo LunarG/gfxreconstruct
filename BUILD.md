@@ -226,6 +226,12 @@ For arm64 builds (cross compilation):
 sudo apt-get install g++-aarch64-linux-gnu
 ```
 
+For arm32 builds (cross compilation):
+
+```bash
+sudo apt-get install g++-arm-linux-gnueabihf
+```
+
 #### Fedora
 
 For Fedora, the required packages can be installed with the following
