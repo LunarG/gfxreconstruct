@@ -151,6 +151,8 @@ The GFXReconstruct Replay tool, `gfxrecon-replay`, can be used to replay files c
 
 GFXReconstruct leverages the Agility SDK runtime in order to replay. This means that GFXReconstruct's D3D12 support inherits the same Windows OS version requirements that are imposed by the Agility SDK. Please see the official Agility SDK documentation for the most up-to-date requirements.
 
+A folder named `D3D12` that contains the required Agility SDK runtime must exist in the same folder as `gfxrecon-replay.exe`. When building GFXReconstruct, the `D3D12` folder will be created in the `gfxrecon-replay` output build folder. If `gfxrecon-replay.exe` is copied to another folder, the `D3D12` folder must be copied along with it.
+
 ### Command Line Arguments
 
 The `gfxrecon-replay` tool accepts the following command line arguments:
@@ -351,6 +353,8 @@ Optional arguments:
 The `gfxrecon-optimize` tool produces new capture files with improved replay performance.
 
 Before attempting to optimize a capture file, please ensure it is able to replay first.
+
+Like `gfxrecon-replay`, `gfxrecon-optimize` also requires the `D3D12` folder to exist beside it. As mentioned previously, this folder is where GFXReconstruct references the Agility SDK runtime.
 
 There are two optimizations implemented for D3D12:
 
