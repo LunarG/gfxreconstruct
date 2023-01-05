@@ -376,16 +376,20 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
         }
 
         std::vector<VkExtensionProperties> downstream_properties(downstream_property_count);
-        result = instance_table->EnumerateDeviceExtensionProperties(
-            wrapped_device, pLayerName, &downstream_property_count, &downstream_properties[0]);
+        if (downstream_property_count != 0)
+        {
+            result = instance_table->EnumerateDeviceExtensionProperties(
+                wrapped_device, pLayerName, &downstream_property_count, &downstream_properties[0]);
+        }
+       
         if (result != VK_SUCCESS)
         {
             return result;
         }
 
         remove_extensions(downstream_properties,
-                          kUnsupportedDeviceExtensions,
-                          std::end(kUnsupportedDeviceExtensions) - std::begin(kUnsupportedDeviceExtensions));
+            kUnsupportedDeviceExtensions,
+            std::end(kUnsupportedDeviceExtensions) - std::begin(kUnsupportedDeviceExtensions));
 
         // Output the reduced count or the reduced extension list:
         if (pProperties == nullptr)
