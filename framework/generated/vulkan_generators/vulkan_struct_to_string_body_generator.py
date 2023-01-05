@@ -87,6 +87,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             #include "util/custom_vulkan_to_string.h"
             #include "generated_vulkan_struct_to_string.h"
             #include "generated_vulkan_enum_to_string.h"
+            #include "decode/custom_vulkan_ascii_consumer.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(util)
@@ -144,6 +145,14 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     # yapf: disable
     def makeStructBody(self, name, values):
         body = ''
+
+        # If the struct has a member which is a handle represented as a uint64_t,
+        # remember the name of that member:
+        cloakedHandleName = 'NO_MATCH'
+        if name in self.GENERIC_HANDLE_STRUCTS:
+            for key in self.GENERIC_HANDLE_STRUCTS[name].keys():
+                cloakedHandleName = key
+
         for value in values:
             length_expr = ''
 
@@ -165,6 +174,10 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                     toString = 'CStrArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     toString = 'CStrToString(obj.{0})'
+
+            # A handle represented as a uint64_t
+            elif cloakedHandleName == value.name:
+                toString = 'decode::HandleIdToString(obj.{0})'
 
             # There's some repeated code in this if/else block...for instance, arrays of
             #   structs, enums, and primitives all route through ArrayToString()...It's

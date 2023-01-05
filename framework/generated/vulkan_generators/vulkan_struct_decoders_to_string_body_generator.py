@@ -153,6 +153,13 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
     def makeStructBody(self, name, values):
         body = ''
 
+        # If the struct has a member which is a handle represented as a uint64_t,
+        # remember the name of that member:
+        cloakedHandleName = 'NO_MATCH'
+        if name in self.GENERIC_HANDLE_STRUCTS:
+            for key in self.GENERIC_HANDLE_STRUCTS[name].keys():
+                cloakedHandleName = key
+
         for value in values:
             length_expr = ''
 
@@ -185,6 +192,11 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                     toString = 'CStrArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 else:
                     toString = 'CStrToString(obj.{0})'
+
+            # A handle represented as a uint64_t
+            #elif ('object' == value.name) and (name in self.GENERIC_HANDLE_STRUCTS):
+            elif cloakedHandleName == value.name:
+                toString = 'decode::HandleIdToString(decoded_obj.{0})'
 
             # There's some repeated code in this if/else block...for instance, arrays of
             # structs, enums, and primitives all route through ArrayToString()...It's
