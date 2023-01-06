@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2023 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
