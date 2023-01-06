@@ -260,3 +260,5 @@ if (${RUN_TESTS})
     add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/test.py)
     generate_test_package(gfx_reconstruct_test)
 endif()
+
+add_subdirectory(scripts)

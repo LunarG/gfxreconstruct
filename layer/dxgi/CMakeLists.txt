@@ -40,3 +40,5 @@ common_build_directives(dxgi)
 add_custom_command(TARGET dxgi PRE_BUILD
                     COMMAND lib /def:${CMAKE_CURRENT_LIST_DIR}/dxgi_ms.def /out:${LINK_DXGI_OUTPUT} /machine:${LINK_ARCH}
                     DEPENDS ${CMAKE_CURRENT_LIST_DIR}/dxgi_ms.def)
+
+install(FILES $<TARGET_FILE_DIR:dxgi>/dxgi.dll DESTINATION ${CMAKE_INSTALL_BINDIR}/d3d12_capture)
