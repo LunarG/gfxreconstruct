@@ -53,7 +53,6 @@ jobs:
       run: |
         cp LICENSE.txt build/linux/x64/output/bin/
         cp LICENSE_ThirdParty.txt build/linux/x64/output/bin/
-        cp USAGE_desktop_D3D12.md build/linux/x64/output/bin/
         cp USAGE_desktop_Vulkan.md build/linux/x64/output/bin/
         cp layer/vk_layer_settings.txt build/linux/x64/output/bin/
         mv build/linux/x64/output/bin gfxreconstruct-dev
