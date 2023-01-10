@@ -46,3 +46,7 @@ common_build_directives(d3d12)
 add_custom_command(TARGET d3d12 PRE_BUILD
                     COMMAND lib /def:${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def /out:${LINK_D3D12_OUTPUT} /machine:${LINK_ARCH}
                     DEPENDS ${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def)
+
+install(FILES $<TARGET_FILE_DIR:d3d12>/d3d12.dll DESTINATION ${CMAKE_INSTALL_BINDIR}/d3d12_capture)
+
+

@@ -1,6 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2021 Advanced Micro Devices, Inc.
+# Copyright (c) 2023 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,22 +21,27 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Author: AMD Developer Tools Team
-# Description: CMake script for layer d3d12_capture target
+# Description: CMake script for scripts target
 ###############################################################################
 
-add_library(d3d12_capture SHARED "")
-target_sources(d3d12_capture PRIVATE
-                ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def)
+if (D3D12_SUPPORT)
 
-target_include_directories(d3d12_capture 
-                           PUBLIC 
-                               ${CMAKE_BINARY_DIR} 
-                               ${CMAKE_SOURCE_DIR}
-                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+    add_custom_target(gfxrecon-optimize-renamed.py ALL)
 
-target_link_libraries(d3d12_capture gfxrecon_encode gfxrecon_format gfxrecon_util platform_specific)
-common_build_directives(d3d12_capture)
+    add_custom_command(TARGET gfxrecon-optimize-renamed.py
+                       DEPENDS ${CMAKE_SOURCE_SOURCE_DIR}/gfxrecon-optimize-renamed.py
+                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon-optimize-renamed.py ${CMAKE_CURRENT_BINARY_DIR}/gfxrecon-optimize-renamed.py)
 
-install(FILES $<TARGET_FILE_DIR:d3d12_capture>/d3d12_capture.dll DESTINATION ${CMAKE_INSTALL_BINDIR}/d3d12_capture)
+    install(FILES gfxrecon-optimize-renamed.py DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS
+            OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+    add_custom_target(gfxrecon-replay-renamed.py ALL)
+
+    add_custom_command(TARGET gfxrecon-replay-renamed.py
+                       DEPENDS ${CMAKE_SOURCE_SOURCE_DIR}/gfxrecon-replay-renamed.py
+                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon-replay-renamed.py ${CMAKE_CURRENT_BINARY_DIR}/gfxrecon-replay-renamed.py)
+
+    install(FILES gfxrecon-replay-renamed.py DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS
+            OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+endif()
