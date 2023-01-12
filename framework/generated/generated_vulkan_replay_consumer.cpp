@@ -5642,8 +5642,10 @@ void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectNameEXT(
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     const VkDebugUtilsObjectNameInfoEXT* in_pNameInfo = pNameInfo->GetPointer();
     MapStructHandles(pNameInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    DeviceInfo* device_info = GetObjectInfoTable().GetDeviceInfo(device);
+    VkPhysicalDevice             physical_device = device_info->parent;
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetDebugUtilsObjectNameEXT(in_device, in_pNameInfo);
+    VkResult replay_result = GetInstanceTable(physical_device)->SetDebugUtilsObjectNameEXT(in_device, in_pNameInfo);
     CheckResult("vkSetDebugUtilsObjectNameEXT", returnValue, replay_result);
 }
 
@@ -5656,8 +5658,10 @@ void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectTagEXT(
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     const VkDebugUtilsObjectTagInfoEXT* in_pTagInfo = pTagInfo->GetPointer();
     MapStructHandles(pTagInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    DeviceInfo* device_info = GetObjectInfoTable().GetDeviceInfo(device);
+    VkPhysicalDevice             physical_device = device_info->parent;
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetDebugUtilsObjectTagEXT(in_device, in_pTagInfo);
+    VkResult replay_result = GetInstanceTable(physical_device)->SetDebugUtilsObjectTagEXT(in_device, in_pTagInfo);
     CheckResult("vkSetDebugUtilsObjectTagEXT", returnValue, replay_result);
 }
 
