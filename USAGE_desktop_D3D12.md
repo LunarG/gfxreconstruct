@@ -25,6 +25,7 @@ This document describes the GFXReconstruct software for capturing and replaying 
 2. [Replaying API Calls](#replaying-api-calls)
     1. [Command Line Arguments](#command-line-arguments)
     2. [Keyboard Controls](#keyboard-controls)
+    3. [Capturing Replay (Recapture)](#capturing-replay-recapture)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -291,6 +292,14 @@ Key(s) | Action
 -------|-------
 Space, p | Toggle pause/play.
 Right arrow, n | Advance to the next frame when paused.
+
+
+
+### Capturing Replay (Recapture)
+
+`gfxrecon-replay` can be run with GFXReconstruct capture enabled. The process to capture the output of `gfxrecon-replay` is the same as capturing any other application as described in [Capturing API calls](#capturing-api-calls). This process is referred to as "recapture".
+
+When recapturing DXR or EI enabled captures, those captures must first be optimized using [DXR Optimization](#dxr-optimization).
 
 
 
