@@ -1899,6 +1899,7 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
         // This code is deprecated and no new API calls should be added. Instead, end of frame markers are used to track
         // the file processor's frame count.
         return ((call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ||
+                (call_id == format::ApiCallId::ApiCall_vkFrameBoundaryANDROID) ||
                 (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
                 (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1));
     }

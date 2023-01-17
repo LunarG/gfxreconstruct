@@ -145,6 +145,24 @@ def getExtraVulkanHeaders(extraHeadersDir):
     ]
 
 
+def extend_xml(dest_tree, src_xml, debug=False):
+    '''Extend the parsed vk.xml registry tree with content from another xml file'''
+    def merge(dest, src):
+        '''Perform a recursive merge of src into dest'''
+        leaf_tags = ('command', 'enums', 'extension', 'feature', 'format',
+                     'platform', 'spirvcapability', 'spirvextension', 'tag', 'type')
+        for src_child in src:
+            dest_child = dest.find(src_child.tag)
+            if (src_child.tag in leaf_tags) or (not dest_child):
+                # stop descent and copy if the heirarchy diverges or we reach a leaf tag
+                dest.append(src_child)
+            else:
+                merge(dest_child, src_child)
+    merge(dest_tree.getroot(), etree.parse(src_xml).getroot())
+    if debug:
+        dest_tree.write(os.path.splitext(src_xml)[0] + '_merged.xml')
+
+
 def make_gen_opts(args):
     """Returns a directory of [ generator function, generator options ] indexed
     by specified short names. The generator options incorporate the following
@@ -889,6 +907,11 @@ if __name__ == '__main__':
     if ptag_member := tree.find('types/type[@name="VkFrameBoundaryEXT"]/member[name="pTag"]'):
         ptag_member.set('len', 'tagSize')
     end_timer(args.time, '* Time to patch ElementTree =')
+
+    # Extend the vk.xml tree with XML files from the config dir
+    for filename in os.listdir(args.configs):
+        if filename.endswith('.xml'):
+            extend_xml(tree, os.path.join(args.configs, filename))
 
     start_timer(args.time)
     reg.loadElementTree(tree)
