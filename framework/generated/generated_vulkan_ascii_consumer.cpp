@@ -5621,6 +5621,21 @@ void VulkanAsciiConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
     );
 }
 
+void VulkanAsciiConsumer::Process_vkFrameBoundaryANDROID(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            semaphore,
+    format::HandleId                            image)
+{
+    WriteApiCallToFile(call_info, "vkFrameBoundaryANDROID", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(semaphore));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(image));
+        }
+    );
+}
+
 void VulkanAsciiConsumer::Process_vkCreateDebugReportCallbackEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

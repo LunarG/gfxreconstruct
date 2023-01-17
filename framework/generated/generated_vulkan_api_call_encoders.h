@@ -1912,6 +1912,11 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirementsKHR(
     uint32_t*                                   pSparseMemoryRequirementCount,
     VkSparseImageMemoryRequirements2*           pSparseMemoryRequirements);
 
+VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(
+    VkDevice                                    device,
+    VkSemaphore                                 semaphore,
+    VkImage                                     image);
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,

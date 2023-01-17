@@ -5244,6 +5244,19 @@ void VulkanReplayConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
     if (pSparseMemoryRequirements->IsNull()) { SetOutputArrayCount<DeviceInfo>(device, kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR, *out_pSparseMemoryRequirementCount, &VulkanObjectInfoTable::GetDeviceInfo); }
 }
 
+void VulkanReplayConsumer::Process_vkFrameBoundaryANDROID(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            semaphore,
+    format::HandleId                            image)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkSemaphore in_semaphore = MapHandle<SemaphoreInfo>(semaphore, &VulkanObjectInfoTable::GetSemaphoreInfo);
+    VkImage in_image = MapHandle<ImageInfo>(image, &VulkanObjectInfoTable::GetImageInfo);
+
+    GetDeviceTable(in_device)->FrameBoundaryANDROID(in_device, in_semaphore, in_image);
+}
+
 void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

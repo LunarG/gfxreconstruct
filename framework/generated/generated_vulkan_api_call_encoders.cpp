@@ -10608,6 +10608,33 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirementsKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 }
 
+VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(
+    VkDevice                                    device,
+    VkSemaphore                                 semaphore,
+    VkImage                                     image)
+{
+    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, image);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkFrameBoundaryANDROID);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(semaphore);
+        encoder->EncodeHandleValue(image);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkSemaphore semaphore_unwrapped = GetWrappedHandle<VkSemaphore>(semaphore);
+    VkImage image_unwrapped = GetWrappedHandle<VkImage>(image);
+
+    GetDeviceTable(device)->FrameBoundaryANDROID(device_unwrapped, semaphore_unwrapped, image_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, image);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,

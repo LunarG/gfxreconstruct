@@ -271,6 +271,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkFrameBoundaryANDROID(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>
 {
     template <typename... Args>

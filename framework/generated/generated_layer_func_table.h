@@ -401,6 +401,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetDeviceBufferMemoryRequirementsKHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceBufferMemoryRequirementsKHR) },
     { "vkGetDeviceImageMemoryRequirementsKHR",                                                               reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceImageMemoryRequirementsKHR) },
     { "vkGetDeviceImageSparseMemoryRequirementsKHR",                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceImageSparseMemoryRequirementsKHR) },
+    { "vkFrameBoundaryANDROID",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::FrameBoundaryANDROID) },
     { "vkCreateDebugReportCallbackEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::CreateDebugReportCallbackEXT) },
     { "vkDestroyDebugReportCallbackEXT",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyDebugReportCallbackEXT) },
     { "vkDebugReportMessageEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::DebugReportMessageEXT) },

@@ -60,6 +60,7 @@ struct LayerExtensionProps
 
 const std::vector<struct LayerExtensionProps> kDeviceExtensionProps = {
     { VkExtensionProperties{ "VK_EXT_tooling_info", 1 }, { "vkGetPhysicalDeviceToolPropertiesEXT" }, {} },
+    { VkExtensionProperties{ "VK_ANDROID_frame_boundary", 1 }, {}, { "vkFrameBoundaryANDROID" } },
 };
 
 /// An alphabetical list of device extensions which we do not report upstream if

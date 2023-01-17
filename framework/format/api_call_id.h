@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -671,6 +671,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdControlVideoCodingKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12bf),
     ApiCall_vkCmdDecodeVideoKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12c0),
     ApiCall_vkCmdEncodeVideoKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12c1),
+    ApiCall_vkFrameBoundaryANDROID                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12c2),
 
     ApiCall_VulkanLast,
 

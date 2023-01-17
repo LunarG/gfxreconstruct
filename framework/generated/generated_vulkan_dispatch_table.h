@@ -450,6 +450,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirect2KHR(VkCommandBuffer, VkDe
 static VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirementsKHR(VkDevice, const VkDeviceBufferMemoryRequirements*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceBufferMemoryRequirementsKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirementsKHR(VkDevice, const VkDeviceImageMemoryRequirements*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceImageMemoryRequirementsKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirementsKHR(VkDevice, const VkDeviceImageMemoryRequirements*, uint32_t*, VkSparseImageMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceImageSparseMemoryRequirementsKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(VkDevice, VkSemaphore, VkImage) { GFXRECON_LOG_WARNING("Unsupported function vkFrameBoundaryANDROID was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(VkDevice, const VkDebugMarkerObjectTagInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkDebugMarkerSetObjectTagEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(VkDevice, const VkDebugMarkerObjectNameInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkDebugMarkerSetObjectNameEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(VkCommandBuffer, const VkDebugMarkerMarkerInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDebugMarkerBeginEXT was called, resulting in no-op behavior."); }
@@ -1056,6 +1057,7 @@ struct DeviceTable
     PFN_vkGetDeviceBufferMemoryRequirementsKHR GetDeviceBufferMemoryRequirementsKHR{ noop::GetDeviceBufferMemoryRequirementsKHR };
     PFN_vkGetDeviceImageMemoryRequirementsKHR GetDeviceImageMemoryRequirementsKHR{ noop::GetDeviceImageMemoryRequirementsKHR };
     PFN_vkGetDeviceImageSparseMemoryRequirementsKHR GetDeviceImageSparseMemoryRequirementsKHR{ noop::GetDeviceImageSparseMemoryRequirementsKHR };
+    PFN_vkFrameBoundaryANDROID FrameBoundaryANDROID{ noop::FrameBoundaryANDROID };
     PFN_vkDebugMarkerSetObjectTagEXT DebugMarkerSetObjectTagEXT{ noop::DebugMarkerSetObjectTagEXT };
     PFN_vkDebugMarkerSetObjectNameEXT DebugMarkerSetObjectNameEXT{ noop::DebugMarkerSetObjectNameEXT };
     PFN_vkCmdDebugMarkerBeginEXT CmdDebugMarkerBeginEXT{ noop::CmdDebugMarkerBeginEXT };
@@ -1669,6 +1671,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetDeviceBufferMemoryRequirementsKHR", &table->GetDeviceBufferMemoryRequirementsKHR);
     LoadFunction(gpa, device, "vkGetDeviceImageMemoryRequirementsKHR", &table->GetDeviceImageMemoryRequirementsKHR);
     LoadFunction(gpa, device, "vkGetDeviceImageSparseMemoryRequirementsKHR", &table->GetDeviceImageSparseMemoryRequirementsKHR);
+    LoadFunction(gpa, device, "vkFrameBoundaryANDROID", &table->FrameBoundaryANDROID);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectTagEXT", &table->DebugMarkerSetObjectTagEXT);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectNameEXT", &table->DebugMarkerSetObjectNameEXT);
     LoadFunction(gpa, device, "vkCmdDebugMarkerBeginEXT", &table->CmdDebugMarkerBeginEXT);
