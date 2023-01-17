@@ -8149,6 +8149,126 @@ template <> std::string ToString<VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>(
     );
 }
 
+template <> std::string ToString<VkSurfacePresentModeEXT>(const VkSurfacePresentModeEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "presentMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.presentMode, toStringFlags, tabCount, tabSize)));
+        }
+    );
+}
+
+template <> std::string ToString<VkSurfacePresentScalingCapabilitiesEXT>(const VkSurfacePresentScalingCapabilitiesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "supportedPresentScaling", toStringFlags, tabCount, tabSize, ToString(obj.supportedPresentScaling, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "supportedPresentGravityX", toStringFlags, tabCount, tabSize, ToString(obj.supportedPresentGravityX, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "supportedPresentGravityY", toStringFlags, tabCount, tabSize, ToString(obj.supportedPresentGravityY, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "minScaledImageExtent", toStringFlags, tabCount, tabSize, ToString(obj.minScaledImageExtent, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxScaledImageExtent", toStringFlags, tabCount, tabSize, ToString(obj.maxScaledImageExtent, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkSurfacePresentModeCompatibilityEXT>(const VkSurfacePresentModeCompatibilityEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "presentModeCount", toStringFlags, tabCount, tabSize, ToString(obj.presentModeCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pPresentModes", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.presentModeCount, obj.pPresentModes, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT>(const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "swapchainMaintenance1", toStringFlags, tabCount, tabSize, ToString(obj.swapchainMaintenance1, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkSwapchainPresentFenceInfoEXT>(const VkSwapchainPresentFenceInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(obj.swapchainCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pFences", toStringFlags, tabCount, tabSize, VkHandleArrayToString(obj.swapchainCount, obj.pFences, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkSwapchainPresentModesCreateInfoEXT>(const VkSwapchainPresentModesCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "presentModeCount", toStringFlags, tabCount, tabSize, ToString(obj.presentModeCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pPresentModes", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.presentModeCount, obj.pPresentModes, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkSwapchainPresentModeInfoEXT>(const VkSwapchainPresentModeInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "swapchainCount", toStringFlags, tabCount, tabSize, ToString(obj.swapchainCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pPresentModes", toStringFlags, tabCount, tabSize, VkEnumArrayToString(obj.swapchainCount, obj.pPresentModes, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkSwapchainPresentScalingCreateInfoEXT>(const VkSwapchainPresentScalingCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "scalingBehavior", toStringFlags, tabCount, tabSize, ToString(obj.scalingBehavior, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "presentGravityX", toStringFlags, tabCount, tabSize, ToString(obj.presentGravityX, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "presentGravityY", toStringFlags, tabCount, tabSize, ToString(obj.presentGravityY, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkReleaseSwapchainImagesInfoEXT>(const VkReleaseSwapchainImagesInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.swapchain)));
+            FieldToString(strStrm, false, "imageIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.imageIndexCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pImageIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.imageIndexCount, obj.pImageIndices, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>(const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,

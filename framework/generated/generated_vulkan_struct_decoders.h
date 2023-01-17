@@ -5799,6 +5799,95 @@ struct Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkSurfacePresentModeEXT
+{
+    using struct_type = VkSurfacePresentModeEXT;
+
+    VkSurfacePresentModeEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSurfacePresentScalingCapabilitiesEXT
+{
+    using struct_type = VkSurfacePresentScalingCapabilitiesEXT;
+
+    VkSurfacePresentScalingCapabilitiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* minScaledImageExtent{ nullptr };
+    Decoded_VkExtent2D* maxScaledImageExtent{ nullptr };
+};
+
+struct Decoded_VkSurfacePresentModeCompatibilityEXT
+{
+    using struct_type = VkSurfacePresentModeCompatibilityEXT;
+
+    VkSurfacePresentModeCompatibilityEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
+struct Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT;
+
+    VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainPresentFenceInfoEXT
+{
+    using struct_type = VkSwapchainPresentFenceInfoEXT;
+
+    VkSwapchainPresentFenceInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    HandlePointerDecoder<VkFence> pFences;
+};
+
+struct Decoded_VkSwapchainPresentModesCreateInfoEXT
+{
+    using struct_type = VkSwapchainPresentModesCreateInfoEXT;
+
+    VkSwapchainPresentModesCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
+struct Decoded_VkSwapchainPresentModeInfoEXT
+{
+    using struct_type = VkSwapchainPresentModeInfoEXT;
+
+    VkSwapchainPresentModeInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
+struct Decoded_VkSwapchainPresentScalingCreateInfoEXT
+{
+    using struct_type = VkSwapchainPresentScalingCreateInfoEXT;
+
+    VkSwapchainPresentScalingCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkReleaseSwapchainImagesInfoEXT
+{
+    using struct_type = VkReleaseSwapchainImagesInfoEXT;
+
+    VkReleaseSwapchainImagesInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId swapchain{ format::kNullHandleId };
+    PointerDecoder<uint32_t> pImageIndices;
+};
+
 typedef Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT;
 
 struct Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV

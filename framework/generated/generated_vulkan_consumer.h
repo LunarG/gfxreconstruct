@@ -3170,6 +3170,12 @@ class VulkanConsumer : public VulkanConsumerBase
         VkStencilOp                                 depthFailOp,
         VkCompareOp                                 compareOp) {}
 
+    virtual void Process_vkReleaseSwapchainImagesEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo) {}
+
     virtual void Process_vkGetGeneratedCommandsMemoryRequirementsNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,

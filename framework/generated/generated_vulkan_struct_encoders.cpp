@@ -5420,6 +5420,81 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicF
     encoder->EncodeVkBool32Value(value.sparseImageFloat32AtomicMinMax);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.presentMode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentScalingCapabilitiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.supportedPresentScaling);
+    encoder->EncodeFlagsValue(value.supportedPresentGravityX);
+    encoder->EncodeFlagsValue(value.supportedPresentGravityY);
+    EncodeStruct(encoder, value.minScaledImageExtent);
+    EncodeStruct(encoder, value.maxScaledImageExtent);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeCompatibilityEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentModeCount);
+    encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.swapchainMaintenance1);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentFenceInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.swapchainCount);
+    encoder->EncodeHandleArray(value.pFences, value.swapchainCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModesCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentModeCount);
+    encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModeInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.swapchainCount);
+    encoder->EncodeEnumArray(value.pPresentModes, value.swapchainCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentScalingCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.scalingBehavior);
+    encoder->EncodeFlagsValue(value.presentGravityX);
+    encoder->EncodeFlagsValue(value.presentGravityY);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkReleaseSwapchainImagesInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.swapchain);
+    encoder->EncodeUInt32Value(value.imageIndexCount);
+    encoder->EncodeUInt32Array(value.pImageIndices, value.imageIndexCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
