@@ -7416,6 +7416,20 @@ void VulkanAsciiConsumer::Process_vkCmdSetStencilOpEXT(
     );
 }
 
+void VulkanAsciiConsumer::Process_vkReleaseSwapchainImagesEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
+{
+    WriteApiCallToFile(call_info, "vkReleaseSwapchainImagesEXT", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "pReleaseInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pReleaseInfo, toStringFlags, tabCount, tabSize));
+        }, ToString(returnValue)
+    );
+}
+
 void VulkanAsciiConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,

@@ -889,6 +889,30 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentModeEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentScalingCapabilitiesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentModeCompatibilityEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentFenceInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentModesCreateInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentModeInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentScalingCreateInfoEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(base));
             break;

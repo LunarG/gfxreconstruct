@@ -501,6 +501,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdSetDepthBoundsTestEnableEXT",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetDepthBoundsTestEnableEXT) },
     { "vkCmdSetStencilTestEnableEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetStencilTestEnableEXT) },
     { "vkCmdSetStencilOpEXT",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetStencilOpEXT) },
+    { "vkReleaseSwapchainImagesEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::ReleaseSwapchainImagesEXT) },
     { "vkGetGeneratedCommandsMemoryRequirementsNV",                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetGeneratedCommandsMemoryRequirementsNV) },
     { "vkCmdPreprocessGeneratedCommandsNV",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::CmdPreprocessGeneratedCommandsNV) },
     { "vkCmdExecuteGeneratedCommandsNV",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::CmdExecuteGeneratedCommandsNV) },
