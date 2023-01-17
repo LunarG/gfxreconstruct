@@ -889,6 +889,71 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdBeginVideoCodingKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
+{
+    assert(pBeginInfo != nullptr);
+
+    if (!pBeginInfo->IsNull() && (pBeginInfo->HasData()))
+    {
+        auto pBeginInfo_ptr = pBeginInfo->GetMetaStructPointer();
+        if (!pBeginInfo_ptr->pReferenceSlots->IsNull() && (pBeginInfo_ptr->pReferenceSlots->HasData()))
+        {
+            auto pReferenceSlots_ptr = pBeginInfo_ptr->pReferenceSlots->GetMetaStructPointer();
+            size_t pReferenceSlots_count = pBeginInfo_ptr->pReferenceSlots->GetLength();
+            for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
+            {
+                if (!pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->IsNull() && (pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->HasData()))
+                {
+                    auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
+                    GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
+                }
+            }
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdDecodeVideoKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo)
+{
+    assert(pDecodeInfo != nullptr);
+
+    if (!pDecodeInfo->IsNull() && (pDecodeInfo->HasData()))
+    {
+        auto pDecodeInfo_ptr = pDecodeInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pDecodeInfo_ptr->srcBuffer);
+        GetTable().AddResourceToUser(commandBuffer, pDecodeInfo_ptr->dstPictureResource->imageViewBinding);
+
+        if (!pDecodeInfo_ptr->pSetupReferenceSlot->IsNull() && (pDecodeInfo_ptr->pSetupReferenceSlot->HasData()))
+        {
+            auto pSetupReferenceSlot_ptr = pDecodeInfo_ptr->pSetupReferenceSlot->GetMetaStructPointer();
+            if (!pSetupReferenceSlot_ptr->pPictureResource->IsNull() && (pSetupReferenceSlot_ptr->pPictureResource->HasData()))
+            {
+                auto pPictureResource_ptr = pSetupReferenceSlot_ptr->pPictureResource->GetMetaStructPointer();
+                GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
+            }
+        }
+
+        if (!pDecodeInfo_ptr->pReferenceSlots->IsNull() && (pDecodeInfo_ptr->pReferenceSlots->HasData()))
+        {
+            auto pReferenceSlots_ptr = pDecodeInfo_ptr->pReferenceSlots->GetMetaStructPointer();
+            size_t pReferenceSlots_count = pDecodeInfo_ptr->pReferenceSlots->GetLength();
+            for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
+            {
+                if (!pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->IsNull() && (pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->HasData()))
+                {
+                    auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
+                    GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
+                }
+            }
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -1091,6 +1156,45 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
 
     GetTable().AddResourceToUser(commandBuffer, buffer);
     GetTable().AddResourceToUser(commandBuffer, countBuffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdEncodeVideoKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo)
+{
+    assert(pEncodeInfo != nullptr);
+
+    if (!pEncodeInfo->IsNull() && (pEncodeInfo->HasData()))
+    {
+        auto pEncodeInfo_ptr = pEncodeInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->dstBitstreamBuffer);
+        GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->srcPictureResource->imageViewBinding);
+
+        if (!pEncodeInfo_ptr->pSetupReferenceSlot->IsNull() && (pEncodeInfo_ptr->pSetupReferenceSlot->HasData()))
+        {
+            auto pSetupReferenceSlot_ptr = pEncodeInfo_ptr->pSetupReferenceSlot->GetMetaStructPointer();
+            if (!pSetupReferenceSlot_ptr->pPictureResource->IsNull() && (pSetupReferenceSlot_ptr->pPictureResource->HasData()))
+            {
+                auto pPictureResource_ptr = pSetupReferenceSlot_ptr->pPictureResource->GetMetaStructPointer();
+                GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
+            }
+        }
+
+        if (!pEncodeInfo_ptr->pReferenceSlots->IsNull() && (pEncodeInfo_ptr->pReferenceSlots->HasData()))
+        {
+            auto pReferenceSlots_ptr = pEncodeInfo_ptr->pReferenceSlots->GetMetaStructPointer();
+            size_t pReferenceSlots_count = pEncodeInfo_ptr->pReferenceSlots->GetLength();
+            for (size_t pReferenceSlots_index = 0; pReferenceSlots_index < pReferenceSlots_count; ++pReferenceSlots_index)
+            {
+                if (!pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->IsNull() && (pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->HasData()))
+                {
+                    auto pPictureResource_ptr = pReferenceSlots_ptr[pReferenceSlots_index].pPictureResource->GetMetaStructPointer();
+                    GetTable().AddResourceToUser(commandBuffer, pPictureResource_ptr->imageViewBinding);
+                }
+            }
+        }
+    }
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2KHR(

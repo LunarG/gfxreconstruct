@@ -83,6 +83,8 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, SurfaceKHRWrapper* wrapper) { return InsertEntry(id, wrapper, surfaceKHR_map_); }
     bool InsertWrapper(format::HandleId id, SwapchainKHRWrapper* wrapper) { return InsertEntry(id, wrapper, swapchainKHR_map_); }
     bool InsertWrapper(format::HandleId id, ValidationCacheEXTWrapper* wrapper) { return InsertEntry(id, wrapper, validationCacheEXT_map_); }
+    bool InsertWrapper(format::HandleId id, VideoSessionKHRWrapper* wrapper) { return InsertEntry(id, wrapper, videoSessionKHR_map_); }
+    bool InsertWrapper(format::HandleId id, VideoSessionParametersKHRWrapper* wrapper) { return InsertEntry(id, wrapper, videoSessionParametersKHR_map_); }
 
     bool RemoveWrapper(const AccelerationStructureKHRWrapper* wrapper) { return RemoveEntry(wrapper, accelerationStructureKHR_map_); }
     bool RemoveWrapper(const AccelerationStructureNVWrapper* wrapper) { return RemoveEntry(wrapper, accelerationStructureNV_map_); }
@@ -126,6 +128,8 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const SurfaceKHRWrapper* wrapper) { return RemoveEntry(wrapper, surfaceKHR_map_); }
     bool RemoveWrapper(const SwapchainKHRWrapper* wrapper) { return RemoveEntry(wrapper, swapchainKHR_map_); }
     bool RemoveWrapper(const ValidationCacheEXTWrapper* wrapper) { return RemoveEntry(wrapper, validationCacheEXT_map_); }
+    bool RemoveWrapper(const VideoSessionKHRWrapper* wrapper) { return RemoveEntry(wrapper, videoSessionKHR_map_); }
+    bool RemoveWrapper(const VideoSessionParametersKHRWrapper* wrapper) { return RemoveEntry(wrapper, videoSessionParametersKHR_map_); }
 
     const AccelerationStructureKHRWrapper* GetAccelerationStructureKHRWrapper(format::HandleId id) const { return GetWrapper<AccelerationStructureKHRWrapper>(id, accelerationStructureKHR_map_); }
     const AccelerationStructureNVWrapper* GetAccelerationStructureNVWrapper(format::HandleId id) const { return GetWrapper<AccelerationStructureNVWrapper>(id, accelerationStructureNV_map_); }
@@ -169,6 +173,8 @@ class VulkanStateTable : VulkanStateTableBase
     const SurfaceKHRWrapper* GetSurfaceKHRWrapper(format::HandleId id) const { return GetWrapper<SurfaceKHRWrapper>(id, surfaceKHR_map_); }
     const SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<SwapchainKHRWrapper>(id, swapchainKHR_map_); }
     const ValidationCacheEXTWrapper* GetValidationCacheEXTWrapper(format::HandleId id) const { return GetWrapper<ValidationCacheEXTWrapper>(id, validationCacheEXT_map_); }
+    const VideoSessionKHRWrapper* GetVideoSessionKHRWrapper(format::HandleId id) const { return GetWrapper<VideoSessionKHRWrapper>(id, videoSessionKHR_map_); }
+    const VideoSessionParametersKHRWrapper* GetVideoSessionParametersKHRWrapper(format::HandleId id) const { return GetWrapper<VideoSessionParametersKHRWrapper>(id, videoSessionParametersKHR_map_); }
 
     AccelerationStructureKHRWrapper* GetAccelerationStructureKHRWrapper(format::HandleId id) { return GetWrapper<AccelerationStructureKHRWrapper>(id, accelerationStructureKHR_map_); }
     AccelerationStructureNVWrapper* GetAccelerationStructureNVWrapper(format::HandleId id) { return GetWrapper<AccelerationStructureNVWrapper>(id, accelerationStructureNV_map_); }
@@ -212,6 +218,8 @@ class VulkanStateTable : VulkanStateTableBase
     SurfaceKHRWrapper* GetSurfaceKHRWrapper(format::HandleId id) { return GetWrapper<SurfaceKHRWrapper>(id, surfaceKHR_map_); }
     SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) { return GetWrapper<SwapchainKHRWrapper>(id, swapchainKHR_map_); }
     ValidationCacheEXTWrapper* GetValidationCacheEXTWrapper(format::HandleId id) { return GetWrapper<ValidationCacheEXTWrapper>(id, validationCacheEXT_map_); }
+    VideoSessionKHRWrapper* GetVideoSessionKHRWrapper(format::HandleId id) { return GetWrapper<VideoSessionKHRWrapper>(id, videoSessionKHR_map_); }
+    VideoSessionParametersKHRWrapper* GetVideoSessionParametersKHRWrapper(format::HandleId id) { return GetWrapper<VideoSessionParametersKHRWrapper>(id, videoSessionParametersKHR_map_); }
 
     void VisitWrappers(std::function<void(AccelerationStructureKHRWrapper*)> visitor) const { for (auto entry : accelerationStructureKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(AccelerationStructureNVWrapper*)> visitor) const { for (auto entry : accelerationStructureNV_map_) { visitor(entry.second); } }
@@ -255,6 +263,8 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(SurfaceKHRWrapper*)> visitor) const { for (auto entry : surfaceKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(SwapchainKHRWrapper*)> visitor) const { for (auto entry : swapchainKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ValidationCacheEXTWrapper*)> visitor) const { for (auto entry : validationCacheEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(VideoSessionKHRWrapper*)> visitor) const { for (auto entry : videoSessionKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(VideoSessionParametersKHRWrapper*)> visitor) const { for (auto entry : videoSessionParametersKHR_map_) { visitor(entry.second); } }
 
   private:
     std::map<format::HandleId, AccelerationStructureKHRWrapper*> accelerationStructureKHR_map_;
@@ -299,6 +309,8 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, SurfaceKHRWrapper*> surfaceKHR_map_;
     std::map<format::HandleId, SwapchainKHRWrapper*> swapchainKHR_map_;
     std::map<format::HandleId, ValidationCacheEXTWrapper*> validationCacheEXT_map_;
+    std::map<format::HandleId, VideoSessionKHRWrapper*> videoSessionKHR_map_;
+    std::map<format::HandleId, VideoSessionParametersKHRWrapper*> videoSessionParametersKHR_map_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

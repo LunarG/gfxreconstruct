@@ -129,6 +129,10 @@ void TrackCmdBeginRenderingHandles(CommandBufferWrapper* wrapper, const VkRender
 
 void TrackCmdBindVertexBuffers2Handles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
+void TrackCmdBeginVideoCodingKHRHandles(CommandBufferWrapper* wrapper, const VkVideoBeginCodingInfoKHR* pBeginInfo);
+
+void TrackCmdDecodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoDecodeInfoKHR* pDecodeInfo);
+
 void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo);
 
 void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
@@ -138,6 +142,8 @@ void TrackCmdBeginRenderPass2KHRHandles(CommandBufferWrapper* wrapper, const VkR
 void TrackCmdDrawIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
 void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+
+void TrackCmdEncodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoEncodeInfoKHR* pEncodeInfo);
 
 void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
 

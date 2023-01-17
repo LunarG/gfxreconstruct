@@ -83,6 +83,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void AddSurfaceKHRInfo(SurfaceKHRInfo&& info) { AddObjectInfo(std::move(info), &surfaceKHR_map_); }
     void AddSwapchainKHRInfo(SwapchainKHRInfo&& info) { AddObjectInfo(std::move(info), &swapchainKHR_map_); }
     void AddValidationCacheEXTInfo(ValidationCacheEXTInfo&& info) { AddObjectInfo(std::move(info), &validationCacheEXT_map_); }
+    void AddVideoSessionKHRInfo(VideoSessionKHRInfo&& info) { AddObjectInfo(std::move(info), &videoSessionKHR_map_); }
+    void AddVideoSessionParametersKHRInfo(VideoSessionParametersKHRInfo&& info) { AddObjectInfo(std::move(info), &videoSessionParametersKHR_map_); }
 
     void RemoveAccelerationStructureKHRInfo(format::HandleId id) { accelerationStructureKHR_map_.erase(id); }
     void RemoveAccelerationStructureNVInfo(format::HandleId id) { accelerationStructureNV_map_.erase(id); }
@@ -126,6 +128,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemoveSurfaceKHRInfo(format::HandleId id) { surfaceKHR_map_.erase(id); }
     void RemoveSwapchainKHRInfo(format::HandleId id) { swapchainKHR_map_.erase(id); }
     void RemoveValidationCacheEXTInfo(format::HandleId id) { validationCacheEXT_map_.erase(id); }
+    void RemoveVideoSessionKHRInfo(format::HandleId id) { videoSessionKHR_map_.erase(id); }
+    void RemoveVideoSessionParametersKHRInfo(format::HandleId id) { videoSessionParametersKHR_map_.erase(id); }
 
     const AccelerationStructureKHRInfo* GetAccelerationStructureKHRInfo(format::HandleId id) const { return GetObjectInfo<AccelerationStructureKHRInfo>(id, &accelerationStructureKHR_map_); }
     const AccelerationStructureNVInfo* GetAccelerationStructureNVInfo(format::HandleId id) const { return GetObjectInfo<AccelerationStructureNVInfo>(id, &accelerationStructureNV_map_); }
@@ -169,6 +173,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     const SurfaceKHRInfo* GetSurfaceKHRInfo(format::HandleId id) const { return GetObjectInfo<SurfaceKHRInfo>(id, &surfaceKHR_map_); }
     const SwapchainKHRInfo* GetSwapchainKHRInfo(format::HandleId id) const { return GetObjectInfo<SwapchainKHRInfo>(id, &swapchainKHR_map_); }
     const ValidationCacheEXTInfo* GetValidationCacheEXTInfo(format::HandleId id) const { return GetObjectInfo<ValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
+    const VideoSessionKHRInfo* GetVideoSessionKHRInfo(format::HandleId id) const { return GetObjectInfo<VideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
+    const VideoSessionParametersKHRInfo* GetVideoSessionParametersKHRInfo(format::HandleId id) const { return GetObjectInfo<VideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
 
     AccelerationStructureKHRInfo* GetAccelerationStructureKHRInfo(format::HandleId id) { return GetObjectInfo<AccelerationStructureKHRInfo>(id, &accelerationStructureKHR_map_); }
     AccelerationStructureNVInfo* GetAccelerationStructureNVInfo(format::HandleId id) { return GetObjectInfo<AccelerationStructureNVInfo>(id, &accelerationStructureNV_map_); }
@@ -212,6 +218,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     SurfaceKHRInfo* GetSurfaceKHRInfo(format::HandleId id) { return GetObjectInfo<SurfaceKHRInfo>(id, &surfaceKHR_map_); }
     SwapchainKHRInfo* GetSwapchainKHRInfo(format::HandleId id) { return GetObjectInfo<SwapchainKHRInfo>(id, &swapchainKHR_map_); }
     ValidationCacheEXTInfo* GetValidationCacheEXTInfo(format::HandleId id) { return GetObjectInfo<ValidationCacheEXTInfo>(id, &validationCacheEXT_map_); }
+    VideoSessionKHRInfo* GetVideoSessionKHRInfo(format::HandleId id) { return GetObjectInfo<VideoSessionKHRInfo>(id, &videoSessionKHR_map_); }
+    VideoSessionParametersKHRInfo* GetVideoSessionParametersKHRInfo(format::HandleId id) { return GetObjectInfo<VideoSessionParametersKHRInfo>(id, &videoSessionParametersKHR_map_); }
 
     void VisitAccelerationStructureKHRInfo(std::function<void(const AccelerationStructureKHRInfo*)> visitor) const {  for (const auto& entry : accelerationStructureKHR_map_) { visitor(&entry.second); }  }
     void VisitAccelerationStructureNVInfo(std::function<void(const AccelerationStructureNVInfo*)> visitor) const {  for (const auto& entry : accelerationStructureNV_map_) { visitor(&entry.second); }  }
@@ -255,6 +263,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void VisitSurfaceKHRInfo(std::function<void(const SurfaceKHRInfo*)> visitor) const {  for (const auto& entry : surfaceKHR_map_) { visitor(&entry.second); }  }
     void VisitSwapchainKHRInfo(std::function<void(const SwapchainKHRInfo*)> visitor) const {  for (const auto& entry : swapchainKHR_map_) { visitor(&entry.second); }  }
     void VisitValidationCacheEXTInfo(std::function<void(const ValidationCacheEXTInfo*)> visitor) const {  for (const auto& entry : validationCacheEXT_map_) { visitor(&entry.second); }  }
+    void VisitVideoSessionKHRInfo(std::function<void(const VideoSessionKHRInfo*)> visitor) const {  for (const auto& entry : videoSessionKHR_map_) { visitor(&entry.second); }  }
+    void VisitVideoSessionParametersKHRInfo(std::function<void(const VideoSessionParametersKHRInfo*)> visitor) const {  for (const auto& entry : videoSessionParametersKHR_map_) { visitor(&entry.second); }  }
 
   protected:
      std::unordered_map<format::HandleId, AccelerationStructureKHRInfo> accelerationStructureKHR_map_;
@@ -299,6 +309,8 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
      std::unordered_map<format::HandleId, SurfaceKHRInfo> surfaceKHR_map_;
      std::unordered_map<format::HandleId, SwapchainKHRInfo> swapchainKHR_map_;
      std::unordered_map<format::HandleId, ValidationCacheEXTInfo> validationCacheEXT_map_;
+     std::unordered_map<format::HandleId, VideoSessionKHRInfo> videoSessionKHR_map_;
+     std::unordered_map<format::HandleId, VideoSessionParametersKHRInfo> videoSessionParametersKHR_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

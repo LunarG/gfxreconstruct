@@ -755,6 +755,66 @@ void UnwrapStructHandles(VkDisplaySurfaceCreateInfoKHR* value, HandleUnwrapMemor
     }
 }
 
+void UnwrapStructHandles(VkVideoPictureResourceInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->imageViewBinding = GetWrappedHandle<VkImageView>(value->imageViewBinding);
+    }
+}
+
+void UnwrapStructHandles(VkVideoReferenceSlotInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pPictureResource = UnwrapStructPtrHandles(value->pPictureResource, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkBindVideoSessionMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
+    }
+}
+
+void UnwrapStructHandles(VkVideoSessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->videoSessionParametersTemplate = GetWrappedHandle<VkVideoSessionParametersKHR>(value->videoSessionParametersTemplate);
+
+        value->videoSession = GetWrappedHandle<VkVideoSessionKHR>(value->videoSession);
+    }
+}
+
+void UnwrapStructHandles(VkVideoBeginCodingInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->videoSession = GetWrappedHandle<VkVideoSessionKHR>(value->videoSession);
+
+        value->videoSessionParameters = GetWrappedHandle<VkVideoSessionParametersKHR>(value->videoSessionParameters);
+
+        value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkVideoDecodeInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcBuffer = GetWrappedHandle<VkBuffer>(value->srcBuffer);
+
+        UnwrapStructHandles(&value->dstPictureResource, unwrap_memory);
+
+        value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
+
+        value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
+    }
+}
+
 void UnwrapStructHandles(VkRenderingFragmentShadingRateAttachmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -922,6 +982,20 @@ void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemo
     if (value != nullptr)
     {
         value->pLibraries = UnwrapHandles<VkPipeline>(value->pLibraries, value->libraryCount, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkVideoEncodeInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->dstBitstreamBuffer = GetWrappedHandle<VkBuffer>(value->dstBitstreamBuffer);
+
+        UnwrapStructHandles(&value->srcPictureResource, unwrap_memory);
+
+        value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
+
+        value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
     }
 }
 
@@ -1716,6 +1790,42 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayPresentInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyQueryResultStatusPropertiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyVideoPropertiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoProfileInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoProfileListInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeCapabilitiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeUsageInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH264ProfileInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH264CapabilitiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH264SessionParametersAddInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH264SessionParametersCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH264PictureInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH264DpbSlotInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(base), 1, unwrap_memory));
         break;
@@ -1779,6 +1889,24 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShaderClockFeaturesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH265ProfileInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH265CapabilitiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH265SessionParametersAddInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH265SessionParametersCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH265PictureInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH265DpbSlotInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
@@ -1817,6 +1945,18 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePresentIdFeaturesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeCapabilitiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeRateControlLayerInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeRateControlInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyCheckpointProperties2NV*>(base), 1, unwrap_memory));
@@ -1859,6 +1999,54 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineRasterizationStateStreamCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264CapabilitiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264SessionParametersAddInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_VCL_FRAME_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264VclFrameInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_EMIT_PICTURE_PARAMETERS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264EmitPictureParametersInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264ProfileInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264RateControlInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264RateControlLayerInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265CapabilitiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_VCL_FRAME_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265VclFrameInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265EmitPictureParametersInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265ProfileInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265RateControlInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(base), 1, unwrap_memory));

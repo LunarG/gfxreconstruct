@@ -619,6 +619,58 @@ void TrackCmdBindVertexBuffers2Handles(CommandBufferWrapper* wrapper, uint32_t b
     }
 }
 
+void TrackCmdBeginVideoCodingKHRHandles(CommandBufferWrapper* wrapper, const VkVideoBeginCodingInfoKHR* pBeginInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pBeginInfo != nullptr)
+    {
+        if(pBeginInfo->videoSession != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::VideoSessionKHRHandle].insert(GetWrappedId(pBeginInfo->videoSession));
+        if(pBeginInfo->videoSessionParameters != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::VideoSessionParametersKHRHandle].insert(GetWrappedId(pBeginInfo->videoSessionParameters));
+
+        if (pBeginInfo->pReferenceSlots != nullptr)
+        {
+            for (uint32_t pReferenceSlots_index = 0; pReferenceSlots_index < pBeginInfo->referenceSlotCount; ++pReferenceSlots_index)
+            {
+                if (pBeginInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource != nullptr)
+                {
+                    if(pBeginInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource->imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pBeginInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource->imageViewBinding));
+                }
+            }
+        }
+    }
+}
+
+void TrackCmdDecodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoDecodeInfoKHR* pDecodeInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pDecodeInfo != nullptr)
+    {
+        if(pDecodeInfo->srcBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDecodeInfo->srcBuffer));
+        if(pDecodeInfo->dstPictureResource.imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pDecodeInfo->dstPictureResource.imageViewBinding));
+
+        if (pDecodeInfo->pSetupReferenceSlot != nullptr)
+        {
+            if (pDecodeInfo->pSetupReferenceSlot->pPictureResource != nullptr)
+            {
+                if(pDecodeInfo->pSetupReferenceSlot->pPictureResource->imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pDecodeInfo->pSetupReferenceSlot->pPictureResource->imageViewBinding));
+            }
+        }
+
+        if (pDecodeInfo->pReferenceSlots != nullptr)
+        {
+            for (uint32_t pReferenceSlots_index = 0; pReferenceSlots_index < pDecodeInfo->referenceSlotCount; ++pReferenceSlots_index)
+            {
+                if (pDecodeInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource != nullptr)
+                {
+                    if(pDecodeInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource->imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pDecodeInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource->imageViewBinding));
+                }
+            }
+        }
+    }
+}
+
 void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo)
 {
     assert(wrapper != nullptr);
@@ -718,6 +770,36 @@ void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, V
 
     if(buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(buffer));
     if(countBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
+}
+
+void TrackCmdEncodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoEncodeInfoKHR* pEncodeInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pEncodeInfo != nullptr)
+    {
+        if(pEncodeInfo->dstBitstreamBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pEncodeInfo->dstBitstreamBuffer));
+        if(pEncodeInfo->srcPictureResource.imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pEncodeInfo->srcPictureResource.imageViewBinding));
+
+        if (pEncodeInfo->pSetupReferenceSlot != nullptr)
+        {
+            if (pEncodeInfo->pSetupReferenceSlot->pPictureResource != nullptr)
+            {
+                if(pEncodeInfo->pSetupReferenceSlot->pPictureResource->imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pEncodeInfo->pSetupReferenceSlot->pPictureResource->imageViewBinding));
+            }
+        }
+
+        if (pEncodeInfo->pReferenceSlots != nullptr)
+        {
+            for (uint32_t pReferenceSlots_index = 0; pReferenceSlots_index < pEncodeInfo->referenceSlotCount; ++pReferenceSlots_index)
+            {
+                if (pEncodeInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource != nullptr)
+                {
+                    if(pEncodeInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource->imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pEncodeInfo->pReferenceSlots[pReferenceSlots_index].pPictureResource->imageViewBinding));
+                }
+            }
+        }
+    }
 }
 
 void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo)

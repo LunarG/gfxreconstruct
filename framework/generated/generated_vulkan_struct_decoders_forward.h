@@ -662,6 +662,64 @@ struct Decoded_VkWin32SurfaceCreateInfoKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWin32SurfaceCreateInfoKHR* wrapper);
 
+struct Decoded_VkQueueFamilyQueryResultStatusPropertiesKHR;
+struct Decoded_VkQueueFamilyVideoPropertiesKHR;
+struct Decoded_VkVideoProfileInfoKHR;
+struct Decoded_VkVideoProfileListInfoKHR;
+struct Decoded_VkVideoCapabilitiesKHR;
+struct Decoded_VkPhysicalDeviceVideoFormatInfoKHR;
+struct Decoded_VkVideoFormatPropertiesKHR;
+struct Decoded_VkVideoPictureResourceInfoKHR;
+struct Decoded_VkVideoReferenceSlotInfoKHR;
+struct Decoded_VkVideoSessionMemoryRequirementsKHR;
+struct Decoded_VkBindVideoSessionMemoryInfoKHR;
+struct Decoded_VkVideoSessionCreateInfoKHR;
+struct Decoded_VkVideoSessionParametersCreateInfoKHR;
+struct Decoded_VkVideoSessionParametersUpdateInfoKHR;
+struct Decoded_VkVideoBeginCodingInfoKHR;
+struct Decoded_VkVideoEndCodingInfoKHR;
+struct Decoded_VkVideoCodingControlInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkQueueFamilyQueryResultStatusPropertiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkQueueFamilyVideoPropertiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoProfileInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoProfileListInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoCapabilitiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVideoFormatInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoFormatPropertiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoPictureResourceInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoReferenceSlotInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoSessionMemoryRequirementsKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBindVideoSessionMemoryInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoSessionCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoSessionParametersCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoSessionParametersUpdateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoBeginCodingInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEndCodingInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoCodingControlInfoKHR* wrapper);
+
+struct Decoded_VkVideoDecodeCapabilitiesKHR;
+struct Decoded_VkVideoDecodeUsageInfoKHR;
+struct Decoded_VkVideoDecodeInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeCapabilitiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeUsageInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeInfoKHR* wrapper);
+
+struct Decoded_VkVideoDecodeH264ProfileInfoKHR;
+struct Decoded_VkVideoDecodeH264CapabilitiesKHR;
+struct Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR;
+struct Decoded_VkVideoDecodeH264SessionParametersCreateInfoKHR;
+struct Decoded_VkVideoDecodeH264PictureInfoKHR;
+struct Decoded_VkVideoDecodeH264DpbSlotInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH264ProfileInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH264CapabilitiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH264SessionParametersCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH264PictureInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH264DpbSlotInfoKHR* wrapper);
+
 struct Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR;
 struct Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT;
 struct Decoded_VkAttachmentSampleCountInfoAMD;
@@ -786,6 +844,20 @@ struct Decoded_VkPhysicalDeviceShaderClockFeaturesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderClockFeaturesKHR* wrapper);
 
+struct Decoded_VkVideoDecodeH265ProfileInfoKHR;
+struct Decoded_VkVideoDecodeH265CapabilitiesKHR;
+struct Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR;
+struct Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR;
+struct Decoded_VkVideoDecodeH265PictureInfoKHR;
+struct Decoded_VkVideoDecodeH265DpbSlotInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH265ProfileInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH265CapabilitiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH265PictureInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoDecodeH265DpbSlotInfoKHR* wrapper);
+
 struct Decoded_VkDeviceQueueGlobalPriorityCreateInfoKHR;
 struct Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR;
 struct Decoded_VkQueueFamilyGlobalPriorityPropertiesKHR;
@@ -837,6 +909,18 @@ struct Decoded_VkPhysicalDevicePresentIdFeaturesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPresentIdKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePresentIdFeaturesKHR* wrapper);
+
+struct Decoded_VkVideoEncodeInfoKHR;
+struct Decoded_VkVideoEncodeCapabilitiesKHR;
+struct Decoded_VkVideoEncodeUsageInfoKHR;
+struct Decoded_VkVideoEncodeRateControlLayerInfoKHR;
+struct Decoded_VkVideoEncodeRateControlInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeCapabilitiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeUsageInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeRateControlLayerInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeRateControlInfoKHR* wrapper);
 
 struct Decoded_VkQueueFamilyCheckpointProperties2NV;
 struct Decoded_VkCheckpointData2NV;
@@ -901,6 +985,62 @@ struct Decoded_VkImageViewAddressPropertiesNVX;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageViewHandleInfoNVX* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageViewAddressPropertiesNVX* wrapper);
+
+struct Decoded_VkVideoEncodeH264CapabilitiesEXT;
+struct Decoded_VkVideoEncodeH264SessionParametersAddInfoEXT;
+struct Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT;
+struct Decoded_VkVideoEncodeH264DpbSlotInfoEXT;
+struct Decoded_VkVideoEncodeH264ReferenceListsInfoEXT;
+struct Decoded_VkVideoEncodeH264NaluSliceInfoEXT;
+struct Decoded_VkVideoEncodeH264VclFrameInfoEXT;
+struct Decoded_VkVideoEncodeH264EmitPictureParametersInfoEXT;
+struct Decoded_VkVideoEncodeH264ProfileInfoEXT;
+struct Decoded_VkVideoEncodeH264RateControlInfoEXT;
+struct Decoded_VkVideoEncodeH264QpEXT;
+struct Decoded_VkVideoEncodeH264FrameSizeEXT;
+struct Decoded_VkVideoEncodeH264RateControlLayerInfoEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264CapabilitiesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264SessionParametersAddInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264DpbSlotInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264ReferenceListsInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264NaluSliceInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264VclFrameInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264EmitPictureParametersInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264ProfileInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264RateControlInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264QpEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264FrameSizeEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH264RateControlLayerInfoEXT* wrapper);
+
+struct Decoded_VkVideoEncodeH265CapabilitiesEXT;
+struct Decoded_VkVideoEncodeH265SessionParametersAddInfoEXT;
+struct Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT;
+struct Decoded_VkVideoEncodeH265DpbSlotInfoEXT;
+struct Decoded_VkVideoEncodeH265ReferenceListsInfoEXT;
+struct Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT;
+struct Decoded_VkVideoEncodeH265VclFrameInfoEXT;
+struct Decoded_VkVideoEncodeH265EmitPictureParametersInfoEXT;
+struct Decoded_VkVideoEncodeH265ProfileInfoEXT;
+struct Decoded_VkVideoEncodeH265RateControlInfoEXT;
+struct Decoded_VkVideoEncodeH265QpEXT;
+struct Decoded_VkVideoEncodeH265FrameSizeEXT;
+struct Decoded_VkVideoEncodeH265RateControlLayerInfoEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265CapabilitiesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265SessionParametersAddInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265DpbSlotInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265ReferenceListsInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265VclFrameInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265EmitPictureParametersInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265ProfileInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265RateControlInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265QpEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265FrameSizeEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVideoEncodeH265RateControlLayerInfoEXT* wrapper);
 
 struct Decoded_VkTextureLODGatherFormatPropertiesAMD;
 
