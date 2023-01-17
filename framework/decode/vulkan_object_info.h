@@ -75,6 +75,8 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceFragmentShadingRatesKHR                        = 16,
     kFramebufferArrayGetFramebufferTilePropertiesQCOM                                   = 17,
     kPhysicalDeviceArrayGetPhysicalDeviceOpticalFlowImageFormatsNV                      = 18,
+    kPhysicalDeviceArrayGetPhysicalDeviceVideoFormatPropertiesKHR                       = 19,
+    kVideoSessionKHRArrayGetVideoSessionMemoryRequirementsKHR                           = 20,
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2,
@@ -202,6 +204,8 @@ typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureN
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkMicromapEXT>                   MicromapEXTInfo;
 typedef VulkanObjectInfo<VkOpticalFlowSessionNV>          OpticalFlowSessionNVInfo;
+typedef VulkanObjectInfo<VkVideoSessionKHR>               VideoSessionKHRInfo;
+typedef VulkanObjectInfo<VkVideoSessionParametersKHR>     VideoSessionParametersKHRInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.

@@ -1709,6 +1709,92 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex) {}
 
+    virtual void Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>* pVideoProfile,
+        StructPointerDecoder<Decoded_VkVideoCapabilitiesKHR>* pCapabilities) {}
+
+    virtual void Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceVideoFormatInfoKHR>* pVideoFormatInfo,
+        PointerDecoder<uint32_t>*                   pVideoFormatPropertyCount,
+        StructPointerDecoder<Decoded_VkVideoFormatPropertiesKHR>* pVideoFormatProperties) {}
+
+    virtual void Process_vkCreateVideoSessionKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkVideoSessionCreateInfoKHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession) {}
+
+    virtual void Process_vkDestroyVideoSessionKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            videoSession,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkGetVideoSessionMemoryRequirementsKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            videoSession,
+        PointerDecoder<uint32_t>*                   pMemoryRequirementsCount,
+        StructPointerDecoder<Decoded_VkVideoSessionMemoryRequirementsKHR>* pMemoryRequirements) {}
+
+    virtual void Process_vkBindVideoSessionMemoryKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            videoSession,
+        uint32_t                                    bindSessionMemoryInfoCount,
+        StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos) {}
+
+    virtual void Process_vkCreateVideoSessionParametersKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkVideoSessionParametersCreateInfoKHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters) {}
+
+    virtual void Process_vkUpdateVideoSessionParametersKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            videoSessionParameters,
+        StructPointerDecoder<Decoded_VkVideoSessionParametersUpdateInfoKHR>* pUpdateInfo) {}
+
+    virtual void Process_vkDestroyVideoSessionParametersKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            videoSessionParameters,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkCmdBeginVideoCodingKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo) {}
+
+    virtual void Process_vkCmdEndVideoCodingKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo) {}
+
+    virtual void Process_vkCmdControlVideoCodingKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo) {}
+
+    virtual void Process_vkCmdDecodeVideoKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo) {}
+
     virtual void Process_vkCmdBeginRenderingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -2204,6 +2290,11 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>* pExecutableInfo,
         PointerDecoder<uint32_t>*                   pInternalRepresentationCount,
         StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>* pInternalRepresentations) {}
+
+    virtual void Process_vkCmdEncodeVideoKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo) {}
 
     virtual void Process_vkCmdSetEvent2KHR(
         const ApiCallInfo&                          call_info,

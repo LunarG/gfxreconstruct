@@ -163,6 +163,11 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     WriteQueryPoolState(state_table);
     StandardCreateWrite<PerformanceConfigurationINTELWrapper>(state_table);
 
+    StandardCreateWrite<MicromapEXTWrapper>(state_table);
+    StandardCreateWrite<OpticalFlowSessionNVWrapper>(state_table);
+    StandardCreateWrite<VideoSessionKHRWrapper>(state_table);
+    StandardCreateWrite<VideoSessionParametersKHRWrapper>(state_table);
+
     // Command creation.
     StandardCreateWrite<CommandPoolWrapper>(state_table);
     WriteCommandBufferState(state_table);

@@ -69,10 +69,7 @@ _emit_extensions = []
 # To screen an extension out from the list reported to the application it should
 # be added to the list kUnsupportedDeviceExtensions in trace_layer.cpp.
 _remove_extensions = [
-    "VK_KHR_video_queue", "VK_KHR_video_decode_queue",
-    "VK_KHR_video_encode_queue", "VK_EXT_video_encode_h264",
-    "VK_KHR_video_decode_h264", "VK_KHR_video_decode_h265", 
-    "VK_EXT_video_encode_h265", "VK_FUCHSIA_buffer_collection",
+    "VK_FUCHSIA_buffer_collection",
     "VK_NVX_binary_import", "VK_HUAWEI_subpass_shading",
     "VK_EXT_pipeline_properties", "VK_EXT_metal_objects",
     # @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
