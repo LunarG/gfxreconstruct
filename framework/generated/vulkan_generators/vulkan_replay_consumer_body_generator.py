@@ -164,9 +164,16 @@ class VulkanReplayConsumerBodyGenerator(
         """Performs C++ code generation for the feature."""
         BaseReplayConsumerBodyGenerator.generate_feature(self)
 
-    def use_instance_table(self, typename):
+    def use_instance_table(self, name, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
         if typename in ['VkInstance', 'VkPhysicalDevice']:
+            return True
+        # vkSetDebugUtilsObjectNameEXT and vkSetDebugUtilsObjectTagEXT
+        # need to be probed from GetInstanceProcAddress due to a loader issue.
+        # https://github.com/KhronosGroup/Vulkan-Loader/issues/1109
+        # TODO : When loader with fix for issue is widely available, remove this
+        # special case.
+        if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
             return True
         return False
 
@@ -194,13 +201,20 @@ class VulkanReplayConsumerBodyGenerator(
 
         dispatchfunc = ''
         if name not in ['vkCreateInstance', 'vkCreateDevice']:
-            dispatchfunc = 'GetInstanceTable' if self.use_instance_table(
-                values[0].base_type
-            ) else 'GetDeviceTable'
-            if is_override:
-                dispatchfunc += '({}->handle)->{}'.format(args[0], name[2:])
+            object_name = args[0]
+            if self.use_instance_table(name, values[0].base_type):
+                dispatchfunc = 'GetInstanceTable'
+                if values[0].base_type == 'VkDevice':
+                    object_name = 'physical_device'
+                    preexpr.append("DeviceInfo* device_info = GetObjectInfoTable().GetDeviceInfo(device);")
+                    preexpr.append("VkPhysicalDevice             physical_device = device_info->parent;")
             else:
-                dispatchfunc += '({})->{}'.format(args[0], name[2:])
+                dispatchfunc = 'GetDeviceTable'
+
+            if is_override:
+                dispatchfunc += '({}->handle)->{}'.format(object_name, name[2:])
+            else:
+                dispatchfunc += '({})->{}'.format(object_name, name[2:])
 
         call_expr = ''
         if is_override:

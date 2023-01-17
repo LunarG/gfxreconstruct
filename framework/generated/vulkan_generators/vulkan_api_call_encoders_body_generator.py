@@ -191,20 +191,33 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         return '{}()\n'.format(proto)
 
-    def use_instance_table(self, typename):
+    def use_instance_table(self, name, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
         if typename in ['VkInstance', 'VkPhysicalDevice']:
+            return True
+        # vkSetDebugUtilsObjectNameEXT and vkSetDebugUtilsObjectTagEXT
+        # need to be probed from GetInstanceProcAddress due to a loader issue.
+        # https://github.com/KhronosGroup/Vulkan-Loader/issues/1109
+        # TODO : When loader with fix for issue is widely available, remove this
+        # special case.
+        if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
             return True
         return False
 
     def make_layer_dispatch_call(self, name, values, arg_list):
         """Generate the layer dispatch call invocation."""
-        dispatchfunc = 'GetInstanceTable' if self.use_instance_table(
-            values[0].base_type
-        ) else 'GetDeviceTable'
-        return '{}({})->{}({})'.format(
-            dispatchfunc, values[0].name, name[2:], arg_list
-        )
+        call_setup_expr = []
+        object_name = values[0].name
+        if self.use_instance_table(name, values[0].base_type):
+            dispatchfunc = 'GetInstanceTable'
+            if values[0].base_type == 'VkDevice':
+                object_name = 'physical_device'
+                call_setup_expr.append("auto device_wrapper = reinterpret_cast<DeviceWrapper*>({});".format(values[0].name))
+                call_setup_expr.append("auto physical_device = reinterpret_cast<VkPhysicalDevice>(device_wrapper->physical_device);")
+        else:
+            dispatchfunc = 'GetDeviceTable'
+
+        return [call_setup_expr, '{}({})->{}({})'.format(dispatchfunc, object_name, name[2:], arg_list)]
 
     def make_cmd_body(self, return_type, name, values):
         """Command definition."""
@@ -273,9 +286,12 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += '\n'
 
             # Construct the function call to dispatch to the next layer.
-            call_expr = self.make_layer_dispatch_call(
+            (call_setup_expr, call_expr) = self.make_layer_dispatch_call(
                 name, values, unwrapped_arg_list
             )
+            if call_setup_expr:
+                for e in call_setup_expr:
+                    body += indent + e + '\n'
             if return_type and return_type != 'void':
                 body += indent + '{} result = {};\n'.format(
                     return_type, call_expr

@@ -11501,7 +11501,9 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDebugUtilsObjectNameInfoEXT* pNameInfo_unwrapped = UnwrapStructPtrHandles(pNameInfo, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectNameEXT(device_unwrapped, pNameInfo_unwrapped);
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    auto physical_device = reinterpret_cast<VkPhysicalDevice>(device_wrapper->physical_device);
+    VkResult result = GetInstanceTable(physical_device)->SetDebugUtilsObjectNameEXT(device_unwrapped, pNameInfo_unwrapped);
 
     auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
     if (encoder)
@@ -11529,7 +11531,9 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDebugUtilsObjectTagInfoEXT* pTagInfo_unwrapped = UnwrapStructPtrHandles(pTagInfo, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectTagEXT(device_unwrapped, pTagInfo_unwrapped);
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    auto physical_device = reinterpret_cast<VkPhysicalDevice>(device_wrapper->physical_device);
+    VkResult result = GetInstanceTable(physical_device)->SetDebugUtilsObjectTagEXT(device_unwrapped, pTagInfo_unwrapped);
 
     auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
     if (encoder)

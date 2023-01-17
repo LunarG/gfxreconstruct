@@ -205,16 +205,17 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                         return_type = info[0]
                         proto = info[1]
 
-                        if first_param.base_type not in [
-                            'VkInstance', 'VkPhysicalDevice'
-                        ]:
-                            self.device_cmd_names[name] = self.make_cmd_decl(
-                                return_type, proto, values, name
-                            )
+                        # vkSetDebugUtilsObjectNameEXT and vkSetDebugUtilsObjectTagEXT
+                        # need to be probed from GetInstanceProcAddress due to a loader issue.
+                        # https://github.com/KhronosGroup/Vulkan-Loader/issues/1109
+                        # TODO : When loader with fix for issue is widely available, remove this
+                        # special case.
+                        if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
+                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
+                        elif first_param.base_type not in ['VkInstance', 'VkPhysicalDevice']:
+                            self.device_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
                         else:
-                            self.instance_cmd_names[name] = self.make_cmd_decl(
-                                return_type, proto, values, name
-                            )
+                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
 
     def generate_instance_cmd_table(self):
         """Generate instance dispatch table structure."""
