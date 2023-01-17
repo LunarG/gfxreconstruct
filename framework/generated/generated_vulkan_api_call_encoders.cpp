@@ -13532,6 +13532,39 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     return result;
 }
 
+VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(
+    VkDevice                                    device,
+    VkSemaphore                                 semaphore,
+    VkImage                                     image)
+{
+    auto force_command_serialization = VulkanCaptureManager::Get()->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, image);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_vkFrameBoundaryANDROID);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<SemaphoreWrapper>(semaphore);
+        encoder->EncodeHandleValue<ImageWrapper>(image);
+        VulkanCaptureManager::Get()->EndApiCallCapture();
+    }
+
+    GetDeviceTable(device)->FrameBoundaryANDROID(device, semaphore, image);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, image);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,

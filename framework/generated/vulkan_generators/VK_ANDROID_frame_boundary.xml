@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+    <commands>
+        <command>
+            <proto><type>void</type> <name>vkFrameBoundaryANDROID</name></proto>
+            <param><type>VkDevice</type> <name>device</name></param>
+            <param><type>VkSemaphore</type> <name>semaphore</name></param>
+            <param><type>VkImage</type> <name>image</name></param>
+        </command>
+    </commands>
+    <extensions>
+        <extension name="VK_ANDROID_frame_boundary" platform="android" author="ANDROID" type="device" supported="vulkan">
+            <require>
+                <command name="vkFrameBoundaryANDROID"/>
+            </require>
+        </extension>
+    </extensions>
+</registry>

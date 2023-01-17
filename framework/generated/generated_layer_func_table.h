@@ -410,6 +410,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetDeviceImageSubresourceLayoutKHR",                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceImageSubresourceLayoutKHR) },
     { "vkGetImageSubresourceLayout2KHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::GetImageSubresourceLayout2KHR) },
     { "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR",                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceCooperativeMatrixPropertiesKHR) },
+    { "vkFrameBoundaryANDROID",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::FrameBoundaryANDROID) },
     { "vkCreateDebugReportCallbackEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::CreateDebugReportCallbackEXT) },
     { "vkDestroyDebugReportCallbackEXT",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyDebugReportCallbackEXT) },
     { "vkDebugReportMessageEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::DebugReportMessageEXT) },

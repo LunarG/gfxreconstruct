@@ -2473,6 +2473,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) override;
 
+    virtual void Process_vkFrameBoundaryANDROID(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            semaphore,
+        format::HandleId                            image) override;
+
     virtual void Process_vkCreateDebugReportCallbackEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

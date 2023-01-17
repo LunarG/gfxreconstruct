@@ -1945,6 +1945,11 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     uint32_t*                                   pPropertyCount,
     VkCooperativeMatrixPropertiesKHR*           pProperties);
 
+VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(
+    VkDevice                                    device,
+    VkSemaphore                                 semaphore,
+    VkImage                                     image);
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,

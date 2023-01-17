@@ -70,6 +70,7 @@ const std::vector<struct LayerExtensionProps> kDeviceExtensionProps = {
         "vkCmdDebugMarkerInsertEXT",
         "vkDebugMarkerSetObjectNameEXT",
         "vkDebugMarkerSetObjectTagEXT" } },
+    { VkExtensionProperties{ "VK_ANDROID_frame_boundary", 1 }, {}, { "vkFrameBoundaryANDROID" } },
 };
 
 /// An alphabetical list of device extensions which we do not report upstream if
