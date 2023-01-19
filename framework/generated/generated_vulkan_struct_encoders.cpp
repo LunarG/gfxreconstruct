@@ -6443,6 +6443,23 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMicromapTriangleEXT& value)
     encoder->EncodeUInt16Value(value.format);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.clustercullingShader);
+    encoder->EncodeVkBool32Value(value.multiviewClusterCullingShader);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Array(value.maxWorkGroupCount, 3);
+    encoder->EncodeUInt32Array(value.maxWorkGroupSize, 3);
+    encoder->EncodeUInt32Value(value.maxOutputClusterCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);

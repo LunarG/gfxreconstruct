@@ -6955,6 +6955,26 @@ struct Decoded_VkMicromapTriangleEXT
     VkMicromapTriangleEXT* decoded_value{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI
+{
+    using struct_type = VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI;
+
+    VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI
+{
+    using struct_type = VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI;
+
+    VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint32_t> maxWorkGroupCount;
+    PointerDecoder<uint32_t> maxWorkGroupSize;
+};
+
 struct Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;

@@ -570,6 +570,12 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            imageView,
         VkImageLayout                               imageLayout) override;
 
+    virtual void Process_vkCmdDrawClusterIndirectHUAWEI(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset) override;
+
     virtual void Process_vkCmdDrawMeshTasksIndirectEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

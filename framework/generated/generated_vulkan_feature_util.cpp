@@ -2490,6 +2490,24 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
+            {
+                const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI* currentNext = reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(next);
+                VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->clustercullingShader == VK_TRUE) && (query.clustercullingShader == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature clustercullingShader, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(currentNext)->clustercullingShader = VK_FALSE;
+                }
+                if ((currentNext->multiviewClusterCullingShader == VK_TRUE) && (query.multiviewClusterCullingShader == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature multiviewClusterCullingShader, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(currentNext)->multiviewClusterCullingShader = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             {
                 const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(next);

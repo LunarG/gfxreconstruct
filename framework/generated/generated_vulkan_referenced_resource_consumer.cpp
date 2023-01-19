@@ -1682,6 +1682,17 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     GetTable().AddResourceToUser(commandBuffer, imageView);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

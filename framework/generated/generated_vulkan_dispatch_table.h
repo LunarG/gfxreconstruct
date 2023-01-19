@@ -567,6 +567,8 @@ static VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToMicromapEXT(VkCommandBuffer, co
 static VKAPI_ATTR void VKAPI_CALL CmdWriteMicromapsPropertiesEXT(VkCommandBuffer, uint32_t, const VkMicromapEXT*, VkQueryType, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteMicromapsPropertiesEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceMicromapCompatibilityEXT(VkDevice, const VkMicromapVersionInfoEXT*, VkAccelerationStructureCompatibilityKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceMicromapCompatibilityEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetMicromapBuildSizesEXT(VkDevice, VkAccelerationStructureBuildTypeKHR, const VkMicromapBuildInfoEXT*, VkMicromapBuildSizesInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMicromapBuildSizesEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawClusterHUAWEI(VkCommandBuffer, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawClusterHUAWEI was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawClusterIndirectHUAWEI(VkCommandBuffer, VkBuffer, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawClusterIndirectHUAWEI was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL SetDeviceMemoryPriorityEXT(VkDevice, VkDeviceMemory, float) { GFXRECON_LOG_WARNING("Unsupported function vkSetDeviceMemoryPriorityEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutHostMappingInfoVALVE(VkDevice, const VkDescriptorSetBindingReferenceVALVE*, VkDescriptorSetLayoutHostMappingInfoVALVE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDescriptorSetLayoutHostMappingInfoVALVE was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetHostMappingVALVE(VkDevice, VkDescriptorSet, void**) { GFXRECON_LOG_WARNING("Unsupported function vkGetDescriptorSetHostMappingVALVE was called, resulting in no-op behavior."); }
@@ -1157,6 +1159,8 @@ struct DeviceTable
     PFN_vkCmdWriteMicromapsPropertiesEXT CmdWriteMicromapsPropertiesEXT{ noop::CmdWriteMicromapsPropertiesEXT };
     PFN_vkGetDeviceMicromapCompatibilityEXT GetDeviceMicromapCompatibilityEXT{ noop::GetDeviceMicromapCompatibilityEXT };
     PFN_vkGetMicromapBuildSizesEXT GetMicromapBuildSizesEXT{ noop::GetMicromapBuildSizesEXT };
+    PFN_vkCmdDrawClusterHUAWEI CmdDrawClusterHUAWEI{ noop::CmdDrawClusterHUAWEI };
+    PFN_vkCmdDrawClusterIndirectHUAWEI CmdDrawClusterIndirectHUAWEI{ noop::CmdDrawClusterIndirectHUAWEI };
     PFN_vkSetDeviceMemoryPriorityEXT SetDeviceMemoryPriorityEXT{ noop::SetDeviceMemoryPriorityEXT };
     PFN_vkGetDescriptorSetLayoutHostMappingInfoVALVE GetDescriptorSetLayoutHostMappingInfoVALVE{ noop::GetDescriptorSetLayoutHostMappingInfoVALVE };
     PFN_vkGetDescriptorSetHostMappingVALVE GetDescriptorSetHostMappingVALVE{ noop::GetDescriptorSetHostMappingVALVE };
@@ -1754,6 +1758,8 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdWriteMicromapsPropertiesEXT", &table->CmdWriteMicromapsPropertiesEXT);
     LoadFunction(gpa, device, "vkGetDeviceMicromapCompatibilityEXT", &table->GetDeviceMicromapCompatibilityEXT);
     LoadFunction(gpa, device, "vkGetMicromapBuildSizesEXT", &table->GetMicromapBuildSizesEXT);
+    LoadFunction(gpa, device, "vkCmdDrawClusterHUAWEI", &table->CmdDrawClusterHUAWEI);
+    LoadFunction(gpa, device, "vkCmdDrawClusterIndirectHUAWEI", &table->CmdDrawClusterIndirectHUAWEI);
     LoadFunction(gpa, device, "vkSetDeviceMemoryPriorityEXT", &table->SetDeviceMemoryPriorityEXT);
     LoadFunction(gpa, device, "vkGetDescriptorSetLayoutHostMappingInfoVALVE", &table->GetDescriptorSetLayoutHostMappingInfoVALVE);
     LoadFunction(gpa, device, "vkGetDescriptorSetHostMappingVALVE", &table->GetDescriptorSetHostMappingVALVE);
