@@ -625,7 +625,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
 
-            expr += indent + 'auto state_lock = manager->AcquireSharedStateLock();\n'
+            if class_name.startswith("IDXGISwapChain"
+                                     ) and method_name.startswith("Present"):
+                expr += indent + 'auto state_lock = manager->AcquireUniqueStateLock();\n'
+            else:
+                expr += indent + 'auto state_lock = manager->AcquireSharedStateLock();\n'
+
             expr += '\n'
 
             wrapped_args = ''
