@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2022 LunarG, Inc.
+# Copyright (c) 2018-2023 LunarG, Inc.
 # Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -33,9 +33,13 @@ set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 
 include(GNUInstallDirs)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/cmake-modules")
+
+# Silence warnings about std::codecvt_utf8 use in util/to_string.h
+add_definitions(-D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
 
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
