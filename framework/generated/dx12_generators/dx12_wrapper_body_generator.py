@@ -434,7 +434,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         indent = self.increment_indent(indent)
 
-        expr += indent + 'auto state_lock = manager->AcquireSharedStateLock();\n'
+        expr += indent + 'auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();\n'
         expr += '\n'
 
         wrapped_args = ''
@@ -627,9 +627,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             if class_name.startswith("IDXGISwapChain"
                                      ) and method_name.startswith("Present"):
-                expr += indent + 'auto state_lock = manager->AcquireUniqueStateLock();\n'
+                expr += indent + 'auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'
             else:
-                expr += indent + 'auto state_lock = manager->AcquireSharedStateLock();\n'
+                expr += indent + 'auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();\n'
 
             expr += '\n'
 

@@ -199,7 +199,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
-    auto state_lock = manager->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
@@ -244,7 +244,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
-    auto state_lock = manager->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
@@ -290,7 +290,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     assert(manager != nullptr);
 
-    auto state_lock = manager->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))

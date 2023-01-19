@@ -72,7 +72,7 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         IID target_interface_id = riid;
 
@@ -114,7 +114,7 @@ ULONG IUnknown_Wrapper::AddRef()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         Encode_IUnknown_AddRef(this, local_count);
     }
@@ -134,7 +134,7 @@ ULONG IUnknown_Wrapper::Release()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         Encode_IUnknown_Release(this, local_count);
     }
