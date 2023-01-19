@@ -54,7 +54,7 @@ std::unordered_map<uint64_t, format::ThreadId> CaptureManager::ThreadData::id_ma
 uint32_t                                                 CaptureManager::instance_count_ = 0;
 std::mutex                                               CaptureManager::instance_lock_;
 thread_local std::unique_ptr<CaptureManager::ThreadData> CaptureManager::thread_data_;
-CaptureManager::StateMutexT                              CaptureManager::state_mutex_;
+CaptureManager::ApiCallMutexT                            CaptureManager::api_call_mutex_;
 
 std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
 

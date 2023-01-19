@@ -187,7 +187,7 @@ HRESULT WINAPI CreateDXGIFactory(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_CreateDXGIFactory>::Dispatch(
             manager,
@@ -237,7 +237,7 @@ HRESULT WINAPI CreateDXGIFactory1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_CreateDXGIFactory1>::Dispatch(
             manager,
@@ -292,7 +292,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateData(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData>::Dispatch(
             manager,
@@ -345,7 +345,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface>::Dispatch(
             manager,
@@ -394,7 +394,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetPrivateData(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData>::Dispatch(
             manager,
@@ -447,7 +447,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetParent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIObject_GetParent>::Dispatch(
             manager,
@@ -504,7 +504,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDeviceSubObject_GetDevice>::Dispatch(
             manager,
@@ -576,7 +576,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetSharedHandle(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle>::Dispatch(
             manager,
@@ -618,7 +618,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetUsage(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIResource_GetUsage>::Dispatch(
             manager,
@@ -660,7 +660,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::SetEvictionPriority(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority>::Dispatch(
             manager,
@@ -702,7 +702,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetEvictionPriority(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority>::Dispatch(
             manager,
@@ -765,7 +765,7 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::AcquireSync(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIKeyedMutex_AcquireSync>::Dispatch(
             manager,
@@ -812,7 +812,7 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::ReleaseSync(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync>::Dispatch(
             manager,
@@ -874,7 +874,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISurface_GetDesc>::Dispatch(
             manager,
@@ -917,7 +917,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Map(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISurface_Map>::Dispatch(
             manager,
@@ -963,7 +963,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Unmap()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISurface_Unmap>::Dispatch(
             manager,
@@ -1005,7 +1005,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::GetDC(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISurface1_GetDC>::Dispatch(
             manager,
@@ -1052,7 +1052,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::ReleaseDC(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC>::Dispatch(
             manager,
@@ -1115,7 +1115,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter_EnumOutputs>::Dispatch(
             manager,
@@ -1167,7 +1167,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc>::Dispatch(
             manager,
@@ -1210,7 +1210,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::CheckInterfaceSupport(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport>::Dispatch(
             manager,
@@ -1277,7 +1277,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDesc>::Dispatch(
             manager,
@@ -1322,7 +1322,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplayModeList(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList>::Dispatch(
             manager,
@@ -1381,7 +1381,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode>::Dispatch(
             manager,
@@ -1432,7 +1432,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::WaitForVBlank()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank>::Dispatch(
             manager,
@@ -1470,7 +1470,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership>::Dispatch(
             manager,
@@ -1514,7 +1514,7 @@ void STDMETHODCALLTYPE IDXGIOutput_Wrapper::ReleaseOwnership()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_ReleaseOwnership>::Dispatch(
             manager,
@@ -1547,7 +1547,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControlCapabilities(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities>::Dispatch(
             manager,
@@ -1589,7 +1589,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetGammaControl(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl>::Dispatch(
             manager,
@@ -1631,7 +1631,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControl(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl>::Dispatch(
             manager,
@@ -1673,7 +1673,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface>::Dispatch(
             manager,
@@ -1715,7 +1715,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData>::Dispatch(
             manager,
@@ -1757,7 +1757,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetFrameStatistics(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics>::Dispatch(
             manager,
@@ -1820,7 +1820,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireUniqueStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
             manager,
@@ -1869,7 +1869,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetBuffer(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetBuffer>::Dispatch(
             manager,
@@ -1927,7 +1927,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState>::Dispatch(
             manager,
@@ -1975,7 +1975,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFullscreenState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState>::Dispatch(
             manager,
@@ -2027,7 +2027,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc>::Dispatch(
             manager,
@@ -2073,7 +2073,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeBuffers(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers>::Dispatch(
             manager,
@@ -2135,7 +2135,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeTarget(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget>::Dispatch(
             manager,
@@ -2177,7 +2177,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetContainingOutput(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput>::Dispatch(
             manager,
@@ -2224,7 +2224,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFrameStatistics(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics>::Dispatch(
             manager,
@@ -2266,7 +2266,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetLastPresentCount(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount>::Dispatch(
             manager,
@@ -2329,7 +2329,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory_EnumAdapters>::Dispatch(
             manager,
@@ -2382,7 +2382,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::MakeWindowAssociation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation>::Dispatch(
             manager,
@@ -2429,7 +2429,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::GetWindowAssociation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation>::Dispatch(
             manager,
@@ -2473,7 +2473,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory_CreateSwapChain>::Dispatch(
             manager,
@@ -2531,7 +2531,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter>::Dispatch(
             manager,
@@ -2603,7 +2603,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter>::Dispatch(
             manager,
@@ -2654,7 +2654,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice_CreateSurface>::Dispatch(
             manager,
@@ -2723,7 +2723,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency>::Dispatch(
             manager,
@@ -2777,7 +2777,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::SetGPUThreadPriority(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority>::Dispatch(
             manager,
@@ -2819,7 +2819,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetGPUThreadPriority(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority>::Dispatch(
             manager,
@@ -2866,7 +2866,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory1_Wrapper::EnumAdapters1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory1_EnumAdapters1>::Dispatch(
             manager,
@@ -2917,7 +2917,7 @@ BOOL STDMETHODCALLTYPE IDXGIFactory1_Wrapper::IsCurrent()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent>::Dispatch(
             manager,
@@ -2958,7 +2958,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter1_Wrapper::GetDesc1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1>::Dispatch(
             manager,
@@ -3004,7 +3004,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::SetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency>::Dispatch(
             manager,
@@ -3046,7 +3046,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency>::Dispatch(
             manager,
@@ -3113,7 +3113,7 @@ BOOL STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::IsStereoEnabled()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled>::Dispatch(
             manager,
@@ -3148,7 +3148,7 @@ void STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::SetStereoEnabled(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDisplayControl_SetStereoEnabled>::Dispatch(
             manager,
@@ -3204,7 +3204,7 @@ void STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc>::Dispatch(
             manager,
@@ -3244,7 +3244,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::AcquireNextFrame(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_AcquireNextFrame>::Dispatch(
             manager,
@@ -3303,7 +3303,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameDirtyRects(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects>::Dispatch(
             manager,
@@ -3357,7 +3357,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameMoveRects(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects>::Dispatch(
             manager,
@@ -3412,7 +3412,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFramePointerShape(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape>::Dispatch(
             manager,
@@ -3469,7 +3469,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::MapDesktopSurface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface>::Dispatch(
             manager,
@@ -3510,7 +3510,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::UnMapDesktopSurface()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface>::Dispatch(
             manager,
@@ -3546,7 +3546,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::ReleaseFrame()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame>::Dispatch(
             manager,
@@ -3589,7 +3589,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface2_Wrapper::GetResource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISurface2_GetResource>::Dispatch(
             manager,
@@ -3651,7 +3651,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSubresourceSurface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIResource1_CreateSubresourceSurface>::Dispatch(
             manager,
@@ -3706,7 +3706,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSharedHandle(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle>::Dispatch(
             manager,
@@ -3769,7 +3769,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources>::Dispatch(
             manager,
@@ -3825,7 +3825,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources>::Dispatch(
             manager,
@@ -3879,7 +3879,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::EnqueueSetEvent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent>::Dispatch(
             manager,
@@ -3925,7 +3925,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetDesc1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1>::Dispatch(
             manager,
@@ -3967,7 +3967,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetFullscreenDesc(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc>::Dispatch(
             manager,
@@ -4009,7 +4009,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetHwnd(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd>::Dispatch(
             manager,
@@ -4052,7 +4052,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetCoreWindow(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetCoreWindow>::Dispatch(
             manager,
@@ -4106,7 +4106,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireUniqueStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
             manager,
@@ -4157,7 +4157,7 @@ BOOL STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::IsTemporaryMonoSupported()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported>::Dispatch(
             manager,
@@ -4194,7 +4194,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRestrictToOutput(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput>::Dispatch(
             manager,
@@ -4241,7 +4241,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetBackgroundColor(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor>::Dispatch(
             manager,
@@ -4283,7 +4283,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetBackgroundColor(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor>::Dispatch(
             manager,
@@ -4325,7 +4325,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetRotation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation>::Dispatch(
             manager,
@@ -4367,7 +4367,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRotation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation>::Dispatch(
             manager,
@@ -4412,7 +4412,7 @@ BOOL STDMETHODCALLTYPE IDXGIFactory2_Wrapper::IsWindowedStereoEnabled()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled>::Dispatch(
             manager,
@@ -4454,7 +4454,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd>::Dispatch(
             manager,
@@ -4530,7 +4530,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow>::Dispatch(
             manager,
@@ -4598,7 +4598,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::GetSharedResourceAdapterLuid(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid>::Dispatch(
             manager,
@@ -4647,7 +4647,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusWindow(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow>::Dispatch(
             manager,
@@ -4700,7 +4700,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusEvent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent>::Dispatch(
             manager,
@@ -4745,7 +4745,7 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterStereoStatus(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterStereoStatus>::Dispatch(
             manager,
@@ -4785,7 +4785,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusWindow(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow>::Dispatch(
             manager,
@@ -4838,7 +4838,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusEvent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent>::Dispatch(
             manager,
@@ -4883,7 +4883,7 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterOcclusionStatus(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterOcclusionStatus>::Dispatch(
             manager,
@@ -4924,7 +4924,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition>::Dispatch(
             manager,
@@ -4990,7 +4990,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter2_Wrapper::GetDesc2(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2>::Dispatch(
             manager,
@@ -5039,7 +5039,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplayModeList1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1>::Dispatch(
             manager,
@@ -5098,7 +5098,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1>::Dispatch(
             manager,
@@ -5150,7 +5150,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1>::Dispatch(
             manager,
@@ -5193,7 +5193,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput>::Dispatch(
             manager,
@@ -5253,7 +5253,7 @@ HRESULT WINAPI CreateDXGIFactory2(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_CreateDXGIFactory2>::Dispatch(
             manager,
@@ -5309,7 +5309,7 @@ HRESULT WINAPI DXGIGetDebugInterface1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_DXGIGetDebugInterface1>::Dispatch(
             manager,
@@ -5364,7 +5364,7 @@ void STDMETHODCALLTYPE IDXGIDevice3_Wrapper::Trim()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice3_Trim>::Dispatch(
             manager,
@@ -5402,7 +5402,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetSourceSize(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetSourceSize>::Dispatch(
             manager,
@@ -5450,7 +5450,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetSourceSize(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize>::Dispatch(
             manager,
@@ -5497,7 +5497,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency>::Dispatch(
             manager,
@@ -5539,7 +5539,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency>::Dispatch(
             manager,
@@ -5580,7 +5580,7 @@ HANDLE STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetFrameLatencyWaitableObject(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject>::Dispatch(
             manager,
@@ -5617,7 +5617,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMatrixTransform(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform>::Dispatch(
             manager,
@@ -5659,7 +5659,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMatrixTransform(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform>::Dispatch(
             manager,
@@ -5704,7 +5704,7 @@ BOOL STDMETHODCALLTYPE IDXGIOutput2_Wrapper::SupportsOverlays()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays>::Dispatch(
             manager,
@@ -5744,7 +5744,7 @@ UINT STDMETHODCALLTYPE IDXGIFactory3_Wrapper::GetCreationFlags()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags>::Dispatch(
             manager,
@@ -5803,7 +5803,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::PresentBuffer(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_PresentBuffer>::Dispatch(
             manager,
@@ -5855,7 +5855,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetSourceRect(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect>::Dispatch(
             manager,
@@ -5897,7 +5897,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetTargetRect(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect>::Dispatch(
             manager,
@@ -5940,7 +5940,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetDestSize(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetDestSize>::Dispatch(
             manager,
@@ -5987,7 +5987,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetSourceRect(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect>::Dispatch(
             manager,
@@ -6029,7 +6029,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetTargetRect(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect>::Dispatch(
             manager,
@@ -6072,7 +6072,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetDestSize(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize>::Dispatch(
             manager,
@@ -6119,7 +6119,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetColorSpace(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace>::Dispatch(
             manager,
@@ -6160,7 +6160,7 @@ DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapp
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace>::Dispatch(
             manager,
@@ -6221,7 +6221,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle>::Dispatch(
             manager,
@@ -6293,7 +6293,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle>::Dispatch(
             manager,
@@ -6385,7 +6385,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::GetFrameStatisticsMedia(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia>::Dispatch(
             manager,
@@ -6427,7 +6427,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::SetPresentDuration(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration>::Dispatch(
             manager,
@@ -6471,7 +6471,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::CheckPresentDurationSuppo
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport>::Dispatch(
             manager,
@@ -6529,7 +6529,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport>::Dispatch(
             manager,
@@ -6590,7 +6590,7 @@ UINT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::GetCurrentBackBufferIndex()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex>::Dispatch(
             manager,
@@ -6628,7 +6628,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::CheckColorSpaceSupport(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport>::Dispatch(
             manager,
@@ -6675,7 +6675,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::SetColorSpace1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1>::Dispatch(
             manager,
@@ -6723,7 +6723,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1>::Dispatch(
             manager,
@@ -6804,7 +6804,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport>::Dispatch(
             manager,
@@ -6867,7 +6867,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumAdapterByLuid(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid>::Dispatch(
             manager,
@@ -6925,7 +6925,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumWarpAdapter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory4_EnumWarpAdapter>::Dispatch(
             manager,
@@ -6982,7 +6982,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterHardwareContentProtecti
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent>::Dispatch(
             manager,
@@ -7027,7 +7027,7 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterHardwareContentProtectio
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus>::Dispatch(
             manager,
@@ -7067,7 +7067,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::QueryVideoMemoryInfo(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo>::Dispatch(
             manager,
@@ -7121,7 +7121,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::SetVideoMemoryReservation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_SetVideoMemoryReservation>::Dispatch(
             manager,
@@ -7174,7 +7174,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterVideoMemoryBudgetChange
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent>::Dispatch(
             manager,
@@ -7219,7 +7219,7 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterVideoMemoryBudgetChangeN
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification>::Dispatch(
             manager,
@@ -7271,7 +7271,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput5_DuplicateOutput1>::Dispatch(
             manager,
@@ -7344,7 +7344,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain4_Wrapper::SetHDRMetaData(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData>::Dispatch(
             manager,
@@ -7403,7 +7403,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice4_OfferResources1>::Dispatch(
             manager,
@@ -7464,7 +7464,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1>::Dispatch(
             manager,
@@ -7524,7 +7524,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport>::Dispatch(
             manager,
@@ -7581,7 +7581,7 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport>::Dispatch(
             manager);
@@ -7619,7 +7619,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter4_Wrapper::GetDesc3(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3>::Dispatch(
             manager,
@@ -7665,7 +7665,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::GetDesc1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1>::Dispatch(
             manager,
@@ -7707,7 +7707,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::CheckHardwareCompositionSupport(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport>::Dispatch(
             manager,
@@ -7756,7 +7756,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory6_Wrapper::EnumAdapterByGpuPreference(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference>::Dispatch(
             manager,
@@ -7823,7 +7823,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::RegisterAdaptersChangedEvent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent>::Dispatch(
             manager,
@@ -7870,7 +7870,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent>::Dispatch(
             manager,
@@ -7939,7 +7939,7 @@ HRESULT WINAPI D3D12SerializeRootSignature(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12SerializeRootSignature>::Dispatch(
             manager,
@@ -8002,7 +8002,7 @@ HRESULT WINAPI D3D12CreateRootSignatureDeserializer(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer>::Dispatch(
             manager,
@@ -8063,7 +8063,7 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature>::Dispatch(
             manager,
@@ -8121,7 +8121,7 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer>::Dispatch(
             manager,
@@ -8183,7 +8183,7 @@ HRESULT WINAPI D3D12CreateDevice(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12CreateDevice>::Dispatch(
             manager,
@@ -8243,7 +8243,7 @@ HRESULT WINAPI D3D12GetDebugInterface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12GetDebugInterface>::Dispatch(
             manager,
@@ -8295,7 +8295,7 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures>::Dispatch(
             manager,
@@ -8351,7 +8351,7 @@ HRESULT WINAPI D3D12GetInterface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12GetInterface>::Dispatch(
             manager,
@@ -8411,7 +8411,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::GetPrivateData(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Object_GetPrivateData>::Dispatch(
             manager,
@@ -8465,7 +8465,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateData(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData>::Dispatch(
             manager,
@@ -8518,7 +8518,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface>::Dispatch(
             manager,
@@ -8565,7 +8565,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetName(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Object_SetName>::Dispatch(
             manager,
@@ -8612,7 +8612,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceChild_GetDevice>::Dispatch(
             manager,
@@ -8703,7 +8703,7 @@ const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializ
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc>::Dispatch(
             manager,
@@ -8761,7 +8761,7 @@ HRESULT STDMETHODCALLTYPE ID3D12VersionedRootSignatureDeserializer_Wrapper::GetR
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion>::Dispatch(
             manager,
@@ -8807,7 +8807,7 @@ const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12VersionedRoot
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc>::Dispatch(
             manager,
@@ -8867,7 +8867,7 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Heap_GetDesc>::Dispatch(
             manager,
@@ -8926,7 +8926,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::Map(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Map>::Dispatch(
             manager,
@@ -8977,7 +8977,7 @@ void STDMETHODCALLTYPE ID3D12Resource_Wrapper::Unmap(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Unmap>::Dispatch(
             manager,
@@ -9019,7 +9019,7 @@ D3D12_RESOURCE_DESC STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetDesc()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_GetDesc>::Dispatch(
             manager,
@@ -9055,7 +9055,7 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress>::Dispatch(
             manager,
@@ -9096,7 +9096,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::WriteToSubresource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource>::Dispatch(
             manager,
@@ -9162,7 +9162,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::ReadFromSubresource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_ReadFromSubresource>::Dispatch(
             manager,
@@ -9225,7 +9225,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_GetHeapProperties>::Dispatch(
             manager,
@@ -9291,7 +9291,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandAllocator_Reset>::Dispatch(
             manager,
@@ -9347,7 +9347,7 @@ UINT64 STDMETHODCALLTYPE ID3D12Fence_Wrapper::GetCompletedValue()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Fence_GetCompletedValue>::Dispatch(
             manager,
@@ -9385,7 +9385,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::SetEventOnCompletion(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion>::Dispatch(
             manager,
@@ -9432,7 +9432,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::Signal(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Fence_Signal>::Dispatch(
             manager,
@@ -9477,7 +9477,7 @@ D3D12_FENCE_FLAGS STDMETHODCALLTYPE ID3D12Fence1_Wrapper::GetCreationFlags()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Fence1_GetCreationFlags>::Dispatch(
             manager,
@@ -9534,7 +9534,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineState_GetCachedBlob>::Dispatch(
             manager,
@@ -9600,7 +9600,7 @@ D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetDe
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc>::Dispatch(
             manager,
@@ -9636,7 +9636,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetC
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart>::Dispatch(
             manager,
@@ -9674,7 +9674,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart>::Dispatch(
             manager,
@@ -9772,7 +9772,7 @@ D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE ID3D12CommandList_Wrapper::GetType()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandList_GetType>::Dispatch(
             manager,
@@ -9812,7 +9812,7 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close>::Dispatch(
             manager,
@@ -9850,7 +9850,7 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset>::Dispatch(
             manager,
@@ -9895,7 +9895,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState>::Dispatch(
             manager,
@@ -9934,7 +9934,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced>::Dispatch(
             manager,
@@ -9989,7 +9989,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced>::Dispatch(
             manager,
@@ -10047,7 +10047,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch>::Dispatch(
             manager,
@@ -10097,7 +10097,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion>::Dispatch(
             manager,
@@ -10158,7 +10158,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion>::Dispatch(
             manager,
@@ -10222,7 +10222,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyResource>::Dispatch(
             manager,
@@ -10268,7 +10268,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTiles>::Dispatch(
             manager,
@@ -10333,7 +10333,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource>::Dispatch(
             manager,
@@ -10389,7 +10389,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetPrimitiveTopology
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology>::Dispatch(
             manager,
@@ -10426,7 +10426,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetViewports(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetViewports>::Dispatch(
             manager,
@@ -10468,7 +10468,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects>::Dispatch(
             manager,
@@ -10509,7 +10509,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor>::Dispatch(
             manager,
@@ -10545,7 +10545,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef>::Dispatch(
             manager,
@@ -10581,7 +10581,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState>::Dispatch(
             manager,
@@ -10618,7 +10618,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>::Dispatch(
             manager,
@@ -10661,7 +10661,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteBundle(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle>::Dispatch(
             manager,
@@ -10698,7 +10698,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps>::Dispatch(
             manager,
@@ -10741,7 +10741,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature>::Dispatch(
             manager,
@@ -10777,7 +10777,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignatu
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature>::Dispatch(
             manager,
@@ -10814,7 +10814,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable>::Dispatch(
             manager,
@@ -10856,7 +10856,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable>::Dispatch(
             manager,
@@ -10899,7 +10899,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant>::Dispatch(
             manager,
@@ -10947,7 +10947,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant>::Dispatch(
             manager,
@@ -10996,7 +10996,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants>::Dispatch(
             manager,
@@ -11050,7 +11050,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants>::Dispatch(
             manager,
@@ -11102,7 +11102,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView>::Dispatch(
             manager,
@@ -11144,7 +11144,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView>::Dispatch(
             manager,
@@ -11186,7 +11186,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView>::Dispatch(
             manager,
@@ -11228,7 +11228,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView>::Dispatch(
             manager,
@@ -11270,7 +11270,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView>::Dispatch(
             manager,
@@ -11312,7 +11312,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView>::Dispatch(
             manager,
@@ -11353,7 +11353,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer>::Dispatch(
             manager,
@@ -11391,7 +11391,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers>::Dispatch(
             manager,
@@ -11439,7 +11439,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets>::Dispatch(
             manager,
@@ -11488,7 +11488,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets>::Dispatch(
             manager,
@@ -11546,7 +11546,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView>::Dispatch(
             manager,
@@ -11612,7 +11612,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView>::Dispatch(
             manager,
@@ -11670,7 +11670,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint>::Dispatch(
             manager,
@@ -11738,7 +11738,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat>::Dispatch(
             manager,
@@ -11802,7 +11802,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource>::Dispatch(
             manager,
@@ -11845,7 +11845,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery>::Dispatch(
             manager,
@@ -11893,7 +11893,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery>::Dispatch(
             manager,
@@ -11944,7 +11944,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData>::Dispatch(
             manager,
@@ -12007,7 +12007,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPredication>::Dispatch(
             manager,
@@ -12055,7 +12055,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetMarker>::Dispatch(
             manager,
@@ -12103,7 +12103,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginEvent>::Dispatch(
             manager,
@@ -12148,7 +12148,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndEvent()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndEvent>::Dispatch(
             manager,
@@ -12184,7 +12184,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect>::Dispatch(
             manager,
@@ -12255,7 +12255,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT>::Dispatch(
             manager,
@@ -12329,7 +12329,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64>::Dispatch(
             manager,
@@ -12398,7 +12398,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::OMSetDepthBounds(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds>::Dispatch(
             manager,
@@ -12441,7 +12441,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions>::Dispatch(
             manager,
@@ -12495,7 +12495,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion>::Dispatch(
             manager,
@@ -12571,7 +12571,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetViewInstanceMask(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask>::Dispatch(
             manager,
@@ -12613,7 +12613,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate>::Dispatch(
             manager,
@@ -12688,7 +12688,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_UpdateTileMappings>::Dispatch(
             manager,
@@ -12774,7 +12774,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_CopyTileMappings>::Dispatch(
             manager,
@@ -12836,7 +12836,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
             manager,
@@ -12881,7 +12881,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::SetMarker(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_SetMarker>::Dispatch(
             manager,
@@ -12929,7 +12929,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::BeginEvent(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_BeginEvent>::Dispatch(
             manager,
@@ -12974,7 +12974,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::EndEvent()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_EndEvent>::Dispatch(
             manager,
@@ -13008,7 +13008,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Signal>::Dispatch(
             manager,
@@ -13056,7 +13056,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Wait>::Dispatch(
             manager,
@@ -13103,7 +13103,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetTimestampFrequency(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetTimestampFrequency>::Dispatch(
             manager,
@@ -13146,7 +13146,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetClockCalibration(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetClockCalibration>::Dispatch(
             manager,
@@ -13192,7 +13192,7 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc>::Dispatch(
             manager,
@@ -13248,7 +13248,7 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetNodeCount()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount>::Dispatch(
             manager,
@@ -13287,7 +13287,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandQueue(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandQueue>::Dispatch(
             manager,
@@ -13346,7 +13346,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandAllocator(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandAllocator>::Dispatch(
             manager,
@@ -13405,7 +13405,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState>::Dispatch(
             manager,
@@ -13466,7 +13466,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState>::Dispatch(
             manager,
@@ -13530,7 +13530,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList>::Dispatch(
             manager,
@@ -13604,7 +13604,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport>::Dispatch(
             manager,
@@ -13659,7 +13659,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDescriptorHeap(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDescriptorHeap>::Dispatch(
             manager,
@@ -13716,7 +13716,7 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDescriptorHandleIncrementSize(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize>::Dispatch(
             manager,
@@ -13762,7 +13762,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRootSignature(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRootSignature>::Dispatch(
             manager,
@@ -13828,7 +13828,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView>::Dispatch(
             manager,
@@ -13873,7 +13873,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>::Dispatch(
             manager,
@@ -13924,7 +13924,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateUnorderedAccessView>::Dispatch(
             manager,
@@ -13979,7 +13979,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRenderTargetView>::Dispatch(
             manager,
@@ -14029,7 +14029,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDepthStencilView>::Dispatch(
             manager,
@@ -14078,7 +14078,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSampler(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSampler>::Dispatch(
             manager,
@@ -14127,7 +14127,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptors>::Dispatch(
             manager,
@@ -14198,7 +14198,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptorsSimple>::Dispatch(
             manager,
@@ -14255,7 +14255,7 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResour
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetResourceAllocationInfo>::Dispatch(
             manager,
@@ -14308,7 +14308,7 @@ D3D12_HEAP_PROPERTIES STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCustomHeapPrope
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetCustomHeapProperties>::Dispatch(
             manager,
@@ -14361,7 +14361,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommittedResource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommittedResource>::Dispatch(
             manager,
@@ -14441,7 +14441,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateHeap>::Dispatch(
             manager,
@@ -14505,7 +14505,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreatePlacedResource>::Dispatch(
             manager,
@@ -14586,7 +14586,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateReservedResource(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateReservedResource>::Dispatch(
             manager,
@@ -14657,7 +14657,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle>::Dispatch(
             manager,
@@ -14721,7 +14721,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandle(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle>::Dispatch(
             manager,
@@ -14780,7 +14780,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandleByName(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName>::Dispatch(
             manager,
@@ -14833,7 +14833,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_MakeResident>::Dispatch(
             manager,
@@ -14883,7 +14883,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_Evict>::Dispatch(
             manager,
@@ -14935,7 +14935,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateFence(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateFence>::Dispatch(
             manager,
@@ -14996,7 +14996,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDeviceRemovedReason()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetDeviceRemovedReason>::Dispatch(
             manager,
@@ -15038,7 +15038,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCopyableFootprints(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetCopyableFootprints>::Dispatch(
             manager,
@@ -15113,7 +15113,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateQueryHeap(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateQueryHeap>::Dispatch(
             manager,
@@ -15170,7 +15170,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::SetStablePowerState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_SetStablePowerState>::Dispatch(
             manager,
@@ -15215,7 +15215,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandSignature>::Dispatch(
             manager,
@@ -15281,7 +15281,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetResourceTiling>::Dispatch(
             manager,
@@ -15348,7 +15348,7 @@ LUID STDMETHODCALLTYPE ID3D12Device_Wrapper::GetAdapterLuid()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetAdapterLuid>::Dispatch(
             manager,
@@ -15406,7 +15406,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline>::Dispatch(
             manager,
@@ -15456,7 +15456,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_LoadGraphicsPipeline>::Dispatch(
             manager,
@@ -15524,7 +15524,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_LoadComputePipeline>::Dispatch(
             manager,
@@ -15588,7 +15588,7 @@ SIZE_T STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::GetSerializedSize()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_GetSerializedSize>::Dispatch(
             manager,
@@ -15626,7 +15626,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::Serialize(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_Serialize>::Dispatch(
             manager,
@@ -15680,7 +15680,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary1_LoadPipeline>::Dispatch(
             manager,
@@ -15752,7 +15752,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device1_CreatePipelineLibrary>::Dispatch(
             manager,
@@ -15819,7 +15819,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device1_SetEventOnMultipleFenceCompletion>::Dispatch(
             manager,
@@ -15885,7 +15885,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority>::Dispatch(
             manager,
@@ -15945,7 +15945,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device2_CreatePipelineState>::Dispatch(
             manager,
@@ -16010,7 +16010,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromAddress(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress>::Dispatch(
             manager,
@@ -16069,7 +16069,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromFileMapping
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping>::Dispatch(
             manager,
@@ -16130,7 +16130,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device3_EnqueueMakeResident>::Dispatch(
             manager,
@@ -16199,7 +16199,7 @@ HRESULT STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper::GetStatusFence(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetStatusFence>::Dispatch(
             manager,
@@ -16250,7 +16250,7 @@ D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper:
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetSessionStatus>::Dispatch(
             manager,
@@ -16306,7 +16306,7 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE ID3D12ProtectedResourceS
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession_GetDesc>::Dispatch(
             manager,
@@ -16351,7 +16351,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommandList1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateCommandList1>::Dispatch(
             manager,
@@ -16420,7 +16420,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateProtectedResourceSession(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateProtectedResourceSession>::Dispatch(
             manager,
@@ -16484,7 +16484,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateCommittedResource1>::Dispatch(
             manager,
@@ -16570,7 +16570,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateHeap1>::Dispatch(
             manager,
@@ -16638,7 +16638,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateReservedResource1>::Dispatch(
             manager,
@@ -16713,7 +16713,7 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device4_GetResourceAllocationInfo1>::Dispatch(
             manager,
@@ -16788,7 +16788,7 @@ void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12LifetimeOwner_LifetimeStateUpdated>::Dispatch(
             manager,
@@ -16845,7 +16845,7 @@ LUID STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetLUID()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetLUID>::Dispatch(
             manager,
@@ -16883,7 +16883,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetSwapChainObject(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetSwapChainObject>::Dispatch(
             manager,
@@ -16938,7 +16938,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetCurrentResourceAn
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue>::Dispatch(
             manager,
@@ -17000,7 +17000,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::InsertImplicitSync()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_InsertImplicitSync>::Dispatch(
             manager,
@@ -17057,7 +17057,7 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12LifetimeTracker_DestroyOwnedObject>::Dispatch(
             manager,
@@ -17139,7 +17139,7 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier>::Dispatch(
             manager,
@@ -17181,7 +17181,7 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderStackSize
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderStackSize>::Dispatch(
             manager,
@@ -17222,7 +17222,7 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetPipelineStackSi
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetPipelineStackSize>::Dispatch(
             manager,
@@ -17257,7 +17257,7 @@ void STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::SetPipelineStackSize
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_SetPipelineStackSize>::Dispatch(
             manager,
@@ -17301,7 +17301,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateLifetimeTracker>::Dispatch(
             manager,
@@ -17355,7 +17355,7 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::RemoveDevice()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_RemoveDevice>::Dispatch(
             manager,
@@ -17389,7 +17389,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommands(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommands>::Dispatch(
             manager,
@@ -17440,7 +17440,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommandParameters(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommandParameters>::Dispatch(
             manager,
@@ -17507,7 +17507,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateMetaCommand(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateMetaCommand>::Dispatch(
             manager,
@@ -17581,7 +17581,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateStateObject>::Dispatch(
             manager,
@@ -17639,7 +17639,7 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo>::Dispatch(
             manager,
@@ -17684,7 +17684,7 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CheckDriverMatchingIdentifier>::Dispatch(
             manager,
@@ -17749,7 +17749,7 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetAutoB
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement>::Dispatch(
             manager,
@@ -17785,7 +17785,7 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetPageF
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement>::Dispatch(
             manager,
@@ -17821,7 +17821,7 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetWatso
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement>::Dispatch(
             manager,
@@ -17861,7 +17861,7 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBrea
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement>::Dispatch(
             manager,
@@ -17901,7 +17901,7 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings2_Wrapper::UseMark
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings2_UseMarkersOnlyAutoBreadcrumbs>::Dispatch(
             manager,
@@ -17959,7 +17959,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetAutoBreadc
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput>::Dispatch(
             manager,
@@ -18006,7 +18006,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetPageFaultA
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput>::Dispatch(
             manager,
@@ -18052,7 +18052,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetAutoBread
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1>::Dispatch(
             manager,
@@ -18099,7 +18099,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetPageFault
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1>::Dispatch(
             manager,
@@ -18150,7 +18150,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData2_Wrapper::GetPageFault
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllocationOutput2>::Dispatch(
             manager,
@@ -18196,7 +18196,7 @@ D3D12_DRED_DEVICE_STATE STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData2_Wrapp
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData2_GetDeviceState>::Dispatch(
             manager,
@@ -18240,7 +18240,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device6_Wrapper::SetBackgroundProcessingMode(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device6_SetBackgroundProcessingMode>::Dispatch(
             manager,
@@ -18300,7 +18300,7 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC1 STDMETHODCALLTYPE ID3D12ProtectedResource
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession1_GetDesc1>::Dispatch(
             manager,
@@ -18344,7 +18344,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device7_AddToStateObject>::Dispatch(
             manager,
@@ -18410,7 +18410,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::CreateProtectedResourceSession1
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device7_CreateProtectedResourceSession1>::Dispatch(
             manager,
@@ -18474,7 +18474,7 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetResou
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device8_GetResourceAllocationInfo2>::Dispatch(
             manager,
@@ -18538,7 +18538,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateCommittedResource2>::Dispatch(
             manager,
@@ -18627,7 +18627,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device8_CreatePlacedResource1>::Dispatch(
             manager,
@@ -18704,7 +18704,7 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView>::Dispatch(
             manager,
@@ -18759,7 +18759,7 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetCopyableFootprints1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device8_GetCopyableFootprints1>::Dispatch(
             manager,
@@ -18837,7 +18837,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource1_Wrapper::GetProtectedResourceSession(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource1_GetProtectedResourceSession>::Dispatch(
             manager,
@@ -18892,7 +18892,7 @@ D3D12_RESOURCE_DESC1 STDMETHODCALLTYPE ID3D12Resource2_Wrapper::GetDesc1()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource2_GetDesc1>::Dispatch(
             manager,
@@ -18934,7 +18934,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Heap1_Wrapper::GetProtectedResourceSession(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Heap1_GetProtectedResourceSession>::Dispatch(
             manager,
@@ -18988,7 +18988,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession>::Dispatch(
             manager,
@@ -19047,7 +19047,7 @@ UINT64 STDMETHODCALLTYPE ID3D12MetaCommand_Wrapper::GetRequiredParameterResource
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12MetaCommand_GetRequiredParameterResourceSize>::Dispatch(
             manager,
@@ -19099,7 +19099,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass>::Dispatch(
             manager,
@@ -19151,7 +19151,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EndRenderPass()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass>::Dispatch(
             manager,
@@ -19184,7 +19184,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand>::Dispatch(
             manager,
@@ -19232,7 +19232,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand>::Dispatch(
             manager,
@@ -19280,7 +19280,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure>::Dispatch(
             manager,
@@ -19328,7 +19328,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo>::Dispatch(
             manager,
@@ -19376,7 +19376,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure>::Dispatch(
             manager,
@@ -19422,7 +19422,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1>::Dispatch(
             manager,
@@ -19458,7 +19458,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays>::Dispatch(
             manager,
@@ -19519,7 +19519,7 @@ HRESULT STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::FindValue(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_FindValue>::Dispatch(
             manager,
@@ -19579,7 +19579,7 @@ HRESULT STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::StoreValue(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_StoreValue>::Dispatch(
             manager,
@@ -19633,7 +19633,7 @@ void STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapper::SetDeleteOnDestroy()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_SetDeleteOnDestroy>::Dispatch(
             manager,
@@ -19665,7 +19665,7 @@ D3D12_SHADER_CACHE_SESSION_DESC STDMETHODCALLTYPE ID3D12ShaderCacheSession_Wrapp
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_GetDesc>::Dispatch(
             manager,
@@ -19708,7 +19708,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::CreateShaderCacheSession(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device9_CreateShaderCacheSession>::Dispatch(
             manager,
@@ -19766,7 +19766,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::ShaderCacheControl(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device9_ShaderCacheControl>::Dispatch(
             manager,
@@ -19816,7 +19816,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device9_Wrapper::CreateCommandQueue1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device9_CreateCommandQueue1>::Dispatch(
             manager,
@@ -19891,7 +19891,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateCommittedResource3(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateCommittedResource3>::Dispatch(
             manager,
@@ -19991,7 +19991,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreatePlacedResource2(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device10_CreatePlacedResource2>::Dispatch(
             manager,
@@ -20085,7 +20085,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateReservedResource2(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateReservedResource2>::Dispatch(
             manager,
@@ -20170,7 +20170,7 @@ void STDMETHODCALLTYPE ID3D12Device11_Wrapper::CreateSampler2(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device11_CreateSampler2>::Dispatch(
             manager,
@@ -20236,7 +20236,7 @@ HRESULT STDMETHODCALLTYPE ID3D12VirtualizationGuestDevice_Wrapper::ShareWithHost
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost>::Dispatch(
             manager,
@@ -20285,7 +20285,7 @@ HRESULT STDMETHODCALLTYPE ID3D12VirtualizationGuestDevice_Wrapper::CreateFenceFd
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_CreateFenceFd>::Dispatch(
             manager,
@@ -20355,7 +20355,7 @@ void STDMETHODCALLTYPE ID3D12Tools_Wrapper::EnableShaderInstrumentation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Tools_EnableShaderInstrumentation>::Dispatch(
             manager,
@@ -20392,7 +20392,7 @@ BOOL STDMETHODCALLTYPE ID3D12Tools_Wrapper::ShaderInstrumentationEnabled()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled>::Dispatch(
             manager,
@@ -20450,7 +20450,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SDKConfiguration_Wrapper::SetSDKVersion(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion>::Dispatch(
             manager,
@@ -20504,7 +20504,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SDKConfiguration1_Wrapper::CreateDeviceFactory(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration1_CreateDeviceFactory>::Dispatch(
             manager,
@@ -20563,7 +20563,7 @@ void STDMETHODCALLTYPE ID3D12SDKConfiguration1_Wrapper::FreeUnusedSDKs()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SDKConfiguration1_FreeUnusedSDKs>::Dispatch(
             manager,
@@ -20615,7 +20615,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::InitializeFromGlobalState
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_InitializeFromGlobalState>::Dispatch(
             manager,
@@ -20651,7 +20651,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::ApplyToGlobalState()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_ApplyToGlobalState>::Dispatch(
             manager,
@@ -20688,7 +20688,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::SetFlags(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_SetFlags>::Dispatch(
             manager,
@@ -20729,7 +20729,7 @@ D3D12_DEVICE_FACTORY_FLAGS STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::GetFla
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_GetFlags>::Dispatch(
             manager,
@@ -20768,7 +20768,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::GetConfigurationInterface
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_GetConfigurationInterface>::Dispatch(
             manager,
@@ -20828,7 +20828,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::EnableExperimentalFeature
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_EnableExperimentalFeatures>::Dispatch(
             manager,
@@ -20888,7 +20888,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceFactory_Wrapper::CreateDevice(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_CreateDevice>::Dispatch(
             manager,
@@ -20969,7 +20969,7 @@ D3D12_DEVICE_CONFIGURATION_DESC STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrap
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetDesc>::Dispatch(
             manager,
@@ -21007,7 +21007,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::GetEnabledExperimen
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures>::Dispatch(
             manager,
@@ -21056,7 +21056,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::SerializeVersionedR
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature>::Dispatch(
             manager,
@@ -21117,7 +21117,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration_Wrapper::CreateVersionedRoot
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer>::Dispatch(
             manager,
@@ -21182,7 +21182,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate>::Dispatch(
             manager,
@@ -21223,7 +21223,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage>::Dispatch(
             manager,
@@ -21265,7 +21265,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh>::Dispatch(
             manager,
@@ -21316,7 +21316,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList7_Wrapper::Barrier(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier>::Dispatch(
             manager,
@@ -21364,7 +21364,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList8_Wrapper::OMSetFrontAndBackSten
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef>::Dispatch(
             manager,
@@ -21432,7 +21432,7 @@ LPVOID STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferPointer()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer>::Dispatch(
             manager,
@@ -21468,7 +21468,7 @@ SIZE_T STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferSize()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferSize>::Dispatch(
             manager,
@@ -21527,7 +21527,7 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::RegisterDestructionCa
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback>::Dispatch(
             manager,
@@ -21579,7 +21579,7 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3DDestructionNotifier_UnregisterDestructionCallback>::Dispatch(
             manager,
@@ -21644,7 +21644,7 @@ void STDMETHODCALLTYPE ID3D12Debug_Wrapper::EnableDebugLayer()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug_EnableDebugLayer>::Dispatch(
             manager,
@@ -21694,7 +21694,7 @@ void STDMETHODCALLTYPE ID3D12Debug1_Wrapper::EnableDebugLayer()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug1_EnableDebugLayer>::Dispatch(
             manager,
@@ -21725,7 +21725,7 @@ void STDMETHODCALLTYPE ID3D12Debug1_Wrapper::SetEnableGPUBasedValidation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug1_SetEnableGPUBasedValidation>::Dispatch(
             manager,
@@ -21761,7 +21761,7 @@ void STDMETHODCALLTYPE ID3D12Debug1_Wrapper::SetEnableSynchronizedCommandQueueVa
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug1_SetEnableSynchronizedCommandQueueValidation>::Dispatch(
             manager,
@@ -21817,7 +21817,7 @@ void STDMETHODCALLTYPE ID3D12Debug2_Wrapper::SetGPUBasedValidationFlags(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug2_SetGPUBasedValidationFlags>::Dispatch(
             manager,
@@ -21857,7 +21857,7 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetEnableGPUBasedValidation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug3_SetEnableGPUBasedValidation>::Dispatch(
             manager,
@@ -21893,7 +21893,7 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetEnableSynchronizedCommandQueueVa
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation>::Dispatch(
             manager,
@@ -21929,7 +21929,7 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetGPUBasedValidationFlags(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug3_SetGPUBasedValidationFlags>::Dispatch(
             manager,
@@ -21968,7 +21968,7 @@ void STDMETHODCALLTYPE ID3D12Debug4_Wrapper::DisableDebugLayer()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug4_DisableDebugLayer>::Dispatch(
             manager,
@@ -22003,7 +22003,7 @@ void STDMETHODCALLTYPE ID3D12Debug5_Wrapper::SetEnableAutoName(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug5_SetEnableAutoName>::Dispatch(
             manager,
@@ -22043,7 +22043,7 @@ void STDMETHODCALLTYPE ID3D12Debug6_Wrapper::SetForceLegacyBarrierValidation(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Debug6_SetForceLegacyBarrierValidation>::Dispatch(
             manager,
@@ -22103,7 +22103,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice1_Wrapper::SetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice1_SetDebugParameter>::Dispatch(
             manager,
@@ -22157,7 +22157,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice1_Wrapper::GetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice1_GetDebugParameter>::Dispatch(
             manager,
@@ -22209,7 +22209,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice1_Wrapper::ReportLiveDeviceObjects(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice1_ReportLiveDeviceObjects>::Dispatch(
             manager,
@@ -22271,7 +22271,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice_Wrapper::SetFeatureMask(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice_SetFeatureMask>::Dispatch(
             manager,
@@ -22312,7 +22312,7 @@ D3D12_DEBUG_FEATURE STDMETHODCALLTYPE ID3D12DebugDevice_Wrapper::GetFeatureMask(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice_GetFeatureMask>::Dispatch(
             manager,
@@ -22349,7 +22349,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice_Wrapper::ReportLiveDeviceObjects(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice_ReportLiveDeviceObjects>::Dispatch(
             manager,
@@ -22397,7 +22397,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice2_Wrapper::SetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice2_SetDebugParameter>::Dispatch(
             manager,
@@ -22451,7 +22451,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice2_Wrapper::GetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugDevice2_GetDebugParameter>::Dispatch(
             manager,
@@ -22525,7 +22525,7 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandQueue_Wrapper::AssertResourceState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandQueue_AssertResourceState>::Dispatch(
             manager,
@@ -22581,7 +22581,7 @@ void STDMETHODCALLTYPE ID3D12DebugCommandQueue1_Wrapper::AssertResourceAccess(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandQueue1_AssertResourceAccess>::Dispatch(
             manager,
@@ -22629,7 +22629,7 @@ void STDMETHODCALLTYPE ID3D12DebugCommandQueue1_Wrapper::AssertTextureLayout(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandQueue1_AssertTextureLayout>::Dispatch(
             manager,
@@ -22699,7 +22699,7 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandList1_Wrapper::AssertResourceState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList1_AssertResourceState>::Dispatch(
             manager,
@@ -22753,7 +22753,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList1_Wrapper::SetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList1_SetDebugParameter>::Dispatch(
             manager,
@@ -22807,7 +22807,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList1_Wrapper::GetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList1_GetDebugParameter>::Dispatch(
             manager,
@@ -22881,7 +22881,7 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandList_Wrapper::AssertResourceState(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList_AssertResourceState>::Dispatch(
             manager,
@@ -22933,7 +22933,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList_Wrapper::SetFeatureMask(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList_SetFeatureMask>::Dispatch(
             manager,
@@ -22974,7 +22974,7 @@ D3D12_DEBUG_FEATURE STDMETHODCALLTYPE ID3D12DebugCommandList_Wrapper::GetFeature
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList_GetFeatureMask>::Dispatch(
             manager,
@@ -23017,7 +23017,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList2_Wrapper::SetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList2_SetDebugParameter>::Dispatch(
             manager,
@@ -23071,7 +23071,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList2_Wrapper::GetDebugParameter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList2_GetDebugParameter>::Dispatch(
             manager,
@@ -23127,7 +23127,7 @@ void STDMETHODCALLTYPE ID3D12DebugCommandList3_Wrapper::AssertResourceAccess(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList3_AssertResourceAccess>::Dispatch(
             manager,
@@ -23175,7 +23175,7 @@ void STDMETHODCALLTYPE ID3D12DebugCommandList3_Wrapper::AssertTextureLayout(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList3_AssertTextureLayout>::Dispatch(
             manager,
@@ -23243,7 +23243,7 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::Present(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SharingContract_Present>::Dispatch(
             manager,
@@ -23290,7 +23290,7 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::SharedFenceSignal(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SharingContract_SharedFenceSignal>::Dispatch(
             manager,
@@ -23331,7 +23331,7 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::BeginCapturableWork(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SharingContract_BeginCapturableWork>::Dispatch(
             manager,
@@ -23367,7 +23367,7 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::EndCapturableWork(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12SharingContract_EndCapturableWork>::Dispatch(
             manager,
@@ -23425,7 +23425,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetMessageCountLimit(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_SetMessageCountLimit>::Dispatch(
             manager,
@@ -23464,7 +23464,7 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::ClearStoredMessages()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_ClearStoredMessages>::Dispatch(
             manager,
@@ -23499,7 +23499,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetMessage(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMessage>::Dispatch(
             manager,
@@ -23550,7 +23550,7 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumMessagesAllowedByStorage
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter>::Dispatch(
             manager,
@@ -23586,7 +23586,7 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumMessagesDeniedByStorageF
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter>::Dispatch(
             manager,
@@ -23622,7 +23622,7 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumStoredMessages()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumStoredMessages>::Dispatch(
             manager,
@@ -23658,7 +23658,7 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumStoredMessagesAllowedByR
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter>::Dispatch(
             manager,
@@ -23694,7 +23694,7 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetNumMessagesDiscardedByMessa
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit>::Dispatch(
             manager,
@@ -23730,7 +23730,7 @@ UINT64 STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetMessageCountLimit()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMessageCountLimit>::Dispatch(
             manager,
@@ -23767,7 +23767,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddStorageFilterEntries(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_AddStorageFilterEntries>::Dispatch(
             manager,
@@ -23810,7 +23810,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetStorageFilter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetStorageFilter>::Dispatch(
             manager,
@@ -23854,7 +23854,7 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::ClearStorageFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_ClearStorageFilter>::Dispatch(
             manager,
@@ -23886,7 +23886,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushEmptyStorageFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushEmptyStorageFilter>::Dispatch(
             manager,
@@ -23922,7 +23922,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushCopyOfStorageFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushCopyOfStorageFilter>::Dispatch(
             manager,
@@ -23959,7 +23959,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushStorageFilter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushStorageFilter>::Dispatch(
             manager,
@@ -23998,7 +23998,7 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PopStorageFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PopStorageFilter>::Dispatch(
             manager,
@@ -24030,7 +24030,7 @@ UINT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetStorageFilterStackSize()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetStorageFilterStackSize>::Dispatch(
             manager,
@@ -24067,7 +24067,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddRetrievalFilterEntries(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_AddRetrievalFilterEntries>::Dispatch(
             manager,
@@ -24110,7 +24110,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetRetrievalFilter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetRetrievalFilter>::Dispatch(
             manager,
@@ -24154,7 +24154,7 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::ClearRetrievalFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_ClearRetrievalFilter>::Dispatch(
             manager,
@@ -24186,7 +24186,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushEmptyRetrievalFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushEmptyRetrievalFilter>::Dispatch(
             manager,
@@ -24222,7 +24222,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushCopyOfRetrievalFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushCopyOfRetrievalFilter>::Dispatch(
             manager,
@@ -24259,7 +24259,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PushRetrievalFilter(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PushRetrievalFilter>::Dispatch(
             manager,
@@ -24298,7 +24298,7 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::PopRetrievalFilter()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_PopRetrievalFilter>::Dispatch(
             manager,
@@ -24330,7 +24330,7 @@ UINT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetRetrievalFilterStackSize()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetRetrievalFilterStackSize>::Dispatch(
             manager,
@@ -24370,7 +24370,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddMessage(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_AddMessage>::Dispatch(
             manager,
@@ -24428,7 +24428,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::AddApplicationMessage(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_AddApplicationMessage>::Dispatch(
             manager,
@@ -24476,7 +24476,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetBreakOnCategory(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_SetBreakOnCategory>::Dispatch(
             manager,
@@ -24524,7 +24524,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetBreakOnSeverity(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_SetBreakOnSeverity>::Dispatch(
             manager,
@@ -24572,7 +24572,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetBreakOnID(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_SetBreakOnID>::Dispatch(
             manager,
@@ -24619,7 +24619,7 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetBreakOnCategory(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetBreakOnCategory>::Dispatch(
             manager,
@@ -24661,7 +24661,7 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetBreakOnSeverity(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetBreakOnSeverity>::Dispatch(
             manager,
@@ -24703,7 +24703,7 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetBreakOnID(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetBreakOnID>::Dispatch(
             manager,
@@ -24743,7 +24743,7 @@ void STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::SetMuteDebugOutput(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_SetMuteDebugOutput>::Dispatch(
             manager,
@@ -24780,7 +24780,7 @@ BOOL STDMETHODCALLTYPE ID3D12InfoQueue_Wrapper::GetMuteDebugOutput()
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMuteDebugOutput>::Dispatch(
             manager,
@@ -24824,7 +24824,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue1_Wrapper::RegisterMessageCallback(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback>::Dispatch(
             manager,
@@ -24881,7 +24881,7 @@ HRESULT STDMETHODCALLTYPE ID3D12InfoQueue1_Wrapper::UnregisterMessageCallback(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback>::Dispatch(
             manager,

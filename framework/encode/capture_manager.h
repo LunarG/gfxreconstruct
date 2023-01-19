@@ -54,9 +54,9 @@ class CaptureManager
   public:
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
-    auto AcquireSharedStateLock() { return std::move(std::shared_lock<StateMutexT>(state_mutex_)); }
+    static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }
 
-    auto AcquireUniqueStateLock() { return std::move(std::unique_lock<StateMutexT>(state_mutex_)); }
+    static auto AcquireExclusiveApiCallLock() { return std::move(std::unique_lock<ApiCallMutexT>(api_call_mutex_)); }
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -141,7 +141,7 @@ class CaptureManager
     bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
 
   protected:
-    typedef std::shared_mutex StateMutexT;
+    typedef std::shared_mutex ApiCallMutexT;
 
     enum CaptureModeFlags : uint32_t
     {
@@ -282,7 +282,7 @@ class CaptureManager
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static std::atomic<format::HandleId>            unique_id_counter_;
-    static StateMutexT                              state_mutex_;
+    static ApiCallMutexT                            api_call_mutex_;
 
     const format::ApiFamilyId api_family_;
 
