@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -51,7 +51,16 @@ const VkLayerProperties kLayerProps = {
         GFXRECON_PROJECT_VERSION_DESIGNATION
 };
 
-const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
+struct LayerExtensionProps
+{
+    VkExtensionProperties    props;
+    std::vector<std::string> instance_funcs;
+    std::vector<std::string> device_funcs;
+};
+
+const std::vector<struct LayerExtensionProps> kDeviceExtensionProps = {
+    { VkExtensionProperties{ "VK_EXT_tooling_info", 1 }, { "vkGetPhysicalDeviceToolPropertiesEXT" }, {} },
+};
 
 /// An alphabetical list of device extensions which we do not report upstream if
 /// other layers or ICDs expose them to us.
@@ -254,19 +263,36 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
         return reinterpret_cast<PFN_vkVoidFunction>(encode::CreateInstance);
     }
 
+    bool has_implementation = false;
+
+    // Check for implementation in the next level
     if (instance != VK_NULL_HANDLE)
     {
         auto table = encode::GetInstanceTable(instance);
         if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
         {
-            result = table->GetInstanceProcAddr(encode::GetWrappedHandle(instance), pName);
+            has_implementation = (table->GetInstanceProcAddr(encode::GetWrappedHandle(instance), pName) != nullptr);
         }
     }
 
-    if ((result != nullptr) || (instance == VK_NULL_HANDLE))
+    // Check for implementation in the layer itself
+    if (!has_implementation)
     {
-        // Only check for a layer implementation of the requested function if it is available from the next level, or if
-        // the instance handle is null and we can't determine if it is available from the next level.
+        for (const auto ext_props : kDeviceExtensionProps)
+        {
+            if (std::find(ext_props.instance_funcs.begin(), ext_props.instance_funcs.end(), pName) !=
+                ext_props.instance_funcs.end())
+            {
+                has_implementation = true;
+                break;
+            }
+        }
+    }
+
+    // Only intercept the requested function if there is an implementation available, or if
+    // the instance handle is null and we can't determine if it is available from the next level.
+    if (has_implementation || (instance == VK_NULL_HANDLE))
+    {
         const auto entry = func_table.find(pName);
 
         if (entry != func_table.end())
@@ -284,20 +310,36 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 
     if (device != VK_NULL_HANDLE)
     {
+        bool has_implementation = false;
+
+        // Check for implementation in the next level
         auto table = encode::GetDeviceTable(device);
         if ((table != nullptr) && (table->GetDeviceProcAddr != nullptr))
         {
-            result = table->GetDeviceProcAddr(encode::GetWrappedHandle(device), pName);
+            has_implementation = (table->GetDeviceProcAddr(encode::GetWrappedHandle(device), pName) != nullptr);
+        }
 
-            if (result != nullptr)
+        // Check for implementation in the layer itself
+        if (!has_implementation)
+        {
+            for (const auto ext_props : kDeviceExtensionProps)
             {
-                // Only check for a layer implementation of the requested function if it is available from the next
-                // level.
-                const auto entry = func_table.find(pName);
-                if (entry != func_table.end())
+                if (std::find(ext_props.device_funcs.begin(), ext_props.device_funcs.end(), pName) !=
+                    ext_props.device_funcs.end())
                 {
-                    result = entry->second;
+                    has_implementation = true;
+                    break;
                 }
+            }
+        }
+
+        // Only intercept the requested function if there is an implementation available
+        if (has_implementation)
+        {
+            const auto entry = func_table.find(pName);
+            if (entry != func_table.end())
+            {
+                result = entry->second;
             }
         }
     }
@@ -359,7 +401,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
                 for (uint32_t i = 0; i < extension_count; ++i)
                 {
-                    pProperties[i] = kDeviceExtensionProps[i];
+                    pProperties[i] = kDeviceExtensionProps[i].props;
                 }
             }
         }
