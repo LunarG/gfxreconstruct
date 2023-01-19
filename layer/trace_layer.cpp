@@ -390,7 +390,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
         std::vector<VkExtensionProperties> downstream_properties(downstream_property_count);
         result = instance_table->EnumerateDeviceExtensionProperties(
-            wrapped_device, pLayerName, &downstream_property_count, &downstream_properties[0]);
+            wrapped_device, pLayerName, &downstream_property_count, downstream_properties.data());
         if (result != VK_SUCCESS)
         {
             return result;
