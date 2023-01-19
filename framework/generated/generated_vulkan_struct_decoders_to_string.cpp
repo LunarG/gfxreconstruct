@@ -13154,6 +13154,43 @@ template <> std::string ToString<decode::Decoded_VkMicromapTriangleEXT>(const de
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI>(const decode::Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "clustercullingShader", toStringFlags, tabCount, tabSize, ToString(obj.clustercullingShader, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "multiviewClusterCullingShader", toStringFlags, tabCount, tabSize, ToString(obj.multiviewClusterCullingShader, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI>(const decode::Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxWorkGroupCount", toStringFlags, tabCount, tabSize, ArrayToString(3, obj.maxWorkGroupCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxWorkGroupSize", toStringFlags, tabCount, tabSize, ArrayToString(3, obj.maxWorkGroupSize, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxOutputClusterCount", toStringFlags, tabCount, tabSize, ToString(obj.maxOutputClusterCount, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     if(decoded_obj.decoded_value == nullptr)

@@ -552,6 +552,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdWriteMicromapsPropertiesEXT",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CmdWriteMicromapsPropertiesEXT) },
     { "vkGetDeviceMicromapCompatibilityEXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceMicromapCompatibilityEXT) },
     { "vkGetMicromapBuildSizesEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetMicromapBuildSizesEXT) },
+    { "vkCmdDrawClusterHUAWEI",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawClusterHUAWEI) },
+    { "vkCmdDrawClusterIndirectHUAWEI",                                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawClusterIndirectHUAWEI) },
     { "vkSetDeviceMemoryPriorityEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(encode::SetDeviceMemoryPriorityEXT) },
     { "vkGetDescriptorSetLayoutHostMappingInfoVALVE",                                                        reinterpret_cast<PFN_vkVoidFunction>(encode::GetDescriptorSetLayoutHostMappingInfoVALVE) },
     { "vkGetDescriptorSetHostMappingVALVE",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetDescriptorSetHostMappingVALVE) },

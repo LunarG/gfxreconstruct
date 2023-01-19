@@ -3519,6 +3519,19 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pBuildInfo,
         StructPointerDecoder<Decoded_VkMicromapBuildSizesInfoEXT>* pSizeInfo) {}
 
+    virtual void Process_vkCmdDrawClusterHUAWEI(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    groupCountX,
+        uint32_t                                    groupCountY,
+        uint32_t                                    groupCountZ) {}
+
+    virtual void Process_vkCmdDrawClusterIndirectHUAWEI(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset) {}
+
     virtual void Process_vkSetDeviceMemoryPriorityEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
