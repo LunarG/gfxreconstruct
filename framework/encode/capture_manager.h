@@ -36,7 +36,6 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/keyboard.h"
-#include "util/shared_mutex.h"
 
 #include <atomic>
 #include <cassert>
@@ -55,15 +54,9 @@ class CaptureManager
   public:
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
-    std::shared_lock<util::SharedMutex> AcquireSharedStateLock()
-    {
-        return std::shared_lock<util::SharedMutex>(state_mutex_);
-    }
+    auto AcquireSharedStateLock() { return std::move(std::shared_lock<StateMutexT>(state_mutex_)); }
 
-    std::unique_lock<util::SharedMutex> AcquireUniqueStateLock()
-    {
-        return std::move(std::unique_lock<util::SharedMutex>(state_mutex_));
-    }
+    auto AcquireUniqueStateLock() { return std::move(std::unique_lock<StateMutexT>(state_mutex_)); }
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -148,6 +141,8 @@ class CaptureManager
     bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
 
   protected:
+    typedef std::shared_mutex StateMutexT;
+
     enum CaptureModeFlags : uint32_t
     {
         kModeDisabled      = 0x0,
@@ -287,7 +282,7 @@ class CaptureManager
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static std::atomic<format::HandleId>            unique_id_counter_;
-    static util::SharedMutex                        state_mutex_;
+    static StateMutexT                              state_mutex_;
 
     const format::ApiFamilyId api_family_;
 
