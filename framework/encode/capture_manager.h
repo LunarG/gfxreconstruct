@@ -236,10 +236,10 @@ class CaptureManager
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
 
-    std::string  CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
-    virtual bool CreateCaptureFile(const std::string& base_filename);
-    virtual void ActivateTrimming();
-    virtual void DeactivateTrimming();
+    std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
+    bool        CreateCaptureFile(const std::string& base_filename);
+    void        ActivateTrimming();
+    void        DeactivateTrimming();
 
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,

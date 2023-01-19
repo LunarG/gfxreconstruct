@@ -1820,7 +1820,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto state_lock = manager->AcquireUniqueStateLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
             manager,
@@ -4106,7 +4106,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
     if (call_scope == 1)
     {
-        auto state_lock = manager->AcquireSharedStateLock();
+        auto state_lock = manager->AcquireUniqueStateLock();
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
             manager,

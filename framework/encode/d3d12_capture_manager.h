@@ -122,10 +122,6 @@ class D3D12CaptureManager : public CaptureManager
     //----------------------------------------------------------------------------
     uint32_t DecrementCallScope() { return --call_scope_; }
 
-    virtual bool CreateCaptureFile(const std::string& base_filename) override;
-    virtual void ActivateTrimming() override;
-    virtual void DeactivateTrimming() override;
-
     void EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle);
 
     template <typename ParentWrapper>
