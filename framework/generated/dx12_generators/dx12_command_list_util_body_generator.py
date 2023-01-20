@@ -30,12 +30,6 @@ class Dx12CommandListUtilBodyGenerator(Dx12CommandListUtilHeaderGenerator):
     """
     INDENT = ' ' * 4
 
-    # Value is the parameter that needs to check 0
-    SPECIAL_ARRAY_LENGTH = {
-        'RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors':
-        'NumRenderTargetDescriptors'
-    }
-
     def get_track_function_body(self, class_name, method_info):
         code = '\n'
         code += '{\n'
@@ -135,29 +129,9 @@ class Dx12CommandListUtilBodyGenerator(Dx12CommandListUtilHeaderGenerator):
     def add_loop_code(self, code_list, param_length, indent):
         indent2 = indent
         index = 0
-        parameter_check_zero = self.SPECIAL_ARRAY_LENGTH.get(param_length)
 
-        if parameter_check_zero:
-            for idx, val in enumerate(code_list):
-                code_list[idx] = self.INDENT * 2 + val
-
-            code_list.insert(
-                index, self.INDENT * indent2 + 'if( ' + parameter_check_zero
-                + ' > 0 )\n'
-            )
-            index += 1
-            code_list.insert(index, self.INDENT * indent2 + '{\n')
-            index += 1
-            indent2 += 1
-            code_list.insert(
-                index, self.INDENT * indent2 + 'auto array_length = '
-                + param_length + ';\n'
-            )
-            index += 1
-            param_length = 'array_length'
-        else:
-            for idx, val in enumerate(code_list):
-                code_list[idx] = self.INDENT + val
+        for idx, val in enumerate(code_list):
+            code_list[idx] = self.INDENT + val
 
         code_list.insert(
             index, self.INDENT * indent2 + 'for (UINT i = 0; i < '
@@ -166,9 +140,6 @@ class Dx12CommandListUtilBodyGenerator(Dx12CommandListUtilHeaderGenerator):
         index += 1
         code_list.insert(index, self.INDENT * indent2 + '{\n')
         code_list.append(self.INDENT * indent2 + '}\n')
-
-        if parameter_check_zero:
-            code_list.append(self.INDENT * indent + '}\n')
 
     def write_include(self):
         code = (

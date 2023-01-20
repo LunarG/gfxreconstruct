@@ -59,7 +59,7 @@ class Dx12BaseGenerator(BaseGenerator):
         [
             'ID3D12GraphicsCommandList_OMSetRenderTargets',
             'pRenderTargetDescriptors',
-            'RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors'
+            '(NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0)'
         ]
     ]
 

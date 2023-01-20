@@ -11502,7 +11502,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->OMSetRenderTargets(
             NumRenderTargetDescriptors,
-            UnwrapStructArrayObjects(pRenderTargetDescriptors, RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors, unwrap_memory),
+            UnwrapStructArrayObjects(pRenderTargetDescriptors, (NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0), unwrap_memory),
             RTsSingleHandleToDescriptorRange,
             UnwrapStructPtrObjects(pDepthStencilDescriptor, unwrap_memory));
 

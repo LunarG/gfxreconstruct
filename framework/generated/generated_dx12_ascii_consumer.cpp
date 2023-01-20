@@ -5541,7 +5541,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "NumRenderTargetDescriptors", to_string_flags_, tab_count, tab_size, ToString(NumRenderTargetDescriptors, to_string_flags_, tab_count, tab_size));
-            FieldToString(str_strm, false, "pRenderTargetDescriptors", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors, pRenderTargetDescriptors, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pRenderTargetDescriptors", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString((NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0), pRenderTargetDescriptors, to_string_flags_, tab_count, tab_size));
             FieldToString(str_strm, false, "RTsSingleHandleToDescriptorRange", to_string_flags_, tab_count, tab_size, ToString(RTsSingleHandleToDescriptorRange, to_string_flags_, tab_count, tab_size));
             FieldToString(str_strm, false, "pDepthStencilDescriptor", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pDepthStencilDescriptor, to_string_flags_, tab_count, tab_size));
         }
