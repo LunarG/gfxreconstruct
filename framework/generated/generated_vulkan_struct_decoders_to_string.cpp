@@ -31,6 +31,7 @@
 #include "decode/custom_vulkan_ascii_consumer.h"
 #include "generated_vulkan_struct_to_string.h"
 #include "generated_vulkan_enum_to_string.h"
+#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -132,7 +133,7 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier>(const de
             FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, ToString(obj.dstAccessMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
         }
@@ -230,7 +231,7 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier>(const dec
             FieldToString(strStrm, false, "newLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.newLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.subresourceRange), toStringFlags, tabCount, tabSize));
         }
     );
@@ -766,7 +767,7 @@ template <> std::string ToString<decode::Decoded_VkMappedMemoryRange>(const deco
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
         }
@@ -820,7 +821,7 @@ template <> std::string ToString<decode::Decoded_VkSparseMemoryBind>(const decod
         {
             FieldToString(strStrm, true, "resourceOffset", toStringFlags, tabCount, tabSize, ToString(obj.resourceOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -837,7 +838,7 @@ template <> std::string ToString<decode::Decoded_VkSparseBufferMemoryBindInfo>(c
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pBinds, toStringFlags, tabCount, tabSize));
         }
@@ -854,7 +855,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageOpaqueMemoryBindIn
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pBinds, toStringFlags, tabCount, tabSize));
         }
@@ -891,7 +892,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBind>(const 
             FieldToString(strStrm, true, "subresource", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.subresource), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.offset), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "extent", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.extent), toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -908,7 +909,7 @@ template <> std::string ToString<decode::Decoded_VkSparseImageMemoryBindInfo>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, true, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
             FieldToString(strStrm, false, "bindCount", toStringFlags, tabCount, tabSize, ToString(obj.bindCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pBinds", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pBinds, toStringFlags, tabCount, tabSize));
         }
@@ -1083,7 +1084,7 @@ template <> std::string ToString<decode::Decoded_VkBufferViewCreateInfo>(const d
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "range", toStringFlags, tabCount, tabSize, ToString(obj.range, toStringFlags, tabCount, tabSize));
@@ -1170,7 +1171,7 @@ template <> std::string ToString<decode::Decoded_VkImageViewCreateInfo>(const de
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
             FieldToString(strStrm, false, "viewType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.viewType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.format, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "components", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.components), toStringFlags, tabCount, tabSize));
@@ -1247,7 +1248,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineShaderStageCreateInfo
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stage, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "module", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.module));
+            FieldToString(strStrm, false, "module", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.module));
             FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, CStrToString(obj.pName));
             FieldToString(strStrm, false, "pSpecializationInfo", toStringFlags, tabCount, tabSize, ((decoded_obj.pSpecializationInfo && decoded_obj.pSpecializationInfo->GetMetaStructPointer()) ? ToString(*decoded_obj.pSpecializationInfo->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
         }
@@ -1268,8 +1269,8 @@ template <> std::string ToString<decode::Decoded_VkComputePipelineCreateInfo>(co
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.stage), toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.layout));
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.basePipelineHandle));
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.layout));
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.basePipelineHandle));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1570,10 +1571,10 @@ template <> std::string ToString<decode::Decoded_VkGraphicsPipelineCreateInfo>(c
             FieldToString(strStrm, false, "pDepthStencilState", toStringFlags, tabCount, tabSize, ((decoded_obj.pDepthStencilState && decoded_obj.pDepthStencilState->GetMetaStructPointer()) ? ToString(*decoded_obj.pDepthStencilState->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pColorBlendState", toStringFlags, tabCount, tabSize, ((decoded_obj.pColorBlendState && decoded_obj.pColorBlendState->GetMetaStructPointer()) ? ToString(*decoded_obj.pColorBlendState->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pDynamicState", toStringFlags, tabCount, tabSize, ((decoded_obj.pDynamicState && decoded_obj.pDynamicState->GetMetaStructPointer()) ? ToString(*decoded_obj.pDynamicState->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.layout));
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.renderPass));
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.layout));
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.renderPass));
             FieldToString(strStrm, false, "subpass", toStringFlags, tabCount, tabSize, ToString(obj.subpass, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.basePipelineHandle));
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.basePipelineHandle));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -1661,10 +1662,10 @@ template <> std::string ToString<decode::Decoded_VkCopyDescriptorSet>(const deco
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcSet", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.srcSet));
+            FieldToString(strStrm, false, "srcSet", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.srcSet));
             FieldToString(strStrm, false, "srcBinding", toStringFlags, tabCount, tabSize, ToString(obj.srcBinding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcArrayElement", toStringFlags, tabCount, tabSize, ToString(obj.srcArrayElement, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstSet", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstSet));
+            FieldToString(strStrm, false, "dstSet", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstSet));
             FieldToString(strStrm, false, "dstBinding", toStringFlags, tabCount, tabSize, ToString(obj.dstBinding, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstArrayElement", toStringFlags, tabCount, tabSize, ToString(obj.dstArrayElement, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "descriptorCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorCount, toStringFlags, tabCount, tabSize));
@@ -1682,7 +1683,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorBufferInfo>(const d
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "range", toStringFlags, tabCount, tabSize, ToString(obj.range, toStringFlags, tabCount, tabSize));
         }
@@ -1737,7 +1738,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetAllocateInfo>(co
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.descriptorPool));
+            FieldToString(strStrm, false, "descriptorPool", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.descriptorPool));
             FieldToString(strStrm, false, "descriptorSetCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorSetCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSetLayouts", toStringFlags, tabCount, tabSize, decode::HandlePointerDecoderArrayToString(decoded_obj.pSetLayouts.GetLength(), &decoded_obj.pSetLayouts, toStringFlags, tabCount, tabSize));
         }
@@ -1834,7 +1835,7 @@ template <> std::string ToString<decode::Decoded_VkFramebufferCreateInfo>(const 
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.renderPass));
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.renderPass));
             FieldToString(strStrm, false, "attachmentCount", toStringFlags, tabCount, tabSize, ToString(obj.attachmentCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pAttachments", toStringFlags, tabCount, tabSize, decode::HandlePointerDecoderArrayToString(decoded_obj.pAttachments.GetLength(), &decoded_obj.pAttachments, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "width", toStringFlags, tabCount, tabSize, ToString(obj.width, toStringFlags, tabCount, tabSize));
@@ -1942,7 +1943,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferAllocateInfo>(co
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.commandPool));
+            FieldToString(strStrm, false, "commandPool", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.commandPool));
             FieldToString(strStrm, false, "level", toStringFlags, tabCount, tabSize, Quote(ToString(obj.level, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "commandBufferCount", toStringFlags, tabCount, tabSize, ToString(obj.commandBufferCount, toStringFlags, tabCount, tabSize));
         }
@@ -1961,9 +1962,9 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferInheritanceInfo>
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.renderPass));
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.renderPass));
             FieldToString(strStrm, false, "subpass", toStringFlags, tabCount, tabSize, ToString(obj.subpass, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.framebuffer));
+            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.framebuffer));
             FieldToString(strStrm, false, "occlusionQueryEnable", toStringFlags, tabCount, tabSize, ToString(obj.occlusionQueryEnable, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "queryFlags", toStringFlags, tabCount, tabSize, ToString(obj.queryFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineStatistics", toStringFlags, tabCount, tabSize, ToString(obj.pipelineStatistics, toStringFlags, tabCount, tabSize));
@@ -2162,8 +2163,8 @@ template <> std::string ToString<decode::Decoded_VkRenderPassBeginInfo>(const de
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.renderPass));
-            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.framebuffer));
+            FieldToString(strStrm, false, "renderPass", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.renderPass));
+            FieldToString(strStrm, false, "framebuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.framebuffer));
             FieldToString(strStrm, false, "renderArea", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.renderArea), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "clearValueCount", toStringFlags, tabCount, tabSize, ToString(obj.clearValueCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pClearValues", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pClearValues, toStringFlags, tabCount, tabSize));
@@ -2203,8 +2204,8 @@ template <> std::string ToString<decode::Decoded_VkBindBufferMemoryInfo>(const d
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -2222,8 +2223,8 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemoryInfo>(const de
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -2279,8 +2280,8 @@ template <> std::string ToString<decode::Decoded_VkMemoryDedicatedAllocateInfo>(
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
         }
     );
 }
@@ -2466,7 +2467,7 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryRequirementsInfo2
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
         }
     );
 }
@@ -2483,7 +2484,7 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryRequirementsInfo2>
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
         }
     );
 }
@@ -2500,7 +2501,7 @@ template <> std::string ToString<decode::Decoded_VkImageSparseMemoryRequirements
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
         }
     );
 }
@@ -2969,7 +2970,7 @@ template <> std::string ToString<decode::Decoded_VkSamplerYcbcrConversionInfo>(c
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "conversion", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.conversion));
+            FieldToString(strStrm, false, "conversion", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.conversion));
         }
     );
 }
@@ -3078,9 +3079,9 @@ template <> std::string ToString<decode::Decoded_VkDescriptorUpdateTemplateCreat
             FieldToString(strStrm, false, "descriptorUpdateEntryCount", toStringFlags, tabCount, tabSize, ToString(obj.descriptorUpdateEntryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDescriptorUpdateEntries", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pDescriptorUpdateEntries, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "templateType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.templateType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.descriptorSetLayout));
+            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.descriptorSetLayout));
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "pipelineLayout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.pipelineLayout));
+            FieldToString(strStrm, false, "pipelineLayout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.pipelineLayout));
             FieldToString(strStrm, false, "set", toStringFlags, tabCount, tabSize, ToString(obj.set, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4428,7 +4429,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreSignalInfo>(const de
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize, ToString(obj.value, toStringFlags, tabCount, tabSize));
         }
     );
@@ -4465,7 +4466,7 @@ template <> std::string ToString<decode::Decoded_VkBufferDeviceAddressInfo>(cons
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
         }
     );
 }
@@ -4516,7 +4517,7 @@ template <> std::string ToString<decode::Decoded_VkDeviceMemoryOpaqueCaptureAddr
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
         }
     );
 }
@@ -4809,7 +4810,7 @@ template <> std::string ToString<decode::Decoded_VkBufferMemoryBarrier2>(const d
             FieldToString(strStrm, false, "dstAccessMask", toStringFlags, tabCount, tabSize, Quote(VkAccessFlags2ToString(obj.dstAccessMask)));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
         }
@@ -4836,7 +4837,7 @@ template <> std::string ToString<decode::Decoded_VkImageMemoryBarrier2>(const de
             FieldToString(strStrm, false, "newLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.newLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "srcQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.srcQueueFamilyIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "dstQueueFamilyIndex", toStringFlags, tabCount, tabSize, ToString(obj.dstQueueFamilyIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
             FieldToString(strStrm, false, "subresourceRange", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.subresourceRange), toStringFlags, tabCount, tabSize));
         }
     );
@@ -4877,7 +4878,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreSubmitInfo>(const de
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize, ToString(obj.value, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stageMask", toStringFlags, tabCount, tabSize, Quote(VkPipelineStageFlags2ToString(obj.stageMask)));
             FieldToString(strStrm, false, "deviceIndex", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndex, toStringFlags, tabCount, tabSize));
@@ -4897,7 +4898,7 @@ template <> std::string ToString<decode::Decoded_VkCommandBufferSubmitInfo>(cons
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "commandBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.commandBuffer));
+            FieldToString(strStrm, false, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.commandBuffer));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
         }
     );
@@ -5008,8 +5009,8 @@ template <> std::string ToString<decode::Decoded_VkCopyBufferInfo2>(const decode
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.srcBuffer));
-            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstBuffer));
+            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.srcBuffer));
+            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstBuffer));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pRegions, toStringFlags, tabCount, tabSize));
         }
@@ -5049,9 +5050,9 @@ template <> std::string ToString<decode::Decoded_VkCopyImageInfo2>(const decode:
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.srcImage));
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.srcImage));
             FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstImage));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstImage));
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pRegions, toStringFlags, tabCount, tabSize));
@@ -5093,8 +5094,8 @@ template <> std::string ToString<decode::Decoded_VkCopyBufferToImageInfo2>(const
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.srcBuffer));
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstImage));
+            FieldToString(strStrm, false, "srcBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.srcBuffer));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstImage));
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pRegions, toStringFlags, tabCount, tabSize));
@@ -5114,9 +5115,9 @@ template <> std::string ToString<decode::Decoded_VkCopyImageToBufferInfo2>(const
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.srcImage));
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.srcImage));
             FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstBuffer));
+            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstBuffer));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pRegions, toStringFlags, tabCount, tabSize));
         }
@@ -5155,9 +5156,9 @@ template <> std::string ToString<decode::Decoded_VkBlitImageInfo2>(const decode:
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.srcImage));
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.srcImage));
             FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstImage));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstImage));
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pRegions, toStringFlags, tabCount, tabSize));
@@ -5199,9 +5200,9 @@ template <> std::string ToString<decode::Decoded_VkResolveImageInfo2>(const deco
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.srcImage));
+            FieldToString(strStrm, false, "srcImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.srcImage));
             FieldToString(strStrm, false, "srcImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.srcImageLayout, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstImage));
+            FieldToString(strStrm, false, "dstImage", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstImage));
             FieldToString(strStrm, false, "dstImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.dstImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "regionCount", toStringFlags, tabCount, tabSize, ToString(obj.regionCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pRegions", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pRegions, toStringFlags, tabCount, tabSize));
@@ -5367,10 +5368,10 @@ template <> std::string ToString<decode::Decoded_VkRenderingAttachmentInfo>(cons
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.imageView));
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.imageView));
             FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "resolveMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.resolveMode, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "resolveImageView", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.resolveImageView));
+            FieldToString(strStrm, false, "resolveImageView", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.resolveImageView));
             FieldToString(strStrm, false, "resolveImageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.resolveImageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "loadOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.loadOp, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "storeOp", toStringFlags, tabCount, tabSize, Quote(ToString(obj.storeOp, toStringFlags, tabCount, tabSize)));
@@ -5688,7 +5689,7 @@ template <> std::string ToString<decode::Decoded_VkSwapchainCreateInfoKHR>(const
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.surface));
+            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.surface));
             FieldToString(strStrm, false, "minImageCount", toStringFlags, tabCount, tabSize, ToString(obj.minImageCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "imageFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageFormat, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "imageColorSpace", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageColorSpace, toStringFlags, tabCount, tabSize)));
@@ -5702,7 +5703,7 @@ template <> std::string ToString<decode::Decoded_VkSwapchainCreateInfoKHR>(const
             FieldToString(strStrm, false, "compositeAlpha", toStringFlags, tabCount, tabSize, Quote(ToString(obj.compositeAlpha, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "presentMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.presentMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "clipped", toStringFlags, tabCount, tabSize, ToString(obj.clipped, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "oldSwapchain", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.oldSwapchain));
+            FieldToString(strStrm, false, "oldSwapchain", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.oldSwapchain));
         }
     );
 }
@@ -5741,7 +5742,7 @@ template <> std::string ToString<decode::Decoded_VkImageSwapchainCreateInfoKHR>(
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.swapchain));
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.swapchain));
         }
     );
 }
@@ -5758,7 +5759,7 @@ template <> std::string ToString<decode::Decoded_VkBindImageMemorySwapchainInfoK
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.swapchain));
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.swapchain));
             FieldToString(strStrm, false, "imageIndex", toStringFlags, tabCount, tabSize, ToString(obj.imageIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -5776,10 +5777,10 @@ template <> std::string ToString<decode::Decoded_VkAcquireNextImageInfoKHR>(cons
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.swapchain));
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.swapchain));
             FieldToString(strStrm, false, "timeout", toStringFlags, tabCount, tabSize, ToString(obj.timeout, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.fence));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.fence));
             FieldToString(strStrm, false, "deviceMask", toStringFlags, tabCount, tabSize, ToString(obj.deviceMask, toStringFlags, tabCount, tabSize));
         }
     );
@@ -5883,7 +5884,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayModePropertiesKHR>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "displayMode", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.displayMode));
+            FieldToString(strStrm, true, "displayMode", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.displayMode));
             FieldToString(strStrm, false, "parameters", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.parameters), toStringFlags, tabCount, tabSize));
         }
     );
@@ -5922,7 +5923,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlanePropertiesKHR>(co
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "currentDisplay", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.currentDisplay));
+            FieldToString(strStrm, true, "currentDisplay", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.currentDisplay));
             FieldToString(strStrm, false, "currentStackIndex", toStringFlags, tabCount, tabSize, ToString(obj.currentStackIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -5938,7 +5939,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPropertiesKHR>(const d
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "display", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.display));
+            FieldToString(strStrm, true, "display", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.display));
             FieldToString(strStrm, false, "displayName", toStringFlags, tabCount, tabSize, CStrToString(obj.displayName));
             FieldToString(strStrm, false, "physicalDimensions", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.physicalDimensions), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "physicalResolution", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.physicalResolution), toStringFlags, tabCount, tabSize));
@@ -5962,7 +5963,7 @@ template <> std::string ToString<decode::Decoded_VkDisplaySurfaceCreateInfoKHR>(
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "displayMode", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.displayMode));
+            FieldToString(strStrm, false, "displayMode", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.displayMode));
             FieldToString(strStrm, false, "planeIndex", toStringFlags, tabCount, tabSize, ToString(obj.planeIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "planeStackIndex", toStringFlags, tabCount, tabSize, ToString(obj.planeStackIndex, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "transform", toStringFlags, tabCount, tabSize, Quote(ToString(obj.transform, toStringFlags, tabCount, tabSize)));
@@ -6098,7 +6099,7 @@ template <> std::string ToString<decode::Decoded_VkRenderingFragmentShadingRateA
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.imageView));
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.imageView));
             FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageLayout, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "shadingRateAttachmentTexelSize", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.shadingRateAttachmentTexelSize), toStringFlags, tabCount, tabSize));
         }
@@ -6117,7 +6118,7 @@ template <> std::string ToString<decode::Decoded_VkRenderingFragmentDensityMapAt
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.imageView));
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.imageView));
             FieldToString(strStrm, false, "imageLayout", toStringFlags, tabCount, tabSize, Quote(ToString(obj.imageLayout, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -6227,7 +6228,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetWin32HandleInfoKHR>(
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -6280,7 +6281,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetFdInfoKHR>(const dec
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -6321,7 +6322,7 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreWin32HandleInf
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.handle));
@@ -6381,7 +6382,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetWin32HandleInfoKH
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -6399,7 +6400,7 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreFdInfoKHR>(con
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "fd", toStringFlags, tabCount, tabSize, ToString(obj.fd, toStringFlags, tabCount, tabSize));
@@ -6419,7 +6420,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetFdInfoKHR>(const 
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -6522,7 +6523,7 @@ template <> std::string ToString<decode::Decoded_VkImportFenceWin32HandleInfoKHR
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.fence));
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.fence));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "handle", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(decoded_obj.handle));
@@ -6562,7 +6563,7 @@ template <> std::string ToString<decode::Decoded_VkFenceGetWin32HandleInfoKHR>(c
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.fence));
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.fence));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -6580,7 +6581,7 @@ template <> std::string ToString<decode::Decoded_VkImportFenceFdInfoKHR>(const d
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.fence));
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.fence));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "fd", toStringFlags, tabCount, tabSize, ToString(obj.fd, toStringFlags, tabCount, tabSize));
@@ -6600,7 +6601,7 @@ template <> std::string ToString<decode::Decoded_VkFenceGetFdInfoKHR>(const deco
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.fence));
+            FieldToString(strStrm, false, "fence", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.fence));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -6747,7 +6748,7 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceSurfaceInfo2KHR
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.surface));
+            FieldToString(strStrm, false, "surface", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.surface));
         }
     );
 }
@@ -6849,7 +6850,7 @@ template <> std::string ToString<decode::Decoded_VkDisplayPlaneInfo2KHR>(const d
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.mode));
+            FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.mode));
             FieldToString(strStrm, false, "planeIndex", toStringFlags, tabCount, tabSize, ToString(obj.planeIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -7159,7 +7160,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineInfoKHR>(const decode
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.pipeline));
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.pipeline));
         }
     );
 }
@@ -7196,7 +7197,7 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutableInfoKHR>(co
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.pipeline));
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.pipeline));
             FieldToString(strStrm, false, "executableIndex", toStringFlags, tabCount, tabSize, ToString(obj.executableIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -7568,8 +7569,8 @@ template <> std::string ToString<decode::Decoded_VkDedicatedAllocationMemoryAllo
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.image));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "image", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.image));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
         }
     );
 }
@@ -7648,9 +7649,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewHandleInfoNVX>(const
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.imageView));
+            FieldToString(strStrm, false, "imageView", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.imageView));
             FieldToString(strStrm, false, "descriptorType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.descriptorType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "sampler", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.sampler));
+            FieldToString(strStrm, false, "sampler", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.sampler));
         }
     );
 }
@@ -8015,7 +8016,7 @@ template <> std::string ToString<decode::Decoded_VkConditionalRenderingBeginInfo
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
@@ -8694,7 +8695,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetAndroidHardwareBuffe
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
         }
     );
 }
@@ -9192,7 +9193,7 @@ template <> std::string ToString<decode::Decoded_VkShaderModuleValidationCacheCr
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "validationCache", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.validationCache));
+            FieldToString(strStrm, false, "validationCache", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.validationCache));
         }
     );
 }
@@ -9362,8 +9363,8 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoN
             FieldToString(strStrm, false, "groupCount", toStringFlags, tabCount, tabSize, ToString(obj.groupCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pGroups", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pGroups, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxRecursionDepth", toStringFlags, tabCount, tabSize, ToString(obj.maxRecursionDepth, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.layout));
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.basePipelineHandle));
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.layout));
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.basePipelineHandle));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9381,16 +9382,16 @@ template <> std::string ToString<decode::Decoded_VkGeometryTrianglesNV>(const de
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "vertexData", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.vertexData));
+            FieldToString(strStrm, false, "vertexData", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.vertexData));
             FieldToString(strStrm, false, "vertexOffset", toStringFlags, tabCount, tabSize, ToString(obj.vertexOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexCount", toStringFlags, tabCount, tabSize, ToString(obj.vertexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexStride", toStringFlags, tabCount, tabSize, ToString(obj.vertexStride, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.vertexFormat, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "indexData", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.indexData));
+            FieldToString(strStrm, false, "indexData", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.indexData));
             FieldToString(strStrm, false, "indexOffset", toStringFlags, tabCount, tabSize, ToString(obj.indexOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "indexCount", toStringFlags, tabCount, tabSize, ToString(obj.indexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.indexType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "transformData", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.transformData));
+            FieldToString(strStrm, false, "transformData", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.transformData));
             FieldToString(strStrm, false, "transformOffset", toStringFlags, tabCount, tabSize, ToString(obj.transformOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -9408,7 +9409,7 @@ template <> std::string ToString<decode::Decoded_VkGeometryAABBNV>(const decode:
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "aabbData", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.aabbData));
+            FieldToString(strStrm, false, "aabbData", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.aabbData));
             FieldToString(strStrm, false, "numAABBs", toStringFlags, tabCount, tabSize, ToString(obj.numAABBs, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(obj.stride, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
@@ -9502,8 +9503,8 @@ template <> std::string ToString<decode::Decoded_VkBindAccelerationStructureMemo
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.accelerationStructure));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.accelerationStructure));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "memoryOffset", toStringFlags, tabCount, tabSize, ToString(obj.memoryOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "deviceIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.deviceIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pDeviceIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.deviceIndexCount, obj.pDeviceIndices, toStringFlags, tabCount, tabSize));
@@ -9542,7 +9543,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureMemoryRe
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.accelerationStructure));
+            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.accelerationStructure));
         }
     );
 }
@@ -11089,7 +11090,7 @@ template <> std::string ToString<decode::Decoded_VkReleaseSwapchainImagesInfoEXT
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.swapchain));
+            FieldToString(strStrm, false, "swapchain", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.swapchain));
             FieldToString(strStrm, false, "imageIndexCount", toStringFlags, tabCount, tabSize, ToString(obj.imageIndexCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pImageIndices", toStringFlags, tabCount, tabSize, ArrayToString(obj.imageIndexCount, obj.pImageIndices, toStringFlags, tabCount, tabSize));
         }
@@ -11252,7 +11253,7 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsStreamNV>(con
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, true, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -11275,7 +11276,7 @@ template <> std::string ToString<decode::Decoded_VkIndirectCommandsLayoutTokenNV
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexBindingUnit", toStringFlags, tabCount, tabSize, ToString(obj.vertexBindingUnit, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "vertexDynamicStride", toStringFlags, tabCount, tabSize, ToString(obj.vertexDynamicStride, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pushconstantPipelineLayout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.pushconstantPipelineLayout));
+            FieldToString(strStrm, false, "pushconstantPipelineLayout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.pushconstantPipelineLayout));
             FieldToString(strStrm, false, "pushconstantShaderStageFlags", toStringFlags, tabCount, tabSize, ToString(obj.pushconstantShaderStageFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pushconstantOffset", toStringFlags, tabCount, tabSize, ToString(obj.pushconstantOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pushconstantSize", toStringFlags, tabCount, tabSize, ToString(obj.pushconstantSize, toStringFlags, tabCount, tabSize));
@@ -11322,17 +11323,17 @@ template <> std::string ToString<decode::Decoded_VkGeneratedCommandsInfoNV>(cons
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.pipeline));
-            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.indirectCommandsLayout));
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.pipeline));
+            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.indirectCommandsLayout));
             FieldToString(strStrm, false, "streamCount", toStringFlags, tabCount, tabSize, ToString(obj.streamCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pStreams", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pStreams, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "sequencesCount", toStringFlags, tabCount, tabSize, ToString(obj.sequencesCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "preprocessBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.preprocessBuffer));
+            FieldToString(strStrm, false, "preprocessBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.preprocessBuffer));
             FieldToString(strStrm, false, "preprocessOffset", toStringFlags, tabCount, tabSize, ToString(obj.preprocessOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "preprocessSize", toStringFlags, tabCount, tabSize, ToString(obj.preprocessSize, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sequencesCountBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.sequencesCountBuffer));
+            FieldToString(strStrm, false, "sequencesCountBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.sequencesCountBuffer));
             FieldToString(strStrm, false, "sequencesCountOffset", toStringFlags, tabCount, tabSize, ToString(obj.sequencesCountOffset, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "sequencesIndexBuffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.sequencesIndexBuffer));
+            FieldToString(strStrm, false, "sequencesIndexBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.sequencesIndexBuffer));
             FieldToString(strStrm, false, "sequencesIndexOffset", toStringFlags, tabCount, tabSize, ToString(obj.sequencesIndexOffset, toStringFlags, tabCount, tabSize));
         }
     );
@@ -11351,8 +11352,8 @@ template <> std::string ToString<decode::Decoded_VkGeneratedCommandsMemoryRequir
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineBindPoint", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pipelineBindPoint, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.pipeline));
-            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.indirectCommandsLayout));
+            FieldToString(strStrm, false, "pipeline", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.pipeline));
+            FieldToString(strStrm, false, "indirectCommandsLayout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.indirectCommandsLayout));
             FieldToString(strStrm, false, "maxSequencesCount", toStringFlags, tabCount, tabSize, ToString(obj.maxSequencesCount, toStringFlags, tabCount, tabSize));
         }
     );
@@ -12558,7 +12559,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetZirconHandleInfoFUCH
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -12576,7 +12577,7 @@ template <> std::string ToString<decode::Decoded_VkImportSemaphoreZirconHandleIn
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "zirconHandle", toStringFlags, tabCount, tabSize, ToString(obj.zirconHandle, toStringFlags, tabCount, tabSize));
@@ -12596,7 +12597,7 @@ template <> std::string ToString<decode::Decoded_VkSemaphoreGetZirconHandleInfoF
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.semaphore));
+            FieldToString(strStrm, false, "semaphore", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.semaphore));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -12631,7 +12632,7 @@ template <> std::string ToString<decode::Decoded_VkMemoryGetRemoteAddressInfoNV>
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.memory));
             FieldToString(strStrm, false, "handleType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.handleType, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -12949,7 +12950,7 @@ template <> std::string ToString<decode::Decoded_VkMicromapBuildInfoEXT>(const d
             FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "dstMicromap", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dstMicromap));
+            FieldToString(strStrm, false, "dstMicromap", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dstMicromap));
             FieldToString(strStrm, false, "usageCountsCount", toStringFlags, tabCount, tabSize, ToString(obj.usageCountsCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pUsageCounts", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pUsageCounts, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ppUsageCounts", toStringFlags, tabCount, tabSize, PointerDecoderArrayPointerToString(*decoded_obj.ppUsageCounts, toStringFlags, tabCount, tabSize));
@@ -12974,7 +12975,7 @@ template <> std::string ToString<decode::Decoded_VkMicromapCreateInfoEXT>(const 
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "createFlags", toStringFlags, tabCount, tabSize, ToString(obj.createFlags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
@@ -13049,7 +13050,7 @@ template <> std::string ToString<decode::Decoded_VkCopyMicromapToMemoryInfoEXT>(
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.src));
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.src));
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.dst), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
@@ -13069,7 +13070,7 @@ template <> std::string ToString<decode::Decoded_VkCopyMemoryToMicromapInfoEXT>(
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.src), toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dst));
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dst));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -13087,8 +13088,8 @@ template <> std::string ToString<decode::Decoded_VkCopyMicromapInfoEXT>(const de
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.src));
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dst));
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.src));
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dst));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -13132,7 +13133,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureTriangle
             FieldToString(strStrm, false, "usageCountsCount", toStringFlags, tabCount, tabSize, ToString(obj.usageCountsCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pUsageCounts", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pUsageCounts, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ppUsageCounts", toStringFlags, tabCount, tabSize, PointerDecoderArrayPointerToString(*decoded_obj.ppUsageCounts, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "micromap", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.micromap));
+            FieldToString(strStrm, false, "micromap", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.micromap));
         }
     );
 }
@@ -13273,7 +13274,7 @@ template <> std::string ToString<decode::Decoded_VkDescriptorSetBindingReference
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.descriptorSetLayout));
+            FieldToString(strStrm, false, "descriptorSetLayout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.descriptorSetLayout));
             FieldToString(strStrm, false, "binding", toStringFlags, tabCount, tabSize, ToString(obj.binding, toStringFlags, tabCount, tabSize));
         }
     );
@@ -14208,7 +14209,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureCreateIn
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "createFlags", toStringFlags, tabCount, tabSize, ToString(obj.createFlags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.buffer));
+            FieldToString(strStrm, false, "buffer", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.buffer));
             FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.type, toStringFlags, tabCount, tabSize)));
@@ -14292,7 +14293,7 @@ template <> std::string ToString<decode::Decoded_VkAccelerationStructureDeviceAd
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.accelerationStructure));
+            FieldToString(strStrm, false, "accelerationStructure", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.accelerationStructure));
         }
     );
 }
@@ -14309,7 +14310,7 @@ template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureToMe
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.src));
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.src));
             FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.dst), toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
@@ -14329,7 +14330,7 @@ template <> std::string ToString<decode::Decoded_VkCopyMemoryToAccelerationStruc
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.src), toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dst));
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dst));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -14347,8 +14348,8 @@ template <> std::string ToString<decode::Decoded_VkCopyAccelerationStructureInfo
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.src));
-            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.dst));
+            FieldToString(strStrm, false, "src", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.src));
+            FieldToString(strStrm, false, "dst", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.dst));
             FieldToString(strStrm, false, "mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.mode, toStringFlags, tabCount, tabSize)));
         }
     );
@@ -14434,8 +14435,8 @@ template <> std::string ToString<decode::Decoded_VkRayTracingPipelineCreateInfoK
             FieldToString(strStrm, false, "pLibraryInfo", toStringFlags, tabCount, tabSize, ((decoded_obj.pLibraryInfo && decoded_obj.pLibraryInfo->GetMetaStructPointer()) ? ToString(*decoded_obj.pLibraryInfo->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pLibraryInterface", toStringFlags, tabCount, tabSize, ((decoded_obj.pLibraryInterface && decoded_obj.pLibraryInterface->GetMetaStructPointer()) ? ToString(*decoded_obj.pLibraryInterface->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pDynamicState", toStringFlags, tabCount, tabSize, ((decoded_obj.pDynamicState && decoded_obj.pDynamicState->GetMetaStructPointer()) ? ToString(*decoded_obj.pDynamicState->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.layout));
-            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.basePipelineHandle));
+            FieldToString(strStrm, false, "layout", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.layout));
+            FieldToString(strStrm, false, "basePipelineHandle", toStringFlags, tabCount, tabSize, HandleIdToString(decoded_obj.basePipelineHandle));
             FieldToString(strStrm, false, "basePipelineIndex", toStringFlags, tabCount, tabSize, ToString(obj.basePipelineIndex, toStringFlags, tabCount, tabSize));
         }
     );

@@ -81,22 +81,6 @@ inline std::string ToString(uint32_t      apiFlags,
     return "0";
 }
 
-template <typename HandleIdType>
-inline std::string HandleIdToString(HandleIdType handleId)
-{
-    std::stringstream strStrm;
-    if (handleId)
-    {
-        strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
-    }
-    else
-    {
-        strStrm << "\"NULL\"";
-    }
-    return strStrm.str();
-}
-
-template <>
 inline std::string HandleIdToString(format::HandleId handleId)
 {
     return std::to_string(handleId);

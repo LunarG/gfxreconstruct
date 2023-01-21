@@ -50,21 +50,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 /// String representation of a null pointer.
 constexpr auto GFXRECON_TOJSON_NULL = "null";
 
-/// @param handleId An unsigned 64 bit int holding the encoded representation of a handle.
-inline std::string HandleIdToString(format::HandleId handleId)
-{
-    if (0 != handleId)
-    {
-        return std::to_string(handleId); /// @todo Replace with to_chars when project moves to C++17.
-    }
-    return "\"VK_NULL_HANDLE\"";
-}
-
 template <typename VkHandleType>
 inline std::string HandlePointerDecoderToString(HandlePointerDecoder<VkHandleType>* pObj)
 {
     auto pDecodedObj = pObj ? pObj->GetPointer() : nullptr;
-    return HandleIdToString(pDecodedObj ? *pDecodedObj : format::kNullHandleId);
+    return util::HandleIdToString(pDecodedObj ? *pDecodedObj : format::kNullHandleId);
 }
 
 template <typename VkEnumType>

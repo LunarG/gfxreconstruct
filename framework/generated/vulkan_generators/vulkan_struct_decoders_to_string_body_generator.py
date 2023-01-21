@@ -90,6 +90,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
             #include "decode/custom_vulkan_ascii_consumer.h"
             #include "generated_vulkan_struct_to_string.h"
             #include "generated_vulkan_enum_to_string.h"
+            #include "util/to_string.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(util)
@@ -253,7 +254,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
                 else:
                     if self.is_handle(value.base_type):
                         # Outputs decimal value of the handle:
-                        toString = 'decode::HandleIdToString(decoded_obj.{0})'
+                        toString = 'HandleIdToString(decoded_obj.{0})'
                     elif self.is_struct(value.base_type):
                         toString = 'ToString(*(decoded_obj.{0}), toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
