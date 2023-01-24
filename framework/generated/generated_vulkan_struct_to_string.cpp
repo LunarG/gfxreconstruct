@@ -29,6 +29,7 @@
 #include "util/custom_vulkan_to_string.h"
 #include "generated_vulkan_struct_to_string.h"
 #include "generated_vulkan_enum_to_string.h"
+#include "decode/custom_vulkan_ascii_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -5620,7 +5621,7 @@ template <> std::string ToString<VkDebugMarkerObjectNameInfoEXT>(const VkDebugMa
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize, ToString(obj.object, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize, decode::HandleIdToString(obj.object));
             FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, CStrToString(obj.pObjectName));
         }
     );
@@ -5634,7 +5635,7 @@ template <> std::string ToString<VkDebugMarkerObjectTagInfoEXT>(const VkDebugMar
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize, ToString(obj.object, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "object", toStringFlags, tabCount, tabSize, decode::HandleIdToString(obj.object));
             FieldToString(strStrm, false, "tagName", toStringFlags, tabCount, tabSize, ToString(obj.tagName, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tagSize", toStringFlags, tabCount, tabSize, ToString(obj.tagSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pTag", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pTag)));
@@ -6390,7 +6391,7 @@ template <> std::string ToString<VkDebugUtilsObjectNameInfoEXT>(const VkDebugUti
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, ToString(obj.objectHandle, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, decode::HandleIdToString(obj.objectHandle));
             FieldToString(strStrm, false, "pObjectName", toStringFlags, tabCount, tabSize, CStrToString(obj.pObjectName));
         }
     );
@@ -6441,7 +6442,7 @@ template <> std::string ToString<VkDebugUtilsObjectTagInfoEXT>(const VkDebugUtil
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "objectType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.objectType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, ToString(obj.objectHandle, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "objectHandle", toStringFlags, tabCount, tabSize, decode::HandleIdToString(obj.objectHandle));
             FieldToString(strStrm, false, "tagName", toStringFlags, tabCount, tabSize, ToString(obj.tagName, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "tagSize", toStringFlags, tabCount, tabSize, ToString(obj.tagSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pTag", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pTag)));
