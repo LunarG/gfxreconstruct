@@ -96,6 +96,13 @@ be used to update Git submodule dependencies, configure, and build the GFXRecons
 software.  The script works with both Windows and Linux, and requires Python 3.5 or
 above.
 
+A 64 bit ARM Windows build can be achieved on an ARM64 Windows host system with the
+following command:
+
+```bat
+python scripts/build.py -a arm64
+```
+
 By default, the script performs some optional build steps that are intended for
 developer builds.  If the target build system has not been configured for
 developer builds as described in [CONTRIBUTING.md](CONTRIBUTING.md), the script
@@ -172,6 +179,16 @@ At this point, you can build the solution from the command line or open the
 generated solution with Visual Studio.
 
 **Note: the build uses Windows 10 SDK 10.0.20348.0. Windows 11 SDK 10.0.22000.194 is not compatible at the present time. If you need to specify a Windows 10 SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0` .**
+
+When generating a native build on an ARM64 Windows host the Visual Studio
+Installer can be used to install the required Windows SDK version, `10.0.20348.0`.
+Once the correct Windows SDK is installed, from a newly opened developer command
+prompt for Visual Studio 2022, the following CMake invocation will generate a Visual
+Studio solution and projects.
+
+```bat
+cmake -H. -Bbuild -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_SYSTEM_VERSION=10.0.20348.0
+```
 
 #### Build the Solution From the Command Line
 

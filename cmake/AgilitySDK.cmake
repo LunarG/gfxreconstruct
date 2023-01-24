@@ -27,6 +27,11 @@
 
 if (${D3D12_SUPPORT})
 
+   set(GFXR_ARM_WINDOWS_BUILD FALSE)
+   if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+       set(GFXR_ARM_WINDOWS_BUILD TRUE)
+   endif()
+
     # Setup src 64-bit binaries
     set(AGILITY_SDK_CONFIG_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/x64/d3dconfig.exe)
     set(AGILITY_SDK_LAYERS_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/x64/d3d12SDKLayers.dll)
@@ -37,6 +42,13 @@ if (${D3D12_SUPPORT})
         set(AGILITY_SDK_CONFIG_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/win32/d3dconfig.exe)
         set(AGILITY_SDK_LAYERS_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/win32/d3d12SDKLayers.dll)
         set(AGILITY_SDK_RUNTIME_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/win32/D3D12Core.dll)
+    endif()
+
+    # Use ARM 64-bit binaries if needed
+    if(GFXR_ARM_WINDOWS_BUILD)
+        set(AGILITY_SDK_CONFIG_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/arm64/d3dconfig.exe)
+        set(AGILITY_SDK_LAYERS_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/arm64/d3d12SDKLayers.dll)
+        set(AGILITY_SDK_RUNTIME_SRC ${CMAKE_SOURCE_DIR}/external/AgilitySDK/bin/arm64/D3D12Core.dll)
     endif()
 
     # Setup dst folders for each build config
