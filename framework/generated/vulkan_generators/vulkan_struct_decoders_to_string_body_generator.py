@@ -162,6 +162,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
 
         for value in values:
             length_expr = ''
+            array_dimension = ''
 
             # Start with a static_assert() so that if any values make it through the logic
             #   below without being handled the generated code will fail to compile
@@ -243,24 +244,26 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
             # Not pointer:
             else:
                 if value.is_array:
+                    if value.array_dimension > 1:
+                        array_dimension =  str(value.array_dimension) + 'DMatrix'
                     if self.is_handle(value.base_type):
                         # Embedded array of handles as a direct fixed-length member of the struct:
                         # Plumbs through to HandlePointerDecoder::GetPointer() which returns a pointer
                         # to a format::HandleId, which is a typedef of uint64_t.
-                        toString = 'decode::HandlePointerDecoderArrayToString(decoded_obj.{0}.GetLength(), &decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'decode::HandlePointerDecoderArray{3}ToString(decoded_obj.{0}.GetLength(), &decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_struct(value.base_type):
                         # Embedded array of structs:
-                        toString = 'PointerDecoderArrayToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'PointerDecoderArray{3}ToString(*decoded_obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif self.is_enum(value.base_type):
                         # For embedded arrays of enums, grab them out of the raw vulkan struct:
-                        toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'Array{3}ToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     elif 'char' in value.base_type:
-                        toString = 'CStrToString(obj.{0})'
+                        toString = 'CStr{3}ToString(obj.{0})'
                     elif 'UUID' in value.array_length or 'LUID' in value.array_length:
-                        toString = 'Quote(UIDToString({1}, obj.{0}))'
+                        toString = 'Quote{3}(UIDToString({1}, obj.{0}))'
                     else:
                         # Embedded array of misc other stuff (ints, masks, floats, etc.):
-                        toString = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
+                        toString = 'Array{3}ToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                 # Not pointer, not array:
                 else:
                     if self.is_handle(value.base_type):
@@ -287,7 +290,7 @@ class VulkanStructDecodersToStringBodyGenerator(BaseGenerator):
             if length_expr and ('value' in length_expr):
                 length_expr.replace('value', 'obj')
 
-            toString = toString.format(value.name, length_expr, value.base_type)
+            toString = toString.format(value.name, length_expr, value.base_type, array_dimension)
             body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
         return body
     # yapf: enable

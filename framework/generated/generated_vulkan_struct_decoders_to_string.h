@@ -33,8 +33,73 @@
 #include "util/to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "vulkan/vulkan.h"
+#include "vk_video/vulkan_video_codec_h264std.h"
+#include "vk_video/vulkan_video_codec_h264std_decode.h"
+#include "vk_video/vulkan_video_codec_h264std_encode.h"
+#include "vk_video/vulkan_video_codec_h265std.h"
+#include "vk_video/vulkan_video_codec_h265std_decode.h"
+#include "vk_video/vulkan_video_codec_h265std_encode.h"
+#include "vk_video/vulkan_video_codecs_common.h"
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+template <> std::string ToString<decode::Decoded_StdVideoH264SpsVuiFlags>(const decode::Decoded_StdVideoH264SpsVuiFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH264HrdParameters>(const decode::Decoded_StdVideoH264HrdParameters& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH264SequenceParameterSetVui>(const decode::Decoded_StdVideoH264SequenceParameterSetVui& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH264SpsFlags>(const decode::Decoded_StdVideoH264SpsFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH264ScalingLists>(const decode::Decoded_StdVideoH264ScalingLists& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH264SequenceParameterSet>(const decode::Decoded_StdVideoH264SequenceParameterSet& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH264PpsFlags>(const decode::Decoded_StdVideoH264PpsFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH264PictureParameterSet>(const decode::Decoded_StdVideoH264PictureParameterSet& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH264PictureInfoFlags>(const decode::Decoded_StdVideoDecodeH264PictureInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH264PictureInfo>(const decode::Decoded_StdVideoDecodeH264PictureInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH264ReferenceInfoFlags>(const decode::Decoded_StdVideoDecodeH264ReferenceInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH264ReferenceInfo>(const decode::Decoded_StdVideoDecodeH264ReferenceInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264WeightTableFlags>(const decode::Decoded_StdVideoEncodeH264WeightTableFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264WeightTable>(const decode::Decoded_StdVideoEncodeH264WeightTable& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264SliceHeaderFlags>(const decode::Decoded_StdVideoEncodeH264SliceHeaderFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264PictureInfoFlags>(const decode::Decoded_StdVideoEncodeH264PictureInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264ReferenceInfoFlags>(const decode::Decoded_StdVideoEncodeH264ReferenceInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefMgmtFlags>(const decode::Decoded_StdVideoEncodeH264RefMgmtFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefListModEntry>(const decode::Decoded_StdVideoEncodeH264RefListModEntry& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefPicMarkingEntry>(const decode::Decoded_StdVideoEncodeH264RefPicMarkingEntry& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations>(const decode::Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264PictureInfo>(const decode::Decoded_StdVideoEncodeH264PictureInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264ReferenceInfo>(const decode::Decoded_StdVideoEncodeH264ReferenceInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264SliceHeader>(const decode::Decoded_StdVideoEncodeH264SliceHeader& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265ProfileTierLevelFlags>(const decode::Decoded_StdVideoH265ProfileTierLevelFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265ProfileTierLevel>(const decode::Decoded_StdVideoH265ProfileTierLevel& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265DecPicBufMgr>(const decode::Decoded_StdVideoH265DecPicBufMgr& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265SubLayerHrdParameters>(const decode::Decoded_StdVideoH265SubLayerHrdParameters& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265HrdFlags>(const decode::Decoded_StdVideoH265HrdFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265HrdParameters>(const decode::Decoded_StdVideoH265HrdParameters& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265VpsFlags>(const decode::Decoded_StdVideoH265VpsFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265VideoParameterSet>(const decode::Decoded_StdVideoH265VideoParameterSet& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265ScalingLists>(const decode::Decoded_StdVideoH265ScalingLists& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265ShortTermRefPicSetFlags>(const decode::Decoded_StdVideoH265ShortTermRefPicSetFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265ShortTermRefPicSet>(const decode::Decoded_StdVideoH265ShortTermRefPicSet& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265LongTermRefPicsSps>(const decode::Decoded_StdVideoH265LongTermRefPicsSps& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265SpsVuiFlags>(const decode::Decoded_StdVideoH265SpsVuiFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265SequenceParameterSetVui>(const decode::Decoded_StdVideoH265SequenceParameterSetVui& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265PredictorPaletteEntries>(const decode::Decoded_StdVideoH265PredictorPaletteEntries& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265SpsFlags>(const decode::Decoded_StdVideoH265SpsFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265SequenceParameterSet>(const decode::Decoded_StdVideoH265SequenceParameterSet& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265PpsFlags>(const decode::Decoded_StdVideoH265PpsFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoH265PictureParameterSet>(const decode::Decoded_StdVideoH265PictureParameterSet& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH265PictureInfoFlags>(const decode::Decoded_StdVideoDecodeH265PictureInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH265PictureInfo>(const decode::Decoded_StdVideoDecodeH265PictureInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH265ReferenceInfoFlags>(const decode::Decoded_StdVideoDecodeH265ReferenceInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoDecodeH265ReferenceInfo>(const decode::Decoded_StdVideoDecodeH265ReferenceInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265WeightTableFlags>(const decode::Decoded_StdVideoEncodeH265WeightTableFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265WeightTable>(const decode::Decoded_StdVideoEncodeH265WeightTable& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics>(const decode::Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags>(const decode::Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265SliceSegmentHeader>(const decode::Decoded_StdVideoEncodeH265SliceSegmentHeader& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceModificationFlags>(const decode::Decoded_StdVideoEncodeH265ReferenceModificationFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceModifications>(const decode::Decoded_StdVideoEncodeH265ReferenceModifications& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265PictureInfoFlags>(const decode::Decoded_StdVideoEncodeH265PictureInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265PictureInfo>(const decode::Decoded_StdVideoEncodeH265PictureInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceInfoFlags>(const decode::Decoded_StdVideoEncodeH265ReferenceInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceInfo>(const decode::Decoded_StdVideoEncodeH265ReferenceInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkExtent2D>(const decode::Decoded_VkExtent2D& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkExtent3D>(const decode::Decoded_VkExtent3D& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkOffset2D>(const decode::Decoded_VkOffset2D& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);

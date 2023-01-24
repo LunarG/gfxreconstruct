@@ -119,6 +119,7 @@ class ParameterEncoder
     void EncodeFlags64Ptr(const T* ptr, bool omit_data = false, bool omit_addr = false)                               { EncodePointerConverted<format::Flags64EncodeType>(ptr, omit_data, omit_addr); }
 
     // Arrays
+    void EncodeInt8Array(const int8_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)               { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeInt16Array(const int16_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeUInt16Array(const uint16_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)           { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeInt32Array(const int32_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
@@ -157,6 +158,12 @@ class ParameterEncoder
 
     template <size_t N, size_t M>
     void EncodeFloat2DMatrix(const float (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const float*>(arr), n * m, omit_data, omit_addr); }
+    template <size_t N, size_t M>
+    void EncodeUInt82DMatrix(const uint8_t (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const uint8_t*>(arr), n * m, omit_data, omit_addr); }
+    template <size_t N, size_t M>
+    void EncodeInt82DMatrix(const int8_t (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const int8_t*>(arr), n * m, omit_data, omit_addr); }
+    template <size_t N, size_t M>
+    void EncodeUInt162DMatrix(const uint16_t (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const uint16_t*>(arr), n * m, omit_data, omit_addr); }
 
     // clang-format on
 

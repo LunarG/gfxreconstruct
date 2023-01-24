@@ -119,7 +119,7 @@ class BaseStructDecodersBodyGenerator():
 
                 if is_static_array:
                     array_dimension = ''
-                    if value.array_dimension and value.array_dimension > 0:
+                    if value.array_dimension and value.array_dimension > 0 and not value.is_array:
                         array_dimension = '*'
                     # The pointer decoder will write directly to the struct member's memory.
                     body += '    wrapper->{name}{}SetExternalMemory({}value->{name}, {arraylen});\n'.format(

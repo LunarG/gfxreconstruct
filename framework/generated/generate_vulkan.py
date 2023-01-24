@@ -114,6 +114,13 @@ if __name__ == '__main__':
     registry_path = os.path.join(registry_dir, 'vk.xml')
     if not os.path.isfile(registry_path):
         raise Exception(f'Error: {registry_path} does not exist')
+
+    video_path = os.path.join(registry_dir, 'video.xml')
+    if not os.path.isfile(video_path):
+        raise Exception(f'Error: {video_path} does not exist')
+
+
+
     BASE_GENERATOR_DIR = os.path.normpath(
         os.path.join(SCRIPT_DIR, BASE_GENERATOR_DIR)
     )
@@ -139,6 +146,8 @@ if __name__ == '__main__':
             GENERATOR_DIR,
             '-registry',
             registry_path,
+            '-video',
+            video_path,
         ]
         if args.headers_dir is not None:
             if not os.path.isdir(args.headers_dir):

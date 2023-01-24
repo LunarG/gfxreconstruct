@@ -286,6 +286,22 @@ inline std::string Array2DToString(size_t          m,
     return strStrm.str();
 }
 
+template <typename T, size_t M, size_t N>
+inline std::string Array2DMatrixToString(size_t m,
+                                         size_t n,
+                                         const T (&pObjs)[M][N],
+                                         ToStringFlags toStringFlags = kToString_Default,
+                                         uint32_t      tabCount      = 0,
+                                         uint32_t      tabSize       = 4)
+{
+    std::stringstream strStrm;
+    for (size_t i = 0; i < m; ++i)
+    {
+        strStrm << ArrayToString(n, &pObjs[i][0], toStringFlags, tabCount, tabSize);
+    }
+    return strStrm.str();
+}
+
 /// Replace special characters with their escaped versions.
 /// @note forward slash / solidus is not escaped as that is optional and leads
 /// to ugliness such as dates with escaped solidus separators.
