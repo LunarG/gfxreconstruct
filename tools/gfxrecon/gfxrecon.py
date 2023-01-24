@@ -49,6 +49,10 @@ valid_commands = [
     'replay'
 ]
 
+deprecated_commands = [
+    'capture'  # alias for `capture-vulkan`
+]
+
 def IsWindows():
    return (sys.platform == 'win32' or sys.platform == 'cygwin')
 
@@ -128,7 +132,13 @@ def GetExecutable(cmd):
 
 def CreateCommandParser():
     parser = argparse.ArgumentParser(description='GFXReconstruct utility launcher.')
-    parser.add_argument('command', choices=valid_commands, metavar='command', help='Command to execute. Valid options are [{}]'.format(', '.join(valid_commands)))
+    parser.add_argument(
+        'command',
+        choices=(valid_commands + deprecated_commands),
+        type=str.lower,
+        metavar='command',
+        help='Command to execute. Valid options are [{}]'.format(
+            ', '.join(valid_commands)))
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Command-specific argument list. Specify -h after command name for command help.')
     return parser
 
@@ -141,6 +151,14 @@ if __name__ == '__main__':
 
     command_parser = CreateCommandParser()
     command = command_parser.parse_args()
+
+    # Fixup and warn for any deprecated commands.
+    if command.command == 'capture':
+        print(
+            "Warning: the 'capture' command is deprecated and will be removed in a future update. Use 'capture-vulkan' instead.",
+            flush=True)
+        command.command = 'capture-vulkan'
+
     extras = sys.argv[2::]
     cmd = GetExecutable(command.command)
     result = subprocess.run(cmd + extras)
