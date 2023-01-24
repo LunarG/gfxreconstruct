@@ -32,12 +32,77 @@
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
+#include "vk_video/vulkan_video_codec_h264std.h"
+#include "vk_video/vulkan_video_codec_h264std_decode.h"
+#include "vk_video/vulkan_video_codec_h264std_encode.h"
+#include "vk_video/vulkan_video_codec_h265std.h"
+#include "vk_video/vulkan_video_codec_h265std_decode.h"
+#include "vk_video/vulkan_video_codec_h265std_encode.h"
+#include "vk_video/vulkan_video_codecs_common.h"
 
 #include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+struct Decoded_StdVideoH264SpsVuiFlags;
+struct Decoded_StdVideoH264HrdParameters;
+struct Decoded_StdVideoH264SequenceParameterSetVui;
+struct Decoded_StdVideoH264SpsFlags;
+struct Decoded_StdVideoH264ScalingLists;
+struct Decoded_StdVideoH264SequenceParameterSet;
+struct Decoded_StdVideoH264PpsFlags;
+struct Decoded_StdVideoH264PictureParameterSet;
+struct Decoded_StdVideoDecodeH264PictureInfoFlags;
+struct Decoded_StdVideoDecodeH264PictureInfo;
+struct Decoded_StdVideoDecodeH264ReferenceInfoFlags;
+struct Decoded_StdVideoDecodeH264ReferenceInfo;
+struct Decoded_StdVideoEncodeH264WeightTableFlags;
+struct Decoded_StdVideoEncodeH264WeightTable;
+struct Decoded_StdVideoEncodeH264SliceHeaderFlags;
+struct Decoded_StdVideoEncodeH264PictureInfoFlags;
+struct Decoded_StdVideoEncodeH264ReferenceInfoFlags;
+struct Decoded_StdVideoEncodeH264RefMgmtFlags;
+struct Decoded_StdVideoEncodeH264RefListModEntry;
+struct Decoded_StdVideoEncodeH264RefPicMarkingEntry;
+struct Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations;
+struct Decoded_StdVideoEncodeH264PictureInfo;
+struct Decoded_StdVideoEncodeH264ReferenceInfo;
+struct Decoded_StdVideoEncodeH264SliceHeader;
+struct Decoded_StdVideoH265ProfileTierLevelFlags;
+struct Decoded_StdVideoH265ProfileTierLevel;
+struct Decoded_StdVideoH265DecPicBufMgr;
+struct Decoded_StdVideoH265SubLayerHrdParameters;
+struct Decoded_StdVideoH265HrdFlags;
+struct Decoded_StdVideoH265HrdParameters;
+struct Decoded_StdVideoH265VpsFlags;
+struct Decoded_StdVideoH265VideoParameterSet;
+struct Decoded_StdVideoH265ScalingLists;
+struct Decoded_StdVideoH265ShortTermRefPicSetFlags;
+struct Decoded_StdVideoH265ShortTermRefPicSet;
+struct Decoded_StdVideoH265LongTermRefPicsSps;
+struct Decoded_StdVideoH265SpsVuiFlags;
+struct Decoded_StdVideoH265SequenceParameterSetVui;
+struct Decoded_StdVideoH265PredictorPaletteEntries;
+struct Decoded_StdVideoH265SpsFlags;
+struct Decoded_StdVideoH265SequenceParameterSet;
+struct Decoded_StdVideoH265PpsFlags;
+struct Decoded_StdVideoH265PictureParameterSet;
+struct Decoded_StdVideoDecodeH265PictureInfoFlags;
+struct Decoded_StdVideoDecodeH265PictureInfo;
+struct Decoded_StdVideoDecodeH265ReferenceInfoFlags;
+struct Decoded_StdVideoDecodeH265ReferenceInfo;
+struct Decoded_StdVideoEncodeH265WeightTableFlags;
+struct Decoded_StdVideoEncodeH265WeightTable;
+struct Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics;
+struct Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags;
+struct Decoded_StdVideoEncodeH265SliceSegmentHeader;
+struct Decoded_StdVideoEncodeH265ReferenceModificationFlags;
+struct Decoded_StdVideoEncodeH265ReferenceModifications;
+struct Decoded_StdVideoEncodeH265PictureInfoFlags;
+struct Decoded_StdVideoEncodeH265PictureInfo;
+struct Decoded_StdVideoEncodeH265ReferenceInfoFlags;
+struct Decoded_StdVideoEncodeH265ReferenceInfo;
 struct Decoded_VkExtent2D;
 struct Decoded_VkExtent3D;
 struct Decoded_VkOffset2D;
@@ -143,6 +208,64 @@ struct Decoded_VkImageCopy;
 struct Decoded_VkImageResolve;
 struct Decoded_VkRenderPassBeginInfo;
 
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264SpsVuiFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264HrdParameters* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264SequenceParameterSetVui* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264SpsFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264ScalingLists* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264SequenceParameterSet* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264PpsFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH264PictureParameterSet* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH264PictureInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH264PictureInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH264ReferenceInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH264ReferenceInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264WeightTableFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264WeightTable* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264SliceHeaderFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264PictureInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264ReferenceInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264RefMgmtFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264RefListModEntry* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264RefPicMarkingEntry* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264PictureInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264ReferenceInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH264SliceHeader* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265ProfileTierLevelFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265ProfileTierLevel* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265DecPicBufMgr* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265SubLayerHrdParameters* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265HrdFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265HrdParameters* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265VpsFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265VideoParameterSet* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265ScalingLists* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265ShortTermRefPicSetFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265ShortTermRefPicSet* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265LongTermRefPicsSps* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265SpsVuiFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265SequenceParameterSetVui* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265PredictorPaletteEntries* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265SpsFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265SequenceParameterSet* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265PpsFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoH265PictureParameterSet* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH265PictureInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH265PictureInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH265ReferenceInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH265ReferenceInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265WeightTableFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265WeightTable* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265SliceSegmentHeader* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265ReferenceModificationFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265ReferenceModifications* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265PictureInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265PictureInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265ReferenceInfoFlags* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265ReferenceInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExtent2D* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExtent3D* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkOffset2D* wrapper);

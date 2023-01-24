@@ -833,6 +833,12 @@ if __name__ == '__main__':
         help='Use specified registry file instead of vk.xml'
     )
     parser.add_argument(
+        '-video',
+        action='store',
+        default='video.xml',
+        help='Use specified video file instead of video.xml'
+    )
+    parser.add_argument(
         '-headers-dir',
         dest='headers_dir',
         action='store',
@@ -899,6 +905,7 @@ if __name__ == '__main__':
 
     start_timer(args.time)
     tree = etree.parse(args.registry)
+    gen.VIDEO_TREE = etree.parse(args.video)
     end_timer(args.time, '* Time to make ElementTree =')
 
     start_timer(args.time)
