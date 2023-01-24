@@ -181,8 +181,7 @@ generated solution with Visual Studio.
 **Note: the build uses Windows 10 SDK 10.0.20348.0. Windows 11 SDK 10.0.22000.194 is not compatible at the present time. If you need to specify a Windows 10 SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0` .**
 
 When generating a native build on an ARM64 Windows host the Visual Studio
-Installer can be used to remove the default Windows SDK and install the required
-version, `10.0.20348.0`.
+Installer can be used to install the required Windows SDK version, `10.0.20348.0`.
 Once the correct Windows SDK is installed, from a newly opened developer command
 prompt for Visual Studio 2022, the following CMake invocation will generate a Visual
 Studio solution and projects.
