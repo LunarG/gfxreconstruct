@@ -269,22 +269,22 @@ on November 25, 2018:
 
 ### Capture Script
 
-The `gfxrecon-capture.py` tool is a convenience script that can be used to
+The `gfxrecon-capture-vulkan.py` tool is a convenience script that can be used to
 start a capture and specify the capture options using a single command.
 
 ```text
-usage: gfxrecon-capture.py [-h]
-                           [-w dir]
-                           [-o captureFile]
-                           [-f captureFrames]
-                           [--no-file-timestamp]
-                           [--trigger {F1-F12,TAB,CTRL}]
-                           [--compression-type {LZ4,ZLIB,ZSTD,NONE}]
-                           [--file-flush]
-                           [--log-level {debug,info,warn,error,fatal}]
-                           [--log-file <file>]
-                           [--memory-tracking-mode {page_guard,assisted,unassisted}]
-                           <program> [<programArgs>]
+usage: gfxrecon-capture-vulkan.py [-h]
+                                  [-w dir]
+                                  [-o captureFile]
+                                  [-f captureFrames]
+                                  [--no-file-timestamp]
+                                  [--trigger {F1-F12,TAB,CTRL}]
+                                  [--compression-type {LZ4,ZLIB,ZSTD,NONE}]
+                                  [--file-flush]
+                                  [--log-level {debug,info,warn,error,fatal}]
+                                  [--log-file <file>]
+                                  [--memory-tracking-mode {page_guard,assisted,unassisted}]
+                                  <program> [<programArgs>]
 
 Create a capture of a Vulkan program.
 
@@ -323,18 +323,18 @@ optional arguments:
                                        capture file during VkQueueSubmit and VkUnmapMemory
 ```
 
-Most of the options for `gfxrecon-capture.py` result in the script setting the
-appropriate capture layer environment variable, then invoking the program to
-be captured. Environment variables not set by `gfxrecon-capture.py` can be set
-manually before running `gfxrecon-capture.py` and they will be detected by the
-capture layer.
+Most of the options for `gfxrecon-capture-vulkan.py` result in the script setting
+the appropriate capture layer environment variable, then invoking the program to
+be captured. Environment variables not set by `gfxrecon-capture-vulkan.py` can be
+set manually before running `gfxrecon-capture-vulkan.py` and they will be detected by
+the capture layer.
 
-The `gfxrecon-capture.py` tool is a Python3 script. In order to use it, a
+The `gfxrecon-capture-vulkan.py` tool is a Python3 script. In order to use it, a
 Python3 interpreter must first be installed. Once Python3 is installed, you should
-be able to invoke `gfxrecon-capture.py` by simply typing:
+be able to invoke `gfxrecon-capture-vulkan.py` by simply typing:
 
 ```bash
-gfxrecon-capture.py -o vkcube.gfxr vkcube
+gfxrecon-capture-vulkan.py -o vkcube.gfxr vkcube
 ```
 
 On Windows, after installing Python3, be sure to associate the `.py` file extension with
