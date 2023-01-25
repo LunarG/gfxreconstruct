@@ -45,19 +45,19 @@ def usage_message():
     :return: A well formatted usage message string
     '''
     message = [
-        'usage gfxrecon-capture.py [-h]',
-        '                          [-w dir]',
-        '                          [-o capture_file]',
-        '                          [-f capture_frames]',
-        '                          [--no-file-timestamp]',
-        '                          [--trigger {F1-F12,TAB,CTRL}]',
-        '                          [--trigger-frames frame_count]',
-        '                          [--compression-type {LZ4,ZLIB,ZSTD,NONE}]',
-        '                          [--file-flush]',
-        '                          [--log-level {debug,info,warn,error,fatal}]',
-        '                          [--log-file <file>]',
-        '                          [--memory-tracking-mode {page_guard,assisted,unassisted}]',
-        '                          [--capture-layer <capture_layer_path>',
+        'usage gfxrecon-capture-vulkan.py [-h]',
+        '                                 [-w dir]',
+        '                                 [-o capture_file]',
+        '                                 [-f capture_frames]',
+        '                                 [--no-file-timestamp]',
+        '                                 [--trigger {F1-F12,TAB,CTRL}]',
+        '                                 [--trigger-frames frame_count]',
+        '                                 [--compression-type {LZ4,ZLIB,ZSTD,NONE}]',
+        '                                 [--file-flush]',
+        '                                 [--log-level {debug,info,warn,error,fatal}]',
+        '                                 [--log-file <file>]',
+        '                                 [--memory-tracking-mode {page_guard,assisted,unassisted}]',
+        '                                 [--capture-layer <capture_layer_path>',
     ]
     if sys.platform == 'win32':
         message.append('                          [--log-debugview]')
