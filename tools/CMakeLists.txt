@@ -4,6 +4,7 @@ add_subdirectory(info)
 add_subdirectory(extract)
 add_subdirectory(optimize)
 add_subdirectory(capture-vulkan)
+add_subdirectory(capture)
 add_subdirectory(gfxrecon)
 add_subdirectory(convert)
 
