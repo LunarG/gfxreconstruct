@@ -45,6 +45,6 @@ if __name__ == '__main__':
         print(os.path.basename(__file__) + ' error: Cygwin Python not supported')
         sys.exit(1)
 
-    print("Warning: the 'capture' command is deprecated and will be removed in a future update. Use 'capture-vulkan' instead.", flush=True)
+    print("Warning: the 'gfxrecon-capture.py' script is deprecated and will be removed in a future update. Use 'gfxrecon-capture-vulkan.py' instead.", flush=True)
     result = subprocess.run(["gfxrecon-capture-vulkan.py",] + argv[1:])
     sys.exit(result.returncode)
