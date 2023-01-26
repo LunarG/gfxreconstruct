@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -175,9 +175,11 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
 
     Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
     uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
-    uint32_t image_count{ 0 };  ///< The number of swapchain images.
-    std::unique_ptr<DxObjectInfo*[]> images; ///< Pointers to swapchain image info entries to be kept in the info table
-                                             ///< while the swapchain is active.
+
+    std::vector<format::HandleId>
+        image_ids; ///< HandleIds of swapchain image info entries to be kept in the info table while the swapchain is
+                   ///< active. The length of this vector is the number of images in the swapchain.
+
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{
         nullptr
     };                           ///< The command queue that was used to create the swapchain.
