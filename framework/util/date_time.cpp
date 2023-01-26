@@ -78,11 +78,12 @@ std::string UtcString(const time_t seconds_since_epoch)
     {
         now_str += std::to_string(1900 + now_gm.tm_year);
         now_str += '-';
-        if (now_gm.tm_mon < 10)
+        const auto month_base_one = 1 + now_gm.tm_mon;
+        if (month_base_one < 10)
         {
             now_str += '0';
         }
-        now_str += std::to_string(now_gm.tm_mon);
+        now_str += std::to_string(month_base_one);
         now_str += '-';
         if (now_gm.tm_mday < 10)
         {
