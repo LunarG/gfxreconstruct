@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2022 Valve Corporation
+** Copyright (c) 2021-2023 LunarG, Inc.
+** Copyright (c) 2022-2023 Valve Corporation
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -29,8 +29,6 @@
 #include "format/format.h"
 #include "util/defines.h"
 
-#include <codecvt>
-#include <locale>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -102,15 +100,32 @@ inline std::string HandleIdToString(format::HandleId handleId)
     return std::to_string(handleId);
 }
 
+#if defined(WIN32)
 inline std::string WCharArrayToString(const wchar_t* pStr)
 {
-    auto str = pStr ? std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(pStr) : std::string();
-    for (auto i = str.find('\\'); i != std::string::npos; i = str.find('\\'))
+    int required_size = 0;
+    if (pStr != nullptr)
     {
-        str = str.replace(i, 1, "-");
+        required_size = WideCharToMultiByte(CP_UTF8, 0, pStr, -1, nullptr, 0, nullptr, nullptr);
+
+        // Don't include null-terminator in output.
+        --required_size;
     }
-    return str;
+
+    if (required_size > 0)
+    {
+        std::string result_str;
+        result_str.resize(required_size);
+        required_size = WideCharToMultiByte(
+            CP_UTF8, 0, pStr, -1, result_str.data(), static_cast<int>(result_str.size()), nullptr, nullptr);
+        return result_str;
+    }
+    else
+    {
+        return "";
+    }
 }
+#endif
 
 template <typename BitmaskType, typename FlagsType>
 inline std::string BitmaskToString(FlagsType flags)
