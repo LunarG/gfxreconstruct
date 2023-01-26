@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2021-2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -1986,14 +1986,17 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
         auto swapchain_info = GetExtraInfo<DxgiSwapchainInfo>(replay_object_info);
         if (swapchain_info != nullptr)
         {
-            if (swapchain_info->images[buffer] == nullptr)
+            GFXRECON_ASSERT(buffer < swapchain_info->image_ids.size());
+            if (swapchain_info->image_ids[buffer] == format::kNullHandleId)
             {
                 auto object_info = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
 
                 // Increment the replay reference to prevent the swapchain image info entry from being removed from the
                 // object info table while the swapchain is active.
                 ++object_info->extra_ref;
-                swapchain_info->images[buffer] = object_info;
+
+                // Store the surface's HandleId so the reference can be released later.
+                swapchain_info->image_ids[buffer] = *surface->GetPointer();
             }
         }
     }
@@ -2262,12 +2265,11 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
         {
             assert(info->extra_info == nullptr);
 
-            auto swapchain_info           = std::make_unique<DxgiSwapchainInfo>();
-            swapchain_info->window        = window;
-            swapchain_info->hwnd_id       = hwnd_id;
-            swapchain_info->image_count   = image_count;
-            swapchain_info->images        = std::make_unique<DxObjectInfo*[]>(image_count);
-            swapchain_info->is_fullscreen = (windowed == false);
+            auto swapchain_info     = std::make_unique<DxgiSwapchainInfo>();
+            swapchain_info->window  = window;
+            swapchain_info->hwnd_id = hwnd_id;
+            swapchain_info->image_ids.resize(image_count);
+            std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
             // Get the ID3D12CommandQueue from the IUnknown queue object.
             HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
@@ -2303,8 +2305,8 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
         // Clear the old info entries from the object info table and reset the swapchain info's image count.
         ReleaseSwapchainImages(swapchain_info);
 
-        swapchain_info->image_count = buffer_count;
-        swapchain_info->images      = std::make_unique<DxObjectInfo*[]>(buffer_count);
+        swapchain_info->image_ids.resize(buffer_count);
+        std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
         // Resize the swapchain's window.
         swapchain_info->window->SetSize(width, height);
@@ -2313,11 +2315,11 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
 
 void Dx12ReplayConsumerBase::ReleaseSwapchainImages(DxgiSwapchainInfo* info)
 {
-    if ((info != nullptr) && (info->images != nullptr))
+    if (info != nullptr)
     {
-        for (uint32_t i = 0; i < info->image_count; ++i)
+        for (auto image_id : info->image_ids)
         {
-            auto image_info = info->images[i];
+            auto image_info = GetObjectInfo(image_id);
             if ((image_info != nullptr) && (image_info->extra_ref > 0))
             {
                 --(image_info->extra_ref);
@@ -2328,7 +2330,7 @@ void Dx12ReplayConsumerBase::ReleaseSwapchainImages(DxgiSwapchainInfo* info)
             }
         }
 
-        info->images.reset();
+        info->image_ids.clear();
     }
 }
 
