@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -47,7 +47,21 @@ bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_i
 
 bool AMD_IsDriverActive(const std::string& umd_path);
 
-bool GetDriverInfo(std::string& driver_info, format::ApiFamilyId api_family);
+#if defined(WIN32)
+bool GetDriverInfo(std::string& driver_info, format::ApiFamilyId api_family, std::vector<LUID>& adapter_luids);
+
+bool RegistryDxDriverVersion(std::string& driver_info, const std::vector<LUID>& adapter_luids);
+
+int GetRegSubkeys(HKEY& dx_key_handle, DWORD& num_of_adapters, DWORD& sub_key_max_length);
+
+LSTATUS GetRegData(HKEY               dx_key_handle,
+                   DWORD              num_of_adapters,
+                   DWORD              sub_key_max_length,
+                   std::string&       driver_info,
+                   std::vector<LUID>& adapter_luids);
+#endif
+
+std::string ConvertDWORDtoVersionNumber(uint64_t dword);
 
 GFXRECON_END_NAMESPACE(driverinfo)
 GFXRECON_END_NAMESPACE(util)

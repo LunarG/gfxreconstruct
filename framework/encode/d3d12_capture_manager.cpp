@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2377,8 +2377,12 @@ void D3D12CaptureManager::WriteDx12DriverInfo()
 {
     if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
-        std::string driverinfo = "";
-        if (gfxrecon::util::driverinfo::GetDriverInfo(driverinfo, format::ApiFamilyId::ApiFamily_D3D12) == true)
+        std::string       driverinfo = "";
+        std::vector<LUID> adapter_luids;
+
+        gfxrecon::graphics::dx12::GetActiveAdapterLuids(adapters_, adapter_luids);
+
+        if (util::driverinfo::GetDriverInfo(driverinfo, format::ApiFamilyId::ApiFamily_D3D12, adapter_luids) == true)
         {
             WriteDriverInfoCommand(driverinfo);
         }
