@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved
+# Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -52,6 +52,15 @@ def rename_replayer(encoded_app_executable):
             replayer_name_renamed = ""
     return replayer_name_renamed
 
+def run_command(command):
+    process = subprocess.Popen(command, 
+                                shell=True,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                universal_newlines=True)
+    while process.poll() is None:
+        line = process.stdout.readline()
+        print(line)
 
 # Run the replayer
 def run_replayer(replay_tool_path, args):
@@ -61,9 +70,7 @@ def run_replayer(replay_tool_path, args):
         cmd += " " + arg
     print("Running: " + cmd)
     print("")
-    output = subprocess.check_output(cmd).decode().split("\r\n")
-    for line in output:
-        print(line)
+    run_command(cmd) 
 
 
 # Run gfxrecon-info to retrieve application name from capture
