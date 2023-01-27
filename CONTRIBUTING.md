@@ -13,14 +13,15 @@ Copyright &copy; 2018-2021 LunarG, Inc.
 
 1. [Introduction](#introduction)
 1. [Repository Dependencies](#repository-dependencies)
-2. [Submitting Changes](#submitting-changes)
+1. [Submitting Changes](#submitting-changes)
     1. [Coding Conventions and Formatting](#coding-conventions-and-formatting)
-    2. [Verifying Changes with the Build Script](#verifying-changes-with-the-build-script)
-    3. [Python code style](#python-code-style)
-    4. [Testing Your Changes](#testing-your-changes)
-3. [Contributor License Agreement](#contributor-license-agreement-cla)
-4. [License and Copyrights](#license-and-copyrights)
-5. [Platform-specific ClangFormat Installation](#platform-specific-clangformat-installation)
+    1. [Verifying Changes with the Build Script](#verifying-changes-with-the-build-script)
+    1. [Python code style](#python-code-style)
+    1. [Testing Your Changes](#testing-your-changes)
+1. [Contributor License Agreement](#contributor-license-agreement-cla)
+1. [License and Copyrights](#license-and-copyrights)
+1. [GFXReconstruct PR Process](#gfxreconstruct-pr-process)
+1. [Platform-specific ClangFormat Installation](#platform-specific-clangformat-installation)
 
 ## **Introduction**
 
@@ -194,6 +195,45 @@ MIT license and any new files need to include this license and any applicable
 copyrights.
 
 You can include your individual copyright after any existing copyrights.
+
+## **GFXReconstruct PR Process**
+
+### Creating development branches
+
+Create your branch in your personal fork of [LunarG/gfxreconstruct](https://github.com/LunarG/gfxreconstruct).  We recommend using a name describing the change, e.g. `fix-XYZ` (where `XYZ` is the issue number) or `name-of-feature`, based on the `dev` branch.
+> E.g.  `fix-341` or `track-parent-info`
+
+### During Development
+
+* Don’t hand-edit C++ headers or implementation files in `framework/generated`.  To change those files, edit the Python generator scripts and run the generator (`python3 generate_vulkan.py` or `python3 generate_dx12.py`).
+* Review [earlier sections](#coding-conventions-and-formatting) of this document for coding style guidelines.
+* Attempt to follow the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html). 
+* Attempt to follow the [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines). 
+* Use `GFXRECON_ASSERT `and not `assert.`
+* Prefer explicit comparison against `nullptr.`
+    * e.g. use `if(pointer_variable == nullptr).`
+* Avoid editing code unrelated to the new functionality or bugfix. We want to be able to cleanly revert your commits later if there turns out to be a problem with them, and keeping PRs atomic helps with that.
+* Avoid mentioning game or application names in commit messages and avoid mentioning specific companies (fixes should not be specific to a game or application anyway).
+* Keep the commit message summary (the first line) to 50 characters, make the second line blank, and format the remainder of the message to 72-characters.
+    * Why?  [Because a 50-character commit summary works well](https://cbea.ms/git-commit/) with `git log --oneline --graph` on an 80-column window,  e.g.: ![git log --oneline --graph on an 80-column window](docs/img/gfxreconstruct-pr-process-01.png "git log --oneline --graph on an 80-column window")
+    * Of course there are always exceptions.  Prefer clarity in the history over pedantically keeping under limits.
+
+### Checklist before PR creation
+
+* Run `git clang-format` and commit the changes and push before making the PR.  (There’s no real danger to the build if you forget; GitHub Actions CI will fail on the PR until `clang-format` is applied anyway.)
+* Squash commits like “apply clang-format” or “clean up”.  Squash pairs of commits that introduce a change and revert the change.  Multiple commits within a single PR are encouraged if the PR contains sub-functions that make sense to be represented individually in the Git history.
+* Create a PR with a descriptive subject, like “Fix crash in vulkaninfo” or “Add tracking for all types derived from Wrapper” and create a helpful description.  If a PR is submitted in order to share and receive comments and run CI before the PR is submitted for final approvals, mark it as Draft in Github.
+* In the case of an issue fix, put the issue number being fixed in the final commit message or at least in the PR description so the Github issue and PR are linked, and the issue is updated when the PR is merged.  It has to be a particular phrasing to match the pattern to link the PR with the issue, like “fixes #341”; see [the Github page on this.](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)
+    * E.g. `Fixes #341`
+
+### Checklist before PR merge
+
+* Did relevant test cases get run by hand against the PR?  e.g. Android Vulkan replay, DX12 trimmed capture, `convert`, etc - include them and the tested hardware / driver configuration in a comment in the PR.
+* Did Github Workflows CI pass? This is the "checks passed" or "checks failed" section at the bottom of the PR and represents whether the automated build in a container succeeded.  This set of “CI builds” includes no replay of capture files.
+![Github Workflows CI Screenshot](docs/img/gfxreconstruct-pr-process-02.png "Github Workflows CI Screenshot")
+* Did the PR change `gfxrecon-convert `output?
+    * If so, does the output still appear correct for changed items? Include a cut-and-paste of output before and after for review.
+    * Does the output validate correctly e.g. through the JSON tool [`jq`](https://stedolan.github.io/jq/)?
 
 ## **Platform-specific ClangFormat Installation**
 
