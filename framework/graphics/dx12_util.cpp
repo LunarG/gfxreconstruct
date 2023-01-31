@@ -790,6 +790,32 @@ bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc)
     return software_desc;
 }
 
+bool VerifyAgilitySDKRuntime()
+{
+    char module_name[MAX_PATH] = {};
+    bool detected_runtime      = false;
+
+#if defined(D3D12_SUPPORT)
+    if (GetModuleFileNameA(nullptr, module_name, MAX_PATH))
+    {
+        const std::string tool_executable_path = module_name;
+        std::string       tool_working_dir     = "";
+        size_t            dir_location         = tool_executable_path.find_last_of(util::filepath::kAltPathLastSepStr);
+        if (dir_location >= 0)
+        {
+            tool_working_dir = tool_executable_path.substr(0, dir_location);
+        }
+        const std::string runtime_path = "\\D3D12\\D3D12Core.dll";
+        if (gfxrecon::util::filepath::IsFile(tool_working_dir + runtime_path))
+        {
+            detected_runtime = true;
+        }
+    }
+#endif
+
+    return detected_runtime;
+}
+
 bool GetAdapterAndIndexbyLUID(LUID                              luid,
                               IDXGIAdapter*&                    adapter_ptr,
                               uint32_t&                         index,

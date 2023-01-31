@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -264,7 +264,13 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
         pso_scan_result = GetPsoOptimizationInfo(input_filename, options, info);
     }
 
-    if (options.optimize_resource_values)
+    if (gfxrecon::graphics::dx12::VerifyAgilitySDKRuntime() == false)
+    {
+        GFXRECON_LOG_WARNING("Did not find Agility SDK runtimes. Verify \\D3D12\\D3D12Core.dll exists in the same "
+                             "directory as gfxrecon-optimize.exe.");
+        dxr_scan_result = false;
+    }
+    else if (options.optimize_resource_values)
     {
         dxr_scan_result = GetDxrOptimizationInfo(input_filename, info, true, options);
 
