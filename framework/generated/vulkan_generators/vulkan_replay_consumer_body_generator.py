@@ -77,6 +77,8 @@ class VulkanReplayConsumerBodyGenerator(
         'VkDescriptorPool': 'VkDescriptorSet'
     }
 
+    SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]    
+
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
@@ -130,9 +132,52 @@ class VulkanReplayConsumerBodyGenerator(
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+        write('template <typename T>', file=self.outFile)
+        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder);', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+        self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    if(decoder->IsNull()) return;', file=self.outFile)
+        write('    size_t len = decoder->GetOutputLength();', file=self.outFile)
+        write('    auto input = decoder->GetPointer();', file=self.outFile)
+        write('    auto output = decoder->GetOutputPointer();', file=self.outFile)
+        write('    for( size_t i = 0 ; i < len; ++i )', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(input[i].pNext);', file=self.outFile)
+        write('        if( in_pnext == nullptr ) continue;', file=self.outFile)
+        write('        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(&output[i]);', file=self.outFile)
+        self.newline()
+        write('        while(in_pnext)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write('            switch(in_pnext->sType)', file=self.outFile)
+        write('            {', file=self.outFile)
+        for struct in self.stype_values:
+            struct_type = self.stype_values[struct]
+            if not struct_type in self.SKIP_PNEXT_STRUCT_TYPES:
+                write('                case {}:'.format(struct_type), file=self.outFile)
+                write('                {', file=self.outFile)
+                write('                    output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<{}>());'
+                    .format(struct),
+                    file=self.outFile
+                )
+                write('                    break;', file=self.outFile)
+                write('                }', file=self.outFile)
+        write('                default:', file=self.outFile)
+        write('                    break;', file=self.outFile)
+        write('            }', file=self.outFile)
+        write('            output_struct = output_struct->pNext;', file=self.outFile)
+        write('            output_struct->sType = in_pnext->sType;',file=self.outFile)        
+        write('            in_pnext = in_pnext->pNext;', file=self.outFile)
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+       
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -328,6 +373,7 @@ class VulkanReplayConsumerBodyGenerator(
         ]  # Expressions to add new handles to the handle map and delete temporary allocations.
 
         for value in values:
+            need_initialize_output_pnext_struct = ''
             if value.is_pointer or value.is_array:
                 full_type = value.full_type if not value.platform_full_type else value.platform_full_type
                 is_input = self.is_input_pointer(value)
@@ -708,11 +754,11 @@ class VulkanReplayConsumerBodyGenerator(
                             elif self.is_struct(value.base_type):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 if value.base_type in self.stype_values:
-                                    # TODO: recreate pNext value read from the capture file; pNext is currently null.
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {{ {}, nullptr }});'.format(
                                         self.stype_values[value.base_type],
                                         paramname=value.name
                                     )
+                                    need_initialize_output_pnext_struct = value.name
                                 else:
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
                                         paramname=value.name
@@ -825,6 +871,9 @@ class VulkanReplayConsumerBodyGenerator(
             else:
                 # Only need to append the parameter name to the args list; no other expressions are necessary.
                 args.append(value.name)
+
+            if len(need_initialize_output_pnext_struct) > 0:
+                preexpr.append('InitializeOutputStructPNext({});'.format(need_initialize_output_pnext_struct))
         return args, preexpr, postexpr
 
     def make_remove_handle_expression(self, name, values):
