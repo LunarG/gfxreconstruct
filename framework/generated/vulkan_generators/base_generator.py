@@ -341,7 +341,7 @@ class BaseGenerator(OutputGenerator):
     # Default C++ code indentation size.
     INDENT_SIZE = 4
 
-    VIDEO_TREE = {}
+    VIDEO_TREE = None
 
     generate_video = False
 
@@ -465,6 +465,9 @@ class BaseGenerator(OutputGenerator):
             self.generate_video = True
 
     def gen_video_type(self):
+        if not self.VIDEO_TREE:
+            return
+        
         if self.process_structs:
             types = self.VIDEO_TREE.find('types')
             for element in types.iter('type'):
