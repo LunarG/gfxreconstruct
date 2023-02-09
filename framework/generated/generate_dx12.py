@@ -29,6 +29,7 @@ LIB_CPPHEADERPARSER_PATH = '../../external'
 LIB_REGISTRY_PATH = '../../external/Vulkan-Headers/registry'
 VULKAN_GENERATOR_PATH = './vulkan_generators'
 BASE_GENERATOR_PATH = './base_generators'
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # File names to provide to the dxgi generator script.
 GENERATE_TARGETS = [
@@ -131,7 +132,7 @@ if __name__ == '__main__':
                     ] = Dx12CppHeader(source_file)
 
     for source in DX12_SOURCE_LIST:
-        source_file = os.path.join('..', '..', 'external', 'AgilitySDK', 'inc', source)
+        source_file = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'AgilitySDK', 'inc', source)
 
         print('Parsing', source_file)
         header_dict[source[source.find('\\') + 1:]] = Dx12CppHeader(source_file)
