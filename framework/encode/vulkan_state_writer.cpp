@@ -823,7 +823,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                         // End of an active descriptor write range.
                         active                = false;
                         write.descriptorCount = i - write.dstArrayElement;
-                        WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                        WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
                     }
                 }
                 else if (active && (descriptor_type != write.descriptorType))
@@ -831,7 +831,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                     // Mutable descriptor type change within an active write range
                     // End current range
                     write.descriptorCount = i - write.dstArrayElement;
-                    WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                    WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
                     // Start new range
                     write.descriptorType  = descriptor_type;
                     write.dstArrayElement = i;
@@ -842,7 +842,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             if (active)
             {
                 write.descriptorCount = binding->count - write.dstArrayElement;
-                WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
             }
         }
     });
