@@ -187,16 +187,23 @@ bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
 // Get the adapter at specified index
 IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int32_t index);
 
+// Returns whether the device passed represents a unified memory architecture
+// (UMA) GPU as with most integrated graphics / APUs and mobile SOCs.
+// The pointer is assumed to be valid.
+// If the underlying D3D call fails, the function will also return false and the
+// error will be logged.
+bool IsUma(ID3D12Device* device);
+
 // This function is used to get available GPU virtual memory.
 // The input is current adapter which created current device.
-uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter);
+uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, bool is_uma);
 
 // This function is used to get available CPU memory.
 uint64_t GetAvailableCpuMemory(double max_usage);
 
 // Give require memory size to check if there are enough CPU&GPU memory to allocate the resource. If max_cpu_mem_usage
 // > 1.0, the result is not limited by available physical memory.
-bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter, double max_cpu_mem_usage);
+bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter, double max_cpu_mem_usage, bool is_uma);
 
 // Get GPU memory usage by resource desc
 uint64_t GetResourceSizeInBytes(ID3D12Device* device, const D3D12_RESOURCE_DESC* desc);

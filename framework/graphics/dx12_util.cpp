@@ -817,14 +817,38 @@ bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
     return success;
 }
 
-uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter)
+bool IsUma(ID3D12Device* device)
+{
+    GFXRECON_ASSERT(nullptr != device && "Null device pointer is expected to have been checked by callers.");
+    bool                             isUma = false;
+    D3D12_FEATURE_DATA_ARCHITECTURE1 architecture_info{};
+    const auto                       result =
+        device->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, &architecture_info, sizeof(architecture_info));
+    if (SUCCEEDED(result))
+    {
+        isUma = architecture_info.UMA;
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE,...) failed with result: %ld. The GPU will be assumed to be non-UMA.",
+                           static_cast<long>(result));
+    }
+    return isUma;
+}
+
+uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, const bool is_uma)
 {
     uint64_t available_mem = 0;
 
     if (adapter != nullptr)
     {
         DXGI_QUERY_VIDEO_MEMORY_INFO video_memory_info = {};
-        if (SUCCEEDED(adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &video_memory_info)))
+        DXGI_MEMORY_SEGMENT_GROUP memory_segment       = DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL;
+        if (is_uma)
+        {
+            memory_segment = DXGI_MEMORY_SEGMENT_GROUP_LOCAL;
+        }
+        if (SUCCEEDED(adapter->QueryVideoMemoryInfo(0, memory_segment, &video_memory_info)))
         {
             if (video_memory_info.Budget > video_memory_info.CurrentUsage)
             {
@@ -869,14 +893,14 @@ uint64_t GetAvailableCpuMemory(double max_usage)
     return std::min(avail_phys, mem_info.ullAvailVirtual);
 }
 
-bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter, double max_cpu_mem_usage)
+bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter, double max_cpu_mem_usage, const bool is_uma)
 {
     bool available = false;
 #ifdef _WIN64
     // For 32bit, only upload one buffer at one time, to save memory usage.
     if (adapter != nullptr)
     {
-        uint64_t total_available_gpu_adapter_memory = GetAvailableGpuAdapterMemory(adapter);
+        uint64_t total_available_gpu_adapter_memory = GetAvailableGpuAdapterMemory(adapter, is_uma);
         uint64_t total_available_cpu_memory         = GetAvailableCpuMemory(max_cpu_mem_usage);
         uint64_t total_required_memory              = static_cast<uint64_t>(required_memory * kMemoryTolerance);
         if ((total_required_memory < total_available_gpu_adapter_memory) &&
