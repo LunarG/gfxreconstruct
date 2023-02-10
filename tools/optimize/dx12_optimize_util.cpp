@@ -266,8 +266,8 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
 
     if (gfxrecon::graphics::dx12::VerifyAgilitySDKRuntime() == false)
     {
-        GFXRECON_LOG_WARNING("Did not find Agility SDK runtimes. Verify \\D3D12\\D3D12Core.dll exists in the same "
-                             "directory as gfxrecon-optimize.exe.");
+        GFXRECON_LOG_FATAL("Did not find Agility SDK runtimes. Verify \\D3D12\\D3D12Core.dll exists in the same "
+                           "directory as gfxrecon-optimize.exe.");
         dxr_scan_result = false;
     }
     else if (options.optimize_resource_values)

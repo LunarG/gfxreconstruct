@@ -178,7 +178,7 @@ int main(int argc, const char** argv)
                 application->InitializeDx12WsiContext();
                 if (gfxrecon::graphics::dx12::VerifyAgilitySDKRuntime() == false)
                 {
-                    GFXRECON_LOG_WARNING(
+                    GFXRECON_LOG_FATAL(
                         "Did not find Agility SDK runtimes. Verify \\D3D12\\D3D12Core.dll exists in the same "
                         "directory as gfxrecon-replay.exe.");
                     return_code = -1;
