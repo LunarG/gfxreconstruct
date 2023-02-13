@@ -123,6 +123,14 @@ For example, to use eight processes from within Bash:
 CMAKE_BUILD_PARALLEL_LEVEL=8 python scripts/build.py --skip-check-code-style --skip-tests
 ```
 
+By default, the script builds support for capturing and replaying
+Direct3D 12.  To omit Direct3D 12 components, specify
+`--skip-d3d12-support`.  For example:
+
+```bash
+python scripts/build.py --skip-d3d12-support
+```
+
 Run the script with the `-h` option for additional usage information.
 
 ## Building for Windows
@@ -169,11 +177,13 @@ cmake -H. -Bbuild -G "Visual Studio 15 Win64"
 The following commands can be used to generate project files for different
 variations of the Visual Studio 2017 WIN32 and x64 build configurations:
 
-- 64-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15 Win64"
-- 32-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15"
+- 64-bit for VS 2017: `cmake -H. -Bbuild -G "Visual Studio 15 Win64"`
+- 32-bit for VS 2017: `cmake -H. -Bbuild -G "Visual Studio 15"`
 
 Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
+
+Visual Studio configuration will include support for capturing and replaying Direct3D 12 by default.  To omit Direct3D 12 components, specify `-DD3D12_SUPPORT=OFF` to cmake.
 
 At this point, you can build the solution from the command line or open the
 generated solution with Visual Studio.
