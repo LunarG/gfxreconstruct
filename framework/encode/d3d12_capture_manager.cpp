@@ -367,12 +367,17 @@ void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** d
 
     if ((device != nullptr) && (*device != nullptr))
     {
-        auto info = reinterpret_cast<ID3D12Device_Wrapper*>(*device)->GetObjectInfo();
+        auto device_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(*device);
+        auto info = device_wrapper->GetObjectInfo();
 
         if (info != nullptr)
         {
             graphics::dx12::GetAdapterAndIndexbyDevice(
                 reinterpret_cast<ID3D12Device*>(*device), info->adapter3, info->adapter_node_index, adapters_);
+
+            // Cache info on device features:
+            auto wrapped_device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+            info->is_uma        = graphics::dx12::IsUma(wrapped_device);
         }
     }
 }
