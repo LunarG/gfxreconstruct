@@ -44,7 +44,7 @@ class VulkanDetectionConsumer : public VulkanConsumer
                                         gfxrecon::format::HandleId physicalDevice,
                                         StructPointerDecoder<Decoded_VkDeviceCreateInfo>*,
                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*,
-                                        HandlePointerDecoder<VkDevice>*)
+                                        HandlePointerDecoder<VkDevice>*) override
     {
         vulkan_consumer_usage_ = true;
     }
