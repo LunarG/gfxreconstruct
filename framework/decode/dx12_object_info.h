@@ -225,6 +225,9 @@ struct D3D12DeviceInfo : DxObjectExtraInfo
 
     std::shared_ptr<DescriptorIncrements> capture_increments{ std::make_shared<DescriptorIncrements>() };
     std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };
+
+    // Cache features of the device to avoid repeated queries
+    bool is_uma{ false };
 };
 
 struct D3D12DescriptorHeapInfo : DxObjectExtraInfo

@@ -382,7 +382,6 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     auto extra_device_info = GetExtraInfo<D3D12DeviceInfo>(device_info);
     auto resource_info     = GetObjectInfo(command_header.resource_id);
     auto resource          = static_cast<ID3D12Resource*>(resource_info->object);
-    bool is_uma            = graphics::dx12::IsUma(device);
 
     GFXRECON_ASSERT(MapObject<ID3D12Resource>(command_header.resource_id) == resource);
 
@@ -406,7 +405,8 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
         GFXRECON_ASSERT(command_header.subresource == 0);
 
         const double max_cpu_mem_usage = 15.0 / 16.0;
-        if (!graphics::dx12::IsMemoryAvailable(total_size_in_bytes, extra_device_info->adapter3, max_cpu_mem_usage, is_uma))
+        if (!graphics::dx12::IsMemoryAvailable(
+                total_size_in_bytes, extra_device_info->adapter3, max_cpu_mem_usage, extra_device_info->is_uma))
         {
             // If neither system memory or GPU memory are able to accommodate next resource,
             // execute the Copy() calls and release temp buffer to free memory
@@ -925,6 +925,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
                                                    device_info->adapter3,
                                                    device_info->adapter_node_index,
                                                    adapters_);
+        device_info->is_uma = graphics::dx12::IsUma(device_ptr);
+
         SetExtraInfo(device, std::move(device_info));
 
         graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
