@@ -57,7 +57,7 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void WaitIdle() override;
 
-    virtual bool IsComplete(uint64_t block_index)
+    virtual bool IsComplete(uint64_t block_index) override
     {
         return decode::IsComplete<VulkanConsumer*>(consumers_, block_index);
     }
@@ -186,9 +186,9 @@ class VulkanDecoderBase : public ApiDecoder
         const uint8_t*                                                  build_inputs_data) override
     {}
 
-    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) {}
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) override {}
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) {}
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override {}
 
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }

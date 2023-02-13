@@ -73,7 +73,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual ~VulkanReplayConsumerBase() override;
 
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record)
+    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
