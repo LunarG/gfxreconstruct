@@ -40,7 +40,7 @@
     },
     "ID3D12Device4": {
       "CreateReservedResource1": "OverrideCreateReservedResource1",
-      "CreateCreateCommittedResource1": "OverrideCreateCommittedResource1",
+      "CreateCommittedResource1": "OverrideCreateCommittedResource1",
       "CreateCommandList1": "OverrideCreateCommandList1"
     },
     "ID3D12Device5": {
@@ -51,7 +51,7 @@
       "AddToStateObject": "OverrideAddToStateObject"
     },
     "ID3D12Device8": {
-      "CreateCreateCommittedResource2": "OverrideCreateCommittedResource2"
+      "CreateCommittedResource2": "OverrideCreateCommittedResource2"
     },
     "ID3D12DescriptorHeap": {
       "GetCPUDescriptorHandleForHeapStart": "OverrideGetCPUDescriptorHandleForHeapStart",
