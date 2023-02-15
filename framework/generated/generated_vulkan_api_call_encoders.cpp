@@ -7425,7 +7425,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoCapabilitiesKHR(
     const VkVideoProfileInfoKHR*                pVideoProfile,
     VkVideoCapabilitiesKHR*                     pCapabilities)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     bool omit_output_data = false;
 
@@ -7460,7 +7460,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoFormatPropertiesKHR(
     uint32_t*                                   pVideoFormatPropertyCount,
     VkVideoFormatPropertiesKHR*                 pVideoFormatProperties)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     bool omit_output_data = false;
 
@@ -7496,7 +7496,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateVideoSessionKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkVideoSessionKHR*                          pVideoSession)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     bool omit_output_data = false;
 
@@ -7536,7 +7536,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionKHR(
     VkVideoSessionKHR                           videoSession,
     const VkAllocationCallbacks*                pAllocator)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyVideoSessionKHR>::Dispatch(VulkanCaptureManager::Get(), device, videoSession, pAllocator);
 
@@ -7565,7 +7565,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetVideoSessionMemoryRequirementsKHR(
     uint32_t*                                   pMemoryRequirementsCount,
     VkVideoSessionMemoryRequirementsKHR*        pMemoryRequirements)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     bool omit_output_data = false;
 
@@ -7602,7 +7602,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindVideoSessionMemoryKHR(
     uint32_t                                    bindSessionMemoryInfoCount,
     const VkBindVideoSessionMemoryInfoKHR*      pBindSessionMemoryInfos)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindVideoSessionMemoryKHR>::Dispatch(VulkanCaptureManager::Get(), device, videoSession, bindSessionMemoryInfoCount, pBindSessionMemoryInfos);
 
@@ -7635,7 +7635,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateVideoSessionParametersKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkVideoSessionParametersKHR*                pVideoSessionParameters)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     bool omit_output_data = false;
 
@@ -7677,7 +7677,7 @@ VKAPI_ATTR VkResult VKAPI_CALL UpdateVideoSessionParametersKHR(
     VkVideoSessionParametersKHR                 videoSessionParameters,
     const VkVideoSessionParametersUpdateInfoKHR* pUpdateInfo)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateVideoSessionParametersKHR>::Dispatch(VulkanCaptureManager::Get(), device, videoSessionParameters, pUpdateInfo);
 
@@ -7706,7 +7706,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionParametersKHR(
     VkVideoSessionParametersKHR                 videoSessionParameters,
     const VkAllocationCallbacks*                pAllocator)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyVideoSessionParametersKHR>::Dispatch(VulkanCaptureManager::Get(), device, videoSessionParameters, pAllocator);
 
@@ -7733,7 +7733,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginVideoCodingKHR(
     VkCommandBuffer                             commandBuffer,
     const VkVideoBeginCodingInfoKHR*            pBeginInfo)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginVideoCodingKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pBeginInfo);
 
@@ -7758,7 +7758,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndVideoCodingKHR(
     VkCommandBuffer                             commandBuffer,
     const VkVideoEndCodingInfoKHR*              pEndCodingInfo)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndVideoCodingKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pEndCodingInfo);
 
@@ -7781,7 +7781,7 @@ VKAPI_ATTR void VKAPI_CALL CmdControlVideoCodingKHR(
     VkCommandBuffer                             commandBuffer,
     const VkVideoCodingControlInfoKHR*          pCodingControlInfo)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdControlVideoCodingKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCodingControlInfo);
 
@@ -7804,7 +7804,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDecodeVideoKHR(
     VkCommandBuffer                             commandBuffer,
     const VkVideoDecodeInfoKHR*                 pDecodeInfo)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDecodeVideoKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pDecodeInfo);
 
@@ -10106,7 +10106,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEncodeVideoKHR(
     VkCommandBuffer                             commandBuffer,
     const VkVideoEncodeInfoKHR*                 pEncodeInfo)
 {
-    auto state_lock = VulkanCaptureManager::Get()->AcquireSharedStateLock();
+    auto api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEncodeVideoKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pEncodeInfo);
 
