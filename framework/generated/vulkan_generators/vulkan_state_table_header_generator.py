@@ -96,10 +96,16 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         visit_code = ''
         map_code = ''
 
-        for handle_name in sorted(self.handle_names):
-            if handle_name in self.DUPLICATE_HANDLE_TYPES:
+        vk_insert_code = ''
+        vk_remove_code = ''
+        vk_const_get_code = ''
+        vk_get_code = ''
+        vk_map_code = ''        
+
+        for vkhandle_name in sorted(self.handle_names):
+            if vkhandle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue
-            handle_name = handle_name[2:]
+            handle_name = vkhandle_name[2:]
             handle_wrapper = handle_name + 'Wrapper'
             handle_map = handle_name[0].lower() + handle_name[1:] + '_map_'
             insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(handle_wrapper, handle_map)
@@ -108,6 +114,14 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
             get_code += '    {0}* Get{0}(format::HandleId id) {{ return GetWrapper<{0}>(id, {1}); }}\n'.format(handle_wrapper, handle_map)
             const_get_code += '    const {0}* Get{0}(format::HandleId id) const {{ return GetWrapper<{0}>(id, {1}); }}\n'.format(handle_wrapper, handle_map)
             map_code += '    std::map<format::HandleId, {0}*> {1};\n'.format(handle_wrapper, handle_map)
+            vk_insert_code += '    bool InsertWrapper({0}* wrapper) {{ return InsertEntry(wrapper->handle, wrapper, {1}); }}\n'.format(handle_wrapper, handle_map)
+            vk_remove_code += '    bool RemoveWrapper(const {}* wrapper) {{\n'.format(handle_wrapper)
+            vk_remove_code += '         if (wrapper == nullptr) return false;\n'
+            vk_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(handle_map)
+            vk_remove_code += '    }\n'
+            vk_get_code += '    {0}* GetWrapper({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
+            vk_const_get_code += '    const {0}* GetWrapper({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
+            vk_map_code += '    std::map<{0}, {1}*> {2};\n'.format(vkhandle_name, handle_wrapper, handle_map)
 
         self.newline()
         code = 'class VulkanStateTable : VulkanStateTableBase\n'
@@ -129,6 +143,24 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += '  private:\n'
         code += map_code
         code += '};\n'
+        code += '\n'
+        code += 'class VulkanStateHandleTable : VulkanStateTableBase\n'
+        code += '{\n'
+        code += '  public:\n'
+        code += '    VulkanStateHandleTable() {}\n'
+        code += '    ~VulkanStateHandleTable() {}\n'
+        code += '\n'
+        code += vk_insert_code
+        code += '\n'
+        code += vk_remove_code
+        code += '\n'
+        code += vk_const_get_code
+        code += '\n'
+        code += vk_get_code
+        code += '\n'
+        code += '  private:\n'
+        code += vk_map_code
+        code += '};\n'        
         write(code, file=self.outFile)
     # yapf: enable
 
