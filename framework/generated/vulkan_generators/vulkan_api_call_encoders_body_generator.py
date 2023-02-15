@@ -472,7 +472,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         )
 
                         if not member_array_length:
-                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return reinterpret_cast<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(
+                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return GetWrapper<{wrapper}Wrapper>(handle_struct->{}); }}'.format(
                                 handle.base_type,
                                 member_handle_name,
                                 wrapper=member_handle_type[2:]

@@ -25,6 +25,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+VulkanStateHandleTable state_handle_table_;
+
 uint64_t GetWrappedHandle(uint64_t object, VkObjectType object_type)
 {
     switch (object_type)

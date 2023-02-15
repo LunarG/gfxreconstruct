@@ -313,6 +313,371 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, VideoSessionParametersKHRWrapper*> videoSessionParametersKHR_map_;
 };
 
+class VulkanStateHandleTable : VulkanStateTableBase
+{
+  public:
+    VulkanStateHandleTable() {}
+    ~VulkanStateHandleTable() {}
+
+    bool InsertWrapper(AccelerationStructureKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, accelerationStructureKHR_map_); }
+    bool InsertWrapper(AccelerationStructureNVWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, accelerationStructureNV_map_); }
+    bool InsertWrapper(BufferWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, buffer_map_); }
+    bool InsertWrapper(BufferViewWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, bufferView_map_); }
+    bool InsertWrapper(CommandBufferWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, commandBuffer_map_); }
+    bool InsertWrapper(CommandPoolWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, commandPool_map_); }
+    bool InsertWrapper(DebugReportCallbackEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, debugReportCallbackEXT_map_); }
+    bool InsertWrapper(DebugUtilsMessengerEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, debugUtilsMessengerEXT_map_); }
+    bool InsertWrapper(DeferredOperationKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, deferredOperationKHR_map_); }
+    bool InsertWrapper(DescriptorPoolWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, descriptorPool_map_); }
+    bool InsertWrapper(DescriptorSetWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, descriptorSet_map_); }
+    bool InsertWrapper(DescriptorSetLayoutWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, descriptorSetLayout_map_); }
+    bool InsertWrapper(DescriptorUpdateTemplateWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, descriptorUpdateTemplate_map_); }
+    bool InsertWrapper(DeviceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, device_map_); }
+    bool InsertWrapper(DeviceMemoryWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, deviceMemory_map_); }
+    bool InsertWrapper(DisplayKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, displayKHR_map_); }
+    bool InsertWrapper(DisplayModeKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, displayModeKHR_map_); }
+    bool InsertWrapper(EventWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, event_map_); }
+    bool InsertWrapper(FenceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, fence_map_); }
+    bool InsertWrapper(FramebufferWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, framebuffer_map_); }
+    bool InsertWrapper(ImageWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, image_map_); }
+    bool InsertWrapper(ImageViewWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, imageView_map_); }
+    bool InsertWrapper(IndirectCommandsLayoutNVWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, indirectCommandsLayoutNV_map_); }
+    bool InsertWrapper(InstanceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, instance_map_); }
+    bool InsertWrapper(MicromapEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, micromapEXT_map_); }
+    bool InsertWrapper(OpticalFlowSessionNVWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, opticalFlowSessionNV_map_); }
+    bool InsertWrapper(PerformanceConfigurationINTELWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, performanceConfigurationINTEL_map_); }
+    bool InsertWrapper(PhysicalDeviceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, physicalDevice_map_); }
+    bool InsertWrapper(PipelineWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, pipeline_map_); }
+    bool InsertWrapper(PipelineCacheWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, pipelineCache_map_); }
+    bool InsertWrapper(PipelineLayoutWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, pipelineLayout_map_); }
+    bool InsertWrapper(PrivateDataSlotWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, privateDataSlot_map_); }
+    bool InsertWrapper(QueryPoolWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, queryPool_map_); }
+    bool InsertWrapper(QueueWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, queue_map_); }
+    bool InsertWrapper(RenderPassWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, renderPass_map_); }
+    bool InsertWrapper(SamplerWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, sampler_map_); }
+    bool InsertWrapper(SamplerYcbcrConversionWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, samplerYcbcrConversion_map_); }
+    bool InsertWrapper(SemaphoreWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, semaphore_map_); }
+    bool InsertWrapper(ShaderModuleWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, shaderModule_map_); }
+    bool InsertWrapper(SurfaceKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, surfaceKHR_map_); }
+    bool InsertWrapper(SwapchainKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, swapchainKHR_map_); }
+    bool InsertWrapper(ValidationCacheEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, validationCacheEXT_map_); }
+    bool InsertWrapper(VideoSessionKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, videoSessionKHR_map_); }
+    bool InsertWrapper(VideoSessionParametersKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, videoSessionParametersKHR_map_); }
+
+    bool RemoveWrapper(const AccelerationStructureKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, accelerationStructureKHR_map_);
+    }
+    bool RemoveWrapper(const AccelerationStructureNVWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, accelerationStructureNV_map_);
+    }
+    bool RemoveWrapper(const BufferWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, buffer_map_);
+    }
+    bool RemoveWrapper(const BufferViewWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, bufferView_map_);
+    }
+    bool RemoveWrapper(const CommandBufferWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, commandBuffer_map_);
+    }
+    bool RemoveWrapper(const CommandPoolWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, commandPool_map_);
+    }
+    bool RemoveWrapper(const DebugReportCallbackEXTWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, debugReportCallbackEXT_map_);
+    }
+    bool RemoveWrapper(const DebugUtilsMessengerEXTWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, debugUtilsMessengerEXT_map_);
+    }
+    bool RemoveWrapper(const DeferredOperationKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, deferredOperationKHR_map_);
+    }
+    bool RemoveWrapper(const DescriptorPoolWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, descriptorPool_map_);
+    }
+    bool RemoveWrapper(const DescriptorSetWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, descriptorSet_map_);
+    }
+    bool RemoveWrapper(const DescriptorSetLayoutWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, descriptorSetLayout_map_);
+    }
+    bool RemoveWrapper(const DescriptorUpdateTemplateWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, descriptorUpdateTemplate_map_);
+    }
+    bool RemoveWrapper(const DeviceWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, device_map_);
+    }
+    bool RemoveWrapper(const DeviceMemoryWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, deviceMemory_map_);
+    }
+    bool RemoveWrapper(const DisplayKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, displayKHR_map_);
+    }
+    bool RemoveWrapper(const DisplayModeKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, displayModeKHR_map_);
+    }
+    bool RemoveWrapper(const EventWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, event_map_);
+    }
+    bool RemoveWrapper(const FenceWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, fence_map_);
+    }
+    bool RemoveWrapper(const FramebufferWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, framebuffer_map_);
+    }
+    bool RemoveWrapper(const ImageWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, image_map_);
+    }
+    bool RemoveWrapper(const ImageViewWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, imageView_map_);
+    }
+    bool RemoveWrapper(const IndirectCommandsLayoutNVWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, indirectCommandsLayoutNV_map_);
+    }
+    bool RemoveWrapper(const InstanceWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, instance_map_);
+    }
+    bool RemoveWrapper(const MicromapEXTWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, micromapEXT_map_);
+    }
+    bool RemoveWrapper(const OpticalFlowSessionNVWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, opticalFlowSessionNV_map_);
+    }
+    bool RemoveWrapper(const PerformanceConfigurationINTELWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, performanceConfigurationINTEL_map_);
+    }
+    bool RemoveWrapper(const PhysicalDeviceWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, physicalDevice_map_);
+    }
+    bool RemoveWrapper(const PipelineWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, pipeline_map_);
+    }
+    bool RemoveWrapper(const PipelineCacheWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, pipelineCache_map_);
+    }
+    bool RemoveWrapper(const PipelineLayoutWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, pipelineLayout_map_);
+    }
+    bool RemoveWrapper(const PrivateDataSlotWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, privateDataSlot_map_);
+    }
+    bool RemoveWrapper(const QueryPoolWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, queryPool_map_);
+    }
+    bool RemoveWrapper(const QueueWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, queue_map_);
+    }
+    bool RemoveWrapper(const RenderPassWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, renderPass_map_);
+    }
+    bool RemoveWrapper(const SamplerWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, sampler_map_);
+    }
+    bool RemoveWrapper(const SamplerYcbcrConversionWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, samplerYcbcrConversion_map_);
+    }
+    bool RemoveWrapper(const SemaphoreWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, semaphore_map_);
+    }
+    bool RemoveWrapper(const ShaderModuleWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, shaderModule_map_);
+    }
+    bool RemoveWrapper(const SurfaceKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, surfaceKHR_map_);
+    }
+    bool RemoveWrapper(const SwapchainKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, swapchainKHR_map_);
+    }
+    bool RemoveWrapper(const ValidationCacheEXTWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, validationCacheEXT_map_);
+    }
+    bool RemoveWrapper(const VideoSessionKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, videoSessionKHR_map_);
+    }
+    bool RemoveWrapper(const VideoSessionParametersKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, videoSessionParametersKHR_map_);
+    }
+
+    const AccelerationStructureKHRWrapper* GetWrapper(VkAccelerationStructureKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureKHR_map_); }
+    const AccelerationStructureNVWrapper* GetWrapper(VkAccelerationStructureNV handle) const { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureNV_map_); }
+    const BufferWrapper* GetWrapper(VkBuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, buffer_map_); }
+    const BufferViewWrapper* GetWrapper(VkBufferView handle) const { return VulkanStateTableBase::GetWrapper(handle, bufferView_map_); }
+    const CommandBufferWrapper* GetWrapper(VkCommandBuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, commandBuffer_map_); }
+    const CommandPoolWrapper* GetWrapper(VkCommandPool handle) const { return VulkanStateTableBase::GetWrapper(handle, commandPool_map_); }
+    const DebugReportCallbackEXTWrapper* GetWrapper(VkDebugReportCallbackEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, debugReportCallbackEXT_map_); }
+    const DebugUtilsMessengerEXTWrapper* GetWrapper(VkDebugUtilsMessengerEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, debugUtilsMessengerEXT_map_); }
+    const DeferredOperationKHRWrapper* GetWrapper(VkDeferredOperationKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, deferredOperationKHR_map_); }
+    const DescriptorPoolWrapper* GetWrapper(VkDescriptorPool handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorPool_map_); }
+    const DescriptorSetWrapper* GetWrapper(VkDescriptorSet handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorSet_map_); }
+    const DescriptorSetLayoutWrapper* GetWrapper(VkDescriptorSetLayout handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorSetLayout_map_); }
+    const DescriptorUpdateTemplateWrapper* GetWrapper(VkDescriptorUpdateTemplate handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorUpdateTemplate_map_); }
+    const DeviceWrapper* GetWrapper(VkDevice handle) const { return VulkanStateTableBase::GetWrapper(handle, device_map_); }
+    const DeviceMemoryWrapper* GetWrapper(VkDeviceMemory handle) const { return VulkanStateTableBase::GetWrapper(handle, deviceMemory_map_); }
+    const DisplayKHRWrapper* GetWrapper(VkDisplayKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, displayKHR_map_); }
+    const DisplayModeKHRWrapper* GetWrapper(VkDisplayModeKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, displayModeKHR_map_); }
+    const EventWrapper* GetWrapper(VkEvent handle) const { return VulkanStateTableBase::GetWrapper(handle, event_map_); }
+    const FenceWrapper* GetWrapper(VkFence handle) const { return VulkanStateTableBase::GetWrapper(handle, fence_map_); }
+    const FramebufferWrapper* GetWrapper(VkFramebuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, framebuffer_map_); }
+    const ImageWrapper* GetWrapper(VkImage handle) const { return VulkanStateTableBase::GetWrapper(handle, image_map_); }
+    const ImageViewWrapper* GetWrapper(VkImageView handle) const { return VulkanStateTableBase::GetWrapper(handle, imageView_map_); }
+    const IndirectCommandsLayoutNVWrapper* GetWrapper(VkIndirectCommandsLayoutNV handle) const { return VulkanStateTableBase::GetWrapper(handle, indirectCommandsLayoutNV_map_); }
+    const InstanceWrapper* GetWrapper(VkInstance handle) const { return VulkanStateTableBase::GetWrapper(handle, instance_map_); }
+    const MicromapEXTWrapper* GetWrapper(VkMicromapEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, micromapEXT_map_); }
+    const OpticalFlowSessionNVWrapper* GetWrapper(VkOpticalFlowSessionNV handle) const { return VulkanStateTableBase::GetWrapper(handle, opticalFlowSessionNV_map_); }
+    const PerformanceConfigurationINTELWrapper* GetWrapper(VkPerformanceConfigurationINTEL handle) const { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
+    const PhysicalDeviceWrapper* GetWrapper(VkPhysicalDevice handle) const { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
+    const PipelineWrapper* GetWrapper(VkPipeline handle) const { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
+    const PipelineCacheWrapper* GetWrapper(VkPipelineCache handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
+    const PipelineLayoutWrapper* GetWrapper(VkPipelineLayout handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
+    const PrivateDataSlotWrapper* GetWrapper(VkPrivateDataSlot handle) const { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
+    const QueryPoolWrapper* GetWrapper(VkQueryPool handle) const { return VulkanStateTableBase::GetWrapper(handle, queryPool_map_); }
+    const QueueWrapper* GetWrapper(VkQueue handle) const { return VulkanStateTableBase::GetWrapper(handle, queue_map_); }
+    const RenderPassWrapper* GetWrapper(VkRenderPass handle) const { return VulkanStateTableBase::GetWrapper(handle, renderPass_map_); }
+    const SamplerWrapper* GetWrapper(VkSampler handle) const { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
+    const SamplerYcbcrConversionWrapper* GetWrapper(VkSamplerYcbcrConversion handle) const { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
+    const SemaphoreWrapper* GetWrapper(VkSemaphore handle) const { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
+    const ShaderModuleWrapper* GetWrapper(VkShaderModule handle) const { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
+    const SurfaceKHRWrapper* GetWrapper(VkSurfaceKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
+    const SwapchainKHRWrapper* GetWrapper(VkSwapchainKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }
+    const ValidationCacheEXTWrapper* GetWrapper(VkValidationCacheEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, validationCacheEXT_map_); }
+    const VideoSessionKHRWrapper* GetWrapper(VkVideoSessionKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, videoSessionKHR_map_); }
+    const VideoSessionParametersKHRWrapper* GetWrapper(VkVideoSessionParametersKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, videoSessionParametersKHR_map_); }
+
+    AccelerationStructureKHRWrapper* GetWrapper(VkAccelerationStructureKHR handle) { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureKHR_map_); }
+    AccelerationStructureNVWrapper* GetWrapper(VkAccelerationStructureNV handle) { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureNV_map_); }
+    BufferWrapper* GetWrapper(VkBuffer handle) { return VulkanStateTableBase::GetWrapper(handle, buffer_map_); }
+    BufferViewWrapper* GetWrapper(VkBufferView handle) { return VulkanStateTableBase::GetWrapper(handle, bufferView_map_); }
+    CommandBufferWrapper* GetWrapper(VkCommandBuffer handle) { return VulkanStateTableBase::GetWrapper(handle, commandBuffer_map_); }
+    CommandPoolWrapper* GetWrapper(VkCommandPool handle) { return VulkanStateTableBase::GetWrapper(handle, commandPool_map_); }
+    DebugReportCallbackEXTWrapper* GetWrapper(VkDebugReportCallbackEXT handle) { return VulkanStateTableBase::GetWrapper(handle, debugReportCallbackEXT_map_); }
+    DebugUtilsMessengerEXTWrapper* GetWrapper(VkDebugUtilsMessengerEXT handle) { return VulkanStateTableBase::GetWrapper(handle, debugUtilsMessengerEXT_map_); }
+    DeferredOperationKHRWrapper* GetWrapper(VkDeferredOperationKHR handle) { return VulkanStateTableBase::GetWrapper(handle, deferredOperationKHR_map_); }
+    DescriptorPoolWrapper* GetWrapper(VkDescriptorPool handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorPool_map_); }
+    DescriptorSetWrapper* GetWrapper(VkDescriptorSet handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorSet_map_); }
+    DescriptorSetLayoutWrapper* GetWrapper(VkDescriptorSetLayout handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorSetLayout_map_); }
+    DescriptorUpdateTemplateWrapper* GetWrapper(VkDescriptorUpdateTemplate handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorUpdateTemplate_map_); }
+    DeviceWrapper* GetWrapper(VkDevice handle) { return VulkanStateTableBase::GetWrapper(handle, device_map_); }
+    DeviceMemoryWrapper* GetWrapper(VkDeviceMemory handle) { return VulkanStateTableBase::GetWrapper(handle, deviceMemory_map_); }
+    DisplayKHRWrapper* GetWrapper(VkDisplayKHR handle) { return VulkanStateTableBase::GetWrapper(handle, displayKHR_map_); }
+    DisplayModeKHRWrapper* GetWrapper(VkDisplayModeKHR handle) { return VulkanStateTableBase::GetWrapper(handle, displayModeKHR_map_); }
+    EventWrapper* GetWrapper(VkEvent handle) { return VulkanStateTableBase::GetWrapper(handle, event_map_); }
+    FenceWrapper* GetWrapper(VkFence handle) { return VulkanStateTableBase::GetWrapper(handle, fence_map_); }
+    FramebufferWrapper* GetWrapper(VkFramebuffer handle) { return VulkanStateTableBase::GetWrapper(handle, framebuffer_map_); }
+    ImageWrapper* GetWrapper(VkImage handle) { return VulkanStateTableBase::GetWrapper(handle, image_map_); }
+    ImageViewWrapper* GetWrapper(VkImageView handle) { return VulkanStateTableBase::GetWrapper(handle, imageView_map_); }
+    IndirectCommandsLayoutNVWrapper* GetWrapper(VkIndirectCommandsLayoutNV handle) { return VulkanStateTableBase::GetWrapper(handle, indirectCommandsLayoutNV_map_); }
+    InstanceWrapper* GetWrapper(VkInstance handle) { return VulkanStateTableBase::GetWrapper(handle, instance_map_); }
+    MicromapEXTWrapper* GetWrapper(VkMicromapEXT handle) { return VulkanStateTableBase::GetWrapper(handle, micromapEXT_map_); }
+    OpticalFlowSessionNVWrapper* GetWrapper(VkOpticalFlowSessionNV handle) { return VulkanStateTableBase::GetWrapper(handle, opticalFlowSessionNV_map_); }
+    PerformanceConfigurationINTELWrapper* GetWrapper(VkPerformanceConfigurationINTEL handle) { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
+    PhysicalDeviceWrapper* GetWrapper(VkPhysicalDevice handle) { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
+    PipelineWrapper* GetWrapper(VkPipeline handle) { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
+    PipelineCacheWrapper* GetWrapper(VkPipelineCache handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
+    PipelineLayoutWrapper* GetWrapper(VkPipelineLayout handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
+    PrivateDataSlotWrapper* GetWrapper(VkPrivateDataSlot handle) { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
+    QueryPoolWrapper* GetWrapper(VkQueryPool handle) { return VulkanStateTableBase::GetWrapper(handle, queryPool_map_); }
+    QueueWrapper* GetWrapper(VkQueue handle) { return VulkanStateTableBase::GetWrapper(handle, queue_map_); }
+    RenderPassWrapper* GetWrapper(VkRenderPass handle) { return VulkanStateTableBase::GetWrapper(handle, renderPass_map_); }
+    SamplerWrapper* GetWrapper(VkSampler handle) { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
+    SamplerYcbcrConversionWrapper* GetWrapper(VkSamplerYcbcrConversion handle) { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
+    SemaphoreWrapper* GetWrapper(VkSemaphore handle) { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
+    ShaderModuleWrapper* GetWrapper(VkShaderModule handle) { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
+    SurfaceKHRWrapper* GetWrapper(VkSurfaceKHR handle) { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
+    SwapchainKHRWrapper* GetWrapper(VkSwapchainKHR handle) { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }
+    ValidationCacheEXTWrapper* GetWrapper(VkValidationCacheEXT handle) { return VulkanStateTableBase::GetWrapper(handle, validationCacheEXT_map_); }
+    VideoSessionKHRWrapper* GetWrapper(VkVideoSessionKHR handle) { return VulkanStateTableBase::GetWrapper(handle, videoSessionKHR_map_); }
+    VideoSessionParametersKHRWrapper* GetWrapper(VkVideoSessionParametersKHR handle) { return VulkanStateTableBase::GetWrapper(handle, videoSessionParametersKHR_map_); }
+
+  private:
+    std::map<VkAccelerationStructureKHR, AccelerationStructureKHRWrapper*> accelerationStructureKHR_map_;
+    std::map<VkAccelerationStructureNV, AccelerationStructureNVWrapper*> accelerationStructureNV_map_;
+    std::map<VkBuffer, BufferWrapper*> buffer_map_;
+    std::map<VkBufferView, BufferViewWrapper*> bufferView_map_;
+    std::map<VkCommandBuffer, CommandBufferWrapper*> commandBuffer_map_;
+    std::map<VkCommandPool, CommandPoolWrapper*> commandPool_map_;
+    std::map<VkDebugReportCallbackEXT, DebugReportCallbackEXTWrapper*> debugReportCallbackEXT_map_;
+    std::map<VkDebugUtilsMessengerEXT, DebugUtilsMessengerEXTWrapper*> debugUtilsMessengerEXT_map_;
+    std::map<VkDeferredOperationKHR, DeferredOperationKHRWrapper*> deferredOperationKHR_map_;
+    std::map<VkDescriptorPool, DescriptorPoolWrapper*> descriptorPool_map_;
+    std::map<VkDescriptorSet, DescriptorSetWrapper*> descriptorSet_map_;
+    std::map<VkDescriptorSetLayout, DescriptorSetLayoutWrapper*> descriptorSetLayout_map_;
+    std::map<VkDescriptorUpdateTemplate, DescriptorUpdateTemplateWrapper*> descriptorUpdateTemplate_map_;
+    std::map<VkDevice, DeviceWrapper*> device_map_;
+    std::map<VkDeviceMemory, DeviceMemoryWrapper*> deviceMemory_map_;
+    std::map<VkDisplayKHR, DisplayKHRWrapper*> displayKHR_map_;
+    std::map<VkDisplayModeKHR, DisplayModeKHRWrapper*> displayModeKHR_map_;
+    std::map<VkEvent, EventWrapper*> event_map_;
+    std::map<VkFence, FenceWrapper*> fence_map_;
+    std::map<VkFramebuffer, FramebufferWrapper*> framebuffer_map_;
+    std::map<VkImage, ImageWrapper*> image_map_;
+    std::map<VkImageView, ImageViewWrapper*> imageView_map_;
+    std::map<VkIndirectCommandsLayoutNV, IndirectCommandsLayoutNVWrapper*> indirectCommandsLayoutNV_map_;
+    std::map<VkInstance, InstanceWrapper*> instance_map_;
+    std::map<VkMicromapEXT, MicromapEXTWrapper*> micromapEXT_map_;
+    std::map<VkOpticalFlowSessionNV, OpticalFlowSessionNVWrapper*> opticalFlowSessionNV_map_;
+    std::map<VkPerformanceConfigurationINTEL, PerformanceConfigurationINTELWrapper*> performanceConfigurationINTEL_map_;
+    std::map<VkPhysicalDevice, PhysicalDeviceWrapper*> physicalDevice_map_;
+    std::map<VkPipeline, PipelineWrapper*> pipeline_map_;
+    std::map<VkPipelineCache, PipelineCacheWrapper*> pipelineCache_map_;
+    std::map<VkPipelineLayout, PipelineLayoutWrapper*> pipelineLayout_map_;
+    std::map<VkPrivateDataSlot, PrivateDataSlotWrapper*> privateDataSlot_map_;
+    std::map<VkQueryPool, QueryPoolWrapper*> queryPool_map_;
+    std::map<VkQueue, QueueWrapper*> queue_map_;
+    std::map<VkRenderPass, RenderPassWrapper*> renderPass_map_;
+    std::map<VkSampler, SamplerWrapper*> sampler_map_;
+    std::map<VkSamplerYcbcrConversion, SamplerYcbcrConversionWrapper*> samplerYcbcrConversion_map_;
+    std::map<VkSemaphore, SemaphoreWrapper*> semaphore_map_;
+    std::map<VkShaderModule, ShaderModuleWrapper*> shaderModule_map_;
+    std::map<VkSurfaceKHR, SurfaceKHRWrapper*> surfaceKHR_map_;
+    std::map<VkSwapchainKHR, SwapchainKHRWrapper*> swapchainKHR_map_;
+    std::map<VkValidationCacheEXT, ValidationCacheEXTWrapper*> validationCacheEXT_map_;
+    std::map<VkVideoSessionKHR, VideoSessionKHRWrapper*> videoSessionKHR_map_;
+    std::map<VkVideoSessionParametersKHR, VideoSessionParametersKHRWrapper*> videoSessionParametersKHR_map_;
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
