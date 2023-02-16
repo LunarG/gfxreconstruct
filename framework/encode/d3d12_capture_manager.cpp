@@ -833,6 +833,40 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateReservedResource(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateReservedResource1(
+    ID3D12Device4_Wrapper*     wrapper,
+    HRESULT                    result,
+    const D3D12_RESOURCE_DESC* desc,
+    D3D12_RESOURCE_STATES      initial_state,
+    const D3D12_CLEAR_VALUE*   optimized_clear_value,
+    ID3D12ProtectedResourceSession* protected_session,
+    REFIID                     riid,
+    void**                     resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(protected_session);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+        ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Width,
+                                     total_size_in_bytes,
+                                     D3D12_HEAP_TYPE_DEFAULT,
+                                     D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+                                     D3D12_MEMORY_POOL_UNKNOWN,
+                                     initial_state,
+                                     false);
+    }
+}
+
 void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
                                                                                const void*            address,
                                                                                REFIID                 riid,

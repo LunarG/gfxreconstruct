@@ -297,6 +297,15 @@ class D3D12CaptureManager : public CaptureManager
                                                          REFIID                     riid,
                                                          void**                     resource);
 
+    void PostProcess_ID3D12Device4_CreateReservedResource1(ID3D12Device4_Wrapper*         wrapper,
+                                                          HRESULT                         result,
+                                                          const D3D12_RESOURCE_DESC*      desc,
+                                                          D3D12_RESOURCE_STATES           initial_state,
+                                                          const D3D12_CLEAR_VALUE*        optimized_clear_value,
+                                                          ID3D12ProtectedResourceSession* protected_session,
+                                                          REFIID                          riid,
+                                                          void**                          resource);
+
     void PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
                                                               const void*            address,
                                                               REFIID                 riid,
