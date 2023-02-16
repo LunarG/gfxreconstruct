@@ -37,7 +37,6 @@ void UnwrapStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwra
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -45,7 +44,6 @@ void UnwrapStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
     }
 }
 
@@ -68,12 +66,6 @@ void UnwrapStructHandles(VkSubmitInfo* value, HandleUnwrapMemory* unwrap_memory)
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
-        value->pWaitSemaphores = UnwrapHandles<VkSemaphore>(value->pWaitSemaphores, value->waitSemaphoreCount, unwrap_memory);
-
-        value->pCommandBuffers = UnwrapHandles<VkCommandBuffer>(value->pCommandBuffers, value->commandBufferCount, unwrap_memory);
-
-        value->pSignalSemaphores = UnwrapHandles<VkSemaphore>(value->pSignalSemaphores, value->signalSemaphoreCount, unwrap_memory);
     }
 }
 
@@ -81,7 +73,6 @@ void UnwrapStructHandles(VkMappedMemoryRange* value, HandleUnwrapMemory* unwrap_
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -100,7 +91,6 @@ void UnwrapStructHandles(VkSparseMemoryBind* value, HandleUnwrapMemory* unwrap_m
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -108,8 +98,6 @@ void UnwrapStructHandles(VkSparseBufferMemoryBindInfo* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
-
         value->pBinds = UnwrapStructArrayHandles(value->pBinds, value->bindCount, unwrap_memory);
     }
 }
@@ -118,8 +106,6 @@ void UnwrapStructHandles(VkSparseImageOpaqueMemoryBindInfo* value, HandleUnwrapM
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
-
         value->pBinds = UnwrapStructArrayHandles(value->pBinds, value->bindCount, unwrap_memory);
     }
 }
@@ -128,7 +114,6 @@ void UnwrapStructHandles(VkSparseImageMemoryBind* value, HandleUnwrapMemory* unw
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -136,8 +121,6 @@ void UnwrapStructHandles(VkSparseImageMemoryBindInfo* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
-
         value->pBinds = UnwrapStructArrayHandles(value->pBinds, value->bindCount, unwrap_memory);
     }
 }
@@ -146,15 +129,9 @@ void UnwrapStructHandles(VkBindSparseInfo* value, HandleUnwrapMemory* unwrap_mem
 {
     if (value != nullptr)
     {
-        value->pWaitSemaphores = UnwrapHandles<VkSemaphore>(value->pWaitSemaphores, value->waitSemaphoreCount, unwrap_memory);
-
         value->pBufferBinds = UnwrapStructArrayHandles(value->pBufferBinds, value->bufferBindCount, unwrap_memory);
-
         value->pImageOpaqueBinds = UnwrapStructArrayHandles(value->pImageOpaqueBinds, value->imageOpaqueBindCount, unwrap_memory);
-
         value->pImageBinds = UnwrapStructArrayHandles(value->pImageBinds, value->imageBindCount, unwrap_memory);
-
-        value->pSignalSemaphores = UnwrapHandles<VkSemaphore>(value->pSignalSemaphores, value->signalSemaphoreCount, unwrap_memory);
     }
 }
 
@@ -162,7 +139,6 @@ void UnwrapStructHandles(VkBufferViewCreateInfo* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -185,8 +161,6 @@ void UnwrapStructHandles(VkImageViewCreateInfo* value, HandleUnwrapMemory* unwra
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
-        value->image = GetWrappedHandle<VkImage>(value->image);
     }
 }
 
@@ -209,8 +183,6 @@ void UnwrapStructHandles(VkPipelineShaderStageCreateInfo* value, HandleUnwrapMem
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
-        value->module = GetWrappedHandle<VkShaderModule>(value->module);
     }
 }
 
@@ -219,10 +191,6 @@ void UnwrapStructHandles(VkComputePipelineCreateInfo* value, HandleUnwrapMemory*
     if (value != nullptr)
     {
         UnwrapStructHandles(&value->stage, unwrap_memory);
-
-        value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
-
-        value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
     }
 }
 
@@ -234,14 +202,7 @@ void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
         value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
-
-        value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
-
-        value->renderPass = GetWrappedHandle<VkRenderPass>(value->renderPass);
-
-        value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
     }
 }
 
@@ -249,7 +210,6 @@ void UnwrapStructHandles(VkPipelineLayoutCreateInfo* value, HandleUnwrapMemory* 
 {
     if (value != nullptr)
     {
-        value->pSetLayouts = UnwrapHandles<VkDescriptorSetLayout>(value->pSetLayouts, value->setLayoutCount, unwrap_memory);
     }
 }
 
@@ -268,9 +228,6 @@ void UnwrapStructHandles(VkCopyDescriptorSet* value, HandleUnwrapMemory* unwrap_
 {
     if (value != nullptr)
     {
-        value->srcSet = GetWrappedHandle<VkDescriptorSet>(value->srcSet);
-
-        value->dstSet = GetWrappedHandle<VkDescriptorSet>(value->dstSet);
     }
 }
 
@@ -278,7 +235,6 @@ void UnwrapStructHandles(VkDescriptorBufferInfo* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -286,9 +242,6 @@ void UnwrapStructHandles(VkDescriptorSetAllocateInfo* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->descriptorPool = GetWrappedHandle<VkDescriptorPool>(value->descriptorPool);
-
-        value->pSetLayouts = UnwrapHandles<VkDescriptorSetLayout>(value->pSetLayouts, value->descriptorSetCount, unwrap_memory);
     }
 }
 
@@ -296,7 +249,6 @@ void UnwrapStructHandles(VkDescriptorSetLayoutBinding* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
-        value->pImmutableSamplers = UnwrapHandles<VkSampler>(value->pImmutableSamplers, value->descriptorCount, unwrap_memory);
     }
 }
 
@@ -312,9 +264,6 @@ void UnwrapStructHandles(VkFramebufferCreateInfo* value, HandleUnwrapMemory* unw
 {
     if (value != nullptr)
     {
-        value->renderPass = GetWrappedHandle<VkRenderPass>(value->renderPass);
-
-        value->pAttachments = UnwrapHandles<VkImageView>(value->pAttachments, value->attachmentCount, unwrap_memory);
     }
 }
 
@@ -322,7 +271,6 @@ void UnwrapStructHandles(VkCommandBufferAllocateInfo* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->commandPool = GetWrappedHandle<VkCommandPool>(value->commandPool);
     }
 }
 
@@ -330,9 +278,6 @@ void UnwrapStructHandles(VkCommandBufferInheritanceInfo* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->renderPass = GetWrappedHandle<VkRenderPass>(value->renderPass);
-
-        value->framebuffer = GetWrappedHandle<VkFramebuffer>(value->framebuffer);
     }
 }
 
@@ -352,10 +297,6 @@ void UnwrapStructHandles(VkRenderPassBeginInfo* value, HandleUnwrapMemory* unwra
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
-        value->renderPass = GetWrappedHandle<VkRenderPass>(value->renderPass);
-
-        value->framebuffer = GetWrappedHandle<VkFramebuffer>(value->framebuffer);
     }
 }
 
@@ -363,9 +304,6 @@ void UnwrapStructHandles(VkBindBufferMemoryInfo* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
-
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -377,10 +315,6 @@ void UnwrapStructHandles(VkBindImageMemoryInfo* value, HandleUnwrapMemory* unwra
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
-        value->image = GetWrappedHandle<VkImage>(value->image);
-
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -388,9 +322,6 @@ void UnwrapStructHandles(VkMemoryDedicatedAllocateInfo* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
-
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -398,7 +329,6 @@ void UnwrapStructHandles(VkPhysicalDeviceGroupProperties* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        std::transform(value->physicalDevices, value->physicalDevices + value->physicalDeviceCount, value->physicalDevices, GetWrappedHandle<VkPhysicalDevice>);
     }
 }
 
@@ -406,7 +336,6 @@ void UnwrapStructHandles(VkDeviceGroupDeviceCreateInfo* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->pPhysicalDevices = UnwrapHandles<VkPhysicalDevice>(value->pPhysicalDevices, value->physicalDeviceCount, unwrap_memory);
     }
 }
 
@@ -414,7 +343,6 @@ void UnwrapStructHandles(VkBufferMemoryRequirementsInfo2* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -422,7 +350,6 @@ void UnwrapStructHandles(VkImageMemoryRequirementsInfo2* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
     }
 }
 
@@ -430,7 +357,6 @@ void UnwrapStructHandles(VkImageSparseMemoryRequirementsInfo2* value, HandleUnwr
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
     }
 }
 
@@ -438,7 +364,6 @@ void UnwrapStructHandles(VkSamplerYcbcrConversionInfo* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
-        value->conversion = GetWrappedHandle<VkSamplerYcbcrConversion>(value->conversion);
     }
 }
 
@@ -446,9 +371,6 @@ void UnwrapStructHandles(VkDescriptorUpdateTemplateCreateInfo* value, HandleUnwr
 {
     if (value != nullptr)
     {
-        value->descriptorSetLayout = GetWrappedHandle<VkDescriptorSetLayout>(value->descriptorSetLayout);
-
-        value->pipelineLayout = GetWrappedHandle<VkPipelineLayout>(value->pipelineLayout);
     }
 }
 
@@ -456,7 +378,6 @@ void UnwrapStructHandles(VkRenderPassAttachmentBeginInfo* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->pAttachments = UnwrapHandles<VkImageView>(value->pAttachments, value->attachmentCount, unwrap_memory);
     }
 }
 
@@ -464,7 +385,6 @@ void UnwrapStructHandles(VkSemaphoreWaitInfo* value, HandleUnwrapMemory* unwrap_
 {
     if (value != nullptr)
     {
-        value->pSemaphores = UnwrapHandles<VkSemaphore>(value->pSemaphores, value->semaphoreCount, unwrap_memory);
     }
 }
 
@@ -472,7 +392,6 @@ void UnwrapStructHandles(VkSemaphoreSignalInfo* value, HandleUnwrapMemory* unwra
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -480,7 +399,6 @@ void UnwrapStructHandles(VkBufferDeviceAddressInfo* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -488,7 +406,6 @@ void UnwrapStructHandles(VkDeviceMemoryOpaqueCaptureAddressInfo* value, HandleUn
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -496,7 +413,6 @@ void UnwrapStructHandles(VkBufferMemoryBarrier2* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -504,7 +420,6 @@ void UnwrapStructHandles(VkImageMemoryBarrier2* value, HandleUnwrapMemory* unwra
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
     }
 }
 
@@ -513,7 +428,6 @@ void UnwrapStructHandles(VkDependencyInfo* value, HandleUnwrapMemory* unwrap_mem
     if (value != nullptr)
     {
         value->pBufferMemoryBarriers = UnwrapStructArrayHandles(value->pBufferMemoryBarriers, value->bufferMemoryBarrierCount, unwrap_memory);
-
         value->pImageMemoryBarriers = UnwrapStructArrayHandles(value->pImageMemoryBarriers, value->imageMemoryBarrierCount, unwrap_memory);
     }
 }
@@ -522,7 +436,6 @@ void UnwrapStructHandles(VkSemaphoreSubmitInfo* value, HandleUnwrapMemory* unwra
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -530,7 +443,6 @@ void UnwrapStructHandles(VkCommandBufferSubmitInfo* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
-        value->commandBuffer = GetWrappedHandle<VkCommandBuffer>(value->commandBuffer);
     }
 }
 
@@ -542,11 +454,8 @@ void UnwrapStructHandles(VkSubmitInfo2* value, HandleUnwrapMemory* unwrap_memory
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
         value->pWaitSemaphoreInfos = UnwrapStructArrayHandles(value->pWaitSemaphoreInfos, value->waitSemaphoreInfoCount, unwrap_memory);
-
         value->pCommandBufferInfos = UnwrapStructArrayHandles(value->pCommandBufferInfos, value->commandBufferInfoCount, unwrap_memory);
-
         value->pSignalSemaphoreInfos = UnwrapStructArrayHandles(value->pSignalSemaphoreInfos, value->signalSemaphoreInfoCount, unwrap_memory);
     }
 }
@@ -555,9 +464,6 @@ void UnwrapStructHandles(VkCopyBufferInfo2* value, HandleUnwrapMemory* unwrap_me
 {
     if (value != nullptr)
     {
-        value->srcBuffer = GetWrappedHandle<VkBuffer>(value->srcBuffer);
-
-        value->dstBuffer = GetWrappedHandle<VkBuffer>(value->dstBuffer);
     }
 }
 
@@ -565,9 +471,6 @@ void UnwrapStructHandles(VkCopyImageInfo2* value, HandleUnwrapMemory* unwrap_mem
 {
     if (value != nullptr)
     {
-        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
-
-        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
     }
 }
 
@@ -575,9 +478,6 @@ void UnwrapStructHandles(VkCopyBufferToImageInfo2* value, HandleUnwrapMemory* un
 {
     if (value != nullptr)
     {
-        value->srcBuffer = GetWrappedHandle<VkBuffer>(value->srcBuffer);
-
-        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
     }
 }
 
@@ -585,9 +485,6 @@ void UnwrapStructHandles(VkCopyImageToBufferInfo2* value, HandleUnwrapMemory* un
 {
     if (value != nullptr)
     {
-        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
-
-        value->dstBuffer = GetWrappedHandle<VkBuffer>(value->dstBuffer);
     }
 }
 
@@ -595,9 +492,6 @@ void UnwrapStructHandles(VkBlitImageInfo2* value, HandleUnwrapMemory* unwrap_mem
 {
     if (value != nullptr)
     {
-        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
-
-        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
     }
 }
 
@@ -605,9 +499,6 @@ void UnwrapStructHandles(VkResolveImageInfo2* value, HandleUnwrapMemory* unwrap_
 {
     if (value != nullptr)
     {
-        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
-
-        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
     }
 }
 
@@ -615,9 +506,6 @@ void UnwrapStructHandles(VkRenderingAttachmentInfo* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
-        value->imageView = GetWrappedHandle<VkImageView>(value->imageView);
-
-        value->resolveImageView = GetWrappedHandle<VkImageView>(value->resolveImageView);
     }
 }
 
@@ -629,11 +517,8 @@ void UnwrapStructHandles(VkRenderingInfo* value, HandleUnwrapMemory* unwrap_memo
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
         value->pColorAttachments = UnwrapStructArrayHandles(value->pColorAttachments, value->colorAttachmentCount, unwrap_memory);
-
         value->pDepthAttachment = UnwrapStructPtrHandles(value->pDepthAttachment, unwrap_memory);
-
         value->pStencilAttachment = UnwrapStructPtrHandles(value->pStencilAttachment, unwrap_memory);
     }
 }
@@ -650,9 +535,6 @@ void UnwrapStructHandles(VkSwapchainCreateInfoKHR* value, HandleUnwrapMemory* un
 {
     if (value != nullptr)
     {
-        value->surface = GetWrappedHandle<VkSurfaceKHR>(value->surface);
-
-        value->oldSwapchain = GetWrappedHandle<VkSwapchainKHR>(value->oldSwapchain);
     }
 }
 
@@ -664,10 +546,6 @@ void UnwrapStructHandles(VkPresentInfoKHR* value, HandleUnwrapMemory* unwrap_mem
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
-        value->pWaitSemaphores = UnwrapHandles<VkSemaphore>(value->pWaitSemaphores, value->waitSemaphoreCount, unwrap_memory);
-
-        value->pSwapchains = UnwrapHandles<VkSwapchainKHR>(value->pSwapchains, value->swapchainCount, unwrap_memory);
     }
 }
 
@@ -675,7 +553,6 @@ void UnwrapStructHandles(VkImageSwapchainCreateInfoKHR* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->swapchain = GetWrappedHandle<VkSwapchainKHR>(value->swapchain);
     }
 }
 
@@ -683,7 +560,6 @@ void UnwrapStructHandles(VkBindImageMemorySwapchainInfoKHR* value, HandleUnwrapM
 {
     if (value != nullptr)
     {
-        value->swapchain = GetWrappedHandle<VkSwapchainKHR>(value->swapchain);
     }
 }
 
@@ -691,11 +567,6 @@ void UnwrapStructHandles(VkAcquireNextImageInfoKHR* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
-        value->swapchain = GetWrappedHandle<VkSwapchainKHR>(value->swapchain);
-
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
-
-        value->fence = GetWrappedHandle<VkFence>(value->fence);
     }
 }
 
@@ -703,7 +574,6 @@ void UnwrapStructHandles(VkDisplayModePropertiesKHR* value, HandleUnwrapMemory* 
 {
     if (value != nullptr)
     {
-        value->displayMode = GetWrappedHandle<VkDisplayModeKHR>(value->displayMode);
     }
 }
 
@@ -711,7 +581,6 @@ void UnwrapStructHandles(VkDisplayPlanePropertiesKHR* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->currentDisplay = GetWrappedHandle<VkDisplayKHR>(value->currentDisplay);
     }
 }
 
@@ -719,7 +588,6 @@ void UnwrapStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->display = GetWrappedHandle<VkDisplayKHR>(value->display);
     }
 }
 
@@ -727,7 +595,6 @@ void UnwrapStructHandles(VkDisplaySurfaceCreateInfoKHR* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->displayMode = GetWrappedHandle<VkDisplayModeKHR>(value->displayMode);
     }
 }
 
@@ -735,7 +602,6 @@ void UnwrapStructHandles(VkVideoPictureResourceInfoKHR* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->imageViewBinding = GetWrappedHandle<VkImageView>(value->imageViewBinding);
     }
 }
 
@@ -751,7 +617,6 @@ void UnwrapStructHandles(VkBindVideoSessionMemoryInfoKHR* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -759,9 +624,6 @@ void UnwrapStructHandles(VkVideoSessionParametersCreateInfoKHR* value, HandleUnw
 {
     if (value != nullptr)
     {
-        value->videoSessionParametersTemplate = GetWrappedHandle<VkVideoSessionParametersKHR>(value->videoSessionParametersTemplate);
-
-        value->videoSession = GetWrappedHandle<VkVideoSessionKHR>(value->videoSession);
     }
 }
 
@@ -769,10 +631,6 @@ void UnwrapStructHandles(VkVideoBeginCodingInfoKHR* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
-        value->videoSession = GetWrappedHandle<VkVideoSessionKHR>(value->videoSession);
-
-        value->videoSessionParameters = GetWrappedHandle<VkVideoSessionParametersKHR>(value->videoSessionParameters);
-
         value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
     }
 }
@@ -781,12 +639,8 @@ void UnwrapStructHandles(VkVideoDecodeInfoKHR* value, HandleUnwrapMemory* unwrap
 {
     if (value != nullptr)
     {
-        value->srcBuffer = GetWrappedHandle<VkBuffer>(value->srcBuffer);
-
         UnwrapStructHandles(&value->dstPictureResource, unwrap_memory);
-
         value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
-
         value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
     }
 }
@@ -795,7 +649,6 @@ void UnwrapStructHandles(VkRenderingFragmentShadingRateAttachmentInfoKHR* value,
 {
     if (value != nullptr)
     {
-        value->imageView = GetWrappedHandle<VkImageView>(value->imageView);
     }
 }
 
@@ -803,7 +656,6 @@ void UnwrapStructHandles(VkRenderingFragmentDensityMapAttachmentInfoEXT* value, 
 {
     if (value != nullptr)
     {
-        value->imageView = GetWrappedHandle<VkImageView>(value->imageView);
     }
 }
 
@@ -811,7 +663,6 @@ void UnwrapStructHandles(VkMemoryGetWin32HandleInfoKHR* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -819,7 +670,6 @@ void UnwrapStructHandles(VkMemoryGetFdInfoKHR* value, HandleUnwrapMemory* unwrap
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -827,9 +677,6 @@ void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoKHR* value, HandleUn
 {
     if (value != nullptr)
     {
-        value->pAcquireSyncs = UnwrapHandles<VkDeviceMemory>(value->pAcquireSyncs, value->acquireCount, unwrap_memory);
-
-        value->pReleaseSyncs = UnwrapHandles<VkDeviceMemory>(value->pReleaseSyncs, value->releaseCount, unwrap_memory);
     }
 }
 
@@ -837,7 +684,6 @@ void UnwrapStructHandles(VkImportSemaphoreWin32HandleInfoKHR* value, HandleUnwra
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -845,7 +691,6 @@ void UnwrapStructHandles(VkSemaphoreGetWin32HandleInfoKHR* value, HandleUnwrapMe
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -853,7 +698,6 @@ void UnwrapStructHandles(VkImportSemaphoreFdInfoKHR* value, HandleUnwrapMemory* 
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -861,7 +705,6 @@ void UnwrapStructHandles(VkSemaphoreGetFdInfoKHR* value, HandleUnwrapMemory* unw
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -869,7 +712,6 @@ void UnwrapStructHandles(VkImportFenceWin32HandleInfoKHR* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->fence = GetWrappedHandle<VkFence>(value->fence);
     }
 }
 
@@ -877,7 +719,6 @@ void UnwrapStructHandles(VkFenceGetWin32HandleInfoKHR* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
-        value->fence = GetWrappedHandle<VkFence>(value->fence);
     }
 }
 
@@ -885,7 +726,6 @@ void UnwrapStructHandles(VkImportFenceFdInfoKHR* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->fence = GetWrappedHandle<VkFence>(value->fence);
     }
 }
 
@@ -893,7 +733,6 @@ void UnwrapStructHandles(VkFenceGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_
 {
     if (value != nullptr)
     {
-        value->fence = GetWrappedHandle<VkFence>(value->fence);
     }
 }
 
@@ -901,7 +740,6 @@ void UnwrapStructHandles(VkPhysicalDeviceSurfaceInfo2KHR* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->surface = GetWrappedHandle<VkSurfaceKHR>(value->surface);
     }
 }
 
@@ -933,7 +771,6 @@ void UnwrapStructHandles(VkDisplayPlaneInfo2KHR* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->mode = GetWrappedHandle<VkDisplayModeKHR>(value->mode);
     }
 }
 
@@ -941,7 +778,6 @@ void UnwrapStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_me
 {
     if (value != nullptr)
     {
-        value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
     }
 }
 
@@ -949,7 +785,6 @@ void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
     }
 }
 
@@ -957,7 +792,6 @@ void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->pLibraries = UnwrapHandles<VkPipeline>(value->pLibraries, value->libraryCount, unwrap_memory);
     }
 }
 
@@ -965,12 +799,8 @@ void UnwrapStructHandles(VkVideoEncodeInfoKHR* value, HandleUnwrapMemory* unwrap
 {
     if (value != nullptr)
     {
-        value->dstBitstreamBuffer = GetWrappedHandle<VkBuffer>(value->dstBitstreamBuffer);
-
         UnwrapStructHandles(&value->srcPictureResource, unwrap_memory);
-
         value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
-
         value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
     }
 }
@@ -979,7 +809,6 @@ void UnwrapStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->object = GetWrappedHandle(value->object, value->objectType);
     }
 }
 
@@ -987,7 +816,6 @@ void UnwrapStructHandles(VkDebugMarkerObjectTagInfoEXT* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->object = GetWrappedHandle(value->object, value->objectType);
     }
 }
 
@@ -995,9 +823,6 @@ void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, Handl
 {
     if (value != nullptr)
     {
-        value->image = GetWrappedHandle<VkImage>(value->image);
-
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -1005,9 +830,6 @@ void UnwrapStructHandles(VkImageViewHandleInfoNVX* value, HandleUnwrapMemory* un
 {
     if (value != nullptr)
     {
-        value->imageView = GetWrappedHandle<VkImageView>(value->imageView);
-
-        value->sampler = GetWrappedHandle<VkSampler>(value->sampler);
     }
 }
 
@@ -1015,9 +837,6 @@ void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoNV* value, HandleUnw
 {
     if (value != nullptr)
     {
-        value->pAcquireSyncs = UnwrapHandles<VkDeviceMemory>(value->pAcquireSyncs, value->acquireCount, unwrap_memory);
-
-        value->pReleaseSyncs = UnwrapHandles<VkDeviceMemory>(value->pReleaseSyncs, value->releaseCount, unwrap_memory);
     }
 }
 
@@ -1025,7 +844,6 @@ void UnwrapStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrap
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -1033,7 +851,6 @@ void UnwrapStructHandles(VkDebugUtilsObjectNameInfoEXT* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->objectHandle = GetWrappedHandle(value->objectHandle, value->objectType);
     }
 }
 
@@ -1041,7 +858,6 @@ void UnwrapStructHandles(VkDebugUtilsObjectTagInfoEXT* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
-        value->objectHandle = GetWrappedHandle(value->objectHandle, value->objectType);
     }
 }
 
@@ -1049,7 +865,6 @@ void UnwrapStructHandles(VkMemoryGetAndroidHardwareBufferInfoANDROID* value, Han
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -1057,7 +872,6 @@ void UnwrapStructHandles(VkShaderModuleValidationCacheCreateInfoEXT* value, Hand
 {
     if (value != nullptr)
     {
-        value->validationCache = GetWrappedHandle<VkValidationCacheEXT>(value->validationCache);
     }
 }
 
@@ -1066,10 +880,6 @@ void UnwrapStructHandles(VkRayTracingPipelineCreateInfoNV* value, HandleUnwrapMe
     if (value != nullptr)
     {
         value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
-
-        value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
-
-        value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
     }
 }
 
@@ -1077,11 +887,6 @@ void UnwrapStructHandles(VkGeometryTrianglesNV* value, HandleUnwrapMemory* unwra
 {
     if (value != nullptr)
     {
-        value->vertexData = GetWrappedHandle<VkBuffer>(value->vertexData);
-
-        value->indexData = GetWrappedHandle<VkBuffer>(value->indexData);
-
-        value->transformData = GetWrappedHandle<VkBuffer>(value->transformData);
     }
 }
 
@@ -1089,7 +894,6 @@ void UnwrapStructHandles(VkGeometryAABBNV* value, HandleUnwrapMemory* unwrap_mem
 {
     if (value != nullptr)
     {
-        value->aabbData = GetWrappedHandle<VkBuffer>(value->aabbData);
     }
 }
 
@@ -1098,7 +902,6 @@ void UnwrapStructHandles(VkGeometryDataNV* value, HandleUnwrapMemory* unwrap_mem
     if (value != nullptr)
     {
         UnwrapStructHandles(&value->triangles, unwrap_memory);
-
         UnwrapStructHandles(&value->aabbs, unwrap_memory);
     }
 }
@@ -1131,9 +934,6 @@ void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoNV* value, HandleU
 {
     if (value != nullptr)
     {
-        value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureNV>(value->accelerationStructure);
-
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -1141,7 +941,6 @@ void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureNV* value, Han
 {
     if (value != nullptr)
     {
-        value->pAccelerationStructures = UnwrapHandles<VkAccelerationStructureNV>(value->pAccelerationStructures, value->accelerationStructureCount, unwrap_memory);
     }
 }
 
@@ -1149,7 +948,6 @@ void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoNV* value,
 {
     if (value != nullptr)
     {
-        value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureNV>(value->accelerationStructure);
     }
 }
 
@@ -1157,7 +955,6 @@ void UnwrapStructHandles(VkSwapchainPresentFenceInfoEXT* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->pFences = UnwrapHandles<VkFence>(value->pFences, value->swapchainCount, unwrap_memory);
     }
 }
 
@@ -1165,7 +962,6 @@ void UnwrapStructHandles(VkReleaseSwapchainImagesInfoEXT* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->swapchain = GetWrappedHandle<VkSwapchainKHR>(value->swapchain);
     }
 }
 
@@ -1182,8 +978,6 @@ void UnwrapStructHandles(VkGraphicsPipelineShaderGroupsCreateInfoNV* value, Hand
     if (value != nullptr)
     {
         value->pGroups = UnwrapStructArrayHandles(value->pGroups, value->groupCount, unwrap_memory);
-
-        value->pPipelines = UnwrapHandles<VkPipeline>(value->pPipelines, value->pipelineCount, unwrap_memory);
     }
 }
 
@@ -1191,7 +985,6 @@ void UnwrapStructHandles(VkIndirectCommandsStreamNV* value, HandleUnwrapMemory* 
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -1199,7 +992,6 @@ void UnwrapStructHandles(VkIndirectCommandsLayoutTokenNV* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->pushconstantPipelineLayout = GetWrappedHandle<VkPipelineLayout>(value->pushconstantPipelineLayout);
     }
 }
 
@@ -1215,17 +1007,7 @@ void UnwrapStructHandles(VkGeneratedCommandsInfoNV* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
-        value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
-
-        value->indirectCommandsLayout = GetWrappedHandle<VkIndirectCommandsLayoutNV>(value->indirectCommandsLayout);
-
         value->pStreams = UnwrapStructArrayHandles(value->pStreams, value->streamCount, unwrap_memory);
-
-        value->preprocessBuffer = GetWrappedHandle<VkBuffer>(value->preprocessBuffer);
-
-        value->sequencesCountBuffer = GetWrappedHandle<VkBuffer>(value->sequencesCountBuffer);
-
-        value->sequencesIndexBuffer = GetWrappedHandle<VkBuffer>(value->sequencesIndexBuffer);
     }
 }
 
@@ -1233,9 +1015,6 @@ void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, Han
 {
     if (value != nullptr)
     {
-        value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
-
-        value->indirectCommandsLayout = GetWrappedHandle<VkIndirectCommandsLayoutNV>(value->indirectCommandsLayout);
     }
 }
 
@@ -1243,7 +1022,6 @@ void UnwrapStructHandles(VkMemoryGetZirconHandleInfoFUCHSIA* value, HandleUnwrap
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -1251,7 +1029,6 @@ void UnwrapStructHandles(VkImportSemaphoreZirconHandleInfoFUCHSIA* value, Handle
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -1259,7 +1036,6 @@ void UnwrapStructHandles(VkSemaphoreGetZirconHandleInfoFUCHSIA* value, HandleUnw
 {
     if (value != nullptr)
     {
-        value->semaphore = GetWrappedHandle<VkSemaphore>(value->semaphore);
     }
 }
 
@@ -1267,7 +1043,6 @@ void UnwrapStructHandles(VkMemoryGetRemoteAddressInfoNV* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -1275,7 +1050,6 @@ void UnwrapStructHandles(VkMicromapBuildInfoEXT* value, HandleUnwrapMemory* unwr
 {
     if (value != nullptr)
     {
-        value->dstMicromap = GetWrappedHandle<VkMicromapEXT>(value->dstMicromap);
     }
 }
 
@@ -1283,7 +1057,6 @@ void UnwrapStructHandles(VkMicromapCreateInfoEXT* value, HandleUnwrapMemory* unw
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -1291,7 +1064,6 @@ void UnwrapStructHandles(VkCopyMicromapToMemoryInfoEXT* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->src = GetWrappedHandle<VkMicromapEXT>(value->src);
     }
 }
 
@@ -1299,7 +1071,6 @@ void UnwrapStructHandles(VkCopyMemoryToMicromapInfoEXT* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
-        value->dst = GetWrappedHandle<VkMicromapEXT>(value->dst);
     }
 }
 
@@ -1307,9 +1078,6 @@ void UnwrapStructHandles(VkCopyMicromapInfoEXT* value, HandleUnwrapMemory* unwra
 {
     if (value != nullptr)
     {
-        value->src = GetWrappedHandle<VkMicromapEXT>(value->src);
-
-        value->dst = GetWrappedHandle<VkMicromapEXT>(value->dst);
     }
 }
 
@@ -1317,7 +1085,6 @@ void UnwrapStructHandles(VkAccelerationStructureTrianglesOpacityMicromapEXT* val
 {
     if (value != nullptr)
     {
-        value->micromap = GetWrappedHandle<VkMicromapEXT>(value->micromap);
     }
 }
 
@@ -1325,7 +1092,6 @@ void UnwrapStructHandles(VkDescriptorSetBindingReferenceVALVE* value, HandleUnwr
 {
     if (value != nullptr)
     {
-        value->descriptorSetLayout = GetWrappedHandle<VkDescriptorSetLayout>(value->descriptorSetLayout);
     }
 }
 
@@ -1344,9 +1110,6 @@ void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, Han
 {
     if (value != nullptr)
     {
-        value->srcAccelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->srcAccelerationStructure);
-
-        value->dstAccelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->dstAccelerationStructure);
     }
 }
 
@@ -1354,7 +1117,6 @@ void UnwrapStructHandles(VkAccelerationStructureCreateInfoKHR* value, HandleUnwr
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -1362,7 +1124,6 @@ void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureKHR* value, Ha
 {
     if (value != nullptr)
     {
-        value->pAccelerationStructures = UnwrapHandles<VkAccelerationStructureKHR>(value->pAccelerationStructures, value->accelerationStructureCount, unwrap_memory);
     }
 }
 
@@ -1370,7 +1131,6 @@ void UnwrapStructHandles(VkAccelerationStructureDeviceAddressInfoKHR* value, Han
 {
     if (value != nullptr)
     {
-        value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->accelerationStructure);
     }
 }
 
@@ -1378,7 +1138,6 @@ void UnwrapStructHandles(VkCopyAccelerationStructureToMemoryInfoKHR* value, Hand
 {
     if (value != nullptr)
     {
-        value->src = GetWrappedHandle<VkAccelerationStructureKHR>(value->src);
     }
 }
 
@@ -1386,7 +1145,6 @@ void UnwrapStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, Hand
 {
     if (value != nullptr)
     {
-        value->dst = GetWrappedHandle<VkAccelerationStructureKHR>(value->dst);
     }
 }
 
@@ -1394,9 +1152,6 @@ void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrap
 {
     if (value != nullptr)
     {
-        value->src = GetWrappedHandle<VkAccelerationStructureKHR>(value->src);
-
-        value->dst = GetWrappedHandle<VkAccelerationStructureKHR>(value->dst);
     }
 }
 
@@ -1405,12 +1160,7 @@ void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapM
     if (value != nullptr)
     {
         value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
-
         value->pLibraryInfo = UnwrapStructPtrHandles(value->pLibraryInfo, unwrap_memory);
-
-        value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
-
-        value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
     }
 }
 
