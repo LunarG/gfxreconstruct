@@ -259,7 +259,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
         auto table = encode::GetInstanceTable(instance);
         if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
         {
-            result = table->GetInstanceProcAddr(encode::GetWrappedHandle(instance), pName);
+            result = table->GetInstanceProcAddr(instance, pName);
         }
     }
 
@@ -287,7 +287,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
         auto table = encode::GetDeviceTable(device);
         if ((table != nullptr) && (table->GetDeviceProcAddr != nullptr))
         {
-            result = table->GetDeviceProcAddr(encode::GetWrappedHandle(device), pName);
+            result = table->GetDeviceProcAddr(device, pName);
 
             if (result != nullptr)
             {
@@ -316,12 +316,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ou
 
     if (ourInstanceWrapper != VK_NULL_HANDLE)
     {
-        const VkInstance nextLayersInstance = encode::GetWrappedHandle<VkInstance>(ourInstanceWrapper);
-
         PFN_GetPhysicalDeviceProcAddr next_gpdpa = get_instance_next_gpdpa(ourInstanceWrapper);
         if (next_gpdpa != nullptr)
         {
-            result = next_gpdpa(nextLayersInstance, pName);
+            result = next_gpdpa(ourInstanceWrapper, pName);
         }
     }
 
@@ -371,11 +369,10 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
         // In order to screen out unsupported extensions, we always query the chain
         // twice, and remove those that are present from the count.
         auto     instance_table            = encode::GetInstanceTable(physicalDevice);
-        auto     wrapped_device            = encode::GetWrappedHandle(physicalDevice);
         uint32_t downstream_property_count = 0;
 
         result = instance_table->EnumerateDeviceExtensionProperties(
-            wrapped_device, pLayerName, &downstream_property_count, nullptr);
+            physicalDevice, pLayerName, &downstream_property_count, nullptr);
         if (result != VK_SUCCESS)
         {
             return result;
@@ -383,7 +380,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
         std::vector<VkExtensionProperties> downstream_properties(downstream_property_count);
         result = instance_table->EnumerateDeviceExtensionProperties(
-            wrapped_device, pLayerName, &downstream_property_count, downstream_properties.data());
+            physicalDevice, pLayerName, &downstream_property_count, downstream_properties.data());
         if (result != VK_SUCCESS)
         {
             return result;

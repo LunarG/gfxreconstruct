@@ -44,12 +44,6 @@ typedef format::HandleId (*PFN_GetHandleId)();
 extern VulkanStateHandleTable state_handle_table_;
 
 template <typename T>
-T GetWrappedHandle(const T& handle)
-{
-    return handle;
-}
-
-template <typename T>
 format::HandleId GetWrappedId(const T& handle)
 {
     if (handle == VK_NULL_HANDLE)
@@ -87,10 +81,6 @@ bool RemoveWrapper(const Wrapper* wrapper)
 {
     return state_handle_table_.RemoveWrapper(wrapper);
 }
-
-uint64_t GetWrappedHandle(uint64_t, VkObjectType object_type);
-
-uint64_t GetWrappedHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type);
 
 uint64_t GetWrappedId(uint64_t, VkObjectType object_type);
 
@@ -618,29 +608,6 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
         delete set_wrapper.second;
     }
     wrapper->child_sets.clear();
-}
-
-// Unwrap arrays of handles.
-template <typename Handle>
-const Handle* UnwrapHandles(const Handle* handles, uint32_t len, HandleUnwrapMemory* unwrap_memory)
-{
-    if ((handles != nullptr) && (len > 0))
-    {
-        assert(unwrap_memory != nullptr);
-
-        size_t num_bytes         = len * sizeof(Handle);
-        auto   unwrapped_handles = reinterpret_cast<Handle*>(unwrap_memory->GetBuffer(num_bytes));
-
-        for (uint32_t i = 0; i < len; ++i)
-        {
-            unwrapped_handles[i] = GetWrappedHandle<Handle>(handles[i]);
-        }
-
-        return unwrapped_handles;
-    }
-
-    // Leave the original memory in place when the pointer is not null, but size is zero.
-    return handles;
 }
 
 GFXRECON_END_NAMESPACE(encode)
