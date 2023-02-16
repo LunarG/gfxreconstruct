@@ -189,10 +189,17 @@ else(MSVC)
 endif(MSVC)
 
 # GFXReconstruct provided find modules
-find_package(AGS)
+if(${D3D12_SUPPORT})
+    find_package(AGS)
+endif() # D3D12_SUPPORT
+
+if(WIN32)
 find_package(Detours)
+endif() # WIN32
+
 find_package(LZ4)
 find_package(ZSTD)
+
 if(UNIX)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
