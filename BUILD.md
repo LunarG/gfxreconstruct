@@ -188,7 +188,7 @@ Visual Studio configuration will include support for capturing and replaying Dir
 At this point, you can build the solution from the command line or open the
 generated solution with Visual Studio.
 
-**Note: the build uses Windows 10 SDK 10.0.20348.0. Windows 11 SDK 10.0.22000.194 is not compatible at the present time. If you need to specify a Windows 10 SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0` .**
+**Note: the build uses Windows 10 SDK 10.0.20348.0. Windows 11 SDK 10.0.22000.194 is not compatible at the present time. If you need to specify a Windows 10 SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0`. If Python code generation is required, the shell used to run it should have the environment variable `WindowsSDKVersion=10.0.20348.0\` set too.**
 
 When generating a native build on an ARM64 Windows host the Visual Studio
 Installer can be used to install the required Windows SDK version, `10.0.20348.0`.
