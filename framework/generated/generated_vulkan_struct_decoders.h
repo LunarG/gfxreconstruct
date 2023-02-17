@@ -8193,6 +8193,33 @@ struct Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderCorePropertiesARM
+{
+    using struct_type = VkPhysicalDeviceShaderCorePropertiesARM;
+
+    VkPhysicalDeviceShaderCorePropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT;
+
+    VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkImageViewSlicedCreateInfoEXT
+{
+    using struct_type = VkImageViewSlicedCreateInfoEXT;
+
+    VkImageViewSlicedCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE
 {
     using struct_type = VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE;
@@ -8628,6 +8655,34 @@ struct Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM
     VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
+
+    VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM;
+
+    VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM
+{
+    using struct_type = VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM;
+
+    VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkRect2D>* pPerViewRenderAreas{ nullptr };
 };
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR

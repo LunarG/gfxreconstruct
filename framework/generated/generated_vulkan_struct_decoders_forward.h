@@ -2015,6 +2015,16 @@ struct Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT* wrapper);
 
+struct Decoded_VkPhysicalDeviceShaderCorePropertiesARM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderCorePropertiesARM* wrapper);
+
+struct Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT;
+struct Decoded_VkImageViewSlicedCreateInfoEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageViewSlicedCreateInfoEXT* wrapper);
+
 struct Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE;
 struct Decoded_VkDescriptorSetBindingReferenceVALVE;
 struct Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE;
@@ -2146,6 +2156,16 @@ struct Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* wrapper);
+
+struct Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* wrapper);
+
+struct Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM;
+struct Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* wrapper);
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR;
 struct Decoded_VkAccelerationStructureGeometryTrianglesDataKHR;

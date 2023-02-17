@@ -760,23 +760,23 @@ def gen_target(args):
                 file=sys.stderr
             )
             write(
-                '* options.default_extensions =',
-                options.default_extensions,
+                '* options.defaultExtensions =',
+                options.defaultExtensions,
                 file=sys.stderr
             )
             write(
-                '* options.add_extensions     =',
-                options.add_extensions,
+                '* options.addExtensions     =',
+                options.addExtensions,
                 file=sys.stderr
             )
             write(
-                '* options.remove_extensions  =',
-                options.remove_extensions,
+                '* options.removeExtensions  =',
+                options.removeExtensions,
                 file=sys.stderr
             )
             write(
-                '* options.emit_extensions    =',
-                options.emit_extensions,
+                '* options.emitEtensions    =',
+                options.emitExtensions,
                 file=sys.stderr
             )
 

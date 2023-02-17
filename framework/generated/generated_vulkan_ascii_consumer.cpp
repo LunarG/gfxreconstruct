@@ -6268,6 +6268,32 @@ void VulkanAsciiConsumer::Process_vkCmdSetDiscardRectangleEXT(
     );
 }
 
+void VulkanAsciiConsumer::Process_vkCmdSetDiscardRectangleEnableEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkBool32                                    discardRectangleEnable)
+{
+    WriteApiCallToFile(call_info, "vkCmdSetDiscardRectangleEnableEXT", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "discardRectangleEnable", toStringFlags, tabCount, tabSize, ToString(discardRectangleEnable, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetDiscardRectangleModeEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkDiscardRectangleModeEXT                   discardRectangleMode)
+{
+    WriteApiCallToFile(call_info, "vkCmdSetDiscardRectangleModeEXT", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "discardRectangleMode", toStringFlags, tabCount, tabSize, Quote(ToString(discardRectangleMode, toStringFlags, tabCount, tabSize)));
+        }
+    );
+}
+
 void VulkanAsciiConsumer::Process_vkSetHdrMetadataEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -7061,6 +7087,23 @@ void VulkanAsciiConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
             FieldToString(strStrm, false, "countBufferOffset", toStringFlags, tabCount, tabSize, ToString(countBufferOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxDrawCount", toStringFlags, tabCount, tabSize, ToString(maxDrawCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "stride", toStringFlags, tabCount, tabSize, ToString(stride, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstExclusiveScissor,
+    uint32_t                                    exclusiveScissorCount,
+    PointerDecoder<VkBool32>*                   pExclusiveScissorEnables)
+{
+    WriteApiCallToFile(call_info, "vkCmdSetExclusiveScissorEnableNV", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "firstExclusiveScissor", toStringFlags, tabCount, tabSize, ToString(firstExclusiveScissor, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "exclusiveScissorCount", toStringFlags, tabCount, tabSize, ToString(exclusiveScissorCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pExclusiveScissorEnables", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(exclusiveScissorCount, pExclusiveScissorEnables, toStringFlags, tabCount, tabSize));
         }
     );
 }

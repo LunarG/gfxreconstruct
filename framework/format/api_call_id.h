@@ -671,6 +671,9 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdControlVideoCodingKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12bf),
     ApiCall_vkCmdDecodeVideoKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12c0),
     ApiCall_vkCmdEncodeVideoKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12c1),
+    ApiCall_vkCmdSetDiscardRectangleEnableEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12c2),
+    ApiCall_vkCmdSetDiscardRectangleModeEXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12c3),
+    ApiCall_vkCmdSetExclusiveScissorEnableNV                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12c4),
 
     ApiCall_VulkanLast,
 
