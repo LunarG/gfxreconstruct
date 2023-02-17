@@ -720,9 +720,8 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
     VkDevice                  device_unwrapped      = device_wrapper->handle;
     auto                      device_table          = GetDeviceTable(device);
     auto                      handle_unwrap_memory  = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    const VkBufferCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
-    VkBufferCreateInfo modified_create_info = (*pCreateInfo_unwrapped);
+    VkBufferCreateInfo modified_create_info = (*pCreateInfo);
 
     if (IsTrimEnabled())
     {

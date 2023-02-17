@@ -2688,6 +2688,16 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         uint32_t                                    discardRectangleCount,
         StructPointerDecoder<Decoded_VkRect2D>*     pDiscardRectangles) override;
 
+    virtual void Process_vkCmdSetDiscardRectangleEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    discardRectangleEnable) override;
+
+    virtual void Process_vkCmdSetDiscardRectangleModeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkDiscardRectangleModeEXT                   discardRectangleMode) override;
+
     virtual void Process_vkSetHdrMetadataEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3027,6 +3037,13 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
+
+    virtual void Process_vkCmdSetExclusiveScissorEnableNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstExclusiveScissor,
+        uint32_t                                    exclusiveScissorCount,
+        PointerDecoder<VkBool32>*                   pExclusiveScissorEnables) override;
 
     virtual void Process_vkCmdSetExclusiveScissorNV(
         const ApiCallInfo&                          call_info,

@@ -71,8 +71,6 @@ void UnwrapStructHandles(VkSparseImageMemoryBindInfo* value, HandleUnwrapMemory*
 
 void UnwrapStructHandles(VkBindSparseInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkBufferCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkBufferViewCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkImageCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
@@ -168,8 +166,6 @@ void UnwrapStructHandles(VkResolveImageInfo2* value, HandleUnwrapMemory* unwrap_
 void UnwrapStructHandles(VkRenderingAttachmentInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkRenderingInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDeviceBufferMemoryRequirements* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDeviceImageMemoryRequirements* value, HandleUnwrapMemory* unwrap_memory);
 

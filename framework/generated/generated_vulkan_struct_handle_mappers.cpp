@@ -184,17 +184,6 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoT
     }
 }
 
-void MapStructHandles(Decoded_VkBufferCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
-        }
-    }
-}
-
 void MapStructHandles(Decoded_VkBufferViewCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -262,11 +251,6 @@ void MapStructHandles(Decoded_VkComputePipelineCreateInfo* wrapper, const Vulkan
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkComputePipelineCreateInfo* value = wrapper->decoded_value;
-
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
-        }
 
         MapStructHandles(wrapper->stage, object_info_table);
 
@@ -755,14 +739,6 @@ void MapStructHandles(Decoded_VkRenderingInfo* wrapper, const VulkanObjectInfoTa
         MapStructArrayHandles<Decoded_VkRenderingAttachmentInfo>(wrapper->pDepthAttachment->GetMetaStructPointer(), 1, object_info_table);
 
         MapStructArrayHandles<Decoded_VkRenderingAttachmentInfo>(wrapper->pStencilAttachment->GetMetaStructPointer(), 1, object_info_table);
-    }
-}
-
-void MapStructHandles(Decoded_VkDeviceBufferMemoryRequirements* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructArrayHandles<Decoded_VkBufferCreateInfo>(wrapper->pCreateInfo->GetMetaStructPointer(), 1, object_info_table);
     }
 }
 

@@ -78,6 +78,10 @@ _remove_extensions = [
     "VK_NV_memory_decompression"
 ]
 
+_supported_subsets = [
+    "vulkan"
+]
+
 # Turn lists of names/patterns into matching regular expressions.
 # From Khronos genvk.py
 _add_extensions_pat = _make_re_string(_extensions)
@@ -565,7 +569,16 @@ class BaseGenerator(OutputGenerator):
             enumerants = dict()
             for elem in groupinfo.elem:
                 supported = elem.get('supported')
-                if not supported or not 'disabled' in supported:
+                is_supported = False
+                if not supported:
+                    is_supported = True
+                else:
+                    supported_list = supported.split(",")
+                    for e in supported_list:
+                        if e in _supported_subsets:
+                            is_supported = True
+                            break
+                if is_supported:
                     name = elem.get('name')
                     if name and not elem.get('alias'):
                         enumerants[name] = elem.get('value')

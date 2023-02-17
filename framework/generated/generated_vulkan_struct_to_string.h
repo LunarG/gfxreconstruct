@@ -848,6 +848,9 @@ template <> std::string ToString<VkPhysicalDeviceClusterCullingShaderPropertiesH
 template <> std::string ToString<VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSamplerBorderColorComponentMappingCreateInfoEXT>(const VkSamplerBorderColorComponentMappingCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceShaderCorePropertiesARM>(const VkPhysicalDeviceShaderCorePropertiesARM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>(const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkImageViewSlicedCreateInfoEXT>(const VkImageViewSlicedCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDescriptorSetBindingReferenceVALVE>(const VkDescriptorSetBindingReferenceVALVE& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDescriptorSetLayoutHostMappingInfoVALVE>(const VkDescriptorSetLayoutHostMappingInfoVALVE& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -895,6 +898,9 @@ template <> std::string ToString<VkPhysicalDeviceRayTracingInvocationReorderProp
 template <> std::string ToString<VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>(const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>(const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>(const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>(const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureBuildRangeInfoKHR>(const VkAccelerationStructureBuildRangeInfoKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureGeometryTrianglesDataKHR>(const VkAccelerationStructureGeometryTrianglesDataKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureGeometryAabbsDataKHR>(const VkAccelerationStructureGeometryAabbsDataKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

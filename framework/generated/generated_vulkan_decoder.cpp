@@ -8353,6 +8353,42 @@ size_t VulkanDecoder::Decode_vkCmdSetDiscardRectangleEXT(const ApiCallInfo& call
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdSetDiscardRectangleEnableEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 discardRectangleEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &discardRectangleEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDiscardRectangleEnableEXT(call_info, commandBuffer, discardRectangleEnable);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDiscardRectangleModeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkDiscardRectangleModeEXT discardRectangleMode;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &discardRectangleMode);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDiscardRectangleModeEXT(call_info, commandBuffer, discardRectangleMode);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkSetHdrMetadataEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9396,6 +9432,28 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksIndirectCountNV(const ApiCallInfo
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawMeshTasksIndirectCountNV(call_info, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetExclusiveScissorEnableNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t firstExclusiveScissor;
+    uint32_t exclusiveScissorCount;
+    PointerDecoder<VkBool32> pExclusiveScissorEnables;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstExclusiveScissor);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &exclusiveScissorCount);
+    bytes_read += pExclusiveScissorEnables.DecodeVkBool32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetExclusiveScissorEnableNV(call_info, commandBuffer, firstExclusiveScissor, exclusiveScissorCount, &pExclusiveScissorEnables);
     }
 
     return bytes_read;
@@ -13835,6 +13893,12 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT:
         Decode_vkCmdSetDiscardRectangleEXT(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEnableEXT:
+        Decode_vkCmdSetDiscardRectangleEnableEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleModeEXT:
+        Decode_vkCmdSetDiscardRectangleModeEXT(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkSetHdrMetadataEXT:
         Decode_vkSetHdrMetadataEXT(call_info, parameter_buffer, buffer_size);
         break;
@@ -13972,6 +14036,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV:
         Decode_vkCmdDrawMeshTasksIndirectCountNV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorEnableNV:
+        Decode_vkCmdSetExclusiveScissorEnableNV(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV:
         Decode_vkCmdSetExclusiveScissorNV(call_info, parameter_buffer, buffer_size);

@@ -2539,6 +2539,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(next);
+                VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->imageSlicedViewOf3D == VK_TRUE) && (query.imageSlicedViewOf3D == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature imageSlicedViewOf3D, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(currentNext)->imageSlicedViewOf3D = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
             {
                 const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE* currentNext = reinterpret_cast<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(next);
@@ -2930,6 +2943,32 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature shaderCoreBuiltins, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(currentNext)->shaderCoreBuiltins = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
+            {
+                const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(next);
+                VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->pipelineLibraryGroupHandles == VK_TRUE) && (query.pipelineLibraryGroupHandles == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineLibraryGroupHandles, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(currentNext)->pipelineLibraryGroupHandles = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
+            {
+                const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* currentNext = reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(next);
+                VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->multiviewPerViewRenderAreas == VK_TRUE) && (query.multiviewPerViewRenderAreas == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature multiviewPerViewRenderAreas, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(currentNext)->multiviewPerViewRenderAreas = VK_FALSE;
                 }
                 break;
              }

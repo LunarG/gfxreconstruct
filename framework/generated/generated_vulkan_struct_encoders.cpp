@@ -7891,6 +7891,30 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePageableDevic
     encoder->EncodeVkBool32Value(value.pageableDeviceLocalMemory);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCorePropertiesARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.pixelRate);
+    encoder->EncodeUInt32Value(value.texelRate);
+    encoder->EncodeUInt32Value(value.fmaRate);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.imageSlicedViewOf3D);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageViewSlicedCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.sliceOffset);
+    encoder->EncodeUInt32Value(value.sliceCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -8293,6 +8317,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBui
     encoder->EncodeUInt64Value(value.shaderCoreMask);
     encoder->EncodeUInt32Value(value.shaderCoreCount);
     encoder->EncodeUInt32Value(value.shaderWarpsPerCore);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.pipelineLibraryGroupHandles);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.multiviewPerViewRenderAreas);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.perViewRenderAreaCount);
+    EncodeStructArray(encoder, value.pPerViewRenderAreas, value.perViewRenderAreaCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

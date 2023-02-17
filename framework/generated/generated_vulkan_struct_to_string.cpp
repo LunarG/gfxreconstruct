@@ -11844,6 +11844,45 @@ template <> std::string ToString<VkPhysicalDevicePageableDeviceLocalMemoryFeatur
     );
 }
 
+template <> std::string ToString<VkPhysicalDeviceShaderCorePropertiesARM>(const VkPhysicalDeviceShaderCorePropertiesARM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pixelRate", toStringFlags, tabCount, tabSize, ToString(obj.pixelRate, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "texelRate", toStringFlags, tabCount, tabSize, ToString(obj.texelRate, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "fmaRate", toStringFlags, tabCount, tabSize, ToString(obj.fmaRate, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>(const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "imageSlicedViewOf3D", toStringFlags, tabCount, tabSize, ToString(obj.imageSlicedViewOf3D, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkImageViewSlicedCreateInfoEXT>(const VkImageViewSlicedCreateInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "sliceOffset", toStringFlags, tabCount, tabSize, ToString(obj.sliceOffset, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "sliceCount", toStringFlags, tabCount, tabSize, ToString(obj.sliceCount, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -12479,6 +12518,43 @@ template <> std::string ToString<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM
             FieldToString(strStrm, false, "shaderCoreMask", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderCoreCount", toStringFlags, tabCount, tabSize, ToString(obj.shaderCoreCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "shaderWarpsPerCore", toStringFlags, tabCount, tabSize, ToString(obj.shaderWarpsPerCore, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>(const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pipelineLibraryGroupHandles", toStringFlags, tabCount, tabSize, ToString(obj.pipelineLibraryGroupHandles, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>(const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "multiviewPerViewRenderAreas", toStringFlags, tabCount, tabSize, ToString(obj.multiviewPerViewRenderAreas, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>(const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "perViewRenderAreaCount", toStringFlags, tabCount, tabSize, ToString(obj.perViewRenderAreaCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pPerViewRenderAreas", toStringFlags, tabCount, tabSize, ArrayToString(obj.perViewRenderAreaCount, obj.pPerViewRenderAreas, toStringFlags, tabCount, tabSize));
         }
     );
 }
