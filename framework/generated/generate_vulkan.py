@@ -79,7 +79,13 @@ generate_targets = [
     'generated_vulkan_struct_decoders_to_string.cpp',
     'generated_vulkan_pnext_decoders_to_string.cpp',
     'generated_vulkan_object_info_table_base2.h',
-    'generated_vulkan_state_table.h'
+    'generated_vulkan_state_table.h',
+    'generated_vulkan_export_json_consumer.h',
+    'generated_vulkan_export_json_consumer.cpp',
+    'generated_vulkan_struct_to_json.h',
+    'generated_vulkan_struct_to_json.cpp',
+    'generated_vulkan_enum_to_json.h',
+    'generated_vulkan_enum_to_json.cpp',
 ]
 
 if __name__ == '__main__':
