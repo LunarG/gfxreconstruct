@@ -47,6 +47,8 @@ class HandlePointerDecoder
 
     bool HasData() const { return decoder_.HasData(); }
 
+    bool IsArray() const { return decoder_.IsArray(); }
+
     uint32_t GetAttributeMask() const { return decoder_.GetAttributeMask(); }
 
     uint64_t GetAddress() const { return decoder_.GetAddress(); }

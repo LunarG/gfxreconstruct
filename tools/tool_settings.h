@@ -99,6 +99,10 @@ const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kEnableUseCapturedSwapchainIndices[]  = "--use-captured-swapchain-indices";
+const char kFormatArgument[]                     = "--format";
+const char kIncludeBinariesOption[]              = "--include-binaries";
+const char kExpandFlagsOption[]                  = "--expand-flags";
+const char kFilePerFrameOption[]                 = "--file-per-frame";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
 const char kDxTwoPassReplay[] = "--dx12-two-pass-replay";
