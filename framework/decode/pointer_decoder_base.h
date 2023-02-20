@@ -54,6 +54,11 @@ class PointerDecoderBase
         return ((attrib_ & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData) ? true : false;
     }
 
+    bool IsArray() const
+    {
+        return ((attrib_ & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ? true : false;
+    }
+
     uint32_t GetAttributeMask() const { return attrib_; }
 
     uint64_t GetAddress() const { return address_; }
