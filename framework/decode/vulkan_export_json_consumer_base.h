@@ -167,56 +167,72 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
                                             uint32_t                 size,
                                             PointerDecoder<uint8_t>* pValues) override;
 
+  private:
+    // Delete the in-memory JSON tree from the last line and count the new object.
+    // Putting it in one non-inline function allows all the JSON deletion work
+    // to show up in one place in a profile.
+    void WriteBlockStart();
+
+    // Output the current in-memory json tree to the destination file:
+    // Putting it in one non-inline function avoids code bloat and allows all
+    // The JSON->string work to show up in one place in a profile.
+    void WriteBlockEnd();
+
   protected:
+    // Wrappers for json field names allowing change without code gen and
+    // leaving door open for switching output based on internal state.
+    constexpr const char* NameFunction() const { return "function"; }
+    constexpr const char* NameMeta() const { return "meta"; }
+    constexpr const char* NameState() const { return "state"; }
+    constexpr const char* NameName() const { return "name"; }
+    constexpr const char* NameIndex() const { return "index"; }
+    constexpr const char* NameThread() const { return "thread"; }
+    constexpr const char* NameReturn() const { return "return"; }
+    constexpr const char* NameArgs() const { return "args"; }
+    constexpr const char* NameThreadId() const { return "thread"; }
+
     template <typename ToJsonFunctionType>
     inline void
     WriteApiCallToFile(const ApiCallInfo& call_info, const std::string& command_name, ToJsonFunctionType toJsonFunction)
     {
         using namespace util;
-        json_data_.clear();
-        num_objects_++;
-        json_data_["gfxrecon_block"] = "FunctionCall";
-        json_data_["command_name"]   = command_name;
-        json_data_["call_index"]     = call_info.index;
-        json_data_["threadId"]       = call_info.thread_id;
-        toJsonFunction(json_data_);
-        if (num_objects_ > 1)
-        {
-            fputs(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
-        }
-        fputs(json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : 4).c_str(), file_);
+        WriteBlockStart();
+
+        json_data_[NameIndex()] = call_info.index;
+
+        nlohmann::ordered_json& function = json_data_[NameFunction()];
+        function[NameName()]             = command_name;
+        function[NameThread()]           = call_info.thread_id;
+        toJsonFunction(function);
+
+        WriteBlockEnd();
     }
 
     template <typename ToJsonFunctionType>
     inline void WriteMetaCommandToFile(const std::string& command_name, ToJsonFunctionType to_json_function)
     {
         using namespace util;
-        json_data_.clear();
-        num_objects_++;
-        json_data_["gfxrecon_block"] = "MetaCommand";
-        json_data_["command_name"]   = command_name;
-        to_json_function(json_data_["parameters"]);
-        if (num_objects_ > 1)
-        {
-            fputs(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
-        }
-        fputs(json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : 4).c_str(), file_);
+        WriteBlockStart();
+
+        nlohmann::ordered_json& meta = json_data_[NameMeta()];
+        meta[NameName()]             = command_name;
+        to_json_function(meta[NameArgs()]);
+
+        WriteBlockEnd();
     }
 
     inline void WriteStateMarkerToFile(const std::string& marker_type, uint64_t frame_number)
     {
         using namespace util;
-        json_data_.clear();
-        num_objects_++;
-        json_data_["gfxrecon_block"] = "StateMarker";
-        json_data_["marker_type"]    = marker_type;
-        json_data_["frame_number"]   = frame_number;
-        if (num_objects_ > 1)
-        {
-            fputs(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
-        }
-        fputs(json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : 4).c_str(), file_);
+        WriteBlockStart();
+
+        nlohmann::ordered_json& state = json_data_[NameState()];
+        state["marker_type"]          = marker_type;
+        state["frame_number"]         = frame_number;
+
+        WriteBlockEnd();
     }
+
     std::string GenerateFilename(const std::string& filename);
     bool        WriteBinaryFile(const std::string& filename, uint64_t buffer_size, const uint8_t* data);
 

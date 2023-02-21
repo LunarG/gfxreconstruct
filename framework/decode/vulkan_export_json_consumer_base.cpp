@@ -543,5 +543,21 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
         }
     });
 }
+
+void VulkanExportJsonConsumerBase::WriteBlockStart()
+{
+    json_data_.clear(); // < Dominates Export profiling.
+    num_objects_++;
+}
+
+void VulkanExportJsonConsumerBase::WriteBlockEnd()
+{
+    if (num_objects_ > 1)
+    {
+        fputs(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
+    }
+    fputs(json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : 4).c_str(), file_);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
