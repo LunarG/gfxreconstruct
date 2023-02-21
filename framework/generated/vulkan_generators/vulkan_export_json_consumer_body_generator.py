@@ -187,16 +187,16 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
         # Handle function return value
         if return_type in self.formatAsHex:
-            body += '            FieldToJson(jdata["return_value"], to_hex(returnValue), json_options_);\n'
+            body += '            FieldToJson(jdata[NameReturn()], to_hex(returnValue), json_options_);\n'
         elif self.is_enum(return_type):
-            body += '            FieldToJson(jdata["return_value"], returnValue, json_options_);\n'.format(return_type)
+            body += '            FieldToJson(jdata[NameReturn()], returnValue, json_options_);\n'.format(return_type)
         elif not 'void' in return_type:
-            body += '            FieldToJson(jdata["return_value"], returnValue, json_options_);\n'
+            body += '            FieldToJson(jdata[NameReturn()], returnValue, json_options_);\n'
         elif return_type == 'void':
-            body += '            FieldToJson(jdata["return_value"], "void", json_options_);\n'
+            body += '            FieldToJson(jdata[NameReturn()], "void", json_options_);\n'
 
         if len(values) > 0:
-            body += '            auto parameters = jdata["parameters"];\n'
+            body += '            auto parameters = jdata[NameArgs()];\n'
             # Handle function arguments
             for value in values:
                 flagsEnumType = value.base_type
@@ -217,7 +217,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                 to_json = to_json.format(value.name, value.base_type, flagsEnumType)
                 body += '            {0};\n'.format(to_json)
 
-            body += '            jdata["parameters"] = parameters;\n'
+            body += '            jdata[NameArgs()] = parameters;\n'
         return body
     # yapf: enable
 
