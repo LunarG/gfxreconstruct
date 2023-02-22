@@ -75,8 +75,8 @@ class ParameterEncoder
     template<typename T>
     void EncodeFunctionPtr(T value)                                                                                   { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
 
-    template<typename T>
-    void EncodeHandleValue(T value)                                                                                   { EncodeHandleIdValue(GetWrappedId(value)); }
+    template<typename Wrapper>
+    void EncodeHandleValue(typename Wrapper::HandleType value)                                                        { EncodeHandleIdValue(GetWrappedId<Wrapper>(value)); }
     template<typename T>
     void EncodeEnumValue(T value)                                                                                     { EncodeValue(static_cast<format::EnumEncodeType>(value)); }
     template<typename T>
@@ -109,8 +109,8 @@ class ParameterEncoder
     template<typename T>
     void EncodeVoidPtrPtr(const T* const* ptr, bool omit_data = false, bool omit_addr = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
 
-    template<typename T>
-    void EncodeHandlePtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                { EncodeWrappedHandlePointer(ptr, omit_data, omit_addr); }
+    template<typename Wrapper>
+    void EncodeHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                  { EncodePointerConverted<format::EnumEncodeType>(ptr, omit_data, omit_addr); }
     template<typename T>
@@ -138,8 +138,8 @@ class ParameterEncoder
     void EncodeUInt8Array(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
     void EncodeVoidArray(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
 
-    template<typename T>
-    void EncodeHandleArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                  { EncodeWrappedHandleArray(arr, len, omit_data, omit_addr); }
+    template<typename Wrapper>
+    void EncodeHandleArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedHandleArray<Wrapper>(arr, len, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                    { EncodeArrayConverted<format::EnumEncodeType>(arr, len, omit_data, omit_addr); }
     template<typename T>
@@ -383,8 +383,9 @@ class ParameterEncoder
         }
     }
 
-    template <typename SrcT>
-    void EncodeWrappedHandlePointer(const SrcT* ptr, bool omit_data = false, bool omit_addr = false)
+    template <typename Wrapper>
+    void
+    EncodeWrappedHandlePointer(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsSingle | GetPointerAttributeMask(ptr, omit_data, omit_addr);
@@ -400,7 +401,7 @@ class ParameterEncoder
 
             if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
             {
-                EncodeHandleValue(*ptr);
+                EncodeHandleValue<Wrapper>(*ptr);
             }
         }
     }
@@ -471,8 +472,11 @@ class ParameterEncoder
         EncodeArray(arr, len, omit_data, omit_addr);
     }
 
-    template <typename SrcT>
-    void EncodeWrappedHandleArray(const SrcT* arr, size_t len, bool omit_data = false, bool omit_addr = false)
+    template <typename Wrapper>
+    void EncodeWrappedHandleArray(const typename Wrapper::HandleType* arr,
+                                  size_t                              len,
+                                  bool                                omit_data = false,
+                                  bool                                omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr, omit_data, omit_addr);
@@ -493,7 +497,7 @@ class ParameterEncoder
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    EncodeHandleValue(arr[i]);
+                    EncodeHandleValue<Wrapper>(arr[i]);
                 }
             }
         }

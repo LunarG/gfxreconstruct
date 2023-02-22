@@ -541,95 +541,9 @@ class VulkanStateHandleTable : VulkanStateTableBase
          return RemoveEntry(wrapper->handle, videoSessionParametersKHR_map_);
     }
 
-    const AccelerationStructureKHRWrapper* GetWrapper(VkAccelerationStructureKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureKHR_map_); }
-    const AccelerationStructureNVWrapper* GetWrapper(VkAccelerationStructureNV handle) const { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureNV_map_); }
-    const BufferWrapper* GetWrapper(VkBuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, buffer_map_); }
-    const BufferViewWrapper* GetWrapper(VkBufferView handle) const { return VulkanStateTableBase::GetWrapper(handle, bufferView_map_); }
-    const CommandBufferWrapper* GetWrapper(VkCommandBuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, commandBuffer_map_); }
-    const CommandPoolWrapper* GetWrapper(VkCommandPool handle) const { return VulkanStateTableBase::GetWrapper(handle, commandPool_map_); }
-    const DebugReportCallbackEXTWrapper* GetWrapper(VkDebugReportCallbackEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, debugReportCallbackEXT_map_); }
-    const DebugUtilsMessengerEXTWrapper* GetWrapper(VkDebugUtilsMessengerEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, debugUtilsMessengerEXT_map_); }
-    const DeferredOperationKHRWrapper* GetWrapper(VkDeferredOperationKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, deferredOperationKHR_map_); }
-    const DescriptorPoolWrapper* GetWrapper(VkDescriptorPool handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorPool_map_); }
-    const DescriptorSetWrapper* GetWrapper(VkDescriptorSet handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorSet_map_); }
-    const DescriptorSetLayoutWrapper* GetWrapper(VkDescriptorSetLayout handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorSetLayout_map_); }
-    const DescriptorUpdateTemplateWrapper* GetWrapper(VkDescriptorUpdateTemplate handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorUpdateTemplate_map_); }
-    const DeviceWrapper* GetWrapper(VkDevice handle) const { return VulkanStateTableBase::GetWrapper(handle, device_map_); }
-    const DeviceMemoryWrapper* GetWrapper(VkDeviceMemory handle) const { return VulkanStateTableBase::GetWrapper(handle, deviceMemory_map_); }
-    const DisplayKHRWrapper* GetWrapper(VkDisplayKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, displayKHR_map_); }
-    const DisplayModeKHRWrapper* GetWrapper(VkDisplayModeKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, displayModeKHR_map_); }
-    const EventWrapper* GetWrapper(VkEvent handle) const { return VulkanStateTableBase::GetWrapper(handle, event_map_); }
-    const FenceWrapper* GetWrapper(VkFence handle) const { return VulkanStateTableBase::GetWrapper(handle, fence_map_); }
-    const FramebufferWrapper* GetWrapper(VkFramebuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, framebuffer_map_); }
-    const ImageWrapper* GetWrapper(VkImage handle) const { return VulkanStateTableBase::GetWrapper(handle, image_map_); }
-    const ImageViewWrapper* GetWrapper(VkImageView handle) const { return VulkanStateTableBase::GetWrapper(handle, imageView_map_); }
-    const IndirectCommandsLayoutNVWrapper* GetWrapper(VkIndirectCommandsLayoutNV handle) const { return VulkanStateTableBase::GetWrapper(handle, indirectCommandsLayoutNV_map_); }
-    const InstanceWrapper* GetWrapper(VkInstance handle) const { return VulkanStateTableBase::GetWrapper(handle, instance_map_); }
-    const MicromapEXTWrapper* GetWrapper(VkMicromapEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, micromapEXT_map_); }
-    const OpticalFlowSessionNVWrapper* GetWrapper(VkOpticalFlowSessionNV handle) const { return VulkanStateTableBase::GetWrapper(handle, opticalFlowSessionNV_map_); }
-    const PerformanceConfigurationINTELWrapper* GetWrapper(VkPerformanceConfigurationINTEL handle) const { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
-    const PhysicalDeviceWrapper* GetWrapper(VkPhysicalDevice handle) const { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
-    const PipelineWrapper* GetWrapper(VkPipeline handle) const { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
-    const PipelineCacheWrapper* GetWrapper(VkPipelineCache handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
-    const PipelineLayoutWrapper* GetWrapper(VkPipelineLayout handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
-    const PrivateDataSlotWrapper* GetWrapper(VkPrivateDataSlot handle) const { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
-    const QueryPoolWrapper* GetWrapper(VkQueryPool handle) const { return VulkanStateTableBase::GetWrapper(handle, queryPool_map_); }
-    const QueueWrapper* GetWrapper(VkQueue handle) const { return VulkanStateTableBase::GetWrapper(handle, queue_map_); }
-    const RenderPassWrapper* GetWrapper(VkRenderPass handle) const { return VulkanStateTableBase::GetWrapper(handle, renderPass_map_); }
-    const SamplerWrapper* GetWrapper(VkSampler handle) const { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
-    const SamplerYcbcrConversionWrapper* GetWrapper(VkSamplerYcbcrConversion handle) const { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
-    const SemaphoreWrapper* GetWrapper(VkSemaphore handle) const { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
-    const ShaderModuleWrapper* GetWrapper(VkShaderModule handle) const { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
-    const SurfaceKHRWrapper* GetWrapper(VkSurfaceKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
-    const SwapchainKHRWrapper* GetWrapper(VkSwapchainKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }
-    const ValidationCacheEXTWrapper* GetWrapper(VkValidationCacheEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, validationCacheEXT_map_); }
-    const VideoSessionKHRWrapper* GetWrapper(VkVideoSessionKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, videoSessionKHR_map_); }
-    const VideoSessionParametersKHRWrapper* GetWrapper(VkVideoSessionParametersKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, videoSessionParametersKHR_map_); }
+    template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }
 
-    AccelerationStructureKHRWrapper* GetWrapper(VkAccelerationStructureKHR handle) { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureKHR_map_); }
-    AccelerationStructureNVWrapper* GetWrapper(VkAccelerationStructureNV handle) { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureNV_map_); }
-    BufferWrapper* GetWrapper(VkBuffer handle) { return VulkanStateTableBase::GetWrapper(handle, buffer_map_); }
-    BufferViewWrapper* GetWrapper(VkBufferView handle) { return VulkanStateTableBase::GetWrapper(handle, bufferView_map_); }
-    CommandBufferWrapper* GetWrapper(VkCommandBuffer handle) { return VulkanStateTableBase::GetWrapper(handle, commandBuffer_map_); }
-    CommandPoolWrapper* GetWrapper(VkCommandPool handle) { return VulkanStateTableBase::GetWrapper(handle, commandPool_map_); }
-    DebugReportCallbackEXTWrapper* GetWrapper(VkDebugReportCallbackEXT handle) { return VulkanStateTableBase::GetWrapper(handle, debugReportCallbackEXT_map_); }
-    DebugUtilsMessengerEXTWrapper* GetWrapper(VkDebugUtilsMessengerEXT handle) { return VulkanStateTableBase::GetWrapper(handle, debugUtilsMessengerEXT_map_); }
-    DeferredOperationKHRWrapper* GetWrapper(VkDeferredOperationKHR handle) { return VulkanStateTableBase::GetWrapper(handle, deferredOperationKHR_map_); }
-    DescriptorPoolWrapper* GetWrapper(VkDescriptorPool handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorPool_map_); }
-    DescriptorSetWrapper* GetWrapper(VkDescriptorSet handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorSet_map_); }
-    DescriptorSetLayoutWrapper* GetWrapper(VkDescriptorSetLayout handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorSetLayout_map_); }
-    DescriptorUpdateTemplateWrapper* GetWrapper(VkDescriptorUpdateTemplate handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorUpdateTemplate_map_); }
-    DeviceWrapper* GetWrapper(VkDevice handle) { return VulkanStateTableBase::GetWrapper(handle, device_map_); }
-    DeviceMemoryWrapper* GetWrapper(VkDeviceMemory handle) { return VulkanStateTableBase::GetWrapper(handle, deviceMemory_map_); }
-    DisplayKHRWrapper* GetWrapper(VkDisplayKHR handle) { return VulkanStateTableBase::GetWrapper(handle, displayKHR_map_); }
-    DisplayModeKHRWrapper* GetWrapper(VkDisplayModeKHR handle) { return VulkanStateTableBase::GetWrapper(handle, displayModeKHR_map_); }
-    EventWrapper* GetWrapper(VkEvent handle) { return VulkanStateTableBase::GetWrapper(handle, event_map_); }
-    FenceWrapper* GetWrapper(VkFence handle) { return VulkanStateTableBase::GetWrapper(handle, fence_map_); }
-    FramebufferWrapper* GetWrapper(VkFramebuffer handle) { return VulkanStateTableBase::GetWrapper(handle, framebuffer_map_); }
-    ImageWrapper* GetWrapper(VkImage handle) { return VulkanStateTableBase::GetWrapper(handle, image_map_); }
-    ImageViewWrapper* GetWrapper(VkImageView handle) { return VulkanStateTableBase::GetWrapper(handle, imageView_map_); }
-    IndirectCommandsLayoutNVWrapper* GetWrapper(VkIndirectCommandsLayoutNV handle) { return VulkanStateTableBase::GetWrapper(handle, indirectCommandsLayoutNV_map_); }
-    InstanceWrapper* GetWrapper(VkInstance handle) { return VulkanStateTableBase::GetWrapper(handle, instance_map_); }
-    MicromapEXTWrapper* GetWrapper(VkMicromapEXT handle) { return VulkanStateTableBase::GetWrapper(handle, micromapEXT_map_); }
-    OpticalFlowSessionNVWrapper* GetWrapper(VkOpticalFlowSessionNV handle) { return VulkanStateTableBase::GetWrapper(handle, opticalFlowSessionNV_map_); }
-    PerformanceConfigurationINTELWrapper* GetWrapper(VkPerformanceConfigurationINTEL handle) { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
-    PhysicalDeviceWrapper* GetWrapper(VkPhysicalDevice handle) { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
-    PipelineWrapper* GetWrapper(VkPipeline handle) { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
-    PipelineCacheWrapper* GetWrapper(VkPipelineCache handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
-    PipelineLayoutWrapper* GetWrapper(VkPipelineLayout handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
-    PrivateDataSlotWrapper* GetWrapper(VkPrivateDataSlot handle) { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
-    QueryPoolWrapper* GetWrapper(VkQueryPool handle) { return VulkanStateTableBase::GetWrapper(handle, queryPool_map_); }
-    QueueWrapper* GetWrapper(VkQueue handle) { return VulkanStateTableBase::GetWrapper(handle, queue_map_); }
-    RenderPassWrapper* GetWrapper(VkRenderPass handle) { return VulkanStateTableBase::GetWrapper(handle, renderPass_map_); }
-    SamplerWrapper* GetWrapper(VkSampler handle) { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
-    SamplerYcbcrConversionWrapper* GetWrapper(VkSamplerYcbcrConversion handle) { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
-    SemaphoreWrapper* GetWrapper(VkSemaphore handle) { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
-    ShaderModuleWrapper* GetWrapper(VkShaderModule handle) { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
-    SurfaceKHRWrapper* GetWrapper(VkSurfaceKHR handle) { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
-    SwapchainKHRWrapper* GetWrapper(VkSwapchainKHR handle) { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }
-    ValidationCacheEXTWrapper* GetWrapper(VkValidationCacheEXT handle) { return VulkanStateTableBase::GetWrapper(handle, validationCacheEXT_map_); }
-    VideoSessionKHRWrapper* GetWrapper(VkVideoSessionKHR handle) { return VulkanStateTableBase::GetWrapper(handle, videoSessionKHR_map_); }
-    VideoSessionParametersKHRWrapper* GetWrapper(VkVideoSessionParametersKHR handle) { return VulkanStateTableBase::GetWrapper(handle, videoSessionParametersKHR_map_); }
+    template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }
 
   private:
     std::map<VkAccelerationStructureKHR, AccelerationStructureKHRWrapper*> accelerationStructureKHR_map_;
@@ -677,6 +591,96 @@ class VulkanStateHandleTable : VulkanStateTableBase
     std::map<VkVideoSessionKHR, VideoSessionKHRWrapper*> videoSessionKHR_map_;
     std::map<VkVideoSessionParametersKHR, VideoSessionParametersKHRWrapper*> videoSessionParametersKHR_map_;
 };
+
+template<> inline const AccelerationStructureKHRWrapper* VulkanStateHandleTable::GetWrapper<AccelerationStructureKHRWrapper>(VkAccelerationStructureKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureKHR_map_); }
+template<> inline const AccelerationStructureNVWrapper* VulkanStateHandleTable::GetWrapper<AccelerationStructureNVWrapper>(VkAccelerationStructureNV handle) const { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureNV_map_); }
+template<> inline const BufferWrapper* VulkanStateHandleTable::GetWrapper<BufferWrapper>(VkBuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, buffer_map_); }
+template<> inline const BufferViewWrapper* VulkanStateHandleTable::GetWrapper<BufferViewWrapper>(VkBufferView handle) const { return VulkanStateTableBase::GetWrapper(handle, bufferView_map_); }
+template<> inline const CommandBufferWrapper* VulkanStateHandleTable::GetWrapper<CommandBufferWrapper>(VkCommandBuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, commandBuffer_map_); }
+template<> inline const CommandPoolWrapper* VulkanStateHandleTable::GetWrapper<CommandPoolWrapper>(VkCommandPool handle) const { return VulkanStateTableBase::GetWrapper(handle, commandPool_map_); }
+template<> inline const DebugReportCallbackEXTWrapper* VulkanStateHandleTable::GetWrapper<DebugReportCallbackEXTWrapper>(VkDebugReportCallbackEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, debugReportCallbackEXT_map_); }
+template<> inline const DebugUtilsMessengerEXTWrapper* VulkanStateHandleTable::GetWrapper<DebugUtilsMessengerEXTWrapper>(VkDebugUtilsMessengerEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, debugUtilsMessengerEXT_map_); }
+template<> inline const DeferredOperationKHRWrapper* VulkanStateHandleTable::GetWrapper<DeferredOperationKHRWrapper>(VkDeferredOperationKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, deferredOperationKHR_map_); }
+template<> inline const DescriptorPoolWrapper* VulkanStateHandleTable::GetWrapper<DescriptorPoolWrapper>(VkDescriptorPool handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorPool_map_); }
+template<> inline const DescriptorSetWrapper* VulkanStateHandleTable::GetWrapper<DescriptorSetWrapper>(VkDescriptorSet handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorSet_map_); }
+template<> inline const DescriptorSetLayoutWrapper* VulkanStateHandleTable::GetWrapper<DescriptorSetLayoutWrapper>(VkDescriptorSetLayout handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorSetLayout_map_); }
+template<> inline const DescriptorUpdateTemplateWrapper* VulkanStateHandleTable::GetWrapper<DescriptorUpdateTemplateWrapper>(VkDescriptorUpdateTemplate handle) const { return VulkanStateTableBase::GetWrapper(handle, descriptorUpdateTemplate_map_); }
+template<> inline const DeviceWrapper* VulkanStateHandleTable::GetWrapper<DeviceWrapper>(VkDevice handle) const { return VulkanStateTableBase::GetWrapper(handle, device_map_); }
+template<> inline const DeviceMemoryWrapper* VulkanStateHandleTable::GetWrapper<DeviceMemoryWrapper>(VkDeviceMemory handle) const { return VulkanStateTableBase::GetWrapper(handle, deviceMemory_map_); }
+template<> inline const DisplayKHRWrapper* VulkanStateHandleTable::GetWrapper<DisplayKHRWrapper>(VkDisplayKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, displayKHR_map_); }
+template<> inline const DisplayModeKHRWrapper* VulkanStateHandleTable::GetWrapper<DisplayModeKHRWrapper>(VkDisplayModeKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, displayModeKHR_map_); }
+template<> inline const EventWrapper* VulkanStateHandleTable::GetWrapper<EventWrapper>(VkEvent handle) const { return VulkanStateTableBase::GetWrapper(handle, event_map_); }
+template<> inline const FenceWrapper* VulkanStateHandleTable::GetWrapper<FenceWrapper>(VkFence handle) const { return VulkanStateTableBase::GetWrapper(handle, fence_map_); }
+template<> inline const FramebufferWrapper* VulkanStateHandleTable::GetWrapper<FramebufferWrapper>(VkFramebuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, framebuffer_map_); }
+template<> inline const ImageWrapper* VulkanStateHandleTable::GetWrapper<ImageWrapper>(VkImage handle) const { return VulkanStateTableBase::GetWrapper(handle, image_map_); }
+template<> inline const ImageViewWrapper* VulkanStateHandleTable::GetWrapper<ImageViewWrapper>(VkImageView handle) const { return VulkanStateTableBase::GetWrapper(handle, imageView_map_); }
+template<> inline const IndirectCommandsLayoutNVWrapper* VulkanStateHandleTable::GetWrapper<IndirectCommandsLayoutNVWrapper>(VkIndirectCommandsLayoutNV handle) const { return VulkanStateTableBase::GetWrapper(handle, indirectCommandsLayoutNV_map_); }
+template<> inline const InstanceWrapper* VulkanStateHandleTable::GetWrapper<InstanceWrapper>(VkInstance handle) const { return VulkanStateTableBase::GetWrapper(handle, instance_map_); }
+template<> inline const MicromapEXTWrapper* VulkanStateHandleTable::GetWrapper<MicromapEXTWrapper>(VkMicromapEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, micromapEXT_map_); }
+template<> inline const OpticalFlowSessionNVWrapper* VulkanStateHandleTable::GetWrapper<OpticalFlowSessionNVWrapper>(VkOpticalFlowSessionNV handle) const { return VulkanStateTableBase::GetWrapper(handle, opticalFlowSessionNV_map_); }
+template<> inline const PerformanceConfigurationINTELWrapper* VulkanStateHandleTable::GetWrapper<PerformanceConfigurationINTELWrapper>(VkPerformanceConfigurationINTEL handle) const { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
+template<> inline const PhysicalDeviceWrapper* VulkanStateHandleTable::GetWrapper<PhysicalDeviceWrapper>(VkPhysicalDevice handle) const { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
+template<> inline const PipelineWrapper* VulkanStateHandleTable::GetWrapper<PipelineWrapper>(VkPipeline handle) const { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
+template<> inline const PipelineCacheWrapper* VulkanStateHandleTable::GetWrapper<PipelineCacheWrapper>(VkPipelineCache handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
+template<> inline const PipelineLayoutWrapper* VulkanStateHandleTable::GetWrapper<PipelineLayoutWrapper>(VkPipelineLayout handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
+template<> inline const PrivateDataSlotWrapper* VulkanStateHandleTable::GetWrapper<PrivateDataSlotWrapper>(VkPrivateDataSlot handle) const { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
+template<> inline const QueryPoolWrapper* VulkanStateHandleTable::GetWrapper<QueryPoolWrapper>(VkQueryPool handle) const { return VulkanStateTableBase::GetWrapper(handle, queryPool_map_); }
+template<> inline const QueueWrapper* VulkanStateHandleTable::GetWrapper<QueueWrapper>(VkQueue handle) const { return VulkanStateTableBase::GetWrapper(handle, queue_map_); }
+template<> inline const RenderPassWrapper* VulkanStateHandleTable::GetWrapper<RenderPassWrapper>(VkRenderPass handle) const { return VulkanStateTableBase::GetWrapper(handle, renderPass_map_); }
+template<> inline const SamplerWrapper* VulkanStateHandleTable::GetWrapper<SamplerWrapper>(VkSampler handle) const { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
+template<> inline const SamplerYcbcrConversionWrapper* VulkanStateHandleTable::GetWrapper<SamplerYcbcrConversionWrapper>(VkSamplerYcbcrConversion handle) const { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
+template<> inline const SemaphoreWrapper* VulkanStateHandleTable::GetWrapper<SemaphoreWrapper>(VkSemaphore handle) const { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
+template<> inline const ShaderModuleWrapper* VulkanStateHandleTable::GetWrapper<ShaderModuleWrapper>(VkShaderModule handle) const { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
+template<> inline const SurfaceKHRWrapper* VulkanStateHandleTable::GetWrapper<SurfaceKHRWrapper>(VkSurfaceKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
+template<> inline const SwapchainKHRWrapper* VulkanStateHandleTable::GetWrapper<SwapchainKHRWrapper>(VkSwapchainKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }
+template<> inline const ValidationCacheEXTWrapper* VulkanStateHandleTable::GetWrapper<ValidationCacheEXTWrapper>(VkValidationCacheEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, validationCacheEXT_map_); }
+template<> inline const VideoSessionKHRWrapper* VulkanStateHandleTable::GetWrapper<VideoSessionKHRWrapper>(VkVideoSessionKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, videoSessionKHR_map_); }
+template<> inline const VideoSessionParametersKHRWrapper* VulkanStateHandleTable::GetWrapper<VideoSessionParametersKHRWrapper>(VkVideoSessionParametersKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, videoSessionParametersKHR_map_); }
+
+template<> inline AccelerationStructureKHRWrapper* VulkanStateHandleTable::GetWrapper<AccelerationStructureKHRWrapper>(VkAccelerationStructureKHR handle) { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureKHR_map_); }
+template<> inline AccelerationStructureNVWrapper* VulkanStateHandleTable::GetWrapper<AccelerationStructureNVWrapper>(VkAccelerationStructureNV handle) { return VulkanStateTableBase::GetWrapper(handle, accelerationStructureNV_map_); }
+template<> inline BufferWrapper* VulkanStateHandleTable::GetWrapper<BufferWrapper>(VkBuffer handle) { return VulkanStateTableBase::GetWrapper(handle, buffer_map_); }
+template<> inline BufferViewWrapper* VulkanStateHandleTable::GetWrapper<BufferViewWrapper>(VkBufferView handle) { return VulkanStateTableBase::GetWrapper(handle, bufferView_map_); }
+template<> inline CommandBufferWrapper* VulkanStateHandleTable::GetWrapper<CommandBufferWrapper>(VkCommandBuffer handle) { return VulkanStateTableBase::GetWrapper(handle, commandBuffer_map_); }
+template<> inline CommandPoolWrapper* VulkanStateHandleTable::GetWrapper<CommandPoolWrapper>(VkCommandPool handle) { return VulkanStateTableBase::GetWrapper(handle, commandPool_map_); }
+template<> inline DebugReportCallbackEXTWrapper* VulkanStateHandleTable::GetWrapper<DebugReportCallbackEXTWrapper>(VkDebugReportCallbackEXT handle) { return VulkanStateTableBase::GetWrapper(handle, debugReportCallbackEXT_map_); }
+template<> inline DebugUtilsMessengerEXTWrapper* VulkanStateHandleTable::GetWrapper<DebugUtilsMessengerEXTWrapper>(VkDebugUtilsMessengerEXT handle) { return VulkanStateTableBase::GetWrapper(handle, debugUtilsMessengerEXT_map_); }
+template<> inline DeferredOperationKHRWrapper* VulkanStateHandleTable::GetWrapper<DeferredOperationKHRWrapper>(VkDeferredOperationKHR handle) { return VulkanStateTableBase::GetWrapper(handle, deferredOperationKHR_map_); }
+template<> inline DescriptorPoolWrapper* VulkanStateHandleTable::GetWrapper<DescriptorPoolWrapper>(VkDescriptorPool handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorPool_map_); }
+template<> inline DescriptorSetWrapper* VulkanStateHandleTable::GetWrapper<DescriptorSetWrapper>(VkDescriptorSet handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorSet_map_); }
+template<> inline DescriptorSetLayoutWrapper* VulkanStateHandleTable::GetWrapper<DescriptorSetLayoutWrapper>(VkDescriptorSetLayout handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorSetLayout_map_); }
+template<> inline DescriptorUpdateTemplateWrapper* VulkanStateHandleTable::GetWrapper<DescriptorUpdateTemplateWrapper>(VkDescriptorUpdateTemplate handle) { return VulkanStateTableBase::GetWrapper(handle, descriptorUpdateTemplate_map_); }
+template<> inline DeviceWrapper* VulkanStateHandleTable::GetWrapper<DeviceWrapper>(VkDevice handle) { return VulkanStateTableBase::GetWrapper(handle, device_map_); }
+template<> inline DeviceMemoryWrapper* VulkanStateHandleTable::GetWrapper<DeviceMemoryWrapper>(VkDeviceMemory handle) { return VulkanStateTableBase::GetWrapper(handle, deviceMemory_map_); }
+template<> inline DisplayKHRWrapper* VulkanStateHandleTable::GetWrapper<DisplayKHRWrapper>(VkDisplayKHR handle) { return VulkanStateTableBase::GetWrapper(handle, displayKHR_map_); }
+template<> inline DisplayModeKHRWrapper* VulkanStateHandleTable::GetWrapper<DisplayModeKHRWrapper>(VkDisplayModeKHR handle) { return VulkanStateTableBase::GetWrapper(handle, displayModeKHR_map_); }
+template<> inline EventWrapper* VulkanStateHandleTable::GetWrapper<EventWrapper>(VkEvent handle) { return VulkanStateTableBase::GetWrapper(handle, event_map_); }
+template<> inline FenceWrapper* VulkanStateHandleTable::GetWrapper<FenceWrapper>(VkFence handle) { return VulkanStateTableBase::GetWrapper(handle, fence_map_); }
+template<> inline FramebufferWrapper* VulkanStateHandleTable::GetWrapper<FramebufferWrapper>(VkFramebuffer handle) { return VulkanStateTableBase::GetWrapper(handle, framebuffer_map_); }
+template<> inline ImageWrapper* VulkanStateHandleTable::GetWrapper<ImageWrapper>(VkImage handle) { return VulkanStateTableBase::GetWrapper(handle, image_map_); }
+template<> inline ImageViewWrapper* VulkanStateHandleTable::GetWrapper<ImageViewWrapper>(VkImageView handle) { return VulkanStateTableBase::GetWrapper(handle, imageView_map_); }
+template<> inline IndirectCommandsLayoutNVWrapper* VulkanStateHandleTable::GetWrapper<IndirectCommandsLayoutNVWrapper>(VkIndirectCommandsLayoutNV handle) { return VulkanStateTableBase::GetWrapper(handle, indirectCommandsLayoutNV_map_); }
+template<> inline InstanceWrapper* VulkanStateHandleTable::GetWrapper<InstanceWrapper>(VkInstance handle) { return VulkanStateTableBase::GetWrapper(handle, instance_map_); }
+template<> inline MicromapEXTWrapper* VulkanStateHandleTable::GetWrapper<MicromapEXTWrapper>(VkMicromapEXT handle) { return VulkanStateTableBase::GetWrapper(handle, micromapEXT_map_); }
+template<> inline OpticalFlowSessionNVWrapper* VulkanStateHandleTable::GetWrapper<OpticalFlowSessionNVWrapper>(VkOpticalFlowSessionNV handle) { return VulkanStateTableBase::GetWrapper(handle, opticalFlowSessionNV_map_); }
+template<> inline PerformanceConfigurationINTELWrapper* VulkanStateHandleTable::GetWrapper<PerformanceConfigurationINTELWrapper>(VkPerformanceConfigurationINTEL handle) { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
+template<> inline PhysicalDeviceWrapper* VulkanStateHandleTable::GetWrapper<PhysicalDeviceWrapper>(VkPhysicalDevice handle) { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
+template<> inline PipelineWrapper* VulkanStateHandleTable::GetWrapper<PipelineWrapper>(VkPipeline handle) { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
+template<> inline PipelineCacheWrapper* VulkanStateHandleTable::GetWrapper<PipelineCacheWrapper>(VkPipelineCache handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
+template<> inline PipelineLayoutWrapper* VulkanStateHandleTable::GetWrapper<PipelineLayoutWrapper>(VkPipelineLayout handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
+template<> inline PrivateDataSlotWrapper* VulkanStateHandleTable::GetWrapper<PrivateDataSlotWrapper>(VkPrivateDataSlot handle) { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
+template<> inline QueryPoolWrapper* VulkanStateHandleTable::GetWrapper<QueryPoolWrapper>(VkQueryPool handle) { return VulkanStateTableBase::GetWrapper(handle, queryPool_map_); }
+template<> inline QueueWrapper* VulkanStateHandleTable::GetWrapper<QueueWrapper>(VkQueue handle) { return VulkanStateTableBase::GetWrapper(handle, queue_map_); }
+template<> inline RenderPassWrapper* VulkanStateHandleTable::GetWrapper<RenderPassWrapper>(VkRenderPass handle) { return VulkanStateTableBase::GetWrapper(handle, renderPass_map_); }
+template<> inline SamplerWrapper* VulkanStateHandleTable::GetWrapper<SamplerWrapper>(VkSampler handle) { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
+template<> inline SamplerYcbcrConversionWrapper* VulkanStateHandleTable::GetWrapper<SamplerYcbcrConversionWrapper>(VkSamplerYcbcrConversion handle) { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
+template<> inline SemaphoreWrapper* VulkanStateHandleTable::GetWrapper<SemaphoreWrapper>(VkSemaphore handle) { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
+template<> inline ShaderModuleWrapper* VulkanStateHandleTable::GetWrapper<ShaderModuleWrapper>(VkShaderModule handle) { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
+template<> inline SurfaceKHRWrapper* VulkanStateHandleTable::GetWrapper<SurfaceKHRWrapper>(VkSurfaceKHR handle) { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
+template<> inline SwapchainKHRWrapper* VulkanStateHandleTable::GetWrapper<SwapchainKHRWrapper>(VkSwapchainKHR handle) { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }
+template<> inline ValidationCacheEXTWrapper* VulkanStateHandleTable::GetWrapper<ValidationCacheEXTWrapper>(VkValidationCacheEXT handle) { return VulkanStateTableBase::GetWrapper(handle, validationCacheEXT_map_); }
+template<> inline VideoSessionKHRWrapper* VulkanStateHandleTable::GetWrapper<VideoSessionKHRWrapper>(VkVideoSessionKHR handle) { return VulkanStateTableBase::GetWrapper(handle, videoSessionKHR_map_); }
+template<> inline VideoSessionParametersKHRWrapper* VulkanStateHandleTable::GetWrapper<VideoSessionParametersKHRWrapper>(VkVideoSessionParametersKHR handle) { return VulkanStateTableBase::GetWrapper(handle, videoSessionParametersKHR_map_); }
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

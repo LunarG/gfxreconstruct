@@ -119,8 +119,8 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
             vk_remove_code += '         if (wrapper == nullptr) return false;\n'
             vk_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(handle_map)
             vk_remove_code += '    }\n'
-            vk_get_code += '    {0}* GetWrapper({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
-            vk_const_get_code += '    const {0}* GetWrapper({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
+            vk_get_code += 'template<> inline {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
+            vk_const_get_code += 'template<> inline const {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
             vk_map_code += '    std::map<{0}, {1}*> {2};\n'.format(vkhandle_name, handle_wrapper, handle_map)
 
         self.newline()
@@ -154,13 +154,17 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += '\n'
         code += vk_remove_code
         code += '\n'
+        code += '    template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }\n'
+        code += '\n'
+        code += '    template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }\n'
+        code += '\n'                
+        code += '  private:\n'
+        code += vk_map_code
+        code += '};\n'
+        code += '\n'
         code += vk_const_get_code
         code += '\n'
         code += vk_get_code
-        code += '\n'
-        code += '  private:\n'
-        code += vk_map_code
-        code += '};\n'        
         write(code, file=self.outFile)
     # yapf: enable
 

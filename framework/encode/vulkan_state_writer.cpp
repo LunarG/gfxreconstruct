@@ -2406,7 +2406,7 @@ void VulkanStateWriter::WriteCommandExecution(format::HandleId            queue_
     encoder_.EncodeUInt32Value(signal_semaphore_count);
     encoder_.EncodeHandleIdArray(signal_semaphore_ids, signal_semaphore_count);
 
-    encoder_.EncodeHandleValue(fence);
+    encoder_.EncodeHandleValue<FenceWrapper>(fence);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueSubmit, &parameter_stream_);
