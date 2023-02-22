@@ -163,7 +163,7 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
             {
                 size_t              offset = entry_info.offset + (entry_info.stride * i);
                 const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                encoder->EncodeHandleValue(*entry);
+                encoder->EncodeHandleValue<BufferViewWrapper>(*entry);
             }
         }
 
@@ -180,7 +180,7 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
                     size_t                            offset = entry_info.offset + (entry_info.stride * i);
                     const VkAccelerationStructureKHR* entry =
                         reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
-                    encoder->EncodeHandleValue(*entry);
+                    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(*entry);
                 }
             }
         }
@@ -213,9 +213,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorSet);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<DescriptorSetWrapper>(descriptorSet);
+        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
@@ -255,9 +255,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
-        encoder->EncodeHandleValue(layout);
+        encoder->EncodeHandleValue<CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue<PipelineLayoutWrapper>(layout);
         encoder->EncodeUInt32Value(set);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
@@ -297,9 +297,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorSet);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<DescriptorSetWrapper>(descriptorSet);
+        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 

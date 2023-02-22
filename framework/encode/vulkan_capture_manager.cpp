@@ -1653,7 +1653,7 @@ void VulkanCaptureManager::PreProcess_vkCreateSwapchain(VkDevice                
 
     if (pCreateInfo)
     {
-        WriteResizeWindowCmd2(GetWrappedId(pCreateInfo->surface),
+        WriteResizeWindowCmd2(GetWrappedId<SurfaceKHRWrapper>(pCreateInfo->surface),
                               pCreateInfo->imageExtent.width,
                               pCreateInfo->imageExtent.height,
                               pCreateInfo->preTransform);

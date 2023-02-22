@@ -43,14 +43,14 @@ typedef format::HandleId (*PFN_GetHandleId)();
 
 extern VulkanStateHandleTable state_handle_table_;
 
-template <typename T>
-format::HandleId GetWrappedId(const T& handle)
+template <typename Wrapper>
+format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
 {
     if (handle == VK_NULL_HANDLE)
     {
         return 0;
     }
-    auto wrapper = state_handle_table_.GetWrapper(handle);
+    auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
         GFXRECON_LOG_WARNING("GetWrappedId() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
@@ -67,7 +67,7 @@ Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
     {
         return 0;
     }
-    auto wrapper = state_handle_table_.GetWrapper(handle);
+    auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
         GFXRECON_LOG_WARNING("GetWrapper() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
