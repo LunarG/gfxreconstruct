@@ -429,7 +429,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
         nullptr,
         VK_ACCESS_NONE,
-        VK_ACCESS_TRANSFER_WRITE_BIT,
+        VK_ACCESS_TRANSFER_READ_BIT,
         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
         VK_QUEUE_FAMILY_IGNORED,
@@ -450,8 +450,9 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
     final_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     final_barriers[0].newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    initial_barriers[1]           = initial_barriers[0];
-    initial_barriers[1].newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    initial_barriers[1]               = initial_barriers[0];
+    initial_barriers[1].dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    initial_barriers[1].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
     final_barriers[1]           = final_barriers[0];
     final_barriers[1].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
