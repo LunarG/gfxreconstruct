@@ -96,7 +96,7 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
             {
                 if (flags == 0)
                 {
-                    return to_hex(flags);
+                    return to_hex_fixed_width(flags);
                 }
                 uint32_t bit_number = 0;
                 bool first = true;
@@ -183,11 +183,11 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
                             break;
                         '''.format(enumerant)))
                     body += '        default:\n'
-                    body += '            jdata = to_hex(value);\n'
+                    body += '            jdata = to_hex_fixed_width(value);\n'
                     body += '            break;\n'
                     body += '    }}\n'
                 else:
-                    body += '    jdata = to_hex(value);\n'
+                    body += '    jdata = to_hex_fixed_width(value);\n'
 
                 body += '}}\n'
                 write(body.format(enum, bitwidth), file=self.outFile)
@@ -201,7 +201,7 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
             if bittype is not None and bittype in self.enum_names and len(self.enumEnumerants[bittype]):
                 body += "    if (!options.expand_flags)\n"
                 body += "    {{\n"
-                body += "        jdata = to_hex(flags);\n"
+                body += "        jdata = to_hex_fixed_width(flags);\n"
                 body += "        return;\n"
                 body += "    }}\n"
                 body += "    jdata = ExpandFlags(flags, []({1} flags)\n"
@@ -214,10 +214,10 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
                         return std::string("{0}");
                     '''.format(enumerant)))
                 body += '        }}\n'
-                body += '        return to_hex(flags);\n'
+                body += '        return to_hex_fixed_width(flags);\n'
                 body += '    }});\n'
             else:
-                body += '    jdata = to_hex(flags);\n'
+                body += '    jdata = to_hex_fixed_width(flags);\n'
 
             body += '}}\n'
             write(body.format(enum, self.flags_types[enum]), file=self.outFile)

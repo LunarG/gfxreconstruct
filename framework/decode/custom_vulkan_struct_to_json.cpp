@@ -145,10 +145,10 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
         switch (discriminant)
         {
             case 0:
-                FieldToJson(jdata["deviceAddress"], to_hex(decoded_value.deviceAddress), options);
+                FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress), options);
                 break;
             case 1:
-                FieldToJson(jdata["hostAddress"], to_hex(decoded_value.hostAddress), options);
+                FieldToJson(jdata["hostAddress"], to_hex_variable_width(decoded_value.hostAddress), options);
                 break;
         }
     }
@@ -172,10 +172,10 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
         switch (discriminant)
         {
             case 0:
-                FieldToJson(jdata["deviceAddress"], to_hex(decoded_value.deviceAddress), options);
+                FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress), options);
                 break;
             case 1:
-                FieldToJson(jdata["hostAddress"], to_hex(decoded_value.hostAddress), options);
+                FieldToJson(jdata["hostAddress"], to_hex_variable_width(decoded_value.hostAddress), options);
                 break;
         }
     }
@@ -199,7 +199,7 @@ void FieldToJson(nlohmann::ordered_json&                              jdata,
         switch (discriminant)
         {
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR:
-                jdata["b32"] = decoded_value.b32;
+                jdata["b32"] = static_cast<bool>(decoded_value.b32);
                 break;
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR:
                 jdata["i64"] = decoded_value.i64;
@@ -237,7 +237,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_SECURITY_ATTRIBUTE
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToJson(jdata["bInheritHandle"], decoded_value.bInheritHandle, options);
+        jdata["bInheritHandle"]   = static_cast<bool>(decoded_value.bInheritHandle);
         FieldToJson(jdata["nLength"], decoded_value.nLength, options);
         FieldToJson(jdata["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor->GetAddress(), options);
     }
@@ -249,8 +249,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorImageI
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToJson(jdata["sampler"], to_hex(meta_struct.sampler), options);
-        FieldToJson(jdata["imageView"], to_hex(meta_struct.imageView), options);
+        HandleToJson(jdata["sampler"], meta_struct.sampler, options);
+        HandleToJson(jdata["imageView"], meta_struct.imageView, options);
         FieldToJson(jdata["imageLayout"], decoded_value.imageLayout, options);
     }
 }
@@ -262,7 +262,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["dstSet"], to_hex(meta_struct.dstSet), options);
+        HandleToJson(jdata["dstSet"], meta_struct.dstSet, options);
         FieldToJson(jdata["dstBinding"], decoded_value.dstBinding, options);
         FieldToJson(jdata["dstArrayElement"], decoded_value.dstArrayElement, options);
         FieldToJson(jdata["descriptorCount"], decoded_value.descriptorCount, options);

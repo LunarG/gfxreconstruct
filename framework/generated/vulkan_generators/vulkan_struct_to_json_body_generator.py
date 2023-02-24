@@ -179,12 +179,14 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                 has_pnext = True
                 continue
             elif 'pfn' in value.name or 'pUserData' in value.name:
-                to_json = 'FieldToJson(jdata["{0}"], to_hex(meta_struct.{0}), options)'
+                to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
             elif value.is_pointer:
                 if 'String' in type_name:
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 elif self.is_handle(value.base_type):
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                elif 'VkBool32' == value.base_type:
+                    to_json = 'FieldToJsonVkBool32(jdata["{0}"], &meta_struct.{0})'
                 else:
                     to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
             else:
@@ -197,15 +199,18 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     elif self.is_struct(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                    elif 'VkBool32' == value.base_type:
+                        # Currently unused:
+                        to_json = 'FieldToJsonVkBool32(jdata["{0}"], &meta_struct.{0})'
                     elif not value.is_dynamic:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     else:
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                 else:
                     if self.is_handle(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], to_hex(meta_struct.{0}), options)'
+                        to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif value.base_type in self.formatAsHex:
-                        to_json = 'FieldToJson(jdata["{0}"], to_hex(decoded_value.{0}), options)'
+                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
                     elif self.is_struct(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif self.is_flags(value.base_type):
@@ -214,6 +219,8 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
                     elif self.is_enum(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
+                    elif 'VkBool32' == value.base_type:
+                        to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
 
             to_json = to_json.format(value.name, value.base_type, flagsEnumType)
             body += '        {0};\n'.format(to_json)

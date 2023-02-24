@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_JSON_UTIL_H
 
 #include "util/defines.h"
+#include "format/format.h"
 #include "nlohmann/json.hpp"
 #include "vulkan/vulkan.h"
 
@@ -41,29 +42,56 @@ enum class JsonFormat
 struct JsonOptions
 {
     JsonFormat  format        = JsonFormat::JSON;
-    bool        dump_binaries = false;
-    bool        expand_flags  = false;
     std::string root_dir;
     std::string data_sub_dir;
+    bool        dump_binaries = false;
+    bool        expand_flags  = false;
+    bool        hex_handles = false;
 };
 
 template<typename T>
-std::string to_hex(T value)
+constexpr std::string to_hex_variable_width(T value)
 {
-    std::stringstream stream;
+    std::ostringstream stream;
+    stream << "0x" << std::hex << value;
+    return stream.str();
+}
+
+template<typename T>
+constexpr std::string to_hex_fixed_width(T value)
+{
+    std::ostringstream stream;
     stream << "0x" << std::setfill('0') << std::setw(sizeof(T)*2) << std::hex << value;
     return stream.str();
+
 }
 
 inline std::string uuid_to_string(uint32_t size, const uint8_t* uuid)
 {
-    std::stringstream stream;
+    std::ostringstream stream;
     stream << std::setfill('0') << std::setw(2) << std::hex;
     for (size_t i = 0; i < size; ++i)
     {
         stream << (uint32_t)uuid[i];
     }
     return stream.str();
+}
+
+/// @brief Convert the integer representation of a handle in capture files into
+/// either a JSON number or a JSON string with the number represented in
+/// hexadecimal.
+inline void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options)
+{
+    if (options.hex_handles)
+    {
+        // A JSON string
+        jdata = to_hex_variable_width(handle);
+    }
+    else
+    {
+        // A JSON number
+        jdata = handle;
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

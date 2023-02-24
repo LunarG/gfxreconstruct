@@ -213,6 +213,28 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
 }
 
 template <typename DecodedType, typename OutputDecodedType = DecodedType>
+void FieldToJsonVkBool32(nlohmann::ordered_json& jdata, const PointerDecoder<DecodedType, OutputDecodedType>* data)
+{
+    if (data && data->GetPointer())
+    {
+        const auto decoded_value = data->GetPointer();
+        const auto length        = data->GetLength();
+
+        if (data->IsArray())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                jdata[i] = static_cast<bool>(decoded_value[i]);
+            }
+        }
+        else if (length == 1)
+        {
+            jdata = static_cast<bool>(*decoded_value);
+        }
+    }
+}
+
+template <typename DecodedType, typename OutputDecodedType = DecodedType>
 void FieldToJson(nlohmann::ordered_json&                               jdata,
                  const PointerDecoder<DecodedType, OutputDecodedType>& data,
                  const JsonOptions&                                    options = JsonOptions())
@@ -285,12 +307,12 @@ void FieldToJson(nlohmann::ordered_json&              jdata,
         {
             for (size_t i = 0; i < length; ++i)
             {
-                FieldToJson(jdata[i], to_hex(decoded_value[i]), options);
+                HandleToJson(jdata[i], decoded_value[i], options);
             }
         }
         else if (length == 1)
         {
-            FieldToJson(jdata, to_hex(*decoded_value), options);
+            HandleToJson(jdata, *decoded_value, options);
         }
     }
 }

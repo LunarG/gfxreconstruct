@@ -29,6 +29,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+static const int kJsonIndentWidth = 2;
+
 VulkanExportJsonConsumerBase::VulkanExportJsonConsumerBase() : file_(nullptr) {}
 
 VulkanExportJsonConsumerBase::~VulkanExportJsonConsumerBase()
@@ -114,7 +116,7 @@ void VulkanExportJsonConsumerBase::ProcessFillMemoryCommand(uint64_t       memor
                                                             const uint8_t* data)
 {
     WriteMetaCommandToFile("FillMemoryCommand", [&](auto& jdata) {
-        FieldToJson(jdata["memory_id"], to_hex(memory_id), json_options_);
+        HandleToJson(jdata["memory_id"], memory_id, json_options_);
         FieldToJson(jdata["offset"], offset, json_options_);
         FieldToJson(jdata["size"], size, json_options_);
         if (json_options_.dump_binaries)
@@ -143,7 +145,7 @@ void VulkanExportJsonConsumerBase::ProcessResizeWindowCommand(format::HandleId s
                                                               uint32_t         height)
 {
     WriteMetaCommandToFile("ResizeWindowCommand", [&](auto& jdata) {
-        FieldToJson(jdata["surface_id"], to_hex(surface_id), json_options_);
+        HandleToJson(jdata["surface_id"], surface_id, json_options_);
         FieldToJson(jdata["width"], width, json_options_);
         FieldToJson(jdata["height"], height, json_options_);
     });
@@ -155,7 +157,7 @@ void VulkanExportJsonConsumerBase::ProcessResizeWindowCommand2(format::HandleId 
                                                                uint32_t         pre_transform)
 {
     WriteMetaCommandToFile("ResizeWindowCommand2", [&](auto& jdata) {
-        FieldToJson(jdata["surface_id"], to_hex(surface_id), json_options_);
+        HandleToJson(jdata["surface_id"], surface_id, json_options_);
         FieldToJson(jdata["width"], width, json_options_);
         FieldToJson(jdata["height"], height, json_options_);
         FieldToJson(jdata["pre_transform"], pre_transform, json_options_);
@@ -174,8 +176,8 @@ void VulkanExportJsonConsumerBase::ProcessCreateHardwareBufferCommand(
     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
     WriteMetaCommandToFile("CreateHardwareBufferCommand", [&](auto& jdata) {
-        FieldToJson(jdata["memory_id"], to_hex(memory_id), json_options_);
-        FieldToJson(jdata["buffer_id"], to_hex(buffer_id), json_options_);
+        HandleToJson(jdata["memory_id"], memory_id, json_options_);
+        HandleToJson(jdata["buffer_id"], buffer_id, json_options_);
         FieldToJson(jdata["format"], format, json_options_);
         FieldToJson(jdata["width"], width, json_options_);
         FieldToJson(jdata["height"], height, json_options_);
@@ -188,7 +190,7 @@ void VulkanExportJsonConsumerBase::ProcessCreateHardwareBufferCommand(
 void VulkanExportJsonConsumerBase::ProcessDestroyHardwareBufferCommand(uint64_t buffer_id)
 {
     WriteMetaCommandToFile("DestroyHardwareBufferCommand",
-                           [&](auto& jdata) { FieldToJson(jdata["buffer_id"], to_hex(buffer_id), json_options_); });
+                           [&](auto& jdata) { HandleToJson(jdata["buffer_id"], buffer_id, json_options_); });
 }
 
 void VulkanExportJsonConsumerBase::ProcessSetDevicePropertiesCommand(
@@ -202,7 +204,7 @@ void VulkanExportJsonConsumerBase::ProcessSetDevicePropertiesCommand(
     const std::string& device_name)
 {
     WriteMetaCommandToFile("SetDevicePropertiesCommand", [&](auto& jdata) {
-        FieldToJson(jdata["physical_device_id"], to_hex(physical_device_id), json_options_);
+        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options_);
         FieldToJson(jdata["api_version"], api_version, json_options_);
         FieldToJson(jdata["driver_version"], driver_version, json_options_);
         FieldToJson(jdata["vendor_id"], vendor_id, json_options_);
@@ -220,7 +222,7 @@ void VulkanExportJsonConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     const std::vector<format::DeviceMemoryHeap>& memory_heaps)
 {
     WriteMetaCommandToFile("SetDeviceMemoryPropertiesCommand", [&](auto& jdata) {
-        FieldToJson(jdata["physical_device_id"], to_hex(physical_device_id), json_options_);
+        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options_);
     });
 }
 
@@ -229,9 +231,9 @@ void VulkanExportJsonConsumerBase::ProcessSetOpaqueAddressCommand(format::Handle
                                                                   uint64_t         address)
 {
     WriteMetaCommandToFile("SetOpaqueAddressCommand", [&](auto& jdata) {
-        FieldToJson(jdata["device_id"], to_hex(device_id), json_options_);
-        FieldToJson(jdata["object_id"], to_hex(object_id), json_options_);
-        FieldToJson(jdata["address"], to_hex(address), json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options_);
+        HandleToJson(jdata["object_id"], object_id, json_options_);
+        FieldToJson(jdata["address"], to_hex_variable_width(address), json_options_);
     });
 }
 
@@ -241,8 +243,8 @@ void VulkanExportJsonConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand
                                                                                  const uint8_t*   data)
 {
     WriteMetaCommandToFile("SetRayTracingShaderGroupHandleCommand", [&](auto& jdata) {
-        FieldToJson(jdata["device_id"], to_hex(device_id), json_options_);
-        FieldToJson(jdata["pipeline_id"], to_hex(pipeline_id), json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options_);
+        HandleToJson(jdata["pipeline_id"], pipeline_id, json_options_);
         FieldToJson(jdata["data_size"], data_size, json_options_);
         if (json_options_.dump_binaries)
         {
@@ -272,8 +274,8 @@ void VulkanExportJsonConsumerBase::ProcessSetSwapchainImageStateCommand(
     const std::vector<format::SwapchainImageStateInfo>& image_state)
 {
     WriteMetaCommandToFile("SetSwapchainImageStateCommand", [&](auto& jdata) {
-        FieldToJson(jdata["device_id"], to_hex(device_id), json_options_);
-        FieldToJson(jdata["swapchain_id"], to_hex(swapchain_id), json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options_);
+        HandleToJson(jdata["swapchain_id"], swapchain_id, json_options_);
         FieldToJson(jdata["last_presented_image"], last_presented_image, json_options_);
         FieldToJson(jdata["image_state"], "not available", json_options_);
     });
@@ -284,7 +286,7 @@ void VulkanExportJsonConsumerBase::ProcessBeginResourceInitCommand(format::Handl
                                                                    uint64_t         max_copy_size)
 {
     WriteMetaCommandToFile("BeginResourceInitCommand", [&](auto& jdata) {
-        FieldToJson(jdata["device_id"], to_hex(device_id), json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options_);
         FieldToJson(jdata["max_resource_size"], max_resource_size, json_options_);
         FieldToJson(jdata["max_copy_size"], max_copy_size, json_options_);
     });
@@ -293,7 +295,7 @@ void VulkanExportJsonConsumerBase::ProcessBeginResourceInitCommand(format::Handl
 void VulkanExportJsonConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
 {
     WriteMetaCommandToFile("EndResourceInitCommand",
-                           [&](auto& jdata) { FieldToJson(jdata["device_id"], to_hex(device_id), json_options_); });
+                           [&](auto& jdata) { HandleToJson(jdata["device_id"], device_id, json_options_); });
 }
 
 void VulkanExportJsonConsumerBase::ProcessInitBufferCommand(format::HandleId device_id,
@@ -302,8 +304,8 @@ void VulkanExportJsonConsumerBase::ProcessInitBufferCommand(format::HandleId dev
                                                             const uint8_t*   data)
 {
     WriteMetaCommandToFile("InitBufferCommand", [&](auto& jdata) {
-        FieldToJson(jdata["device_id"], to_hex(device_id), json_options_);
-        FieldToJson(jdata["buffer_id"], to_hex(buffer_id), json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options_);
+        HandleToJson(jdata["buffer_id"], buffer_id, json_options_);
         FieldToJson(jdata["data_size"], data_size, json_options_);
         if (json_options_.dump_binaries)
         {
@@ -336,12 +338,12 @@ void VulkanExportJsonConsumerBase::ProcessInitImageCommand(format::HandleId     
 {
 
     WriteMetaCommandToFile("InitImageCommand", [&](auto& jdata) {
-        FieldToJson(jdata["device_id"], to_hex(device_id), json_options_);
-        FieldToJson(jdata["image_id"], to_hex(image_id), json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options_);
+        HandleToJson(jdata["image_id"], image_id, json_options_);
         FieldToJson(jdata["data_size"], data_size, json_options_);
         FieldToJson(jdata["aspect"], aspect, json_options_);
         FieldToJson(jdata["layout"], layout, json_options_);
-        FieldToJson(jdata["level_sizez"], "not available", json_options_);
+        FieldToJson(jdata["level_sizez"], "not available", json_options_); /// @todo Typo: level_sizes
 
         if (json_options_.dump_binaries)
         {
@@ -374,7 +376,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdBuildAccelerationStructuresIndir
     PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts)
 {
     WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", [&](auto& jdata) {
-        FieldToJson(jdata["commandBuffer"], to_hex(commandBuffer), json_options_);
+        HandleToJson(jdata["commandBuffer"], commandBuffer, json_options_);
         FieldToJson(jdata["infoCount"], infoCount, json_options_);
         FieldToJson(jdata["pInfos"], pInfos, json_options_);
         FieldToJson(jdata["pIndirectDeviceAddresses"], pIndirectDeviceAddresses, json_options_);
@@ -402,7 +404,7 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
 {
     WriteApiCallToFile(call_info, "vkCreateShaderModule", [&](auto& jdata) {
         FieldToJson(jdata["return"], returnValue, json_options_);
-        FieldToJson(jdata["device"], to_hex(device), json_options_);
+        HandleToJson(jdata["device"], device, json_options_);
         FieldToJson(jdata["pCreateInfo"], pCreateInfo, json_options_);
         FieldToJson(jdata["pAllocator"], pAllocator, json_options_);
         FieldToJson(jdata["pShaderModule"], pShaderModule, json_options_);
@@ -410,7 +412,7 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
         if (json_options_.dump_binaries)
         {
             uint64_t    handle_id     = *pShaderModule->GetPointer();
-            std::string filename      = GenerateFilename("shader_module_" + to_hex(handle_id) + ".bin");
+            std::string filename      = GenerateFilename("shader_module_" + to_hex_fixed_width(handle_id) + ".bin");
             std::string basename      = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
             std::string filepath      = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
             auto        decoded_value = pCreateInfo->GetPointer();
@@ -436,8 +438,8 @@ void VulkanExportJsonConsumerBase::Process_vkGetPipelineCacheData(const ApiCallI
 {
     WriteApiCallToFile(call_info, "vkGetPipelineCacheData", [&](auto& jdata) {
         FieldToJson(jdata["return"], returnValue, json_options_);
-        FieldToJson(jdata["device"], to_hex(device), json_options_);
-        FieldToJson(jdata["pipelineCache"], to_hex(pipelineCache), json_options_);
+        HandleToJson(jdata["device"], device, json_options_);
+        HandleToJson(jdata["pipelineCache"], pipelineCache, json_options_);
         FieldToJson(jdata["pDataSize"], pDataSize, json_options_);
         if (pData->IsNull())
         {
@@ -476,14 +478,14 @@ void VulkanExportJsonConsumerBase::Process_vkCreatePipelineCache(
 {
     WriteApiCallToFile(call_info, "vkCreatePipelineCache", [&](auto& jdata) {
         FieldToJson(jdata["return"], returnValue, json_options_);
-        FieldToJson(jdata["device"], to_hex(device), json_options_);
+        HandleToJson(jdata["device"], device, json_options_);
         FieldToJson(jdata["pCreateInfo"], pCreateInfo, json_options_);
         FieldToJson(jdata["pAllocator"], pAllocator, json_options_);
         FieldToJson(jdata["pPipelineCache"], pPipelineCache, json_options_);
         if (json_options_.dump_binaries)
         {
             auto        decoded_data = pCreateInfo->GetPointer();
-            std::string filename     = GenerateFilename("pipeilne_cache_data.bin");
+            std::string filename     = GenerateFilename("pipeilne_cache_data.bin"); /// @todo Typo
             std::string basename     = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
             std::string filepath     = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
             if (WriteBinaryFile(filepath, decoded_data->initialDataSize, (uint8_t*)decoded_data->pInitialData))
@@ -511,8 +513,8 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
                                                               PointerDecoder<uint8_t>* pValues)
 {
     WriteApiCallToFile(call_info, "vkCmdPushConstants", [&](auto& jdata) {
-        FieldToJson(jdata["commandBuffer"], to_hex(commandBuffer), json_options_);
-        FieldToJson(jdata["layout"], to_hex(layout), json_options_);
+        HandleToJson(jdata["commandBuffer"], commandBuffer, json_options_);
+        HandleToJson(jdata["layout"], layout, json_options_);
         FieldToJson(VkShaderStageFlags_t(), jdata["stageFlags"], stageFlags, json_options_);
         FieldToJson(jdata["offset"], offset, json_options_);
         FieldToJson(jdata["size"], size, json_options_);
@@ -546,7 +548,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
 
 void VulkanExportJsonConsumerBase::WriteBlockStart()
 {
-    json_data_.clear(); // < Dominates Export profiling.
+    json_data_.clear(); // < Dominates Export profiling (1/2).
     num_objects_++;
 }
 
@@ -556,7 +558,8 @@ void VulkanExportJsonConsumerBase::WriteBlockEnd()
     {
         fputs(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
     }
-    fputs(json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : 4).c_str(), file_);
+    // Dominates Export profiling (2/2):
+    fputs(json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth).c_str(), file_);
 }
 
 GFXRECON_END_NAMESPACE(decode)
