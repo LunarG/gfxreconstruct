@@ -179,7 +179,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                 has_pnext = True
                 continue
             elif 'pfn' in value.name or 'pUserData' in value.name:
-                to_json = 'FieldToJson(jdata["{0}"], to_hex(meta_struct.{0}), options)'
+                to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
             elif value.is_pointer:
                 if 'String' in type_name:
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
@@ -203,9 +203,9 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                 else:
                     if self.is_handle(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], to_hex(meta_struct.{0}), options)'
+                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
                     elif value.base_type in self.formatAsHex:
-                        to_json = 'FieldToJson(jdata["{0}"], to_hex(decoded_value.{0}), options)'
+                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
                     elif self.is_struct(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif self.is_flags(value.base_type):

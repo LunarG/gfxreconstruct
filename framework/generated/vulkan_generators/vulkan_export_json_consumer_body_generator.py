@@ -187,7 +187,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
         # Handle function return value
         if return_type in self.formatAsHex:
-            body += '            FieldToJson(jdata[NameReturn()], to_hex(returnValue), json_options_);\n'
+            body += '            FieldToJson(jdata[NameReturn()], to_hex_variable_width(returnValue), json_options_);\n'
         elif self.is_enum(return_type):
             body += '            FieldToJson(jdata[NameReturn()], returnValue, json_options_);\n'.format(return_type)
         elif not 'void' in return_type:
@@ -204,9 +204,9 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                 if not value.is_pointer:
                     if not value.is_array:
                         if self.is_handle(value.base_type):
-                            to_json = 'FieldToJson(parameters["{0}"], to_hex({0}), json_options_)'
+                            to_json = 'FieldToJson(parameters["{0}"], handle_to_string({0}), json_options_)'
                         elif value.base_type in self.formatAsHex:
-                            to_json = 'FieldToJson(parameters["{0}"], to_hex({0}), json_options_)'
+                            to_json = 'FieldToJson(parameters["{0}"], to_hex_variable_width({0}), json_options_)'
                         elif self.is_flags(value.base_type):
                             if value.base_type in self.flagsTypeAlias:
                                 flagsEnumType = self.flagsTypeAlias[value.base_type]

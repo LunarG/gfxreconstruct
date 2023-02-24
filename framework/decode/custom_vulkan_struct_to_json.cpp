@@ -145,10 +145,10 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
         switch (discriminant)
         {
             case 0:
-                FieldToJson(jdata["deviceAddress"], to_hex(decoded_value.deviceAddress), options);
+                FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress), options);
                 break;
             case 1:
-                FieldToJson(jdata["hostAddress"], to_hex(decoded_value.hostAddress), options);
+                FieldToJson(jdata["hostAddress"], to_hex_variable_width(decoded_value.hostAddress), options);
                 break;
         }
     }
@@ -172,10 +172,10 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
         switch (discriminant)
         {
             case 0:
-                FieldToJson(jdata["deviceAddress"], to_hex(decoded_value.deviceAddress), options);
+                FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress), options);
                 break;
             case 1:
-                FieldToJson(jdata["hostAddress"], to_hex(decoded_value.hostAddress), options);
+                FieldToJson(jdata["hostAddress"], to_hex_variable_width(decoded_value.hostAddress), options);
                 break;
         }
     }
@@ -249,8 +249,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorImageI
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToJson(jdata["sampler"], to_hex(meta_struct.sampler), options);
-        FieldToJson(jdata["imageView"], to_hex(meta_struct.imageView), options);
+        FieldToJson(jdata["sampler"], handle_to_string(meta_struct.sampler), options);
+        FieldToJson(jdata["imageView"], handle_to_string(meta_struct.imageView), options);
         FieldToJson(jdata["imageLayout"], decoded_value.imageLayout, options);
     }
 }
@@ -262,7 +262,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["dstSet"], to_hex(meta_struct.dstSet), options);
+        FieldToJson(jdata["dstSet"], handle_to_string(meta_struct.dstSet), options);
         FieldToJson(jdata["dstBinding"], decoded_value.dstBinding, options);
         FieldToJson(jdata["dstArrayElement"], decoded_value.dstArrayElement, options);
         FieldToJson(jdata["descriptorCount"], decoded_value.descriptorCount, options);
