@@ -13,10 +13,14 @@ Copyright &copy; 2022 Advanced Micro Devices, Inc.
 
 # GFXReconstruct API Capture and Replay - Vulkan
 
-## **Desktop Version**
+***This document describes the GFXReconstruct software for capturing and
+replaying Vulkan API calls on Desktop systems (i.e. Windows, Linux, MacOS).***
 
-This document describes the GFXReconstruct software for capturing and replaying
-Vulkan API calls on Desktop systems.
+If you are looking for capturing/replaying on a different platform, please refer
+to one of these other documents:
+ * [GfxReconstruct for Android](./USAGE_android.md)
+ * [GfxReconstruct for Desktop D3D12](./USAGE_desktop_D3D12.md)
+
 
 ## Index
 
