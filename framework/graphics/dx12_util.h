@@ -170,6 +170,8 @@ uint64_t GetSubresourceWriteDataSize(
 
 void TrackAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& adapters);
 
+void RemoveDeactivatedAdapters(graphics::dx12::ActiveAdapterMap& adapters);
+
 format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters);
 
 // Query adapter and index by LUID

@@ -652,7 +652,7 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
         if (SUCCEEDED(factory1->QueryInterface(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory1))))
         {
             // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
-            adapters.clear();
+            RemoveDeactivatedAdapters(adapters);
 
             // Enumerate 1.1 adapters and fetch data with GetDesc1()
             IDXGIAdapter1* adapter1 = nullptr;
@@ -700,6 +700,23 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
                 }
             }
         }
+    }
+}
+
+void RemoveDeactivatedAdapters(graphics::dx12::ActiveAdapterMap& adapters)
+{
+    std::vector<int64_t> deactivated_adapters;
+    for (const auto& adapter : adapters)
+    {
+        if (adapter.second.active == false)
+        {
+            deactivated_adapters.push_back(adapter.first);
+        }
+    }
+
+    for (auto deactive_adapter : deactivated_adapters)
+    {
+        adapters.erase(deactive_adapter);
     }
 }
 
