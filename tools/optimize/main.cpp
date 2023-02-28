@@ -74,14 +74,16 @@ static void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    GFXRECON_WRITE_CONSOLE("\n%s - Produce new captures with enhanced performance characteristics",
-                           app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\n%s - Produce new captures with enhanced performance characteristics", app_name.c_str());
 
-    GFXRECON_WRITE_CONSOLE("\t\t\tFor Vulkan, the optimizer will remove unused buffer and image initialization data (for trimmed captures)");
-    GFXRECON_WRITE_CONSOLE("\t\t\tFor D3D12, the optimizer will improve DXR replay performance and remove unused PSOs (for all captures)");
+    GFXRECON_WRITE_CONSOLE("\t\t\tFor Vulkan, the optimizer will remove unused buffer and image initialization data "
+                           "(for trimmed captures)");
+    GFXRECON_WRITE_CONSOLE(
+        "\t\t\tFor D3D12, the optimizer will improve DXR replay performance and remove unused PSOs (for all captures)");
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] <input-file> <output-file>", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] <input-file> <output-file>",
+                           app_name.c_str());
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <input-file>\t\tThe path to input GFXReconstruct capture file to be processed.");
@@ -95,11 +97,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
-    GFXRECON_WRITE_CONSOLE(
-        "  --d3d12-pso-removal\tD3D12-only: Remove creation of unreferenced PSOs.");
-    GFXRECON_WRITE_CONSOLE("  --dxr\t\t\tD3D12-only: Optimize for DXR replay.");
+    GFXRECON_WRITE_CONSOLE("  --d3d12-pso-removal\tD3D12-only: Remove creation of unreferenced PSOs.");
+    GFXRECON_WRITE_CONSOLE("  --dxr\t\t\tD3D12-only: Optimize for DXR and ExecuteIndirect replay.");
     GFXRECON_WRITE_CONSOLE("");
-    GFXRECON_WRITE_CONSOLE("Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.");
+    GFXRECON_WRITE_CONSOLE("Note: running without optional arguments will instruct the optimizer to detect API and run "
+                           "all available optimizations.");
 #endif
 }
 
@@ -235,19 +237,19 @@ int main(int argc, const char** argv)
 
         // Parameter checking and API detection
         gfxrecon::decode::Dx12OptimizationOptions dx12_options;
-        dx12_options.optimize_dxr              = arg_parser.IsOptionSet(kDx12OptimizeDxr);
-        dx12_options.optimize_dxr_experimental = arg_parser.IsOptionSet(kDx12OptimizeDxrExperimental);
-        dx12_options.remove_redundant_psos     = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+        dx12_options.optimize_resource_values              = arg_parser.IsOptionSet(kDx12OptimizeDxr);
+        dx12_options.optimize_resource_values_experimental = arg_parser.IsOptionSet(kDx12OptimizeDxrExperimental);
+        dx12_options.remove_redundant_psos                 = arg_parser.IsOptionSet(kD3d12PsoRemoval);
 
-        if (dx12_options.optimize_dxr_experimental)
+        if (dx12_options.optimize_resource_values_experimental)
         {
             GFXRECON_WRITE_CONSOLE("Running experimental DXR optimization. This mode is experimental, and should only "
                                    "be used if --dxr did not produce a valid capture file.");
-            dx12_options.optimize_dxr = true;
+            dx12_options.optimize_resource_values = true;
         }
 
         // Automatic mode. User specified no options.
-        if ((dx12_options.optimize_dxr == false) && (dx12_options.remove_redundant_psos == false))
+        if ((dx12_options.optimize_resource_values == false) && (dx12_options.remove_redundant_psos == false))
         {
             bool detected_d3d12  = false;
             bool detected_vulkan = false;
@@ -255,8 +257,8 @@ int main(int argc, const char** argv)
 
             if (detected_d3d12)
             {
-                dx12_options.optimize_dxr          = true;
-                dx12_options.remove_redundant_psos = true;
+                dx12_options.optimize_resource_values = true;
+                dx12_options.remove_redundant_psos    = true;
                 RunDx12Optimizations(input_filename, output_filename, dx12_options);
             }
             else if (detected_vulkan)

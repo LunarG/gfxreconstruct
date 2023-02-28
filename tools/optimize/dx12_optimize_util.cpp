@@ -53,7 +53,7 @@ void CreateResourceValueTrackingConsumer(
     const decode::Dx12OptimizationOptions&                      options)
 {
     std::string app_string = "GFXReconstruct Optimizer - analyzing file";
-    if (options.optimize_dxr_experimental)
+    if (options.optimize_resource_values_experimental)
     {
         app_string += ", image may appear corrupt";
     }
@@ -68,10 +68,10 @@ void CreateResourceValueTrackingConsumer(
 
     // Create the replay consumer.
     dx12_replay_consumer = std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(
-        application, dx_replay_options, options.optimize_dxr_experimental);
+        application, dx_replay_options, options.optimize_resource_values_experimental);
     dx12_replay_consumer->SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 
-    if (options.optimize_dxr_experimental)
+    if (options.optimize_resource_values_experimental)
     {
         dx12_replay_consumer->EnableReplayOfResourceValueCalls(false);
     }
@@ -99,34 +99,36 @@ bool FileProcessorSucceeded(const decode::FileProcessor& processor)
            processor.EntireFileWasProcessed();
 }
 
-bool BypassDxrOptimization(gfxrecon::decode::Dx12ObjectScanningConsumer& resref_consumer,
-                           const decode::Dx12OptimizationOptions&        options)
+bool BypassResourceValueOptimization(gfxrecon::decode::Dx12ObjectScanningConsumer& resref_consumer,
+                                     const decode::Dx12OptimizationOptions&        options)
 {
-    bool bypass_dxr_optimization = false;
+    bool bypass_resource_value_optimization = false;
 
-    bool contains_dxr_workload = resref_consumer.ContainsDxrWorkload();
-    bool is_dxr_optimized      = resref_consumer.ContainsOptFillMem();
+    bool contains_resource_value_workload =
+        resref_consumer.ContainsDxrWorkload() || resref_consumer.ContainsEiWorkload();
+    bool is_resource_value_optimized = resref_consumer.ContainsOptFillMem();
 
-    if ((contains_dxr_workload == false) || (is_dxr_optimized == true))
+    if ((contains_resource_value_workload == false) || (is_resource_value_optimized == true))
     {
-        if (options.optimize_dxr == true)
+        if (options.optimize_resource_values == true)
         {
-            if (contains_dxr_workload == false)
+            if (contains_resource_value_workload == false)
             {
-                GFXRECON_WRITE_CONSOLE("Bypassing DXR optimization. Capture file does not contain DXR workloads.");
+                GFXRECON_WRITE_CONSOLE("Bypassing DXR/ExecuteIndirect optimization. Capture file does not contain "
+                                       "DXR or EI workloads.");
             }
 
-            if (is_dxr_optimized == true)
+            if (is_resource_value_optimized == true)
             {
-                GFXRECON_WRITE_CONSOLE(
-                    "Bypassing DXR optimization. Capture file has already been optimized for DXR replay.");
+                GFXRECON_WRITE_CONSOLE("Bypassing DXR/ExecuteIndirect optimization. Capture file has already been "
+                                       "optimized for DXR/EI replay.");
             }
         }
 
-        bypass_dxr_optimization = true;
+        bypass_resource_value_optimization = true;
     }
 
-    return bypass_dxr_optimization;
+    return bypass_resource_value_optimization;
 }
 
 bool GetPsoOptimizationInfo(const std::string&               input_filename,
@@ -152,9 +154,9 @@ bool GetPsoOptimizationInfo(const std::string&               input_filename,
 
             pso_scan_result = true;
 
-            if (BypassDxrOptimization(resref_consumer, options) == true)
+            if (BypassResourceValueOptimization(resref_consumer, options) == true)
             {
-                options.optimize_dxr = false;
+                options.optimize_resource_values = false;
             }
         }
         else if (pso_pass_file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
@@ -262,12 +264,12 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
         pso_scan_result = GetPsoOptimizationInfo(input_filename, options, info);
     }
 
-    if (options.optimize_dxr)
+    if (options.optimize_resource_values)
     {
         dxr_scan_result = GetDxrOptimizationInfo(input_filename, info, true, options);
 
         // If unassocaited resource values were found the resource value tracker must be run again.
-        if (options.optimize_dxr_experimental && (info.unassociated_resource_values.size() > 0))
+        if (options.optimize_resource_values_experimental && (info.unassociated_resource_values.size() > 0))
         {
             GFXRECON_WRITE_CONSOLE(
                 "The first pass of experimental DXR optimization was unable to find all required optimization data. A "
@@ -319,8 +321,8 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
         }
     }
 
-    // Log info about DXR optimization
-    if (options.optimize_dxr)
+    // Log info about resource value optimization
+    if (options.optimize_resource_values)
     {
         if (!info.fill_command_resource_values.empty())
         {
@@ -397,7 +399,7 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
 bool Dx12OptimizeFile(std::string input_filename, std::string output_filename, decode::Dx12OptimizationOptions& options)
 {
     // Return early if no DX12 optimizations were enabled.
-    if (!options.remove_redundant_psos && !options.optimize_dxr)
+    if (!options.remove_redundant_psos && !options.optimize_resource_values)
     {
         return true;
     }
