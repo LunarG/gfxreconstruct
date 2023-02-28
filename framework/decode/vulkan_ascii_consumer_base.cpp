@@ -85,9 +85,9 @@ void VulkanAsciiConsumerBase::Initialize(FILE*      file,
         fprintf(file_,
                 "{\"header\":{\"source-path\":\"%s\",\"json-version\":"
                 "\"" GFXRECON_CONVERT_JSON_VERSION "\",\"gfxrecon-version\":\"%s\",\"vulkan-version\":\"%s\"}}\n",
-                inputFilepath,
-                gfxrVersion,
-                vulkanVersion);
+                util::JSONEscape(inputFilepath).c_str(),
+                util::JSONEscape(gfxrVersion).c_str(),
+                util::JSONEscape(vulkanVersion).c_str());
         fflush(file_);
     }
 }
