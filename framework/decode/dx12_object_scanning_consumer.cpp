@@ -163,5 +163,17 @@ void Dx12ObjectScanningConsumer::ProcessInitDx12AccelerationStructureCommand(
     dxr_workload_ = true;
 }
 
+void Dx12ObjectScanningConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                                                   format::HandleId   object_id,
+                                                                                   format::HandleId   pCommandSignature,
+                                                                                   UINT               MaxCommandCount,
+                                                                                   format::HandleId   pArgumentBuffer,
+                                                                                   UINT64 ArgumentBufferOffset,
+                                                                                   format::HandleId pCountBuffer,
+                                                                                   UINT64           CountBufferOffset)
+{
+    ei_workload_ = true;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
