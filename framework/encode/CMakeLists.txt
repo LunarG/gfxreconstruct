@@ -115,15 +115,11 @@ target_sources(gfxrecon_encode
 
 )
 
-if (MSVC AND (MSVC_VERSION LESS 1920))
-    # This file may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-endif()
-
 if (MSVC)
     # Increase object size limit to handle large numbers of template function instantiations.
     set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp PROPERTIES COMPILE_FLAGS /bigobj)
     set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp PROPERTIES COMPILE_FLAGS /bigobj)
 endif()
 
 target_include_directories(gfxrecon_encode
