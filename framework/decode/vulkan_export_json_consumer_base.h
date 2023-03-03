@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_EXPORT_JSON_CONSUMER_BASE_H
 
 #include "util/defines.h"
+#include "annotation_handler.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "decode/vulkan_json_util.h"
@@ -35,7 +36,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanExportJsonConsumerBase : public VulkanConsumer
+class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHandler
 {
   public:
     VulkanExportJsonConsumerBase();
@@ -169,6 +170,12 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
                                             uint32_t                 offset,
                                             uint32_t                 size,
                                             PointerDecoder<uint8_t>* pValues) override;
+
+    /// @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
+    virtual void ProcessAnnotation(uint64_t               block_index,
+                                   format::AnnotationType type,
+                                   const std::string&     label,
+                                   const std::string&     data) override;
 
   private:
     // Delete the in-memory JSON tree from the last line and count the new object.

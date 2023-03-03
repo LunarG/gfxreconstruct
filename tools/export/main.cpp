@@ -208,6 +208,7 @@ int main(int argc, const char** argv)
             gfxrecon::decode::VulkanDecoder            decoder;
             decoder.AddConsumer(&json_consumer);
             file_processor.AddDecoder(&decoder);
+            file_processor.SetAnnotationProcessor(&json_consumer);
 
             json_options.root_dir      = output_dir;
             json_options.data_sub_dir  = filename_stem;
