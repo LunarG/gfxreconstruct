@@ -2212,8 +2212,10 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         if (replay_create_info->ppEnabledExtensionNames)
         {
             // If a specific WSI extension was selected on the command line we need to make sure that extension is
-            // loaded
+            // loaded and other WSI extensions are disabled
             assert(application_);
+            const bool override_wsi_extensions = !application_->GetWsiContexts().empty();
+
             for (const auto& itr : application_->GetWsiContexts())
             {
                 // TODO : It's kinda ugly to be referencing Dx12 (even if just by name) in the Vulkan codepath, but
@@ -2227,11 +2229,20 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
             {
-                auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
-                filtered_extensions.push_back(current_extension);
-                if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+                const auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
+                const bool is_surface_extension =
+                    kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end();
+                if (is_surface_extension)
                 {
-                    application_->InitializeWsiContext(current_extension);
+                    if (!override_wsi_extensions)
+                    {
+                        application_->InitializeWsiContext(current_extension);
+                        filtered_extensions.push_back(current_extension);
+                    }
+                }
+                else
+                {
+                    filtered_extensions.push_back(current_extension);
                 }
             }
 
