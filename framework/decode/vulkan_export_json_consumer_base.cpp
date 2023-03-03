@@ -38,10 +38,17 @@ VulkanExportJsonConsumerBase::~VulkanExportJsonConsumerBase()
     Destroy();
 }
 
-void VulkanExportJsonConsumerBase::Initialize(const JsonOptions& options)
+void VulkanExportJsonConsumerBase::Initialize(const JsonOptions&     options,
+                                              const std::string_view gfxrVersion,
+                                              const std::string_view vulkanVersion,
+                                              const std::string_view inputFilepath)
 {
     num_objects_  = 0;
     json_options_ = options;
+
+    header_["source-path"]      = inputFilepath;
+    header_["gfxrecon-version"] = std::string(gfxrVersion);
+    header_["vulkan-version"]   = std::string(vulkanVersion);
 }
 
 void VulkanExportJsonConsumerBase::Destroy()
@@ -58,6 +65,11 @@ void VulkanExportJsonConsumerBase::StartFile(FILE* file)
     {
         fputs("[\n", file_);
     }
+
+    // Emit the header object as the first line of the file:
+    WriteBlockStart();
+    json_data_["header"] = header_;
+    WriteBlockEnd();
 }
 
 void VulkanExportJsonConsumerBase::EndFile()

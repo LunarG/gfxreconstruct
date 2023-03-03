@@ -216,7 +216,10 @@ int main(int argc, const char** argv)
             json_options.expand_flags  = expand_flags;
 
             bool success = true;
-            json_consumer.Initialize(json_options);
+            const std::string vulkan_version{ std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                              std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                              std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
+            json_consumer.Initialize(json_options, GFXRECON_PROJECT_VERSION_STRING, vulkan_version, input_filename);
             json_consumer.StartFile(out_file_handle);
             while (success)
             {

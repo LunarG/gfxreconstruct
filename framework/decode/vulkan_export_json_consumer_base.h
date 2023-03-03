@@ -42,7 +42,10 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
 
     virtual ~VulkanExportJsonConsumerBase() override;
 
-    void Initialize(const JsonOptions& options);
+    void Initialize(const JsonOptions&     options,
+                    const std::string_view gfxrVersion,
+                    const std::string_view vulkanVersion,
+                    const std::string_view inputFilepath);
 
     void Destroy();
 
@@ -250,6 +253,7 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
 
   private:
     FILE*                  file_{ nullptr };
+    nlohmann::ordered_json header_;
     nlohmann::ordered_json json_data_;
     uint32_t               num_objects_{ 0 };
     uint32_t               num_files_{ 0 };
