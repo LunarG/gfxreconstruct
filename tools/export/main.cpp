@@ -49,7 +49,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-    GFXRECON_WRITE_CONSOLE("  --output file\t\t'a path to a file to write JSON output");
+    GFXRECON_WRITE_CONSOLE("  --output file\t\t'stdout' or a path to a file to write JSON output");
     GFXRECON_WRITE_CONSOLE("        \t\tto. Default is the input filepath with \"gfxr\" replaced by \"json\".");
     GFXRECON_WRITE_CONSOLE("  --format <format>\t\t'JSON format to write.");
     GFXRECON_WRITE_CONSOLE("         json   Standard JSON format (indented)");
@@ -173,13 +173,22 @@ int main(int argc, const char** argv)
     bool        dump_binaries        = arg_parser.IsOptionSet(kIncludeBinariesOption);
     bool        expand_flags         = arg_parser.IsOptionSet(kExpandFlagsOption);
     bool        file_per_frame       = arg_parser.IsOptionSet(kFilePerFrameOption);
+    bool        output_to_stdout     = output_filename == "stdout";
+
+    gfxrecon::decode::FileProcessor file_processor;
+
+    if (file_per_frame && output_to_stdout)
+    {
+        GFXRECON_LOG_ERROR("Outputting a file per frame is not consistent with outputting to stdout.");
+        ret_code = 1;
+        goto exit;
+    }
 
     if (dump_binaries)
     {
         gfxrecon::util::filepath::MakeDirectory(data_dir);
     }
 
-    gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
         std::string json_filename;
@@ -194,7 +203,14 @@ int main(int argc, const char** argv)
         {
             json_filename = output_filename;
         }
-        gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
+        if (output_to_stdout)
+        {
+            out_file_handle = stdout;
+        }
+        else
+        {
+            gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
+        }
 
         if (!out_file_handle)
         {
@@ -244,7 +260,11 @@ int main(int argc, const char** argv)
                     }
                 }
             }
-            json_consumer.EndFile();
+            json_consumer.Destroy();
+            if (!output_to_stdout)
+            {
+                gfxrecon::util::platform::FileClose(out_file_handle);
+            }
             if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {
                 GFXRECON_LOG_ERROR("Failed to process trace.");
@@ -253,6 +273,7 @@ int main(int argc, const char** argv)
         }
     }
 
+exit:
     gfxrecon::util::Log::Release();
     return ret_code;
 }
