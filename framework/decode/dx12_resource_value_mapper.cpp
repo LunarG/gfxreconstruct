@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -455,7 +455,13 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
         GFXRECON_ASSERT(build_desc->Inputs.InstanceDescs != 0);
 
         format::HandleId resource_id = format::kNullHandleId;
-        reverse_gpu_va_map_.Map(build_desc->Inputs.InstanceDescs, &resource_id);
+        bool             found       = false;
+        reverse_gpu_va_map_.Map(build_desc->Inputs.InstanceDescs,
+                                &resource_id,
+                                &found,
+                                build_desc->Inputs.InstanceDescs +
+                                    build_desc->Inputs.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
+
         if (resource_id != format::kNullHandleId)
         {
             auto resouce_object_info = get_object_info_func_(resource_id);
@@ -1366,7 +1372,8 @@ void Dx12ResourceValueMapper::GetShaderTableResourceValues(ResourceValueInfoMap&
         return;
     }
     format::HandleId resource_id = format::kNullHandleId;
-    reverse_gpu_va_map_.Map(start_address, &resource_id);
+    bool             found       = false;
+    reverse_gpu_va_map_.Map(start_address, &resource_id, &found, start_address + size);
     if (resource_id == format::kNullHandleId)
     {
         return;
