@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020,2022 Valve Corporation
 ** Copyright (c) 2018-2020,2022 LunarG, Inc.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1668,8 +1669,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                        sizeof(adapter_info_header.adapter_desc.LuidLowPart));
         success = success && ReadBytes(&adapter_info_header.adapter_desc.LuidHighPart,
                                        sizeof(adapter_info_header.adapter_desc.LuidHighPart));
-        success = success && ReadBytes(&adapter_info_header.adapter_desc.type, 
-                                       sizeof(adapter_info_header.adapter_desc.type));
+        success = success && ReadBytes(&adapter_info_header.adapter_desc.extra_info,
+                                       sizeof(adapter_info_header.adapter_desc.extra_info));
 
         if (success)
         {

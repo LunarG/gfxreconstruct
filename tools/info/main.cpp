@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -424,15 +424,37 @@ void PrintDx12RuntimeInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
     GFXRECON_WRITE_CONSOLE("D3D12 adapter info:");
-
     const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
 
     if (adapters.empty() == false)
     {
+        std::unordered_map<int64_t, std::string> adapter_workload;
+        dx12_consumer.CalcAdapterWorkload(adapter_workload);
+
         for (const auto& adapter : adapters)
         {
-            GFXRECON_WRITE_CONSOLE("\tDescription: %s",
-                                   gfxrecon::util::WCharArrayToString(adapter.Description).c_str());
+            const int64_t luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
+
+            std::string adapter_workload_pct = "";
+
+            if (adapter_workload.count(luid) > 0)
+            {
+                if (adapter_workload[luid] != "")
+                {
+                    adapter_workload_pct = "(" + adapter_workload[luid] + "% of GPU submissions)";
+                }
+            }
+            else if (adapter_workload.size() > 0)
+            {
+                adapter_workload_pct = "(0% of GPU submissions)";
+            }
+
+            std::string adapter_type =
+                AdapterTypeToString(gfxrecon::graphics::dx12::ExtractAdapterType(adapter.extra_info));
+
+            GFXRECON_WRITE_CONSOLE("\tDescription: %s %s",
+                                   gfxrecon::util::WCharArrayToString(adapter.Description).c_str(),
+                                   adapter_workload_pct.c_str());
             GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", adapter.VendorId);
             GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", adapter.DeviceId);
             GFXRECON_WRITE_CONSOLE("\tSubsys ID: 0x%x", adapter.SubSysId);
@@ -442,9 +464,7 @@ void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
             GFXRECON_WRITE_CONSOLE("\tShared System Memory: %" PRIu64, adapter.SharedSystemMemory);
             GFXRECON_WRITE_CONSOLE("\tLUID LowPart: 0x%x", adapter.LuidLowPart);
             GFXRECON_WRITE_CONSOLE("\tLUID HighPart: 0x%x", adapter.LuidHighPart);
-
-            std::string type = AdapterTypeToString(adapter.type);
-            GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", type.c_str());
+            GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", adapter_type.c_str());
             GFXRECON_WRITE_CONSOLE("");
         }
     }
@@ -512,7 +532,6 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                      const ApiAgnosticStats&              api_agnostic_stats,
                      gfxrecon::decode::InfoConsumer&      info_consumer)
 {
-
     if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
     {
         GFXRECON_WRITE_CONSOLE("");

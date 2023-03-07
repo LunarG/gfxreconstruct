@@ -654,7 +654,7 @@ void TrackAdapterDesc(IDXGIAdapter*                     adapter,
         internal_desc.SharedSystemMemory    = dxgi_desc.SharedSystemMemory;
         internal_desc.LuidLowPart           = dxgi_desc.AdapterLuid.LowPart;
         internal_desc.LuidHighPart          = dxgi_desc.AdapterLuid.HighPart;
-        internal_desc.type                  = type;
+        InjectAdapterType(internal_desc.extra_info, type);
 
         ActiveAdapterInfo adapter_info = {};
         adapter_info.internal_desc     = internal_desc;
@@ -780,8 +780,9 @@ format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12:
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc)
 {
     bool software_desc = false;
+    auto adapter_type  = ExtractAdapterType(adapter_desc.extra_info);
 
-    if ((adapter_desc.type & format::AdapterType::kSoftwareAdapter) ||
+    if ((adapter_type & format::AdapterType::kSoftwareAdapter) ||
         (adapter_desc.DeviceId == 0x8c) && (adapter_desc.VendorId == 0x1414))
     {
         software_desc = true;
@@ -912,6 +913,21 @@ bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
     }
 
     return success;
+}
+
+format::DxgiAdapterDesc* GetAdapterDescByLUID(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    const int64_t            packed_luid         = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+    format::DxgiAdapterDesc* parent_adapter_desc = nullptr;
+    for (auto& adapter : adapters)
+    {
+        if (adapter.first == packed_luid)
+        {
+            parent_adapter_desc = &adapter.second.internal_desc;
+            break;
+        }
+    }
+    return parent_adapter_desc;
 }
 
 bool IsUma(ID3D12Device* device)

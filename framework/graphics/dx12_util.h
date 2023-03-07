@@ -78,6 +78,19 @@ struct ActiveAdapterInfo
 
 typedef std::map<int64_t, ActiveAdapterInfo> ActiveAdapterMap;
 
+static const uint8_t  kAdapterTypeMask  = 0x3;
+static const uint32_t kAdapterTypeShift = 0;
+static const uint32_t kAdapterIdMask    = 0xFFFFFFFc;
+static const uint32_t kAdapterIdShift   = 2;
+
+struct AdapterSubmissionMapping
+{
+    std::unordered_map<format::HandleId, format::HandleId> queue_to_device_map;
+    std::unordered_map<format::HandleId, format::HandleId> device_to_adapter_map;
+    std::unordered_map<format::HandleId, int64_t>          adapter_to_luid_map;
+    std::unordered_map<format::HandleId, uint64_t>         adapter_submit_counts;
+};
+
 struct ResourceStateInfo
 {
     D3D12_RESOURCE_STATES        states{};
@@ -194,6 +207,8 @@ bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
                                 uint32_t&                         index,
                                 graphics::dx12::ActiveAdapterMap& adapters);
 
+format::DxgiAdapterDesc* GetAdapterDescByLUID(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters);
+
 // Get the adapter at specified index
 IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int32_t index);
 
@@ -224,6 +239,28 @@ bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTURE_LAYOUT layout);
 
 bool VerifyAgilitySDKRuntime();
+
+inline void InjectAdapterCaptureId(uint32_t& extra_info, format::HandleId capture_id)
+{
+    extra_info &= ~(kAdapterIdMask);
+    extra_info |= static_cast<format::HandleId>(capture_id) << kAdapterIdShift;
+}
+
+inline void InjectAdapterType(uint32_t& extra_info, format::AdapterType type)
+{
+    extra_info &= ~(kAdapterTypeMask);
+    extra_info |= static_cast<format::AdapterType>(type) << kAdapterTypeShift;
+}
+
+inline format::HandleId ExtractAdapterCaptureId(uint32_t extra_info)
+{
+    return static_cast<format::HandleId>((extra_info & kAdapterIdMask) >> kAdapterIdShift);
+}
+
+inline format::AdapterType ExtractAdapterType(uint32_t extra_info)
+{
+    return static_cast<format::AdapterType>((extra_info & kAdapterTypeMask));
+}
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
