@@ -79,13 +79,13 @@ bool AMD_GetAGSInfo(std::string& driver_info)
         if (ags_gpu_info.radeonSoftwareVersion != "")
         {
             driver_info +=
-                "Radeon software version: " + static_cast<std::string>(ags_gpu_info.radeonSoftwareVersion) + "\n\t";
+                "AMD Radeon software version: " + static_cast<std::string>(ags_gpu_info.radeonSoftwareVersion) + "\n\t";
         }
 
         // Read driver version
         if (ags_gpu_info.driverVersion != "")
         {
-            driver_info += "Release version: " + static_cast<std::string>(ags_gpu_info.driverVersion) + "\n\t";
+            driver_info += "AMD driver version: " + static_cast<std::string>(ags_gpu_info.driverVersion) + "\n\t";
         }
 
         driver_info_read = true;
@@ -112,8 +112,8 @@ bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_i
         GetFileInfo(file_info, active_driver_path);
         if (file_info.FileVersion != "")
         {
-            driver_info += "UMD version (" + static_cast<std::string>(file_info.AppName) +
-                           "): " + static_cast<std::string>(file_info.FileVersion) + "\n\t ";
+            driver_info += "AMD UMD version (" + static_cast<std::string>(file_info.AppName) +
+                           "): " + static_cast<std::string>(file_info.FileVersion) + "\n\t";
         }
 
         umd_read = true;
@@ -166,7 +166,6 @@ LSTATUS GetRegData(HKEY                     dx_key_handle,
     uint64_t    UMD_version_raw    = 0;
 
     char* sub_key_name = new char[sub_key_max_length];
-    driver_info += "Registry Info:\n";
     for (DWORD i = 0; i < num_of_adapters; ++i)
     {
         DWORD sub_key_length = sub_key_max_length;
@@ -177,7 +176,7 @@ LSTATUS GetRegData(HKEY                     dx_key_handle,
         if (return_code == ERROR_SUCCESS)
         {
             LUID  adapterLUID = {};
-            DWORD qword_size  = sizeof(uint64_t);
+            DWORD qword_size  = MAX_PATH;
 
             return_code = ::RegGetValue(
                 dx_key_handle, sub_key_name, ("AdapterLuid"), RRF_RT_QWORD, nullptr, &adapterLUID, &qword_size);
@@ -205,7 +204,7 @@ LSTATUS GetRegData(HKEY                     dx_key_handle,
                                           &driver_version_raw,
                                           &qword_size) == ERROR_SUCCESS)
                         {
-                            driver_version = ConvertDWORDtoVersionNumber(driver_version_raw);
+                            driver_version = ConvertDataToVersionNumber(driver_version_raw);
                         }
 
                         if (::RegGetValue(dx_key_handle,
@@ -216,9 +215,10 @@ LSTATUS GetRegData(HKEY                     dx_key_handle,
                                           &UMD_version_raw,
                                           &qword_size) == ERROR_SUCCESS)
                         {
-                            UMD_version = ConvertDWORDtoVersionNumber(UMD_version_raw);
+                            UMD_version = ConvertDataToVersionNumber(UMD_version_raw);
                         }
-                        driver_info += "\tDriver Version: " + driver_version + "\n\tUMD Version: " + UMD_version + "\n";
+                        driver_info += "System driver version: " + driver_version +
+                                       "\n\tSystem UMD version: " + UMD_version + "\n";
                     }
                 }
             }
@@ -262,7 +262,7 @@ bool GetDriverInfo(std::string& driver_info, format::ApiFamilyId api_family, std
                 }
             }
         }
-        else if (RegistryDxDriverVersion(cached_driver_info, adapter_luids))
+        if (RegistryDxDriverVersion(cached_driver_info, adapter_luids))
         {
             driver_info = cached_driver_info;
 
@@ -303,16 +303,16 @@ bool RegistryDxDriverVersion(std::string& driver_info, const std::vector<LUID>& 
 
 #endif
 
-std::string ConvertDWORDtoVersionNumber(uint64_t dword)
+std::string ConvertDataToVersionNumber(uint64_t data)
 {
-    uint32_t    version[4]  = {};
+    uint16_t    version[4]  = {};
     std::string str_version = "";
-    version[0]              = (unsigned int)((dword & 0xFFFF000000000000) >> 16 * 3);
-    version[1]              = (unsigned int)((dword & 0x0000FFFF00000000) >> 16 * 2);
-    version[2]              = (unsigned int)((dword & 0x00000000FFFF0000) >> 16 * 1);
-    version[3]              = (unsigned int)((dword & 0x000000000000FFFF));
+    version[0]              = (unsigned int)((data & 0xFFFF000000000000) >> 16 * 3);
+    version[1]              = (unsigned int)((data & 0x0000FFFF00000000) >> 16 * 2);
+    version[2]              = (unsigned int)((data & 0x00000000FFFF0000) >> 16 * 1);
+    version[3]              = (unsigned int)((data & 0x000000000000FFFF));
     str_version = std::to_string(version[0]) + "." + std::to_string(version[1]) + "." + std::to_string(version[2]) +
-                  "." + std::to_string(version[3]) + ".";
+                  "." + std::to_string(version[3]);
 
     return str_version;
 }

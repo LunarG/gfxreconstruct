@@ -61,7 +61,7 @@ LSTATUS GetRegData(HKEY               dx_key_handle,
                    std::vector<LUID>& adapter_luids);
 #endif
 
-std::string ConvertDWORDtoVersionNumber(uint64_t dword);
+std::string ConvertDataToVersionNumber(uint64_t data);
 
 GFXRECON_END_NAMESPACE(driverinfo)
 GFXRECON_END_NAMESPACE(util)
