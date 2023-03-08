@@ -38,7 +38,8 @@ Dx12AsciiConsumerBase::~Dx12AsciiConsumerBase()
 void Dx12AsciiConsumerBase::Initialize(FILE* file, gfxrecon::util::ToStringFlags toStringFlags)
 {
     assert(file);
-    file_ = file;
+    file_            = file;
+    to_string_flags_ = toStringFlags;
     if (to_string_flags_ & gfxrecon::util::kToString_Formatted)
     {
         fprintf(file_, "{\n\"apiCalls\":[");
