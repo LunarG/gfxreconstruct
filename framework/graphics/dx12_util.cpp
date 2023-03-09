@@ -803,21 +803,6 @@ bool VerifyAgilitySDKRuntime()
     {
         GFXRECON_LOG_ERROR("GetModuleFileNameA failed with error code %d", GetLastError());
     }
-    else if (ret > MAX_PATH)
-    {
-        module_name.resize(ret);
-
-        ret = GetModuleFileNameA(nullptr, module_name.data(), ret);
-
-        if (ret == 0)
-        {
-            GFXRECON_LOG_ERROR("GetModuleFileNameA failed with error code %d", GetLastError());
-        }
-        else
-        {
-            tool_executable_path = module_name.data();
-        }
-    }
     else
     {
         tool_executable_path = module_name.data();
