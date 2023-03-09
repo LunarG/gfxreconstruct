@@ -419,16 +419,17 @@ void VulkanExportJsonConsumerBase::Process_vkCmdBuildAccelerationStructuresIndir
     PointerDecoder<uint32_t>*                                                  pIndirectStrides,
     PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts)
 {
-    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", [&](auto& jdata) {
-        HandleToJson(jdata["commandBuffer"], commandBuffer, json_options_);
-        FieldToJson(jdata["infoCount"], infoCount, json_options_);
-        FieldToJson(jdata["pInfos"], pInfos, json_options_);
-        FieldToJson(jdata["pIndirectDeviceAddresses"], pIndirectDeviceAddresses, json_options_);
-        FieldToJson(jdata["pIndirectStrides"], pIndirectStrides, json_options_);
+    WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", [&](nlohmann::ordered_json& function) {
+        auto& args = function[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options_);
+        FieldToJson(args["infoCount"], infoCount, json_options_);
+        FieldToJson(args["pInfos"], pInfos, json_options_);
+        FieldToJson(args["pIndirectDeviceAddresses"], pIndirectDeviceAddresses, json_options_);
+        FieldToJson(args["pIndirectStrides"], pIndirectStrides, json_options_);
 
         auto infos                     = pInfos ? pInfos->GetPointer() : nullptr;
         auto max_primitive_counts      = ppMaxPrimitiveCounts ? ppMaxPrimitiveCounts->GetPointer() : nullptr;
-        auto max_primitive_counts_json = jdata["ppMaxPrimitiveCounts"];
+        auto max_primitive_counts_json = args["ppMaxPrimitiveCounts"];
 
         for (uint32_t i = 0; i < infoCount; ++i)
         {
@@ -446,12 +447,13 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
     gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*    pAllocator,
     gfxrecon::decode::HandlePointerDecoder<VkShaderModule>*                                     pShaderModule)
 {
-    WriteApiCallToFile(call_info, "vkCreateShaderModule", [&](auto& jdata) {
-        FieldToJson(jdata["return"], returnValue, json_options_);
-        HandleToJson(jdata["device"], device, json_options_);
-        FieldToJson(jdata["pCreateInfo"], pCreateInfo, json_options_);
-        FieldToJson(jdata["pAllocator"], pAllocator, json_options_);
-        FieldToJson(jdata["pShaderModule"], pShaderModule, json_options_);
+    WriteApiCallToFile(call_info, "vkCreateShaderModule", [&](nlohmann::ordered_json& function) {
+        FieldToJson(function[NameReturn()], returnValue, json_options_);
+        auto& args = function[NameArgs()];
+        HandleToJson(args["device"], device, json_options_);
+        FieldToJson(args["pCreateInfo"], pCreateInfo, json_options_);
+        FieldToJson(args["pAllocator"], pAllocator, json_options_);
+        FieldToJson(args["pShaderModule"], pShaderModule, json_options_);
 
         if (json_options_.dump_binaries)
         {
@@ -463,11 +465,11 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
 
             if (WriteBinaryFile(filepath, decoded_value->codeSize, (uint8_t*)decoded_value->pCode))
             {
-                jdata["pCreateInfo"]["pCode"] = basename;
+                args["pCreateInfo"]["pCode"] = basename;
             }
             else
             {
-                jdata["pCreateInfo"]["pCode"] = "Unable to create file";
+                args["pCreateInfo"]["pCode"] = "Unable to create file";
             }
         }
     });
@@ -480,14 +482,15 @@ void VulkanExportJsonConsumerBase::Process_vkGetPipelineCacheData(const ApiCallI
                                                                   PointerDecoder<size_t>*  pDataSize,
                                                                   PointerDecoder<uint8_t>* pData)
 {
-    WriteApiCallToFile(call_info, "vkGetPipelineCacheData", [&](auto& jdata) {
-        FieldToJson(jdata["return"], returnValue, json_options_);
-        HandleToJson(jdata["device"], device, json_options_);
-        HandleToJson(jdata["pipelineCache"], pipelineCache, json_options_);
-        FieldToJson(jdata["pDataSize"], pDataSize, json_options_);
+    WriteApiCallToFile(call_info, "vkGetPipelineCacheData", [&](nlohmann::ordered_json& function) {
+        FieldToJson(function[NameReturn()], returnValue, json_options_);
+        auto& args = function[NameArgs()];
+        HandleToJson(args["device"], device, json_options_);
+        HandleToJson(args["pipelineCache"], pipelineCache, json_options_);
+        FieldToJson(args["pDataSize"], pDataSize, json_options_);
         if (pData->IsNull())
         {
-            jdata["pData"] = nullptr;
+            args["pData"] = nullptr;
         }
         else if (json_options_.dump_binaries)
         {
@@ -498,16 +501,16 @@ void VulkanExportJsonConsumerBase::Process_vkGetPipelineCacheData(const ApiCallI
             std::string filepath     = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
             if (WriteBinaryFile(filepath, data_size, decoded_data))
             {
-                FieldToJson(jdata["pData"], basename, json_options_);
+                FieldToJson(args["pData"], basename, json_options_);
             }
             else
             {
-                FieldToJson(jdata["pData"], "Unable to write file", json_options_);
+                FieldToJson(args["pData"], "Unable to write file", json_options_);
             }
         }
         else
         {
-            FieldToJson(jdata["pData"], "[Binary data]", json_options_);
+            FieldToJson(args["pData"], "[Binary data]", json_options_);
         }
     });
 }
@@ -520,12 +523,13 @@ void VulkanExportJsonConsumerBase::Process_vkCreatePipelineCache(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
     HandlePointerDecoder<VkPipelineCache>*                   pPipelineCache)
 {
-    WriteApiCallToFile(call_info, "vkCreatePipelineCache", [&](auto& jdata) {
-        FieldToJson(jdata["return"], returnValue, json_options_);
-        HandleToJson(jdata["device"], device, json_options_);
-        FieldToJson(jdata["pCreateInfo"], pCreateInfo, json_options_);
-        FieldToJson(jdata["pAllocator"], pAllocator, json_options_);
-        FieldToJson(jdata["pPipelineCache"], pPipelineCache, json_options_);
+    WriteApiCallToFile(call_info, "vkCreatePipelineCache", [&](nlohmann::ordered_json& function) {
+        FieldToJson(function[NameReturn()], returnValue, json_options_);
+        auto& args = function[NameArgs()];
+        HandleToJson(args["device"], device, json_options_);
+        FieldToJson(args["pCreateInfo"], pCreateInfo, json_options_);
+        FieldToJson(args["pAllocator"], pAllocator, json_options_);
+        FieldToJson(args["pPipelineCache"], pPipelineCache, json_options_);
         if (json_options_.dump_binaries)
         {
             auto        decoded_data = pCreateInfo->GetPointer();
@@ -534,16 +538,16 @@ void VulkanExportJsonConsumerBase::Process_vkCreatePipelineCache(
             std::string filepath     = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
             if (WriteBinaryFile(filepath, decoded_data->initialDataSize, (uint8_t*)decoded_data->pInitialData))
             {
-                FieldToJson(jdata["pCreateInfo"]["pInitialData"], basename, json_options_);
+                FieldToJson(args["pCreateInfo"]["pInitialData"], basename, json_options_);
             }
             else
             {
-                FieldToJson(jdata["pCreateInfo"]["pInitialData"], "Unable to write file", json_options_);
+                FieldToJson(args["pCreateInfo"]["pInitialData"], "Unable to write file", json_options_);
             }
         }
         else
         {
-            FieldToJson(jdata["pData"], "[Binary data]", json_options_);
+            FieldToJson(args["pData"], "[Binary data]", json_options_);
         }
     });
 }
@@ -556,16 +560,17 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
                                                               uint32_t                 size,
                                                               PointerDecoder<uint8_t>* pValues)
 {
-    WriteApiCallToFile(call_info, "vkCmdPushConstants", [&](auto& jdata) {
-        HandleToJson(jdata["commandBuffer"], commandBuffer, json_options_);
-        HandleToJson(jdata["layout"], layout, json_options_);
-        FieldToJson(VkShaderStageFlags_t(), jdata["stageFlags"], stageFlags, json_options_);
-        FieldToJson(jdata["offset"], offset, json_options_);
-        FieldToJson(jdata["size"], size, json_options_);
-        FieldToJson(jdata["pValues"], pValues, json_options_);
+    WriteApiCallToFile(call_info, "vkCmdPushConstants", [&](nlohmann::ordered_json& function) {
+        auto& args = function[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options_);
+        HandleToJson(args["layout"], layout, json_options_);
+        FieldToJson(VkShaderStageFlags_t(), args["stageFlags"], stageFlags, json_options_);
+        FieldToJson(args["offset"], offset, json_options_);
+        FieldToJson(args["size"], size, json_options_);
+        FieldToJson(args["pValues"], pValues, json_options_);
         if (pValues->IsNull())
         {
-            jdata["pValues"] = nullptr;
+            args["pValues"] = nullptr;
         }
         else if (json_options_.dump_binaries)
         {
@@ -576,16 +581,16 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
             std::string filepath     = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
             if (WriteBinaryFile(filepath, data_size, decoded_data))
             {
-                FieldToJson(jdata["pValues"], basename, json_options_);
+                FieldToJson(args["pValues"], basename, json_options_);
             }
             else
             {
-                FieldToJson(jdata["pValues"], "Unable to write file", json_options_);
+                FieldToJson(args["pValues"], "Unable to write file", json_options_);
             }
         }
         else
         {
-            FieldToJson(jdata["pValues"], "[Binary data]", json_options_);
+            FieldToJson(args["pValues"], "[Binary data]", json_options_);
         }
     });
 }
