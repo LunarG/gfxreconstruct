@@ -40,20 +40,14 @@ void Dx12AsciiConsumerBase::Initialize(FILE* file, gfxrecon::util::ToStringFlags
     assert(file);
     file_            = file;
     to_string_flags_ = toStringFlags;
-    if (to_string_flags_ & gfxrecon::util::kToString_Formatted)
-    {
-        fprintf(file_, "{\n\"apiCalls\":[");
-    }
+    // Note the Vulkan Consumer will top and tail the file with
+    // a JSON array if output is not JSONL.
 }
 
 void Dx12AsciiConsumerBase::Destroy()
 {
     if (file_)
     {
-        if (to_string_flags_ & gfxrecon::util::kToString_Formatted)
-        {
-            fprintf(file_, "\n]\n}\n");
-        }
         file_ = nullptr;
     }
 }

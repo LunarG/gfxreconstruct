@@ -20,12 +20,18 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 #include "project_version.h"
-
 #include "tool_settings.h"
+#include "decode/decode_api_detection.h"
 #include "format/format.h"
-#include "generated/generated_vulkan_export_json_consumer.h"
-#include "util/platform.h"
 #include "util/file_path.h"
+#include "util/platform.h"
+
+#include "generated/generated_vulkan_export_json_consumer.h"
+#if defined(CONVERT_EXPERIMENTAL_D3D12)
+#include "generated/generated_dx12_ascii_consumer.h"
+#endif
+
+using gfxrecon::decode::JsonFormat;
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
@@ -55,14 +61,14 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("         json   Standard JSON format (indented)");
     GFXRECON_WRITE_CONSOLE("         jsonl  JSON lines format (every object in a single line)");
     GFXRECON_WRITE_CONSOLE(
-        "  --include-binaries\t\t'Dump binaries in a separate file with an unique name. The main JSON file");
+        "  --include-binaries\t\t'Dump binaries from Vulkan traces in a separate file with an unique name. The main JSON file");
     GFXRECON_WRITE_CONSOLE(
         "         will include a reference with the file name. The binary files are dumped in a subdirectory");
     GFXRECON_WRITE_CONSOLE(
-        "  --expand-flags\t\t'Print flags values with its correspondent symbolic representation. Otherwise,");
+        "  --expand-flags\t\t'Print flags values from Vulkan traces with its correspondent symbolic representation. Otherwise,");
     GFXRECON_WRITE_CONSOLE("         the flags are printed as hexadecimal value.");
     GFXRECON_WRITE_CONSOLE(
-        "  --file-per-frame\t\t'Creates a new file per every frame processed. Frame number is added as a suffix");
+        "  --file-per-frame\t\t'Creates a new file for every frame processed. Frame number is added as a suffix");
     GFXRECON_WRITE_CONSOLE("         to the output file name.");
 
 #if defined(WIN32) && defined(_DEBUG)
@@ -165,7 +171,7 @@ int main(int argc, const char** argv)
 
     const auto& positional_arguments = arg_parser.GetPositionalArguments();
     std::string input_filename       = positional_arguments[0];
-    auto        output_format        = GetOutputFormat(arg_parser);
+    JsonFormat  output_format        = GetOutputFormat(arg_parser);
     std::string output_filename      = GetOutputFileName(arg_parser, input_filename, output_format);
     std::string filename_stem        = gfxrecon::util::filepath::GetFilenameStem(output_filename);
     std::string output_dir           = gfxrecon::util::filepath::GetBasedir(output_filename);
@@ -177,11 +183,24 @@ int main(int argc, const char** argv)
 
     gfxrecon::decode::FileProcessor file_processor;
 
+#ifndef CONVERT_EXPERIMENTAL_D3D12
+    bool detected_d3d12  = false;
+    bool detected_vulkan = false;
+    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
+
+    if (detected_d3d12)
+    {
+        GFXRECON_LOG_INFO("D3D12 support for gfxrecon-convert is currently experimental.");
+        GFXRECON_LOG_INFO("To enable it, run cmake again with switch -DCONVERT_EXPERIMENTAL_D3D12");
+        goto exit;
+    }
+#endif
+
+
     if (file_per_frame && output_to_stdout)
     {
-        GFXRECON_LOG_ERROR("Outputting a file per frame is not consistent with outputting to stdout.");
-        ret_code = 1;
-        goto exit;
+        GFXRECON_LOG_WARNING("Outputting a file per frame is not consistent with outputting to stdout.");
+        file_per_frame = false;
     }
 
     if (dump_binaries)
@@ -238,6 +257,19 @@ int main(int argc, const char** argv)
                                               std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
             json_consumer.Initialize(json_options, GFXRECON_PROJECT_VERSION_STRING, vulkan_version, input_filename);
             json_consumer.StartFile(out_file_handle);
+
+            // If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
+#ifdef CONVERT_EXPERIMENTAL_D3D12
+            gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
+            gfxrecon::decode::Dx12Decoder       dx12_decoder;
+
+            dx12_decoder.AddConsumer(&dx12_ascii_consumer);
+            file_processor.AddDecoder(&dx12_decoder);
+            auto dx12_json_flags = output_format == JsonFormat::JSON ? gfxrecon::util::kToString_Formatted
+                                                                     : gfxrecon::util::kToString_Unformatted;
+            dx12_ascii_consumer.Initialize(out_file_handle, dx12_json_flags);
+#endif
+
             while (success)
             {
                 success = file_processor.ProcessNextFrame();
@@ -261,6 +293,10 @@ int main(int argc, const char** argv)
                 }
             }
             json_consumer.Destroy();
+            // If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
+#ifdef CONVERT_EXPERIMENTAL_D3D12
+            dx12_ascii_consumer.Destroy();
+#endif
             if (!output_to_stdout)
             {
                 gfxrecon::util::platform::FileClose(out_file_handle);
@@ -272,7 +308,7 @@ int main(int argc, const char** argv)
             }
         }
     }
-
+    goto exit; // The other goto is inside an #ifdef and if compiled-out an unreferenced label warning results.
 exit:
     gfxrecon::util::Log::Release();
     return ret_code;

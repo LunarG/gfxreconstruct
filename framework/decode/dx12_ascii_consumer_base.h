@@ -85,10 +85,17 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     inline void WriteApiCallToFile(const WriteApiCallToFileInfo& writeApiCallToFileInfo, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
     {
         using namespace util;
-        // Add a comma between JSON objects unless we're concatenating JSON objects
-        if(api_call_count_ > 0) {
-            fprintf(file_, "%s\n", ",");
+        using namespace util::platform;
+
+        // Add a comma between top-level JSON objects if we are not generating JSON Lines.
+        if (to_string_flags_ & kToString_Formatted) {
+            FilePuts(",\n", file_);
         }
+        else
+        {
+            FilePuts("\n", file_);
+        }
+
         fprintf(file_, "%s", ObjectToString(to_string_flags_, tabCount, tabSize,
             [&](std::stringstream& strStrm)
             {
