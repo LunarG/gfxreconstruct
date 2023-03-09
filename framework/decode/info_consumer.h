@@ -24,12 +24,12 @@
 #define GFXRECON_DECODE_INFO_CONSUMER_H
 
 #include "decode/api_decoder.h"
-#include "info_consumer_base.h"
+#include "info_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class InfoConsumer : public InfoConsumerBase
+class InfoConsumer
 {
   public:
     InfoConsumer() {}
@@ -44,7 +44,7 @@ class InfoConsumer : public InfoConsumerBase
     const char*       GetProductName() const { return exe_info.ProductName; }
     const char*       GetProductVersion() const { return exe_info.ProductVersion; }
 
-    virtual void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info)
+    void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info)
     {
         exe_info        = info;
         found_exe_info_ = true;
@@ -52,7 +52,7 @@ class InfoConsumer : public InfoConsumerBase
 
     const char* GetDriverDesc() const { return driver_info; }
 
-    virtual void Process_DriverInfo(const char* info_record)
+    void Process_DriverInfo(const char* info_record)
     {
         util::platform::StringCopy(driver_info,
                                    gfxrecon::util::filepath::kMaxDriverInfoSize,
@@ -61,7 +61,7 @@ class InfoConsumer : public InfoConsumerBase
         found_driver_info_ = true;
     }
 
-    virtual bool IsComplete(uint64_t current_block_index)
+    bool IsComplete(uint64_t current_block_index)
     {
         if (short_version_ == true)
         {

@@ -25,7 +25,6 @@
 
 #include "decode/api_decoder.h"
 #include "decode/struct_pointer_decoder.h"
-#include "decode/info_consumer_base.h"
 #include <decode/info_consumer.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -35,12 +34,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 ** This class implements the ApiDecoder interface
 ** Its main purpose is to decode non api application info
 */
-class InfoDecoderBase : public ApiDecoder
+class InfoDecoder : public ApiDecoder
 {
   public:
-    InfoDecoderBase() {}
+    InfoDecoder() {}
 
-    ~InfoDecoderBase() {}
+    ~InfoDecoder() {}
 
     virtual bool IsComplete(uint64_t block_index) override;
 
@@ -48,13 +47,13 @@ class InfoDecoderBase : public ApiDecoder
 
     virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) override;
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override{};
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
 
-    void AddConsumer(InfoConsumerBase* consumer) { consumers_.push_back(consumer); }
+    void AddConsumer(InfoConsumer* consumer) { consumers_.push_back(consumer); }
 
     virtual bool SupportsApiCall(format::ApiCallId id) { return true; }
 
-    virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) { return true; }
+    virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) override { return true; }
 
     virtual void
     DecodeFunctionCall(format::ApiCallId id, const ApiCallInfo& call_info, const uint8_t* buffer, size_t buffer_size)
@@ -186,7 +185,7 @@ class InfoDecoderBase : public ApiDecoder
     {}
 
   private:
-    std::vector<InfoConsumerBase*> consumers_;
+    std::vector<InfoConsumer*> consumers_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
