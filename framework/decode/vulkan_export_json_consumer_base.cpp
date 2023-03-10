@@ -28,6 +28,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+using namespace util::platform;
 
 static const int kJsonIndentWidth = 2;
 
@@ -95,7 +96,7 @@ void VulkanExportJsonConsumerBase::StartFile(FILE* file)
     num_objects_ = 0;
     if (json_options_.format == JsonFormat::JSON)
     {
-        fputs("[\n", file_);
+        FilePuts("[\n", file_);
     }
 
     // Emit the header object as the first line of the file:
@@ -110,11 +111,11 @@ void VulkanExportJsonConsumerBase::EndFile()
     {
         if (json_options_.format == JsonFormat::JSON)
         {
-            fputs("\n]\n", file_);
+            FilePuts("\n]\n", file_);
         }
         else
         {
-            fputs("\n", file_);
+            FilePuts("\n", file_);
         }
         file_ = nullptr;
     }
@@ -610,9 +611,9 @@ void VulkanExportJsonConsumerBase::WriteBlockEnd()
         FilePuts(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
     }
     // Dominates Export profiling (2/2):
-    std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth);
-    FilePuts(block.c_str(), file_);
-    FileFlush(file_);
+    const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth);
+    FileWriteNoLock(block.data(), sizeof(std::string::value_type), block.length(), file_);
+    FileFlush(file_); /// @todo Implement a FileFlushNoLock() for all platforms.
 }
 
 void VulkanExportJsonConsumerBase::ProcessAnnotation(uint64_t               block_index,
