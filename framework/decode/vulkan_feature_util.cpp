@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2020-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -26,11 +26,24 @@
 #include "util/platform.h"
 
 #include <cassert>
+#include <set>
+#include <string>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(feature_util)
+
+// There are some extensions which can be enabled by the application, but can be ignored during replay if
+// they don't exist.
+// For example, the VK_EXT_tooling_info extension is enabled by the GfxReconstruct capture layer
+// and may be queried/enabled during instance creation, but is not used for anything other than
+// querying layer information.  This can be problematic if the instance replaying attempts to
+// enable the extension with no support present on the replay device (usually because the layer is
+// no longer there)
+std::set<std::string> kIgnorableExtensions = {
+    VK_EXT_TOOLING_INFO_EXTENSION_NAME,
+};
 
 VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
                            std::vector<VkLayerProperties>*        layers)
@@ -129,6 +142,11 @@ bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, 
     return false;
 }
 
+bool IsIgnorableExtension(const char* extension)
+{
+    return kIgnorableExtensions.count(extension) > 0;
+}
+
 void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& properties,
                                  std::vector<const char*>*                 extensions)
 {
@@ -142,6 +160,39 @@ void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& prope
             GFXRECON_LOG_WARNING("Extension %s, which is not supported by the replay device, will not be enabled",
                                  *extensionIter);
             extensionIter = extensions->erase(extensionIter);
+        }
+        else
+        {
+            ++extensionIter;
+        }
+    }
+}
+
+// Remove any extensions which can be enabled by the application, but can be ignored during replay if
+// they don't exist on the target device.
+void RemoveIgnorableExtensions(const std::vector<VkExtensionProperties>& properties,
+                               std::vector<const char*>*                 extensions)
+{
+    assert(extensions != nullptr);
+
+    auto extensionIter = extensions->begin();
+    while (extensionIter != extensions->end())
+    {
+        if (!IsSupportedExtension(properties, *extensionIter))
+        {
+            if (IsIgnorableExtension(*extensionIter))
+            {
+                GFXRECON_LOG_INFO("Extension %s, which is not supported by the replay device, will be ignored",
+                                  *extensionIter);
+                extensionIter = extensions->erase(extensionIter);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Extension %s is not supported by the replay device and may cause issues during"
+                                     " attempted replay",
+                                     *extensionIter);
+                ++extensionIter;
+            }
         }
         else
         {

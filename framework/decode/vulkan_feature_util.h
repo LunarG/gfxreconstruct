@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2020-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -51,6 +51,8 @@ void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& prope
                                  std::vector<const char*>*                 extensions);
 
 bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, const char* extension);
+void RemoveIgnorableExtensions(const std::vector<VkExtensionProperties>& properties,
+                               std::vector<const char*>*                 extensions);
 
 // This is a declaration for a generated function.
 void RemoveUnsupportedFeatures(VkPhysicalDevice                 physicalDevice,
