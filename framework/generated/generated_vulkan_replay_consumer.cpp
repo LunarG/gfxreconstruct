@@ -2637,14 +2637,14 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceToolProperties(
     PointerDecoder<uint32_t>*                   pToolCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
-    uint32_t* out_pToolCount = pToolCount->IsNull() ? nullptr : pToolCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, PhysicalDeviceInfo>("vkGetPhysicalDeviceToolProperties", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolProperties, pToolCount, pToolProperties, &VulkanObjectInfoTable::GetPhysicalDeviceInfo));
-    VkPhysicalDeviceToolProperties* out_pToolProperties = pToolProperties->IsNull() ? nullptr : pToolProperties->AllocateOutputData(*out_pToolCount, VkPhysicalDeviceToolProperties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES, nullptr });
+    auto in_physicalDevice = GetObjectInfoTable().GetPhysicalDeviceInfo(physicalDevice);
+    pToolCount->IsNull() ? nullptr : pToolCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, PhysicalDeviceInfo>("vkGetPhysicalDeviceToolProperties", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolProperties, pToolCount, pToolProperties, &VulkanObjectInfoTable::GetPhysicalDeviceInfo));
+    if (!pToolProperties->IsNull()) { pToolProperties->AllocateOutputData(*pToolCount->GetOutputPointer(), VkPhysicalDeviceToolProperties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES, nullptr }); }
 
-    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceToolProperties(in_physicalDevice, out_pToolCount, out_pToolProperties);
+    VkResult replay_result = OverrideGetPhysicalDeviceToolProperties(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceToolProperties, returnValue, in_physicalDevice, pToolCount, pToolProperties);
     CheckResult("vkGetPhysicalDeviceToolProperties", returnValue, replay_result);
 
-    if (pToolProperties->IsNull()) { SetOutputArrayCount<PhysicalDeviceInfo>(physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolProperties, *out_pToolCount, &VulkanObjectInfoTable::GetPhysicalDeviceInfo); }
+    if (pToolProperties->IsNull()) { SetOutputArrayCount<PhysicalDeviceInfo>(physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolProperties, *pToolCount->GetOutputPointer(), &VulkanObjectInfoTable::GetPhysicalDeviceInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkCreatePrivateDataSlot(
@@ -6804,14 +6804,14 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
     PointerDecoder<uint32_t>*                   pToolCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
-    uint32_t* out_pToolCount = pToolCount->IsNull() ? nullptr : pToolCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, PhysicalDeviceInfo>("vkGetPhysicalDeviceToolPropertiesEXT", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT, pToolCount, pToolProperties, &VulkanObjectInfoTable::GetPhysicalDeviceInfo));
-    VkPhysicalDeviceToolProperties* out_pToolProperties = pToolProperties->IsNull() ? nullptr : pToolProperties->AllocateOutputData(*out_pToolCount, VkPhysicalDeviceToolProperties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES, nullptr });
+    auto in_physicalDevice = GetObjectInfoTable().GetPhysicalDeviceInfo(physicalDevice);
+    pToolCount->IsNull() ? nullptr : pToolCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, PhysicalDeviceInfo>("vkGetPhysicalDeviceToolPropertiesEXT", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT, pToolCount, pToolProperties, &VulkanObjectInfoTable::GetPhysicalDeviceInfo));
+    if (!pToolProperties->IsNull()) { pToolProperties->AllocateOutputData(*pToolCount->GetOutputPointer(), VkPhysicalDeviceToolProperties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES, nullptr }); }
 
-    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceToolPropertiesEXT(in_physicalDevice, out_pToolCount, out_pToolProperties);
+    VkResult replay_result = OverrideGetPhysicalDeviceToolProperties(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceToolPropertiesEXT, returnValue, in_physicalDevice, pToolCount, pToolProperties);
     CheckResult("vkGetPhysicalDeviceToolPropertiesEXT", returnValue, replay_result);
 
-    if (pToolProperties->IsNull()) { SetOutputArrayCount<PhysicalDeviceInfo>(physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT, *out_pToolCount, &VulkanObjectInfoTable::GetPhysicalDeviceInfo); }
+    if (pToolProperties->IsNull()) { SetOutputArrayCount<PhysicalDeviceInfo>(physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceToolPropertiesEXT, *pToolCount->GetOutputPointer(), &VulkanObjectInfoTable::GetPhysicalDeviceInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
