@@ -84,12 +84,6 @@ std::string ToString<VkLayerProperties>(const VkLayerProperties& obj,
                                         uint32_t                 tabSize);
 
 template <>
-std::string ToString<VkPerformanceCounterResultKHR>(const VkPerformanceCounterResultKHR& obj,
-                                                    ToStringFlags                        toStringFlags,
-                                                    uint32_t                             tabCount,
-                                                    uint32_t                             tabSize);
-
-template <>
 std::string ToString<VkPerformanceValueINTEL>(const VkPerformanceValueINTEL& obj,
                                               ToStringFlags                  toStringFlags,
                                               uint32_t                       tabCount,

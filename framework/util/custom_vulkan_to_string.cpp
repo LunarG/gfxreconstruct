@@ -175,22 +175,6 @@ std::string ToString<VkDeviceOrHostAddressKHR>(const VkDeviceOrHostAddressKHR& o
 }
 
 template <>
-std::string ToString<VkPerformanceCounterResultKHR>(const VkPerformanceCounterResultKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "int32", toStringFlags, tabCount, tabSize, ToString(obj.int32, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "int64", toStringFlags, tabCount, tabSize, ToString(obj.int64, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "uint32", toStringFlags, tabCount, tabSize, ToString(obj.uint32, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "uint64", toStringFlags, tabCount, tabSize, ToString(obj.uint64, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "float32", toStringFlags, tabCount, tabSize, ToString(obj.float32, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "float64", toStringFlags, tabCount, tabSize, ToString(obj.float64, toStringFlags, tabCount, tabSize));
-        }
-    );
-}
-
-template <>
 std::string ToString<VkPerformanceValueINTEL>(const VkPerformanceValueINTEL& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
