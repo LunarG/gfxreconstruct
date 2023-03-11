@@ -352,6 +352,7 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
         // Use "[Binary data]" as placeholder. It will be replaced with a file path if the export
         // consumer decides to dump binaries in separate files.
         FieldToJson(jdata["pCode"], "[Binary data]", options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
 
