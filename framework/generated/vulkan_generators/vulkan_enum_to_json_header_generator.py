@@ -162,7 +162,7 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         for enum in sorted(self.enum_names):
             if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
                 self.processedEnums.add(enum)
-                if not enum in self.enumAliases and not enum in self.flagBitsType:
+                if not enum in self.enumAliases:
                     if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
                         body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options = JsonOptions());'
                     else:
