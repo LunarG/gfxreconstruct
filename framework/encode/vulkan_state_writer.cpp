@@ -41,11 +41,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 const uint32_t kDefaultQueueFamilyIndex = 0;
 
-// Temporary resource IDs for state processing.
-const format::HandleId kTempQueueId         = std::numeric_limits<format::HandleId>::max() - 1;
-const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
-const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
-
 static bool IsMemoryCoherent(VkMemoryPropertyFlags property_flags)
 {
     return ((property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -787,9 +782,6 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
             processed.insert(wrapper->create_parameters.get());
         }
-
-        // Write descriptor updates. This value will be processed by an EncodeStruct routine that expects all struct
-        // member handles to be wrapped handles (either need a const_cast or copy to temporary wrapper here).
 
         VkWriteDescriptorSet write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         write.dstSet               = wrapper->handle;
@@ -2299,7 +2291,7 @@ void VulkanStateWriter::WriteGetDeviceGroupSurfacePresentModes(format::HandleId 
 void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId device_id,
                                                              uint32_t         queue_family_index,
                                                              format::HandleId queue_id,
-                                                             format::HandleId command_pool_id,
+                                                             VkCommandPool    command_pool,
                                                              format::HandleId command_buffer_id)
 {
     const VkResult               result    = VK_SUCCESS;
@@ -2323,20 +2315,15 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     encoder_.EncodeHandleIdValue(device_id);
     EncodeStructPtr(&encoder_, &create_info);
     EncodeStructPtr(&encoder_, allocator);
-    encoder_.EncodeHandleIdPtr(&command_pool_id);
+    encoder_.EncodeHandlePtr<CommandPoolWrapper>(&command_pool);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateCommandPool, &parameter_stream_);
     parameter_stream_.Reset();
 
-    // Create the command buffer from the pool. Requires a temporary wrapper for EncodeStructPtr, which expects
-    // struct members to be wrapped handles.
-    CommandPoolWrapper encode_wrapper;
-    encode_wrapper.handle_id = command_pool_id;
-
     VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
     alloc_info.pNext                       = nullptr;
-    alloc_info.commandPool                 = encode_wrapper.handle;
+    alloc_info.commandPool                 = command_pool;
     alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     alloc_info.commandBufferCount          = 1;
 
@@ -2516,7 +2503,7 @@ void VulkanStateWriter::WriteQueryPoolReset(format::HandleId                    
 {
     // Retrieve a queue and create a command buffer for query pool reset.
     WriteCommandProcessingCreateCommands(
-        device_id, kDefaultQueueFamilyIndex, kTempQueueId, kTempCommandPoolId, kTempCommandBufferId);
+        device_id, kDefaultQueueFamilyIndex, kTempQueueId, kTempCommandPool, kTempCommandBufferId);
 
     WriteCommandBegin(kTempCommandBufferId);
 
@@ -2545,7 +2532,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
 
     // Retrieve a queue and create a command buffer for query activation.
     WriteCommandProcessingCreateCommands(
-        device_id, queue_family_index, kTempQueueId, kTempCommandPoolId, kTempCommandBufferId);
+        device_id, queue_family_index, kTempQueueId, kTempCommandPool, kTempCommandBufferId);
 
     WriteCommandBegin(kTempCommandBufferId);
 
