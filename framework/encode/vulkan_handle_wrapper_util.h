@@ -39,9 +39,38 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+#if VK_USE_64_BIT_PTR_DEFINES == 1
+#define UINT64_TO_VK_HANDLE(handle_type, value) reinterpret_cast<handle_type>(value)
+#else
+#define UINT64_TO_VK_HANDLE(handle_type, value) static_cast<handle_type>(value)
+#endif
+
+// Temporary resource IDs for state processing.
+static const format::HandleId kTempQueueId = std::numeric_limits<format::HandleId>::max() - 1;
+static const VkCommandPool    kTempCommandPool =
+    UINT64_TO_VK_HANDLE(VkCommandPool, std::numeric_limits<uint64_t>::max() - 2);
+static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
+static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
+
 typedef format::HandleId (*PFN_GetHandleId)();
 
 extern VulkanStateHandleTable state_handle_table_;
+
+template <typename Wrapper>
+format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
+{
+    return 0;
+}
+
+template <>
+inline format::HandleId GetTempWrapperId<CommandPoolWrapper>(const VkCommandPool& handle)
+{
+    if (handle == kTempCommandPool)
+    {
+        return kTempCommandPoolId;
+    }
+    return 0;
+}
 
 template <typename Wrapper>
 format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
@@ -50,6 +79,12 @@ format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
     {
         return 0;
     }
+    auto temp_id = GetTempWrapperId<Wrapper>(handle);
+    if (temp_id != 0)
+    {
+        return temp_id;
+    }
+
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
