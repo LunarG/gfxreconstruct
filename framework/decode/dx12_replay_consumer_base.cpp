@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2021-2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -24,6 +24,7 @@
 #include "decode/dx12_replay_consumer_base.h"
 
 #include "decode/dx12_enum_util.h"
+#include "generated/generated_dx12_call_id_to_string.h"
 #include "graphics/dx12_util.h"
 #include "graphics/dx12_image_renderer.h"
 #include "util/gpu_va_range.h"
@@ -3566,6 +3567,47 @@ void Dx12ReplayConsumerBase::PostReplay()
                 "Use gfxrecon-optimize to obtain an optimized capture with improved playback performance.");
         }
     }
+}
+
+HRESULT
+Dx12ReplayConsumerBase::SetObjectName(ID3D12Object* object, format::HandleId capture_id, format::ApiCallId call_id)
+{
+    HRESULT hr = E_FAIL;
+
+    const std::wstring object_creator = util::GetDx12CallIdString(call_id);
+
+    std::wstring object_name = L"gfxr_obj_";
+    object_name.append(std::to_wstring(capture_id));
+    object_name.append(L" (" + object_creator + L")");
+
+    hr = object->SetName(object_creator.c_str());
+
+    GFXRECON_ASSERT(hr == S_OK);
+
+    return hr;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideSetName(DxObjectInfo* replay_object_info, HRESULT original_result, WStringDecoder* Name)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT(replay_object_info != nullptr);
+    GFXRECON_ASSERT(replay_object_info->object != nullptr);
+
+    HRESULT result = original_result;
+
+    if (options_.override_object_names == false)
+    {
+        auto object = static_cast<ID3D12Device*>(replay_object_info->object);
+
+        if (object != nullptr)
+        {
+            result = object->SetName(Name->GetPointer());
+        }
+    }
+
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(decode)

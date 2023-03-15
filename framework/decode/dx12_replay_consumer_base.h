@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2021-2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -162,16 +162,34 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return handles;
     }
 
+    HRESULT SetObjectName(ID3D12Object* object, format::HandleId capture_id, format::ApiCallId call_id);
+
     template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object)
+    void AddObject(const format::HandleId* p_id, T** pp_object, format::ApiCallId api_call)
     {
         object_mapping::AddObject<T>(p_id, pp_object, &object_info_table_);
     }
 
     template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info)
+    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info, format::ApiCallId api_call)
     {
         object_mapping::AddObject<T>(p_id, pp_object, std::move(initial_info), &object_info_table_);
+
+        if (options_.override_object_names)
+        {
+            if ((pp_object != nullptr) && (*pp_object != nullptr))
+            {
+                IUnknown*     iunknown = reinterpret_cast<IUnknown*>(*pp_object);
+                ID3D12Object* object   = nullptr;
+
+                if (SUCCEEDED(iunknown->QueryInterface(IID_ID3D12Object, reinterpret_cast<void**>(&object))))
+                {
+                    SetObjectName(object, initial_info.capture_id, api_call);
+
+                    iunknown->Release();
+                }
+            }
+        }
     }
 
     void RemoveObject(DxObjectInfo* info);
@@ -587,6 +605,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                     UINT                                                    start_slot,
                                     UINT                                                    num_views,
                                     StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* views_decoder);
+
+    HRESULT OverrideSetName(DxObjectInfo* replay_object_info, HRESULT original_result, WStringDecoder* Name);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
