@@ -184,9 +184,9 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                 if 'String' in type_name:
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 elif self.is_handle(value.base_type):
-                    to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                    to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 elif 'VkBool32' == value.base_type:
-                    to_json = 'FieldToJsonVkBool32(jdata["{0}"], &meta_struct.{0})'
+                    to_json = 'VkBool32ToJson(jdata["{0}"], &meta_struct.{0})'
                 else:
                     to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
             else:
@@ -196,12 +196,12 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                     elif 'String' in type_name:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     elif self.is_handle(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                        to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     elif self.is_struct(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif 'VkBool32' == value.base_type:
                         # Currently unused:
-                        to_json = 'FieldToJsonVkBool32(jdata["{0}"], &meta_struct.{0})'
+                        to_json = 'VkBool32ToJson(jdata["{0}"], &meta_struct.{0})'
                     elif not value.is_dynamic:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     else:

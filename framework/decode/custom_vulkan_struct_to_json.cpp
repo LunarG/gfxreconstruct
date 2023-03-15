@@ -145,10 +145,10 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
         switch (discriminant)
         {
             case 0:
-                FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress), options);
+                FieldToJsonAsHex(jdata["deviceAddress"], decoded_value.deviceAddress, options);
                 break;
             case 1:
-                FieldToJson(jdata["hostAddress"], to_hex_variable_width(decoded_value.hostAddress), options);
+                FieldToJsonAsHex(jdata["hostAddress"], decoded_value.hostAddress, options);
                 break;
         }
     }
@@ -172,10 +172,10 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
         switch (discriminant)
         {
             case 0:
-                FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress), options);
+                FieldToJsonAsHex(jdata["deviceAddress"], decoded_value.deviceAddress, options);
                 break;
             case 1:
-                FieldToJson(jdata["hostAddress"], to_hex_variable_width(decoded_value.hostAddress), options);
+                FieldToJsonAsHex(jdata["hostAddress"], decoded_value.hostAddress, options);
                 break;
         }
     }
@@ -251,7 +251,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorImageI
         const auto& meta_struct   = *data;
         HandleToJson(jdata["sampler"], meta_struct.sampler, options);
         HandleToJson(jdata["imageView"], meta_struct.imageView, options);
-        FieldToJson(jdata["imageLayout"], decoded_value.imageLayout, options);
+        HandleToJson(jdata["imageLayout"], decoded_value.imageLayout, options);
     }
 }
 
@@ -286,7 +286,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                FieldToJson(jdata["pTexelbufferView"], &meta_struct.pTexelBufferView, options);
+                HandleToJson(jdata["pTexelbufferView"], &meta_struct.pTexelBufferView, options);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:

@@ -212,28 +212,7 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
     }
 }
 
-template <typename DecodedType, typename OutputDecodedType = DecodedType>
-void FieldToJsonVkBool32(nlohmann::ordered_json& jdata, const PointerDecoder<DecodedType, OutputDecodedType>* data)
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_value = data->GetPointer();
-        const auto length        = data->GetLength();
-
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                jdata[i] = static_cast<bool>(decoded_value[i]);
-            }
-        }
-        else if (length == 1)
-        {
-            jdata = static_cast<bool>(*decoded_value);
-        }
-    }
-}
-
+// Reference to pointer version wraps pointer to pointer version above.
 template <typename DecodedType, typename OutputDecodedType = DecodedType>
 void FieldToJson(nlohmann::ordered_json&                               jdata,
                  const PointerDecoder<DecodedType, OutputDecodedType>& data,
@@ -294,9 +273,9 @@ void FieldToJson(nlohmann::ordered_json&             jdata,
 }
 
 template <typename THandle>
-void FieldToJson(nlohmann::ordered_json&              jdata,
-                 const HandlePointerDecoder<THandle>* data,
-                 const JsonOptions&                   options = JsonOptions())
+void HandleToJson(nlohmann::ordered_json&              jdata,
+                  const HandlePointerDecoder<THandle>* data,
+                  const JsonOptions&                   options = JsonOptions())
 {
     if (data && data->GetPointer())
     {
@@ -313,6 +292,95 @@ void FieldToJson(nlohmann::ordered_json&              jdata,
         else if (length == 1)
         {
             HandleToJson(jdata, *decoded_value, options);
+        }
+    }
+}
+
+/// @brief Thunk to HandleToJson for manual conversion functions which forget to
+/// use that for the array form.
+template <typename THandle>
+void FieldToJson(nlohmann::ordered_json&              jdata,
+                 const HandlePointerDecoder<THandle>* data,
+                 const JsonOptions&                   options = JsonOptions())
+{
+    HandleToJson(jdata, data, options);
+}
+
+template <typename T>
+void FieldToJsonAsHex(nlohmann::ordered_json& jdata, const T data, const JsonOptions& options = JsonOptions())
+{
+    jdata = to_hex_variable_width(data);
+}
+
+// Same as array FieldToJson above but converts elements pointed-to to hexadecimal
+template <typename DecodedType, typename OutputDecodedType = DecodedType>
+void FieldToJsonAsHex(nlohmann::ordered_json&                               jdata,
+                      const PointerDecoder<DecodedType, OutputDecodedType>* data,
+                      const JsonOptions&                                    options = JsonOptions())
+{
+    if (data && data->GetPointer())
+    {
+        const auto decoded_value = data->GetPointer();
+        const auto length        = data->GetLength();
+
+        if (data->IsArray())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                FieldToJsonAsHex(jdata[i], decoded_value[i], options);
+            }
+        }
+        else if (length == 1)
+        {
+            FieldToJsonAsHex(jdata, *decoded_value, options);
+        }
+    }
+}
+
+template <typename DecodedType, typename OutputDecodedType = DecodedType>
+void FieldToJsonAsHex(nlohmann::ordered_json&                               jdata,
+                      const PointerDecoder<DecodedType, OutputDecodedType>& data,
+                      const JsonOptions&                                    options = JsonOptions())
+{
+    FieldToJsonAsHex(jdata, &data, options);
+}
+
+// Used by (e.g.) VkMapMemory's ppData
+template <>
+inline void
+FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>* data, const JsonOptions& options)
+{
+    FieldToJsonAsHex<uint64_t, void*>(jdata, data, options);
+}
+
+template <typename T>
+void VkBool32ToJson(nlohmann::ordered_json& jdata, const T data, const JsonOptions& options = JsonOptions())
+{
+    jdata = static_cast<bool>(data);
+}
+
+// Convert arrays of and pointers to bools. Since VkBool32 is just a typedef of
+// uint32_t we can't use the standard function name and dispatch on the type.
+template <typename DecodedType, typename OutputDecodedType = DecodedType>
+void VkBool32ToJson(nlohmann::ordered_json&                               jdata,
+                    const PointerDecoder<DecodedType, OutputDecodedType>* data,
+                    const JsonOptions&                                    options = JsonOptions())
+{
+    if (data && data->GetPointer())
+    {
+        const auto decoded_value = data->GetPointer();
+        const auto length        = data->GetLength();
+
+        if (data->IsArray())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                VkBool32ToJson(jdata[i], decoded_value[i], options);
+            }
+        }
+        else if (length == 1)
+        {
+            VkBool32ToJson(jdata, *decoded_value, options);
         }
     }
 }

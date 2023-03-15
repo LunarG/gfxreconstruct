@@ -454,7 +454,7 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
         HandleToJson(args["device"], device, json_options_);
         FieldToJson(args["pCreateInfo"], pCreateInfo, json_options_);
         FieldToJson(args["pAllocator"], pAllocator, json_options_);
-        FieldToJson(args["pShaderModule"], pShaderModule, json_options_);
+        HandleToJson(args["pShaderModule"], pShaderModule, json_options_);
 
         if (json_options_.dump_binaries)
         {
@@ -530,7 +530,7 @@ void VulkanExportJsonConsumerBase::Process_vkCreatePipelineCache(
         HandleToJson(args["device"], device, json_options_);
         FieldToJson(args["pCreateInfo"], pCreateInfo, json_options_);
         FieldToJson(args["pAllocator"], pAllocator, json_options_);
-        FieldToJson(args["pPipelineCache"], pPipelineCache, json_options_);
+        HandleToJson(args["pPipelineCache"], pPipelineCache, json_options_);
         if (json_options_.dump_binaries)
         {
             auto        decoded_data = pCreateInfo->GetPointer();
