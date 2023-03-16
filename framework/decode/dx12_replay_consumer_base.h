@@ -162,33 +162,53 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return handles;
     }
 
-    HRESULT SetObjectName(ID3D12Object* object, format::HandleId capture_id, format::ApiCallId call_id);
+    std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
     template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object, format::ApiCallId api_call)
+    void SetObjectName(const format::HandleId* p_id, T** pp_object, format::ApiCallId call_id)
     {
-        object_mapping::AddObject<T>(p_id, pp_object, &object_info_table_);
+        if ((p_id != nullptr) && (pp_object != nullptr) && (*pp_object != nullptr))
+        {
+            // Don't override object name if this AddObject() call is triggered by a QueryInterface() call
+            if (call_id != format::ApiCall_IUnknown_QueryInterface)
+            {
+                IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
+                ID3D12Object* object = nullptr;
+
+                // See if this is a D3D12Object
+                if (SUCCEEDED(iunknown->QueryInterface(IID_ID3D12Object, reinterpret_cast<void**>(&object))))
+                {
+                    const std::wstring constructed_name = ConstructObjectName(*p_id, call_id);
+
+                    HRESULT res = object->SetName(constructed_name.c_str());
+                    GFXRECON_ASSERT(res == S_OK);
+
+                    // QueryInterface() increases the refcount on success, so release here
+                    iunknown->Release();
+                }
+            }
+        }
     }
 
     template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info, format::ApiCallId api_call)
+    void AddObject(const format::HandleId* p_id, T** pp_object, format::ApiCallId call_id)
+    {
+        object_mapping::AddObject<T>(p_id, pp_object, &object_info_table_);
+
+        if (options_.override_object_names)
+        {
+            SetObjectName(p_id, pp_object, call_id);
+        }
+    }
+
+    template <typename T>
+    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info, format::ApiCallId call_id)
     {
         object_mapping::AddObject<T>(p_id, pp_object, std::move(initial_info), &object_info_table_);
 
         if (options_.override_object_names)
         {
-            if ((pp_object != nullptr) && (*pp_object != nullptr))
-            {
-                IUnknown*     iunknown = reinterpret_cast<IUnknown*>(*pp_object);
-                ID3D12Object* object   = nullptr;
-
-                if (SUCCEEDED(iunknown->QueryInterface(IID_ID3D12Object, reinterpret_cast<void**>(&object))))
-                {
-                    SetObjectName(object, initial_info.capture_id, api_call);
-
-                    iunknown->Release();
-                }
-            }
+            SetObjectName(p_id, pp_object, call_id);
         }
     }
 

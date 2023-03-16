@@ -3570,24 +3570,6 @@ void Dx12ReplayConsumerBase::PostReplay()
 }
 
 HRESULT
-Dx12ReplayConsumerBase::SetObjectName(ID3D12Object* object, format::HandleId capture_id, format::ApiCallId call_id)
-{
-    HRESULT hr = E_FAIL;
-
-    const std::wstring object_creator = util::GetDx12CallIdString(call_id);
-
-    std::wstring object_name = L"gfxr_obj_";
-    object_name.append(std::to_wstring(capture_id));
-    object_name.append(L" (" + object_creator + L")");
-
-    hr = object->SetName(object_creator.c_str());
-
-    GFXRECON_ASSERT(hr == S_OK);
-
-    return hr;
-}
-
-HRESULT
 Dx12ReplayConsumerBase::OverrideSetName(DxObjectInfo* replay_object_info, HRESULT original_result, WStringDecoder* Name)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
@@ -3608,6 +3590,17 @@ Dx12ReplayConsumerBase::OverrideSetName(DxObjectInfo* replay_object_info, HRESUL
     }
 
     return result;
+}
+
+std::wstring Dx12ReplayConsumerBase::ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id)
+{
+    std::wstring object_creator = util::GetDx12CallIdString(call_id);
+
+    std::wstring constructed_name = L"gfxr_obj_";
+    constructed_name.append(std::to_wstring(capture_id));
+    constructed_name.append(L" (" + object_creator + L")");
+
+    return constructed_name;
 }
 
 GFXRECON_END_NAMESPACE(decode)
