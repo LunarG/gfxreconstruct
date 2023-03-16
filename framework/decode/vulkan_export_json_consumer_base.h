@@ -171,12 +171,17 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
                                             uint32_t                 size,
                                             PointerDecoder<uint8_t>* pValues) override;
 
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                              format::HandleId                 device,
+                                                              format::HandleId                 descriptorSet,
+                                                              format::HandleId                 descriptorUpdateTemplate,
+                                                              DescriptorUpdateTemplateDecoder* pData) override;
+
     /// @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
     virtual void ProcessAnnotation(uint64_t               block_index,
                                    format::AnnotationType type,
                                    const std::string&     label,
                                    const std::string&     data) override;
-
   private:
     // Delete the in-memory JSON tree from the last line and count the new object.
     // Putting it in one non-inline function allows all the JSON deletion work

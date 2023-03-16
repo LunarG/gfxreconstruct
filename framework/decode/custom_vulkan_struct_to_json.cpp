@@ -20,21 +20,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "util/defines.h"
 #include "custom_vulkan_struct_to_json.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_to_json.h"
 #include "generated/generated_vulkan_enum_to_json.h"
+#include "decode/descriptor_update_template_decoder.h"
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "util/platform.h"
+#include "util/defines.h"
 #include "nlohmann/json.hpp"
 #include "vulkan/vulkan.h"
 
-#include "util/platform.h"
-
-#include <sstream>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+void HandleToJson(nlohmann::ordered_json& jdata,
+                  const format::HandleId* data,
+                  size_t                  num_elemements,
+                  const JsonOptions&      options)
+{
+    if (data)
+    {
+        for (size_t i = 0; i < num_elemements; ++i)
+        {
+            HandleToJson(jdata[i], data[i], options);
+        }
+    }
+    else
+    {
+        jdata = nullptr;
+    }
+}
 
 void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data, const JsonOptions& options)
 {
@@ -394,6 +410,41 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
         {
             jdata = *decoded_value;
         }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json&                      jdata,
+                 const DescriptorUpdateTemplateDecoder* const pData,
+                 const JsonOptions&                           options)
+{
+    if (pData)
+    {
+        if (pData->GetImageInfoCount())
+        {
+            FieldToJson(jdata["imageInfos"], pData->GetImageInfoMetaStructPointer(), options);
+        }
+        if (pData->GetBufferInfoCount())
+        {
+            FieldToJson(jdata["bufferInfos"], pData->GetBufferInfoMetaStructPointer(), options);
+        }
+        const auto texel_buffer_view_count = pData->GetTexelBufferViewCount();
+        if (texel_buffer_view_count > 0)
+        {
+            HandleToJson(
+                jdata["bufferViews"], pData->GetTexelBufferViewHandleIdsPointer(), texel_buffer_view_count, options);
+        }
+        const auto acceleration_structure_count = pData->GetAccelerationStructureKHRCount();
+        if (acceleration_structure_count > 0)
+        {
+            HandleToJson(jdata["accelStructViews"],
+                         pData->GetAccelerationStructureKHRHandleIdsPointer(),
+                         acceleration_structure_count,
+                         options);
+        }
+    }
+    else
+    {
+        jdata = nullptr;
     }
 }
 

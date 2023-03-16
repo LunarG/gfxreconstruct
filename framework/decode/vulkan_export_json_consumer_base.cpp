@@ -596,6 +596,26 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
     });
 }
 
+void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
+    const ApiCallInfo&               call_info,
+    format::HandleId                 device,
+    format::HandleId                 descriptorSet,
+    format::HandleId                 descriptorUpdateTemplate,
+    DescriptorUpdateTemplateDecoder* pData)
+{
+    using namespace gfxrecon::util;
+
+    auto& function = WriteApiCallStart(call_info, "vkUpdateDescriptorSetWithTemplateKHR");
+    auto& args     = function[NameArgs()];
+
+    HandleToJson(args["device"], device, json_options_);
+    HandleToJson(args["descriptorSet"], descriptorSet, json_options_);
+    HandleToJson(args["descriptorUpdateTemplate"], descriptorUpdateTemplate, json_options_);
+    FieldToJson(args["pData"], pData, json_options_);
+
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumerBase::WriteBlockStart()
 {
     json_data_.clear(); // < Dominates Export profiling (1/2).

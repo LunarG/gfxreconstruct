@@ -37,6 +37,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+class DescriptorUpdateTemplateDecoder;
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options = JsonOptions())
 {
     jdata = data;
@@ -296,6 +298,11 @@ void HandleToJson(nlohmann::ordered_json&              jdata,
     }
 }
 
+void HandleToJson(nlohmann::ordered_json& jdata,
+                  const format::HandleId* data,
+                  size_t                  num_elemements,
+                  const JsonOptions&      options = JsonOptions());
+
 /// @brief Thunk to HandleToJson for manual conversion functions which forget to
 /// use that for the array form.
 template <typename THandle>
@@ -384,6 +391,10 @@ void VkBool32ToJson(nlohmann::ordered_json&                               jdata,
         }
     }
 }
+
+void FieldToJson(nlohmann::ordered_json&                      jdata,
+                 const DescriptorUpdateTemplateDecoder* const pData,
+                 const JsonOptions&                           options = JsonOptions());
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
