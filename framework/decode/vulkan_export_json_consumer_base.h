@@ -201,20 +201,14 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
     constexpr const char* NameArgs() const { return "args"; }
     constexpr const char* NameThreadId() const { return "thread"; }
 
+    nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name);
+
     template <typename ToJsonFunctionType>
     inline void
     WriteApiCallToFile(const ApiCallInfo& call_info, const std::string& command_name, ToJsonFunctionType toJsonFunction)
     {
-        using namespace util;
-        WriteBlockStart();
-
-        json_data_[NameIndex()] = call_info.index;
-
-        nlohmann::ordered_json& function = json_data_[NameFunction()];
-        function[NameName()]             = command_name;
-        function[NameThread()]           = call_info.thread_id;
+        nlohmann::ordered_json& function = WriteApiCallStart(call_info, command_name);
         toJsonFunction(function);
-
         WriteBlockEnd();
     }
 

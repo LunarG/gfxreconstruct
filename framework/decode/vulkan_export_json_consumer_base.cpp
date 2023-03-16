@@ -602,6 +602,21 @@ void VulkanExportJsonConsumerBase::WriteBlockStart()
     num_objects_++;
 }
 
+nlohmann::ordered_json& VulkanExportJsonConsumerBase::WriteApiCallStart(const ApiCallInfo& call_info,
+                                                                        const std::string& command_name)
+{
+    using namespace util;
+    WriteBlockStart();
+
+    json_data_[NameIndex()] = call_info.index;
+
+    nlohmann::ordered_json& function = json_data_[NameFunction()];
+    function[NameName()]             = command_name;
+    function[NameThread()]           = call_info.thread_id;
+
+    return function;
+}
+
 void VulkanExportJsonConsumerBase::WriteBlockEnd()
 {
     using namespace util::platform;
