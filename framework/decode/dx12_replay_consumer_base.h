@@ -162,8 +162,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return handles;
     }
 
-    std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
-
     template <typename T>
     void SetObjectName(const format::HandleId* p_id, T** pp_object, format::ApiCallId call_id)
     {
@@ -786,6 +784,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetResourceInitInfoState(ResourceInitInfo&                           resource_info,
                                   const format::InitSubresourceCommandHeader& command_header,
                                   const uint8_t*                              data);
+
+    std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;
