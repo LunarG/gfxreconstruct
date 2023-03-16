@@ -429,7 +429,7 @@ void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     if (adapters.empty() == false)
     {
         std::unordered_map<int64_t, std::string> adapter_workload;
-        dx12_consumer.CalcAdapterWorkload(adapter_workload);
+        dx12_consumer.CalcAdapterWorkload(adapter_workload, adapters);
 
         for (const auto& adapter : adapters)
         {

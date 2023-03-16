@@ -299,7 +299,6 @@ class Dx12StatsConsumer : public Dx12Consumer
                                            HandlePointerDecoder<void*>* ppDevice)
     {
         GFXRECON_ASSERT(ppDevice != nullptr);
-        GFXRECON_ASSERT(pAdapter != format::kNullHandleId)
 
         if (ppDevice != nullptr && ppDevice->GetPointer() != nullptr)
         {
@@ -316,7 +315,6 @@ class Dx12StatsConsumer : public Dx12Consumer
                                                          HandlePointerDecoder<void*>* ppCommandQueue)
     {
         GFXRECON_ASSERT(ppCommandQueue != nullptr);
-        GFXRECON_ASSERT(object_id != format::kNullHandleId);
 
         if (ppCommandQueue != nullptr && ppCommandQueue->GetPointer() != nullptr)
         {
@@ -335,7 +333,24 @@ class Dx12StatsConsumer : public Dx12Consumer
         adapter_submission_mapping_.adapter_submit_counts[object_id]++;
     }
 
-    void CalcAdapterWorkload(std::unordered_map<int64_t, std::string>& adapter_workload)
+    // validation of workload LUID exists in adapters luid
+    bool ValidateAdapterWorkload(int64_t workload_luid, const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters)
+    {
+        bool valid_adapter = false;
+        for (const auto& adapter : adapters)
+        {
+            const int64_t adapter_luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
+            if (workload_luid == adapter_luid)
+            {
+                valid_adapter = true;
+                break;
+            }
+        }
+        return valid_adapter;
+    }
+
+    void CalcAdapterWorkload(std::unordered_map<int64_t, std::string>&            adapter_workload,
+                             const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters)
     {
         uint64_t total_adapter_submits = 0;
 
@@ -371,7 +386,10 @@ class Dx12StatsConsumer : public Dx12Consumer
             {
                 workload_value.erase(dot_pos + 2);
             }
-            adapter_workload[workload.first] = workload_value;
+            if (ValidateAdapterWorkload(workload.first, adapters))
+            {
+                adapter_workload[workload.first] = workload_value;
+            }
         }
     }
 
