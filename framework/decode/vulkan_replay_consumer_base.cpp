@@ -2214,7 +2214,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             // If a specific WSI extension was selected on the command line we need to make sure that extension is
             // loaded and other WSI extensions are disabled
             assert(application_);
-            const bool override_wsi_extensions = !application_->GetWsiContexts().empty();
+            const bool override_wsi_extensions = !application_->GetWsiCliContext().empty();
 
             for (const auto& itr : application_->GetWsiContexts())
             {
