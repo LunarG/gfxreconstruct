@@ -302,7 +302,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                HandleToJson(jdata["pTexelbufferView"], &meta_struct.pTexelBufferView, options);
+                HandleToJson(jdata["pTexelBufferView"], &meta_struct.pTexelBufferView, options);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
