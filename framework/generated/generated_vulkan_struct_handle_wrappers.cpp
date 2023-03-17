@@ -1675,6 +1675,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeCapabilitiesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(base), 1, unwrap_memory));
         break;
@@ -1738,8 +1741,8 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_VCL_FRAME_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264VclFrameInfoEXT*>(base), 1, unwrap_memory));
         break;
-    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264EmitPictureParametersInfoEXT*>(base), 1, unwrap_memory));
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264ProfileInfoEXT*>(base), 1, unwrap_memory));
@@ -1762,8 +1765,8 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_VCL_FRAME_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265VclFrameInfoEXT*>(base), 1, unwrap_memory));
         break;
-    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265EmitPictureParametersInfoEXT*>(base), 1, unwrap_memory));
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265ProfileInfoEXT*>(base), 1, unwrap_memory));
@@ -2196,6 +2199,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryLowLatencySupportNV*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(base), 1, unwrap_memory));

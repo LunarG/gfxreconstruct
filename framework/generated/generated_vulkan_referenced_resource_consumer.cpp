@@ -1168,7 +1168,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEncodeVideoKHR(
     if (!pEncodeInfo->IsNull() && (pEncodeInfo->HasData()))
     {
         auto pEncodeInfo_ptr = pEncodeInfo->GetMetaStructPointer();
-        GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->dstBitstreamBuffer);
+        GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->dstBuffer);
         GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->srcPictureResource->imageViewBinding);
 
         if (!pEncodeInfo_ptr->pSetupReferenceSlot->IsNull() && (pEncodeInfo_ptr->pSetupReferenceSlot->HasData()))

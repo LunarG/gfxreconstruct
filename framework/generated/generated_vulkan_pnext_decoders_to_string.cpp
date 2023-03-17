@@ -384,6 +384,8 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDevicePresentIdFeaturesKHR*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeCapabilitiesKHR*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeUsageInfoKHR*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR:
@@ -426,8 +428,8 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_VCL_FRAME_INFO_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH264VclFrameInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-            return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH264EmitPictureParametersInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH264DpbSlotInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH264ProfileInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_EXT:
@@ -442,8 +444,8 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_VCL_FRAME_INFO_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH265VclFrameInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-            return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH265EmitPictureParametersInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_EXT:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH265DpbSlotInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkVideoEncodeH265ProfileInfoEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_EXT:
@@ -732,6 +734,8 @@ std::string PNextDecodedToString(const decode::PNextNode* pNext, ToStringFlags t
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
             return ToString(*reinterpret_cast<const decode::Decoded_VkDeviceDiagnosticsConfigCreateInfoNV*>(meta), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
+            return ToString(*reinterpret_cast<const decode::Decoded_VkQueryLowLatencySupportNV*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
             return ToString(*reinterpret_cast<const decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(meta), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:

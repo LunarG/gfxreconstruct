@@ -262,10 +262,10 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceIn
     encoder->EncodeUInt32Value(value.used_for_long_term_reference);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefMgmtFlags& value)
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceListsInfoFlags& value)
 {
-    encoder->EncodeUInt32Value(value.ref_pic_list_modification_l0_flag);
-    encoder->EncodeUInt32Value(value.ref_pic_list_modification_l1_flag);
+    encoder->EncodeUInt32Value(value.ref_pic_list_modification_flag_l0);
+    encoder->EncodeUInt32Value(value.ref_pic_list_modification_flag_l1);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefListModEntry& value)
@@ -284,14 +284,19 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefPicMarki
     encoder->EncodeUInt16Value(value.max_long_term_frame_idx_plus1);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefMemMgmtCtrlOperations& value)
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceListsInfo& value)
 {
     EncodeStruct(encoder, value.flags);
+    encoder->EncodeUInt8Value(value.refPicList0EntryCount);
+    encoder->EncodeUInt8Value(value.refPicList1EntryCount);
     encoder->EncodeUInt8Value(value.refList0ModOpCount);
-    EncodeStructPtr(encoder, value.pRefList0ModOperations);
     encoder->EncodeUInt8Value(value.refList1ModOpCount);
-    EncodeStructPtr(encoder, value.pRefList1ModOperations);
     encoder->EncodeUInt8Value(value.refPicMarkingOpCount);
+    encoder->EncodeUInt8Array(value.reserved1, 7);
+    encoder->EncodeUInt8Ptr(value.pRefPicList0Entries);
+    encoder->EncodeUInt8Ptr(value.pRefPicList1Entries);
+    EncodeStructPtr(encoder, value.pRefList0ModOperations);
+    EncodeStructPtr(encoder, value.pRefList1ModOperations);
     EncodeStructPtr(encoder, value.pRefPicMarkingOperations);
 }
 
@@ -300,6 +305,7 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264PictureInfo
     EncodeStruct(encoder, value.flags);
     encoder->EncodeUInt8Value(value.seq_parameter_set_id);
     encoder->EncodeUInt8Value(value.pic_parameter_set_id);
+    encoder->EncodeUInt16Value(value.reserved1);
     encoder->EncodeEnumValue(value.pictureType);
     encoder->EncodeUInt32Value(value.frame_num);
     encoder->EncodeInt32Value(value.PicOrderCnt);
@@ -308,6 +314,7 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264PictureInfo
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceInfo& value)
 {
     EncodeStruct(encoder, value.flags);
+    encoder->EncodeEnumValue(value.pictureType);
     encoder->EncodeUInt32Value(value.FrameNum);
     encoder->EncodeInt32Value(value.PicOrderCnt);
     encoder->EncodeUInt16Value(value.long_term_pic_num);
@@ -326,6 +333,8 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264SliceHeader
     encoder->EncodeEnumValue(value.disable_deblocking_filter_idc);
     encoder->EncodeInt8Value(value.slice_alpha_c0_offset_div2);
     encoder->EncodeInt8Value(value.slice_beta_offset_div2);
+    encoder->EncodeUInt16Value(value.reserved1);
+    encoder->EncodeUInt32Value(value.reserved2);
     EncodeStructPtr(encoder, value.pWeightTable);
 }
 
@@ -775,19 +784,22 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265SliceSegmen
     EncodeStructPtr(encoder, value.pWeightTable);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceModificationFlags& value)
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceListsInfoFlags& value)
 {
     encoder->EncodeUInt32Value(value.ref_pic_list_modification_flag_l0);
     encoder->EncodeUInt32Value(value.ref_pic_list_modification_flag_l1);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceModifications& value)
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceListsInfo& value)
 {
     EncodeStruct(encoder, value.flags);
-    encoder->EncodeUInt8Value(value.referenceList0ModificationsCount);
-    encoder->EncodeUInt8Ptr(value.pReferenceList0Modifications);
-    encoder->EncodeUInt8Value(value.referenceList1ModificationsCount);
-    encoder->EncodeUInt8Ptr(value.pReferenceList1Modifications);
+    encoder->EncodeUInt8Value(value.num_ref_idx_l0_active_minus1);
+    encoder->EncodeUInt8Value(value.num_ref_idx_l1_active_minus1);
+    encoder->EncodeUInt16Value(value.reserved1);
+    encoder->EncodeUInt8Ptr(value.pRefPicList0Entries);
+    encoder->EncodeUInt8Ptr(value.pRefPicList1Entries);
+    encoder->EncodeUInt8Ptr(value.pRefList0Modifications);
+    encoder->EncodeUInt8Ptr(value.pRefList1Modifications);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265PictureInfoFlags& value)
@@ -806,8 +818,8 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265PictureInfo
     encoder->EncodeUInt8Value(value.sps_video_parameter_set_id);
     encoder->EncodeUInt8Value(value.pps_seq_parameter_set_id);
     encoder->EncodeUInt8Value(value.pps_pic_parameter_set_id);
-    encoder->EncodeInt32Value(value.PicOrderCntVal);
     encoder->EncodeUInt8Value(value.TemporalId);
+    encoder->EncodeInt32Value(value.PicOrderCntVal);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceInfoFlags& value)
@@ -819,6 +831,7 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceIn
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceInfo& value)
 {
     EncodeStruct(encoder, value.flags);
+    encoder->EncodeEnumValue(value.PictureType);
     encoder->EncodeInt32Value(value.PicOrderCntVal);
     encoder->EncodeUInt8Value(value.TemporalId);
 }
@@ -4800,9 +4813,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeInfoKHR& value)
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeUInt32Value(value.qualityLevel);
-    encoder->EncodeHandleValue<BufferWrapper>(value.dstBitstreamBuffer);
-    encoder->EncodeVkDeviceSizeValue(value.dstBitstreamBufferOffset);
-    encoder->EncodeVkDeviceSizeValue(value.dstBitstreamBufferMaxRange);
+    encoder->EncodeHandleValue<BufferWrapper>(value.dstBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.dstBufferOffset);
+    encoder->EncodeVkDeviceSizeValue(value.dstBufferRange);
     EncodeStruct(encoder, value.srcPictureResource);
     EncodeStructPtr(encoder, value.pSetupReferenceSlot);
     encoder->EncodeUInt32Value(value.referenceSlotCount);
@@ -4816,9 +4829,17 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeCapabilitiesKHR&
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeFlagsValue(value.rateControlModes);
-    encoder->EncodeUInt8Value(value.rateControlLayerCount);
-    encoder->EncodeUInt8Value(value.qualityLevelCount);
+    encoder->EncodeUInt32Value(value.maxRateControlLayers);
+    encoder->EncodeUInt32Value(value.maxQualityLevels);
     EncodeStruct(encoder, value.inputImageDataFillAlignment);
+    encoder->EncodeFlagsValue(value.supportedEncodeFeedbackFlags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.encodeFeedbackFlags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeUsageInfoKHR& value)
@@ -4834,8 +4855,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRateControlLayer
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.averageBitrate);
-    encoder->EncodeUInt32Value(value.maxBitrate);
+    encoder->EncodeUInt64Value(value.averageBitrate);
+    encoder->EncodeUInt64Value(value.maxBitrate);
     encoder->EncodeUInt32Value(value.frameRateNumerator);
     encoder->EncodeUInt32Value(value.frameRateDenominator);
     encoder->EncodeUInt32Value(value.virtualBufferSizeInMs);
@@ -4848,8 +4869,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRateControlInfoK
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.rateControlMode);
-    encoder->EncodeUInt8Value(value.layerCount);
-    EncodeStructArray(encoder, value.pLayerConfigs, value.layerCount);
+    encoder->EncodeUInt32Value(value.layerCount);
+    EncodeStructArray(encoder, value.pLayers, value.layerCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointProperties2NV& value)
@@ -5044,11 +5065,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264Capabilities
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeFlagsValue(value.inputModeFlags);
-    encoder->EncodeFlagsValue(value.outputModeFlags);
-    encoder->EncodeUInt8Value(value.maxPPictureL0ReferenceCount);
-    encoder->EncodeUInt8Value(value.maxBPictureL0ReferenceCount);
-    encoder->EncodeUInt8Value(value.maxL1ReferenceCount);
+    encoder->EncodeUInt32Value(value.maxPPictureL0ReferenceCount);
+    encoder->EncodeUInt32Value(value.maxBPictureL0ReferenceCount);
+    encoder->EncodeUInt32Value(value.maxL1ReferenceCount);
     encoder->EncodeVkBool32Value(value.motionVectorsOverPicBoundariesFlag);
     encoder->EncodeUInt32Value(value.maxBytesPerPicDenom);
     encoder->EncodeUInt32Value(value.maxBitsPerMbDenom);
@@ -5075,52 +5094,30 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionParam
     EncodeStructPtr(encoder, value.pParametersAddInfo);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264DpbSlotInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeInt8Value(value.slotIndex);
-    EncodeStructPtr(encoder, value.pStdReferenceInfo);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264ReferenceListsInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt8Value(value.referenceList0EntryCount);
-    EncodeStructArray(encoder, value.pReferenceList0Entries, value.referenceList0EntryCount);
-    encoder->EncodeUInt8Value(value.referenceList1EntryCount);
-    EncodeStructArray(encoder, value.pReferenceList1Entries, value.referenceList1EntryCount);
-    EncodeStructPtr(encoder, value.pMemMgmtCtrlOperations);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264NaluSliceInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.mbCount);
-    EncodeStructPtr(encoder, value.pReferenceFinalLists);
-    EncodeStructPtr(encoder, value.pSliceHeaderStd);
+    EncodeStructPtr(encoder, value.pStdReferenceFinalLists);
+    EncodeStructPtr(encoder, value.pStdSliceHeader);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264VclFrameInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    EncodeStructPtr(encoder, value.pReferenceFinalLists);
+    EncodeStructPtr(encoder, value.pStdReferenceFinalLists);
     encoder->EncodeUInt32Value(value.naluSliceEntryCount);
     EncodeStructArray(encoder, value.pNaluSliceEntries, value.naluSliceEntryCount);
-    EncodeStructPtr(encoder, value.pCurrentPictureInfo);
+    EncodeStructPtr(encoder, value.pStdPictureInfo);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264EmitPictureParametersInfoEXT& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264DpbSlotInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt8Value(value.spsId);
-    encoder->EncodeVkBool32Value(value.emitSpsEnable);
-    encoder->EncodeUInt32Value(value.ppsIdEntryCount);
-    encoder->EncodeUInt8Array(value.ppsIdEntries, value.ppsIdEntryCount);
+    EncodeStructPtr(encoder, value.pStdReferenceInfo);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264ProfileInfoEXT& value)
@@ -5138,7 +5135,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264RateControlI
     encoder->EncodeUInt32Value(value.idrPeriod);
     encoder->EncodeUInt32Value(value.consecutiveBFrameCount);
     encoder->EncodeEnumValue(value.rateControlStructure);
-    encoder->EncodeUInt8Value(value.temporalLayerCount);
+    encoder->EncodeUInt32Value(value.temporalLayerCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264QpEXT& value)
@@ -5159,7 +5156,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264RateControlL
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt8Value(value.temporalLayerId);
+    encoder->EncodeUInt32Value(value.temporalLayerId);
     encoder->EncodeVkBool32Value(value.useInitialRcQp);
     EncodeStruct(encoder, value.initialRcQp);
     encoder->EncodeVkBool32Value(value.useMinQp);
@@ -5175,25 +5172,23 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265Capabilities
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeFlagsValue(value.inputModeFlags);
-    encoder->EncodeFlagsValue(value.outputModeFlags);
     encoder->EncodeFlagsValue(value.ctbSizes);
     encoder->EncodeFlagsValue(value.transformBlockSizes);
-    encoder->EncodeUInt8Value(value.maxPPictureL0ReferenceCount);
-    encoder->EncodeUInt8Value(value.maxBPictureL0ReferenceCount);
-    encoder->EncodeUInt8Value(value.maxL1ReferenceCount);
-    encoder->EncodeUInt8Value(value.maxSubLayersCount);
-    encoder->EncodeUInt8Value(value.minLog2MinLumaCodingBlockSizeMinus3);
-    encoder->EncodeUInt8Value(value.maxLog2MinLumaCodingBlockSizeMinus3);
-    encoder->EncodeUInt8Value(value.minLog2MinLumaTransformBlockSizeMinus2);
-    encoder->EncodeUInt8Value(value.maxLog2MinLumaTransformBlockSizeMinus2);
-    encoder->EncodeUInt8Value(value.minMaxTransformHierarchyDepthInter);
-    encoder->EncodeUInt8Value(value.maxMaxTransformHierarchyDepthInter);
-    encoder->EncodeUInt8Value(value.minMaxTransformHierarchyDepthIntra);
-    encoder->EncodeUInt8Value(value.maxMaxTransformHierarchyDepthIntra);
-    encoder->EncodeUInt8Value(value.maxDiffCuQpDeltaDepth);
-    encoder->EncodeUInt8Value(value.minMaxNumMergeCand);
-    encoder->EncodeUInt8Value(value.maxMaxNumMergeCand);
+    encoder->EncodeUInt32Value(value.maxPPictureL0ReferenceCount);
+    encoder->EncodeUInt32Value(value.maxBPictureL0ReferenceCount);
+    encoder->EncodeUInt32Value(value.maxL1ReferenceCount);
+    encoder->EncodeUInt32Value(value.maxSubLayersCount);
+    encoder->EncodeUInt32Value(value.minLog2MinLumaCodingBlockSizeMinus3);
+    encoder->EncodeUInt32Value(value.maxLog2MinLumaCodingBlockSizeMinus3);
+    encoder->EncodeUInt32Value(value.minLog2MinLumaTransformBlockSizeMinus2);
+    encoder->EncodeUInt32Value(value.maxLog2MinLumaTransformBlockSizeMinus2);
+    encoder->EncodeUInt32Value(value.minMaxTransformHierarchyDepthInter);
+    encoder->EncodeUInt32Value(value.maxMaxTransformHierarchyDepthInter);
+    encoder->EncodeUInt32Value(value.minMaxTransformHierarchyDepthIntra);
+    encoder->EncodeUInt32Value(value.maxMaxTransformHierarchyDepthIntra);
+    encoder->EncodeUInt32Value(value.maxDiffCuQpDeltaDepth);
+    encoder->EncodeUInt32Value(value.minMaxNumMergeCand);
+    encoder->EncodeUInt32Value(value.maxMaxNumMergeCand);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParametersAddInfoEXT& value)
@@ -5218,54 +5213,30 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParam
     EncodeStructPtr(encoder, value.pParametersAddInfo);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265DpbSlotInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeInt8Value(value.slotIndex);
-    EncodeStructPtr(encoder, value.pStdReferenceInfo);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265ReferenceListsInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt8Value(value.referenceList0EntryCount);
-    EncodeStructArray(encoder, value.pReferenceList0Entries, value.referenceList0EntryCount);
-    encoder->EncodeUInt8Value(value.referenceList1EntryCount);
-    EncodeStructArray(encoder, value.pReferenceList1Entries, value.referenceList1EntryCount);
-    EncodeStructPtr(encoder, value.pReferenceModifications);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265NaluSliceSegmentInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.ctbCount);
-    EncodeStructPtr(encoder, value.pReferenceFinalLists);
-    EncodeStructPtr(encoder, value.pSliceSegmentHeaderStd);
+    EncodeStructPtr(encoder, value.pStdReferenceFinalLists);
+    EncodeStructPtr(encoder, value.pStdSliceSegmentHeader);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265VclFrameInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    EncodeStructPtr(encoder, value.pReferenceFinalLists);
+    EncodeStructPtr(encoder, value.pStdReferenceFinalLists);
     encoder->EncodeUInt32Value(value.naluSliceSegmentEntryCount);
     EncodeStructArray(encoder, value.pNaluSliceSegmentEntries, value.naluSliceSegmentEntryCount);
-    EncodeStructPtr(encoder, value.pCurrentPictureInfo);
+    EncodeStructPtr(encoder, value.pStdPictureInfo);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265EmitPictureParametersInfoEXT& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265DpbSlotInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt8Value(value.vpsId);
-    encoder->EncodeUInt8Value(value.spsId);
-    encoder->EncodeVkBool32Value(value.emitVpsEnable);
-    encoder->EncodeVkBool32Value(value.emitSpsEnable);
-    encoder->EncodeUInt32Value(value.ppsIdEntryCount);
-    encoder->EncodeUInt8Array(value.ppsIdEntries, value.ppsIdEntryCount);
+    EncodeStructPtr(encoder, value.pStdReferenceInfo);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265ProfileInfoEXT& value)
@@ -5283,7 +5254,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265RateControlI
     encoder->EncodeUInt32Value(value.idrPeriod);
     encoder->EncodeUInt32Value(value.consecutiveBFrameCount);
     encoder->EncodeEnumValue(value.rateControlStructure);
-    encoder->EncodeUInt8Value(value.subLayerCount);
+    encoder->EncodeUInt32Value(value.subLayerCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265QpEXT& value)
@@ -5304,7 +5275,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265RateControlL
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt8Value(value.temporalId);
+    encoder->EncodeUInt32Value(value.temporalId);
     encoder->EncodeVkBool32Value(value.useInitialRcQp);
     EncodeStruct(encoder, value.initialRcQp);
     encoder->EncodeVkBool32Value(value.useMinQp);
@@ -7177,6 +7148,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDiagnosticsConfigCrea
     encoder->EncodeFlagsValue(value.flags);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkQueryLowLatencySupportNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVoidPtr(value.pQueriedLowLatencyData);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7866,6 +7844,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceClusterCullin
     encoder->EncodeUInt32Array(value.maxWorkGroupCount, 3);
     encoder->EncodeUInt32Array(value.maxWorkGroupSize, 3);
     encoder->EncodeUInt32Value(value.maxOutputClusterCount);
+    encoder->EncodeVkDeviceSizeValue(value.indirectBufferOffsetAlignment);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT& value)

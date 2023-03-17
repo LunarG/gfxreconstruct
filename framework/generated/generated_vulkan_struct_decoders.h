@@ -208,11 +208,11 @@ struct Decoded_StdVideoEncodeH264ReferenceInfoFlags
     StdVideoEncodeH264ReferenceInfoFlags* decoded_value{ nullptr };
 };
 
-struct Decoded_StdVideoEncodeH264RefMgmtFlags
+struct Decoded_StdVideoEncodeH264ReferenceListsInfoFlags
 {
-    using struct_type = StdVideoEncodeH264RefMgmtFlags;
+    using struct_type = StdVideoEncodeH264ReferenceListsInfoFlags;
 
-    StdVideoEncodeH264RefMgmtFlags* decoded_value{ nullptr };
+    StdVideoEncodeH264ReferenceListsInfoFlags* decoded_value{ nullptr };
 };
 
 struct Decoded_StdVideoEncodeH264RefListModEntry
@@ -229,13 +229,16 @@ struct Decoded_StdVideoEncodeH264RefPicMarkingEntry
     StdVideoEncodeH264RefPicMarkingEntry* decoded_value{ nullptr };
 };
 
-struct Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations
+struct Decoded_StdVideoEncodeH264ReferenceListsInfo
 {
-    using struct_type = StdVideoEncodeH264RefMemMgmtCtrlOperations;
+    using struct_type = StdVideoEncodeH264ReferenceListsInfo;
 
-    StdVideoEncodeH264RefMemMgmtCtrlOperations* decoded_value{ nullptr };
+    StdVideoEncodeH264ReferenceListsInfo* decoded_value{ nullptr };
 
-    Decoded_StdVideoEncodeH264RefMgmtFlags* flags{ nullptr };
+    Decoded_StdVideoEncodeH264ReferenceListsInfoFlags* flags{ nullptr };
+    PointerDecoder<uint8_t> reserved1;
+    PointerDecoder<uint8_t> pRefPicList0Entries;
+    PointerDecoder<uint8_t> pRefPicList1Entries;
     StructPointerDecoder<Decoded_StdVideoEncodeH264RefListModEntry>* pRefList0ModOperations{ nullptr };
     StructPointerDecoder<Decoded_StdVideoEncodeH264RefListModEntry>* pRefList1ModOperations{ nullptr };
     StructPointerDecoder<Decoded_StdVideoEncodeH264RefPicMarkingEntry>* pRefPicMarkingOperations{ nullptr };
@@ -550,22 +553,24 @@ struct Decoded_StdVideoEncodeH265SliceSegmentHeader
     StructPointerDecoder<Decoded_StdVideoEncodeH265WeightTable>* pWeightTable{ nullptr };
 };
 
-struct Decoded_StdVideoEncodeH265ReferenceModificationFlags
+struct Decoded_StdVideoEncodeH265ReferenceListsInfoFlags
 {
-    using struct_type = StdVideoEncodeH265ReferenceModificationFlags;
+    using struct_type = StdVideoEncodeH265ReferenceListsInfoFlags;
 
-    StdVideoEncodeH265ReferenceModificationFlags* decoded_value{ nullptr };
+    StdVideoEncodeH265ReferenceListsInfoFlags* decoded_value{ nullptr };
 };
 
-struct Decoded_StdVideoEncodeH265ReferenceModifications
+struct Decoded_StdVideoEncodeH265ReferenceListsInfo
 {
-    using struct_type = StdVideoEncodeH265ReferenceModifications;
+    using struct_type = StdVideoEncodeH265ReferenceListsInfo;
 
-    StdVideoEncodeH265ReferenceModifications* decoded_value{ nullptr };
+    StdVideoEncodeH265ReferenceListsInfo* decoded_value{ nullptr };
 
-    Decoded_StdVideoEncodeH265ReferenceModificationFlags* flags{ nullptr };
-    PointerDecoder<uint8_t> pReferenceList0Modifications;
-    PointerDecoder<uint8_t> pReferenceList1Modifications;
+    Decoded_StdVideoEncodeH265ReferenceListsInfoFlags* flags{ nullptr };
+    PointerDecoder<uint8_t> pRefPicList0Entries;
+    PointerDecoder<uint8_t> pRefPicList1Entries;
+    PointerDecoder<uint8_t> pRefList0Modifications;
+    PointerDecoder<uint8_t> pRefList1Modifications;
 };
 
 struct Decoded_StdVideoEncodeH265PictureInfoFlags
@@ -4727,7 +4732,7 @@ struct Decoded_VkVideoEncodeInfoKHR
     VkVideoEncodeInfoKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    format::HandleId dstBitstreamBuffer{ format::kNullHandleId };
+    format::HandleId dstBuffer{ format::kNullHandleId };
     Decoded_VkVideoPictureResourceInfoKHR* srcPictureResource{ nullptr };
     StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>* pSetupReferenceSlot{ nullptr };
     StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>* pReferenceSlots{ nullptr };
@@ -4741,6 +4746,15 @@ struct Decoded_VkVideoEncodeCapabilitiesKHR
 
     PNextNode* pNext{ nullptr };
     Decoded_VkExtent2D* inputImageDataFillAlignment{ nullptr };
+};
+
+struct Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR
+{
+    using struct_type = VkQueryPoolVideoEncodeFeedbackCreateInfoKHR;
+
+    VkQueryPoolVideoEncodeFeedbackCreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkVideoEncodeUsageInfoKHR
@@ -4768,7 +4782,7 @@ struct Decoded_VkVideoEncodeRateControlInfoKHR
     VkVideoEncodeRateControlInfoKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeRateControlLayerInfoKHR>* pLayerConfigs{ nullptr };
+    StructPointerDecoder<Decoded_VkVideoEncodeRateControlLayerInfoKHR>* pLayers{ nullptr };
 };
 
 struct Decoded_VkQueueFamilyCheckpointProperties2NV
@@ -5051,28 +5065,6 @@ struct Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT
     StructPointerDecoder<Decoded_VkVideoEncodeH264SessionParametersAddInfoEXT>* pParametersAddInfo{ nullptr };
 };
 
-struct Decoded_VkVideoEncodeH264DpbSlotInfoEXT
-{
-    using struct_type = VkVideoEncodeH264DpbSlotInfoEXT;
-
-    VkVideoEncodeH264DpbSlotInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH264ReferenceInfo>* pStdReferenceInfo{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH264ReferenceListsInfoEXT
-{
-    using struct_type = VkVideoEncodeH264ReferenceListsInfoEXT;
-
-    VkVideoEncodeH264ReferenceListsInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH264DpbSlotInfoEXT>* pReferenceList0Entries{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH264DpbSlotInfoEXT>* pReferenceList1Entries{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations>* pMemMgmtCtrlOperations{ nullptr };
-};
-
 struct Decoded_VkVideoEncodeH264NaluSliceInfoEXT
 {
     using struct_type = VkVideoEncodeH264NaluSliceInfoEXT;
@@ -5080,8 +5072,8 @@ struct Decoded_VkVideoEncodeH264NaluSliceInfoEXT
     VkVideoEncodeH264NaluSliceInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH264ReferenceListsInfoEXT>* pReferenceFinalLists{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH264SliceHeader>* pSliceHeaderStd{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH264ReferenceListsInfo>* pStdReferenceFinalLists{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH264SliceHeader>* pStdSliceHeader{ nullptr };
 };
 
 struct Decoded_VkVideoEncodeH264VclFrameInfoEXT
@@ -5091,19 +5083,19 @@ struct Decoded_VkVideoEncodeH264VclFrameInfoEXT
     VkVideoEncodeH264VclFrameInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH264ReferenceListsInfoEXT>* pReferenceFinalLists{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH264ReferenceListsInfo>* pStdReferenceFinalLists{ nullptr };
     StructPointerDecoder<Decoded_VkVideoEncodeH264NaluSliceInfoEXT>* pNaluSliceEntries{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH264PictureInfo>* pCurrentPictureInfo{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH264PictureInfo>* pStdPictureInfo{ nullptr };
 };
 
-struct Decoded_VkVideoEncodeH264EmitPictureParametersInfoEXT
+struct Decoded_VkVideoEncodeH264DpbSlotInfoEXT
 {
-    using struct_type = VkVideoEncodeH264EmitPictureParametersInfoEXT;
+    using struct_type = VkVideoEncodeH264DpbSlotInfoEXT;
 
-    VkVideoEncodeH264EmitPictureParametersInfoEXT* decoded_value{ nullptr };
+    VkVideoEncodeH264DpbSlotInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    PointerDecoder<uint8_t> ppsIdEntries;
+    StructPointerDecoder<Decoded_StdVideoEncodeH264ReferenceInfo>* pStdReferenceInfo{ nullptr };
 };
 
 struct Decoded_VkVideoEncodeH264ProfileInfoEXT
@@ -5182,28 +5174,6 @@ struct Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT
     StructPointerDecoder<Decoded_VkVideoEncodeH265SessionParametersAddInfoEXT>* pParametersAddInfo{ nullptr };
 };
 
-struct Decoded_VkVideoEncodeH265DpbSlotInfoEXT
-{
-    using struct_type = VkVideoEncodeH265DpbSlotInfoEXT;
-
-    VkVideoEncodeH265DpbSlotInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceInfo>* pStdReferenceInfo{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265ReferenceListsInfoEXT
-{
-    using struct_type = VkVideoEncodeH265ReferenceListsInfoEXT;
-
-    VkVideoEncodeH265ReferenceListsInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH265DpbSlotInfoEXT>* pReferenceList0Entries{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH265DpbSlotInfoEXT>* pReferenceList1Entries{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceModifications>* pReferenceModifications{ nullptr };
-};
-
 struct Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT
 {
     using struct_type = VkVideoEncodeH265NaluSliceSegmentInfoEXT;
@@ -5211,8 +5181,8 @@ struct Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT
     VkVideoEncodeH265NaluSliceSegmentInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH265ReferenceListsInfoEXT>* pReferenceFinalLists{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265SliceSegmentHeader>* pSliceSegmentHeaderStd{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceListsInfo>* pStdReferenceFinalLists{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH265SliceSegmentHeader>* pStdSliceSegmentHeader{ nullptr };
 };
 
 struct Decoded_VkVideoEncodeH265VclFrameInfoEXT
@@ -5222,19 +5192,19 @@ struct Decoded_VkVideoEncodeH265VclFrameInfoEXT
     VkVideoEncodeH265VclFrameInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH265ReferenceListsInfoEXT>* pReferenceFinalLists{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceListsInfo>* pStdReferenceFinalLists{ nullptr };
     StructPointerDecoder<Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT>* pNaluSliceSegmentEntries{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265PictureInfo>* pCurrentPictureInfo{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH265PictureInfo>* pStdPictureInfo{ nullptr };
 };
 
-struct Decoded_VkVideoEncodeH265EmitPictureParametersInfoEXT
+struct Decoded_VkVideoEncodeH265DpbSlotInfoEXT
 {
-    using struct_type = VkVideoEncodeH265EmitPictureParametersInfoEXT;
+    using struct_type = VkVideoEncodeH265DpbSlotInfoEXT;
 
-    VkVideoEncodeH265EmitPictureParametersInfoEXT* decoded_value{ nullptr };
+    VkVideoEncodeH265DpbSlotInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    PointerDecoder<uint8_t> ppsIdEntries;
+    StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceInfo>* pStdReferenceInfo{ nullptr };
 };
 
 struct Decoded_VkVideoEncodeH265ProfileInfoEXT
@@ -7382,6 +7352,16 @@ struct Decoded_VkDeviceDiagnosticsConfigCreateInfoNV
     VkDeviceDiagnosticsConfigCreateInfoNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkQueryLowLatencySupportNV
+{
+    using struct_type = VkQueryLowLatencySupportNV;
+
+    VkQueryLowLatencySupportNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t pQueriedLowLatencyData{ 0 };
 };
 
 struct Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT
