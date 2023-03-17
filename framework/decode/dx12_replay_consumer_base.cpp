@@ -3572,8 +3572,6 @@ void Dx12ReplayConsumerBase::PostReplay()
 HRESULT
 Dx12ReplayConsumerBase::OverrideSetName(DxObjectInfo* replay_object_info, HRESULT original_result, WStringDecoder* Name)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     GFXRECON_ASSERT(replay_object_info != nullptr);
     GFXRECON_ASSERT(replay_object_info->object != nullptr);
 
