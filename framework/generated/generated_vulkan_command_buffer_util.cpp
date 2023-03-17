@@ -778,7 +778,7 @@ void TrackCmdEncodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoE
 
     if (pEncodeInfo != nullptr)
     {
-        if(pEncodeInfo->dstBitstreamBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(pEncodeInfo->dstBitstreamBuffer));
+        if(pEncodeInfo->dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(pEncodeInfo->dstBuffer));
         if(pEncodeInfo->srcPictureResource.imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId<ImageViewWrapper>(pEncodeInfo->srcPictureResource.imageViewBinding));
 
         if (pEncodeInfo->pSetupReferenceSlot != nullptr)

@@ -572,6 +572,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeCapabilitiesKHR*>(base));
             break;
+        case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(base));
+            break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(base));
             break;
@@ -635,8 +638,8 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_VCL_FRAME_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH264VclFrameInfoEXT*>(base));
             break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH264EmitPictureParametersInfoEXT*>(base));
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH264ProfileInfoEXT*>(base));
@@ -659,8 +662,8 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_VCL_FRAME_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265VclFrameInfoEXT*>(base));
             break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265EmitPictureParametersInfoEXT*>(base));
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265ProfileInfoEXT*>(base));
@@ -1093,6 +1096,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkQueryLowLatencySupportNV*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(base));
