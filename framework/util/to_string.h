@@ -28,11 +28,13 @@
 
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <iomanip>
 #include <sstream>
 #include <string>
 #include <utility>
+#include <cmath>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -47,7 +49,7 @@ enum ToStringFlagBits
 typedef uint32_t ToStringFlags;
 
 /// @brief  A template ToString to take care of simple POD cases like the many
-/// types of integers and the 32 bit and 64 bit floating point types.
+/// types of integers.
 template <typename T>
 inline std::string
 ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
@@ -56,6 +58,37 @@ ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
     return std::to_string(obj);
+}
+
+/// A conversion function for floats which modifies values that are not representable
+/// in JSON. Examples that hit this are usually from uninitialized data.
+inline std::string
+ToString(float data, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(tabCount);
+    GFXRECON_UNREFERENCED_PARAMETER(tabSize);
+
+    if (std::isnan(data))
+    {
+        GFXRECON_LOG_WARNING_ONCE("Converting a NAN to zero.");
+        data = 0.0f;
+    }
+    else if (std::isinf(data))
+    {
+        GFXRECON_LOG_WARNING_ONCE("Converting an infinity to max or min.");
+        if (data < 0)
+        {
+            data = std::numeric_limits<float>::min();
+        }
+        else
+        {
+            data = std::numeric_limits<float>::max();
+        }
+    }
+    // Normal and denormal/subnormal numbers pass through unchanged.
+
+    return std::to_string(data);
 }
 
 /// @brief A template that exists only to allow the ToStrings for 32 bit sets of

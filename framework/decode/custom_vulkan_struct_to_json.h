@@ -80,15 +80,10 @@ FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOp
     jdata = data;
 }
 
-/// @note The long, ugly, wrong-looking numbers this produces sometimes such as representing zero as
-/// 2.0178697886277366e-42 are intentional*. The docs claim this is to allow round-tripping without loss.
-/// * <https://json.nlohmann.me/features/types/number_handling/#number-serialization>
-inline void FieldToJson(nlohmann::ordered_json& jdata, float data, const JsonOptions& options = JsonOptions())
-{
-    // Enable this to confirm the ugly numbers are intended:
-    // std::fprintf(stderr, "\n%.*g\n", std::numeric_limits<double>::max_digits10, double(data));
-    jdata = data;
-}
+/// Convert floats to JSON, logging information loss when floats with no JSON
+/// number type representation are adjusted. The JSON library turns these numbers
+/// into JSON nulls otherwise.
+void FieldToJson(nlohmann::ordered_json& jdata, float data, const JsonOptions& options = JsonOptions());
 
 /// @note This is unused dead code currently (try placing a breakpoint on it).
 inline void FieldToJson(nlohmann::ordered_json& jdata, double data, const JsonOptions& options = JsonOptions())
