@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,7 +23,8 @@
 #include "util/argument_parser.h"
 #include "util/date_time.h"
 #include "util/logging.h"
-
+#include "util/file_path.h"
+#include "util/interception/interception_util.h"
 #include "util/interception/injection.h"
 
 #include <string>
@@ -90,16 +91,36 @@ bool GetProcessInfo(const std::vector<std::string>& positional_arguments, Create
         {
             const size_t args_loc           = exe_loc + 4;
             process_info.app_path           = user_app.substr(0, args_loc);
-            process_info.app_path_plus_args = process_info.app_path + user_app.substr(args_loc);
+            process_info.app_path_plus_args = QuoteCommand(process_info.app_path) + user_app.substr(args_loc);
             process_info.app_dir            = user_app.substr(0, user_app.rfind("\\"));
-
-            process_info.app_path_plus_args = QuoteCommand(process_info.app_path_plus_args);
 
             success = true;
         }
     }
 
     return success;
+}
+
+//----------------------------------------------------------------------------
+/// Verify that all capture components are present in the expected location
+///
+/// \return True if capture DLLs exist
+//----------------------------------------------------------------------------
+bool VerifyCaptureComponents(const std::string& interceptor_path)
+{
+    bool detected_capture_components = false;
+
+    const std::string lib_path_capture = gfxrecon::util::interception::CaptureLibPath();
+    const std::string lib_path_d3d12   = gfxrecon::util::interception::D3d12LibPath();
+    const std::string lib_path_dxgi    = gfxrecon::util::interception::DxgiLibPath();
+
+    if (gfxrecon::util::filepath::IsFile(lib_path_capture) && gfxrecon::util::filepath::IsFile(lib_path_d3d12) &&
+        gfxrecon::util::filepath::IsFile(lib_path_dxgi) && gfxrecon::util::filepath::IsFile(interceptor_path))
+    {
+        detected_capture_components = true;
+    }
+
+    return detected_capture_components;
 }
 
 //----------------------------------------------------------------------------
@@ -130,25 +151,47 @@ int main(int argc, const char** argv)
 
             if (success == true)
             {
-                STARTUPINFOA si = {};
-                si.cb           = sizeof(si);
+                char working_dir[MAX_PATH] = {};
+                GetCurrentDirectory(MAX_PATH, working_dir);
 
-                PROCESS_INFORMATION pi = {};
+                // Save off GFXR location in an environment variable, which is read later as our libs are loaded in
+                SetEnvironmentVariableA(gfxrecon::util::interception::kGfxrInstallEnv, working_dir);
 
-                std::string interceptor_path = gfxrecon::util::interception::GetInterceptorPath(process_info.app_path);
+                // If we're using the launcher, we can assume detours will be used
+                SetEnvironmentVariableA("GFXRECON_USE_DETOURS_HOOKING", "true");
 
-                gfxrecon::util::interception::LaunchAndInjectA(
-                    process_info.app_path.c_str(),
-                    const_cast<LPSTR>(process_info.app_path_plus_args.c_str()),
-                    nullptr,
-                    nullptr,
-                    TRUE,
-                    CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED,
-                    nullptr,
-                    process_info.app_dir.c_str(),
-                    &si,
-                    &pi,
-                    interceptor_path.c_str());
+                const std::string interceptor_path =
+                    gfxrecon::util::interception::InterceptorPath(working_dir, process_info.app_path);
+
+                if (VerifyCaptureComponents(interceptor_path) == true)
+                {
+                    STARTUPINFOA si = {};
+                    si.cb           = sizeof(si);
+
+                    PROCESS_INFORMATION pi = {};
+
+                    gfxrecon::util::interception::LaunchAndInjectA(
+                        process_info.app_path.c_str(),
+                        const_cast<LPSTR>(process_info.app_path_plus_args.c_str()),
+                        nullptr,
+                        nullptr,
+                        TRUE,
+                        CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED,
+                        nullptr,
+                        process_info.app_dir.c_str(),
+                        &si,
+                        &pi,
+                        interceptor_path.c_str());
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR(
+                        "Did not find DLLs required to enable capture with gfxrecon-launcher.exe. "
+                        "Verify that gfxrecon_interceptor.dll and the \"d3d12_capture\" directory and exist "
+                        "in the same place as gfxrecon-launcher.exe.");
+
+                    gfxrecon::util::Log::Release();
+                }
             }
         }
         catch (const std::runtime_error& error)

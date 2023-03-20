@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,6 +23,7 @@
 #include "hook_dxgi.h"
 
 #include "util/file_path.h"
+#include "util/interception/interception_util.h"
 
 // Static data required for hook management
 static DxgiHookInfo hook_info_ = {};
@@ -245,7 +246,9 @@ bool Hook_DXGI::HookInterceptor(bool capture)
                 {
                     if (hook_info_.capture_dll == nullptr)
                     {
-                        hook_info_.capture_dll = gfxrecon::util::platform::OpenLibrary(GFXR_D3D12_CAPTURE_PATH);
+                        const std::string gfxr_d3d12_capture_path = gfxrecon::util::interception::CaptureLibPath();
+
+                        hook_info_.capture_dll = gfxrecon::util::platform::OpenLibrary(gfxr_d3d12_capture_path.c_str());
 
                         if (hook_info_.capture_dll != nullptr)
                         {

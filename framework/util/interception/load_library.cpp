@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -28,6 +28,8 @@
 #include "ref_tracker_counter.h"
 #include "util/options.h"
 #include "util/platform.h"
+#include "util/file_path.h"
+#include "util/interception/interception_util.h"
 
 #include <Windows.h>
 #include <Shlwapi.h>
@@ -238,12 +240,16 @@ void HookInterceptionLibraries()
 
     if (gfxr_d3d12_module == NULL)
     {
-        gfxr_d3d12_module = HookInterceptionLibrary("d3d12.dll", GFXR_D3D12_PATH);
+        const std::string gfxr_d3d12_path = gfxrecon::util::interception::D3d12LibPath();
+
+        gfxr_d3d12_module = HookInterceptionLibrary(gfxrecon::util::interception::kD3d12Lib, gfxr_d3d12_path.c_str());
     }
 
     if (gfxr_dxgi_module == NULL)
     {
-        gfxr_dxgi_module = HookInterceptionLibrary("dxgi.dll", GFXR_DXGI_PATH);
+        const std::string gfxr_dxgi_path = gfxrecon::util::interception::DxgiLibPath();
+
+        gfxr_dxgi_module = HookInterceptionLibrary(gfxrecon::util::interception::kDxgiLib, gfxr_dxgi_path.c_str());
     }
 }
 
