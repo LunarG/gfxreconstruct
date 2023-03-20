@@ -129,9 +129,9 @@ bool XlibWindow::Destroy()
         const auto xlib = xlib_context_->GetXlibFunctionTable();
 
         SetFullscreen(false);
+        xlib.Flush(display_); // Potential workaround for #903
         SetVisibility(false);
 
-        xlib.Flush(display_); // Potential workaround for #903
         xlib.DestroyWindow(display_, window_);
         xlib.Sync(display_, true);
 
