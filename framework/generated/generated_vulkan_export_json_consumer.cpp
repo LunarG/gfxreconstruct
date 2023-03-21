@@ -3513,7 +3513,7 @@ void VulkanExportJsonConsumer::Process_vkSetPrivateData(
             auto parameters = jdata[NameArgs()];
             HandleToJson(parameters["device"], device, json_options_);
             FieldToJson(parameters["objectType"], objectType, json_options_);
-            FieldToJson(parameters["objectHandle"], objectHandle, json_options_);
+            HandleToJson(parameters["objectHandle"], objectHandle, json_options_);
             HandleToJson(parameters["privateDataSlot"], privateDataSlot, json_options_);
             FieldToJson(parameters["data"], data, json_options_);
             jdata[NameArgs()] = parameters;
@@ -3535,7 +3535,7 @@ void VulkanExportJsonConsumer::Process_vkGetPrivateData(
             auto parameters = jdata[NameArgs()];
             HandleToJson(parameters["device"], device, json_options_);
             FieldToJson(parameters["objectType"], objectType, json_options_);
-            FieldToJson(parameters["objectHandle"], objectHandle, json_options_);
+            HandleToJson(parameters["objectHandle"], objectHandle, json_options_);
             HandleToJson(parameters["privateDataSlot"], privateDataSlot, json_options_);
             FieldToJson(parameters["pData"], pData, json_options_);
             jdata[NameArgs()] = parameters;
@@ -9619,7 +9619,7 @@ void VulkanExportJsonConsumer::Process_vkSetPrivateDataEXT(
             auto parameters = jdata[NameArgs()];
             HandleToJson(parameters["device"], device, json_options_);
             FieldToJson(parameters["objectType"], objectType, json_options_);
-            FieldToJson(parameters["objectHandle"], objectHandle, json_options_);
+            HandleToJson(parameters["objectHandle"], objectHandle, json_options_);
             HandleToJson(parameters["privateDataSlot"], privateDataSlot, json_options_);
             FieldToJson(parameters["data"], data, json_options_);
             jdata[NameArgs()] = parameters;
@@ -9641,7 +9641,7 @@ void VulkanExportJsonConsumer::Process_vkGetPrivateDataEXT(
             auto parameters = jdata[NameArgs()];
             HandleToJson(parameters["device"], device, json_options_);
             FieldToJson(parameters["objectType"], objectType, json_options_);
-            FieldToJson(parameters["objectHandle"], objectHandle, json_options_);
+            HandleToJson(parameters["objectHandle"], objectHandle, json_options_);
             HandleToJson(parameters["privateDataSlot"], privateDataSlot, json_options_);
             FieldToJson(parameters["pData"], pData, json_options_);
             jdata[NameArgs()] = parameters;

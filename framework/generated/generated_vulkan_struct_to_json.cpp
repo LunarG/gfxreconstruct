@@ -8368,7 +8368,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsObject
         const auto& meta_struct   = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["objectType"], decoded_value.objectType, options);
-        FieldToJson(jdata["objectHandle"], decoded_value.objectHandle, options);
+        HandleToJson(jdata["objectHandle"], meta_struct.objectHandle, options);
         FieldToJson(jdata["pObjectName"], &meta_struct.pObjectName, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
@@ -8419,7 +8419,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsObject
         const auto& meta_struct   = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["objectType"], decoded_value.objectType, options);
-        FieldToJson(jdata["objectHandle"], decoded_value.objectHandle, options);
+        HandleToJson(jdata["objectHandle"], meta_struct.objectHandle, options);
         FieldToJson(jdata["tagName"], decoded_value.tagName, options);
         FieldToJson(jdata["tagSize"], decoded_value.tagSize, options);
         FieldToJson(jdata["pTag"], meta_struct.pTag, options);

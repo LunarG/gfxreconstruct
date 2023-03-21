@@ -83,6 +83,11 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             'VkDeviceAddress',
         }
 
+        # Parameters using this name should be output as handles even though they are uint64_t
+        self.formatAsHandle = {
+            'objectHandle',
+        }
+
         self.queueSubmit = {
             "vkQueueSubmit",
             "vkQueueSubmit2",
@@ -213,7 +218,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                     to_json = 'VkBool32ToJson(parameters["{0}"], {0}, json_options_)'
                 elif value.name == 'ppData' or (value.base_type in self.formatAsHex):
                     to_json = 'FieldToJsonAsHex(parameters["{0}"], {0}, json_options_)'
-                elif self.is_handle(value.base_type):
+                elif self.is_handle(value.base_type) or value.name in self.formatAsHandle:
                     to_json = 'HandleToJson(parameters["{0}"], {0}, json_options_)'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flagsTypeAlias:

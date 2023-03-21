@@ -81,6 +81,16 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
             'VkDeviceAddress',
         }
 
+        # Fields using this name should be output as handles even though they are uint64_t
+        self.formatAsHandle = {
+            'objectHandle',
+        }
+
+        # Struct types here do not have decoded fields.
+        self.notDecoded = {
+            'VkDeviceMemoryReportCallbackDataEXT',
+        }
+
         self.pnext_extension_structs = dict()
         self.flagsType = dict()
         self.flagsTypeAlias = dict()
@@ -172,13 +182,15 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
             type_name = self.make_decoded_param_type(value)
             flagsEnumType = value.base_type
 
-            to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
-
             if value.name == 'pNext':
                 # move pnext to be the last member
                 has_pnext = True
                 continue
-            elif 'pfn' in value.name or 'pUserData' in value.name:
+
+            # Default to getting the data from the native Vulkan struct:
+            to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
+
+            if 'pfn' in value.name or 'pUserData' in value.name:
                 to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
             elif value.is_pointer:
                 if 'String' in type_name:
@@ -207,7 +219,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                     else:
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                 else:
-                    if self.is_handle(value.base_type):
+                    if (self.is_handle(value.base_type) or value.name in self.formatAsHandle) and not (name in self.notDecoded):
                         to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif value.base_type in self.formatAsHex:
                         to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
