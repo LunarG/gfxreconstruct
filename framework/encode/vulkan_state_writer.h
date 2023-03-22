@@ -211,7 +211,7 @@ class VulkanStateWriter
     void WriteCommandProcessingCreateCommands(format::HandleId device_id,
                                               uint32_t         queue_family_index,
                                               format::HandleId queue_id,
-                                              format::HandleId command_pool_id,
+                                              VkCommandPool    command_pool,
                                               format::HandleId command_buffer_id);
 
     void WriteCommandBegin(format::HandleId command_buffer_id);

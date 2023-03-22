@@ -57,22 +57,7 @@ static const VkDescriptorImageInfo* UnwrapDescriptorImageInfoStructArrayHandles(
     return values;
 }
 
-void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
-        {
-            // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-            value->sampler = GetWrappedHandle<VkSampler>(value->sampler);
-        }
-
-        if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
-        {
-            value->imageView = GetWrappedHandle<VkImageView>(value->imageView);
-        }
-    }
-}
+void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, HandleUnwrapMemory* unwrap_memory) {}
 
 void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -82,8 +67,6 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-
-        value->dstSet = GetWrappedHandle<VkDescriptorSet>(value->dstSet);
 
         switch (value->descriptorType)
         {
@@ -104,8 +87,6 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                value->pTexelBufferView =
-                    UnwrapHandles<VkBufferView>(value->pTexelBufferView, value->descriptorCount, unwrap_memory);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
                 // TODO

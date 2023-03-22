@@ -215,8 +215,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                 value_name = '{}[{}]'.format(value_name, index_name)
             elif value.is_pointer:
                 value_name = '(*{})'.format(value_name)
-            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}));\n'.format(
-                value_name, type_enum_value, value_name
+            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId<{}>({}));\n'.format(
+                value_name, type_enum_value, value.base_type[2:] + 'Wrapper' ,value_name
             )
 
         elif self.is_struct(

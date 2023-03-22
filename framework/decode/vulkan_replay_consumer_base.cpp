@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2244,16 +2244,8 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 }
                 else
                 {
-                    // Check that the requested extensions are present and print warnings if not.
-                    for (auto extensionIter = filtered_extensions.begin(); extensionIter != filtered_extensions.end();
-                         ++extensionIter)
-                    {
-                        if (!feature_util::IsSupportedExtension(available_extensions, *extensionIter))
-                        {
-                            GFXRECON_LOG_WARNING("Extension %s, is not supported by the replay device.",
-                                                 *extensionIter);
-                        }
-                    }
+                    // Remove enabled extensions that are ignorable from the replay instance.
+                    feature_util::RemoveIgnorableExtensions(available_extensions, &filtered_extensions);
                 }
             }
             else
@@ -2485,7 +2477,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             }
         }
 
-        if (options_.remove_unsupported_features && (physical_device != VK_NULL_HANDLE))
+        if (physical_device != VK_NULL_HANDLE)
         {
             // Remove enabled extensions that are not available from the replay device.
             auto table = GetInstanceTable(physical_device);
@@ -2495,15 +2487,27 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             if (feature_util::GetDeviceExtensions(
                     physical_device, table->EnumerateDeviceExtensionProperties, &properties) == VK_SUCCESS)
             {
-                feature_util::RemoveUnsupportedExtensions(properties, &modified_extensions);
+                if (options_.remove_unsupported_features)
+                {
+                    feature_util::RemoveUnsupportedExtensions(properties, &modified_extensions);
+                }
+                else
+                {
+                    // Remove enabled extensions that are not available on the replay device, but
+                    // that can still be safely ignored.
+                    feature_util::RemoveIgnorableExtensions(properties, &modified_extensions);
+                }
             }
 
-            // Remove enabled features that are not available from the replay device.
-            feature_util::RemoveUnsupportedFeatures(physical_device,
-                                                    table->GetPhysicalDeviceFeatures,
-                                                    table->GetPhysicalDeviceFeatures2,
-                                                    modified_create_info.pNext,
-                                                    modified_create_info.pEnabledFeatures);
+            if (options_.remove_unsupported_features)
+            {
+                // Remove enabled features that are not available from the replay device.
+                feature_util::RemoveUnsupportedFeatures(physical_device,
+                                                        table->GetPhysicalDeviceFeatures,
+                                                        table->GetPhysicalDeviceFeatures2,
+                                                        modified_create_info.pNext,
+                                                        modified_create_info.pEnabledFeatures);
+            }
         }
 
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
@@ -6265,6 +6269,33 @@ VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesAND
         auto*    output_properties = pProperties->GetOutputPointer();
 
         return func(device, hardware_buffer, output_properties);
+    }
+}
+
+// We want to allow skipping the query for tool properties because the capture layer actually adds this extension
+// and the application may end up using the query.  However, this extension may not be present for replay, so
+// we stub it out in that case.  This will generate warnings in the GfxReconstruct output, but it shouldn't result
+// in a failure.
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceToolProperties(
+    PFN_vkGetPhysicalDeviceToolProperties                         func,
+    VkResult                                                      original_result,
+    const PhysicalDeviceInfo*                                     physical_device_info,
+    PointerDecoder<uint32_t>*                                     pToolCount,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
+{
+    const auto& instance_extensions = physical_device_info->parent_enabled_extensions;
+    if (std::find(instance_extensions.begin(), instance_extensions.end(), VK_EXT_TOOLING_INFO_EXTENSION_NAME) !=
+        instance_extensions.end())
+    {
+        return func(physical_device_info->handle, pToolCount->GetOutputPointer(), pToolProperties->GetOutputPointer());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The captured application used vkGetPhysicalDeviceToolProperties. This is not supported by "
+            "the replay device, so replay may fail.");
+        *pToolCount->GetOutputPointer() = 0;
+        return VK_SUCCESS;
     }
 }
 

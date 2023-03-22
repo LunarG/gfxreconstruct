@@ -85,6 +85,8 @@
     "vkGetAccelerationStructureDeviceAddressKHR": "OverrideGetAccelerationStructureDeviceAddressKHR",
     "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR",
     "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID",
-    "vkDeferredOperationJoinKHR": "OverrideDeferredOperationJoinKHR"
+    "vkDeferredOperationJoinKHR": "OverrideDeferredOperationJoinKHR",
+    "vkGetPhysicalDeviceToolProperties": "OverrideGetPhysicalDeviceToolProperties",
+    "vkGetPhysicalDeviceToolPropertiesEXT": "OverrideGetPhysicalDeviceToolProperties"
   }
 }

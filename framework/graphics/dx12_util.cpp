@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -782,6 +782,24 @@ bool GetAdapterAndIndexbyLUID(LUID                              luid,
         success     = true;
     }
     return success;
+}
+
+void GetActiveAdapterLuids(graphics::dx12::ActiveAdapterMap adapters, std::vector<LUID>& adapter_luids)
+{
+    for (auto& adapter : adapters)
+    {
+        if (adapter.second.active == true)
+        {
+            LUID info;
+            info.HighPart = adapter.second.internal_desc.LuidHighPart;
+            info.LowPart  = adapter.second.internal_desc.LuidLowPart;
+            adapter_luids.push_back(info);
+        }
+    }
+    if (adapter_luids.empty())
+    {
+        GFXRECON_LOG_WARNING("No active adapters were found");
+    }
 }
 
 IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int32_t index)
