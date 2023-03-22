@@ -464,14 +464,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeH264PictureLa
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeUsageFlagBitsKHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeCapabilityFlagBitsKHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeContentFlagBitsKHR& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFeedbackFlagBitsKHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264CapabilityFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264InputModeFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264OutputModeFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264RateControlStructureEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265CapabilityFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265CtbSizeFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265InputModeFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265OutputModeFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265RateControlStructureEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265TransformBlockSizeFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRateControlModeFlagBitsKHR& value, const JsonOptions& options = JsonOptions());
