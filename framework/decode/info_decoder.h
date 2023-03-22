@@ -55,61 +55,65 @@ class InfoDecoder : public ApiDecoder
 
     virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) override { return true; }
 
-    virtual void
-    DecodeFunctionCall(format::ApiCallId id, const ApiCallInfo& call_info, const uint8_t* buffer, size_t buffer_size)
+    virtual void DecodeFunctionCall(format::ApiCallId  id,
+                                    const ApiCallInfo& call_info,
+                                    const uint8_t*     buffer,
+                                    size_t             buffer_size) override
     {}
 
     virtual void DecodeMethodCall(format::ApiCallId  call_id,
                                   format::HandleId   object_id,
                                   const ApiCallInfo& call_options,
                                   const uint8_t*     parameter_buffer,
-                                  size_t             buffer_size)
+                                  size_t             buffer_size) override
     {}
 
     virtual void
     DispatchFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
-                                           const uint8_t*                                      data)
+                                           const uint8_t*                                      data) override
     {}
 
-    virtual void DispatchStateBeginMarker(uint64_t frame_number) {}
+    virtual void DispatchStateBeginMarker(uint64_t frame_number) override {}
 
-    virtual void DispatchStateEndMarker(uint64_t frame_number) {}
+    virtual void DispatchStateEndMarker(uint64_t frame_number) override {}
 
-    virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) {}
+    virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override {}
 
     virtual void DispatchFillMemoryCommand(
-        format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
+        format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override
     {}
 
     virtual void DispatchResizeWindowCommand(format::ThreadId thread_id,
                                              format::HandleId surface_id,
                                              uint32_t         width,
-                                             uint32_t         height)
+                                             uint32_t         height) override
     {}
 
     virtual void DispatchResizeWindowCommand2(format::ThreadId thread_id,
                                               format::HandleId surface_id,
                                               uint32_t         width,
                                               uint32_t         height,
-                                              uint32_t         pre_transform)
+                                              uint32_t         pre_transform) override
     {}
-
-    virtual void DispatchCreateHardwareBufferCommand(format::ThreadId                                    thread_id,
-                                                     format::HandleId                                    memory_id,
-                                                     uint64_t                                            buffer_id,
-                                                     uint32_t                                            format,
-                                                     uint32_t                                            width,
-                                                     uint32_t                                            height,
-                                                     uint32_t                                            stride,
-                                                     uint64_t                                            usage,
-                                                     uint32_t                                            layers,
-                                                     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
-    {}
-
-    virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) {}
 
     virtual void
-    DispatchCreateHeapAllocationCommand(format::ThreadId thread_id, uint64_t allocation_id, uint64_t allocation_size)
+    DispatchCreateHardwareBufferCommand(format::ThreadId                                    thread_id,
+                                        format::HandleId                                    memory_id,
+                                        uint64_t                                            buffer_id,
+                                        uint32_t                                            format,
+                                        uint32_t                                            width,
+                                        uint32_t                                            height,
+                                        uint32_t                                            stride,
+                                        uint64_t                                            usage,
+                                        uint32_t                                            layers,
+                                        const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override
+    {}
+
+    virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) override {}
+
+    virtual void DispatchCreateHeapAllocationCommand(format::ThreadId thread_id,
+                                                     uint64_t         allocation_id,
+                                                     uint64_t         allocation_size) override
     {}
 
     virtual void DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
@@ -120,7 +124,7 @@ class InfoDecoder : public ApiDecoder
                                                     uint32_t           device_id,
                                                     uint32_t           device_type,
                                                     const uint8_t      pipeline_cache_uuid[format::kUuidSize],
-                                                    const std::string& device_name)
+                                                    const std::string& device_name) override
     {}
 
     virtual void DispatchSetDeviceMemoryPropertiesCommand(format::ThreadId thread_id,
@@ -132,36 +136,37 @@ class InfoDecoder : public ApiDecoder
     virtual void DispatchSetOpaqueAddressCommand(format::ThreadId thread_id,
                                                  format::HandleId device_id,
                                                  format::HandleId object_id,
-                                                 uint64_t         address)
+                                                 uint64_t         address) override
     {}
 
     virtual void DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
                                                                 format::HandleId device_id,
                                                                 format::HandleId buffer_id,
                                                                 size_t           data_size,
-                                                                const uint8_t*   data)
+                                                                const uint8_t*   data) override
     {}
 
-    virtual void DispatchSetSwapchainImageStateCommand(format::ThreadId thread_id,
-                                                       format::HandleId device_id,
-                                                       format::HandleId swapchain_id,
-                                                       uint32_t         last_presented_image,
-                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
+    virtual void
+    DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
+                                          format::HandleId                                    device_id,
+                                          format::HandleId                                    swapchain_id,
+                                          uint32_t                                            last_presented_image,
+                                          const std::vector<format::SwapchainImageStateInfo>& image_state) override
     {}
 
     virtual void DispatchBeginResourceInitCommand(format::ThreadId thread_id,
                                                   format::HandleId device_id,
                                                   uint64_t         max_resource_size,
-                                                  uint64_t         max_copy_size)
+                                                  uint64_t         max_copy_size) override
     {}
 
-    virtual void DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id) {}
+    virtual void DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id) override {}
 
     virtual void DispatchInitBufferCommand(format::ThreadId thread_id,
                                            format::HandleId device_id,
                                            format::HandleId buffer_id,
                                            uint64_t         data_size,
-                                           const uint8_t*   data)
+                                           const uint8_t*   data) override
     {}
 
     virtual void DispatchInitImageCommand(format::ThreadId             thread_id,
@@ -171,11 +176,11 @@ class InfoDecoder : public ApiDecoder
                                           uint32_t                     aspect,
                                           uint32_t                     layout,
                                           const std::vector<uint64_t>& level_sizes,
-                                          const uint8_t*               data)
+                                          const uint8_t*               data) override
     {}
 
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
-                                                const uint8_t*                              data)
+                                                const uint8_t*                              data) override
     {}
 
     virtual void DispatchInitDx12AccelerationStructureCommand(
