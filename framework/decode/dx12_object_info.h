@@ -158,8 +158,8 @@ struct ResourceValueInfo
     ResourceValueInfo(uint64_t                in_offset,
                       ResourceValueType       in_type,
                       uint64_t                in_size,
-                      D3D12StateObjectInfo*   in_state_object          = nullptr,
-                      ArgumentBufferExtraInfo in_arg_buffer_extra_info = { nullptr, nullptr, 0 })
+                      D3D12StateObjectInfo*   in_state_object,
+                      ArgumentBufferExtraInfo in_arg_buffer_extra_info)
     {
         offset                = in_offset;
         type                  = in_type;

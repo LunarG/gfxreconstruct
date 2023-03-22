@@ -80,7 +80,9 @@ void GetRootSignatureResourceValueInfos(const T* root_signature_desc, std::set<R
                 auto aligned_offset = util::platform::AlignValue<sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr)>(byte_offset);
                 value_infos.insert({ aligned_offset,
                                      ResourceValueType::kGpuDescriptorHandle,
-                                     sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr) });
+                                     sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr),
+                                     nullptr,
+                                     { nullptr, nullptr, 0 } });
                 byte_offset = aligned_offset + sizeof(D3D12_GPU_DESCRIPTOR_HANDLE::ptr);
             }
             break;
@@ -89,8 +91,11 @@ void GetRootSignatureResourceValueInfos(const T* root_signature_desc, std::set<R
             case D3D12_ROOT_PARAMETER_TYPE_UAV:
             {
                 auto aligned_offset = util::platform::AlignValue<sizeof(D3D12_GPU_VIRTUAL_ADDRESS)>(byte_offset);
-                value_infos.insert(
-                    { aligned_offset, ResourceValueType::kGpuVirtualAddress, sizeof(D3D12_GPU_VIRTUAL_ADDRESS) });
+                value_infos.insert({ aligned_offset,
+                                     ResourceValueType::kGpuVirtualAddress,
+                                     sizeof(D3D12_GPU_VIRTUAL_ADDRESS),
+                                     nullptr,
+                                     { nullptr, nullptr, 0 } });
                 byte_offset = aligned_offset + sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
             }
             break;
@@ -115,7 +120,8 @@ void CopyResourceValuesFromDstToSrc(std::set<ResourceValueInfo>&          src,
         src.insert({ static_cast<uint64_t>(src_offset),
                      (*dst_iter).type,
                      static_cast<uint64_t>((*dst_iter).size),
-                     (*dst_iter).state_object });
+                     (*dst_iter).state_object,
+                     (*dst_iter).arg_buffer_extra_info });
     }
 }
 
@@ -369,13 +375,17 @@ void Dx12ResourceValueMapper::PostProcessCreateCommandSignature(HandlePointerDec
             case D3D12_INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW:
                 resource_value_infos.insert({ byte_offset + offsetof(D3D12_VERTEX_BUFFER_VIEW, BufferLocation),
                                               ResourceValueType::kGpuVirtualAddress,
-                                              sizeof(D3D12_VERTEX_BUFFER_VIEW::BufferLocation) });
+                                              sizeof(D3D12_VERTEX_BUFFER_VIEW::BufferLocation),
+                                              nullptr,
+                                              { nullptr, nullptr, 0 } });
                 byte_offset += sizeof(D3D12_VERTEX_BUFFER_VIEW);
                 break;
             case D3D12_INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW:
                 resource_value_infos.insert({ byte_offset + offsetof(D3D12_INDEX_BUFFER_VIEW, BufferLocation),
                                               ResourceValueType::kGpuVirtualAddress,
-                                              sizeof(D3D12_INDEX_BUFFER_VIEW::BufferLocation) });
+                                              sizeof(D3D12_INDEX_BUFFER_VIEW::BufferLocation),
+                                              nullptr,
+                                              { nullptr, nullptr, 0 } });
                 byte_offset += sizeof(D3D12_INDEX_BUFFER_VIEW);
                 break;
             case D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT:
@@ -386,13 +396,17 @@ void Dx12ResourceValueMapper::PostProcessCreateCommandSignature(HandlePointerDec
             case D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW:
                 resource_value_infos.insert({ static_cast<uint64_t>(byte_offset),
                                               ResourceValueType::kGpuVirtualAddress,
-                                              sizeof(D3D12_GPU_VIRTUAL_ADDRESS) });
+                                              sizeof(D3D12_GPU_VIRTUAL_ADDRESS),
+                                              nullptr,
+                                              { nullptr, nullptr, 0 } });
                 byte_offset += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
                 break;
             case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS:
                 resource_value_infos.insert({ static_cast<uint64_t>(byte_offset),
                                               ResourceValueType::kIndirectArgumentDispatchRays,
-                                              sizeof(D3D12_DISPATCH_RAYS_DESC) });
+                                              sizeof(D3D12_DISPATCH_RAYS_DESC),
+                                              nullptr,
+                                              { nullptr, nullptr, 0 } });
                 byte_offset += sizeof(D3D12_DISPATCH_RAYS_DESC);
                 break;
             case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH:
@@ -438,20 +452,11 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
     else
     {
         // Add resource value offsets to resource_value_infos based on the command signature's arguments.
-        auto& resource_value_infos = command_list_extra_info->resource_value_info_map[argument_buffer_object_info];
-
-        uint64_t command_byte_offset = argument_buffer_offset;
-        for (uint32_t i = 0; i < max_command_count; ++i)
-        {
-            for (const auto& resource_value_info : command_signature_extra_info->resource_value_infos)
-            {
-                resource_value_infos.insert({ resource_value_info.offset + command_byte_offset,
-                                              resource_value_info.type,
-                                              resource_value_info.size,
-                                              state_object_extra_info });
-            }
-            command_byte_offset += command_signature_extra_info->byte_stride;
-        }
+        GetExecuteIndirectResourceValues(command_list_extra_info->resource_value_info_map[argument_buffer_object_info],
+                                         command_signature_extra_info->resource_value_infos,
+                                         max_command_count,
+                                         argument_buffer_offset,
+                                         command_signature_extra_info->byte_stride);
     }
 }
 
@@ -493,7 +498,9 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
                     resource_value_infos.insert(
                         { offset_to_instance_descs_start + accel_struct_gpu_va_stride * i + accel_struct_gpu_va_offset,
                           ResourceValueType::kGpuVirtualAddress,
-                          sizeof(D3D12_GPU_VIRTUAL_ADDRESS) });
+                          sizeof(D3D12_GPU_VIRTUAL_ADDRESS),
+                          nullptr,
+                          { nullptr, nullptr, 0 } });
                 }
             }
             else
@@ -846,9 +853,13 @@ void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_in
         // If num_bytes != 0, process CopyBufferRegion (partial copy) else process CopyResource (full copy).
         if (copy_info.num_bytes != 0)
         {
-            auto dst_values_begin = dst_values.lower_bound({ copy_info.dst_offset, ResourceValueType::kUnknown, 0 });
-            auto dst_values_end =
-                dst_values.upper_bound({ copy_info.dst_offset + copy_info.num_bytes, ResourceValueType::kUnknown, 0 });
+            auto dst_values_begin = dst_values.lower_bound(
+                { copy_info.dst_offset, ResourceValueType::kUnknown, 0, nullptr, { nullptr, nullptr, 0 } });
+            auto dst_values_end = dst_values.upper_bound({ copy_info.dst_offset + copy_info.num_bytes,
+                                                           ResourceValueType::kUnknown,
+                                                           0,
+                                                           nullptr,
+                                                           { nullptr, nullptr, 0 } });
             CopyResourceValuesFromDstToSrc(src_values, dst_values, dst_values_begin, dst_values_end, copy_info);
             dst_values.erase(dst_values_begin, dst_values_end);
         }
@@ -1209,7 +1220,7 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         uint8_t* desc_data_ptr = result_data.data() + final_offset;
 
         // First map the StartAddress GPU VAs from D3D12_DISPATCH_RAYS_DESC in resource data.
-        ResourceValueInfo rvi{ 0, ResourceValueType::kUnknown, 0 };
+        ResourceValueInfo rvi{ 0, ResourceValueType::kUnknown, 0, nullptr, { nullptr, nullptr, 0 } };
         rvi.size         = sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
         rvi.type         = ResourceValueType::kGpuVirtualAddress;
         rvi.state_object = value_info.state_object;
@@ -1244,29 +1255,19 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
     }
     else if (value_info.type == ResourceValueType::kExecuteIndirectCountBuffer)
     {
-        uint32_t command_count = 0;
-
         // Read command counts while CountBuffer contents is still visible in temp_resource_data
+        uint32_t command_count = 0;
         util::platform::MemoryCopy(&command_count,
                                    sizeof(command_count),
                                    temp_resource_data.data() + value_info.offset,
                                    sizeof(command_count));
-        auto&    resource_value_infos = indirect_values_map[value_info.arg_buffer_extra_info.argument_buffer];
-        uint64_t command_byte_offset  = value_info.arg_buffer_extra_info.argument_buffer_offset;
 
         // Insert new ArgumentBuffer RV infos, which will queue them for translation.
-        for (uint32_t i = 0; i < command_count; ++i)
-        {
-            for (const auto& resource_value_info :
-                 value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos)
-            {
-                resource_value_infos.insert({ resource_value_info.offset + command_byte_offset,
-                                              resource_value_info.type,
-                                              resource_value_info.size,
-                                              value_info.state_object });
-            }
-            command_byte_offset += value_info.arg_buffer_extra_info.command_signature_info->byte_stride;
-        }
+        GetExecuteIndirectResourceValues(indirect_values_map[value_info.arg_buffer_extra_info.argument_buffer],
+                                         value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos,
+                                         command_count,
+                                         value_info.arg_buffer_extra_info.argument_buffer_offset,
+                                         value_info.arg_buffer_extra_info.command_signature_info->byte_stride);
         return false;
     }
     else
@@ -1444,8 +1445,11 @@ void Dx12ResourceValueMapper::GetShaderTableResourceValues(ResourceValueInfoMap&
     GFXRECON_ASSERT((byte_offset % D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) == 0);
     for (UINT64 i = 0; i < shader_record_count; ++i)
     {
-        resource_value_infos.insert(
-            { byte_offset, ResourceValueType::kShaderIdentifier, shader_record_size, state_object_extra_info });
+        resource_value_infos.insert({ byte_offset,
+                                      ResourceValueType::kShaderIdentifier,
+                                      shader_record_size,
+                                      state_object_extra_info,
+                                      { nullptr, nullptr, 0 } });
         byte_offset += shader_record_size;
     }
 }
@@ -1482,6 +1486,27 @@ void Dx12ResourceValueMapper::GetDispatchRaysResourceValues(ResourceValueInfoMap
                                  desc.CallableShaderTable.StartAddress,
                                  desc.CallableShaderTable.SizeInBytes,
                                  desc.CallableShaderTable.StrideInBytes);
+}
+
+void Dx12ResourceValueMapper::GetExecuteIndirectResourceValues(
+    std::set<ResourceValueInfo>& dst_resource_value_info_map,
+    std::set<ResourceValueInfo>& command_signature_resource_value_info_map,
+    uint32_t                     command_count,
+    uint64_t                     command_offset,
+    uint8_t                      stride)
+{
+    for (uint32_t i = 0; i < command_count; ++i)
+    {
+        for (const auto& resource_value_info : command_signature_resource_value_info_map)
+        {
+            dst_resource_value_info_map.insert({ resource_value_info.offset + command_offset,
+                                                 resource_value_info.type,
+                                                 resource_value_info.size,
+                                                 resource_value_info.state_object,
+                                                 resource_value_info.arg_buffer_extra_info });
+        }
+        command_offset += stride;
+    }
 }
 
 void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(

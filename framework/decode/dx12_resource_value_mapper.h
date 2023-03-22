@@ -197,6 +197,12 @@ class Dx12ResourceValueMapper
                                        D3D12StateObjectInfo*           state_object_extra_info,
                                        const D3D12_DISPATCH_RAYS_DESC& desc);
 
+    void GetExecuteIndirectResourceValues(std::set<ResourceValueInfo>& dst_resource_value_info_map,
+                                          std::set<ResourceValueInfo>& command_signature_resource_value_info_map,
+                                          uint32_t                     command_count,
+                                          uint64_t                     command_offset,
+                                          uint8_t                      stride);
+
     // Parse the D3D12_STATE_OBJECT_DESC for LRS association information.
     void GetStateObjectLrsAssociationInfo(
         format::HandleId                                       state_object_id,
