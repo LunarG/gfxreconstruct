@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -31,10 +32,8 @@
 #include "format/format_util.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
-#include "decode/exe_info_consumer.h"
-#include "decode/exe_info_decoder_base.h"
-#include "decode/driver_info_consumer.h"
-#include "decode/driver_info_decoder_base.h"
+#include "decode/info_decoder.h"
+#include "decode/info_consumer.h"
 #include "decode/vulkan_detection_consumer.h"
 #include "decode/vulkan_stats_consumer.h"
 #if defined(D3D12_SUPPORT)
@@ -184,31 +183,31 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.frame_count      = file_processor.GetCurrentFrameNumber();
 }
 
-void PrintDriverInfo(const gfxrecon::decode::DriverInfoConsumer& driver_info_consumer)
+void PrintDriverInfo(const gfxrecon::decode::InfoConsumer& driver_info_consumer)
 {
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Driver info:");
     GFXRECON_WRITE_CONSOLE("\t%s", driver_info_consumer.GetDriverDesc());
 }
 
-void PrintExeInfo(const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
+void PrintExeInfo(const gfxrecon::decode::InfoConsumer& info_consumer)
 {
     GFXRECON_WRITE_CONSOLE("Exe info:");
-    GFXRECON_WRITE_CONSOLE("\tApplication exe name: %s", exe_info_consumer.GetAppExeName().c_str());
+    GFXRECON_WRITE_CONSOLE("\tApplication exe name: %s", info_consumer.GetAppExeName().c_str());
 
-    auto exe_version = exe_info_consumer.GetAppVersion();
+    auto exe_version = info_consumer.GetAppVersion();
     GFXRECON_WRITE_CONSOLE(
         "\tApplication version: %d.%d.%d.%d", exe_version[0], exe_version[1], exe_version[2], exe_version[3]);
-    GFXRECON_WRITE_CONSOLE("\tApplication Company name: %s", exe_info_consumer.GetCompanyName());
+    GFXRECON_WRITE_CONSOLE("\tApplication Company name: %s", info_consumer.GetCompanyName());
 
     // we are combining file description and product name and presenting both only if they are not same
-    std::string app_data = exe_info_consumer.GetFileDescription();
-    if (strcmp(exe_info_consumer.GetProductName(), "N/A") != 0)
+    std::string app_data = info_consumer.GetFileDescription();
+    if (strcmp(info_consumer.GetProductName(), "N/A") != 0)
     {
-        if (strcmp(exe_info_consumer.GetProductName(), exe_info_consumer.GetFileDescription()) != 0)
+        if (strcmp(info_consumer.GetProductName(), info_consumer.GetFileDescription()) != 0)
         {
             app_data += " // ";
-            app_data += exe_info_consumer.GetProductName();
+            app_data += info_consumer.GetProductName();
         }
     }
     GFXRECON_WRITE_CONSOLE("\tProduct name: %s", app_data.c_str());
@@ -352,10 +351,21 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
     }
 }
 
-void GatherVulkanStats(const std::string& input_filename, const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
+void GatherExeInfo(const std::string& input_filename, gfxrecon::decode::InfoConsumer& info_consumer)
 {
     gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        gfxrecon::decode::InfoDecoder info_decoder;
+        info_decoder.AddConsumer(&info_consumer);
+        file_processor.AddDecoder(&info_decoder);
+        file_processor.ProcessAllFrames();
+    }
+}
 
+void GatherVulkanStats(const std::string& input_filename)
+{
+    gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::VulkanStatsConsumer vulkan_stats_consumer;
@@ -366,7 +376,6 @@ void GatherVulkanStats(const std::string& input_filename, const gfxrecon::decode
         stat_decoder.AddConsumer(&stat_consumer);
         file_processor.AddDecoder(&stat_decoder);
         vulkan_decoder.AddConsumer(&vulkan_stats_consumer);
-        file_processor.SetAnnotationProcessor(&vulkan_stats_consumer);
         file_processor.AddDecoder(&vulkan_decoder);
 
         file_processor.ProcessAllFrames();
@@ -374,8 +383,9 @@ void GatherVulkanStats(const std::string& input_filename, const gfxrecon::decode
         {
             ApiAgnosticStats api_agnostic_stats = {};
             GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
-
-            PrintExeInfo(exe_info_consumer);
+            gfxrecon::decode::InfoConsumer info_consumer(true);
+            GatherExeInfo(input_filename, info_consumer);
+            PrintExeInfo(info_consumer);
             PrintVulkanStats(vulkan_stats_consumer, file_processor, api_agnostic_stats);
         }
         else
@@ -498,9 +508,9 @@ void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     }
 }
 
-void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
-                     const ApiAgnosticStats&               api_agnostic_stats,
-                     gfxrecon::decode::DriverInfoConsumer& driver_info_consumer)
+void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
+                     const ApiAgnosticStats&              api_agnostic_stats,
+                     gfxrecon::decode::InfoConsumer&      info_consumer)
 {
 
     if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
@@ -537,7 +547,7 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer&  dx12_consumer,
                                    api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
         }
 
-        PrintDriverInfo(driver_info_consumer);
+        PrintDriverInfo(info_consumer);
 
         PrintDx12RuntimeInfo(dx12_consumer);
 
@@ -602,16 +612,16 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
 }
 #endif
 
-void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
+void GatherD3D12Stats(const std::string& input_filename)
 {
 #if defined(D3D12_SUPPORT)
     gfxrecon::decode::FileProcessor file_processor;
 
     if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::DriverInfoConsumer    driver_info_consumer;
-        gfxrecon::decode::DriverInfoDecoderBase driver_info_decoder;
-        driver_info_decoder.AddConsumer(&driver_info_consumer);
+        gfxrecon::decode::InfoConsumer info_consumer;
+        gfxrecon::decode::InfoDecoder  driver_info_decoder;
+        driver_info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&driver_info_decoder);
 
         gfxrecon::decode::Dx12StatsConsumer dx12_consumer;
@@ -630,8 +640,8 @@ void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode:
             ApiAgnosticStats api_agnostic_stats = {};
             GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
 
-            PrintExeInfo(exe_info_consumer);
-            PrintD3D12Stats(dx12_consumer, api_agnostic_stats, driver_info_consumer);
+            PrintExeInfo(info_consumer);
+            PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer);
         }
         else
         {
@@ -639,18 +649,6 @@ void GatherD3D12Stats(const std::string& input_filename, const gfxrecon::decode:
         }
     }
 #endif
-}
-
-void GatherExeInfo(const std::string& input_filename, gfxrecon::decode::ExeInfoConsumer& exe_info_consumer)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::ExeInfoDecoderBase exe_info_decoder;
-        exe_info_decoder.AddConsumer(&exe_info_consumer);
-        file_processor.AddDecoder(&exe_info_decoder);
-        file_processor.ProcessAllFrames();
-    }
 }
 
 int main(int argc, const char** argv)
@@ -687,14 +685,18 @@ int main(int argc, const char** argv)
 #endif
     }
 
-    const std::vector<std::string>&   positional_arguments = arg_parser.GetPositionalArguments();
-    std::string                       input_filename       = positional_arguments[0];
-    gfxrecon::decode::ExeInfoConsumer exe_info_consumer;
+    const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+    std::string                     input_filename       = positional_arguments[0];
 
     bool exe_info_only = arg_parser.IsOptionSet(kExeInfoOnlyOption);
-    GatherExeInfo(input_filename, exe_info_consumer);
 
-    if (exe_info_only == false)
+    if (exe_info_only == true)
+    {
+        gfxrecon::decode::InfoConsumer info_consumer(true);
+        GatherExeInfo(input_filename, info_consumer);
+        PrintExeInfo(info_consumer);
+    }
+    else
     {
         bool detected_d3d12  = false;
         bool detected_vulkan = false;
@@ -702,17 +704,13 @@ int main(int argc, const char** argv)
         {
             if (detected_d3d12)
             {
-                GatherD3D12Stats(input_filename, exe_info_consumer);
+                GatherD3D12Stats(input_filename);
             }
             if (detected_vulkan)
             {
-                GatherVulkanStats(input_filename, exe_info_consumer);
+                GatherVulkanStats(input_filename);
             }
         }
-    }
-    else
-    {
-        PrintExeInfo(exe_info_consumer);
     }
 
     gfxrecon::util::Log::Release();

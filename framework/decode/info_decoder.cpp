@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,25 +20,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_EXE_INFO_CONSUMER_BASE_H
-#define GFXRECON_DECODE_EXE_INFO_CONSUMER_BASE_H
-
-#include "decode/api_decoder.h"
-#include "decode/handle_pointer_decoder.h"
+#include "decode/info_decoder.h"
+#include "decoder_util.h"
+#include <decode/info_consumer.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class ExeInfoConsumerBase
+bool InfoDecoder::IsComplete(uint64_t block_index)
 {
-  public:
-    ExeInfoConsumerBase() {}
-    virtual ~ExeInfoConsumerBase() {}
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
-    virtual bool IsComplete(uint64_t block_index) { return false; }
-};
+    return decode::IsComplete<InfoConsumer*>(consumers_, block_index);
+}
+
+void InfoDecoder::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_ExeFileInfo(info.info_record);
+    }
+}
+
+void InfoDecoder::DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_DriverInfo(info.driver_record);
+    }
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_DECODE_EXE_INFO_CONSUMER_BASE_H
