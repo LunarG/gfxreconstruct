@@ -93,13 +93,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/options.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_to_string.h
-                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_to_string.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
@@ -117,11 +112,6 @@ target_include_directories(gfxrecon_util
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 target_link_libraries(gfxrecon_util platform_specific vulkan_registry nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
 target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
-
-if (MSVC)
-    # These files may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-endif()
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc

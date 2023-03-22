@@ -389,7 +389,7 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(VkShaderModuleCreateFlags_t(), jdata["flags"], decoded_value.flags, options);
         FieldToJson(jdata["codeSize"], decoded_value.codeSize, options);
-        // Use "[Binary data]" as placeholder. It will be replaced with a file path if the export
+        // Use "[Binary data]" as placeholder. It will be replaced with a file path if the JSON
         // consumer decides to dump binaries in separate files.
         FieldToJson(jdata["pCode"], "[Binary data]", options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
@@ -407,7 +407,7 @@ void FieldToJson(nlohmann::ordered_json&                  jdata,
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(VkPipelineCacheCreateFlags_t(), jdata["flags"], decoded_value.flags, options);
         FieldToJson(jdata["initialDataSize"], decoded_value.initialDataSize, options);
-        // Use "[Binary data]" as placeholder. It will be replaced with a file path if the export
+        // Use "[Binary data]" as placeholder. It will be replaced with a file path if the JSON
         // consumer decides to dump binaries in separate files.
         FieldToJson(jdata["pInitialData"], "[Binary data]", options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);

@@ -618,7 +618,7 @@ void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
 
 void VulkanExportJsonConsumerBase::WriteBlockStart()
 {
-    json_data_.clear(); // < Dominates Export profiling (1/2).
+    json_data_.clear(); // < Dominates profiling (1/2).
     num_objects_++;
 }
 
@@ -645,7 +645,7 @@ void VulkanExportJsonConsumerBase::WriteBlockEnd()
     {
         FilePuts(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
     }
-    // Dominates Export profiling (2/2):
+    // Dominates profiling (2/2):
     const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth);
     FileWriteNoLock(block.data(), sizeof(std::string::value_type), block.length(), file_);
     FileFlush(file_); /// @todo Implement a FileFlushNoLock() for all platforms.

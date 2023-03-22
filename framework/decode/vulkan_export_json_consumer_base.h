@@ -182,6 +182,7 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
                                    format::AnnotationType type,
                                    const std::string&     label,
                                    const std::string&     data) override;
+
   private:
     // Delete the in-memory JSON tree from the last line and count the new object.
     // Putting it in one non-inline function allows all the JSON deletion work
