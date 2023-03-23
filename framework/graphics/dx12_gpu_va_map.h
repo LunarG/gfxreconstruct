@@ -41,9 +41,9 @@ class Dx12GpuVaMap
     void Remove(format::HandleId resource_id, uint64_t old_start_address);
 
     uint64_t Map(uint64_t          old_address,
-                 format::HandleId* resource_id     = nullptr,
-                 bool*             found           = nullptr,
-                 uint64_t          old_end_address = 0) const;
+                 format::HandleId* resource_id             = nullptr,
+                 bool*             found                   = nullptr,
+                 uint64_t          minimum_old_end_address = 0) const;
 
   private:
     struct GpuVaInfo
@@ -60,7 +60,7 @@ class Dx12GpuVaMap
                    uint64_t                     old_start_address,
                    uint64_t&                    address,
                    format::HandleId*            resource_id,
-                   uint64_t                     old_end_address) const;
+                   uint64_t                     minimum_old_end_address) const;
 
   private:
     GpuVaMap gpu_va_map_;

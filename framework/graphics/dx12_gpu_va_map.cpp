@@ -62,7 +62,8 @@ void Dx12GpuVaMap::Remove(format::HandleId resource_id, uint64_t old_start_addre
     }
 }
 
-uint64_t Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, uint64_t old_end_address) const
+uint64_t
+Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, uint64_t minimum_old_end_address) const
 {
     bool local_found = false;
 
@@ -72,7 +73,7 @@ uint64_t Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool
         if (va_entry != gpu_va_map_.end())
         {
             // Check for a match in the aliased resource list.
-            local_found = FindMatch(va_entry->second, va_entry->first, address, resource_id, old_end_address);
+            local_found = FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address);
 
             // The addresses did not fall within the address range of the resource(s) at the start address returned
             // by the lower_bound search.  These resources may be aliased with a larger resource that contains them.
@@ -88,7 +89,8 @@ uint64_t Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool
             // aliased resources as the key.
             while (!local_found && ++va_entry != gpu_va_map_.end())
             {
-                local_found = FindMatch(va_entry->second, va_entry->first, address, resource_id, old_end_address);
+                local_found =
+                    FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address);
             }
         }
 
@@ -110,14 +112,14 @@ bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo& resource_info,
                              uint64_t                     old_start_address,
                              uint64_t&                    address,
                              format::HandleId*            resource_id,
-                             uint64_t                     old_end_address) const
+                             uint64_t                     minimum_old_end_address) const
 {
     // Check for a match in the aliased resource list.
     for (const auto& resource_entry : resource_info)
     {
         const auto& info = resource_entry.second;
 
-        if (address < info.old_end_address && old_end_address <= info.old_end_address)
+        if (address < info.old_end_address && minimum_old_end_address <= info.old_end_address)
         {
             address = info.new_start_address + (address - old_start_address);
             if (resource_id != nullptr)
