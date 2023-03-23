@@ -800,7 +800,8 @@ void Dx12StateWriter::WriteResourceSnapshots(
                           (resource_info.get()->create_call_id !=
                            format::ApiCall_ID3D12Device4_CreateReservedResource1)));
 
-                bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(resource, nullptr);
+                bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(
+                    resource_info.get()->dimension, resource_info.get()->layout);
 
                 if ((is_cpu_accessible == false) || (is_cpu_accessible && target_texture_with_unknown_layout))
                 {

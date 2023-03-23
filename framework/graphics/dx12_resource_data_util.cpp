@@ -377,18 +377,16 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
 
     data.clear();
     data.resize(static_cast<size_t>(required_data_size));
-    bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(target_resource, nullptr);
 
     // If the resource can be mapped, map it, copy the data, and return success.
-    if (try_map_and_copy && (!target_texture_with_unknown_layout) &&
-        CopyMappableResource(target_resource,
-                             before_states,
-                             after_states,
-                             kCopyTypeRead,
-                             &data,
-                             nullptr,
-                             subresource_offsets,
-                             subresource_sizes))
+    if (try_map_and_copy && CopyMappableResource(target_resource,
+                                                 before_states,
+                                                 after_states,
+                                                 kCopyTypeRead,
+                                                 &data,
+                                                 nullptr,
+                                                 subresource_offsets,
+                                                 subresource_sizes))
     {
         return S_OK;
     }
@@ -446,19 +444,16 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
                         layout_sizes,
                         temp_subresource_layouts_,
                         required_data_size);
-    bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(target_resource, nullptr);
 
-    // If the resource can be mapped and the resource is not a texture with
-    // unknown layout, map it, copy the data, and return success.
-    if (try_map_and_copy && (!target_texture_with_unknown_layout) &&
-        CopyMappableResource(target_resource,
-                             before_states,
-                             after_states,
-                             kCopyTypeWrite,
-                             nullptr,
-                             &data,
-                             subresource_offsets,
-                             subresource_sizes))
+    // If the resource can be mapped, map it, copy the data, and return success.
+    if (try_map_and_copy && CopyMappableResource(target_resource,
+                                                 before_states,
+                                                 after_states,
+                                                 kCopyTypeWrite,
+                                                 nullptr,
+                                                 &data,
+                                                 subresource_offsets,
+                                                 subresource_sizes))
     {
         return S_OK;
     }

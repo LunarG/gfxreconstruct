@@ -220,7 +220,6 @@ uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC
 
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 
-bool IsTextureWithUnknownLayout(ID3D12Resource* target_resource, D3D12_RESOURCE_DIMENSION* dimension = nullptr);
 bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTURE_LAYOUT layout);
 
 GFXRECON_END_NAMESPACE(dx12)

@@ -253,6 +253,26 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          Decoded_GUID                                              riid,
                                          HandlePointerDecoder<void*>*                              heap);
 
+    // Helper to initialize the resource's D3D12ResourceInfo and set its Dimension and Layout.
+    template <typename T>
+    void SetResourceDimensionAndLayout(HandlePointerDecoder<void*>* resource, StructPointerDecoder<T>* desc)
+    {
+        GFXRECON_ASSERT(resource != nullptr);
+
+        auto resource_object_info = GetObjectInfo(*resource->GetPointer());
+
+        GFXRECON_ASSERT(resource_object_info != nullptr);
+
+        if (resource_object_info->extra_info == nullptr)
+        {
+            auto resource_info               = std::make_unique<D3D12ResourceInfo>();
+            resource_object_info->extra_info = std::move(resource_info);
+        }
+        auto extra_info       = reinterpret_cast<D3D12ResourceInfo*>(resource_object_info->extra_info.get());
+        extra_info->dimension = desc->GetPointer()->Dimension;
+        extra_info->layout    = desc->GetPointer()->Layout;
+    };
+
     HRESULT OverrideCreateCommittedResource(DxObjectInfo*                                        replay_object_info,
                                             HRESULT                                              original_result,
                                             StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,

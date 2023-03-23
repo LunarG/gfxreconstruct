@@ -1014,13 +1014,6 @@ bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTUR
     return is_texture_with_unknown_layout;
 }
 
-bool IsTextureWithUnknownLayout(ID3D12Resource* target_resource, D3D12_RESOURCE_DIMENSION* dimension)
-{
-    GFXRECON_ASSERT(target_resource != nullptr);
-    D3D12_RESOURCE_DESC target_resource_desc = target_resource->GetDesc();
-    return IsTextureWithUnknownLayout(target_resource_desc.Dimension, target_resource_desc.Layout);
-}
-
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
