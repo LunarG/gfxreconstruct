@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,12 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DRIVER_INFO_DECODER_BASE_H
-#define GFXRECON_DRIVER_INFO_DECODER_BASE_H
+#ifndef GFXRECON_INFO_DECODER_BASE_H
+#define GFXRECON_INFO_DECODER_BASE_H
 
 #include "decode/api_decoder.h"
 #include "decode/struct_pointer_decoder.h"
-#include "decode/driver_info_consumer_base.h"
+#include <decode/info_consumer.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -34,12 +34,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 ** This class implements the ApiDecoder interface
 ** Its main purpose is to decode non api application info
 */
-class DriverInfoDecoderBase : public ApiDecoder
+class InfoDecoder : public ApiDecoder
 {
   public:
-    DriverInfoDecoderBase() {}
+    InfoDecoder() {}
 
-    ~DriverInfoDecoderBase() {}
+    ~InfoDecoder() {}
 
     virtual bool IsComplete(uint64_t block_index) override;
 
@@ -47,11 +47,11 @@ class DriverInfoDecoderBase : public ApiDecoder
 
     virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) override;
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override{};
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
 
-    void AddConsumer(DriverInfoConsumerBase* consumer) { consumers_.push_back(consumer); }
+    void AddConsumer(InfoConsumer* consumer) { consumers_.push_back(consumer); }
 
-    virtual bool SupportsApiCall(format::ApiCallId id) override { return true; }
+    virtual bool SupportsApiCall(format::ApiCallId id) { return true; }
 
     virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) override { return true; }
 
@@ -127,11 +127,10 @@ class DriverInfoDecoderBase : public ApiDecoder
                                                     const std::string& device_name) override
     {}
 
-    virtual void
-    DispatchSetDeviceMemoryPropertiesCommand(format::ThreadId                             thread_id,
-                                             format::HandleId                             physical_device_id,
-                                             const std::vector<format::DeviceMemoryType>& memory_types,
-                                             const std::vector<format::DeviceMemoryHeap>& memory_heaps) override
+    virtual void DispatchSetDeviceMemoryPropertiesCommand(format::ThreadId thread_id,
+                                                          format::HandleId physical_device_id,
+                                                          const std::vector<format::DeviceMemoryType>& memory_types,
+                                                          const std::vector<format::DeviceMemoryHeap>& memory_heaps)
     {}
 
     virtual void DispatchSetOpaqueAddressCommand(format::ThreadId thread_id,
@@ -191,10 +190,10 @@ class DriverInfoDecoderBase : public ApiDecoder
     {}
 
   private:
-    std::vector<DriverInfoConsumerBase*> consumers_;
+    std::vector<InfoConsumer*> consumers_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_EXE_INFO_DECODER_BASE_H
+#endif // GFXRECON_INFO_DECODER_BASE_H
