@@ -395,10 +395,10 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     if (resource_info->extra_info != nullptr)
     {
         // Reserved resource has to be uploaded via staging buffer
-        auto resource_extra_info = GetExtraInfo<D3D12ResourceInfo>(resource_info);
-        is_reserved_resource     = resource_extra_info->is_reserved_resource;
-        is_texture_with_unknown_layout =
-            graphics::dx12::IsTextureWithUnknownLayout(resource_extra_info->dimension, resource_extra_info->layout);
+        auto resource_extra_info       = GetExtraInfo<D3D12ResourceInfo>(resource_info);
+        is_reserved_resource           = resource_extra_info->is_reserved_resource;
+        is_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(resource_extra_info->desc.Dimension,
+                                                                                    resource_extra_info->desc.Layout);
     }
 
     resource_init_info.try_map_and_copy = !is_reserved_resource && !is_texture_with_unknown_layout;

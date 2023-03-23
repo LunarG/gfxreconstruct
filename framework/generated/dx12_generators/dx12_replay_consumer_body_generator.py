@@ -237,7 +237,7 @@ class Dx12ReplayConsumerBodyGenerator(
                             )
                         )
                     set_resource_dimension_layout_list.append(
-                        'SetResourceDimensionAndLayout({0}, pDesc);\n'.format(
+                        'SetResourceDesc({0}, pDesc);\n'.format(
                             value.name
                         )
                     )

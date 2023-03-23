@@ -332,8 +332,6 @@ class D3D12CaptureManager : public CaptureManager
                                                             REFIID                          riid,
                                                             void**                          resource);
 
-    // TODO: add post process function for ID3D12Device4::CreateReservedResource1
-
     void PostProcess_ID3D12Device8_CreateCommittedResource2(ID3D12Device8_Wrapper*          wrapper,
                                                             HRESULT                         result,
                                                             const D3D12_HEAP_PROPERTIES*    heap_properties,
